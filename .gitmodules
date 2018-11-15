@@ -1,0 +1,12 @@
+[submodule "SMS++"]
+	path = SMS++
+	url = https://gitlab.com/frangio68/sms_plus_plus
+[submodule "SMILPBlock"]
+	path = SMILPBlock
+	url = https://gitlab.com/frangio68/sms_plus_plus_smilpblock
+[submodule "MCFBlock"]
+	path = MCFBlock
+	url = https://gitlab.com/frangio68/sms_plus_plus_mcfblock_mcfsolver
+[submodule "MCFClass"]
+	path = MCFClass
+	url = https://github.com/frangio68/Min-Cost-Flow-Class
