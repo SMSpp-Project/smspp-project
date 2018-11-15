@@ -1,0 +1,43 @@
+\hypertarget{_configuration_8h}{}\section{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Configuration.h File Reference}
+\label{_configuration_8h}\index{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Configuration.\+h@{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Configuration.\+h}}
+{\ttfamily \#include \char`\"{}S\+M\+S\+Typedefs.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}netcdf\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}
+\begin{DoxyCompactList}\small\item\em base class for possibly complex configurations of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_simple_configuration}{Simple\+Configuration$<$ Simple\+Configuration\+\_\+value\+\_\+type $>$}}
+\begin{DoxyCompactList}\small\item\em template class for simple configurations (one single value) \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_simple_configuration_1_1__init}{Simple\+Configuration$<$ Simple\+Configuration\+\_\+value\+\_\+type $>$\+::\+\_\+init}}
+\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespace_s_m_spp__di__unipi__it}{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em namespace for the Structured Modeling System++ (S\+M\+S++) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef Configuration $\ast$ \mbox{\hyperlink{group___configuration___t_y_p_e_s_gae822ccc553e79ddf75bfd260c2b995f3}{p\+\_\+\+Conf}}
+\begin{DoxyCompactList}\small\item\em a pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} \end{DoxyCompactList}\item 
+typedef std\+::vector$<$ p\+\_\+\+Conf $>$ \mbox{\hyperlink{group___configuration___t_y_p_e_s_ga691b40b20a13a75546e21eb39beb512a}{Vec\+\_\+p\+\_\+\+Conf}}
+\begin{DoxyCompactList}\small\item\em a vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header file for the Configuration class, only the basically empty top of a hierarchy of objects intended to provide possibly complex configuration options for the various elements of S\+M\+S++ (basically, Block and Solver). A template version Simple\+Configuration is immediately provided for simple configurations boiling down to one single value of some type.
+
+\begin{DoxyVersion}{Version}
+0.\+10
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+27 -\/ 06 -\/ 2018
+\end{DoxyDate}
+\begin{DoxyAuthor}{Author}
+Antonio Frangioni ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ Copyright \&copy by Antonio Frangioni 
+\end{DoxyAuthor}

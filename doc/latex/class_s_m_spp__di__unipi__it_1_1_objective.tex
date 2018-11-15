@@ -1,0 +1,237 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_objective}{}\section{Objective Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_objective}\index{Objective@{Objective}}
+
+
+base class of all possible objective functions that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support  
+
+
+
+
+{\ttfamily \#include $<$Objective.\+h$>$}
+
+Inheritance diagram for Objective\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_s_m_spp__di__unipi__it_1_1_objective}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7fa}{of\+\_\+type}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7faaea20cdf6f26b656e61b77542bc539cc7}{e\+Min}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7faacd679e5be98d208e25fd34d613d4773c}{e\+Max}}
+ \}
+\begin{DoxyCompactList}\small\item\em define the possible type of optimization (min, max) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and destructor}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a27af263cb52b39bdee207cff5c4ba18e}{Objective}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$my\+\_\+block=nullptr)
+\begin{DoxyCompactList}\small\item\em constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, taking the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} it belongs to \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_ae1772e2e5d238495aef316dc74e10b35}{Objective}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \&)
+\begin{DoxyCompactList}\small\item\em copy constructor\+: it cannot be used, but it is not deleted \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_aff8904fa829562e678b8220f8b580075}\label{class_s_m_spp__di__unipi__it_1_1_objective_aff8904fa829562e678b8220f8b580075}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_aff8904fa829562e678b8220f8b580075}{$\sim$\+Objective}} ()
+\begin{DoxyCompactList}\small\item\em destructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}\+: it is virtual, and empty \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Other initializations}\par
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_ae25adfb4d0355dc999de19a850b0025d}{set\+\_\+\+Block}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$fblock)
+\begin{DoxyCompactList}\small\item\em set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belongs \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_ac8a312b13d860de392750856449ef2a8}{set\+\_\+sense}} (int new\+\_\+sense, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}})
+\begin{DoxyCompactList}\small\item\em $<$ change the \char`\"{}sense\char`\"{} (min/max) of the problem \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Reading the data of the Objective}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_abb90eec380b99ebb3d015f6d5f9e26b8}\label{class_s_m_spp__di__unipi__it_1_1_objective_abb90eec380b99ebb3d015f6d5f9e26b8}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_abb90eec380b99ebb3d015f6d5f9e26b8}{get\+\_\+\+Block}} (void) const
+\begin{DoxyCompactList}\small\item\em returns the pointer of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belongs \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_ae08259a678ad9fc42d24e6b2bc84a318}\label{class_s_m_spp__di__unipi__it_1_1_objective_ae08259a678ad9fc42d24e6b2bc84a318}} 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_ae08259a678ad9fc42d24e6b2bc84a318}{get\+\_\+sense}} (void) const
+\begin{DoxyCompactList}\small\item\em $<$ returns the sense (min/max) of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods describing the behavior of a Objective}\par
+{\em Most of this interface derives directly from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}} and it is not changed in the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} class; derived classes will have to do the actual implementation. }\begin{DoxyCompactItemize}
+\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a504d4e3e174c7a518cc66156a8a45ce5}{compute}} (bool changedvars=true) override=0
+\begin{DoxyCompactList}\small\item\em compute (evaluate) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Member Functions}
+\begin{Indent}\textbf{ Protected methods for printing and serializing}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} on an ostream \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a372d458e214710b23cf375b9a6edc5fc}\label{class_s_m_spp__di__unipi__it_1_1_objective_a372d458e214710b23cf375b9a6edc5fc}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a372d458e214710b23cf375b9a6edc5fc}{f\+\_\+\+Block}}
+\begin{DoxyCompactList}\small\item\em reference to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} where the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} is defined \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_afd682bff68e0e4bc7e2d8e9607b3847d}{f\+\_\+sense}}
+\begin{DoxyCompactList}\small\item\em type of the problem \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{Indent}\textbf{ Methods for printing the Objective}\par
+{\em There is no extracting method (operator$>$$>$()) to load an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} out of a stream because an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} is not supposed to build itself\+: rather, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} it belongs to has to construct it. }\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \&o)
+\begin{DoxyCompactList}\small\item\em friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}{operator$<$$<$()}}, dispatching to virtual protected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a2e7b9c9148a98c5c342e8c25cac95926}{print()}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+
+
+\subsection{Detailed Description}
+base class of all possible objective functions that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support 
+
+The class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} is the base class of all the possible type of objective that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support. This base class only supports a few fundamental facts\+:
+
+
+\begin{DoxyItemize}
+\item an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belong to one \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}};
+\item an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} is influenced by a set of \char`\"{}active\char`\"{} Variables, i.\+e., these which contribute to it setting its vaule\+: hence, the class implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} paradigm (i.\+e., derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}}) that class makes no provisions about how this set is stored in order to leave more freedom to derived classes to implement it in specialized ways;
+\item an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} has a \char`\"{}sense\char`\"{}, say, it can either be minimized or maximized;
+\item an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} has to be computed, and this can be costly (think multiple integrals for expectation estimates or min-\/max functions requiring the solution of a hard optimization problem), which is why the class implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}} paradigm (i.\+e., derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}).
+\end{DoxyItemize}
+
+Note that obviously an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} has a value, which might expected to be a single real value. However, this is not defined in this base class (e.\+g., in order to support multi-\/objective problems); therefore, the methods for reading it must be demanded to derived classes.
+
+A fundamental design decision in S\+M\+S++ is that T\+HE \char`\"{}\+N\+A\+M\+E\char`\"{} OF AN \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} IS I\+TS M\+E\+M\+O\+RY A\+D\+D\+R\+E\+SS. This means that M\+O\+V\+I\+NG AN \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} IS N\+OT P\+O\+S\+S\+I\+B\+LE\+: copying an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} to a different memory location makes a distinct \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}. 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7fa}\label{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7fa}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!of\+\_\+type@{of\+\_\+type}}
+\index{of\+\_\+type@{of\+\_\+type}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{of\+\_\+type}{of\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7fa}{of\+\_\+type}}}
+
+
+
+define the possible type of optimization (min, max) 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Min@{e\+Min}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!e\+Min@{e\+Min}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7faaea20cdf6f26b656e61b77542bc539cc7}\label{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7faaea20cdf6f26b656e61b77542bc539cc7}} 
+e\+Min&minimize the objective function \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Max@{e\+Max}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!e\+Max@{e\+Max}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7faacd679e5be98d208e25fd34d613d4773c}\label{class_s_m_spp__di__unipi__it_1_1_objective_a3b041bc3197836c0472ce4db094fc7faacd679e5be98d208e25fd34d613d4773c}} 
+e\+Max&maximize the objective function \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a27af263cb52b39bdee207cff5c4ba18e}\label{class_s_m_spp__di__unipi__it_1_1_objective_a27af263cb52b39bdee207cff5c4ba18e}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!Objective@{Objective}}
+\index{Objective@{Objective}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{Objective()}{Objective()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$}]{my\+\_\+block = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, taking the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} it belongs to 
+
+Constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}. It accepts a pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belongs, defaulting to nullptr so that this can be used as the void constructor. If nullptr is passed, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_ae25adfb4d0355dc999de19a850b0025d}{set\+\_\+\+Block()}} \mbox{[}see below\mbox{]} will have to be used later to initialize it. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_ae1772e2e5d238495aef316dc74e10b35}\label{class_s_m_spp__di__unipi__it_1_1_objective_ae1772e2e5d238495aef316dc74e10b35}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!Objective@{Objective}}
+\index{Objective@{Objective}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{Objective()}{Objective()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+copy constructor\+: it cannot be used, but it is not deleted 
+
+The copy constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} is not currently implemented, but it cannot be deleted because it is required to resize() empty vectors of \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a504d4e3e174c7a518cc66156a8a45ce5}\label{class_s_m_spp__di__unipi__it_1_1_objective_a504d4e3e174c7a518cc66156a8a45ce5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!compute@{compute}}
+\index{compute@{compute}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{compute()}{compute()}}
+{\footnotesize\ttfamily virtual int compute (\begin{DoxyParamCaption}\item[{bool}]{changedvars = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [pure virtual]}}
+
+
+
+compute (evaluate) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} 
+
+Pure virtual method\+: it has to compute whatever expression/function the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} depends onto and store the results into some protected field. Evaluating an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} can be a lengthy task, involving e.\+g. expensive function computations or numerical integrals, which is why \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} are not computed by default, and need to be computed explicitly with this method. This is also why this implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}; see the comments on the base class, in particular about the rules concerning what can change during a call to this method, and between two calls depending on the value of the changedvars parameter.
+
+Note, however, that this method does not return the {\itshape value} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, because the base class makes no provisions about what type this actually is. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a00fd6363d98ea46bcc273842b327d050}{Thin\+Compute\+Interface}}.
+
+
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{F\+Real\+Objective}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_objective_a2e7b9c9148a98c5c342e8c25cac95926}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!print@{print}}
+\index{print@{print}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily virtual void print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{output }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} on an ostream 
+
+Protected method intended to print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}; it is virtual so that derived classes can print their specific information in the format they choose. The level of the verbosity of the printed information can be controlled looking at the appropriate information in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belongs \mbox{[}see \mbox{\hyperlink{_block_8h}{Block.\+h}}\mbox{]}. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_a59a9fcbf8f9f86d348344b2073644b0e}{F\+Real\+Objective}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_real_objective_a59a9fcbf8f9f86d348344b2073644b0e}{Real\+Objective}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_ae25adfb4d0355dc999de19a850b0025d}\label{class_s_m_spp__di__unipi__it_1_1_objective_ae25adfb4d0355dc999de19a850b0025d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!set\+\_\+\+Block@{set\+\_\+\+Block}}
+\index{set\+\_\+\+Block@{set\+\_\+\+Block}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{set\+\_\+\+Block()}{set\_Block()}}
+{\footnotesize\ttfamily void set\+\_\+\+Block (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$}]{fblock }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belongs 
+
+Method to set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} belongs. If the pointer is not provided in the constructor, it should be called before any other method of the class. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_ac8a312b13d860de392750856449ef2a8}\label{class_s_m_spp__di__unipi__it_1_1_objective_ac8a312b13d860de392750856449ef2a8}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!set\+\_\+sense@{set\+\_\+sense}}
+\index{set\+\_\+sense@{set\+\_\+sense}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{set\+\_\+sense()}{set\_sense()}}
+{\footnotesize\ttfamily virtual void set\+\_\+sense (\begin{DoxyParamCaption}\item[{int}]{new\+\_\+sense,  }\item[{\mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}}}]{issue\+Mod = {\ttfamily \mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+$<$ change the \char`\"{}sense\char`\"{} (min/max) of the problem 
+
+Method to change the sense of the problem\+: it is virtual because derived classes may want to do more (e.\+g. because they have different types of problems). Indeed, note that while the enum of\+\_\+type is provided to encode the \char`\"{}classical\char`\"{} values (max/min), the field f\+\_\+sense is of type \char`\"{}int\char`\"{}, and therefore so is the parameter of this method, in order to allow derived classes to \char`\"{}extend\char`\"{} the set of possible types.
+
+The parameter issue\+Mod decides if and how the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}} is issued, as described in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer_a2d499ae38e5e95cf66cd71da32b0694a}{Observer\+::make\+\_\+par()}}. 
+
+\subsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}\label{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{out,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \&}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}{operator$<$$<$()}}, dispatching to virtual protected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a2e7b9c9148a98c5c342e8c25cac95926}{print()}} 
+
+Not really a method, but a friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}{operator$<$$<$()}} that just dispatches the ostream to the protected virtual method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a2e7b9c9148a98c5c342e8c25cac95926}{print()}}. This way the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_a204a6bc05702d546cc2f487ce03ddac9}{operator$<$$<$()}} is defined for each \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, but its behavior can be customized by derived classes. 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_objective_afd682bff68e0e4bc7e2d8e9607b3847d}\label{class_s_m_spp__di__unipi__it_1_1_objective_afd682bff68e0e4bc7e2d8e9607b3847d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}!f\+\_\+sense@{f\+\_\+sense}}
+\index{f\+\_\+sense@{f\+\_\+sense}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Objective}}
+\subsubsection{\texorpdfstring{f\+\_\+sense}{f\_sense}}
+{\footnotesize\ttfamily int f\+\_\+sense\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+type of the problem 
+
+type of the problem. Note that while the enum of\+\_\+type is provided to encode the \char`\"{}classical\char`\"{} values (max/min), the field f\+\_\+sense is of type \char`\"{}int\char`\"{} in order to allow derived classes to \char`\"{}extend\char`\"{} the set of possible types. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_objective_8h}{Objective.\+h}}\end{DoxyCompactItemize}

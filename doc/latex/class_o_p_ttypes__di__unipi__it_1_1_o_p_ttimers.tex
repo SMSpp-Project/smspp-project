@@ -1,0 +1,58 @@
+\hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers}{}\section{O\+P\+Ttimers Class Reference}
+\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers}\index{O\+P\+Ttimers@{O\+P\+Ttimers}}
+
+
+{\ttfamily \#include $<$O\+P\+T\+Utils.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a19b3b7914f0c0265fe5b50b73f2600e3}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a19b3b7914f0c0265fe5b50b73f2600e3}} 
+\mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a19b3b7914f0c0265fe5b50b73f2600e3}{O\+P\+Ttimers}} (void)
+\begin{DoxyCompactList}\small\item\em constructor of the class \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a983601e8aa8b271fc7a583c1c4eb34a6}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a983601e8aa8b271fc7a583c1c4eb34a6}} 
+void \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a983601e8aa8b271fc7a583c1c4eb34a6}{Start}} (void)
+\begin{DoxyCompactList}\small\item\em start the timer \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a76c658dc5f4332e4b034419dca518c1c}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a76c658dc5f4332e4b034419dca518c1c}} 
+void \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a76c658dc5f4332e4b034419dca518c1c}{Stop}} (void)
+\begin{DoxyCompactList}\small\item\em stop the timer \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_af0ce31a284ab2dedf9cede10bc3ccce0}{Read}} (void)
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_aa65ca7b54ac601a3e2d7c00c9f2c1aa6}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_aa65ca7b54ac601a3e2d7c00c9f2c1aa6}} 
+void \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_aa65ca7b54ac601a3e2d7c00c9f2c1aa6}{Read}} (double \&tu, double \&ts)
+\begin{DoxyCompactList}\small\item\em As \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_af0ce31a284ab2dedf9cede10bc3ccce0}{Read( void )}} but {\itshape adds} user and system time to tu and ts. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a83cd017adcfdb6d5b0a66aea8f6508b6}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a83cd017adcfdb6d5b0a66aea8f6508b6}} 
+void \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a83cd017adcfdb6d5b0a66aea8f6508b6}{Re\+Set}} (void)
+\begin{DoxyCompactList}\small\item\em reset the timer \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_aed08c8478a62910aab06ba708a0e5b5f}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_aed08c8478a62910aab06ba708a0e5b5f}} 
+double {\bfseries u}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_ad62e712560f6344b96d4c080a2ba9c92}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_ad62e712560f6344b96d4c080a2ba9c92}} 
+double {\bfseries s}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a77498b581bd1eb381b0da076d019b029}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a77498b581bd1eb381b0da076d019b029}} 
+bool {\bfseries ticking}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a874e836d3ca762b5c9d16f1e19c7e9ce}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a874e836d3ca762b5c9d16f1e19c7e9ce}} 
+clock\+\_\+t {\bfseries t\+\_\+u}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Provides a common interface to the different timing routines that are available in different platforms. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_af0ce31a284ab2dedf9cede10bc3ccce0}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_af0ce31a284ab2dedf9cede10bc3ccce0}} 
+\index{O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Ttimers@{O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Ttimers}!Read@{Read}}
+\index{Read@{Read}!O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Ttimers@{O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Ttimers}}
+\subsubsection{\texorpdfstring{Read()}{Read()}}
+{\footnotesize\ttfamily double Read (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Return the elapsed time. If the clock is ticking, return the {\itshape total} time since the last \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a983601e8aa8b271fc7a583c1c4eb34a6}{Start()}} without stopping the clock; otherwise, return the total elapsed time of all the past runs of the clock since the last \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_ttimers_a83cd017adcfdb6d5b0a66aea8f6508b6}{Re\+Set()}} \mbox{[}see below\mbox{]}. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+M\+C\+F\+Class/\+O\+P\+T\+Utils/\mbox{\hyperlink{_o_p_t_utils_8h}{O\+P\+T\+Utils.\+h}}\end{DoxyCompactItemize}

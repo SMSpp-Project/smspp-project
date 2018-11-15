@@ -1,0 +1,74 @@
+\hypertarget{_modification_8h}{}\section{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Modification.h File Reference}
+\label{_modification_8h}\index{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Modification.\+h@{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Modification.\+h}}
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$list$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}
+\begin{DoxyCompactList}\small\item\em base class for any possible modification that can happen to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_a_modification}{A\+Modification}}
+\begin{DoxyCompactList}\small\item\em base class for \char`\"{}\+Abstract\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}}
+\begin{DoxyCompactList}\small\item\em concrete class for \char`\"{}a group of logically related Modification\char`\"{} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespace_s_m_spp__di__unipi__it}{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em namespace for the Structured Modeling System++ (S\+M\+S++) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef Modification $\ast$ \mbox{\hyperlink{group___modification___t_y_p_e_s_ga0cc1ca46966ce3aebbe7f109241baf66}{p\+\_\+\+Mod}}
+\begin{DoxyCompactList}\small\item\em a pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef std\+::vector$<$ p\+\_\+\+Mod $>$ \mbox{\hyperlink{group___modification___t_y_p_e_s_gaf929e6708a135742b2152b3f4ab011bc}{Vec\+\_\+p\+\_\+\+Mod}}
+\begin{DoxyCompactList}\small\item\em a vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef std\+::list$<$ p\+\_\+\+Mod $>$ \mbox{\hyperlink{group___modification___t_y_p_e_s_ga84d50ff1c2c6487f884224ee0341160f}{Lst\+\_\+p\+\_\+\+Mod}}
+\begin{DoxyCompactList}\small\item\em a vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef std\+::shared\+\_\+ptr$<$ Modification $>$ \mbox{\hyperlink{group___modification___t_y_p_e_s_ga9024cf2ead61a1280d29771b063b1a62}{sp\+\_\+\+Mod}}
+\begin{DoxyCompactList}\small\item\em a shared pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef std\+::vector$<$ sp\+\_\+\+Mod $>$ \mbox{\hyperlink{group___modification___t_y_p_e_s_ga877faafa15973eb552e53fec8208c54d}{Vec\+\_\+sp\+\_\+\+Mod}}
+\begin{DoxyCompactList}\small\item\em a vector of shared pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef std\+::list$<$ sp\+\_\+\+Mod $>$ \mbox{\hyperlink{group___modification___t_y_p_e_s_ga8a83b63d7963bc839660db495458f26d}{Lst\+\_\+sp\+\_\+\+Mod}}
+\begin{DoxyCompactList}\small\item\em a vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef unsigned int \mbox{\hyperlink{group___modification___t_y_p_e_s_gac8fdf1a69f314970b9aaa9328e3f3907}{Mod\+Param}}
+\begin{DoxyCompactList}\small\item\em public type for parameters controlling issuing of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} \end{DoxyCompactList}\item 
+typedef const Mod\+Param \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}}
+\begin{DoxyCompactList}\small\item\em a const Mod\+Param \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{group___modification___t_y_p_e_s_ga48fddcdd03a03f49b7e389ca1ed938d4}{amododification\+\_\+type}} \{ \mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a57f092e099708d34d61bb2cf66f074b3}{e\+No\+Mod}} = 0, 
+\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4ada69e89c5f46e563d8a13cfa6830c136}{e\+No\+Blck}} = 1, 
+\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}} = 2
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for ways of issuing a Modification \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header file for the {\itshape abstract} class Modification, basically only the top of the hierarchy of (small) objects describing the differenc changes that can occur to the various pieces of a S\+M\+S++ model, in the classes \mbox{[}derived from\mbox{]} Block, Variable, Constraint, Objective. Modification primarily serve to ensure any \char`\"{}interested\char`\"{} Solver is made aware of the changes and can efficiently react to them.
+
+However, Modification also have another crucial role\+: those that are issued when the \char`\"{}abstract representation\char`\"{} of a \+:Block is modified are used by the \+:Block to ensure that the \char`\"{}physical representation\char`\"{} of the \+:Block (if any) is kept in synch with the abstract one. This is why the derived class A\+Moodification is also defined, which has ways to \char`\"{}tell\char`\"{} a \+:Block whether the changes have still to be applied to its \char`\"{}physical
+representation\char`\"{}, or this has already be done.
+
+Some changes in a Block may trigger more than one Modification. For instance, when a (dynamic) Variable is removed from a Block \mbox{[}see Block\+::remove\+\_\+dynamic\+\_\+variables()\mbox{]}, it is (unless otherwise stated) also removed from every \char`\"{}stuff\char`\"{} (Constraint, Objective, Function, ...) it is active in. It may be helpful for a Solver (or a Block, if this is an \char`\"{}abstract Modification\char`\"{} that still has to be used to ensure that its \char`\"{}physical representation\char`\"{} of the is kept in synch with the abstract one) to know beforehand that some Modification are \char`\"{}logically related\char`\"{}. This is why the Group\+Modification class is also defined, which is simply a container that holds a list of std\+::shared\+\_\+ptr$<$\+Modification$>$. This cannot complicate (too much) the handling of Modification by a Solver (or Block), because if the Solver (Block) is not \char`\"{}interested\char`\"{} in the \char`\"{}logical relation\char`\"{} between the individual Modification in the Group\+Modification it can simply process them sequentially as if they were individual ones. Conversely, having a Group\+Modification may in principle considerably simplify the handling.
+
+\begin{DoxyVersion}{Version}
+0.\+30
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+04 -\/ 09 -\/ 2018
+\end{DoxyDate}
+\begin{DoxyAuthor}{Author}
+Antonio Frangioni ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ 
+
+Kostas Tavlaridis-\/\+Gyparakis ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ Copyright \&copy by Antonio Frangioni 
+\end{DoxyAuthor}

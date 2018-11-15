@@ -1,0 +1,50 @@
+\hypertarget{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s}{}\section{Compile-\/time switches in M\+C\+F\+Cplex.\+h}
+\label{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s}\index{Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga14939689b27f47bbe8fae89b34297b78}{C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}}~1
+\item 
+\#define \mbox{\hyperlink{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga8d69259915b94276655a8693f449afd9}{F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}}~1
+\item 
+\#define \mbox{\hyperlink{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga2924698660243e1c7a896b4c08f08823}{I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT}}~1
+\item 
+\#define \mbox{\hyperlink{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_gaec7c2e23803c5fa391ff6b13ecac23b6}{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX}}~1
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+These macros control some important details of the implementation. Although using macros for activating features of the implementation is not very C++, switching off some unused features may make the code more efficient in running time or memory. 
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga14939689b27f47bbe8fae89b34297b78}\label{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga14939689b27f47bbe8fae89b34297b78}} 
+\index{Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}!C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE@{C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}}
+\index{C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE@{C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}!Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}}
+\subsubsection{\texorpdfstring{C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}{CNUMBER\_IS\_DOUBLE}}
+{\footnotesize\ttfamily \#define C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE~1}
+
+Tells if C\+Number is in fact double. Although the \mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}} interface is designed to work seamlessly for every possibile choice of the basic types F\+Number and C\+Number, Cplex only works with doubles. Thus, when C\+Number != double some conversions have to be done between the internal Cplex format and the C\+Numbers that are received in input/expected in output; when C\+Number == double this can be saved, and setting C\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE == 1 heqps the code to perform some operations faster and using less memory. \mbox{\Hypertarget{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_gaec7c2e23803c5fa391ff6b13ecac23b6}\label{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_gaec7c2e23803c5fa391ff6b13ecac23b6}} 
+\index{Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}!D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX@{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX}}
+\index{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX@{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX}!Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}}
+\subsubsection{\texorpdfstring{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX}{DYNMC\_MCF\_CPX}}
+{\footnotesize\ttfamily \#define D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX~1}
+
+Decides if the graph topology (arcs, nodes) can be changed. If D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+C\+PX $>$ 0, some of the methods of the public interface of class that allow to change the topology of the underlying network are actually implemented. Possible values of this macro are\+:
+
+
+\begin{DoxyItemize}
+\item 0 =$>$ arcs cannot be added or deleted, closed arcs cannot be reopened; all the other operations are possible;
+\item 1 =$>$ all the methods that change the topology of the graph are implemented. 
+\end{DoxyItemize}\mbox{\Hypertarget{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga8d69259915b94276655a8693f449afd9}\label{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga8d69259915b94276655a8693f449afd9}} 
+\index{Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}!F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE@{F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}}
+\index{F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE@{F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}!Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}}
+\subsubsection{\texorpdfstring{F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE}{FNUMBER\_IS\_DOUBLE}}
+{\footnotesize\ttfamily \#define F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE~1}
+
+Tells if F\+Number is in fact double. Although the \mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}} interface is designed to work seamlessly for every possibile choice of the basic types F\+Number and C\+Number, Cplex only works with doubles. Thus, when F\+Number != double some conversions have to be done between the internal Cplex format and the F\+Numbers that are received in input/expected in output; when F\+Number == double this can be saved, and setting F\+N\+U\+M\+B\+E\+R\+\_\+\+I\+S\+\_\+\+D\+O\+U\+B\+LE == 1 heqps the code to perform some operations faster and using less memory. \mbox{\Hypertarget{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga2924698660243e1c7a896b4c08f08823}\label{group___m_c_f_c_p_l_e_x___m_a_c_r_o_s_ga2924698660243e1c7a896b4c08f08823}} 
+\index{Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}!I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT@{I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT}}
+\index{I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT@{I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT}!Compile-\/time switches in M\+C\+F\+Cplex.\+h@{Compile-\/time switches in M\+C\+F\+Cplex.\+h}}
+\subsubsection{\texorpdfstring{I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT}{INDEX\_IS\_UINT}}
+{\footnotesize\ttfamily \#define I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT~1}
+
+Tells if Index is in fact \mbox{[}unsigned\mbox{]} int. Indices in Cplex are ints; for Index == \mbox{[}unsigned\mbox{]} int, some conversions can be avoided \mbox{[}note\+: this assumes that unsigned ints and ints are phisically the same type\mbox{]}, and setting I\+N\+D\+E\+X\+\_\+\+I\+S\+\_\+\+U\+I\+NT == 1 does that. 

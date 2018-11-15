@@ -1,0 +1,50 @@
+\hypertarget{group___constraint___t_y_p_e_s}{}\section{Constraint-\/related types.}
+\label{group___constraint___t_y_p_e_s}\index{Constraint-\/related types.@{Constraint-\/related types.}}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}\label{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}} 
+typedef \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}{p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_ga9c035399735cd8e147d1f912ba79a1c2}\label{group___constraint___t_y_p_e_s_ga9c035399735cd8e147d1f912ba79a1c2}} 
+typedef const \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}{p\+\_\+\+Const}} \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga9c035399735cd8e147d1f912ba79a1c2}{c\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a const pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_ga4ce7980e39e7cfce6c532e9475fb5001}\label{group___constraint___t_y_p_e_s_ga4ce7980e39e7cfce6c532e9475fb5001}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}{p\+\_\+\+Const}} $>$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga4ce7980e39e7cfce6c532e9475fb5001}{Vec\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a (1-\/D) vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gad943734c94d1d3646f49c94dcf3916b5}\label{group___constraint___t_y_p_e_s_gad943734c94d1d3646f49c94dcf3916b5}} 
+typedef const \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga4ce7980e39e7cfce6c532e9475fb5001}{Vec\+\_\+p\+\_\+\+Const}} \mbox{\hyperlink{group___constraint___t_y_p_e_s_gad943734c94d1d3646f49c94dcf3916b5}{c\+\_\+\+Vec\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a (1-\/D) const vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gad29c159d9cb59d8165cddf1656b987f0}\label{group___constraint___t_y_p_e_s_gad29c159d9cb59d8165cddf1656b987f0}} 
+{\footnotesize template$<$int K$>$ }\\using \mbox{\hyperlink{group___constraint___t_y_p_e_s_gad29c159d9cb59d8165cddf1656b987f0}{K\+D\+\_\+\+Vec\+\_\+p\+\_\+\+Const}} = boost\+::multi\+\_\+array$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}{p\+\_\+\+Const}}, K $>$
+\begin{DoxyCompactList}\small\item\em Vec\+\_\+p\+\_\+\+Const$<$\+K$>$ is a K-\/D vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_ga3512a46189a9cd213323d9e9c5c083e1}\label{group___constraint___t_y_p_e_s_ga3512a46189a9cd213323d9e9c5c083e1}} 
+{\footnotesize template$<$int K$>$ }\\using \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga3512a46189a9cd213323d9e9c5c083e1}{K\+D\+\_\+c\+\_\+\+Vec\+\_\+p\+\_\+\+Const}} = const boost\+::multi\+\_\+array$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}{p\+\_\+\+Const}}, K $>$
+\begin{DoxyCompactList}\small\item\em c\+\_\+\+Vec\+\_\+p\+\_\+\+Const$<$\+K$>$ is a const K-\/D vector of pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}\label{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}} 
+typedef std\+::list$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae2abae1fd3e9370e1c0cc9dfbb4d6718}{p\+\_\+\+Const}} $>$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}{List\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a list of pointers to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gae9df1eca77351c69dda87903069d31f9}\label{group___constraint___t_y_p_e_s_gae9df1eca77351c69dda87903069d31f9}} 
+typedef List\+\_\+p\+\_\+\+Const\+::iterator \mbox{\hyperlink{group___constraint___t_y_p_e_s_gae9df1eca77351c69dda87903069d31f9}{List\+\_\+p\+\_\+\+Const\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em iterator for a List\+\_\+p\+\_\+\+Const \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_ga6279fed2d96abe5a21abdb8236050f07}\label{group___constraint___t_y_p_e_s_ga6279fed2d96abe5a21abdb8236050f07}} 
+typedef const \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}{List\+\_\+p\+\_\+\+Const}} \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga6279fed2d96abe5a21abdb8236050f07}{c\+\_\+\+List\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a const list of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$ \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_ga79d1198390aff9a22574ada53e7d161a}\label{group___constraint___t_y_p_e_s_ga79d1198390aff9a22574ada53e7d161a}} 
+typedef c\+\_\+\+List\+\_\+p\+\_\+\+Const\+::const\+\_\+iterator \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga79d1198390aff9a22574ada53e7d161a}{c\+\_\+\+List\+\_\+p\+\_\+\+Const\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em iterator for a c\+\_\+\+List\+\_\+p\+\_\+\+Const \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gaa409095a6d6a88da1046314c1752d89d}\label{group___constraint___t_y_p_e_s_gaa409095a6d6a88da1046314c1752d89d}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}{List\+\_\+p\+\_\+\+Const}} $>$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa409095a6d6a88da1046314c1752d89d}{Vec\+\_\+\+List\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a 1-\/D array of lists of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$ \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gad1364b959a8189267f88e2a32a6dd822}\label{group___constraint___t_y_p_e_s_gad1364b959a8189267f88e2a32a6dd822}} 
+typedef const \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa409095a6d6a88da1046314c1752d89d}{Vec\+\_\+\+List\+\_\+p\+\_\+\+Const}} \mbox{\hyperlink{group___constraint___t_y_p_e_s_gad1364b959a8189267f88e2a32a6dd822}{c\+\_\+\+Vec\+\_\+\+List\+\_\+p\+\_\+\+Const}}
+\begin{DoxyCompactList}\small\item\em a const 1-\/D array of lists of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$ \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_ga2f18f39226105e5ccb6059bf22c43c9c}\label{group___constraint___t_y_p_e_s_ga2f18f39226105e5ccb6059bf22c43c9c}} 
+{\footnotesize template$<$int K$>$ }\\using \mbox{\hyperlink{group___constraint___t_y_p_e_s_ga2f18f39226105e5ccb6059bf22c43c9c}{K\+D\+\_\+\+Vec\+\_\+\+List\+\_\+p\+\_\+\+Const}} = boost\+::multi\+\_\+array$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}{List\+\_\+p\+\_\+\+Const}}, K $>$
+\begin{DoxyCompactList}\small\item\em Vec\+\_\+\+List\+\_\+p\+\_\+\+Const$<$\+K$>$ is a K-\/D vector of lists of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___constraint___t_y_p_e_s_gab33537bc99eb8f3e8510dbad57552e6b}\label{group___constraint___t_y_p_e_s_gab33537bc99eb8f3e8510dbad57552e6b}} 
+{\footnotesize template$<$int K$>$ }\\using \mbox{\hyperlink{group___constraint___t_y_p_e_s_gab33537bc99eb8f3e8510dbad57552e6b}{K\+D\+\_\+c\+\_\+\+Vec\+\_\+\+List\+\_\+p\+\_\+\+Const}} = const boost\+::multi\+\_\+array$<$ \mbox{\hyperlink{group___constraint___t_y_p_e_s_gaa56320d40c626389a8a4ce4b5a4fb0a8}{List\+\_\+p\+\_\+\+Const}}, K $>$
+\begin{DoxyCompactList}\small\item\em c\+\_\+\+Vec\+\_\+\+List\+\_\+p\+\_\+\+Const$<$\+K$>$ is a const K-\/D vector of lists of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$ \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}

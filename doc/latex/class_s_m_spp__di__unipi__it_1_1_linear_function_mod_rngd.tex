@@ -1,0 +1,45 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd}{}\section{Linear\+Function\+Mod\+Rngd Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd}\index{Linear\+Function\+Mod\+Rngd@{Linear\+Function\+Mod\+Rngd}}
+
+
+derived from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_mod_vars_rngd}{C05\+Function\+Mod\+Vars\+Rngd}} for changes in a range of coefficients  
+
+
+
+
+{\ttfamily \#include $<$Linear\+Function.\+h$>$}
+
+Inheritance diagram for Linear\+Function\+Mod\+Rngd\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=7.000000cm]{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a359b1735a576d0c90a0c23c1e84431ab}\label{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a359b1735a576d0c90a0c23c1e84431ab}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a359b1735a576d0c90a0c23c1e84431ab}{Linear\+Function\+Mod\+Rngd}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} $\ast$const f, const int mod, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$const strt=nullptr, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$const stop=nullptr, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod_a44f54e31f9fa8a29194218c234876284}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod_a177a0111cf0d0fdc5409df06c3b5e282}{shift}}=0, const bool cB=true)
+\begin{DoxyCompactList}\small\item\em constructor\+: identical to that of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_mod_vars_rngd}{C05\+Function\+Mod\+Vars\+Rngd}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a5af52bb5e6c71689bd22498f0b3c4c6e}\label{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a5af52bb5e6c71689bd22498f0b3c4c6e}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a5af52bb5e6c71689bd22498f0b3c4c6e}{$\sim$\+Linear\+Function\+Mod\+Rngd}} ()
+\begin{DoxyCompactList}\small\item\em destructor, does nothing \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a2e7b9c9148a98c5c342e8c25cac95926}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd}{Linear\+Function\+Mod\+Rngd}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+derived from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_mod_vars_rngd}{C05\+Function\+Mod\+Vars\+Rngd}} for changes in a range of coefficients 
+
+Derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_mod_vars_rngd}{C05\+Function\+Mod\+Vars\+Rngd}} to describe changes specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function}{Linear\+Function}}, i.\+e., those of a range of coefficients.
+
+The change of some of the coefficients in a linear function perfectly coincides with what the type of modification of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd}{Linear\+Function\+Mod\+Rngd}} \char`\"{}\+Some\+Entries\+Change\char`\"{} postulates. Indeed, there is no real reason for defining this class, as it is identical to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_mod_rngd}{Linear\+Function\+Mod\+Rngd}}, save for the fact that some \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} / \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} may want to be sure that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} is actually coming out of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function}{Linear\+Function}}. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_linear_function_8h}{Linear\+Function.\+h}}\end{DoxyCompactItemize}

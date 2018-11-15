@@ -1,0 +1,29 @@
+\hypertarget{group__load__multi__arrays}{}\section{Loading lists and arrays}
+\label{group__load__multi__arrays}\index{Loading lists and arrays@{Loading lists and arrays}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{group__load__multi__arrays_ga19e330e44c63b5d3bed35e3cb5bf4925}\label{group__load__multi__arrays_ga19e330e44c63b5d3bed35e3cb5bf4925}} 
+{\footnotesize template$<$class T1 , class T2 $>$ }\\std\+::istream \& {\bfseries operator$>$$>$} (std\+::istream \&is, std\+::pair$<$ T1, T2 $>$ \&p)
+\item 
+\mbox{\Hypertarget{group__load__multi__arrays_ga82335d13c5fdf6ef573de2cc86152964}\label{group__load__multi__arrays_ga82335d13c5fdf6ef573de2cc86152964}} 
+{\footnotesize template$<$typename T $>$ }\\std\+::istream \& {\bfseries operator$>$$>$} (std\+::istream \&is, std\+::vector$<$ T $>$ \&l)
+\item 
+\mbox{\Hypertarget{group__load__multi__arrays_ga122a36ac505864a3e3f4ce6b5893b05d}\label{group__load__multi__arrays_ga122a36ac505864a3e3f4ce6b5893b05d}} 
+{\footnotesize template$<$typename T $>$ }\\std\+::istream \& {\bfseries operator$>$$>$} (std\+::istream \&is, std\+::list$<$ T $>$ \&l)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A few versions of operator$>$$>$ for loading pairs, lists and arrays. For lists and arrays the format is always
+
+number of elements k for i = 1 to k
+\begin{DoxyItemize}
+\item element of the list
+\end{DoxyItemize}
+
+while for pairs the format is just
+
+first element of the pair second element of the pair
+
+It is assumed that each element can be read with $>$$>$ itself, which rules out pointers. Elements are separated by whitespaces and comments (see eatcomments above). 

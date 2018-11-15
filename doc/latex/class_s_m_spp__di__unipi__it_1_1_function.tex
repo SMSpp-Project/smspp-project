@@ -1,0 +1,629 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_function}{}\section{Function Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_function}\index{Function@{Function}}
+
+
+base class of all possible real-\/valued functions  
+
+
+
+
+{\ttfamily \#include $<$Function.\+h$>$}
+
+Inheritance diagram for Function\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_s_m_spp__di__unipi__it_1_1_function}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06}{int\+\_\+par\+\_\+type\+\_\+F}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06a18fd973f71832c25b32393317e4d6eca}{int\+Max\+Iter}} = 0, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06abcd12185e11be88c7ccaaf635c0304f3}{int\+Last\+Par\+Fun}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for the int algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027}{dbl\+\_\+par\+\_\+type\+\_\+F}} \{ \newline
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027acd77e71bf86e7d641a5e571a18efae5a}{dbl\+Max\+Time}} = 0, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a6bafebef661615217b94425419f0d8d2}{dbl\+Rel\+Acc}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027aafe17e0e4a531284760badf1ad8f34d4}{dbl\+Abs\+Acc}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a22be127e17b811416b84944432a35ca5}{dbl\+Up\+Cut\+Off}}, 
+\newline
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027adaf90064ffac03f204c43a0adf226f58}{dbl\+Lw\+Cut\+Off}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a81691cd64ff74036e01cfe20a1d2b85e}{dbl\+Last\+Par\+Fun}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for the double algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}\label{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}} 
+typedef double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}}
+\begin{DoxyCompactList}\small\item\em type of the returned value \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and destructor}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ac37e74c32010429773a4e75a33a0928b}{Function}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} $\ast$const observer=nullptr)
+\begin{DoxyCompactList}\small\item\em constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, taking the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} it reports to \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ae0dc5d12ae80e0815315a10e7c3c25ab}{Function}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \&)
+\begin{DoxyCompactList}\small\item\em copy constructor\+: it cannot be used, but it is not deleted \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_af90995647e802e28f0a10dec00761500}\label{class_s_m_spp__di__unipi__it_1_1_function_af90995647e802e28f0a10dec00761500}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_af90995647e802e28f0a10dec00761500}{$\sim$\+Function}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: it is virtual, and empty \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Other initializations}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a98c3b08492e868f06dfc9b5ada04cb8a}{register\+\_\+\+Observer}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} $\ast$const observer=nullptr)
+\begin{DoxyCompactList}\small\item\em set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods describing the behavior of a Function}\par
+{\em The methods in this section allow to retrieve 0th-\/order information (the value) about the point where the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} have been last evaluated by calling \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. Calls to to any of these methods are therefore associated with that point\+: it is expected that the point (i.\+e., the values of the active \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}) at the moment in which these methods are called is the same as the one in which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} was called. In other words, these methods are \char`\"{}extensions\char`\"{} of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, used to extract further information (likely) computed in there, and therefore in principle an extension to the fundamental rule regarding \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} is to be enforced\+:
+
+between a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} and all the calls to these methods intended to retrieve information about values computed in that point, no changes must occur to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} which change the answer that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} was supposed to compute
+
+The rule leaves scope for some changes occurring, although these must ensure that the answer is not affected; see comments to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. As always, \begin{DoxyVerb}          IT IS UNIQUELY THE CALLER'S RESPONSIBILITY
+            TO ENSURE THAT THE RULE IS RESPECTED\end{DoxyVerb}
+ }\begin{DoxyCompactItemize}
+\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute}} (bool changedvars=true) override=0
+\begin{DoxyCompactList}\small\item\em compute the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}{get\+\_\+value}} (void) const =0
+\begin{DoxyCompactList}\small\item\em returns the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}{get\+\_\+lower\+\_\+estimate}} (void) const
+\begin{DoxyCompactList}\small\item\em returns a lower estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}{get\+\_\+upper\+\_\+estimate}} (void) const
+\begin{DoxyCompactList}\small\item\em returns an upper estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a472422601268368c33568731d4bb0f19}{get\+\_\+\+Lipschitz\+\_\+constant}} (void)
+\begin{DoxyCompactList}\small\item\em returns a (global) Lipschitz constant for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a8eac4d4ff5bcf2e564138655ee01ece8}{is\+\_\+convex}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is convex \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a123711e22aabb119629862cf3cb791de}{is\+\_\+concave}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is concave \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a76ad93a7b21d3deb7a917b3cd33d0a9d}{is\+\_\+linear}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is linear \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a72b5052e29d7f37c9798d9d6d33bd405}{is\+\_\+lower\+\_\+semicontinuous}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is lower semi-\/continuous \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_afa2086256b54e80d2dcfd11ad6adcd07}{is\+\_\+upper\+\_\+semicontinuous}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is upper semi-\/continuous \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a59de57710aa301d293e9126e3fb975bf}{is\+\_\+continuous}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuous \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Handling the parameters of the Function}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}{get\+\_\+num\+\_\+int\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of int parameters \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a842fd454acaded84baf6b77e0d61a950}{get\+\_\+num\+\_\+dbl\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of double parameters \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a75dd1491b74c4b9476755e061dce3e04}{get\+\_\+dflt\+\_\+int\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of an int parameter \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a465a771c115acf8d5f4e32e22f003014}{get\+\_\+dflt\+\_\+dbl\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of a double parameter \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ae281b6699b0707a5cdc1e82b76d26c09}{int\+\_\+par\+\_\+str2idx}} (const std\+::string \&name) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the int parameter with given string name \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a6d353ac3d1200d9bea89235da61bc4f3}{dbl\+\_\+par\+\_\+str2idx}} (const std\+::string \&name) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the double parameter with given string name \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a61e973f39747f63b8f56d97cc62e32ce}{int\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the int parameter with given index \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a93f1297e7910e91cc18b303376191026}{dbl\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the double parameter with given index \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Reading the data of the Function}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a00e67a1626f50ce42ff1b9f812726245}\label{class_s_m_spp__di__unipi__it_1_1_function_a00e67a1626f50ce42ff1b9f812726245}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a00e67a1626f50ce42ff1b9f812726245}{get\+\_\+\+Observer}} (void) const
+\begin{DoxyCompactList}\small\item\em returns the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Friends}
+\begin{Indent}\textbf{ Methods for printing the Function}\par
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \&o)
+\begin{DoxyCompactList}\small\item\em friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}{operator$<$$<$()}}, dispatching to virtual protected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}{print()}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected methods for printing and serializing}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a90c3f17bb237c6076cf1a4c1babe335d}\label{class_s_m_spp__di__unipi__it_1_1_function_a90c3f17bb237c6076cf1a4c1babe335d}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a90c3f17bb237c6076cf1a4c1babe335d}{f\+\_\+\+Observer}} = nullptr
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} on an ostream \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+base class of all possible real-\/valued functions 
+
+The class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is the base class intended to represent \char`\"{}all possible\char`\"{} real-\/valued functions.
+
+This base class is meant to provide only the \char`\"{}most basic\char`\"{} interface of a function, i.\+e., only access to function {\itshape values}; things like derivatives and/or specific algebraic forms of the function are demanded to derived classes. As such, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} only supports a few fundamental facts\+:
+
+
+\begin{DoxyItemize}
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \char`\"{}reports to\char`\"{} one \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} \mbox{[}see \mbox{\hyperlink{_observer_8h}{Observer.\+h}}\mbox{]}, i.\+e., sends it all its \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}};
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is influenced by a set of \char`\"{}active\char`\"{} Variables, i.\+e., those which contribute to it setting its (real) value\+: hence, the class implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} paradigm (i.\+e., derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}}) that class makes no provisions about how this set is stored in order to leave more freedom to derived classes to implement it in specialized ways;
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} must be computed, and this can be costly (think multiple integrals or min-\/max functions requiring the solution of a hard optimization problem), which is why the class implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}} paradigm (i.\+e., derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}).
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} can be approximately evaluated, which means that one can be content with only lower and/or upper estimates of the function values, provided they are \char`\"{}exact enough\char`\"{} (see details in the interface).
+\end{DoxyItemize}
+
+I\+M\+P\+O\+R\+T\+A\+NT N\+O\+TE\+: any \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} object ostensibly has to register itself with the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} it depends upon. However, \begin{DoxyVerb}    Function OBJECTS ARE NOT SUPPOSED TO DO THAT
+\end{DoxyVerb}
+
+
+The rationale is that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} objects may either be a part of some other object (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, ... ) or, possibly, be \char`\"{}free-\/floating\char`\"{} ones; when it is constructed, a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} has no way of knowing which of the two cases it is in. Hence, to be on a safe side the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} must not register itself with its \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. Rather \begin{DoxyVerb}    IF THE Function IS SET AN Observer THAT ALSO IS A
+    ThinVarDepInterface, THEN THAT Observer WILL BE REGISTERED
+    AS "ACTIVE" IN THE Variable OF THE Function
+\end{DoxyVerb}
+
+
+Thus, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is used inside a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, ... then it will be the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, ... that is registered. Hence, each each time a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is added to/removed from the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} will have to register/unregister its \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} (rather than itself) to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. \begin{DoxyVerb}    FREE-FLOATING Function, USED SOMEHOW AND SOMEWHERE IN A Block
+    BUT *NOT* INSIDE A ThinVarDepInterface, WILL *NOT* REGISTER
+    THEMSELVES OR ANYTHING ELSE IN THEIR "ACTIVE" Variable
+\end{DoxyVerb}
+
+
+Since the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is not (directly) used to implement a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}, ... the fact that it depends on those \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is not \char`\"{}made
+known\char`\"{} to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} themselves. This may (but hopefully won\textquotesingle{}t) cause issues, and it would make it difficult to have multi-\/level \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (sum of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, composition of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, ...). If any of this becomes enough of a nuisance this mechanism will have to be revised, but for now it appears to be reasonable.
+
+The base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} class also supports providing the user with some very basic information about properties of the function that only depend on function values, such as\+:
+
+
+\begin{DoxyItemize}
+\item \mbox{[}upper and/or lower semi-\/\mbox{]}continuity;
+\item convexity and/or concavity;
+\item existence of a (finite) Lipschitz constant.
+\end{DoxyItemize}
+
+A fundamental design decision in S\+M\+S++ is that T\+HE \char`\"{}\+N\+A\+M\+E\char`\"{} OF A \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} IS I\+TS M\+E\+M\+O\+RY A\+D\+D\+R\+E\+SS. This means that M\+O\+V\+I\+NG A \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} IS N\+OT P\+O\+S\+S\+I\+B\+LE\+: copying a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} to a different memory location makes a distinct \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+\_\+par\+\_\+type\+\_\+F@{dbl\+\_\+par\+\_\+type\+\_\+F}}
+\index{dbl\+\_\+par\+\_\+type\+\_\+F@{dbl\+\_\+par\+\_\+type\+\_\+F}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+type\+\_\+F}{dbl\_par\_type\_F}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027}{dbl\+\_\+par\+\_\+type\+\_\+F}}}
+
+
+
+public enum for the double algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Public enum describing the different parameters of \char`\"{}double\char`\"{} type that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} must have (although specific \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may choose to ignore some of them). The value dbl\+Last\+Par\+Fun is provided so that the list can be easily further extended by derived classes. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Max\+Time@{dbl\+Max\+Time}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+Max\+Time@{dbl\+Max\+Time}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027acd77e71bf86e7d641a5e571a18efae5a}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027acd77e71bf86e7d641a5e571a18efae5a}} 
+dbl\+Max\+Time&maximum time for the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} The parameter for setting the maximum time limit for the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. The value is assumed to be in seconds, and it\textquotesingle{}s a double (so both very fast and very slow computations are supported). The \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} class (so far) does not explicitly distinguish between \char`\"{}wall-\/clock time\char`\"{} and \char`\"{}\+C\+P\+U time\char`\"{}, which may be rather different especially in a parallel environment. The default is Inf$<$double$>$(). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Rel\+Acc@{dbl\+Rel\+Acc}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+Rel\+Acc@{dbl\+Rel\+Acc}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a6bafebef661615217b94425419f0d8d2}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a6bafebef661615217b94425419f0d8d2}} 
+dbl\+Rel\+Acc&relative accuracy for the value of the function The parameter for setting the {\itshape relative} accuracy required to the function value. That is, if both an upper bound \char`\"{}ub\char`\"{} \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}{get\+\_\+upper\+\_\+estimate()}}\mbox{]} and a lower bound \char`\"{}lb\char`\"{} \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}{get\+\_\+lower\+\_\+estimate()}}\mbox{]} on the value have been found, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} can stop as soon as
+
+ub -\/ lb $<$= dbl\+Rel\+Acc $\ast$ max( abs( lb ) , 1 )
+
+The default is 1e-\/6. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Abs\+Acc@{dbl\+Abs\+Acc}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+Abs\+Acc@{dbl\+Abs\+Acc}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027aafe17e0e4a531284760badf1ad8f34d4}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027aafe17e0e4a531284760badf1ad8f34d4}} 
+dbl\+Abs\+Acc&absolute accuracy for the value of the function The parameter for setting the {\itshape relative} accuracy required to the function value. That is, if both an upper bound \char`\"{}ub\char`\"{} \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}{get\+\_\+upper\+\_\+estimate()}}\mbox{]} and a lower bound \char`\"{}lb\char`\"{} \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}{get\+\_\+lower\+\_\+estimate()}}\mbox{]} on the value have been found, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} can stop as soon as
+
+ub -\/ lb $<$= dbl\+Rel\+Acc
+
+The default is Inf$<$\+O\+F\+Value$>$(), which is intended to mean that the only working accuracy is the relative one. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Up\+Cut\+Off@{dbl\+Up\+Cut\+Off}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+Up\+Cut\+Off@{dbl\+Up\+Cut\+Off}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a22be127e17b811416b84944432a35ca5}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a22be127e17b811416b84944432a35ca5}} 
+dbl\+Up\+Cut\+Off&upper cutoff on the value of the function The parameter for setting the \char`\"{}upper cut off\char`\"{} of the computation; that is, if a lower bound \char`\"{}lb\char`\"{} \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}{get\+\_\+lower\+\_\+estimate()}}\mbox{]} on the value has been found, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} can stop as soon as
+
+lb $>$= dbl\+Up\+Cut\+Off
+
+This is a {\itshape certificate} that the value is at {\itshape least} dbl\+Up\+Cut\+Off. The default is Inf$<$\+O\+F\+Value$>$(), i.\+e., no upper cut off. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Lw\+Cut\+Off@{dbl\+Lw\+Cut\+Off}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+Lw\+Cut\+Off@{dbl\+Lw\+Cut\+Off}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027adaf90064ffac03f204c43a0adf226f58}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027adaf90064ffac03f204c43a0adf226f58}} 
+dbl\+Lw\+Cut\+Off&lower cutoff on the value of the function The parameter for setting the \char`\"{}lower cut off\char`\"{} of the computation; that is, if an upper bound \char`\"{}ub\char`\"{} \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}{get\+\_\+upper\+\_\+estimate()}}\mbox{]} on the value has been found, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} can stop as soon as
+
+ub $<$= dbl\+Lw\+Cut\+Off
+
+This is a {\itshape certificate} that the value is at {\itshape most} dbl\+Lw\+Cut\+Off. The default is -\/\+Inf$<$\+O\+F\+Value$>$(), i.\+e., no lower cut off. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Last\+Par\+Fun@{dbl\+Last\+Par\+Fun}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+Last\+Par\+Fun@{dbl\+Last\+Par\+Fun}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a81691cd64ff74036e01cfe20a1d2b85e}\label{class_s_m_spp__di__unipi__it_1_1_function_ad7177cbeb2113eb7a975acec14d13027a81691cd64ff74036e01cfe20a1d2b85e}} 
+dbl\+Last\+Par\+Fun&first allowed new double parameter for derived classes Convenience value for easily allow derived classes to extend the set of double algorithmic parameters. \\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06}\label{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!int\+\_\+par\+\_\+type\+\_\+F@{int\+\_\+par\+\_\+type\+\_\+F}}
+\index{int\+\_\+par\+\_\+type\+\_\+F@{int\+\_\+par\+\_\+type\+\_\+F}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+type\+\_\+F}{int\_par\_type\_F}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06}{int\+\_\+par\+\_\+type\+\_\+F}}}
+
+
+
+public enum for the int algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Public enum describing the different parameters of \char`\"{}int\char`\"{} type that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} must have (although specific \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may choose to ignore some of them). The value int\+Last\+Par\+Fun is provided so that the list can be easily further extended by derived classes. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+Max\+Iter@{int\+Max\+Iter}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!int\+Max\+Iter@{int\+Max\+Iter}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06a18fd973f71832c25b32393317e4d6eca}\label{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06a18fd973f71832c25b32393317e4d6eca}} 
+int\+Max\+Iter&maximum iterations for the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} The algorithmic parameter for setting the maximum number of iterations in the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. The concept of \char`\"{}what exactly an iteration is\char`\"{} is clearly dependent on the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, and it may not even make sense for all \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. However, some \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} will actually be iterative processes, and therefore it makes sense to offer support for this notion in the base class. The default is Inf$<$int$>$() = no limits. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+Last\+Par\+Fun@{int\+Last\+Par\+Fun}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!int\+Last\+Par\+Fun@{int\+Last\+Par\+Fun}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06abcd12185e11be88c7ccaaf635c0304f3}\label{class_s_m_spp__di__unipi__it_1_1_function_a6e928ff7188d46bdb66f31cda302ab06abcd12185e11be88c7ccaaf635c0304f3}} 
+int\+Last\+Par\+Fun&first allowed new int parameter for derived classes Convenience value for easily allow derived classes to extend the set of int algorithmic parameters. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ac37e74c32010429773a4e75a33a0928b}\label{class_s_m_spp__di__unipi__it_1_1_function_ac37e74c32010429773a4e75a33a0928b}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!Function@{Function}}
+\index{Function@{Function}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{Function()}{Function()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} $\ast$const}]{observer = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, taking the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} it reports to 
+
+Constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. It accepts a pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} reports to, defaulting to nullptr so that this can be used as the void constructor. If nullptr is passed, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a98c3b08492e868f06dfc9b5ada04cb8a}{register\+\_\+\+Observer()}} \mbox{[}see below\mbox{]} can be used later to initialize it, unless one wants to keep this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} a \char`\"{}free floating\char`\"{} one. If a non-\/nullptr \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} is passed, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a98c3b08492e868f06dfc9b5ada04cb8a}{register\+\_\+\+Observer()}} is called (because this may do other things apart from just setting the pointer, such as registering the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}}, if it also is a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}}, to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}). \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ae0dc5d12ae80e0815315a10e7c3c25ab}\label{class_s_m_spp__di__unipi__it_1_1_function_ae0dc5d12ae80e0815315a10e7c3c25ab}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!Function@{Function}}
+\index{Function@{Function}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{Function()}{Function()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+copy constructor\+: it cannot be used, but it is not deleted 
+
+The copy constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is not currently implemented, but it cannot be deleted because it is required to resize() empty vectors of \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}\label{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!compute@{compute}}
+\index{compute@{compute}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{compute()}{compute()}}
+{\footnotesize\ttfamily virtual int compute (\begin{DoxyParamCaption}\item[{bool}]{changedvars = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [pure virtual]}}
+
+
+
+compute the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Pure virtual method\+: it has to compute the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} and possibly store the result into some protected field, so that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}{get\+\_\+value()}} and related methods can be used to read it. Evaluating a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} can be a lengthy task, involving e.\+g. numerical integrals or solving \char`\"{}hard\char`\"{} optimization problems, which is why \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} are not computed by default, and need to be computed explicitly with this method. This is also why this implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}; see the comments on the base class, in particular about the rules concerning what can change during a call to this method, and between two calls depending on the value of the changedvars parameter.
+
+This method can compute the value only approximately, according to the parameters set with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a73669f587bb938b587c54ad7e73ec297}{set\+\_\+par()}}. This means in particular that if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} returns a value comprised between k\+OK and k\+Error, extremes excluded, the computation may have been forced to stop early on, e.\+g. by a limit imposed on the available computational resources. By calling \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} again, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may further proceed in the computation process, possibly providing a k\+O\+K-\/type answer, which means that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is computed with the required accuracy.
+
+However, the base class provides as much as possible implementations for the methods corresponding to the case where the value is (efficiently) computed exactly, and therefore all the parameters can be ignored. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a00fd6363d98ea46bcc273842b327d050}{Thin\+Compute\+Interface}}.
+
+
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{Linear\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a93f1297e7910e91cc18b303376191026}\label{class_s_m_spp__di__unipi__it_1_1_function_a93f1297e7910e91cc18b303376191026}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}}
+\index{dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+idx2str()}{dbl\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& dbl\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the double parameter with given index 
+
+This method takes a double parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a1be0e4ca13f9253674bc4fa7b67fe40e}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a93f1297e7910e91cc18b303376191026}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a6d353ac3d1200d9bea89235da61bc4f3}\label{class_s_m_spp__di__unipi__it_1_1_function_a6d353ac3d1200d9bea89235da61bc4f3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}}
+\index{dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+str2idx()}{dbl\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} dbl\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the double parameter with given string name 
+
+This method takes a string, which is assumed to be the name of a double parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a82f363814aa27e3243ba994a1ed5f39e}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6d353ac3d1200d9bea89235da61bc4f3}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a465a771c115acf8d5f4e32e22f003014}\label{class_s_m_spp__di__unipi__it_1_1_function_a465a771c115acf8d5f4e32e22f003014}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+dbl\+\_\+par()}{get\_dflt\_dbl\_par()}}
+{\footnotesize\ttfamily virtual double get\+\_\+dflt\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of a double parameter 
+
+Get the default value of the double parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_ae2d249f431892cbf41ccf19204b78228}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a465a771c115acf8d5f4e32e22f003014}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a75dd1491b74c4b9476755e061dce3e04}\label{class_s_m_spp__di__unipi__it_1_1_function_a75dd1491b74c4b9476755e061dce3e04}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+int\+\_\+par()}{get\_dflt\_int\_par()}}
+{\footnotesize\ttfamily virtual int get\+\_\+dflt\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of an int parameter 
+
+Get the default value of the int parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aee367363e42f86be5376165878f958f5}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a75dd1491b74c4b9476755e061dce3e04}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a472422601268368c33568731d4bb0f19}\label{class_s_m_spp__di__unipi__it_1_1_function_a472422601268368c33568731d4bb0f19}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+\+Lipschitz\+\_\+constant@{get\+\_\+\+Lipschitz\+\_\+constant}}
+\index{get\+\_\+\+Lipschitz\+\_\+constant@{get\+\_\+\+Lipschitz\+\_\+constant}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+\+Lipschitz\+\_\+constant()}{get\_Lipschitz\_constant()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+\+Lipschitz\+\_\+constant (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns a (global) Lipschitz constant for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Method that returns a (global) Lipschitz constant L for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, i.\+e., a (real) scalar L such that
+
+$\vert$ f( x ) -\/ f( y ) $\vert$ $<$= L $\ast$ $\vert$ x -\/ y $\vert$
+
+for all x and y in the domain of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. By default, the method returns Inf$<$\+Function\+Value$>$(), which means that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} does {\itshape not} have a Lipschitz constant. Note that a finite Lipschitz constant implies that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a59de57710aa301d293e9126e3fb975bf}{is\+\_\+continuous()}} must return true. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_a4f76a73bde6d436526ea03959f886105}{Linear\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a228a1eed4901ac03c7a51da94a9bc923}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}\label{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+lower\+\_\+estimate@{get\+\_\+lower\+\_\+estimate}}
+\index{get\+\_\+lower\+\_\+estimate@{get\+\_\+lower\+\_\+estimate}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+lower\+\_\+estimate()}{get\_lower\_estimate()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+lower\+\_\+estimate (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns a lower estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Virtual method that returns a lower estimate of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} value obtained by the most recent call to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has never been invoked, then the value returned by this method is meaningless. The method is given a default implementation suited to \char`\"{}easy\char`\"{} functions for which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}{get\+\_\+value()}} always returns \char`\"{}exact\char`\"{} (save possibly unavoidable numerical errors) values. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a33520123d0919481e4f7cc5bc6da28a9}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a842fd454acaded84baf6b77e0d61a950}\label{class_s_m_spp__di__unipi__it_1_1_function_a842fd454acaded84baf6b77e0d61a950}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+dbl\+\_\+par()}{get\_num\_dbl\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of double parameters 
+
+Get the number of double parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a03d2492bc7caa7e7821fa1bc4f06a36e}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a842fd454acaded84baf6b77e0d61a950}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}\label{class_s_m_spp__di__unipi__it_1_1_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}}
+\index{get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+int\+\_\+par()}{get\_num\_int\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of int parameters 
+
+Get the number of int parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a1e009f6b43f7966bf4b4740e0b4cff58}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}\label{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+upper\+\_\+estimate@{get\+\_\+upper\+\_\+estimate}}
+\index{get\+\_\+upper\+\_\+estimate@{get\+\_\+upper\+\_\+estimate}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+upper\+\_\+estimate()}{get\_upper\_estimate()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+upper\+\_\+estimate (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns an upper estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Virtual method that returns an upper estimate of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} value obtained by the most recent call to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has never been invoked, then the value returned by this method is meaningless. The method is given a default implementation suited to \char`\"{}easy\char`\"{} functions for which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}{get\+\_\+value()}} always returns \char`\"{}exact\char`\"{} (save possibly unavoidable numerical errors) values. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae2ab9abc3617f25a7c526c457362864f}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}\label{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!get\+\_\+value@{get\+\_\+value}}
+\index{get\+\_\+value@{get\+\_\+value}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+value()}{get\_value()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+value (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+returns the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Pure virtual method that returns the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} that was computed in the most recent call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}; if the latter has never been invoked, then the value returned by this method is meaningless. 
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_ae74d8c7f3dc6100820de31198c77ca25}{Linear\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae74d8c7f3dc6100820de31198c77ca25}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a61e973f39747f63b8f56d97cc62e32ce}\label{class_s_m_spp__di__unipi__it_1_1_function_a61e973f39747f63b8f56d97cc62e32ce}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}}
+\index{int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+idx2str()}{int\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& int\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the int parameter with given index 
+
+This method takes an int parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a3d3d1ca3218d2d640614ed75a960ef01}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a61e973f39747f63b8f56d97cc62e32ce}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_ae281b6699b0707a5cdc1e82b76d26c09}\label{class_s_m_spp__di__unipi__it_1_1_function_ae281b6699b0707a5cdc1e82b76d26c09}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}}
+\index{int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+str2idx()}{int\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} int\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the int parameter with given string name 
+
+This method takes a string, which is assumed to be the name of an int parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a69c6857c4288135135e8b6bbcf24252a}{Thin\+Compute\+Interface}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae281b6699b0707a5cdc1e82b76d26c09}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a123711e22aabb119629862cf3cb791de}\label{class_s_m_spp__di__unipi__it_1_1_function_a123711e22aabb119629862cf3cb791de}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!is\+\_\+concave@{is\+\_\+concave}}
+\index{is\+\_\+concave@{is\+\_\+concave}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+concave()}{is\_concave()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+concave (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is concave 
+
+Method that returns true if and only if this function is concave. The default is false (concavity being good for optimization, in particular maximization, often too good to be true). 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_ac5169a9ee09d66d4e9078d0350ea9142}{Linear\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_abdb6d9788add66498dda476d9f5f1ff7}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a59de57710aa301d293e9126e3fb975bf}\label{class_s_m_spp__di__unipi__it_1_1_function_a59de57710aa301d293e9126e3fb975bf}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!is\+\_\+continuous@{is\+\_\+continuous}}
+\index{is\+\_\+continuous@{is\+\_\+continuous}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+continuous()}{is\_continuous()}}
+{\footnotesize\ttfamily bool is\+\_\+continuous (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuous 
+
+Method that returns true if and only if this function is continuous. The base implementation of the class exploits the fact that by this means that it is both upper semi-\/continuous and lower semi-\/continuous (and therefore this method is not very useful ... ) \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a8eac4d4ff5bcf2e564138655ee01ece8}\label{class_s_m_spp__di__unipi__it_1_1_function_a8eac4d4ff5bcf2e564138655ee01ece8}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!is\+\_\+convex@{is\+\_\+convex}}
+\index{is\+\_\+convex@{is\+\_\+convex}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+convex()}{is\_convex()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+convex (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is convex 
+
+Method that returns true if and only if this function is convex. The default is false (convexity being good for optimization, in particular minimization, often too good to be true). 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_a13b81428d5637e56d77e2168ab66ea44}{Linear\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a20a6d803edcf5c8ae8b702b8a010af54}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a76ad93a7b21d3deb7a917b3cd33d0a9d}\label{class_s_m_spp__di__unipi__it_1_1_function_a76ad93a7b21d3deb7a917b3cd33d0a9d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!is\+\_\+linear@{is\+\_\+linear}}
+\index{is\+\_\+linear@{is\+\_\+linear}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+linear()}{is\_linear()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+linear (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is linear 
+
+Method that returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is linear. The base implementation of the class exploits the fact that the only class of functions that are both convex and concave is precisely that of linear functions (and therefore this method is not very useful ... ) 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8afe6138b9ef7838ec5b851cbc3ad2fc}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a72b5052e29d7f37c9798d9d6d33bd405}\label{class_s_m_spp__di__unipi__it_1_1_function_a72b5052e29d7f37c9798d9d6d33bd405}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!is\+\_\+lower\+\_\+semicontinuous@{is\+\_\+lower\+\_\+semicontinuous}}
+\index{is\+\_\+lower\+\_\+semicontinuous@{is\+\_\+lower\+\_\+semicontinuous}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+lower\+\_\+semicontinuous()}{is\_lower\_semicontinuous()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+lower\+\_\+semicontinuous (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is lower semi-\/continuous 
+
+Method that returns true if and only if this function is lower semi-\/continuous. The default is true (continuity being an important property for optimization). 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4999c961244a6547170ef8f1c786cfa5}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_afa2086256b54e80d2dcfd11ad6adcd07}\label{class_s_m_spp__di__unipi__it_1_1_function_afa2086256b54e80d2dcfd11ad6adcd07}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!is\+\_\+upper\+\_\+semicontinuous@{is\+\_\+upper\+\_\+semicontinuous}}
+\index{is\+\_\+upper\+\_\+semicontinuous@{is\+\_\+upper\+\_\+semicontinuous}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+upper\+\_\+semicontinuous()}{is\_upper\_semicontinuous()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+upper\+\_\+semicontinuous (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is upper semi-\/continuous 
+
+Method that returns true if and only if this function is upper semi-\/continuous. The default is true (continuity being an important property for optimization). 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_acb905dad2242bc107ae51cab2a7f1af3}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!print@{print}}
+\index{print@{print}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily virtual void print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{output }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} on an ostream 
+
+Protected method intended to print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}; it is virtual so that derived classes can print their specific information in the format they choose. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a59a9fcbf8f9f86d348344b2073644b0e}{C05\+Function}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_a87f6fa05f41e6d6f00fc4e0b12321abc}{Linear\+Function}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4e1f59c2589efba7c429a92661a1f288}{D\+Quad\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_a59a9fcbf8f9f86d348344b2073644b0e}{C15\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a98c3b08492e868f06dfc9b5ada04cb8a}\label{class_s_m_spp__di__unipi__it_1_1_function_a98c3b08492e868f06dfc9b5ada04cb8a}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!register\+\_\+\+Observer@{register\+\_\+\+Observer}}
+\index{register\+\_\+\+Observer@{register\+\_\+\+Observer}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{register\+\_\+\+Observer()}{register\_Observer()}}
+{\footnotesize\ttfamily virtual void register\+\_\+\+Observer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} $\ast$const}]{observer = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Method to set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer}{Observer}} of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. If no pointer is provided (either in the constructor or here), or the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is \char`\"{}unregistered\char`\"{} from the current observe by calling the method with nullptr (default), then the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is left \char`\"{}free floating\char`\"{}, which means that no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} is ever produced and no Block/\+Solver ever gets informed of any change occurring in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_a0cb7093b112bfafe0b6d2b44f42fcc5a}{Linear\+Function}}.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}\label{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Function}}
+\subsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{out,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \&}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}{operator$<$$<$()}}, dispatching to virtual protected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}{print()}} 
+
+Not really a method, but a friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}{operator$<$$<$()}} that just dispatches the ostream to the protected virtual method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}{print()}}. This way the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a23b20b49c11a8fd6f9d37944f073acf2}{operator$<$$<$()}} is defined for each \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, but its behavior can be customized by derived classes. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_function_8h}{Function.\+h}}\end{DoxyCompactItemize}

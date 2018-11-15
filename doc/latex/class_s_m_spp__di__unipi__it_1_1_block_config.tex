@@ -1,0 +1,252 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config}{}\section{Block\+Config Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_block_config}\index{Block\+Config@{Block\+Config}}
+
+
+derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} configuration parameters  
+
+
+
+
+{\ttfamily \#include $<$Block.\+h$>$}
+
+Inheritance diagram for Block\+Config\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_s_m_spp__di__unipi__it_1_1_block_config}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a21b671a1dba5dcff43346c58b6fbc171}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a21b671a1dba5dcff43346c58b6fbc171}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a21b671a1dba5dcff43346c58b6fbc171}{Block\+Config}} (void)
+\begin{DoxyCompactList}\small\item\em constructor\+: initializes everything to \char`\"{}default configuration\char`\"{} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a863554e8acfa4a30e8dec3f213821fa8}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a863554e8acfa4a30e8dec3f213821fa8}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a863554e8acfa4a30e8dec3f213821fa8}{Block\+Config}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} \&old)
+\begin{DoxyCompactList}\small\item\em copy constructor\+: does what it says on the tin \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a828ece608e8a4a497f43d3d6bb75af40}{deserialize}} (net\+C\+D\+F\+::\+Nc\+Group \&\&group) override
+\begin{DoxyCompactList}\small\item\em de-\/serialize the current \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} out of net\+C\+D\+F\+::\+Nc\+Group \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_aec5341a3f7c4f413013834b2f0e2b19e}\label{class_s_m_spp__di__unipi__it_1_1_block_config_aec5341a3f7c4f413013834b2f0e2b19e}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_aec5341a3f7c4f413013834b2f0e2b19e}{$\sim$\+Block\+Config}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: deletes all sub-\/\+Block\+Config \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_aad48f22d1d55c91173132511df58c35b}{clone}} (void) override
+\begin{DoxyCompactList}\small\item\em method for creating an exact clone of the current \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a978c6b5919ce07663f3c325a99013bac}{serialize}} (net\+C\+D\+F\+::\+Nc\+File \&\&f, const int type) const override
+\begin{DoxyCompactList}\small\item\em extends Configuration\+::serialize( net\+C\+D\+F\+::\+Nc\+File , type ) to e\+Prob\+File \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a8a626d908100f4419905d89f771150aa}{serialize}} (net\+C\+D\+F\+::\+Nc\+Group \&\&group) const override
+\begin{DoxyCompactList}\small\item\em serialize a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} to a net\+C\+DF Nc\+Group \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a9fd3061a0f53bf1121551e9fffd4b202}{deserialize}} (net\+C\+D\+F\+::\+Nc\+File \&\&f, const unsigned int idx=0)
+\begin{DoxyCompactList}\small\item\em \char`\"{}extends\char`\"{} Configuration\+::deserialize( net\+C\+D\+F\+::\+Nc\+File ) to e\+Prob\+File \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a7c33ab5d924071ba01a41e9ca8b0c170}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a7c33ab5d924071ba01a41e9ca8b0c170}} 
+std\+::string {\bfseries f\+\_\+name}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_ab496062cc113cfd83c7fbdcbaf2cb080}{f\+\_\+static\+\_\+constraints\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the name of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a43dde1603a406da568a3c84588a44b19}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a43dde1603a406da568a3c84588a44b19}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a43dde1603a406da568a3c84588a44b19}{f\+\_\+dynamic\+\_\+constraints\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for generate\+\_\+dynamic\+\_\+constraints() \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a66b3ea640f64267d31a5458c4a2f3fdc}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a66b3ea640f64267d31a5458c4a2f3fdc}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a66b3ea640f64267d31a5458c4a2f3fdc}{f\+\_\+static\+\_\+variables\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for generate\+\_\+static\+\_\+variables() \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a1720f30e85047993971e4893be74517a}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a1720f30e85047993971e4893be74517a}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a1720f30e85047993971e4893be74517a}{f\+\_\+dynamic\+\_\+variables\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for generate\+\_\+dynamic\+\_\+variables() \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a3ac797b37d442324cf3b8ffca775736d}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a3ac797b37d442324cf3b8ffca775736d}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a3ac797b37d442324cf3b8ffca775736d}{f\+\_\+objective\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for set\+\_\+objective() \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a03486765bd5d2057db91d8a49f73c597}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a03486765bd5d2057db91d8a49f73c597}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a03486765bd5d2057db91d8a49f73c597}{f\+\_\+is\+\_\+feasible\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for is\+\_\+feasible() \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a42c9c22699d22b3035739f6a1c5f583f}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a42c9c22699d22b3035739f6a1c5f583f}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a42c9c22699d22b3035739f6a1c5f583f}{f\+\_\+is\+\_\+optimal\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for is\+\_\+optimal() \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a23bb76c295c057cfbc5213cb971bbc71}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a23bb76c295c057cfbc5213cb971bbc71}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a23bb76c295c057cfbc5213cb971bbc71}{f\+\_\+solution\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for get\+\_\+\+Solution() and map\+\_\+\mbox{[}back/forward\mbox{]}\+\_\+solution \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a7d26c4062ec83c8aafe8363a2be49f7c}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a7d26c4062ec83c8aafe8363a2be49f7c}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a7d26c4062ec83c8aafe8363a2be49f7c}{f\+\_\+extra\+\_\+\+Configuration}}
+\begin{DoxyCompactList}\small\item\em any extra Block-\/specific \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a1055951686613145a68824520584ee97}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a1055951686613145a68824520584ee97}} 
+std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} $\ast$ $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a1055951686613145a68824520584ee97}{v\+\_\+sub\+\_\+\+Block\+Config}}
+\begin{DoxyCompactList}\small\item\em the vector of sub-\/\+Block\+Config for each of the sub-\/\+Block \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a59a9fcbf8f9f86d348344b2073644b0e}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a59a9fcbf8f9f86d348344b2073644b0e}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a59a9fcbf8f9f86d348344b2073644b0e}{print}} (std\+::ostream \&output) const override
+\begin{DoxyCompactList}\small\item\em print the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config_a019850055afe817b816bae5699f461d3}{load}} (std\+::istream \&input) override
+\begin{DoxyCompactList}\small\item\em load this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} out of an istream \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a5618a1c2a09ff7cd62e4de9df7956672}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a5618a1c2a09ff7cd62e4de9df7956672}} 
+{\bfseries S\+M\+Spp\+\_\+insert\+\_\+in\+\_\+factory\+\_\+h}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} configuration parameters 
+
+Derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} to describe all the parameters that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} may have, which are\+:
+
+
+\begin{DoxyItemize}
+\item the name of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}};
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for static \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}};
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for dynamic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}};
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for static \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}};
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for dynamic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}};
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}};
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for is\+\_\+feasible();
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for is\+\_\+optimal();
+\item the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} related to solutions (get\+\_\+\+Solution() and map\+\_\+\mbox{[}back/forward\mbox{]}\+\_\+solution.
+\end{DoxyItemize}
+
+It is always possible to define a specific \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} corresponding to a specific \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}, but in order to avoid this as much as possible an \char`\"{}extra\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} is also available. Due to the flexibility of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}, this may be enough to cover many use cases without a specific \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}}. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_aad48f22d1d55c91173132511df58c35b}\label{class_s_m_spp__di__unipi__it_1_1_block_config_aad48f22d1d55c91173132511df58c35b}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!clone@{clone}}
+\index{clone@{clone}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{clone()}{clone()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}}$\ast$ clone (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+method for creating an exact clone of the current \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} 
+
+This method is supposed to do a \char`\"{}deep copy\char`\"{} of the current \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} object, which means that if the object contains pointers to other object then the pointed objects will have to be copied, too, so that the cloned version is completely independent from the original one. This means that all pointers will have to be to clonable object, which is true by default if they are pointer to (sub-\/)\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}. This is basically a virtualized version of the copy constructor (with explicit statement that the copy is entirely independent from the original), and in fact its standard implementation is \begin{DoxyVerb}class MyConfiguration : Configuration {
+ virtual MyConfiguration * clone( void ) {
+ return( new( MyConfiguration( *this ) ) );
+ }
+
+ MyConfiguration( MyConfiguration & ) { < copy constructor > }
+ };
+\end{DoxyVerb}
+
+
+There could be smart template-\/based ways to avoid having to do this explicitly for each \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}, but in our case it seems that the pain is higher than the gain. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_aa982da3f095d1a857dc95d53ac335700}{Configuration}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a9fd3061a0f53bf1121551e9fffd4b202}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a9fd3061a0f53bf1121551e9fffd4b202}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!deserialize@{deserialize}}
+\index{deserialize@{deserialize}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{deserialize()}{deserialize()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}}$\ast$ deserialize (\begin{DoxyParamCaption}\item[{net\+C\+D\+F\+::\+Nc\+File \&\&}]{f,  }\item[{const unsigned int}]{idx = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+\char`\"{}extends\char`\"{} Configuration\+::deserialize( net\+C\+D\+F\+::\+Nc\+File ) to e\+Prob\+File 
+
+Since a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} knows it is a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}}, it \char`\"{}knows its place\char`\"{} in an e\+Prob\+File net\+C\+DF S\+M\+S++ file. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a828ece608e8a4a497f43d3d6bb75af40}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a828ece608e8a4a497f43d3d6bb75af40}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!deserialize@{deserialize}}
+\index{deserialize@{deserialize}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{deserialize()}{deserialize()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual void deserialize (\begin{DoxyParamCaption}\item[{net\+C\+D\+F\+::\+Nc\+Group \&\&}]{group }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+de-\/serialize the current \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} out of net\+C\+D\+F\+::\+Nc\+Group 
+
+Fourth and final level de-\/serialization method\+: takes a net\+C\+D\+F\+::\+Nc\+Group supposedly containing all the information required to de-\/serialize the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} must, starting with the \char`\"{}type\char`\"{} attribute that has to contain the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_a738e9dfd6e00507da219e4bd5a3f6be9}{name()}} of the current \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} (and exception should clearly be thrown is this does not happen), and initialize the current \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} out of it. \begin{DoxyVerb} THIS IS THE METHOD TO BE IMPLEMENTED BY DERIVED CLASSES
+\end{DoxyVerb}
+
+
+and in fact it is virtual. The format of the information is clearly that set by the serialize( net\+C\+D\+F\+::\+Nc\+Group ) method of the specific \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} class, and exception should be thrown if anything goes wrong in the process. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_af03cd244e01fc59411ed4fcd6bd92949}{Configuration}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a019850055afe817b816bae5699f461d3}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a019850055afe817b816bae5699f461d3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!load@{load}}
+\index{load@{load}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{load()}{load()}}
+{\footnotesize\ttfamily virtual void load (\begin{DoxyParamCaption}\item[{std\+::istream \&}]{input }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+load this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} out of an istream 
+
+Load this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} out of an istream, wkth the following format\+:
+
+name of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}\+: a string, \textquotesingle{}$\ast$\textquotesingle{} means empty
+
+for all of\+: static constraints \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , dynamic constraints \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , static variables \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , dynamic variables \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , objective \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , is\+\_\+feasible \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , is\+\_\+optimal \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , solution \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} , extra \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} (in this order)
+
+
+\begin{DoxyItemize}
+\item a string containing the class type of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} object, \textquotesingle{}$\ast$\textquotesingle{} means none (nullptr)
+\end{DoxyItemize}
+
+if the above is not \textquotesingle{}$\ast$\textquotesingle{}, the description of the \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} object
+
+number k of the sub-\/\+Block\+Config objects
+
+for i = 1 ... k
+\begin{DoxyItemize}
+\item a string containing the class type of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} object, \textquotesingle{}$\ast$\textquotesingle{} means none (nullptr)
+\item if the above is not \textquotesingle{}$\ast$\textquotesingle{}, the description of the \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} object 
+\end{DoxyItemize}
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_a27ae9e4279482d52342c7958c34a43c6}{Configuration}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a978c6b5919ce07663f3c325a99013bac}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a978c6b5919ce07663f3c325a99013bac}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!serialize@{serialize}}
+\index{serialize@{serialize}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{serialize()}{serialize()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual void serialize (\begin{DoxyParamCaption}\item[{net\+C\+D\+F\+::\+Nc\+File \&\&}]{f,  }\item[{const int}]{type }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+extends Configuration\+::serialize( net\+C\+D\+F\+::\+Nc\+File , type ) to e\+Prob\+File 
+
+Since a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}} knows it is a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}}, it \char`\"{}knows its place\char`\"{} in an e\+Prob\+File net\+C\+DF S\+M\+S++ file. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_a76975f9a636fcf85b4ed642b58422aaf}{Configuration}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_a8a626d908100f4419905d89f771150aa}\label{class_s_m_spp__di__unipi__it_1_1_block_config_a8a626d908100f4419905d89f771150aa}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!serialize@{serialize}}
+\index{serialize@{serialize}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{serialize()}{serialize()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual void serialize (\begin{DoxyParamCaption}\item[{net\+C\+D\+F\+::\+Nc\+Group \&\&}]{group }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+serialize a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} to a net\+C\+DF Nc\+Group 
+
+Method to serialize a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} to a net\+C\+DF Nc\+Group. \begin{DoxyVerb}THIS IS THE METHOD TO BE IMPLEMENTED BY DERIVED CLASSES
+\end{DoxyVerb}
+
+
+All the information required to de-\/serialize the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} need be saved in the provided net\+C\+DF Nc\+Group, which is assumed to be \char`\"{}empty\char`\"{}, starting with the \char`\"{}type\char`\"{} attribute that has to contain the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_a738e9dfd6e00507da219e4bd5a3f6be9}{name()}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}. Although each \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} is completely free to organize the net\+C\+DF Nc\+Group as it best sees fit, the idea is that is the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} has any sub-\/\+Configuration these should be saved into child groups of the current group.
+
+The method of the base class just creates and fills the \char`\"{}name\char`\"{} attribute (with the right name, thanks to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_a738e9dfd6e00507da219e4bd5a3f6be9}{name()}} method). 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration_a59f3f59d72c56028f06c555bdcd36caf}{Configuration}}.
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_config_ab496062cc113cfd83c7fbdcbaf2cb080}\label{class_s_m_spp__di__unipi__it_1_1_block_config_ab496062cc113cfd83c7fbdcbaf2cb080}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}!f\+\_\+static\+\_\+constraints\+\_\+\+Configuration@{f\+\_\+static\+\_\+constraints\+\_\+\+Configuration}}
+\index{f\+\_\+static\+\_\+constraints\+\_\+\+Configuration@{f\+\_\+static\+\_\+constraints\+\_\+\+Configuration}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Config}}
+\subsubsection{\texorpdfstring{f\+\_\+static\+\_\+constraints\+\_\+\+Configuration}{f\_static\_constraints\_Configuration}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}$\ast$ f\+\_\+static\+\_\+constraints\+\_\+\+Configuration}
+
+
+
+the name of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for generate\+\_\+static\+\_\+constraints() 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_block_8h}{Block.\+h}}\end{DoxyCompactItemize}

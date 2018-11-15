@@ -1,0 +1,24 @@
+\hypertarget{group___m_c_f_simplex___m_a_c_r_o_s}{}\section{Compile-\/time switches in M\+C\+F\+Simplex.\+h}
+\label{group___m_c_f_simplex___m_a_c_r_o_s}\index{Compile-\/time switches in M\+C\+F\+Simplex.\+h@{Compile-\/time switches in M\+C\+F\+Simplex.\+h}}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{group___m_c_f_simplex___m_a_c_r_o_s_ga47ef61d618654cf9a6b3ed011ed73650}{Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST}}~0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+There is only one macro in \mbox{\hyperlink{class_m_c_f_simplex}{M\+C\+F\+Simplex}}, but it is very important! 
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{group___m_c_f_simplex___m_a_c_r_o_s_ga47ef61d618654cf9a6b3ed011ed73650}\label{group___m_c_f_simplex___m_a_c_r_o_s_ga47ef61d618654cf9a6b3ed011ed73650}} 
+\index{Compile-\/time switches in M\+C\+F\+Simplex.\+h@{Compile-\/time switches in M\+C\+F\+Simplex.\+h}!Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST@{Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST}}
+\index{Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST@{Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST}!Compile-\/time switches in M\+C\+F\+Simplex.\+h@{Compile-\/time switches in M\+C\+F\+Simplex.\+h}}
+\subsubsection{\texorpdfstring{Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST}{QUADRATICCOST}}
+{\footnotesize\ttfamily \#define Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST~0}
+
+Setting Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST == 1 the solver can solve problems with linear and quadratic costs too (but the latter only with the Primal Simplex). The reason for having a macro is that when quadratic costs are present the \char`\"{}arc\+Type\char`\"{} struct has the additional field \char`\"{}quadratic\+Cost\char`\"{} to hold it. Furthermore, the field \char`\"{}ident\char`\"{} is not created because the solver doesn\textquotesingle{}t use the classical T\+LU tripartition. Instead, closed arcs and deleted arcs are characterized as follows\+:
+\begin{DoxyItemize}
+\item closed arcs have the field \char`\"{}cost\char`\"{} to I\+N\+F\+I\+N\+I\+TY (Inf$<$\+F\+Number$>$());
+\item deleted arcs have the field \char`\"{}upper\char`\"{} to I\+N\+F\+I\+N\+I\+TY and the \char`\"{}tail\char`\"{} and \char`\"{}head\char`\"{} field are N\+U\+LL. Furthermore, the solver needs the variables \char`\"{}ignored\+Entering\+Arc\char`\"{} and \char`\"{}first\+Ignored\+Entering\+Arc\char`\"{}, used to avoid nasty loops during the execution of the Quadratic Primal Simplex algorithm. If, instead, Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST == 0 then the solver can solve only problems with linear costs. Hence, the field \char`\"{}quadratic\+Cost\char`\"{} is useless and it isn\textquotesingle{}t created. Furthermore, Primal Simplex and Dual Simplex use the tripartition T\+LU to divide the arcs, so the solver creates the field \char`\"{}ident\char`\"{}, which differentiates the set of the arcs in among deleted arcs, closed arcs, arcs in T, arcs in L, arcs in U. Thus, with Q\+U\+A\+D\+R\+A\+T\+I\+C\+C\+O\+ST == 0 the solver cannot solve problems with quadratic costs, but it does solve problems with linear costs faster. 
+\end{DoxyItemize}

@@ -1,0 +1,58 @@
+\hypertarget{_objective_8h}{}\section{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Objective.h File Reference}
+\label{_objective_8h}\index{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Objective.\+h@{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Objective.\+h}}
+{\ttfamily \#include \char`\"{}Thin\+Compute\+Interface.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Thin\+Var\+Dep\+Interface.\+h\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}}
+\begin{DoxyCompactList}\small\item\em base class of all possible objective functions that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_real_objective}{Real\+Objective}}
+\begin{DoxyCompactList}\small\item\em an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} that is a function between \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} and the reals \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}}
+\begin{DoxyCompactList}\small\item\em class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespace_s_m_spp__di__unipi__it}{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em namespace for the Structured Modeling System++ (S\+M\+S++) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{_objective_8h_a605c74dd31c628e3b937dc9c9adeff8c}\label{_objective_8h_a605c74dd31c628e3b937dc9c9adeff8c}} 
+\#define {\bfseries \+\_\+\+\_\+\+Objective}~/$\ast$ self-\/identification\+: \#endif at the end of the file $\ast$/
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef Objective $\ast$ \mbox{\hyperlink{group___objective___t_y_p_e_s_ga24e6a764a1077f62c73a5733e6603755}{p\+\_\+\+ObjF}}
+\begin{DoxyCompactList}\small\item\em a pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header file for the Objective class, a quite general base class of all the possible type of objective functions that a Block can support. Very few assumptions are made about what form the function actually has, this being demanded to derived classes. Since Objective can be costly to compute (think multiple integrals to compute expectations or min-\/maxfunctions requiring the solution of a hard optimization problem), the class implements the Thin\+Compute\+Interface paradigm. Also, since an Objective depends on a set of \char`\"{}active\char`\"{} Variable, it implements the Thin\+Var\+Dep\+Interface paradigm.
+
+\begin{DoxyVersion}{Version}
+0.\+30
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+14 -\/ 08 -\/ 2018
+\end{DoxyDate}
+\begin{DoxyAuthor}{Author}
+Antonio Frangioni ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ 
+
+Rafael Durbano Lobato ~\newline
+ Department of Applied Mathematics ~\newline
+ State University of Campinas, Brazil ~\newline
+ 
+
+Kostas Tavlaridis-\/\+Gyparakis ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ Copyright \&copy by Antonio Frangioni, Rafael Durbano Lobato 
+\end{DoxyAuthor}

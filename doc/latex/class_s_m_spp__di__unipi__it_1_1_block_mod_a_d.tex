@@ -1,0 +1,150 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}{}\section{Block\+Mod\+AD Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}\index{Block\+Mod\+AD@{Block\+Mod\+AD}}
+
+
+derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} for adding/removing stuff to/from a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}  
+
+
+
+
+{\ttfamily \#include $<$Block.\+h$>$}
+
+Inheritance diagram for Block\+Mod\+AD\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062}{block\+\_\+modad\+\_\+type}} \{ \newline
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062a4844cdaf41cfe3777e75b83f2ea3f01a}{e\+Add\+Const}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062acbe102696aa8fefe1f87aff140f6cb47}{e\+Add\+Var}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062ae7fbe67ae9106872de6b2189aa32f8d5}{e\+Del\+Const}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062a353ccdc57e853e89f6128d5a0fc81c77}{e\+Del\+Var}}, 
+\newline
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062ad32ddc1a1fd971dbe43aa06237bea815}{e\+B\+A\+D\+Mod\+Last\+Param}}
+ \}
+\begin{DoxyCompactList}\small\item\em Definition of the possible type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a32b322f85e00e6548702c49cb8fc6fea}{Block\+Mod\+AD}} (int mod, const bool cB=false)
+\begin{DoxyCompactList}\small\item\em constructor, taking the type of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} and the \char`\"{}concerns\char`\"{} value \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_aaa3a21020e492301264144046ae407ba}{$\sim$\+Block\+Mod\+AD}} ()
+\begin{DoxyCompactList}\small\item\em destructor, {\itshape apparently} doing nothing \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a102e30a031044d9e821316a075e882b1}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a102e30a031044d9e821316a075e882b1}} 
+int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a102e30a031044d9e821316a075e882b1}{f\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em type of modification \end{DoxyCompactList}\item 
+boost\+::any \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a2e044cee2bbf96e34295a5b568d609bb}{whc\+\_\+list}}
+\begin{DoxyCompactList}\small\item\em pointer to the affected list of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} / \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+boost\+::any \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_af9bc92f775d5cfac36b1ab880f620127}{mod\+\_\+list}}
+\begin{DoxyCompactList}\small\item\em list describing the Constraints / Variables added / removed \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a59a9fcbf8f9f86d348344b2073644b0e}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a59a9fcbf8f9f86d348344b2073644b0e}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a59a9fcbf8f9f86d348344b2073644b0e}{print}} (std\+::ostream \&output) const override
+\begin{DoxyCompactList}\small\item\em print the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}{Block\+Mod\+AD}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} for adding/removing stuff to/from a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+Derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} to describe modifications to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} involving addition or deletion of dynamic variables. Note that no pointer to the affected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is required, since it can always be inferred from the other information (Constraints/\+Variables) that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} contains. 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!block\+\_\+modad\+\_\+type@{block\+\_\+modad\+\_\+type}}
+\index{block\+\_\+modad\+\_\+type@{block\+\_\+modad\+\_\+type}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}
+\subsubsection{\texorpdfstring{block\+\_\+modad\+\_\+type}{block\_modad\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062}{block\+\_\+modad\+\_\+type}}}
+
+
+
+Definition of the possible type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}. 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Add\+Const@{e\+Add\+Const}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!e\+Add\+Const@{e\+Add\+Const}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062a4844cdaf41cfe3777e75b83f2ea3f01a}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062a4844cdaf41cfe3777e75b83f2ea3f01a}} 
+e\+Add\+Const&add a dynamic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Add\+Var@{e\+Add\+Var}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!e\+Add\+Var@{e\+Add\+Var}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062acbe102696aa8fefe1f87aff140f6cb47}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062acbe102696aa8fefe1f87aff140f6cb47}} 
+e\+Add\+Var&add a dynamic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Del\+Const@{e\+Del\+Const}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!e\+Del\+Const@{e\+Del\+Const}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062ae7fbe67ae9106872de6b2189aa32f8d5}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062ae7fbe67ae9106872de6b2189aa32f8d5}} 
+e\+Del\+Const&delete a dynamic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Del\+Var@{e\+Del\+Var}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!e\+Del\+Var@{e\+Del\+Var}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062a353ccdc57e853e89f6128d5a0fc81c77}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062a353ccdc57e853e89f6128d5a0fc81c77}} 
+e\+Del\+Var&delete a dynamic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+B\+A\+D\+Mod\+Last\+Param@{e\+B\+A\+D\+Mod\+Last\+Param}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!e\+B\+A\+D\+Mod\+Last\+Param@{e\+B\+A\+D\+Mod\+Last\+Param}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062ad32ddc1a1fd971dbe43aa06237bea815}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a13aa94d77ea3e294f217c290a99d8062ad32ddc1a1fd971dbe43aa06237bea815}} 
+e\+B\+A\+D\+Mod\+Last\+Param&first allowed parameter value for derived classes convenience value for easily allow derived classes to extend the set of types of modifications \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a32b322f85e00e6548702c49cb8fc6fea}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a32b322f85e00e6548702c49cb8fc6fea}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!Block\+Mod\+AD@{Block\+Mod\+AD}}
+\index{Block\+Mod\+AD@{Block\+Mod\+AD}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}
+\subsubsection{\texorpdfstring{Block\+Mod\+A\+D()}{BlockModAD()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}{Block\+Mod\+AD}} (\begin{DoxyParamCaption}\item[{int}]{mod,  }\item[{const bool}]{cB = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor, taking the type of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} and the \char`\"{}concerns\char`\"{} value 
+
+Constructor\+: takes the type of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} and the \char`\"{}concerns\char`\"{} value. Note that a pointer to the affected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can always be inferred from the other information that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} contains, and therefore is not needd. Also, note that while the enum block\+\_\+mod\+\_\+type is provided to encode the possible values of modification, the field f\+\_\+type is of type int, and therefore so is the parameter of the constructor, in order to allow derived classes to \char`\"{}extend\char`\"{} the set of possible types of modifications. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_aaa3a21020e492301264144046ae407ba}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_aaa3a21020e492301264144046ae407ba}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!````~Block\+Mod\+AD@{$\sim$\+Block\+Mod\+AD}}
+\index{````~Block\+Mod\+AD@{$\sim$\+Block\+Mod\+AD}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}
+\subsubsection{\texorpdfstring{$\sim$\+Block\+Mod\+A\+D()}{~BlockModAD()}}
+{\footnotesize\ttfamily virtual $\sim$\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}{Block\+Mod\+AD}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+destructor, {\itshape apparently} doing nothing 
+
+Although the destructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}{Block\+Mod\+AD}} seems to be empty, it actually performs a very important and nontrivial task, i.\+e., destroying either the vector of new \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} / \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \char`\"{}names\char`\"{} (pointers), or the list of removed Constraints / Variables (the actual objects), held in the mod\+\_\+list field. The fact that this can be automatically done for any type of class derived from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} / \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} depends on the fact that the boost\+::any contains the actual objects (not pointers to), so it is the destructor of boost\+::any that automagically calls the destructor of the appropriate object, whatever that is (kudos to boost\+::any for this remarkable technical accomplishment). 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_af9bc92f775d5cfac36b1ab880f620127}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_af9bc92f775d5cfac36b1ab880f620127}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!mod\+\_\+list@{mod\+\_\+list}}
+\index{mod\+\_\+list@{mod\+\_\+list}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}
+\subsubsection{\texorpdfstring{mod\+\_\+list}{mod\_list}}
+{\footnotesize\ttfamily boost\+::any mod\+\_\+list}
+
+
+
+list describing the Constraints / Variables added / removed 
+
+this boost\+::any field contains two different things\+:
+
+
+\begin{DoxyItemize}
+\item for an addition, it contains a std\+::vector of either a derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} (you cannot make objects of the base class), or pointers to either \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}, or a derived class from one of these. The vector holds the \char`\"{}names\char`\"{} (pointers) of the things having just been added
+\item for a deletion, it contains a std\+::list of either a derived class from either \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} (you cannot make objects of the base class), or pointers to either \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}, or a derived class from one of these, holding the things having just been removed. 
+\end{DoxyItemize}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a2e044cee2bbf96e34295a5b568d609bb}\label{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d_a2e044cee2bbf96e34295a5b568d609bb}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}!whc\+\_\+list@{whc\+\_\+list}}
+\index{whc\+\_\+list@{whc\+\_\+list}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Block\+Mod\+AD}}
+\subsubsection{\texorpdfstring{whc\+\_\+list}{whc\_list}}
+{\footnotesize\ttfamily boost\+::any whc\+\_\+list}
+
+
+
+pointer to the affected list of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} / \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} 
+
+this boost\+::any field contains the reference to the std\+::list of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}, or derived class from one of these, which was affected by the addition/removal. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_block_8h}{Block.\+h}}\end{DoxyCompactItemize}

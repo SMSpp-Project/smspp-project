@@ -1,0 +1,560 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{}\section{C\+D\+A\+Solver Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}\index{C\+D\+A\+Solver@{C\+D\+A\+Solver}}
+
+
+base class for a Convex Duality Aware \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}  
+
+
+
+
+{\ttfamily \#include $<$C\+D\+A\+Solver.\+h$>$}
+
+Inheritance diagram for C\+D\+A\+Solver\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bf}{cda\+\_\+sol\+\_\+type}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bfadba3a97d48d409610a628464526ae573}{k\+Both\+Infeasible}} = k\+Infeasible + 1
+ \}
+\begin{DoxyCompactList}\small\item\em Public enum \char`\"{}extending\char`\"{} sol\+\_\+type to a specific case of C\+D\+A\+Solvers. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5}{int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5a67fa7c1e611dbb82d9b3d283ad42fc8a}{int\+Max\+D\+Sol}} = int\+Last\+Alg\+Par, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5a766cfdd25e01890462e8d496b2126fbe}{int\+Last\+Par\+C\+D\+AS}}
+ \}
+\begin{DoxyCompactList}\small\item\em Public enum \char`\"{}extending\char`\"{} int\+\_\+par\+\_\+type\+\_\+S to a specific case of C\+D\+A\+Solvers. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4b}{dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4baf904648a60949087c00b4c1a0f2a0fbb}{dbl\+R\+Acc\+D\+Sol}} = dbl\+Last\+Alg\+Par, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba054bbc58a2d8652169db874942c1338d}{dbl\+A\+Acc\+D\+Sol}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba80cb103dc992a8deaf4ffa1998b284fa}{dbl\+F\+Acc\+D\+Sol}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba2558addd74555103399b7dbe2ae38b16}{dbl\+Last\+Par\+C\+D\+AS}}
+ \}
+\begin{DoxyCompactList}\small\item\em Public enum \char`\"{}extending\char`\"{} dbl\+\_\+par\+\_\+type\+\_\+S to a specific case of C\+D\+A\+Solvers. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and destructor}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ab38a252b96e5a6080c8e40e1f2869554}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ab38a252b96e5a6080c8e40e1f2869554}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ab38a252b96e5a6080c8e40e1f2869554}{C\+D\+A\+Solver}} ()
+\begin{DoxyCompactList}\small\item\em constructor\+: does nothing special \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a9639ae2f9260a6412f9c87b3edbeab5a}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a9639ae2f9260a6412f9c87b3edbeab5a}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a9639ae2f9260a6412f9c87b3edbeab5a}{$\sim$\+C\+D\+A\+Solver}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: it is virtual, and it is empty \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Accessing dual solutions and dual unbounded directions}\par
+{\em The methods in this section allow to retrieve dual solution information generated (at least, conceptually) during the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. Calls to to any of these methods are therefore associated with the state of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} (comprised the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} not belonging to it but appearing in its \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, see the discussion about \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}) at the moment in which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} was last called; hence, it is expected that the state is the same. In other words, these methods are \char`\"{}extensions\char`\"{} of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, used to extract further (dual) information (likely) computed there, and therefore in principle an extension to the fundamental rule regarding \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} is to be enforced\+:
+
+between a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} and all the calls to any of these methods intended to retrieve dual information about solutions computed in that moment, no changes must occur to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} which change the answer that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} was supposed to compute
+
+The rule leaves scope for some changes occurring, although these must ensure that the answer is not affected; see comments to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. As always, \begin{DoxyVerb}          IT IS UNIQUELY THE CALLER'S RESPONSIBILITY
+            TO ENSURE THAT THE RULE IS RESPECTED\end{DoxyVerb}
+ }\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}{has\+\_\+dual\+\_\+solution}} (void)
+\begin{DoxyCompactList}\small\item\em tells whether a dual solution is available \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a974e986ce1a04d44660bb5c573e8315d}{is\+\_\+dual\+\_\+feasible}} (void)
+\begin{DoxyCompactList}\small\item\em $<$ returns true if the \char`\"{}current\char`\"{} dual solution is feasible \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution}} (void)=0
+\begin{DoxyCompactList}\small\item\em write the \char`\"{}current\char`\"{} dual solution in (the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} of ?) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution}} (void)
+\begin{DoxyCompactList}\small\item\em $<$ returns true if it is possible to generate a new dual solution \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}{has\+\_\+dual\+\_\+direction}} (void)
+\begin{DoxyCompactList}\small\item\em tells whether a dual unbounded direction is available \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a145672680f07ca7eef090900b8d6ddcf}{get\+\_\+dual\+\_\+direction}} (void)
+\begin{DoxyCompactList}\small\item\em write the \char`\"{}current\char`\"{} dual unbounded direction in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction}} (void)
+\begin{DoxyCompactList}\small\item\em returns true if is possible to generate a new dual unbounded direction \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Reading the state of the C\+D\+A\+Solver}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a402db4cab5024abd480ae2186cf467cc}{is\+\_\+dual\+\_\+exact}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if the dual problem is an \char`\"{}exact\char`\"{} one \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Handling the parameters of the C\+D\+A\+Solver}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}{get\+\_\+num\+\_\+int\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of int parameters \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a842fd454acaded84baf6b77e0d61a950}{get\+\_\+num\+\_\+dbl\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of double parameters \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a75dd1491b74c4b9476755e061dce3e04}{get\+\_\+dflt\+\_\+int\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of an int parameter \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a465a771c115acf8d5f4e32e22f003014}{get\+\_\+dflt\+\_\+dbl\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of a double parameter \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ae281b6699b0707a5cdc1e82b76d26c09}{int\+\_\+par\+\_\+str2idx}} (const std\+::string \&\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a81dba299d9c4ccc6c1e6be0a845142fd}{name}}) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the int parameter with given string name \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a6d353ac3d1200d9bea89235da61bc4f3}{dbl\+\_\+par\+\_\+str2idx}} (const std\+::string \&\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a81dba299d9c4ccc6c1e6be0a845142fd}{name}}) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the double parameter with given string name \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a61e973f39747f63b8f56d97cc62e32ce}{int\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the int parameter with given index \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a93f1297e7910e91cc18b303376191026}{dbl\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the double parameter with given index \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+base class for a Convex Duality Aware \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} 
+
+The {\itshape abstract} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} class derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} \mbox{[}see \mbox{\hyperlink{_solver_8h}{Solver.\+h}}\mbox{]} and extends the interface of the base class to support the concept that it is Aware that (upper or lower, as appropriate) bounds on the optimal value of the problem are obtained by means of Convex Duality arguments. In other words, this is a Convex-\/\+Duality-\/\+Aware \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}.
+
+The main theoretical consequences of the fact that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} is based on the properties of convex sets/functions are\+:
+
+
+\begin{DoxyItemize}
+\item There typically is a {\itshape dual} problem, usually having {\itshape dual variables} associated to the constraints of the original (primal) problem, which can be used to obtain (upper or lower, as appropriate) bounds on the optimal value of the (primal) problem.
+\item Since convex sets/functions \char`\"{}only go to infinity as (their recession)
+  cones\char`\"{}; the fact that the objective function value of a model is unbounded below/above is basically equivalent to the fact that there exist an unbounded \mbox{[}a/de\mbox{]}scent direction, i.\+e., a direction along which one may go forever without leaving the feasible region and so that the objective function is \mbox{[}in/de\mbox{]}creasing indefinitely along it. This gives both a convenient {\itshape certificate of unboundedness} for unbounded models, and a convenient {\itshape certificate of infeasibility} for infeasible models via a convenient {\itshape certificate of unboundedness of their dual}.
+\end{DoxyItemize}
+
+Hence, this class does little more than extend the interface of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} to the concepts that\+:
+
+
+\begin{DoxyItemize}
+\item (multiple) dual solutions can be generated;
+\item (upper or lower, as appropriate) bounds on the optimal value of the (primal) problem are associated to daid dual solutions, and therefore may change as different solutions are generated;
+\item unbounded \mbox{[}a/de\mbox{]}scent directions can be produced for unbounded primal and dual problems, providing both convenient certificates of unboundedness and certificates of infeasibility;
+\item the dual problem may be either an \char`\"{}exact\char`\"{} or an \char`\"{}inexact\char`\"{} one, i.\+e., strong duality holds, as opposed to only weak duality; in other words, being v(\+P) the optimal value of the primal (minimization) problem and v(\+D) the optimal value of the dual (maximization) problem, \begin{DoxyVerb}v(D) <= v(P)      (weak duality)
+\end{DoxyVerb}
+
+
+is always assumed to hold, but \begin{DoxyVerb}v(D) == v(P)      (strong duality)
+\end{DoxyVerb}
+
+
+may or may not hold, see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a402db4cab5024abd480ae2186cf467cc}{is\+\_\+dual\+\_\+exact()}} (of course, the sign of the inequality is reversed if the primal is a maximization problem).
+\end{DoxyItemize}
+
+Regarding the second point, the interface of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} does not really change that of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}, in that the methods \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a7304d819b2eeff3d4ba650055b24e3a5}{get\+\_\+ub()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a4a4dbe4c2416d531c4619ca94fc07d31}{get\+\_\+lb()}} remain the same. However, the following revision of the comments need to be taken into account\+:
+
+
+\begin{DoxyItemize}
+\item For get\+\_\+\mbox{[}lb/ub\mbox{]}() and a \mbox{[}min/max\mbox{]}imization problem, any returned finite \mbox{[}low/upp\mbox{]}er bound has to be considered as being attached to a feasible {\itshape dual} solution, in the sense of being its objective function value. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}} has not been called yet after the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, then get\+\_\+\mbox{[}lb/ub\mbox{]}() should return the value of the best dual feasible solution ever found, the one which will be returned by the first call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}} (if any). If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} is called, it returns true, and get\+\_\+\mbox{[}lb/ub\mbox{]}() is called prior to the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}} after that, then the value returned by get\+\_\+\mbox{[}lb/ub\mbox{]}() will be the value of the {\itshape new} dual solution, the one that has {\itshape not} been written into the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} (in the specific way of the current model, e.\+g., in terms of dual variables attached to the Constraints) yet, and that will be written when \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}} is called (if ever). Hence, the value returned by get\+\_\+\mbox{[}lb/ub\mbox{]}() may change immediately after a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}}. This is so that the caller may know beforehand the value of the dual solution that is returned before it is even written to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} (it is assumed that this is know basically for free by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}), which can help her to decide whether or not the cost of writing (and then reading) is worth. The sequence of values of solutions returned by successive calls to get\+\_\+\mbox{[}lb/ub\mbox{]}() (after calls to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_af109b504a566c90a4ea45c1574c128fe}{new\+\_\+var\+\_\+solution()}} that return true) is expected to be generically \char`\"{}improving\char`\"{}, i.\+e., solutions with \mbox{[}smaller/larger\mbox{]} values are reported first; however, this does not need to be strictly enforced by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}, except that the first value ever reported should always be the best \mbox{[}low/upp\mbox{]}er bound available. Note, however, that the link between \mbox{[}lo/upp\mbox{]}wer bounds and solutions only holds if the solution itself is dual feasible \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a974e986ce1a04d44660bb5c573e8315d}{is\+\_\+dual\+\_\+feasible()}}\mbox{]}; if dual unfeasible solutions are generated, the value returned by get\+\_\+\mbox{[}lb/ub\mbox{]}() may (necessarily have to) be different from their objective function value.
+\end{DoxyItemize}
+
+Similarly, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} class re-\/uses and extends the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} method to produce \char`\"{}arbitrarily good\char`\"{} dual solutions when the dual problem is unbounded, which implies that the primal one is infeasible. That is, when \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} returns k\+Infeasible, the method can be used to set a threshold thr such that each subsequent call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} / \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}} only produces (new) dual solutions that\+:
+
+
+\begin{DoxyItemize}
+\item for a primal minimization problem, which means that the dual is a maximization one, have objective function value $>$= thr;
+\item for a primal maximization problem, which means that the dual is a minimization one, have objective function value $<$= thr.
+\end{DoxyItemize}
+
+There is no need for a separate \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} method for the dual problem because there is no risk that both problems are simultaneously unbounded\+: to which of the two the threshold necessarily refers is immediately obvious from the return code of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}.
+
+It should also be noted that, since the dual of a minimization model is a maximization one and vice-\/versa, the interpretation of upper cutoffs and lower cutoffs \mbox{[}see dbl\+Up\+Cut\+Off and dbl\+Lw\+Cut\+Off in \mbox{\hyperlink{_solver_8h}{Solver.\+h}}\mbox{]} can be done both in terms of the primal and of the dual problem. For instance, assue an upper cutoff  is set for a minimization problem\+: the condition
+
+lb $>$= 
+
+means {\itshape both}\+:
+
+
+\begin{DoxyItemize}
+\item for the primal problem, that is a minimization one, the condition says that a solution with objective function value at least as good as (i.\+e., smaller than)  was needed, but it is now clear that this is never going to happen, so the problem is treated as being as being detected to be unfeasible and the algorithm can stop already;
+\item for the dual problem, that is a maximization one, the condition says that a solution with objective function value at least as good as (i.\+e., greater than)  was needed; this has already been found, so the problem is treated as being solved already and the algorithm can stop.
+\end{DoxyItemize}
+
+Of course, this is symmetric if the primal is a maximization problem. 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bf}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bf}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!cda\+\_\+sol\+\_\+type@{cda\+\_\+sol\+\_\+type}}
+\index{cda\+\_\+sol\+\_\+type@{cda\+\_\+sol\+\_\+type}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{cda\+\_\+sol\+\_\+type}{cda\_sol\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bf}{cda\+\_\+sol\+\_\+type}}}
+
+
+
+Public enum \char`\"{}extending\char`\"{} sol\+\_\+type to a specific case of C\+D\+A\+Solvers. 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{k\+Both\+Infeasible@{k\+Both\+Infeasible}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!k\+Both\+Infeasible@{k\+Both\+Infeasible}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bfadba3a97d48d409610a628464526ae573}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a5c019517747a79f60866b19ce82194bfadba3a97d48d409610a628464526ae573}} 
+k\+Both\+Infeasible&both primal and dual infeasible {\itshape Both} the primal and the dual models are infeasible. This is typically a rare but not impossible occurrence, and it has the unfortunate consequence that it is impossible to provide a convenient certificate of infeasibility of either problem in terms of a certificate of unboundedness of the other. However, if for some reason the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} is certain that this is what is happening, this is still a \char`\"{}k\+O\+K-\/type\char`\"{} return value in that the problem is \char`\"{}solved for good\char`\"{}. \\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4b}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4b}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS@{dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}}
+\index{dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS@{dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}{dbl\_par\_type\_CDAS}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4b}{dbl\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}}}
+
+
+
+Public enum \char`\"{}extending\char`\"{} dbl\+\_\+par\+\_\+type\+\_\+S to a specific case of C\+D\+A\+Solvers. 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+R\+Acc\+D\+Sol@{dbl\+R\+Acc\+D\+Sol}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+R\+Acc\+D\+Sol@{dbl\+R\+Acc\+D\+Sol}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4baf904648a60949087c00b4c1a0f2a0fbb}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4baf904648a60949087c00b4c1a0f2a0fbb}} 
+dbl\+R\+Acc\+D\+Sol&maximum relative error in dual solution The algorithmic parameter for setting the relative accuracy of the accepted dual solutions. It instructs the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} not to even consider a solution among the ones to be reported (see k\+Max\+D\+Sol) if its objective function value is \char`\"{}too\char`\"{} bad. If the original problem is a minimization one, its dual is a maximization one. Hence, the objective function value of a dual solution provides a lower bound \char`\"{}lb\char`\"{} on the optimal dual value (which may, or may not, be equal to that of the primal problem, see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a402db4cab5024abd480ae2186cf467cc}{is\+\_\+dual\+\_\+exact()}} below). Assuming an upper bound \char`\"{}ub\char`\"{} on the {\itshape optimal} value of the {\itshape dual} problem has been found (note that this can be obtained by means of the objective value of a feasible {\itshape primal} solution, see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a7304d819b2eeff3d4ba650055b24e3a5}{get\+\_\+ub()}}), a solution is deemed acceptable with the provided parameter  if
+
+ub -\/ lb $<$=  $\ast$ max( abs( ub ) , abs( lb ) , 1 )
+
+Note that if no ub is available, the above formula can be replaced with
+
+fbest -\/ lb $<$=  $\ast$ max( abs( fbest ) , abs( lb ) , 1 )
+
+where fbest is the value of the best (with largest objective value) solution found so far. The roles of ub and lb are suitably reversed if the primal thar is a maximixation problem, so that the dual is a minimization. The default is Inf$<$\+O\+F\+Value$>$. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+A\+Acc\+D\+Sol@{dbl\+A\+Acc\+D\+Sol}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+A\+Acc\+D\+Sol@{dbl\+A\+Acc\+D\+Sol}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba054bbc58a2d8652169db874942c1338d}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba054bbc58a2d8652169db874942c1338d}} 
+dbl\+A\+Acc\+D\+Sol&maximum absolute error in any dual solution Similar to k\+Acc\+R\+D\+Sol but for an {\itshape absolute} accuracy; that is, a dual solution is deemed acceptable with the provided parameter  if
+
+ub -\/ lb $<$= 
+
+or
+
+fbest -\/ lb $<$= 
+
+with the same notation as in k\+Acc\+R\+D\+Sol and the same provisions about the case of a maximixation problem. The default is Inf$<$\+O\+F\+Value$>$. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+F\+Acc\+D\+Sol@{dbl\+F\+Acc\+D\+Sol}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+F\+Acc\+D\+Sol@{dbl\+F\+Acc\+D\+Sol}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba80cb103dc992a8deaf4ffa1998b284fa}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba80cb103dc992a8deaf4ffa1998b284fa}} 
+dbl\+F\+Acc\+D\+Sol&maximum absolute error in any dual solution The algorithmic parameter for setting the maximum relative allowed violation of {\itshape dual} constraints, assuming of course something like that exists in the specific dual that is being dealt with. Whenever the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} is uncapable of finding feasible dual solutions (maybe because there is none), it may still be useful that it returns the \char`\"{}least unfeasible\char`\"{} ones. This parameter instructs the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} not to even consider a solution among the ones to be reported (see k\+Max\+D\+Sol) if its violation is \char`\"{}too\char`\"{} bad. The actual meaning of this parameter is necessarily be C\+D\+A\+Solver-\/dependent; intuitively, it may be thought to work as the \char`\"{}relative constraint violation\char`\"{} feas\+\_\+epsilon of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \mbox{[}see \mbox{\hyperlink{_block_8h}{Block.\+h}}\mbox{]} is the concept of \char`\"{}dual constraint\char`\"{} is applicable. A setting of 0 may be taken as a way to tell the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} not to bother to produce unfeasible solutions at all, which is why this is the default value of the parameter. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Last\+Par\+C\+D\+AS@{dbl\+Last\+Par\+C\+D\+AS}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+Last\+Par\+C\+D\+AS@{dbl\+Last\+Par\+C\+D\+AS}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba2558addd74555103399b7dbe2ae38b16}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a12473d2c0cbab01587927c637e3f7e4ba2558addd74555103399b7dbe2ae38b16}} 
+dbl\+Last\+Par\+C\+D\+AS&first allowed parameter value for derived classes convenience value for easily allow derived classes to further extend the set of types of return codes \\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS@{int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}}
+\index{int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS@{int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}{int\_par\_type\_CDAS}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5}{int\+\_\+par\+\_\+type\+\_\+\+C\+D\+AS}}}
+
+
+
+Public enum \char`\"{}extending\char`\"{} int\+\_\+par\+\_\+type\+\_\+S to a specific case of C\+D\+A\+Solvers. 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+Max\+D\+Sol@{int\+Max\+D\+Sol}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!int\+Max\+D\+Sol@{int\+Max\+D\+Sol}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5a67fa7c1e611dbb82d9b3d283ad42fc8a}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5a67fa7c1e611dbb82d9b3d283ad42fc8a}} 
+int\+Max\+D\+Sol&maximum number of different dual solutions The algorithmic parameter for setting the maximum number of different {\itshape dual} solutions that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} should attempt to obtain and store. Since dual solutions can be a \char`\"{}big\char`\"{} objects (in some cases, buch bigger than primal sones), storing them may be costly. It may be therefore helpful for a C\+F\+A\+Solver to know beforehand how many different dual solutions the user would like to get. Among the reasonable values for this parameter, 1 says \char`\"{}\+I don\textquotesingle{}t care
+of multuple dual solutions, give me only the best one\char`\"{}, and 0 says \char`\"{}\+I don\textquotesingle{}t care of dual solutions at all, just tell me if there is any, and
+what its value is\char`\"{}. The default is 1. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+Last\+Par\+C\+D\+AS@{int\+Last\+Par\+C\+D\+AS}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!int\+Last\+Par\+C\+D\+AS@{int\+Last\+Par\+C\+D\+AS}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5a766cfdd25e01890462e8d496b2126fbe}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a90159e630999d1355450db84f3aa5fa5a766cfdd25e01890462e8d496b2126fbe}} 
+int\+Last\+Par\+C\+D\+AS&first allowed parameter value for derived classes convenience value for easily allow derived classes to further extend the set of types of return codes \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a93f1297e7910e91cc18b303376191026}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a93f1297e7910e91cc18b303376191026}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}}
+\index{dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+idx2str()}{dbl\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& dbl\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the double parameter with given index 
+
+This method takes a double parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a93f1297e7910e91cc18b303376191026}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a93f1297e7910e91cc18b303376191026}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a6d353ac3d1200d9bea89235da61bc4f3}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a6d353ac3d1200d9bea89235da61bc4f3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}}
+\index{dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+str2idx()}{dbl\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} dbl\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the double parameter with given string name 
+
+This method takes a string, which is assumed to be the name of a double parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a6d353ac3d1200d9bea89235da61bc4f3}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a6d353ac3d1200d9bea89235da61bc4f3}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a465a771c115acf8d5f4e32e22f003014}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a465a771c115acf8d5f4e32e22f003014}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+dbl\+\_\+par()}{get\_dflt\_dbl\_par()}}
+{\footnotesize\ttfamily virtual double get\+\_\+dflt\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of a double parameter 
+
+Get the default value of the double parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a465a771c115acf8d5f4e32e22f003014}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a465a771c115acf8d5f4e32e22f003014}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a75dd1491b74c4b9476755e061dce3e04}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a75dd1491b74c4b9476755e061dce3e04}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+int\+\_\+par()}{get\_dflt\_int\_par()}}
+{\footnotesize\ttfamily virtual int get\+\_\+dflt\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of an int parameter 
+
+Get the default value of the int parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a75dd1491b74c4b9476755e061dce3e04}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a75dd1491b74c4b9476755e061dce3e04}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a145672680f07ca7eef090900b8d6ddcf}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a145672680f07ca7eef090900b8d6ddcf}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!get\+\_\+dual\+\_\+direction@{get\+\_\+dual\+\_\+direction}}
+\index{get\+\_\+dual\+\_\+direction@{get\+\_\+dual\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dual\+\_\+direction()}{get\_dual\_direction()}}
+{\footnotesize\ttfamily virtual void get\+\_\+dual\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+write the \char`\"{}current\char`\"{} dual unbounded direction in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}{has\+\_\+dual\+\_\+direction()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}} that returned true, this method can be used to have the direction actually written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}. Because dual directions are in the same space of dual solutions, the method assumes that the dual direction can be suitably represented with the same scheme that is used for dual solutions \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}}\mbox{]} and is done with it. Note that the value of any dual solution or dual direction previously stored in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is typically lost for good, as presumably the interested \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} class does not provide any mechanism to retrieve it at a later time. However, it could presumably allow to save it beforehand in an appropriate \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solution}{Solution}} object, see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}.
+
+One possible use for such a direction is to construct a dual solution with \char`\"{}arbitrarily good\char`\"{} (large for a primal minimization problem whose dual is a maximization one, large vice-\/versa) value of the objective function. However, this typically requires first constructing a feasible dual solution, and then modifying it by means of the direction. Because of the fact that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is only supposed to hold one dual solution at a time, this is not exactly trivial to attain with the tools provided here. However, the method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} of the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} class exactly caters for this need.
+
+It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}{has\+\_\+dual\+\_\+direction()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}} have not been called and returned true (which means, in particular, if no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is attached to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}).
+
+Note that, while the largest burden of producing a dual directon is typically bore by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} and/or new\+\_\+dual\+\_\+directon(), it is still possible that \char`\"{}decoding\char`\"{} the internal information of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} in order to produce one in the proper format that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} requires may be somewhat costly.
+
+The method is given a default implementation in the base C\+A\+D\+Solver class doing nothing, for solvers that cannot produce any unbounded dual direction. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20bea98e93ae37db17f0a0424be71987}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!get\+\_\+dual\+\_\+solution@{get\+\_\+dual\+\_\+solution}}
+\index{get\+\_\+dual\+\_\+solution@{get\+\_\+dual\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dual\+\_\+solution()}{get\_dual\_solution()}}
+{\footnotesize\ttfamily virtual void get\+\_\+dual\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+write the \char`\"{}current\char`\"{} dual solution in (the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} of ?) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}{has\+\_\+dual\+\_\+solution()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} that returned true, this method can be used to have the dual solution actually written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}. Note that the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} class makes no assumption about how exactly a dual solution is shaped, only that the specific derived classes from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} involved have some support to hold this information (e.\+g., in terms of dual variables attached to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}). Any previous dual solution (or direction, see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a145672680f07ca7eef090900b8d6ddcf}{get\+\_\+dual\+\_\+direction()}}) is typically lost for good, as presumably the interested \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} class does not provide any mechanism to retrieve it at a later time. However, it could presumably allow to save it beforehand in an appropriate \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solution}{Solution}} object, see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}.
+
+It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}{has\+\_\+dual\+\_\+solution()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} have not been called and returned true (which means, in particular, if no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is attached to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}).
+
+Note that, while the largest burden of producing a dual solution is typically bore by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}}, it is still possible that \char`\"{}decoding\char`\"{} the internal information of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} in order to produce one in the required format may be somewhat costly. 
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7ceb04914b5dcbb1cfd8f0e844b56014}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a842fd454acaded84baf6b77e0d61a950}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a842fd454acaded84baf6b77e0d61a950}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+dbl\+\_\+par()}{get\_num\_dbl\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of double parameters 
+
+Get the number of double parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a842fd454acaded84baf6b77e0d61a950}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a842fd454acaded84baf6b77e0d61a950}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}}
+\index{get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+int\+\_\+par()}{get\_num\_int\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of int parameters 
+
+Get the number of int parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!has\+\_\+dual\+\_\+direction@{has\+\_\+dual\+\_\+direction}}
+\index{has\+\_\+dual\+\_\+direction@{has\+\_\+dual\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{has\+\_\+dual\+\_\+direction()}{has\_dual\_direction()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+dual\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+tells whether a dual unbounded direction is available 
+
+A call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} that returned k\+Infeasible supposedly mean that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} can guarante that it is impossible to find any feasible solution to the primal problem. This typically (but not always, see k\+Both\+Infeasible) means that it is possible to find feasible {\itshape dual} solutions whose value is \char`\"{}better\char`\"{} than any given threshold. For models with underlying convex structure, this typically means that there exist an unbounded \mbox{[}a/de\mbox{]}scent direction in the dual space, i.\+e., a direction along which one may go forever without leaving the feasible region of the dual and so that the dual objective function is \mbox{[}in/de\mbox{]}creasing indefinitely along it. This gives both a convenient {\itshape certificate of unboundedness} of the dual, and a convenient {\itshape certificate of infeasibility} for the primal. Hence, the user may be interested in accessing one (or more) of these directions. This can be done implicitly and indirectly via \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} \mbox{[}see the general comments\mbox{]}, but a more direct representation may be useful.
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} that returned k\+Infeasible, this method has to return true if an unbounded dual \mbox{[}a/de\mbox{]}scent direction is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a4bc119810c0c2ee3ba0c48183f50aaf4}{get\+\_\+var\+\_\+direction()}}. It is often the case that such a direction is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} whenever the latter returns k\+Infeasible; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} whenever k\+Infeasible is returned.
+
+Once \char`\"{}the first\char`\"{} direction (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}}.
+
+The default implementation in the base class always returns false, which is OK for \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} that cannot produce any dual unbounded direction. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3a262f8106b76603f0828e41bbe5b022}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!has\+\_\+dual\+\_\+solution@{has\+\_\+dual\+\_\+solution}}
+\index{has\+\_\+dual\+\_\+solution@{has\+\_\+dual\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{has\+\_\+dual\+\_\+solution()}{has\_dual\_solution()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+dual\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+tells whether a dual solution is available 
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} this method has to return true if a dual solution is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}}. For a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} using duality (i.\+e., a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}), it is often the case that a(n approximately optimal) dual solution is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}.
+
+Once \char`\"{}the first\char`\"{} solution (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}}.
+
+The default implementation in the base class always returns true, which is OK, for instance, for \char`\"{}easy\char`\"{} problems that are never unbounded and can surely be solved \char`\"{}efficiently enough\char`\"{}. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a61e973f39747f63b8f56d97cc62e32ce}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a61e973f39747f63b8f56d97cc62e32ce}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}}
+\index{int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+idx2str()}{int\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& int\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the int parameter with given index 
+
+This method takes an int parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a61e973f39747f63b8f56d97cc62e32ce}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a61e973f39747f63b8f56d97cc62e32ce}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ae281b6699b0707a5cdc1e82b76d26c09}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ae281b6699b0707a5cdc1e82b76d26c09}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}}
+\index{int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+str2idx()}{int\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} int\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the int parameter with given string name 
+
+This method takes a string, which is assumed to be the name of an int parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae281b6699b0707a5cdc1e82b76d26c09}{Solver}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ae281b6699b0707a5cdc1e82b76d26c09}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a402db4cab5024abd480ae2186cf467cc}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a402db4cab5024abd480ae2186cf467cc}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!is\+\_\+dual\+\_\+exact@{is\+\_\+dual\+\_\+exact}}
+\index{is\+\_\+dual\+\_\+exact@{is\+\_\+dual\+\_\+exact}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{is\+\_\+dual\+\_\+exact()}{is\_dual\_exact()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+dual\+\_\+exact (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if the dual problem is an \char`\"{}exact\char`\"{} one 
+
+This method returns true if the dual problem is an \char`\"{}exact\char`\"{} one. That is, being v(\+P) the optimal value of the primal (minimization) problem and v(\+D) the optimal value of the dual (maximization) problem, this method returns true only if it is theoretically guaranteed (which, usually, means that it is also practically true) that \begin{DoxyVerb}  v(D ) == v(P)      (strong duality)
+\end{DoxyVerb}
+
+
+holds. Note that \begin{DoxyVerb}  v(D ) <= v(P)      (weak duality)
+\end{DoxyVerb}
+
+
+is always assumed to hold, regardless to the return value of this method. Of course, the sign of the inequality is reversed if the primal is a maximization problem.
+
+Most often, the return value of this method will be constant for a whole class of problems, i.\+e., for a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} irrespectively of the data of the actual problem to be solved\+: a class of problems either has a strong dual, or it has not. However, in some cases strong duality may depend on the instance of the model (e.\+g., if some appropriate constraint qualification holds).
+
+The method is given a default implementation in the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} class catering the very lucky case in which the dual is exact. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a974e986ce1a04d44660bb5c573e8315d}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a974e986ce1a04d44660bb5c573e8315d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!is\+\_\+dual\+\_\+feasible@{is\+\_\+dual\+\_\+feasible}}
+\index{is\+\_\+dual\+\_\+feasible@{is\+\_\+dual\+\_\+feasible}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{is\+\_\+dual\+\_\+feasible()}{is\_dual\_feasible()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+dual\+\_\+feasible (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+$<$ returns true if the \char`\"{}current\char`\"{} dual solution is feasible 
+
+$<$ After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}{has\+\_\+dual\+\_\+solution()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} that returned true, this method can be used to check whether or not the dual solution is feasible. Note that this can be called before that the solution is actually written into the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} (in whatever format the actual dual in question requires) via \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}}, as a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} is assumed to know this. However, the method can also be called after that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{get\+\_\+dual\+\_\+solution()}} is called, returning the same value (until \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} is called again and it returns true).
+
+Note that a user can know the value of the objective function of the same dual solution by calling the appropriate one between \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a4a4dbe4c2416d531c4619ca94fc07d31}{get\+\_\+lb()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a7304d819b2eeff3d4ba650055b24e3a5}{get\+\_\+ub()}}. This, however, is {\itshape only} true for {\itshape feasible} solutions, as only these provide valid lower/upper bounds on the optimal value.
+
+This virtual method is provided a simple implementation always returning true, which is OK for a solver that always only returns dual feasible solutions (if any). \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!new\+\_\+dual\+\_\+direction@{new\+\_\+dual\+\_\+direction}}
+\index{new\+\_\+dual\+\_\+direction@{new\+\_\+dual\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{new\+\_\+dual\+\_\+direction()}{new\_dual\_direction()}}
+{\footnotesize\ttfamily virtual bool new\+\_\+dual\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if is possible to generate a new dual unbounded direction 
+
+$<$ This method must be called each time the user of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} wants that it produces a {\itshape new} dual unbounded direction.
+
+This method can only be called after the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} has been invoked at least once, has reported k\+Infeasible, and if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}{has\+\_\+dual\+\_\+direction()}} has already returned true. The method has to return true if an unbounded dual \mbox{[}a/de\mbox{]}scent direction that is {\itshape different} from the previously returned one is available. This method returning false means that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} has no means of producing any other dual unbounded direction for good, so it does not make sense to call it again unless something has changed in the problem encoded in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \mbox{[}see the discussion in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}\mbox{]} or, in case the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has returned k\+Stop\+Time or k\+Stop\+Iter, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} is called again. For a typical algorithm that only produces at most one dual unbounded \mbox{[}a/de\mbox{]}scent direction, this method should always false; indeed, this is what the default implementation of the method does.
+
+Note that a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}} may be costly, in that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} is only supposed to return true if it is {\itshape certain} to be able to produce a new dual direction, which typically means having in fact produced it. However, the dual direction is not really written to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} until \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a145672680f07ca7eef090900b8d6ddcf}{get\+\_\+dual\+\_\+direction()}} is called, so part of the cost of producing it may in fact be bore by that method.
+
+There is no default assumption about the order in which unbounded dual directions are generated by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}, although each one may have some reasonable definition of an appropriate notion of \char`\"{}better direction\char`\"{} that might be employed.
+
+The method is given a default implementation in the base C\+A\+D\+Solver class always returning false, for solvers that cannot produce any dual unbounded direction \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}\label{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}!new\+\_\+dual\+\_\+solution@{new\+\_\+dual\+\_\+solution}}
+\index{new\+\_\+dual\+\_\+solution@{new\+\_\+dual\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C\+D\+A\+Solver}}
+\subsubsection{\texorpdfstring{new\+\_\+dual\+\_\+solution()}{new\_dual\_solution()}}
+{\footnotesize\ttfamily virtual bool new\+\_\+dual\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+$<$ returns true if it is possible to generate a new dual solution 
+
+This method must be called each time the user of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} wants that it produces a {\itshape new dual} solution.
+
+This method can only be called after the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} has been invoked at least once, and if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}{has\+\_\+dual\+\_\+solution()}} has already returned true. The method has to return true if a dual solution that is {\itshape different} from the previously available one is available. This method returning false means that the C\+D\+Solver has no means of producing any other dual solution for good, so it does not make sense to call it again unless something has changed in the problem encoded in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \mbox{[}see the discussion in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}\mbox{]} or, in case the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has returned k\+Stop\+Time or k\+Stop\+Iter, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} is called again. For a typical algorithm that only produces one dual solution, this method should always return false; indeed, this is what the default implementation of the method does.
+
+The user can restrict the set of generated dual solutions, both in number (see int\+Max\+D\+Sol) and in terms of their quality (see dbl\+R\+Acc\+D\+Sol and dbl\+A\+Acc\+D\+Sol) or feasibility (see dbl\+F\+Acc\+D\+Sol). In particular, note that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} may be instructed (via dbl\+F\+Acc\+Sol) to also return {\itshape unfeasible} dual solutions if it has produced any (which may be the case if, for instance, the models is dual infeasible, and therefore no feasible dual solution can ever be found). This means in particular that it is in principle sensible to call this method even if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has returned a value not necessarily implying that a dual solution has been found (like k\+Low\+Precision or k\+Error), and even if it is guaranteed that no dual solution exists, i.\+e., either k\+Unbounded or k\+Both\+Infeasible.
+
+Note that a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{new\+\_\+dual\+\_\+solution()}} may be costly, in that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} is only supposed to return true if it is {\itshape certain} to be able to produce a new dual solution, which typically means having in fact produced it. However, the dual solution is not really written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} until \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a91d7cd0dc4fa453406ef30db2bfa37a5}{get\+\_\+var\+\_\+solution()}} is called, so part of the cost of producing it may in fact be bore by that method.
+
+While producing its dual solutions, it is expected that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} should\+:
+
+
+\begin{DoxyItemize}
+\item return first feasible dual solutions, if any, and only after having exhausted them start returning infeasible ones;
+\item return feasible dual solutions, at least roughly, in order of their objective function values, i.\+e., the better ones first (and in particular, the absolute best solution ever found as absolute first);
+\item return infeasible dual solutions, at least roughly, in order of their feasibility (the \char`\"{}least unfeasible ones first\char`\"{}, with some appropriate global measure of infeasibility) and/or in order of their objective function values (the better ones first), although the objective value of an unfeasible dual solution may not make too much of a sense, so that feasibility should be considered first (with objective value used e.\+g. to break ties).
+\end{DoxyItemize}
+
+A special use of this method is after that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has returned k\+Infeasible and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} has been called; see the general comments. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_c_d_a_solver_8h}{C\+D\+A\+Solver.\+h}}\end{DoxyCompactItemize}

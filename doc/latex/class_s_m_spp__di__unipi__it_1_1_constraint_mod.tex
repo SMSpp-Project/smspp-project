@@ -1,0 +1,99 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod}{}\section{Constraint\+Mod Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod}\index{Constraint\+Mod@{Constraint\+Mod}}
+
+
+class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}  
+
+
+
+
+{\ttfamily \#include $<$Constraint.\+h$>$}
+
+Inheritance diagram for Constraint\+Mod\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_s_m_spp__di__unipi__it_1_1_constraint_mod}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149}{cons\+\_\+mod\+\_\+type}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149ae7de2a648a32c2f1e3b1b789af090854}{e\+Relax\+Const}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149aa21739614d501a4faf1482becd5a2925}{e\+Enforce\+Const}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149aaaed9294dcc08e17e69763d17ab85393}{e\+Const\+Mod\+Last\+Param}}
+ \}
+\begin{DoxyCompactList}\small\item\em Definition of the possible type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a7a4f04b77f47c74540c0edb1dc7e24d7}{Constraint\+Mod}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$cnst, int mod=\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149ae7de2a648a32c2f1e3b1b789af090854}{e\+Relax\+Const}}, const bool cB=true)
+\begin{DoxyCompactList}\small\item\em constructor\+: takes the type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} and a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} pointer \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a9e626abee9ab5e51bb9ce2dc82ee9309}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a9e626abee9ab5e51bb9ce2dc82ee9309}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a9e626abee9ab5e51bb9ce2dc82ee9309}{$\sim$\+Constraint\+Mod}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: does nothing \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a714d0d3446d72b0c12cbc33835186c74}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a714d0d3446d72b0c12cbc33835186c74}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a714d0d3446d72b0c12cbc33835186c74}{f\+\_\+constraint}}
+\begin{DoxyCompactList}\small\item\em pointer to the modified \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a102e30a031044d9e821316a075e882b1}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a102e30a031044d9e821316a075e882b1}} 
+int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a102e30a031044d9e821316a075e882b1}{f\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em type of modification \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a2e7b9c9148a98c5c342e8c25cac95926}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod}{Constraint\+Mod}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} 
+
+Derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_a_modification}{A\+Modification}} to describe modifications to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, i.\+e., relaxing and enforcing it. 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}!cons\+\_\+mod\+\_\+type@{cons\+\_\+mod\+\_\+type}}
+\index{cons\+\_\+mod\+\_\+type@{cons\+\_\+mod\+\_\+type}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}}
+\subsubsection{\texorpdfstring{cons\+\_\+mod\+\_\+type}{cons\_mod\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149}{cons\+\_\+mod\+\_\+type}}}
+
+
+
+Definition of the possible type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}. 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Relax\+Const@{e\+Relax\+Const}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}!e\+Relax\+Const@{e\+Relax\+Const}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149ae7de2a648a32c2f1e3b1b789af090854}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149ae7de2a648a32c2f1e3b1b789af090854}} 
+e\+Relax\+Const&relax the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Enforce\+Const@{e\+Enforce\+Const}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}!e\+Enforce\+Const@{e\+Enforce\+Const}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149aa21739614d501a4faf1482becd5a2925}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149aa21739614d501a4faf1482becd5a2925}} 
+e\+Enforce\+Const&enforce the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Const\+Mod\+Last\+Param@{e\+Const\+Mod\+Last\+Param}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}!e\+Const\+Mod\+Last\+Param@{e\+Const\+Mod\+Last\+Param}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149aaaed9294dcc08e17e69763d17ab85393}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149aaaed9294dcc08e17e69763d17ab85393}} 
+e\+Const\+Mod\+Last\+Param&first allowed parameter value for derived classes convenience value for easily allow derived classes to extend the set of types of modifications \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a7a4f04b77f47c74540c0edb1dc7e24d7}\label{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a7a4f04b77f47c74540c0edb1dc7e24d7}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}!Constraint\+Mod@{Constraint\+Mod}}
+\index{Constraint\+Mod@{Constraint\+Mod}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint\+Mod}}
+\subsubsection{\texorpdfstring{Constraint\+Mod()}{ConstraintMod()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod}{Constraint\+Mod}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} $\ast$}]{cnst,  }\item[{int}]{mod = {\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod_a083683af0e6943bd7a3261e9037fd149ae7de2a648a32c2f1e3b1b789af090854}{e\+Relax\+Const}}},  }\item[{const bool}]{cB = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor\+: takes the type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} and a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} pointer 
+
+Constructor\+: takes the type of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} and a pointer to the affected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}. Note that while the enum cons\+\_\+mod\+\_\+type is provided to encode the possible values of modification, the field f\+\_\+type is of type \char`\"{}int\char`\"{}, and therefore so is the parameter of the constructor, in order to allow derived classes to \char`\"{}extend\char`\"{} the set of possible types of modifications. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_constraint_8h}{Constraint.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,75 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod}{}\section{F\+Real\+Objective\+Mod Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod}\index{F\+Real\+Objective\+Mod@{F\+Real\+Objective\+Mod}}
+
+
+class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}}  
+
+
+
+
+{\ttfamily \#include $<$F\+Real\+Objective.\+h$>$}
+
+Inheritance diagram for F\+Real\+Objective\+Mod\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3}{F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a2d56f392a43ca0db9b27247c7d60b944}{e\+Function\+Changed}} = e\+O\+F\+Mod\+Last\+Param, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a1917a45d723393f53d6a8b8eace4d77a}{e\+F\+R\+O\+Const\+Mod\+Last\+Param}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for the types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}} thrown \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a7e5531d69842de0cf59bbd8bdff5f0ea}\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a7e5531d69842de0cf59bbd8bdff5f0ea}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a7e5531d69842de0cf59bbd8bdff5f0ea}{F\+Real\+Objective\+Mod}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}} $\ast$obj, int mod=\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a2d56f392a43ca0db9b27247c7d60b944}{e\+Function\+Changed}}, const bool cB=true)
+\begin{DoxyCompactList}\small\item\em constructor\+: just calls that of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a05b5c4494d66f048b8d7d00adfab6970}\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a05b5c4494d66f048b8d7d00adfab6970}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a05b5c4494d66f048b8d7d00adfab6970}{$\sim$\+F\+Real\+Objective\+Mod}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: does nothing \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a2e7b9c9148a98c5c342e8c25cac95926}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod}{F\+Real\+Objective\+Mod}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}} 
+
+Derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}} to describe \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}}, i.\+e., changing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}.
+
+Defining a class is a bit weird because the only thing the class does is to define am enum for the new value of the type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}}. However, throwing a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} of a different class (but derived from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}}) may make it easier for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} to handle it (at the very least, it directly knows it comes from a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}} without having to check it). 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3}\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod}!F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type@{F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type}}
+\index{F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type@{F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod}}
+\subsubsection{\texorpdfstring{F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type}{FRO\_cons\_mod\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3}{F\+R\+O\+\_\+cons\+\_\+mod\+\_\+type}}}
+
+
+
+public enum for the types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective_mod}{Objective\+Mod}} thrown 
+
+Public enum \char`\"{}extending\char`\"{} of\+\_\+mod\+\_\+type with the new types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} thrown by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}}. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Function\+Changed@{e\+Function\+Changed}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod}!e\+Function\+Changed@{e\+Function\+Changed}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a2d56f392a43ca0db9b27247c7d60b944}\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a2d56f392a43ca0db9b27247c7d60b944}} 
+e\+Function\+Changed&the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} underlying this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_real_objective}{F\+Real\+Objective}} changed whole \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+F\+R\+O\+Const\+Mod\+Last\+Param@{e\+F\+R\+O\+Const\+Mod\+Last\+Param}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Real\+Objective\+Mod}!e\+F\+R\+O\+Const\+Mod\+Last\+Param@{e\+F\+R\+O\+Const\+Mod\+Last\+Param}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a1917a45d723393f53d6a8b8eace4d77a}\label{class_s_m_spp__di__unipi__it_1_1_f_real_objective_mod_a10f9cfdc831c025f33e97e51a22e32a3a1917a45d723393f53d6a8b8eace4d77a}} 
+e\+F\+R\+O\+Const\+Mod\+Last\+Param&first allowed parameter value for derived classes Convenience value for easily allow derived classes to extend the set of types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_f_real_objective_8h}{F\+Real\+Objective.\+h}}\end{DoxyCompactItemize}

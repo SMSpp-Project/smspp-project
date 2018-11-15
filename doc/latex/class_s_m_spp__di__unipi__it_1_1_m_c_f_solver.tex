@@ -1,0 +1,632 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}{}\section{M\+C\+F\+Solver$<$ M\+C\+FC $>$ Class Template Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}\index{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$@{M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}}
+
+
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} for \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_block}{M\+C\+F\+Block}}.  
+
+
+
+
+{\ttfamily \#include $<$M\+C\+F\+Solver.\+h$>$}
+
+Inheritance diagram for M\+C\+F\+Solver$<$ M\+C\+FC $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructing and destructing M\+C\+F\+Solver}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a351d0befbed3bfc9f32468a40411946f}{M\+C\+F\+Solver}} (void)
+\begin{DoxyCompactList}\small\item\em constructor\+: does nothing special \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20d6b656cb9edaae4e78d3ddb6fc4ed7}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20d6b656cb9edaae4e78d3ddb6fc4ed7}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20d6b656cb9edaae4e78d3ddb6fc4ed7}{$\sim$\+M\+C\+F\+Solver}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: it has to release all the Modifications \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Other initializations}\par
+{\em Parameter-\/wise, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}{M\+C\+F\+Solver}} maps the parameters of \mbox{[}C\+DA\mbox{]}\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}
+
+int\+Max\+Iter = 0 maximum iterations for the next call to solve() int\+Max\+Sol maximum number of different solutions to report int\+Log\+Verb \char`\"{}verbosity\char`\"{} of the log int\+Max\+D\+Sol maximum number of different dual solutions
+
+dbl\+Max\+Time = 0 maximum time for the next call to solve() dbl\+Rel\+Acc relative accuracy for declaring a solution optimal dbl\+Abs\+Acc absolute accuracy for declaring a solution optimal dbl\+Up\+Cut\+Off upper cutoff for stopping the algorithm dbl\+Lw\+Cut\+Off lower cutoff for stopping the algorithm dbl\+R\+Acc\+Sol maximum relative error in any reported solution dbl\+A\+Acc\+Sol maximum absolute error in any reported solution dbl\+F\+Acc\+Sol maximum constraint violation in any reported solution dbl\+R\+Acc\+D\+Sol maximum relative error in any dual solution dbl\+A\+Acc\+D\+Sol maximum absolute error in any dual solution dbl\+F\+Acc\+D\+Sol maximum absolute error in any dual solution
+
+into the parameter of \mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}}
+
+k\+Max\+Time = 0 max time k\+Max\+Iter max number of iteration k\+Eps\+Flw tolerance for flows k\+Eps\+Dfct tolerance for deficits k\+Eps\+Cst tolerance for costs
+
+It then \char`\"{}extends\char`\"{} them, using
+
+int\+Last\+Par\+C\+D\+AS first allowed parameter value for derived classes dbl\+Last\+Par\+C\+D\+AS first allowed parameter value for derived classes
+
+In particular, one now has
+
+int\+Last\+Par\+C\+D\+AS ==$>$ k\+Reopt whether or not to reoptimize
+
+and any other paramater of specific \+:\mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}} following. This is done via the two const static arrays Solver\+\_\+2\+\_\+\+M\+C\+F\+Class\+\_\+int and Solver\+\_\+2\+\_\+\+M\+C\+F\+Class\+\_\+dbl, with a negative entry meaning \char`\"{}there is no such
+parameter in M\+C\+F\+Solver\char`\"{}. }\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a8d7fb698416759f38941e06b23cccaec}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a8d7fb698416759f38941e06b23cccaec}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a8d7fb698416759f38941e06b23cccaec}{set\+\_\+\+Block}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$block) override
+\begin{DoxyCompactList}\small\item\em set the (pointer to the) \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} has to solve \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ab8ce512bc43533d07e9ebf93d44c515d}{set\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par, const int value) override
+\begin{DoxyCompactList}\small\item\em set a given integer (int) numerical parameter \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a341557f3dd81bff0f060dbe41a4ba325}{set\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par, const double value) override
+\begin{DoxyCompactList}\small\item\em set a given float (double) numerical parameter \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Solving the M\+CF encoded by the current M\+C\+F\+Block}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}} 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute}} (bool changedvars=true) override
+\begin{DoxyCompactList}\small\item\em (try to) solve the M\+CF encoded in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_block}{M\+C\+F\+Block}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Accessing the found solutions (if any)}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ab8ce6bff9c21fdcd41e355167209301a}{O\+F\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb}} (void) override
+\begin{DoxyCompactList}\small\item\em return a valid lower bound on the optimal objective function value \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ab8ce6bff9c21fdcd41e355167209301a}{O\+F\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub}} (void) override
+\begin{DoxyCompactList}\small\item\em return a valid upper bound on the optimal objective function value \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ade6d8078e2b6708ea0fa989629de2419}{has\+\_\+var\+\_\+solution}} (void) override
+\begin{DoxyCompactList}\small\item\em tells whether a solution is available \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}{has\+\_\+dual\+\_\+solution}} (void) override
+\begin{DoxyCompactList}\small\item\em tells whether a dual solution is available \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution}} (void) override
+\begin{DoxyCompactList}\small\item\em write the \char`\"{}current\char`\"{} solution in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7ceb04914b5dcbb1cfd8f0e844b56014}{get\+\_\+dual\+\_\+solution}} (void) override
+\begin{DoxyCompactList}\small\item\em write the \char`\"{}current\char`\"{} dual solution in (the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} of ?) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution}} (void) override
+\begin{DoxyCompactList}\small\item\em returns true if it is possible to generate a new solution \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{new\+\_\+dual\+\_\+solution}} (void) override
+\begin{DoxyCompactList}\small\item\em $<$ returns true if it is possible to generate a new dual solution \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a4f0fecd26f7731710ff6af22fa0cc635}{has\+\_\+var\+\_\+direction}} (void) override
+\begin{DoxyCompactList}\small\item\em tells whether an unbounded direction is available \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3a262f8106b76603f0828e41bbe5b022}{has\+\_\+dual\+\_\+direction}} (void) override
+\begin{DoxyCompactList}\small\item\em tells whether a dual unbounded direction is available \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af6cbccb8671398cc84c4e0a730a03285}{get\+\_\+var\+\_\+direction}} (void) override
+\begin{DoxyCompactList}\small\item\em write the \char`\"{}current\char`\"{} unbounded direction in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20bea98e93ae37db17f0a0424be71987}{get\+\_\+dual\+\_\+direction}} (void) override
+\begin{DoxyCompactList}\small\item\em write the \char`\"{}current\char`\"{} dual unbounded direction in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Handling the parameters of the M\+C\+F\+Solver}\par
+{\em Each M\+C\+F\+Solver$<$ M\+C\+F\+C $>$ may have its own extra int / double parameters. If this is the case, it will have to specialize the following methods to handle them. The general definition just handles the case of the
+
+int\+Last\+Par\+C\+D\+AS ==$>$ k\+Reopt whether or not to reoptimize
+
+extra (int) parameter and otherwise issues the method of the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} class, which is OK for each M\+C\+FC that does {\itshape not} have any extra parameter of the corresponding type (apart from that). The get\+\_\+$\ast$\+\_\+par() methods exploit the same two const static arrays Solver\+\_\+2\+\_\+\+M\+C\+F\+Class\+\_\+int and Solver\+\_\+2\+\_\+\+M\+C\+F\+Class\+\_\+dbl as the set\+\_\+$\ast$\+\_\+par(), with a negative entry meaning \char`\"{}there is no such parameter in M\+C\+F\+Solver\char`\"{}. }\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}{get\+\_\+num\+\_\+int\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of int parameters \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a842fd454acaded84baf6b77e0d61a950}{get\+\_\+num\+\_\+dbl\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of double parameters \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a75dd1491b74c4b9476755e061dce3e04}{get\+\_\+dflt\+\_\+int\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of an int parameter \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a465a771c115acf8d5f4e32e22f003014}{get\+\_\+dflt\+\_\+dbl\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of a double parameter \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aaaa5e72533153b149c26c1cc7ab1fe70}{get\+\_\+int\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get a specific integer (int) numerical parameter \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af7101b9f3e872b6ad9129ab99cff4cb7}{get\+\_\+dbl\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get a specific float (double) numerical parameter \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ae281b6699b0707a5cdc1e82b76d26c09}{int\+\_\+par\+\_\+str2idx}} (const std\+::string \&\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a81dba299d9c4ccc6c1e6be0a845142fd}{name}}) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the int parameter with given string name \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a6d353ac3d1200d9bea89235da61bc4f3}{dbl\+\_\+par\+\_\+str2idx}} (const std\+::string \&\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a81dba299d9c4ccc6c1e6be0a845142fd}{name}}) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the double parameter with given string name \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a61e973f39747f63b8f56d97cc62e32ce}{int\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the int parameter with given index \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a93f1297e7910e91cc18b303376191026}{dbl\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the double parameter with given index \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_abceba91167d73a6196c7c2087308b00e}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_abceba91167d73a6196c7c2087308b00e}} 
+void {\bfseries process\+\_\+outstanding\+\_\+\+Modification} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afd1ba61d3df60cdf49b9d7ac8cdd35fa}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afd1ba61d3df60cdf49b9d7ac8cdd35fa}} 
+static const std\+::vector$<$ int $>$ {\bfseries Solver\+\_\+2\+\_\+\+M\+C\+F\+Class\+\_\+int}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7b7a1948769b34b52d85e1f78e9746db}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7b7a1948769b34b52d85e1f78e9746db}} 
+static const std\+::vector$<$ int $>$ {\bfseries Solver\+\_\+2\+\_\+\+M\+C\+F\+Class\+\_\+dbl}
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a5618a1c2a09ff7cd62e4de9df7956672}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a5618a1c2a09ff7cd62e4de9df7956672}} 
+{\bfseries S\+M\+Spp\+\_\+insert\+\_\+in\+\_\+factory\+\_\+h}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename M\+C\+FC$>$\newline
+class S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver$<$ M\+C\+F\+C $>$}
+
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} for \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_block}{M\+C\+F\+Block}}. 
+
+The \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}{M\+C\+F\+Solver}} implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} interface for Min-\/\+Cost Flow problems described by a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_block}{M\+C\+F\+Block}}. Because the linear M\+CF problem is a Linear Program it has a(n exact) dual, and therefore \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}{M\+C\+F\+Solver}} implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} interface for also giving out dual information.
+
+This is only a relatively thin wrapper class around solvers under the \mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}} interface. To avoid a pointer to an internal object, the class is template over the underlying \+:\mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}} object, which implies that most of the code is in the header file. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a351d0befbed3bfc9f32468a40411946f}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a351d0befbed3bfc9f32468a40411946f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!M\+C\+F\+Solver@{M\+C\+F\+Solver}}
+\index{M\+C\+F\+Solver@{M\+C\+F\+Solver}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{M\+C\+F\+Solver()}{MCFSolver()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver}{M\+C\+F\+Solver}} (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor\+: does nothing special 
+
+Void constructor\+: does nothing special, except verifying that the template argument derives from \mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}}. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a93f1297e7910e91cc18b303376191026}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a93f1297e7910e91cc18b303376191026}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}}
+\index{dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+idx2str()}{dbl\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& dbl\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the double parameter with given index 
+
+This method takes a double parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a93f1297e7910e91cc18b303376191026}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a6d353ac3d1200d9bea89235da61bc4f3}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a6d353ac3d1200d9bea89235da61bc4f3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}}
+\index{dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+str2idx()}{dbl\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} dbl\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the double parameter with given string name 
+
+This method takes a string, which is assumed to be the name of a double parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a6d353ac3d1200d9bea89235da61bc4f3}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af7101b9f3e872b6ad9129ab99cff4cb7}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af7101b9f3e872b6ad9129ab99cff4cb7}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+dbl\+\_\+par@{get\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+dbl\+\_\+par@{get\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dbl\+\_\+par()}{get\_dbl\_par()}}
+{\footnotesize\ttfamily virtual double get\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get a specific float (double) numerical parameter 
+
+Get a specific float (double) numerical parameter. The method is given a void implementation always returning the default value for the parameter, rather than being pure virtual, so that derived classes not having any working double parameter (i.\+e., either not having any or not really reacting to the ones that they supposedly have) do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a16a600de08446b386bc437d8448ef44a}{Thin\+Compute\+Interface}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a465a771c115acf8d5f4e32e22f003014}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a465a771c115acf8d5f4e32e22f003014}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+dbl\+\_\+par()}{get\_dflt\_dbl\_par()}}
+{\footnotesize\ttfamily virtual double get\+\_\+dflt\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of a double parameter 
+
+Get the default value of the double parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a465a771c115acf8d5f4e32e22f003014}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a75dd1491b74c4b9476755e061dce3e04}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a75dd1491b74c4b9476755e061dce3e04}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+int\+\_\+par()}{get\_dflt\_int\_par()}}
+{\footnotesize\ttfamily virtual int get\+\_\+dflt\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of an int parameter 
+
+Get the default value of the int parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a75dd1491b74c4b9476755e061dce3e04}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20bea98e93ae37db17f0a0424be71987}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20bea98e93ae37db17f0a0424be71987}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+dual\+\_\+direction@{get\+\_\+dual\+\_\+direction}}
+\index{get\+\_\+dual\+\_\+direction@{get\+\_\+dual\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dual\+\_\+direction()}{get\_dual\_direction()}}
+{\footnotesize\ttfamily virtual void get\+\_\+dual\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+write the \char`\"{}current\char`\"{} dual unbounded direction in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3a262f8106b76603f0828e41bbe5b022}{has\+\_\+dual\+\_\+direction()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}} that returned true, this method can be used to have the direction actually written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}. Because dual directions are in the same space of dual solutions, the method assumes that the dual direction can be suitably represented with the same scheme that is used for dual solutions \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7ceb04914b5dcbb1cfd8f0e844b56014}{get\+\_\+dual\+\_\+solution()}}\mbox{]} and is done with it. Note that the value of any dual solution or dual direction previously stored in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is typically lost for good, as presumably the interested \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} class does not provide any mechanism to retrieve it at a later time. However, it could presumably allow to save it beforehand in an appropriate \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solution}{Solution}} object, see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}.
+
+One possible use for such a direction is to construct a dual solution with \char`\"{}arbitrarily good\char`\"{} (large for a primal minimization problem whose dual is a maximization one, large vice-\/versa) value of the objective function. However, this typically requires first constructing a feasible dual solution, and then modifying it by means of the direction. Because of the fact that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is only supposed to hold one dual solution at a time, this is not exactly trivial to attain with the tools provided here. However, the method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} of the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} class exactly caters for this need.
+
+It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3a262f8106b76603f0828e41bbe5b022}{has\+\_\+dual\+\_\+direction()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}} have not been called and returned true (which means, in particular, if no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is attached to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}).
+
+Note that, while the largest burden of producing a dual directon is typically bore by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} and/or new\+\_\+dual\+\_\+directon(), it is still possible that \char`\"{}decoding\char`\"{} the internal information of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} in order to produce one in the proper format that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} requires may be somewhat costly.
+
+The method is given a default implementation in the base C\+A\+D\+Solver class doing nothing, for solvers that cannot produce any unbounded dual direction. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a145672680f07ca7eef090900b8d6ddcf}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7ceb04914b5dcbb1cfd8f0e844b56014}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7ceb04914b5dcbb1cfd8f0e844b56014}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+dual\+\_\+solution@{get\+\_\+dual\+\_\+solution}}
+\index{get\+\_\+dual\+\_\+solution@{get\+\_\+dual\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+dual\+\_\+solution()}{get\_dual\_solution()}}
+{\footnotesize\ttfamily virtual void get\+\_\+dual\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+write the \char`\"{}current\char`\"{} dual solution in (the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} of ?) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}{has\+\_\+dual\+\_\+solution()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{new\+\_\+dual\+\_\+solution()}} that returned true, this method can be used to have the dual solution actually written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}. Note that the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} class makes no assumption about how exactly a dual solution is shaped, only that the specific derived classes from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} involved have some support to hold this information (e.\+g., in terms of dual variables attached to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}). Any previous dual solution (or direction, see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a20bea98e93ae37db17f0a0424be71987}{get\+\_\+dual\+\_\+direction()}}) is typically lost for good, as presumably the interested \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} class does not provide any mechanism to retrieve it at a later time. However, it could presumably allow to save it beforehand in an appropriate \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solution}{Solution}} object, see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}.
+
+It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}{has\+\_\+dual\+\_\+solution()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{new\+\_\+dual\+\_\+solution()}} have not been called and returned true (which means, in particular, if no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is attached to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}).
+
+Note that, while the largest burden of producing a dual solution is typically bore by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{new\+\_\+dual\+\_\+solution()}}, it is still possible that \char`\"{}decoding\char`\"{} the internal information of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} in order to produce one in the required format may be somewhat costly. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a347d37171494bf83416a48b279b94d5a}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aaaa5e72533153b149c26c1cc7ab1fe70}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aaaa5e72533153b149c26c1cc7ab1fe70}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+int\+\_\+par@{get\+\_\+int\+\_\+par}}
+\index{get\+\_\+int\+\_\+par@{get\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+int\+\_\+par()}{get\_int\_par()}}
+{\footnotesize\ttfamily virtual int get\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get a specific integer (int) numerical parameter 
+
+Get a specific integer (int) numerical parameter. The method is given a void implementation always returning the default value for the parameter, rather than being pure virtual, so that derived classes not having any working int parameter (i.\+e., either not having any or not really reacting to the ones that they supposedly have) do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a9403da6fd83a275dfdf21ec4db71c744}{Thin\+Compute\+Interface}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+lb@{get\+\_\+lb}}
+\index{get\+\_\+lb@{get\+\_\+lb}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+lb()}{get\_lb()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ab8ce6bff9c21fdcd41e355167209301a}{O\+F\+Value}} get\+\_\+lb (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+return a valid lower bound on the optimal objective function value 
+
+Returns a valid lower bound on the optimal objective function value. The meaning of this information clearly depends on whether the problem is a minimization or a maximization one, and on the status of the solution process.
+
+For a minimization problem, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} returns\+:
+
+
+\begin{DoxyItemize}
+\item -\/ Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Unbounded.
+\item Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Infeasible.
+\item A finite value if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+OK. Since the lower bound for a minimization problem is not attached to a solution in terms of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}, the lower bound is not assumed to change if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} \mbox{[}see below\mbox{]} is called again. In several cases the lower bound is attached to a {\itshape dual} solution, but this concept is not general enough to be supported in the base class \mbox{[}see \mbox{\hyperlink{_c_d_a_solver_8h}{C\+D\+A\+Solver.\+h}}\mbox{]}.
+\item any value, comprised -\/ Inf$<$\+O\+F\+Value$>$ (meaning that no lower bound is currently available), if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned any other value.
+\end{DoxyItemize}
+
+For a maximization problem, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} returns\+:
+
+
+\begin{DoxyItemize}
+\item Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Unbounded.
+\item -\/ Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Infeasible.
+\item A finite value if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+OK. Since the lower bound for a maximization problem is typically attached to a feasible solution, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} should return the objective function value of the feasible solution that has been returned by the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} \mbox{[}see below\mbox{]}, if any. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} has not been called yet after the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} should return the value of the best feasible solution ever found, the one which will be returned by the first call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} (if any). If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} is called, it returns true, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} is called prior to the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} after that, then the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} will be the value of the {\itshape new} solution, the one that has {\itshape not} been written into the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} yet, and that will be written when \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} is called (if ever). Hence, the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} may change immediately after a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}}. This is so that the caller may know beforehand the value of the solution that is returned before it is even written to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} (it is assumed that this is known basically for free by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}), which can help her to decide whether or not the cost of writing (and then reading) is worth. The sequence of values of solutions returned by successive calls to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} (after calls to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} that return true) is expected to be generically nonincreasing (i.\+e., solutions with \char`\"{}larger\char`\"{} values are reported first) but this does not need to be strictly enforced by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}, except that the first value ever reported should always be the best lower bound available. Note, however, that the link between lower bounds and solutions only holds if the solution itself is feasible \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a038fa1e554e91724e1ce3f593aba55fd}{is\+\_\+var\+\_\+feasible()}}\mbox{]}; if unfeasible solutions are generated, the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a064e49220c7f623cd53edbee8313c753}{get\+\_\+lb()}} may (necessarily have to) be different from their objective function value.
+\item Any value, comprised -\/ Inf$<$\+O\+F\+Value$>$ (meaning that no lower bound is currently available), if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned any other value. However, whatever the return status of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}, the returned value should always be a valid lower bound.
+\end{DoxyItemize}
+
+The method is given an implementation returning -\/\+Inf$<$\+O\+F\+Value$>$(), which should be safe for any derived classes which simply don\textquotesingle{}t have the concept of real objective function. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a4a4dbe4c2416d531c4619ca94fc07d31}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a842fd454acaded84baf6b77e0d61a950}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a842fd454acaded84baf6b77e0d61a950}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+dbl\+\_\+par()}{get\_num\_dbl\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of double parameters 
+
+Get the number of double parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a842fd454acaded84baf6b77e0d61a950}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}}
+\index{get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+int\+\_\+par()}{get\_num\_int\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of int parameters 
+
+Get the number of int parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a3ad74d9506761eb2ca4c8a936fb7a1c5}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+ub@{get\+\_\+ub}}
+\index{get\+\_\+ub@{get\+\_\+ub}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+ub()}{get\_ub()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ab8ce6bff9c21fdcd41e355167209301a}{O\+F\+Value}} get\+\_\+ub (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+return a valid upper bound on the optimal objective function value 
+
+Returns a valid upper bound on the optimal objective function value. The meaning of this information clearly depends on whether the problem is a minimization or a maximization one, and on the status of the solution process.
+
+For a maximization problem, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} returns\+:
+
+
+\begin{DoxyItemize}
+\item Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Unbounded.
+\item -\/ Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Infeasible.
+\item A finite value if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+OK. Since the upper bound for a maximization problem is not attached to a solution in terms of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}, the upper bound is not assumed to change if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} \mbox{[}see below\mbox{]} is called again. In several cases the upper bound is attached to a {\itshape dual} solution, but this concept is not general enough to be supported in the base class \mbox{[}see D\+A\+Solver.\+h\mbox{]}.
+\item any value, comprised Inf$<$\+O\+F\+Value$>$ (meaning that no upper bound is currently available), if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned any other value.
+\end{DoxyItemize}
+
+For a minimization problem, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} returns\+:
+
+
+\begin{DoxyItemize}
+\item -\/ Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Unbounded.
+\item Inf$<$\+O\+F\+Value$>$ if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+Infeasible.
+\item A finite value if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned k\+OK. Since the upper bound for a minimization problem is typically attached to a feasible solution, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} should return the objective function value of the feasible solution that will be returned by the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} \mbox{[}see below\mbox{]}, if any. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} has not been called yet after the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} should return the value of the best feasible solution ever found, the one which will be returned by the first call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} (if any). If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} is called, it returns true, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} is called prior to the next call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} after that, then the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} will be the value of the {\itshape new} solution, the one that has {\itshape not} been written into the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} yet, and that will be written when \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} is called (if ever). Hence, the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} may change immediately after a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}}. This is so that the caller may know beforehand the value of the solution that is returned before it is even written to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} (it is assumed that this is known basically for free by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}), which can help her to decide whether or not the cost of writing (and then reading) is worth. Note, however, that since \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} means \char`\"{}do you have a solution that you
+     haven\textquotesingle{}t given me yet?\char`\"{}, it may change the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} in all calls {\itshape but the first}. That\textquotesingle{}s because in the first call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} the returned value is that of the \char`\"{}best\char`\"{} solution, that still have to be explicitly \char`\"{}requested\char`\"{} by calling \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}}; hence, the first call to that method is just asking for that first solution, and not a new one. The sequence of values of solutions returned by successive calls to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} (after calls to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} that return true) is expected to be generically nondecreasing (i.\+e., solutions with \char`\"{}smaller\char`\"{} values are reported first) but this does not need to be strictly enforced by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}, except that the first value ever reported should always be the best upper bound available. Note, however, that the link between upper bounds and solutions only holds if the solution itself is feasible \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a038fa1e554e91724e1ce3f593aba55fd}{is\+\_\+var\+\_\+feasible()}} below\mbox{]}; if unfeasible solutions are generated, the value returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a106686dbd21fcdd86e42130d39a7ec2f}{get\+\_\+ub()}} may (necessarily have to) be different from their objective function value.
+\item Any value, comprised Inf$<$\+O\+F\+Value$>$ (meaning that no upper bound is currently available), if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} returned any other value. However, whatever the return status of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}, the returned value should always be a valid upper bound.
+\end{DoxyItemize}
+
+The method is given an implementation returning Inf$<$\+O\+F\+Value$>$(), which should be safe for any derived classes which simply don\textquotesingle{}t have the concept of real objective function. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a7304d819b2eeff3d4ba650055b24e3a5}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af6cbccb8671398cc84c4e0a730a03285}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af6cbccb8671398cc84c4e0a730a03285}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+var\+\_\+direction@{get\+\_\+var\+\_\+direction}}
+\index{get\+\_\+var\+\_\+direction@{get\+\_\+var\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+var\+\_\+direction()}{get\_var\_direction()}}
+{\footnotesize\ttfamily virtual void get\+\_\+var\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+write the \char`\"{}current\char`\"{} unbounded direction in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a4f0fecd26f7731710ff6af22fa0cc635}{has\+\_\+var\+\_\+direction()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a673fc1c81a1fc86e55dfab3a37f303bc}{new\+\_\+var\+\_\+direction()}} that returned true, this method can be used to have the solution actually written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}. Because directions are in the same space of solutions, the method assumes that the direction can be suitably represented with the same \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} that are used for solutions. Apart from that, the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} class makes no assumption about how the direction is stored, this being dependent on what the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} actually are. Note that the previous value in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is lost for good, irrespectively of the fact that it contained a solution or a direction, and the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} class does not provide any mechanism to retrieve it at a later time (except saving them beforehand in a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solution}{Solution}} object, see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}).
+
+One possible use for such a direction is to construct a solution with \char`\"{}arbitrarily good\char`\"{} (small for a minimization problem, large for a maximization one) value of the objective function. However, this typically requires first constructing a feasible solution, and then modifying it by means of the direction. Because of the fact that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can only hold one value at a time, this is not exactly trivial to attain with the tools provided here (some copy of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} content has to be done). However, the method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} exactly caters for this need.
+
+It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a4f0fecd26f7731710ff6af22fa0cc635}{has\+\_\+var\+\_\+direction()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a673fc1c81a1fc86e55dfab3a37f303bc}{new\+\_\+var\+\_\+direction()}} have not been called and returned true (which means, in particular, if no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is attached to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}).
+
+Note that, while the largest burden of producing a directon is typically bore by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} and/or new\+\_\+var\+\_\+directon(), it is still possible that \char`\"{}decoding\char`\"{} the internal information of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} in order to produce one in the proper format that the Variables of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} require may be somewhat costly.
+
+The method is given a default implementation in the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} class doing nothing, for solvers that cannot produce any unbounded direction. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a4bc119810c0c2ee3ba0c48183f50aaf4}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!get\+\_\+var\+\_\+solution@{get\+\_\+var\+\_\+solution}}
+\index{get\+\_\+var\+\_\+solution@{get\+\_\+var\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{get\+\_\+var\+\_\+solution()}{get\_var\_solution()}}
+{\footnotesize\ttfamily virtual void get\+\_\+var\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+write the \char`\"{}current\char`\"{} solution in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} 
+
+After a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ade6d8078e2b6708ea0fa989629de2419}{has\+\_\+var\+\_\+solution()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} that returned true, this method can be used to have the solution actually written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}. Any previous solution (or direction, see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af6cbccb8671398cc84c4e0a730a03285}{get\+\_\+var\+\_\+direction()}}) is lost for good, as the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} class does not provide any mechanism to retrieve the previous value in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} at a later time\+: only one solution at a time can be stored in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. However, the state of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can be saved in a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solution}{Solution}} \mbox{[}see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}\mbox{]} object before this method is called if it is to be kept for future use. Note that the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a6a5e38de103dc5a46feb9bd4ac48c3d5}{Solver()}} class makes no assumption about how the solution is stored, this being dependent on what the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} actually are.
+
+It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ade6d8078e2b6708ea0fa989629de2419}{has\+\_\+var\+\_\+solution()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} have not been called and returned true (which means, in particular, if no \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} is attached to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}}).
+
+Note that, while the largest burden of producing a solution is typically bore by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} and/or \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}}, it is still possible that \char`\"{}decoding\char`\"{} the internal information of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} in order to produce one in the format that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} require may be somewhat costly. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a91d7cd0dc4fa453406ef30db2bfa37a5}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3a262f8106b76603f0828e41bbe5b022}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a3a262f8106b76603f0828e41bbe5b022}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!has\+\_\+dual\+\_\+direction@{has\+\_\+dual\+\_\+direction}}
+\index{has\+\_\+dual\+\_\+direction@{has\+\_\+dual\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{has\+\_\+dual\+\_\+direction()}{has\_dual\_direction()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+dual\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+tells whether a dual unbounded direction is available 
+
+A call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} that returned k\+Infeasible supposedly mean that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} can guarante that it is impossible to find any feasible solution to the primal problem. This typically (but not always, see k\+Both\+Infeasible) means that it is possible to find feasible {\itshape dual} solutions whose value is \char`\"{}better\char`\"{} than any given threshold. For models with underlying convex structure, this typically means that there exist an unbounded \mbox{[}a/de\mbox{]}scent direction in the dual space, i.\+e., a direction along which one may go forever without leaving the feasible region of the dual and so that the dual objective function is \mbox{[}in/de\mbox{]}creasing indefinitely along it. This gives both a convenient {\itshape certificate of unboundedness} of the dual, and a convenient {\itshape certificate of infeasibility} for the primal. Hence, the user may be interested in accessing one (or more) of these directions. This can be done implicitly and indirectly via \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} \mbox{[}see the general comments\mbox{]}, but a more direct representation may be useful.
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} that returned k\+Infeasible, this method has to return true if an unbounded dual \mbox{[}a/de\mbox{]}scent direction is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af6cbccb8671398cc84c4e0a730a03285}{get\+\_\+var\+\_\+direction()}}. It is often the case that such a direction is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} whenever the latter returns k\+Infeasible; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} whenever k\+Infeasible is returned.
+
+Once \char`\"{}the first\char`\"{} direction (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ad83925e362d49bbe570a881791e45ea0}{new\+\_\+dual\+\_\+direction()}}.
+
+The default implementation in the base class always returns false, which is OK for \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} that cannot produce any dual unbounded direction. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a4247feaa72c255f28a2a71b5e634b60a}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!has\+\_\+dual\+\_\+solution@{has\+\_\+dual\+\_\+solution}}
+\index{has\+\_\+dual\+\_\+solution@{has\+\_\+dual\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{has\+\_\+dual\+\_\+solution()}{has\_dual\_solution()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+dual\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+tells whether a dual solution is available 
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} this method has to return true if a dual solution is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a7ceb04914b5dcbb1cfd8f0e844b56014}{get\+\_\+dual\+\_\+solution()}}. For a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} using duality (i.\+e., a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}}), it is often the case that a(n approximately optimal) dual solution is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}.
+
+Once \char`\"{}the first\char`\"{} solution (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{new\+\_\+dual\+\_\+solution()}}.
+
+The default implementation in the base class always returns true, which is OK, for instance, for \char`\"{}easy\char`\"{} problems that are never unbounded and can surely be solved \char`\"{}efficiently enough\char`\"{}. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a26970b0da7f4f7b56bcfc890983d9a40}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a4f0fecd26f7731710ff6af22fa0cc635}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a4f0fecd26f7731710ff6af22fa0cc635}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!has\+\_\+var\+\_\+direction@{has\+\_\+var\+\_\+direction}}
+\index{has\+\_\+var\+\_\+direction@{has\+\_\+var\+\_\+direction}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{has\+\_\+var\+\_\+direction()}{has\_var\_direction()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+var\+\_\+direction (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+tells whether an unbounded direction is available 
+
+A call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} that returned k\+Unbounded supposedly mean that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} can guarante that it is always possible to find feasible solutions whose value is \char`\"{}better\char`\"{} than any given threshold. For many models, this means that there exist an unbounded \mbox{[}a/de\mbox{]}scent direction, i.\+e., a direction along which one may go forever without leaving the feasible region and so that the objective function is \mbox{[}in/de\mbox{]}creasing indefinitely along it. This gives a convenient {\itshape certificate of unboundedness} for the model (and, notably, a convenient {\itshape certificate of infeasibility} for their dual, if one exists, see \mbox{\hyperlink{_c_d_a_solver_8h}{C\+D\+A\+Solver.\+h}}). Hence, the user may be interested in accessing one (or more) of these directions. This can be done implicitly and indirectly via \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}}, but a more direct representation may be useful.
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} that returned k\+Unbounded, this method has to return true if an unbounded \mbox{[}a/de\mbox{]}scent direction is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_af6cbccb8671398cc84c4e0a730a03285}{get\+\_\+var\+\_\+direction()}}. It is often the case that such a direction is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} whenever the latter returns k\+Unbounded; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} whenever k\+Unbounded is returned.
+
+Once \char`\"{}the first\char`\"{} direction (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a673fc1c81a1fc86e55dfab3a37f303bc}{new\+\_\+var\+\_\+direction()}}.
+
+The default implementation in the base class always returns false, which is OK for \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} that cannot produce any unbounded direction. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_a27e8c876f577289e523ebf26aeeb977a}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ade6d8078e2b6708ea0fa989629de2419}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ade6d8078e2b6708ea0fa989629de2419}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!has\+\_\+var\+\_\+solution@{has\+\_\+var\+\_\+solution}}
+\index{has\+\_\+var\+\_\+solution@{has\+\_\+var\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{has\+\_\+var\+\_\+solution()}{has\_var\_solution()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+var\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+tells whether a solution is available 
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} this method has to return true if a solution is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}}. It is often the case that a(n approximately optimal) solution is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}.
+
+Once \char`\"{}the first\char`\"{} solution (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}}.
+
+The default implementation in the base class always returns true, which is OK, for instance, for \char`\"{}easy\char`\"{} problems that are never empty and can surely be solved \char`\"{}efficiently enough\char`\"{}. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_aa96263f4e0c59225f3f5d54f03fe31ee}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a61e973f39747f63b8f56d97cc62e32ce}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a61e973f39747f63b8f56d97cc62e32ce}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}}
+\index{int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+idx2str()}{int\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& int\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the int parameter with given index 
+
+This method takes an int parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a61e973f39747f63b8f56d97cc62e32ce}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ae281b6699b0707a5cdc1e82b76d26c09}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ae281b6699b0707a5cdc1e82b76d26c09}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}}
+\index{int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+str2idx()}{int\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} int\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the int parameter with given string name 
+
+This method takes a string, which is assumed to be the name of an int parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_ae281b6699b0707a5cdc1e82b76d26c09}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!new\+\_\+dual\+\_\+solution@{new\+\_\+dual\+\_\+solution}}
+\index{new\+\_\+dual\+\_\+solution@{new\+\_\+dual\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{new\+\_\+dual\+\_\+solution()}{new\_dual\_solution()}}
+{\footnotesize\ttfamily virtual bool new\+\_\+dual\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+$<$ returns true if it is possible to generate a new dual solution 
+
+This method must be called each time the user of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} wants that it produces a {\itshape new dual} solution.
+
+This method can only be called after the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} method of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} has been invoked at least once, and if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac179f31ab4f3e55a7f03b152d065edbd}{has\+\_\+dual\+\_\+solution()}} has already returned true. The method has to return true if a dual solution that is {\itshape different} from the previously available one is available. This method returning false means that the C\+D\+Solver has no means of producing any other dual solution for good, so it does not make sense to call it again unless something has changed in the problem encoded in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \mbox{[}see the discussion in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}\mbox{]} or, in case the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has returned k\+Stop\+Time or k\+Stop\+Iter, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} is called again. For a typical algorithm that only produces one dual solution, this method should always return false; indeed, this is what the default implementation of the method does.
+
+The user can restrict the set of generated dual solutions, both in number (see int\+Max\+D\+Sol) and in terms of their quality (see dbl\+R\+Acc\+D\+Sol and dbl\+A\+Acc\+D\+Sol) or feasibility (see dbl\+F\+Acc\+D\+Sol). In particular, note that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} may be instructed (via dbl\+F\+Acc\+Sol) to also return {\itshape unfeasible} dual solutions if it has produced any (which may be the case if, for instance, the models is dual infeasible, and therefore no feasible dual solution can ever be found). This means in particular that it is in principle sensible to call this method even if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has returned a value not necessarily implying that a dual solution has been found (like k\+Low\+Precision or k\+Error), and even if it is guaranteed that no dual solution exists, i.\+e., either k\+Unbounded or k\+Both\+Infeasible.
+
+Note that a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_aa78ff49c515c8c6e2da6216d104dc219}{new\+\_\+dual\+\_\+solution()}} may be costly, in that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} is only supposed to return true if it is {\itshape certain} to be able to produce a new dual solution, which typically means having in fact produced it. However, the dual solution is not really written in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} until \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} is called, so part of the cost of producing it may in fact be bore by that method.
+
+While producing its dual solutions, it is expected that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver}{C\+D\+A\+Solver}} should\+:
+
+
+\begin{DoxyItemize}
+\item return first feasible dual solutions, if any, and only after having exhausted them start returning infeasible ones;
+\item return feasible dual solutions, at least roughly, in order of their objective function values, i.\+e., the better ones first (and in particular, the absolute best solution ever found as absolute first);
+\item return infeasible dual solutions, at least roughly, in order of their feasibility (the \char`\"{}least unfeasible ones first\char`\"{}, with some appropriate global measure of infeasibility) and/or in order of their objective function values (the better ones first), although the objective value of an unfeasible dual solution may not make too much of a sense, so that feasibility should be considered first (with objective value used e.\+g. to break ties).
+\end{DoxyItemize}
+
+A special use of this method is after that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has returned k\+Infeasible and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} has been called; see the general comments. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c_d_a_solver_a8c650415b6673c33692c363abdfdef00}{C\+D\+A\+Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!new\+\_\+var\+\_\+solution@{new\+\_\+var\+\_\+solution}}
+\index{new\+\_\+var\+\_\+solution@{new\+\_\+var\+\_\+solution}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{new\+\_\+var\+\_\+solution()}{new\_var\_solution()}}
+{\footnotesize\ttfamily virtual bool new\+\_\+var\+\_\+solution (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if it is possible to generate a new solution 
+
+This method must be called each time the user of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} wants that it produces a {\itshape new} solution.
+
+This method can only be called after the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} method of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} has been invoked at least once, and if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ade6d8078e2b6708ea0fa989629de2419}{has\+\_\+var\+\_\+solution()}} has already returned true. The method has to return true if a solution that is {\itshape different} from the previously available one is available. This method returning false means that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} has no means of producing any other solution for good, so it does not make sense to call it again unless something has changed in the problem encoded in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \mbox{[}see the discussion in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}}\mbox{]} or, in case the last call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has returned k\+Stop\+Time or k\+Stop\+Iter, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} is called again. For a typical algorithm that only produces one solution, this method should always return false; indeed, this is what the default implementation of the method does.
+
+The user can restrict the set of generated solutions, both in number (see int\+Max\+Sol) and in terms of their quality (see dbl\+R\+Acc\+Sol and dbl\+A\+Acc\+Sol) or feasibility (see dbl\+F\+Acc\+Sol). In particular, note that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} may be instructed (via dbl\+F\+Acc\+Sol) to also return {\itshape unfeasible} solutions if it has produced any (which may be the case if, for instance, the models is infeasible, and therefore no feasible solution can ever be found). This means in particular that it is in principle sensible to call this method even if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has returned a value not necessarily implying that a solution has been found (like k\+Error), and even if it is guaranteed that no solution exists (k\+Infeasible).
+
+Note that a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a62678dc9f7485d5a2992c588c5dc7d49}{new\+\_\+var\+\_\+solution()}} may be costly, in that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} is only supposed to return true if it is {\itshape certain} to be able to produce a new solution, which typically means having in fact produced it. However, the solution is not really written to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} until \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ac83fa9679882440d13fb5940494699c5}{get\+\_\+var\+\_\+solution()}} is called, so part of the cost of producing it may in fact be bore by that method.
+
+While producing its solutions, it is expected that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} should\+:
+
+
+\begin{DoxyItemize}
+\item return first feasible solutions, if any, and only after having exhausted them start returning infeasible ones;
+\item return feasible solutions, at least roughly, in order of their objective function values, i.\+e., the better ones first (and in particular, the absolute best solution ever found as absolute first);
+\item return infeasible solutions, at least roughly, in order of their feasibility (the \char`\"{}least unfeasible ones first\char`\"{}, with some appropriate global measure of infeasibility) and/or in order of their objective function values (the better ones first), although the objective value of an unfeasible solution may not make too much of a sense, so that feasibility should be considered first (with objective value used e.\+g. to break ties).
+\end{DoxyItemize}
+
+A special use of this method is after that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has returned k\+Unbounded and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_ae1717d1363782e086aa797e7437c0352}{set\+\_\+unbounded\+\_\+threshold()}} has been called; see the comments to that method. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver_af109b504a566c90a4ea45c1574c128fe}{Solver}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ab8ce512bc43533d07e9ebf93d44c515d}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_ab8ce512bc43533d07e9ebf93d44c515d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!set\+\_\+par@{set\+\_\+par}}
+\index{set\+\_\+par@{set\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{set\+\_\+par()}{set\_par()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual void set\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par,  }\item[{const int}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+set a given integer (int) numerical parameter 
+
+Set a given integer (int) numerical parameter. The method is given a void implementation doing nothing (i.\+e., ignoring the set value), rather than being pure virtual, so that derived classes not having any working int parameter (i.\+e., either not having any or not really reacting to the ones that they supposedly have) do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a73669f587bb938b587c54ad7e73ec297}{Thin\+Compute\+Interface}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a341557f3dd81bff0f060dbe41a4ba325}\label{class_s_m_spp__di__unipi__it_1_1_m_c_f_solver_a341557f3dd81bff0f060dbe41a4ba325}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}!set\+\_\+par@{set\+\_\+par}}
+\index{set\+\_\+par@{set\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+M\+C\+F\+Solver}}
+\subsubsection{\texorpdfstring{set\+\_\+par()}{set\_par()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual void set\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par,  }\item[{const double}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+set a given float (double) numerical parameter 
+
+Set a given float (double) numerical parameter. The method is given a void implementation doing nothing (i.\+e., ignoring the set value), rather than being pure virtual, so that derived classes not having any working double parameter (i.\+e., either not having any or not really reacting to the ones that they supposedly have) do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a602be88195984f4f1b5dff7995976530}{Thin\+Compute\+Interface}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+M\+C\+F\+Block/\mbox{\hyperlink{_m_c_f_solver_8h}{M\+C\+F\+Solver.\+h}}\end{DoxyCompactItemize}

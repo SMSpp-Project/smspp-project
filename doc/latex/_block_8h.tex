@@ -1,0 +1,86 @@
+\hypertarget{_block_8h}{}\section{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Block.h File Reference}
+\label{_block_8h}\index{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Block.\+h@{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Block.\+h}}
+{\ttfamily \#include \char`\"{}S\+M\+S\+Typedefs.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Configuration.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Observer.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Solver.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}netcdf\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}
+\begin{DoxyCompactList}\small\item\em the cornerstone of the S\+M\+S++ system\+: a class for \char`\"{}a block in a model\char`\"{} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod}{Block\+Mod}}
+\begin{DoxyCompactList}\small\item\em derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} for \char`\"{}simple\char`\"{} modifications to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_mod_a_d}{Block\+Mod\+AD}}
+\begin{DoxyCompactList}\small\item\em derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} for adding/removing stuff to/from a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_config}{Block\+Config}}
+\begin{DoxyCompactList}\small\item\em derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} configuration parameters \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block_solver_config}{Block\+Solver\+Config}}
+\begin{DoxyCompactList}\small\item\em derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} for configuring the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespace_s_m_spp__di__unipi__it}{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em namespace for the Structured Modeling System++ (S\+M\+S++) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{_block_8h_a37ed657c6e3a21271ef87837de2240e6}\label{_block_8h_a37ed657c6e3a21271ef87837de2240e6}} 
+\#define {\bfseries \+\_\+\+\_\+\+Block}~/$\ast$ self-\/identification\+: \#endif at the end of the file $\ast$/
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef Block $\ast$ \mbox{\hyperlink{group___block___t_y_p_e_s_ga753932d88360bdd26edd3ad0397c99f9}{p\+\_\+\+Block}}
+\begin{DoxyCompactList}\small\item\em a pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+typedef std\+::vector$<$ p\+\_\+\+Block $>$ \mbox{\hyperlink{group___block___t_y_p_e_s_gaf2535d74ac0260546452f729dcc5b9f3}{Vec\+\_\+\+Block}}
+\begin{DoxyCompactList}\small\item\em a vector of pointers to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+typedef const std\+::vector$<$ p\+\_\+\+Block $>$ \mbox{\hyperlink{group___block___t_y_p_e_s_ga7cbe2d2777d0b63cf75c041bf7e60dff}{c\+\_\+\+Vec\+\_\+\+Block}}
+\begin{DoxyCompactList}\small\item\em a vector of pointers to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \end{DoxyCompactList}\item 
+typedef Vec\+\_\+\+Block\+::iterator \mbox{\hyperlink{group___block___t_y_p_e_s_ga106f39b1bd552b44399d6c3484e5d6bd}{Vec\+\_\+\+Block\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em iterator for a Vec\+\_\+\+Block \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header file for the {\itshape abstract} class Block, which represent the basic concept of a \char`\"{}block\char`\"{} in a block-\/structured mathematical model.
+
+A Block contains some Variable \mbox{[}see \mbox{\hyperlink{_variable_8h}{Variable.\+h}}\mbox{]}, some Constraint \mbox{[}see \mbox{\hyperlink{_constraint_8h}{Constraint.\+h}}\mbox{]}, one Objective \mbox{[}see \mbox{\hyperlink{_objective_8h}{Objective.\+h}}\mbox{]}, and some (inner) Block; furthermore, it can be contained into a father Block. Variable and Constraints can either be static (i.\+e., they are guaranteed to be always there throughout the life of the model, although of course the value that the Variable attain is, well, variable) or dynamic (i.\+e., that may appear and disappear during the life of the model). Conversely, the inner Blocks are static, i.\+e., they cannot individually appear or disappear. Dynamic Variable and Constraint allow to cope with \char`\"{}very large models\char`\"{} by means of column and row generation techniques.
+
+A Block can be attached to any number of Solvers \mbox{[}see \mbox{\hyperlink{_solver_8h}{Solver.\+h}}\mbox{]}, that can then be used to solve the corresponding mathematical model.
+
+Variable and Constraint in a Block can be arranged in any number of \char`\"{}sets\char`\"{}, or \char`\"{}groups\char`\"{}, each of which can be a multi-\/dimensional array with (in principle) an arbitrary number of dimensions. The idea is that a model with a specific structure (say, a Knapsack, a Traveling Salesman Problem, a Semi\+Definite program, ...) be represented as a specific derived class of Block. Hence, its Variable and Constraint will be organized into appropriate, \char`\"{}natural\char`\"{} (multi-\/dimensional) vectors, and will be accessed as such by specialized Solvers that can exploit the specific structure of the Block. Actually, the Variable and Constraint can be represented implicitly by just providing the data that characterizes them (the weights and costs of the item in a knapsack, an annotated graph, the size of a square semidefinite matrix, ...), and a specialized Solver will only need access to that data (characterizing the instance of the problem) to be able to solve the Block. We call this the \char`\"{}physical representation\char`\"{} of the Block. This means that the Constraint may not even need to be explicitly constructed, as specialized Solvers already know of them. Conversely, the Variable will always have to be constructed, as they are the place where Solver will write the solution of the Block once they have found it.
+
+However, a Block can also be attached to general-\/purpose solvers that only need the Variable and Constraint to be of some specific type (say, single real numbers and linear functions ...). Hence, the base Block class provides a mechanism whereby, upon request, the Block \char`\"{}exhibits\char`\"{} its Variable and Constraint as \char`\"{}unstructured\char`\"{} lists of (multi-\/dimensional arrays of) Constraint and Variable; we call this the \char`\"{}abstract
+representation\char`\"{} of the Block. Note that the physical representation of Constraint need be constructed before the abstract one is, since it is not by default; conversely, the physical representation of Variable need always be definite (but the abstract one need not).
+
+A Block supports \char`\"{}lazy\char`\"{} modifications of all its components\+: each time a modification occurs, an appropriate Modification object \mbox{[}see \mbox{\hyperlink{_modification_8h}{Modification.\+h}}\mbox{]} is dispatched to all Solver \char`\"{}interested\char`\"{} in the Block, i.\+e., either directly attached to the Block or attached to one of its ancestors. Hence, the next time they are required to solve the Block they will know which modifications have occurred since the last time they have solved it (if any) and be able to react accordingly, hopefully re-\/optimizing to improve the efficiency of the solution process. Each Solver is only interested in the Modification that occurred after it was (indirectly) attached to the Block and since the last time it solved the Block (if any), but it has the responsibility of cleaning up its list of Modification. The specific classes Block\+Mod and Block\+Mod\+AD are also defined in this file to contain all Block-\/specific Modification.
+
+Block can \char`\"{}save\char`\"{} the current status of its Variable into a Solution object \mbox{[}see \mbox{\hyperlink{_solution_8h}{Solution.\+h}}\mbox{]}, and read it back from a Solution object. Since Constraint can have dual information attached to them, this can similarly be saved.
+
+Block explicitly supports the notion that a model may need to be modified for algorithmic purposes, i.\+e., by producing either a Reformulation (a different Block that encodes a problem whose optimal solutions are optimal also for the original Block), a Relaxation (a different Block whose optimal value provides valid global lower/upper bounds for the optimal value of the original Block, assuming that was a minimization/maximization problem, while hopefully being easier to solve), or a Restriction (a different Block that encodes a problem whose feasible region is a strict subset of that of the original Block, which hopefully makes it easier to solve). These are called \char`\"{}\+R3 Block\char`\"{} of the original Block. The set of R3 Block of a given Block is defined by the Block itself; the base class provides no general R3 Block. However, since one of the basic design decisions of S\+M\+S++ is that \char`\"{}names\char`\"{} of Variable (and Constraint) are their memory address, it is not in general possible to \char`\"{}copy Variable\char`\"{} (a new Variable will always be a different Variable for any existing one). Therefore, the Block class provides support from the fact that an original Block can map back solution information produced by one of its R3 Blocks. This operation is, again, specific for each Block and R3 Block of its, and the base class provides no general mechanism for it (besides the interface).
+
+\begin{DoxyVersion}{Version}
+0.\+20
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+29 -\/ 04 -\/ 2018
+\end{DoxyDate}
+\begin{DoxyAuthor}{Author}
+Antonio Frangioni ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ 
+
+Rafael Durbano Lobato ~\newline
+ Department of Applied Mathematics ~\newline
+ State University of Campinas, Brazil ~\newline
+ 
+
+Kostas Tavlaridis-\/\+Gyparakis ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ Copyright \&copy by Antonio Frangioni, Rafael Durbano Lobato, Kostas Tavlaridis-\/\+Gyparakis 
+\end{DoxyAuthor}

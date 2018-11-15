@@ -1,0 +1,52 @@
+\hypertarget{_function_8h}{}\section{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Function.h File Reference}
+\label{_function_8h}\index{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Function.\+h@{/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\+Function.\+h}}
+{\ttfamily \#include \char`\"{}Modification.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Thin\+Compute\+Interface.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Thin\+Var\+Dep\+Interface.\+h\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}
+\begin{DoxyCompactList}\small\item\em base class of all possible real-\/valued functions \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod}{Function\+Mod}}
+\begin{DoxyCompactList}\small\item\em class to describe modifications that are specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod_vars}{Function\+Mod\+Vars}}
+\begin{DoxyCompactList}\small\item\em class to describe changes of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} involving \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod_vars_rngd}{Function\+Mod\+Vars\+Rngd}}
+\begin{DoxyCompactList}\small\item\em class to describe changes to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} involving a range of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod_vars_sbst}{Function\+Mod\+Vars\+Sbst}}
+\begin{DoxyCompactList}\small\item\em class to describe changes to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} involving a subset of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespace_s_m_spp__di__unipi__it}{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em namespace for the Structured Modeling System++ (S\+M\+S++) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{_function_8h_a4b2e9c69fbbadba14b814dadd3cbb949}\label{_function_8h_a4b2e9c69fbbadba14b814dadd3cbb949}} 
+\#define {\bfseries \+\_\+\+\_\+\+Function}~/$\ast$ self-\/identification\+: \#endif at the end of the file $\ast$/
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header file for the Function class, a quite general base class of all the possible types of functions. Very few assumptions are made about what form the function actually has, this being demanded to derived classes. Since a Function can be costly to compute (think multiple integrals or min-\/max functions requiring the solution of a hard optimization problem), the class implements the Thin\+Compute\+Interface paradigm. Also, since a Function depends on a set of \char`\"{}active\char`\"{} Variable, it implements the Thin\+Var\+Dep\+Interface paradigm.
+
+\begin{DoxyVersion}{Version}
+0.\+30
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+15 -\/ 08 -\/ 2018
+\end{DoxyDate}
+\begin{DoxyAuthor}{Author}
+Antonio Frangioni ~\newline
+ Operations Research Group ~\newline
+ Dipartimento di Informatica ~\newline
+ Universita\textquotesingle{} di Pisa ~\newline
+ 
+
+Rafael Durbano Lobato ~\newline
+ Department of Applied Mathematics ~\newline
+ State University of Campinas, Brazil ~\newline
+ Copyright \&copy by Antonio Frangioni, Rafael Durbano Lobato 
+\end{DoxyAuthor}

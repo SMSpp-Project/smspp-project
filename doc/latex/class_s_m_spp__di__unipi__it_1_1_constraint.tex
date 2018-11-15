@@ -1,0 +1,207 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint}{}\section{Constraint Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_constraint}\index{Constraint@{Constraint}}
+
+
+base class of all possible type of constraints that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support  
+
+
+
+
+{\ttfamily \#include $<$Constraint.\+h$>$}
+
+Inheritance diagram for Constraint\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{class_s_m_spp__di__unipi__it_1_1_constraint}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and Destructor}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a2877d5b993460277b70f1dbb6905f89e}{Constraint}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$my\+\_\+block=nullptr)
+\begin{DoxyCompactList}\small\item\em constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, taking the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} it belongs to \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a1b46be6cc7a0e63b96a286617403d86b}{Constraint}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \&)
+\begin{DoxyCompactList}\small\item\em copy constructor\+: it cannot be used, but it is not deleted \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a65f2b59f5bc1435bf439482d885b0c0a}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a65f2b59f5bc1435bf439482d885b0c0a}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a65f2b59f5bc1435bf439482d885b0c0a}{$\sim$\+Constraint}} ()
+\begin{DoxyCompactList}\small\item\em destructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}\+: it is virtual, and empty \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Other initializations}\par
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_ae25adfb4d0355dc999de19a850b0025d}{set\+\_\+\+Block}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$fblock)
+\begin{DoxyCompactList}\small\item\em set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_aec8d25421e0368c5cdb71e7c96f767f8}{relax}} (bool relax\+\_\+it, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}})
+\begin{DoxyCompactList}\small\item\em method to relax or enforce the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Reading the data of the Constraint}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_abb90eec380b99ebb3d015f6d5f9e26b8}\label{class_s_m_spp__di__unipi__it_1_1_constraint_abb90eec380b99ebb3d015f6d5f9e26b8}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_abb90eec380b99ebb3d015f6d5f9e26b8}{get\+\_\+\+Block}} (void) const
+\begin{DoxyCompactList}\small\item\em returns the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods describing the behavior of the Constraint}\par
+{\em Most of this interface derives directly from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}} and it is not changed in the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} class; derived classes will have to do the actual implementation. }\begin{DoxyCompactItemize}
+\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}{compute}} (bool changedvars=true) override=0
+\begin{DoxyCompactList}\small\item\em compute (evaluate) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a29e571bbd4e2f1046c56e39c06633c4c}{feasible}} (void) const =0
+\begin{DoxyCompactList}\small\item\em returns true if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a1a65568cbfeada174c656ab07d355caa}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a1a65568cbfeada174c656ab07d355caa}} 
+bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a1a65568cbfeada174c656ab07d355caa}{is\+\_\+relaxed}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is relaxed, i.\+e., not really a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Member Functions}
+\begin{Indent}\textbf{ Protected methods for printing and serializing}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} on an ostream \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a372d458e214710b23cf375b9a6edc5fc}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a372d458e214710b23cf375b9a6edc5fc}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a372d458e214710b23cf375b9a6edc5fc}{f\+\_\+\+Block}}
+\begin{DoxyCompactList}\small\item\em pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a3120b6af44b090970678e5628682d773}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a3120b6af44b090970678e5628682d773}} 
+bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a3120b6af44b090970678e5628682d773}{f\+\_\+is\+\_\+relaxed}}
+\begin{DoxyCompactList}\small\item\em true if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is relaxed \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{Indent}\textbf{ Methods for printing the Constraint}\par
+{\em There is no extracting method (operator$>$$>$()) to load a constraint out of a stream because a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is not supposed to build itself\+: rather, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} it belongs to has to construct it. Saving the in-\/memory representation of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is supported via the boost\+::serialization approach. }\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \&c)
+\begin{DoxyCompactList}\small\item\em friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}{operator$<$$<$()}}, dispatching to virtual protected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a2e7b9c9148a98c5c342e8c25cac95926}{print()}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+base class of all possible type of constraints that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support 
+
+The class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is the base class of all the possible type of constraints that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} can support. This base class only supports a few fundamental facts\+:
+
+
+\begin{DoxyItemize}
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belong to one \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}};
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is influenced by a set of \char`\"{}active\char`\"{} Variables, i.\+e., these which contribute to it being satisfied (or not)\+: hence, the class implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} paradigm (i.\+e., derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}}) that class makes no provisions about how this set is stored in order to leave more freedom to derived classes to implement it in specialized ways;
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} can be (temporarily?) relaxed, i.\+e., not really constraining the set of solutions of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}};
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} can be either satisfied or not, depending on the values that its \char`\"{}active\char`\"{} Variables currently have;
+\item a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} has to be computed before it can be checked, and this can be costly (think multiple integrals for probability constraints or min-\/max functions requiring the solution of a hard optimization problem), which is why the class implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}} paradigm (i.\+e., derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}).
+\end{DoxyItemize}
+
+A fundamental design decision in S\+M\+S++ is that T\+HE \char`\"{}\+N\+A\+M\+E\char`\"{} OF A \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} IS I\+TS M\+E\+M\+O\+RY A\+D\+D\+R\+E\+SS. This means that M\+O\+V\+I\+NG A \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} IS N\+OT P\+O\+S\+S\+I\+B\+LE\+: copying a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} to a different memory location makes a distinct \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a2877d5b993460277b70f1dbb6905f89e}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a2877d5b993460277b70f1dbb6905f89e}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!Constraint@{Constraint}}
+\index{Constraint@{Constraint}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{Constraint()}{Constraint()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$}]{my\+\_\+block = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, taking the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} it belongs to 
+
+Constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}. It accepts a pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs, defaulting to nullptr so that this can be used as the void constructor. If nullptr is passed, then \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_ae25adfb4d0355dc999de19a850b0025d}{set\+\_\+\+Block()}} \mbox{[}see below\mbox{]} will have to be used later to initialize it. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a1b46be6cc7a0e63b96a286617403d86b}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a1b46be6cc7a0e63b96a286617403d86b}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!Constraint@{Constraint}}
+\index{Constraint@{Constraint}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{Constraint()}{Constraint()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+copy constructor\+: it cannot be used, but it is not deleted 
+
+The copy constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is not currently implemented, but it cannot be deleted because it is required to resize() empty vectors of \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!compute@{compute}}
+\index{compute@{compute}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{compute()}{compute()}}
+{\footnotesize\ttfamily virtual int compute (\begin{DoxyParamCaption}\item[{bool}]{changedvars = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [pure virtual]}}
+
+
+
+compute (evaluate) the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} 
+
+Pure virtual method\+: it has to compute whatever expression/function the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} depends onto and store the results into some protected field, so that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a29e571bbd4e2f1046c56e39c06633c4c}{feasible()}} \mbox{[}see below\mbox{]} can then check whether or not the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible (without chaging it, which allows \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a29e571bbd4e2f1046c56e39c06633c4c}{feasible()}} to be const). Evaluating a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} can be a lengthy task, involving e.\+g. expensive function computations or numerical integrals, which is why Constraints are not evaluated by default, and need to be evaluated explicitly with this method. This is also why this implements the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}; see the comments on the base class, in particular about the rules concerning what can change during a call to this method, and between two calls depending on the value of the changedvars parameter. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_a00fd6363d98ea46bcc273842b327d050}{Thin\+Compute\+Interface}}.
+
+
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{One\+Var\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{F\+Row\+Constraint}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a504d4e3e174c7a518cc66156a8a45ce5}{Row\+Constraint}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a29e571bbd4e2f1046c56e39c06633c4c}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a29e571bbd4e2f1046c56e39c06633c4c}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!feasible@{feasible}}
+\index{feasible@{feasible}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{feasible()}{feasible()}}
+{\footnotesize\ttfamily virtual bool feasible (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+returns true if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible 
+
+Pure virtual method\+: it has to return true if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible given the values of the Variables it depends onto. More specifically, the methodhas to return true if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} {\itshape was} feasible at the last time in which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} \mbox{[}see above\mbox{]} has been called. It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has never been called, although implementations are allowed not to check this and return any random response\+: is the users\textquotesingle{} responsibility to ensure that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has been called at the proper time. 
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_z_o_constraint_a575ce9dd82d423f5d6e9699622935415}{Z\+O\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_n_p_constraint_a575ce9dd82d423f5d6e9699622935415}{N\+P\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_n_n_constraint_a575ce9dd82d423f5d6e9699622935415}{N\+N\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_u_b_constraint_a575ce9dd82d423f5d6e9699622935415}{U\+B\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a575ce9dd82d423f5d6e9699622935415}{L\+B\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_a508a569b1ce65668a4bbe261b0e2efab}{F\+Row\+Constraint}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a508a569b1ce65668a4bbe261b0e2efab}{Row\+Constraint}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a2e7b9c9148a98c5c342e8c25cac95926}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!print@{print}}
+\index{print@{print}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily virtual void print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{output }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} on an ostream 
+
+$<$ Protected method intended to print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}; it is virtual so that derived classes can print their specific information in the format they choose. The level of the verbosity of the printed information can be controlled looking at the appropriate information in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs \mbox{[}see \mbox{\hyperlink{_block_8h}{Block.\+h}}\mbox{]}. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_z_o_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{Z\+O\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_n_p_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{N\+P\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_n_n_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{N\+N\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_u_b_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{U\+B\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{L\+B\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_u_b0_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{U\+B0\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b0_constraint_a617885c1d228e0ca67bbb0efdbe713e3}{L\+B0\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{F\+Row\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_box_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{Box\+Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{One\+Var\+Constraint}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{Row\+Constraint}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_aec8d25421e0368c5cdb71e7c96f767f8}\label{class_s_m_spp__di__unipi__it_1_1_constraint_aec8d25421e0368c5cdb71e7c96f767f8}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!relax@{relax}}
+\index{relax@{relax}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{relax()}{relax()}}
+{\footnotesize\ttfamily virtual void relax (\begin{DoxyParamCaption}\item[{bool}]{relax\+\_\+it,  }\item[{\mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}}}]{issue\+Mod = {\ttfamily \mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+method to relax or enforce the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} 
+
+Method to relax or enforce the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}. If relax\+\_\+it == true then the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is (temporarily) relaxed, i.\+e., no longer binding the set of values that its Variables can take. If relax\+\_\+it == false, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is enforced again. The method is virtual because derived classes (actually having a constraint to relax/enforce) may have to do more.
+
+The parameter issue\+Mod decides if and how the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_mod}{Constraint\+Mod}} is issued, as described in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_observer_a2d499ae38e5e95cf66cd71da32b0694a}{Observer\+::make\+\_\+par()}}. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_ae25adfb4d0355dc999de19a850b0025d}\label{class_s_m_spp__di__unipi__it_1_1_constraint_ae25adfb4d0355dc999de19a850b0025d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!set\+\_\+\+Block@{set\+\_\+\+Block}}
+\index{set\+\_\+\+Block@{set\+\_\+\+Block}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{set\+\_\+\+Block()}{set\_Block()}}
+{\footnotesize\ttfamily void set\+\_\+\+Block (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$}]{fblock }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs 
+
+Method to set the pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} belongs. If the pointer is not provided in the constructor, it should be called before any other method of the class. 
+
+\subsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}\label{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Constraint}}
+\subsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{out,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} \&}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}{operator$<$$<$()}}, dispatching to virtual protected \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a2e7b9c9148a98c5c342e8c25cac95926}{print()}} 
+
+Not really a method, but a friend \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}{operator$<$$<$()}} that just dispatches the ostream to the protected virtual method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a2e7b9c9148a98c5c342e8c25cac95926}{print()}}. This way the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a4f47f7bc7b271e73c2b4f89bf8f3e592}{operator$<$$<$()}} is defined for each \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, but its behavior can be customized by derived classes. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_constraint_8h}{Constraint.\+h}}\end{DoxyCompactItemize}

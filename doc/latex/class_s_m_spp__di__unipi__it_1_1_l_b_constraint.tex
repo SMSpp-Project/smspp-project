@@ -1,0 +1,155 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{}\section{L\+B\+Constraint Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}\index{L\+B\+Constraint@{L\+B\+Constraint}}
+
+
+an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint}{One\+Var\+Constraint}} with generic L\+HS and +\+Infty R\+HS  
+
+
+
+
+{\ttfamily \#include $<$One\+Var\+Constraint.\+h$>$}
+
+Inheritance diagram for L\+B\+Constraint\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and destructor}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_afbe5719b3cca0e8aac8257a75a2d8ead}{L\+B\+Constraint}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$my\+\_\+block=nullptr, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$const variable=nullptr, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a34abd4b01d3a2024be5f6d13dd88779f}{c\+\_\+\+R\+H\+S\+Value}} lhs=0)
+\begin{DoxyCompactList}\small\item\em constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}}\+: takes \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, and L\+HS \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_ac4587c1198c623a6c1e806a237f104d3}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_ac4587c1198c623a6c1e806a237f104d3}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_ac4587c1198c623a6c1e806a237f104d3}{$\sim$\+L\+B\+Constraint}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: does nothing special \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Other initializations}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a921fe527a5e01a2f6568c3d5d233380a}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a921fe527a5e01a2f6568c3d5d233380a}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a921fe527a5e01a2f6568c3d5d233380a}{set\+\_\+rhs}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a34abd4b01d3a2024be5f6d13dd88779f}{c\+\_\+\+R\+H\+S\+Value}} rhs\+\_\+value, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}}) override
+\begin{DoxyCompactList}\small\item\em set the R\+HS of this to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}}\+: this throws exception \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a307924d9ed36541d2a4fc32494c087ee}{set\+\_\+lhs}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a34abd4b01d3a2024be5f6d13dd88779f}{c\+\_\+\+R\+H\+S\+Value}} lhs\+\_\+value, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}}) override final
+\begin{DoxyCompactList}\small\item\em set the L\+HS of this to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_aca9b52dad8cd2c7a830d2ebfe0ac31f3}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_aca9b52dad8cd2c7a830d2ebfe0ac31f3}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_aca9b52dad8cd2c7a830d2ebfe0ac31f3}{set\+\_\+both}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a34abd4b01d3a2024be5f6d13dd88779f}{c\+\_\+\+R\+H\+S\+Value}} both\+\_\+value, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}}) override final
+\begin{DoxyCompactList}\small\item\em set both the L\+HS and the R\+HS of this to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Reading the data of the L\+B\+Constraint}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a492119664a2167a60aa99a4ad1146b03}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a492119664a2167a60aa99a4ad1146b03}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a492119664a2167a60aa99a4ad1146b03}{get\+\_\+rhs}} (void) const override final
+\begin{DoxyCompactList}\small\item\em method to get the R\+HS of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_ae3f29ca01d997a48a1b842f66f718ca2}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_ae3f29ca01d997a48a1b842f66f718ca2}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_ae3f29ca01d997a48a1b842f66f718ca2}{get\+\_\+lhs}} (void) const override final
+\begin{DoxyCompactList}\small\item\em method to get the L\+HS of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods describing the behavior of a L\+B\+Constraint}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a575ce9dd82d423f5d6e9699622935415}{feasible}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns true if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a1e06e555eab5078e4d5ec16745778984}{abs\+\_\+viol}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns the absolute violation of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a44cb3a18055d2b46764d4eb21a0ff032}{rel\+\_\+viol}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns the relative violation of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected methods for printing and serializing}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a4a07fa1468749fabf1ebf66e97011086}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a4a07fa1468749fabf1ebf66e97011086}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a4a07fa1468749fabf1ebf66e97011086}{f\+\_\+lhs}}
+\begin{DoxyCompactList}\small\item\em L\+HS of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a59a9fcbf8f9f86d348344b2073644b0e}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a59a9fcbf8f9f86d348344b2073644b0e}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a59a9fcbf8f9f86d348344b2073644b0e}{print}} (std\+::ostream \&output) const override
+\begin{DoxyCompactList}\small\item\em print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} on an ostream \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+an \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint}{One\+Var\+Constraint}} with generic L\+HS and +\+Infty R\+HS 
+
+The class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_u_b_constraint}{U\+B\+Constraint}} deriveds from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint}{One\+Var\+Constraint}} and allows the user to arbitrarily define the L\+HS, while the R\+HS is fixed to +\+Infty. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_afbe5719b3cca0e8aac8257a75a2d8ead}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_afbe5719b3cca0e8aac8257a75a2d8ead}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}!L\+B\+Constraint@{L\+B\+Constraint}}
+\index{L\+B\+Constraint@{L\+B\+Constraint}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}}
+\subsubsection{\texorpdfstring{L\+B\+Constraint()}{LBConstraint()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$}]{my\+\_\+block = {\ttfamily nullptr},  }\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$const}]{variable = {\ttfamily nullptr},  }\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a34abd4b01d3a2024be5f6d13dd88779f}{c\+\_\+\+R\+H\+S\+Value}}}]{lhs = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}}\+: takes \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} $\ast$, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, and L\+HS 
+
+Constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}}. It receives a pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} to which the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_box_constraint}{Box\+Constraint}} belongs, a pointer to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} that defines the constraint and the L\+HS. Everything has a default (nullptr, nullptr, and 0, respectively) so that this can be used as the void constructor. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a1e06e555eab5078e4d5ec16745778984}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a1e06e555eab5078e4d5ec16745778984}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}!abs\+\_\+viol@{abs\+\_\+viol}}
+\index{abs\+\_\+viol@{abs\+\_\+viol}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}}
+\subsubsection{\texorpdfstring{abs\+\_\+viol()}{abs\_viol()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} abs\+\_\+viol (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the absolute violation of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} 
+
+The method computes and returns the absolute violation of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} corresponding to its current value \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_ad9256be16b98f3b557f54fa5e2118db7}{value()}}\mbox{]}. The value is positive if one of the two bounds is violated (of course not both can be) and it is the amount of violation; otherwise. An infinite bound (lhs == -\/ Inf$<$\+R\+H\+S\+Value$>$() or rhs == Inf$<$\+R\+H\+S\+Value$>$()) corresponds to a -\/ Inf$<$\+R\+H\+S\+Value$>$() violation whatever the value (even if it is the same infinity).
+
+This method is provided because checking feasibility of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} should reasonably require numerical tolerances, which are not there in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint_a29e571bbd4e2f1046c56e39c06633c4c}{feasible()}} method (because in general constraints could be checked \char`\"{}exactly\char`\"{}, say if only integer arithmetic is involved). This is somehow against the grain of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface}{Thin\+Compute\+Interface}}\+: there could be parameters for doing this. However, this would complicate the interface, and could mean that each \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} need to carry its own values of the parameters (while they are generally constant across many constraints of \char`\"{}the same type\char`\"{} in a model); via this method checking can be done outside of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}}, which for the time being we condiser the better alternative. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a4207e8720a4543e4840b795a3d97b4e0}{Row\+Constraint}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a575ce9dd82d423f5d6e9699622935415}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a575ce9dd82d423f5d6e9699622935415}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}!feasible@{feasible}}
+\index{feasible@{feasible}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}}
+\subsubsection{\texorpdfstring{feasible()}{feasible()}}
+{\footnotesize\ttfamily virtual bool feasible (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible 
+
+Pure virtual method\+: it has to return true if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} is feasible given the values of the Variables it depends onto. More specifically, the methodhas to return true if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}} {\itshape was} feasible at the last time in which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} \mbox{[}see above\mbox{]} has been called. It is an error to call this method if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has never been called, although implementations are allowed not to check this and return any random response\+: is the users\textquotesingle{} responsibility to ensure that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_afc8ff54ab05d22f4cca0fb0bfbeb7a49}{compute()}} has been called at the proper time. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a508a569b1ce65668a4bbe261b0e2efab}{Row\+Constraint}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a44cb3a18055d2b46764d4eb21a0ff032}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a44cb3a18055d2b46764d4eb21a0ff032}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}!rel\+\_\+viol@{rel\+\_\+viol}}
+\index{rel\+\_\+viol@{rel\+\_\+viol}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}}
+\subsubsection{\texorpdfstring{rel\+\_\+viol()}{rel\_viol()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a8813536ab3b13a81c8e83a999ade3bd8}{R\+H\+S\+Value}} rel\+\_\+viol (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the relative violation of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} 
+
+The method computes and returns the relative violation of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} corresponding to its current value \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_ad9256be16b98f3b557f54fa5e2118db7}{value()}}\mbox{]}. This is the same value as \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a1e06e555eab5078e4d5ec16745778984}{abs\+\_\+viol()}} returns, except each violation is divided for the absolute value of the corresponding bound. If one bound is zero then its violation is divided by the absolute value of the other bound, and if both are zero then the absolute violation is returned (the scaling factor is 1). Only finite bound are considered.
+
+See \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a1e06e555eab5078e4d5ec16745778984}{abs\+\_\+viol()}} for the rationale of providing such a method. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_ab62e87cff922e3aa37b8a0b5644b4ecc}{Row\+Constraint}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a307924d9ed36541d2a4fc32494c087ee}\label{class_s_m_spp__di__unipi__it_1_1_l_b_constraint_a307924d9ed36541d2a4fc32494c087ee}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}!set\+\_\+lhs@{set\+\_\+lhs}}
+\index{set\+\_\+lhs@{set\+\_\+lhs}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+L\+B\+Constraint}}
+\subsubsection{\texorpdfstring{set\+\_\+lhs()}{set\_lhs()}}
+{\footnotesize\ttfamily virtual void set\+\_\+lhs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a34abd4b01d3a2024be5f6d13dd88779f}{c\+\_\+\+R\+H\+S\+Value}}}]{lhs\+\_\+value,  }\item[{\mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}}}]{issue\+Mod = {\ttfamily \mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+set the L\+HS of this to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} 
+
+Set the L\+HS of this to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_l_b_constraint}{L\+B\+Constraint}} to lhs\+\_\+value. Note that this throws a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_one_var_constraint_mod}{One\+Var\+Constraint\+Mod}} but with \char`\"{}type\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_mod_af91e41a206e988d55a31347acd6f5d33a585aad901188269790f584a365b34813}{Row\+Constraint\+Mod\+::e\+Chg\+L\+HS}}; thus, this can be dealt with as a \char`\"{}regular\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_mod}{Row\+Constraint\+Mod}}, but a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} aware of this specific kind of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint}{Row\+Constraint}} can react in specialized ways. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_a1e707449bc5e308a84fbb17197e184a6}{Row\+Constraint}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_one_var_constraint_8h}{One\+Var\+Constraint.\+h}}\end{DoxyCompactItemize}

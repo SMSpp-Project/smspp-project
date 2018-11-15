@@ -1,0 +1,43 @@
+\hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand}{}\section{O\+P\+Trand Class Reference}
+\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand}\index{O\+P\+Trand@{O\+P\+Trand}}
+
+
+{\ttfamily \#include $<$O\+P\+T\+Utils.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_a1072daef6b56695678f5ebb5096e7953}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_a1072daef6b56695678f5ebb5096e7953}} 
+\mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_a1072daef6b56695678f5ebb5096e7953}{O\+P\+Trand}} (void)
+\begin{DoxyCompactList}\small\item\em constructor of the class \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_afb2af72eb05fcf452da2d1c3a2e0b426}{rand}} (void)
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_ac35b0f656fed40605c1c8ceda412f185}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_ac35b0f656fed40605c1c8ceda412f185}} 
+void \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_ac35b0f656fed40605c1c8ceda412f185}{srand}} (long seed)
+\begin{DoxyCompactList}\small\item\em Seeds the random generator for this instance of \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand}{O\+P\+Trand}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_aa1cd4fd53188f67a2e2089adbf9ff67b}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_aa1cd4fd53188f67a2e2089adbf9ff67b}} 
+int {\bfseries myseed}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Provide a common interface to the different random generators that are available in different platforms. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_afb2af72eb05fcf452da2d1c3a2e0b426}\label{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand_afb2af72eb05fcf452da2d1c3a2e0b426}} 
+\index{O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Trand@{O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Trand}!rand@{rand}}
+\index{rand@{rand}!O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Trand@{O\+P\+Ttypes\+\_\+di\+\_\+unipi\+\_\+it\+::\+O\+P\+Trand}}
+\subsubsection{\texorpdfstring{rand()}{rand()}}
+{\footnotesize\ttfamily double rand (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Returns a random number uniformly distributed in \mbox{[}0, 1). \begin{DoxyNote}{Note}
+each object of class \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand}{O\+P\+Trand}} has its own sequence, so that multiple \mbox{\hyperlink{class_o_p_ttypes__di__unipi__it_1_1_o_p_trand}{O\+P\+Trand}} objects being used within the same program do not interfere with each other (as opposed to what C random routines would do). 
+\end{DoxyNote}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+M\+C\+F\+Class/\+O\+P\+T\+Utils/\mbox{\hyperlink{_o_p_t_utils_8h}{O\+P\+T\+Utils.\+h}}\end{DoxyCompactItemize}

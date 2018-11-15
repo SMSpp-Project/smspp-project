@@ -1,0 +1,74 @@
+\hypertarget{group___s_m_s__types}{}\section{General types useful in S\+M\+S++}
+\label{group___s_m_s__types}\index{General types useful in S\+M\+S++@{General types useful in S\+M\+S++}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_inf}{Inf$<$ T $>$}}
+\begin{DoxyCompactList}\small\item\em Inf$<$\+T$>$ = infinity value for T. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{group___s_m_s__types_ga58ded0963812566c064a5177b2f84c28}\label{group___s_m_s__types_ga58ded0963812566c064a5177b2f84c28}} 
+typedef std\+::vector$<$ boost\+::any $>$ \mbox{\hyperlink{group___s_m_s__types_ga58ded0963812566c064a5177b2f84c28}{Vec\+\_\+any}}
+\begin{DoxyCompactList}\small\item\em a vector of boost\+::any, i.\+e., almost anything \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_m_s__types_gaa16aeddc7a50d64299ee0f8d9ca5dc7d}\label{group___s_m_s__types_gaa16aeddc7a50d64299ee0f8d9ca5dc7d}} 
+typedef const std\+::vector$<$ boost\+::any $>$ \mbox{\hyperlink{group___s_m_s__types_gaa16aeddc7a50d64299ee0f8d9ca5dc7d}{c\+\_\+\+Vec\+\_\+any}}
+\begin{DoxyCompactList}\small\item\em a const vector of boost\+::any, i.\+e., almost anything \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_m_s__types_ga8dc169a813140dc233f5157dc574e753}\label{group___s_m_s__types_ga8dc169a813140dc233f5157dc574e753}} 
+typedef Vec\+\_\+any\+::iterator \mbox{\hyperlink{group___s_m_s__types_ga8dc169a813140dc233f5157dc574e753}{Vec\+\_\+any\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em iterator for a Vec\+\_\+any \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_m_s__types_ga36068d46bc6e7ba661efe0093c7a8beb}\label{group___s_m_s__types_ga36068d46bc6e7ba661efe0093c7a8beb}} 
+typedef std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{group___s_m_s__types_ga36068d46bc6e7ba661efe0093c7a8beb}{Vec\+\_\+string}}
+\begin{DoxyCompactList}\small\item\em a vector of strings (std\+::string) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_m_s__types_ga783dae6575f12fd7e90ad2edbf10f55c}\label{group___s_m_s__types_ga783dae6575f12fd7e90ad2edbf10f55c}} 
+typedef Vec\+\_\+string\+::iterator \mbox{\hyperlink{group___s_m_s__types_ga783dae6575f12fd7e90ad2edbf10f55c}{Vec\+\_\+string\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em iterator for a Vec\+\_\+string \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_m_s__types_ga4eb8b5e087882b48fc77ba2a18267301}\label{group___s_m_s__types_ga4eb8b5e087882b48fc77ba2a18267301}} 
+typedef const std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{group___s_m_s__types_ga4eb8b5e087882b48fc77ba2a18267301}{c\+\_\+\+Vec\+\_\+string}}
+\begin{DoxyCompactList}\small\item\em a const vector of strings (std\+::string) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_m_s__types_ga8d4579faf0785546f32b06f7416059f5}\label{group___s_m_s__types_ga8d4579faf0785546f32b06f7416059f5}} 
+typedef const c\+\_\+\+Vec\+\_\+string\+::const\+\_\+iterator \mbox{\hyperlink{group___s_m_s__types_ga8d4579faf0785546f32b06f7416059f5}{c\+\_\+\+Vec\+\_\+string\+\_\+it}}
+\begin{DoxyCompactList}\small\item\em iterator for a c\+\_\+\+Vec\+\_\+string \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{group___s_m_s__types_gab8fe98d4e6a9961e16ab25006d6eebd8}{smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type}} \{ \mbox{\hyperlink{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8ab4763484df9e463c82bde775db014c10}{e\+Prob\+File}}, 
+\mbox{\hyperlink{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8a02eebfacbaf656d7b12fdbb866b1b5a1}{e\+Block\+File}}, 
+\mbox{\hyperlink{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8ac08898a33aa19aa77ff3795f37b917bb}{e\+Config\+File}}, 
+\mbox{\hyperlink{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8a80428702d25dc6218902e0cdb084af56}{e\+Last\+File\+Param}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for types of S\+M\+S++ net\+C\+DF files \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A few useful typedefs for types not directly tied to any of the major classes of S\+M\+S++. 
+
+\subsection{Enumeration Type Documentation}
+\mbox{\Hypertarget{group___s_m_s__types_gab8fe98d4e6a9961e16ab25006d6eebd8}\label{group___s_m_s__types_gab8fe98d4e6a9961e16ab25006d6eebd8}} 
+\index{General types useful in S\+M\+S++@{General types useful in S\+M\+S++}!smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type@{smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type}}
+\index{smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type@{smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type}!General types useful in S\+M\+S++@{General types useful in S\+M\+S++}}
+\subsubsection{\texorpdfstring{smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type}{smspp\_netCDF\_file\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{group___s_m_s__types_gab8fe98d4e6a9961e16ab25006d6eebd8}{smspp\+\_\+net\+C\+D\+F\+\_\+file\+\_\+type}}}
+
+
+
+public enum for types of S\+M\+S++ net\+C\+DF files 
+
+Public enum for describing the different kinds of net\+C\+DF files that can be read and produced by S\+M\+S++ objects (notably, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}}). The value e\+Last\+File\+Param is provided if some \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} or \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} needs to read/write files with a specific structure. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Prob\+File@{e\+Prob\+File}!General types useful in S\+M\+S++@{General types useful in S\+M\+S++}}\index{General types useful in S\+M\+S++@{General types useful in S\+M\+S++}!e\+Prob\+File@{e\+Prob\+File}}}\mbox{\Hypertarget{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8ab4763484df9e463c82bde775db014c10}\label{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8ab4763484df9e463c82bde775db014c10}} 
+e\+Prob\+File&a \char`\"{}complete\char`\"{} file with both \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Block\+File@{e\+Block\+File}!General types useful in S\+M\+S++@{General types useful in S\+M\+S++}}\index{General types useful in S\+M\+S++@{General types useful in S\+M\+S++}!e\+Block\+File@{e\+Block\+File}}}\mbox{\Hypertarget{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8a02eebfacbaf656d7b12fdbb866b1b5a1}\label{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8a02eebfacbaf656d7b12fdbb866b1b5a1}} 
+e\+Block\+File&a file of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Config\+File@{e\+Config\+File}!General types useful in S\+M\+S++@{General types useful in S\+M\+S++}}\index{General types useful in S\+M\+S++@{General types useful in S\+M\+S++}!e\+Config\+File@{e\+Config\+File}}}\mbox{\Hypertarget{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8ac08898a33aa19aa77ff3795f37b917bb}\label{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8ac08898a33aa19aa77ff3795f37b917bb}} 
+e\+Config\+File&a file of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_configuration}{Configuration}} \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Last\+File\+Param@{e\+Last\+File\+Param}!General types useful in S\+M\+S++@{General types useful in S\+M\+S++}}\index{General types useful in S\+M\+S++@{General types useful in S\+M\+S++}!e\+Last\+File\+Param@{e\+Last\+File\+Param}}}\mbox{\Hypertarget{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8a80428702d25dc6218902e0cdb084af56}\label{group___s_m_s__types_ggab8fe98d4e6a9961e16ab25006d6eebd8a80428702d25dc6218902e0cdb084af56}} 
+e\+Last\+File\+Param&first value available to define new file types \\
+\hline
+
+\end{DoxyEnumFields}

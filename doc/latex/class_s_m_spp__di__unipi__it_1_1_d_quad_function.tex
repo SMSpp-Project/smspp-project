@@ -1,0 +1,563 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{}\section{D\+Quad\+Function Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function}\index{D\+Quad\+Function@{D\+Quad\+Function}}
+
+
+a diagonal quadratic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}  
+
+
+
+
+{\ttfamily \#include $<$D\+Quad\+Function.\+h$>$}
+
+Inheritance diagram for D\+Quad\+Function\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_s_m_spp__di__unipi__it_1_1_d_quad_function}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}} 
+typedef double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}
+\begin{DoxyCompactList}\small\item\em type of the coefficients of the function \end{DoxyCompactList}\item 
+typedef std\+::tuple$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}{var\+\_\+coeff\+\_\+coeff\+\_\+triple}}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}{var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}}
+\begin{DoxyCompactList}\small\item\em a vector of var\+\_\+coeff\+\_\+coeff\+\_\+triple \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ab56e0a7b06118543c8c7ca5c5f51ede2}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ab56e0a7b06118543c8c7ca5c5f51ede2}} 
+typedef const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}{var\+\_\+coeff\+\_\+coeff\+\_\+triple}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ab56e0a7b06118543c8c7ca5c5f51ede2}{c\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}}
+\begin{DoxyCompactList}\small\item\em a const var\+\_\+coeff\+\_\+coeff\+\_\+triple \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adc080f133f994f0f0aa523cc52a0c368}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adc080f133f994f0f0aa523cc52a0c368}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}{var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adc080f133f994f0f0aa523cc52a0c368}{v\+\_\+c\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}}
+\begin{DoxyCompactList}\small\item\em a vector of const var\+\_\+coeff\+\_\+coeff\+\_\+triple \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa546e2c3b68bf3715752789800750d0b}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa546e2c3b68bf3715752789800750d0b}} 
+typedef std\+::vector$<$ std\+::pair$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} $>$ $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa546e2c3b68bf3715752789800750d0b}{v\+\_\+coeff\+\_\+coeff}}
+\begin{DoxyCompactList}\small\item\em a vector of pairs of Coefficients \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and Destructor}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3843f68fee9919cf27f910700932fedd}{D\+Quad\+Function}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$v\+\_\+var=nullptr, const bool ordered=false)
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3f7ac72e96d5be57f7ecc5c9241e6c35}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3f7ac72e96d5be57f7ecc5c9241e6c35}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3f7ac72e96d5be57f7ecc5c9241e6c35}{$\sim$\+D\+Quad\+Function}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: deletes the vector of variables and coefficients \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Reading the data of the D\+Quad\+Function}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ac72484ff9f1d681f776d5a8d4e97fe7a}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ac72484ff9f1d681f776d5a8d4e97fe7a}} 
+const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adc080f133f994f0f0aa523cc52a0c368}{v\+\_\+c\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ac72484ff9f1d681f776d5a8d4e97fe7a}{get\+\_\+v\+\_\+var}} (void) const
+\begin{DoxyCompactList}\small\item\em returns the vector of triples (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, Coefficient, Coefficient) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods describing the behavior of the D\+Quad\+Function}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ab213cd0c00964b5e7827a3571887772a}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ab213cd0c00964b5e7827a3571887772a}} 
+virtual void {\bfseries evaluate} (void) override
+\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a5412d6d119f09c9e958bcf0800fcdeaa}{is\+\_\+active}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$const f\+\_\+variable) const override
+\begin{DoxyCompactList}\small\item\em returns the Index of a given \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}{get\+\_\+num\+\_\+active\+\_\+var}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of Variables that are \char`\"{}active\char`\"{} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a9e11c2f2bb3edbd2e2e5c9d529360cf7}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a9e11c2f2bb3edbd2e2e5c9d529360cf7}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$ {\bfseries get\+\_\+active\+\_\+var} (const int i) const override
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a5891b5f43e335816627f514ef98f466d}{get\+\_\+linear\+\_\+coefficient}} (const int i) const
+\begin{DoxyCompactList}\small\item\em Returns the Coefficient in the linear term of the i-\/th \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3d6a5a28eab862ab685773c02d8b87e3}{get\+\_\+quadratic\+\_\+coefficient}} (const int i) const
+\begin{DoxyCompactList}\small\item\em Returns the Coefficient in the quadratic term of the i-\/th \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a03b641948b8509966efdfed3a324e9fc}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a03b641948b8509966efdfed3a324e9fc}} 
+virtual void {\bfseries set\+\_\+lower\+\_\+target} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} lower\+\_\+target) override
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a171dce6f75a51dcf2a1e6b844645f924}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a171dce6f75a51dcf2a1e6b844645f924}} 
+virtual void {\bfseries set\+\_\+upper\+\_\+target} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} upper\+\_\+target) override
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a701a55557c30ec1e0561d129fb7c640d}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a701a55557c30ec1e0561d129fb7c640d}} 
+virtual void {\bfseries set\+\_\+epsilon} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} epsilon) override
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae74d8c7f3dc6100820de31198c77ca25}{get\+\_\+value}} (void) const override
+\begin{DoxyCompactList}\small\item\em returns the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a33520123d0919481e4f7cc5bc6da28a9}{get\+\_\+lower\+\_\+estimate}} (void) const override
+\begin{DoxyCompactList}\small\item\em returns a lower estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae2ab9abc3617f25a7c526c457362864f}{get\+\_\+upper\+\_\+estimate}} (void) const override
+\begin{DoxyCompactList}\small\item\em returns an upper estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a228a1eed4901ac03c7a51da94a9bc923}{get\+\_\+\+Lipschitz\+\_\+constant}} () override
+\begin{DoxyCompactList}\small\item\em returns a (global) Lipschitz constant for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a20a6d803edcf5c8ae8b702b8a010af54}{is\+\_\+convex}} (void) const override
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is convex \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_abdb6d9788add66498dda476d9f5f1ff7}{is\+\_\+concave}} (void) const override
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is concave \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4999c961244a6547170ef8f1c786cfa5}{is\+\_\+lower\+\_\+semicontinuous}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is lower semi-\/continuous \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_acb905dad2242bc107ae51cab2a7f1af3}{is\+\_\+upper\+\_\+semicontinuous}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is upper semi-\/continuous \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8afe6138b9ef7838ec5b851cbc3ad2fc}{is\+\_\+linear}} (void) const override
+\begin{DoxyCompactList}\small\item\em returns true only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is linear \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f0ae6fd266900dca237c8c29b69cd5f}{compute\+\_\+hessian\+\_\+approximation}} (void) override
+\begin{DoxyCompactList}\small\item\em compute an approximation to the Hessian for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a15b274da02800dcbec12695a689b327f}{get\+\_\+hessian\+\_\+approximation}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_ae7dd5ecf6e8711dc10787bb8d80b355b}{Dense\+Hessian}} \&hessian) const override
+\begin{DoxyCompactList}\small\item\em obtain an approximation to the Hessian for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aca502bb3d537cfa9aaee68cbbc03a410}{get\+\_\+hessian\+\_\+approximation}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_af95b7c5c0969f493222b30b17aa58515}{Sparse\+Hessian}} \&hessian) const override
+\begin{DoxyCompactList}\small\item\em obtain an approximation to the Hessian for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae8dc9a7225895704afe3802754f4fd75}{is\+\_\+continuously\+\_\+differentiable}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuously differentiable \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a272aecba91401ca432dfa79ad6091c3e}{is\+\_\+twice\+\_\+continuously\+\_\+differentiable}} (void) const override final
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} has continuous Hessian \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a85368281605c78cb95e9affb56e9f704}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a85368281605c78cb95e9affb56e9f704}} 
+virtual bool {\bfseries compute\+\_\+new\+\_\+subgradient} (void) override
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa663deeb54cf70a2b9094f8dbfdbe5a4}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa663deeb54cf70a2b9094f8dbfdbe5a4}} 
+virtual void {\bfseries get\+\_\+subgradient} (Dense\+Subgradient \&subgradient) const override
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af6d3eebde0c34b8ce1e01e8f9748a5f6}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af6d3eebde0c34b8ce1e01e8f9748a5f6}} 
+virtual void {\bfseries set\+\_\+maximum\+\_\+number\+\_\+of\+\_\+subgradients} (const int n) override
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a25b6ed094a7bcede578acb4ef9d0031c}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a25b6ed094a7bcede578acb4ef9d0031c}} 
+virtual bool {\bfseries compute\+\_\+new\+\_\+subgradient\+\_\+approximation} (void) override
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a11551103a619065418d9ac93db90b2f4}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a11551103a619065418d9ac93db90b2f4}} 
+virtual double {\bfseries get\+\_\+subgradient\+\_\+approximation} (Dense\+Subgradient \&subgradient) const
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods for modifying the D\+Quad\+Function}\par
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae6b094640d919cd6f2f9c226aa32417d}{add\+\_\+variables}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$v\+\_\+var, const bool ordered=true)
+\item 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ac33c70ad7cab1b92406bea65783e4891}{add\+\_\+variable}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$const variable, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} linear\+\_\+coefficient, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} quadratic\+\_\+coefficient)
+\item 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af3b44e4a29223544fb46e2bed7700fed}{delete\+\_\+variables}} (std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$$>$ $\ast$v\+\_\+var, const bool ordered=false, const bool throw\+Modification=true) override
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aba06752e8038f74383bb0890735fc564}{delete\+\_\+variable}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$variable, const bool throw\+Modification=true) override
+\item 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aefa341ebfc281c57164e8a1027c0639f}{modify\+\_\+coefficients}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$v\+\_\+var, const bool ordered=true)
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adda9c1bbf589cd093eba1136d923f676}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adda9c1bbf589cd093eba1136d923f676}} 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adda9c1bbf589cd093eba1136d923f676}{set\+\_\+constant\+\_\+term}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa283d6643e75fd5914c89702b4f6b657}{constant\+\_\+term}})
+\begin{DoxyCompactList}\small\item\em Sets the value of the constant term of this function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa7794d8e3c9b6967a6ae924a07131d0b}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa7794d8e3c9b6967a6ae924a07131d0b}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa7794d8e3c9b6967a6ae924a07131d0b}{get\+\_\+constant\+\_\+term}} (void) const
+\begin{DoxyCompactList}\small\item\em Returns the value of the constant term of this function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a7b0e029102ad38f4b814c6523aedb53d}{reset}} ()
+\begin{DoxyCompactList}\small\item\em resets this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4e1f59c2589efba7c429a92661a1f288}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4e1f59c2589efba7c429a92661a1f288}} 
+void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4e1f59c2589efba7c429a92661a1f288}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em printing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a0cbb4d890e5a9a434857226300da1e31}{v\+\_\+variables}}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f85111f6e8c6c55315450f608ef1659}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f85111f6e8c6c55315450f608ef1659}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f85111f6e8c6c55315450f608ef1659}{f\+\_\+value}}
+\begin{DoxyCompactList}\small\item\em the value of the function \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa283d6643e75fd5914c89702b4f6b657}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa283d6643e75fd5914c89702b4f6b657}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aa283d6643e75fd5914c89702b4f6b657}{constant\+\_\+term}} = 0
+\begin{DoxyCompactList}\small\item\em the value of the constant term of this function \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a92091bf3b9cbfacfc2f607d6f71689cc}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a92091bf3b9cbfacfc2f607d6f71689cc}} 
+double {\bfseries Lipschitz\+\_\+constant}
+\item 
+bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a265d98f018d5a9b7b6b695d31acded40}{subgradient\+\_\+computed}} = false
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_acdac432647d8f8a8a77c390fa8ef288c}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_acdac432647d8f8a8a77c390fa8ef288c}} 
+void {\bfseries throw\+\_\+add\+\_\+variables\+\_\+modification} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$v\+\_\+var)
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3abfd295c5c99e9fac917946228019ba}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3abfd295c5c99e9fac917946228019ba}} 
+void {\bfseries throw\+\_\+delete\+\_\+variable\+\_\+modification} (std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$$>$ $\ast$v\+\_\+var)
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ad0e48a2e1d56b00b8860c8b3bed71948}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ad0e48a2e1d56b00b8860c8b3bed71948}} 
+void {\bfseries throw\+\_\+modify\+\_\+coefficients\+\_\+modification} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$v\+\_\+var)
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aafd1bf50720178a2979f00f4db1e9e62}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aafd1bf50720178a2979f00f4db1e9e62}} 
+void {\bfseries throw\+\_\+constant\+\_\+term\+\_\+modification} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} old\+\_\+constant\+\_\+term, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} new\+\_\+constant\+\_\+term)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+a diagonal quadratic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+$<$ The class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}} implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function}{C15\+Function}} with a diagonal quadratic function of the form
+
+f(x) = c + sum\{i in I\} ( a\+\_\+i $\ast$ x\+\_\+i $\ast$ x\+\_\+i + b\+\_\+i $\ast$ x\+\_\+i )
+
+where the scalar c is the constant term of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, and a\+\_\+i and b\+\_\+i are the coefficients of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} x\+\_\+i in the quadratic and linear terms, respectively, for all i in I.
+
+This \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} throws the following modifications\+:
+
+
+\begin{DoxyItemize}
+\item When Variables are added, a Function\+Modification\+Variables modification of type Add\+Var is thrown. Pointers to the Variables that were added are provided in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}.
+\item When Variables are removed, a Function\+Modification\+Variables modification of type Remove\+Var is thrown. Pointers to the Variables that were removed are provided in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}.
+\item When the coefficients of some Variables change, a C05\+Function\+Modification\+Variables modification of type Subgradient\+Entries\+Change is thrown. The entries of a subgradient affected by this modification are precisely the ones associated with the Variables whose coefficients have changed. Therefore, the list of entries of the subgradient affected by this modification also informs the Variables whose coefficients have changed.
+\item When the constant term changes, a Function\+Modification is thrown with the shift caused by this modification. The shift is given by the difference between the new and old constant term values. 
+\end{DoxyItemize}
+
+\subsection{Member Typedef Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!var\+\_\+coeff\+\_\+coeff\+\_\+triple@{var\+\_\+coeff\+\_\+coeff\+\_\+triple}}
+\index{var\+\_\+coeff\+\_\+coeff\+\_\+triple@{var\+\_\+coeff\+\_\+coeff\+\_\+triple}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{var\+\_\+coeff\+\_\+coeff\+\_\+triple}{var\_coeff\_coeff\_triple}}
+{\footnotesize\ttfamily typedef std\+::tuple$<$\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}$>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4da2c2c235cb90ba0e970725de950bf9}{var\+\_\+coeff\+\_\+coeff\+\_\+triple}}}
+
+Triple (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, Coefficient, Coefficient) to store a pointer to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} and the coefficients of the linear and diagonal quadratic terms associated with that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3843f68fee9919cf27f910700932fedd}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3843f68fee9919cf27f910700932fedd}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!D\+Quad\+Function@{D\+Quad\+Function}}
+\index{D\+Quad\+Function@{D\+Quad\+Function}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{D\+Quad\+Function()}{DQuadFunction()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$}]{v\+\_\+var = {\ttfamily nullptr},  }\item[{const bool}]{ordered = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, taking the the coefficients of the linear and diagonal quadratic terms. It accepts a pointer to a vector of triples $<$ pointer to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} , real coefficient , real coefficient $>$ the first coefficient being the coefficient of the variable in the linear term and the second being the coefficient of the variable in the diagonial quadratic term of the function (and a bool telling if this vector is already ordered by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} \char`\"{}name = pointer\char`\"{} or not, in which case they are ordered).
+
+Note that if this vector of triples is passed, it becomes property of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, which therefore has the responsibility to delete it.
+
+All inputs have a default (nullptr, false respectively), so that this can be used as the void constructor. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ac33c70ad7cab1b92406bea65783e4891}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ac33c70ad7cab1b92406bea65783e4891}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!add\+\_\+variable@{add\+\_\+variable}}
+\index{add\+\_\+variable@{add\+\_\+variable}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{add\+\_\+variable()}{add\_variable()}}
+{\footnotesize\ttfamily void add\+\_\+variable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$const}]{variable,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}}]{linear\+\_\+coefficient,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}}}]{quadratic\+\_\+coefficient }\end{DoxyParamCaption})}
+
+Method that receives a pointer to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} and adds it to this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}} with the given coefficients. The first coefficient is the coefficient of the given \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} in the linear term and the second is the coefficient of the given \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} in the diagonal quadratic term of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}. If this variable is already an active variable in this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, an exception is thrown. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae6b094640d919cd6f2f9c226aa32417d}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae6b094640d919cd6f2f9c226aa32417d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!add\+\_\+variables@{add\+\_\+variables}}
+\index{add\+\_\+variables@{add\+\_\+variables}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{add\+\_\+variables()}{add\_variables()}}
+{\footnotesize\ttfamily void add\+\_\+variables (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$}]{v\+\_\+var,  }\item[{const bool}]{ordered = {\ttfamily true} }\end{DoxyParamCaption})}
+
+Method that receives a pointer to a vector of triples (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, double, double) and adds these triples to the list of triples already in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}} that form the linear and the diagonal quadratic parts of the function. If any variable in v\+\_\+var is already an active variable in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, an exception is thrown. ordered tells if v\+\_\+var is already ordered by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} \char`\"{}name = pointer\char`\"{} or not.
+
+Important note\+: the vector v\+\_\+var becomes property of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, which then takes care of deleting it. This may mean that the vector is actually passed to the appropriate D\+Quad\+Function\+Modification, and it is destroyed when it is. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f0ae6fd266900dca237c8c29b69cd5f}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f0ae6fd266900dca237c8c29b69cd5f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!compute\+\_\+hessian\+\_\+approximation@{compute\+\_\+hessian\+\_\+approximation}}
+\index{compute\+\_\+hessian\+\_\+approximation@{compute\+\_\+hessian\+\_\+approximation}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{compute\+\_\+hessian\+\_\+approximation()}{compute\_hessian\_approximation()}}
+{\footnotesize\ttfamily virtual void compute\+\_\+hessian\+\_\+approximation (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+compute an approximation to the Hessian for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Pure virtual method\+: it has to compute an approximation to the Hessian matrix of this function at the current point. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_a50c8f5b1802c658a795d266ba66e3c29}{C15\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aba06752e8038f74383bb0890735fc564}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aba06752e8038f74383bb0890735fc564}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!delete\+\_\+variable@{delete\+\_\+variable}}
+\index{delete\+\_\+variable@{delete\+\_\+variable}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{delete\+\_\+variable()}{delete\_variable()}}
+{\footnotesize\ttfamily virtual void delete\+\_\+variable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$}]{variable,  }\item[{const bool}]{throw\+Modification = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Method that receives a pointer to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} and deletes it from this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}. If this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is not an active \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} in this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, an exception is thrown. throw\+Modification tells whether a modification should be thrown. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af3b44e4a29223544fb46e2bed7700fed}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af3b44e4a29223544fb46e2bed7700fed}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!delete\+\_\+variables@{delete\+\_\+variables}}
+\index{delete\+\_\+variables@{delete\+\_\+variables}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{delete\+\_\+variables()}{delete\_variables()}}
+{\footnotesize\ttfamily void delete\+\_\+variables (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$$>$ $\ast$}]{v\+\_\+var,  }\item[{const bool}]{ordered = {\ttfamily false},  }\item[{const bool}]{throw\+Modification = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+Method that receives a vector of pointers to Variables and deletes them from the list of triples already in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}} that form the linear and the diagonal parts of the function. If any variable in v\+\_\+var is not an active variable in this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, an exception is thrown. ordered tells if v\+\_\+var is already ordered by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \char`\"{}name = pointer\char`\"{} or not. throw\+Modification tells whether a modification should be thrown.
+
+Important note\+: the vector v\+\_\+var becomes property of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, which then takes care of deleting it. This may mean that the vector is actually passed to the appropriate D\+Quad\+Function\+Modification, and it is destroyed when it is. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a15b274da02800dcbec12695a689b327f}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a15b274da02800dcbec12695a689b327f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+hessian\+\_\+approximation@{get\+\_\+hessian\+\_\+approximation}}
+\index{get\+\_\+hessian\+\_\+approximation@{get\+\_\+hessian\+\_\+approximation}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+hessian\+\_\+approximation()}{get\_hessian\_approximation()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual void get\+\_\+hessian\+\_\+approximation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_ae7dd5ecf6e8711dc10787bb8d80b355b}{Dense\+Hessian}} \&}]{hessian }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+obtain an approximation to the Hessian for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+This method will store in the object provided as argument an approximation to the Hessian. This method can only be called after the method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f0ae6fd266900dca237c8c29b69cd5f}{compute\+\_\+hessian\+\_\+approximation()}} has been called. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_a83dab9644742319aa313786952a15a78}{C15\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aca502bb3d537cfa9aaee68cbbc03a410}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aca502bb3d537cfa9aaee68cbbc03a410}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+hessian\+\_\+approximation@{get\+\_\+hessian\+\_\+approximation}}
+\index{get\+\_\+hessian\+\_\+approximation@{get\+\_\+hessian\+\_\+approximation}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+hessian\+\_\+approximation()}{get\_hessian\_approximation()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual void get\+\_\+hessian\+\_\+approximation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_af95b7c5c0969f493222b30b17aa58515}{Sparse\+Hessian}} \&}]{hessian }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+obtain an approximation to the Hessian for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+This method will store in the object provided as argument an approximation to the Hessian. This method can only be called after the method \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8f0ae6fd266900dca237c8c29b69cd5f}{compute\+\_\+hessian\+\_\+approximation()}} has been called. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_a5e5b31d85711c9e27252b7af6ff7e214}{C15\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a5891b5f43e335816627f514ef98f466d}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a5891b5f43e335816627f514ef98f466d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+linear\+\_\+coefficient@{get\+\_\+linear\+\_\+coefficient}}
+\index{get\+\_\+linear\+\_\+coefficient@{get\+\_\+linear\+\_\+coefficient}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+linear\+\_\+coefficient()}{get\_linear\_coefficient()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} get\+\_\+linear\+\_\+coefficient (\begin{DoxyParamCaption}\item[{const int}]{i }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Returns the Coefficient in the linear term of the i-\/th \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. 
+
+This method returns the Coefficient, in the linear term, of the i-\/th \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of this diagonal quadratic function. The index i must be between 0 and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}{get\+\_\+num\+\_\+active\+\_\+var()}} -\/ 1.
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Index of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} whose coefficient is desired. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a228a1eed4901ac03c7a51da94a9bc923}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a228a1eed4901ac03c7a51da94a9bc923}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+\+Lipschitz\+\_\+constant@{get\+\_\+\+Lipschitz\+\_\+constant}}
+\index{get\+\_\+\+Lipschitz\+\_\+constant@{get\+\_\+\+Lipschitz\+\_\+constant}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+\+Lipschitz\+\_\+constant()}{get\_Lipschitz\_constant()}}
+{\footnotesize\ttfamily virtual double get\+\_\+\+Lipschitz\+\_\+constant (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns a (global) Lipschitz constant for the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Method that returns a (global) Lipschitz constant L for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, i.\+e., a (real) scalar L such that
+
+$\vert$ f( x ) -\/ f( y ) $\vert$ $<$= L $\ast$ $\vert$ x -\/ y $\vert$
+
+for all x and y in the domain of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. By default, the method returns Inf$<$\+Function\+Value$>$(), which means that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} does {\itshape not} have a Lipschitz constant. Note that a finite Lipschitz constant implies that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a59de57710aa301d293e9126e3fb975bf}{is\+\_\+continuous()}} must return true. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a472422601268368c33568731d4bb0f19}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a33520123d0919481e4f7cc5bc6da28a9}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a33520123d0919481e4f7cc5bc6da28a9}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+lower\+\_\+estimate@{get\+\_\+lower\+\_\+estimate}}
+\index{get\+\_\+lower\+\_\+estimate@{get\+\_\+lower\+\_\+estimate}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+lower\+\_\+estimate()}{get\_lower\_estimate()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+lower\+\_\+estimate (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns a lower estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Virtual method that returns a lower estimate of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} value obtained by the most recent call to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has never been invoked, then the value returned by this method is meaningless. The method is given a default implementation suited to \char`\"{}easy\char`\"{} functions for which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae74d8c7f3dc6100820de31198c77ca25}{get\+\_\+value()}} always returns \char`\"{}exact\char`\"{} (save possibly unavoidable numerical errors) values. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_aa55bc7e19736e8d640ad31ec134b94fb}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+num\+\_\+active\+\_\+var@{get\+\_\+num\+\_\+active\+\_\+var}}
+\index{get\+\_\+num\+\_\+active\+\_\+var@{get\+\_\+num\+\_\+active\+\_\+var}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+active\+\_\+var()}{get\_num\_active\_var()}}
+{\footnotesize\ttfamily virtual int get\+\_\+num\+\_\+active\+\_\+var (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of Variables that are \char`\"{}active\char`\"{} 
+
+Pure virtual method to get the number of Variables that are \char`\"{}active\char`\"{}. Note that the base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} class makes no provisions about how this set is stored in order to leave more freedom to derived classes to implement it in specialized ways. 
+
+Implements \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga6dbf09c17736b358d11f617e15856981}{Thin\+Var\+Dep\+Interface}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3d6a5a28eab862ab685773c02d8b87e3}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a3d6a5a28eab862ab685773c02d8b87e3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+quadratic\+\_\+coefficient@{get\+\_\+quadratic\+\_\+coefficient}}
+\index{get\+\_\+quadratic\+\_\+coefficient@{get\+\_\+quadratic\+\_\+coefficient}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+quadratic\+\_\+coefficient()}{get\_quadratic\_coefficient()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a1fa0f848dbb8d52dc62a1adfee1a1f90}{Coefficient}} get\+\_\+quadratic\+\_\+coefficient (\begin{DoxyParamCaption}\item[{const int}]{i }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Returns the Coefficient in the quadratic term of the i-\/th \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. 
+
+This method returns the Coefficient, in the quadratic term, of the i-\/th \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of this diagonal quadratic function. The index i must be between 0 and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}{get\+\_\+num\+\_\+active\+\_\+var()}} -\/ 1.
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Index of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} whose coefficient is desired. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae2ab9abc3617f25a7c526c457362864f}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae2ab9abc3617f25a7c526c457362864f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+upper\+\_\+estimate@{get\+\_\+upper\+\_\+estimate}}
+\index{get\+\_\+upper\+\_\+estimate@{get\+\_\+upper\+\_\+estimate}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+upper\+\_\+estimate()}{get\_upper\_estimate()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+upper\+\_\+estimate (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns an upper estimate of the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Virtual method that returns an upper estimate of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} value obtained by the most recent call to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method. If \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has never been invoked, then the value returned by this method is meaningless. The method is given a default implementation suited to \char`\"{}easy\char`\"{} functions for which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae74d8c7f3dc6100820de31198c77ca25}{get\+\_\+value()}} always returns \char`\"{}exact\char`\"{} (save possibly unavoidable numerical errors) values. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a018379619bc05b38bdab0e225016f98f}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae74d8c7f3dc6100820de31198c77ca25}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae74d8c7f3dc6100820de31198c77ca25}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!get\+\_\+value@{get\+\_\+value}}
+\index{get\+\_\+value@{get\+\_\+value}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+value()}{get\_value()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} get\+\_\+value (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+Pure virtual method that returns the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} that was computed in the most recent call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}; if the latter has never been invoked, then the value returned by this method is meaningless. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a040b4850ae0a23a1c9ff79b497b6eaaf}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a5412d6d119f09c9e958bcf0800fcdeaa}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a5412d6d119f09c9e958bcf0800fcdeaa}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+active@{is\+\_\+active}}
+\index{is\+\_\+active@{is\+\_\+active}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+active()}{is\_active()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+active (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$const}]{var }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the Index of a given \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} 
+
+Pure virtual method that returns\+:
+
+
+\begin{DoxyItemize}
+\item if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} depends on the given \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}, the index i in 0, ..., \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}{get\+\_\+num\+\_\+active\+\_\+var()}} such that the given \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is the i-\/th \char`\"{}active\char`\"{} variable;
+\item otherwise, any number $>$= \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_af7f92d9890df5e47c25215b99f97caef}{get\+\_\+num\+\_\+active\+\_\+var()}} (say, Inf$<$\+Index$>$()).
+\end{DoxyItemize}
+
+The base \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} class makes no provisions about how this is done in order to leave more freedom to derived classes to implement it in specialized ways. 
+
+Implements \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga05297a4e506f89ec692a01aca971ce2d}{Thin\+Var\+Dep\+Interface}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_abdb6d9788add66498dda476d9f5f1ff7}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_abdb6d9788add66498dda476d9f5f1ff7}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+concave@{is\+\_\+concave}}
+\index{is\+\_\+concave@{is\+\_\+concave}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+concave()}{is\_concave()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+concave (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is concave 
+
+Method that returns true if and only if this function is concave. The default is false (concavity being good for optimization, in particular maximization, often too good to be true). 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a123711e22aabb119629862cf3cb791de}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae8dc9a7225895704afe3802754f4fd75}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae8dc9a7225895704afe3802754f4fd75}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+continuously\+\_\+differentiable@{is\+\_\+continuously\+\_\+differentiable}}
+\index{is\+\_\+continuously\+\_\+differentiable@{is\+\_\+continuously\+\_\+differentiable}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+continuously\+\_\+differentiable()}{is\_continuously\_differentiable()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+continuously\+\_\+differentiable (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuously differentiable 
+
+Method that returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuously differentiable. The default is false. Note that a continuously differentiable function, when called with the default value of the accuracy parameters dbl\+R\+Acc\+Lin and dbl\+A\+Acc\+Lin, should only return one single linearization per \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, as the only exact linearization is the gradient, which is unique. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ade71194d2205da239374eeeb8ba82b11}{C05\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a20a6d803edcf5c8ae8b702b8a010af54}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a20a6d803edcf5c8ae8b702b8a010af54}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+convex@{is\+\_\+convex}}
+\index{is\+\_\+convex@{is\+\_\+convex}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+convex()}{is\_convex()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+convex (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is convex 
+
+Method that returns true if and only if this function is convex. The default is false (convexity being good for optimization, in particular minimization, often too good to be true). 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a8eac4d4ff5bcf2e564138655ee01ece8}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8afe6138b9ef7838ec5b851cbc3ad2fc}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a8afe6138b9ef7838ec5b851cbc3ad2fc}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+linear@{is\+\_\+linear}}
+\index{is\+\_\+linear@{is\+\_\+linear}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+linear()}{is\_linear()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+linear (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is linear 
+
+Method that returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is linear. The base implementation of the class exploits the fact that the only class of functions that are both convex and concave is precisely that of linear functions (and therefore this method is not very useful ... ) 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a76ad93a7b21d3deb7a917b3cd33d0a9d}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4999c961244a6547170ef8f1c786cfa5}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4999c961244a6547170ef8f1c786cfa5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+lower\+\_\+semicontinuous@{is\+\_\+lower\+\_\+semicontinuous}}
+\index{is\+\_\+lower\+\_\+semicontinuous@{is\+\_\+lower\+\_\+semicontinuous}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+lower\+\_\+semicontinuous()}{is\_lower\_semicontinuous()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+lower\+\_\+semicontinuous (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is lower semi-\/continuous 
+
+Method that returns true if and only if this function is lower semi-\/continuous. The default is true (continuity being an important property for optimization). 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a72b5052e29d7f37c9798d9d6d33bd405}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a272aecba91401ca432dfa79ad6091c3e}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a272aecba91401ca432dfa79ad6091c3e}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+twice\+\_\+continuously\+\_\+differentiable@{is\+\_\+twice\+\_\+continuously\+\_\+differentiable}}
+\index{is\+\_\+twice\+\_\+continuously\+\_\+differentiable@{is\+\_\+twice\+\_\+continuously\+\_\+differentiable}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+twice\+\_\+continuously\+\_\+differentiable()}{is\_twice\_continuously\_differentiable()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+twice\+\_\+continuously\+\_\+differentiable (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} has continuous Hessian 
+
+Method that returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} has continuous second order derivative. By default, false is returned. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_af95feab5ca3e555525ad19786347e2ec}{C15\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_acb905dad2242bc107ae51cab2a7f1af3}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_acb905dad2242bc107ae51cab2a7f1af3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!is\+\_\+upper\+\_\+semicontinuous@{is\+\_\+upper\+\_\+semicontinuous}}
+\index{is\+\_\+upper\+\_\+semicontinuous@{is\+\_\+upper\+\_\+semicontinuous}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+upper\+\_\+semicontinuous()}{is\_upper\_semicontinuous()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+upper\+\_\+semicontinuous (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [final]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is upper semi-\/continuous 
+
+Method that returns true if and only if this function is upper semi-\/continuous. The default is true (continuity being an important property for optimization). 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_afa2086256b54e80d2dcfd11ad6adcd07}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aefa341ebfc281c57164e8a1027c0639f}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_aefa341ebfc281c57164e8a1027c0639f}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!modify\+\_\+coefficients@{modify\+\_\+coefficients}}
+\index{modify\+\_\+coefficients@{modify\+\_\+coefficients}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{modify\+\_\+coefficients()}{modify\_coefficients()}}
+{\footnotesize\ttfamily void modify\+\_\+coefficients (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}} $\ast$}]{v\+\_\+var,  }\item[{const bool}]{ordered = {\ttfamily true} }\end{DoxyParamCaption})}
+
+Method that receives a vector of triples (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, double, double) so that the Col\+Variables are already part of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, and modify their coefficients (in the linear and diagonal quadratic parts of the function) accordingly. If any variable in v\+\_\+var is not an active variable in this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, an exception is thrown. ordered tells if v\+\_\+var is already ordered by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} \char`\"{}name = pointer\char`\"{} or not.
+
+Important note\+: the vector v\+\_\+var becomes property of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function}{D\+Quad\+Function}}, which then takes care of deleting it. This may mean that the vector is actually passed to the appropriate D\+Quad\+Function\+Modification, and it is destroyed when it is. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a7b0e029102ad38f4b814c6523aedb53d}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a7b0e029102ad38f4b814c6523aedb53d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!reset@{reset}}
+\index{reset@{reset}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{reset()}{reset()}}
+{\footnotesize\ttfamily virtual void reset (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+resets this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+It resets this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. This means that the subgradient that has posssibly been computed is discarded and the method compute\+\_\+new\+\_\+subgradient() should return true in the next call. 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a265d98f018d5a9b7b6b695d31acded40}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a265d98f018d5a9b7b6b695d31acded40}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!subgradient\+\_\+computed@{subgradient\+\_\+computed}}
+\index{subgradient\+\_\+computed@{subgradient\+\_\+computed}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{subgradient\+\_\+computed}{subgradient\_computed}}
+{\footnotesize\ttfamily bool subgradient\+\_\+computed = false\hspace{0.3cm}{\ttfamily [protected]}}
+
+indicates the number of subgradients computed after the function is evaluated. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a0cbb4d890e5a9a434857226300da1e31}\label{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a0cbb4d890e5a9a434857226300da1e31}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}!v\+\_\+variables@{v\+\_\+variables}}
+\index{v\+\_\+variables@{v\+\_\+variables}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+D\+Quad\+Function}}
+\subsubsection{\texorpdfstring{v\+\_\+variables}{v\_variables}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_adaced695e00a65836eb558a7bfbd85f4}{v\+\_\+var\+\_\+coeff\+\_\+coeff\+\_\+triple}}$\ast$ v\+\_\+variables\hspace{0.3cm}{\ttfamily [protected]}}
+
+vector of triples (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_col_variable}{Col\+Variable}} $\ast$, Coefficient, Coefficient) characterizing the linear and the diagonal quadratic terms of the function; the vector is kept sorted in an ascending order based on the pointers of the Col\+Variables. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_d_quad_function_8h}{D\+Quad\+Function.\+h}}\end{DoxyCompactItemize}

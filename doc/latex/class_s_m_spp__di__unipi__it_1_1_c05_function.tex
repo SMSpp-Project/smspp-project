@@ -1,0 +1,568 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function}{}\section{C05\+Function Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_c05_function}\index{C05\+Function@{C05\+Function}}
+
+
+{\ttfamily \#include $<$C05\+Function.\+h$>$}
+
+Inheritance diagram for C05\+Function\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_s_m_spp__di__unipi__it_1_1_c05_function}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59d}{int\+\_\+par\+\_\+type\+\_\+\+C0F}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da6c138f0bdc2cb4c33be9d3ea488a5cf3}{int\+L\+P\+Max\+Sz}} = Function\+:\+:int\+Last\+Par\+Fun, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da8f49267c8ff00c3d6b7cd1dd70f8260e}{int\+G\+P\+Max\+Sz}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da168a8e4a403fb48172bb15b7fccdbdc7}{int\+Last\+Par\+C0F}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for the int algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5}{dbl\+\_\+par\+\_\+type\+\_\+\+C0F}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5a6ba790b139c75ced8d60c2385104728d}{dbl\+R\+Acc\+Lin}} = Function\+:\+:dbl\+Last\+Par\+Fun, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5aa037194a4d5148cf2073a0bf6b1535d2}{dbl\+A\+Acc\+Lin}}, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5ae4b5d927ba9aae41ec6aa008a9daeee9}{dbl\+Last\+Par\+C0F}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for the double algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a58afb1e1fdc931abd7129be4f92b1f61}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a58afb1e1fdc931abd7129be4f92b1f61}} 
+typedef Eigen\+::\+Sparse\+Vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a58afb1e1fdc931abd7129be4f92b1f61}{Sparse\+Vector}}
+\begin{DoxyCompactList}\small\item\em type used to store a sparse vector \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}} 
+typedef unsigned int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}
+\begin{DoxyCompactList}\small\item\em type used to define names of linearizations \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a70544540af2063e1072dfaed40270109}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a70544540af2063e1072dfaed40270109}} 
+typedef std\+::vector$<$ std\+::pair$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} $>$ $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a70544540af2063e1072dfaed40270109}{Linear\+Combination}}
+\begin{DoxyCompactList}\small\item\em type used to define linear combinations of linarizations \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructing and destructing C05\+Function}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a39fbae51b50d91defb5766a5d0a306eb}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a39fbae51b50d91defb5766a5d0a306eb}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a39fbae51b50d91defb5766a5d0a306eb}{C05\+Function}} ()
+\begin{DoxyCompactList}\small\item\em constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}}\+: does nothing \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a70225e98f1df27bc4a05fb0714f73aaf}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a70225e98f1df27bc4a05fb0714f73aaf}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a70225e98f1df27bc4a05fb0714f73aaf}{$\sim$\+C05\+Function}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: it is virtual, and empty \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods describing the behavior of a C05\+Function}\par
+{\em The methods in this section allow to retrieve first-\/order information about the point where the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} have been last evaluated by calling \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. Calls to to any of these methods are therefore associated with that point\+: it is expected that the point (i.\+e., the values of the active \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}) at the moment in which these methods are called is the same as the one in which \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} was called. In other words, these methods are \char`\"{}extensions\char`\"{} of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, used to extract further information (likely) computed in there, and therefore in principle an extension to the fundamental rule regarding \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} is to be enforced\+:
+
+between a call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} and all the calls to these methods intended to retrieve information about linearizations computed in that point, no changes must occur to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} which change the answer that \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} was supposed to compute
+
+The rule leaves scope for some changes occurring, although these must ensure that the answer is not affected; see comments to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}. As always, \begin{DoxyVerb}          IT IS UNIQUELY THE CALLER'S RESPONSIBILITY
+            TO ENSURE THAT THE RULE IS RESPECTED\end{DoxyVerb}
+ }\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a5f49301b93b1980e945001a23d3ce2a9}{has\+\_\+linearization}} (const bool diagonal=true)
+\begin{DoxyCompactList}\small\item\em tells whether a linearization is available \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a9a77f2430dcf732f6d6d9fd50d923baf}{compute\+\_\+new\+\_\+linearization}} (const bool diagonal=true)
+\begin{DoxyCompactList}\small\item\em compute a new linearization for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ac477d0c3276fa28127d5aff69f31c367}{store\+\_\+linearization}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name)
+\begin{DoxyCompactList}\small\item\em store a linearization in the global pool \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_aa711d56d6e59b22f499eb0486df87699}{store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a70544540af2063e1072dfaed40270109}{Linear\+Combination}} coefficients, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name)
+\begin{DoxyCompactList}\small\item\em stores a convex combination of the given linearizations \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a8f18fc84fa93ad03235186bda78238e4}{set\+\_\+important\+\_\+linearization}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name)
+\begin{DoxyCompactList}\small\item\em specify which linearization is \char`\"{}the important one\char`\"{} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_abb9e7e2895542986ff7748e38d0dd2e5}{get\+\_\+important\+\_\+linearization\+\_\+name}} (void)
+\begin{DoxyCompactList}\small\item\em return the name of \char`\"{}the important linearization\char`\"{} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_acfc994eb90b924695d059aeddef6dc00}{rename\+\_\+linearization}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} current\+\_\+name, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} new\+\_\+name)
+\begin{DoxyCompactList}\small\item\em rename a linearization that is stored in the global pool \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a538bfc1740cb18a36b0edf8b35085e2c}{delete\+\_\+linearization}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name)
+\begin{DoxyCompactList}\small\item\em delete the given linearization from the global pool of linearizations \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}{get\+\_\+linearization\+\_\+coefficients}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} $\ast$g, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name=std\+::numeric\+\_\+limits$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} $>$\+::max(), \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga03461123d4f6090aefeb97ef653d3f2b}{c\+\_\+\+Vec\+\_\+\+Index}} $\ast$const indices=nullptr, \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}} start=0, \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae1175d5cbc6627e3e49ed9bcb58ffce9}{end}}=std\+::numeric\+\_\+limits$<$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} $>$\+::max()) const =0
+\begin{DoxyCompactList}\small\item\em retrieve the coefficients (g vector) of a linearization in a vector \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a896415fd6afd72c28afaf6343c8f1805}{get\+\_\+linearization\+\_\+coefficients}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a58afb1e1fdc931abd7129be4f92b1f61}{Sparse\+Vector}} \&g, const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name=std\+::numeric\+\_\+limits$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} $>$\+::max(), \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga03461123d4f6090aefeb97ef653d3f2b}{c\+\_\+\+Vec\+\_\+\+Index}} $\ast$const indices=nullptr, \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}} start=0, \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae1175d5cbc6627e3e49ed9bcb58ffce9}{end}}=std\+::numeric\+\_\+limits$<$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} $>$\+::max()) const =0
+\begin{DoxyCompactList}\small\item\em retrieve the coefficients (g) of a linearization in a sparse vector \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a3dd9dea6fa3125e0c45acb5fc28955f8}{get\+\_\+linearization\+\_\+constant}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} name=std\+::numeric\+\_\+limits$<$ unsigned int $>$\+::max()) const =0
+\begin{DoxyCompactList}\small\item\em return the constant term of a linearization \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ade71194d2205da239374eeeb8ba82b11}{is\+\_\+continuously\+\_\+differentiable}} (void) const
+\begin{DoxyCompactList}\small\item\em returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuously differentiable \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Handling the parameters of the Function}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}{get\+\_\+num\+\_\+int\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of int parameters \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a842fd454acaded84baf6b77e0d61a950}{get\+\_\+num\+\_\+dbl\+\_\+par}} (void) const override
+\begin{DoxyCompactList}\small\item\em get the number of double parameters \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a75dd1491b74c4b9476755e061dce3e04}{get\+\_\+dflt\+\_\+int\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of an int parameter \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a465a771c115acf8d5f4e32e22f003014}{get\+\_\+dflt\+\_\+dbl\+\_\+par}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} par) const override
+\begin{DoxyCompactList}\small\item\em get the default value of a double parameter \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae281b6699b0707a5cdc1e82b76d26c09}{int\+\_\+par\+\_\+str2idx}} (const std\+::string \&name) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the int parameter with given string name \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6d353ac3d1200d9bea89235da61bc4f3}{dbl\+\_\+par\+\_\+str2idx}} (const std\+::string \&name) const override
+\begin{DoxyCompactList}\small\item\em returns the index of the double parameter with given string name \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a61e973f39747f63b8f56d97cc62e32ce}{int\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the int parameter with given index \end{DoxyCompactList}\item 
+virtual const std\+::string \& \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a93f1297e7910e91cc18b303376191026}{dbl\+\_\+par\+\_\+idx2str}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} idx) const override
+\begin{DoxyCompactList}\small\item\em returns the string name of the double parameter with given index \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Member Functions}
+\begin{Indent}\textbf{ Protected methods for printing and serializing}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a59a9fcbf8f9f86d348344b2073644b0e}{print}} (std\+::ostream \&output) const override
+\begin{DoxyCompactList}\small\item\em print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} on an ostream \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Given x, any optimal solution u$^\wedge$$\ast$ of P(x) provides a linearization
+
+( g ,  ) = L( u ) = ( b -\/ A u$^\wedge$$\ast$ , c u$^\wedge$$\ast$ + x ( b -\/ A u$^\wedge$$\ast$ ) )
+
+which is clearly the \char`\"{}best possible\char`\"{} linearization\+:
+
+
+\begin{DoxyItemize}
+\item it supports Gr(f) from below\+: f(y) $>$=  + g ( y -\/ x ) for all y;
+\item it is \char`\"{}active\char`\"{} at x\+:  = f(x);
+\item if u$^\wedge$$\ast$ is {\itshape unique}, then f is differentiable at x and g =  f(x).
+\end{DoxyItemize}
+
+So, obtaining u$^\wedge$$\ast$, which is crucial for computing f(x), gives for free as a by-\/product the best possible linearization. However\+:
+
+
+\begin{DoxyItemize}
+\item a linearization may be a \char`\"{}global\char`\"{} object, not necessarily tied to a specific point x\+: in the Lagrangian case, the linearization supports Gr(f) everywhere, i.\+e., at points y arbitrarily far from x;
+\item conversely, multiple linearizations may be produced at some x. For instance, even if u$^\wedge$$\ast$ is unique, any -\/optimal solution u\textquotesingle{} of P(x) produces a linearization ( g\textquotesingle{}, \textquotesingle{} ) = L( u\textquotesingle{} ) which is an -\/subgradient of f, i.\+e., \textquotesingle{}  f(x) -\/  (by the very definition of -\/optimal solution) and f(y) $>$= \textquotesingle{} + g\textquotesingle{} ( y -\/ x ) for all y.
+\end{DoxyItemize}
+
+Thus, one linearization may in fact \char`\"{}refer to multiple points\char`\"{}, and, conversely, \char`\"{}a single point may provide multiple linearizations\char`\"{}. This class has to cater for all these mechanics, which is done via two distinct \char`\"{}pools\char`\"{} of linearizations, the \char`\"{}local\char`\"{} and the \char`\"{}global\char`\"{} one.
+
+The local pool is directly tied to the last point x where \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has been called, and it is automatically cleared as soon as \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} is called again (on a different x). The idea is therefore that the local pool is to be populated with linearizations \char`\"{}significant at x\char`\"{}. The specific concept is left intentionally vague, but examples are\+:
+
+
+\begin{DoxyItemize}
+\item for a convex function, the -\/subdifferential, i.\+e., the set of -\/subgradients at x (see above);
+\item for a concave function, the set of -\/supergradients \mbox{[}the same thing with properly inverted signs\mbox{]};
+\item for a reasonably regular function (say, continuous and differentiable almost everywhere), either the Goldstein or the Clarke -\/subdifferential, which are something like the closed convex hull of the set of vectors obtained as limits of  f(x\+\_\+i) as x\+\_\+i goes to x, or to any point in a ball of radius  around x.
+\end{DoxyItemize}
+
+Note that whenever useful, as in this case, with a little abuse of notation we refer to only the g part of the linearization as \char`\"{}the
+linearization\char`\"{}. This, for instance, allows to say that, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is differentiable at x and  = 0, all the three examples collapse to  f(x) as the only possible linearization.
+
+We purposely refrain from giving a more formal definition as the above examples are only meant to convey the general idea that there is a set of \char`\"{}linearizations relevant up to a number \textbackslash{}eps\char`\"{}, which is what the interface supports. Specific algorithms will have specific requirements on the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (say, convex) which will typically imply requirements on the set in question (say, is the -\/subdifferential), but since there are several possible variants this is left for further specifications\+: the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} aims at capturing all these cases.
+
+Note that all the sets mentioned in the examples are {\itshape convex}. Accordingly, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} interface explicitly supports the notion that convex combinations of linearizations are important. It should be apparent why this is necessary\+: proving (approximate) optimality/stationariety of a point x$^\wedge$$\ast$ (even in the simple case where there are no constraints or other components in the objective function) amounts at proving that 0  $^\wedge$n belongs to the corresponding set of linearizations (-\/subdifferential). In general, even if called at such a x$^\wedge$$\ast$ the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} cannot be expected to produce the 0 linearization; this is why proving (approximate) optimality/stationariety of x$^\wedge$$\ast$ typically boils down to producing a set of linearizations g\+\_\+i at points x\+\_\+i \char`\"{}close\char`\"{} to x$^\wedge$$\ast$ and then proving that 0  conv( \{ g\+\_\+i \} ). Thus, the interface has to cater for\+:
+
+
+\begin{DoxyItemize}
+\item collecting and storing in a \char`\"{}long-\/term memory\char`\"{} (the global pool, as opposed to the short-\/term memory of the local pool) linearizations that have been produced at different points x\+\_\+i;
+\item making convex combinations of linearizations of the global pool.
+\end{DoxyItemize}
+
+In particular, there is usually \char`\"{}one important convex combination\char`\"{} that is very relevant for algorithmic purposes. This can be clearly seen in the Lagrangian function example\+: for a point x$^\wedge$$\ast$ to be -\/optimal for the mininization of f (the Lagrangian Dual), one must collect a set of -\/subgradients g\+\_\+i such that 0  conv( \{ g\+\_\+i \} ). It is immediate to realize that this corresponds to a set of -\/optimal solutions u\+\_\+i to P(x$^\wedge$$\ast$) such that u$^\wedge$$\ast$ =  u\+\_\+i , for appropriate convex multipliers , is such that A u$^\wedge$$\ast$ = b. If U in (P) is a convex set then such an u$^\wedge$$\ast$ is an optimal solution to (P), otherwise u$^\wedge$$\ast$ is the optimal solution of the relaxation of (P) substituting U with conv( U ). In all cases, u$^\wedge$$\ast$ can be a relevant object to construct. For instance, u$^\wedge$$\ast$ can be used to to separation of constraints (in case the A u = b ones are very many, so that an active-\/set strategy is necessary), or to guide heuristics or branching operations (if the set U included integrality constraints, so that the Lagrangian Dual of (P) is only a relaxation).
+
+More in general, proving optimality/stationariety of some x$^\wedge$$\ast$ involves constructing one convex combination of linearizations with appropriate properties. It may be very useful to be able to store away this object in case the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (or other parts of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}) changes, in order to provide effective reoptimization. For instances, the changes may be such that x$^\wedge$$\ast$ may nonetheless remain an optimal solution, and the availability of the \char`\"{}important linearization\char`\"{} may allow to prove this with very little computational effort. This is why the interface has specific provisions for producing and storing in the global pool this kind of objects.
+
+A further important detail is that there can be two types of linearizations\+: \char`\"{}diagonal\char`\"{} and \char`\"{}vertical\char`\"{}. Diagonal linearizations are the previously illustrated ones; the names comes from picturing the ( x , v ) space $^\wedge$\{n+1\} as having the x component on the horizontal axis and the v component as the vertical one (the typical arrangement for the graphical space of a function). Then, a linearization ( g ,  ) typically corresponds to a line approximating f in the neighbourhood of some x. If, say, f is convex, this corresponds to a linear constraint \begin{DoxyVerb}  ( 1 , - g ) ( v , x ) >= \alpha       (*)
+\end{DoxyVerb}
+
+
+which is globally correct for the graph of f (actually, the epigraph). The corresponding line in the ( x , v ) space either intersects the x axis \char`\"{}diagonally\char`\"{} or is parallel to it (if g = 0), but it can never be hortogonal to it. Thus, there is an entirely different form of lines in the graphical space, those corresponding of linear constraints of the form \begin{DoxyVerb}  ( 0 , - g ) ( v , x ) >= \alpha       (**)
+\end{DoxyVerb}
+
+
+These may still be valid for the (epi)graph of f. This is in particular the case for convex functions evaluated outside of their domain, i.\+e., at points y s.\+t. f(y) = +. In some cases, it is possible for the function to compute a \char`\"{}vertical\char`\"{} linearization ($\ast$$\ast$) which is valid for all ( x , v ) in the (epi)graph of f but that \char`\"{}cuts off\char`\"{} y, i.\+e., such that 0 $<$ g y + alpha. This is true for instance in the Lagrangian case P(x) where U is an unbounded set, say a convex one\+: then, P(x) is unbounded below if there is some v in the recession cone of U such that ( c + x A ) v $>$ 0. This immediately implies that f(y) = + for all y with the same property, i.\+e., that the constraint c v + x ( A v ) $<$= 0 is valid for the (epi)graph of f. Since v is typically constructed by whatever algorithm is used to solve P(x) in order to prove that it is unbounded above, the corresponding vertical linearization of the form ($\ast$$\ast$) can be returned by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}}. Note that, customarily, a solution algorithm would also compute a feasible solution u  U together with v, and therefore can return both a diagonal and a vertical linearization, which the interface allows. In the parlance of Benders\textquotesingle{} decomposition, diagonal linearizations are \char`\"{}optimality cuts\char`\"{} and vertical linearizations are \char`\"{}feasibility cuts\char`\"{}. However, the concept is possibly general. 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!dbl\+\_\+par\+\_\+type\+\_\+\+C0F@{dbl\+\_\+par\+\_\+type\+\_\+\+C0F}}
+\index{dbl\+\_\+par\+\_\+type\+\_\+\+C0F@{dbl\+\_\+par\+\_\+type\+\_\+\+C0F}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+type\+\_\+\+C0F}{dbl\_par\_type\_C0F}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5}{dbl\+\_\+par\+\_\+type\+\_\+\+C0F}}}
+
+
+
+public enum for the double algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} 
+
+Public enum describing the different parameters of \char`\"{}double\char`\"{} type that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} must have (although specific \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} may choose to ignore some of them). The value dbl\+Last\+Par\+C0F is provided so that the list can be easily further extended by derived classes. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+R\+Acc\+Lin@{dbl\+R\+Acc\+Lin}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!dbl\+R\+Acc\+Lin@{dbl\+R\+Acc\+Lin}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5a6ba790b139c75ced8d60c2385104728d}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5a6ba790b139c75ced8d60c2385104728d}} 
+dbl\+R\+Acc\+Lin&maximum relative error in any linearization The parameter for setting the relative accuracy of the linearizations. A linearization ( g ,  ) computed at the point x is \char`\"{}accurate\char`\"{} if the value of the linearization coincides with the value of the function at x, i.\+e., alpha = f(x). In general linearizations that are not \char`\"{}completely accurate\char`\"{} can still be useful\+: for instance, in the Lagrangian case an -\/optimal solution to the Lagrangian problem gives rise to a valid linearization ( g ,  ) with  $>$= f(x) -\/ . This can be deemed interesting if  is \char`\"{}small\char`\"{}, but not if  is \char`\"{}large\char`\"{}. This parameter instructs the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} not to bother reporting (and therefore storing in the \char`\"{}local pool\char`\"{}) any linearization having a relative error with f(x) larger than dbl\+R\+Acc\+Lin. This would generally mean
+
+$\vert$ f(x) -\/  $\vert$ $<$= dbl\+R\+Acc\+Lin $\ast$ max( $\vert$ f(x) $\vert$ , $\vert$  $\vert$ , 1 )
+
+except that the value f(x) may not be known exactly, with only lower and/or upper bounds on it available. The actual formula therefore depends on what information is actually available\+: for instance, in the Lagrangian case one knows that f(x) $>$= , and therefore typically un upper estimate ub $>$= f(x) is used in the formula instead of f(x). The default is 0, i.\+e., \char`\"{}only perfect linearizations are allowed\char`\"{}. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+A\+Acc\+Lin@{dbl\+A\+Acc\+Lin}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!dbl\+A\+Acc\+Lin@{dbl\+A\+Acc\+Lin}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5aa037194a4d5148cf2073a0bf6b1535d2}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5aa037194a4d5148cf2073a0bf6b1535d2}} 
+dbl\+A\+Acc\+Lin&maximum absolute error in any reported solution Similar to dbl\+R\+Acc\+Lin but for an {\itshape absolute} accuracy; that is, a linearization is deemed acceptable if
+
+$\vert$ f(x) -\/  $\vert$ $<$= dbl\+A\+Acc\+Lin
+
+except that the value f(x) may not be known exactly, with only lower and/or upper bounds on it available. The actual formula therefore depends on what information is actually available\+: for instance, in the Lagrangian case one knows that f(x) $>$= , and therefore typically un upper estimate ub $>$= f(x) is used in the formula instead of f(x). The default is 0, i.\+e., \char`\"{}only perfect linearizations are allowed\char`\"{}. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{dbl\+Last\+Par\+C0F@{dbl\+Last\+Par\+C0F}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!dbl\+Last\+Par\+C0F@{dbl\+Last\+Par\+C0F}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5ae4b5d927ba9aae41ec6aa008a9daeee9}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ad345d4c374ce38e8a5fe153e07da4fa5ae4b5d927ba9aae41ec6aa008a9daeee9}} 
+dbl\+Last\+Par\+C0F&first allowed new double parameter for derived classes Convenience value for easily allow derived classes to extend the set of double algorithmic parameters. \\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59d}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59d}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!int\+\_\+par\+\_\+type\+\_\+\+C0F@{int\+\_\+par\+\_\+type\+\_\+\+C0F}}
+\index{int\+\_\+par\+\_\+type\+\_\+\+C0F@{int\+\_\+par\+\_\+type\+\_\+\+C0F}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+type\+\_\+\+C0F}{int\_par\_type\_C0F}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59d}{int\+\_\+par\+\_\+type\+\_\+\+C0F}}}
+
+
+
+public enum for the int algorithmic parameters of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} 
+
+Public enum describing the different parameters of \char`\"{}int\char`\"{} type that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} must have (although specific \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may choose to ignore some of them). The value int\+Last\+Par\+C0F is provided so that the list can be easily further extended by derived classes. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+L\+P\+Max\+Sz@{int\+L\+P\+Max\+Sz}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!int\+L\+P\+Max\+Sz@{int\+L\+P\+Max\+Sz}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da6c138f0bdc2cb4c33be9d3ea488a5cf3}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da6c138f0bdc2cb4c33be9d3ea488a5cf3}} 
+int\+L\+P\+Max\+Sz&maximum size of the \char`\"{}local pool\char`\"{} The algorithmic parameter for setting the size of the \char`\"{}local pool\char`\"{}, that is, the maximum number of linearizations that should be stored in the local pool. The default is 1, which corresponds to the fact that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} can only produce a single Linearization at a time (for it is, say, smooth). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+G\+P\+Max\+Sz@{int\+G\+P\+Max\+Sz}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!int\+G\+P\+Max\+Sz@{int\+G\+P\+Max\+Sz}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da8f49267c8ff00c3d6b7cd1dd70f8260e}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da8f49267c8ff00c3d6b7cd1dd70f8260e}} 
+int\+G\+P\+Max\+Sz&maximum size of the \char`\"{}local pool\char`\"{} The algorithmic parameter for setting the size of the \char`\"{}global pool\char`\"{}, that is, the maximum number of linearizations that should be stored in the local pool. The default is 1, which corresponds to the fact that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} need not store any more that a single Linearization at a time (for it is, say, smooth). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{int\+Last\+Par\+C0F@{int\+Last\+Par\+C0F}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!int\+Last\+Par\+C0F@{int\+Last\+Par\+C0F}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da168a8e4a403fb48172bb15b7fccdbdc7}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_acb8f83def674aa9de3dcc44cdcebc59da168a8e4a403fb48172bb15b7fccdbdc7}} 
+int\+Last\+Par\+C0F&first allowed new int parameter for derived classes Convenience value for easily allow derived classes to extend the set of int algorithmic parameters. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a9a77f2430dcf732f6d6d9fd50d923baf}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a9a77f2430dcf732f6d6d9fd50d923baf}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!compute\+\_\+new\+\_\+linearization@{compute\+\_\+new\+\_\+linearization}}
+\index{compute\+\_\+new\+\_\+linearization@{compute\+\_\+new\+\_\+linearization}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{compute\+\_\+new\+\_\+linearization()}{compute\_new\_linearization()}}
+{\footnotesize\ttfamily virtual bool compute\+\_\+new\+\_\+linearization (\begin{DoxyParamCaption}\item[{const bool}]{diagonal = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+compute a new linearization for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} 
+
+This method has to compute a {\itshape new} linearization for this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. The type of the linearization that must be computed is given as a parameter\+: if diagonal is true (default), then a diagonal linearization is required, otherwise a vertical one is.
+
+This method can only be called after the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} method of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} has been invoked at least once, and if \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a5f49301b93b1980e945001a23d3ce2a9}{has\+\_\+linearization()}} (for the same type) has already returned true. The method has to return true if a linearization that is {\itshape different} from the previously available one (of the same type) is available. For a, say, algebraic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} that is finite and continuously differentiable everywhere, this method should always return false since only one (diagonal) linearization (the gradient) is typically available (and no vertical ones are). Indeed, the default implementation in the base class always returns false.
+
+If this method returns true, then the computed linearization can be retrieved by the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}{get\+\_\+linearization\+\_\+coefficients()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a3dd9dea6fa3125e0c45acb5fc28955f8}{get\+\_\+linearization\+\_\+constant()}} methods. Otherwise, it does not make sense to call it again (with the same value of diagonal) unless the value of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} has changed and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has been called again.
+
+Note the one of the possible behavior of this method is that the linearizations (or information allowing to compute them, cf. the Lagrangian case) is actually computed {\itshape during} the call to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, and stored in order to be possibly later retrieved. In such a case, this method basically only \char`\"{}goes through the list of computed linearizations\char`\"{}. Yet, linearizations (or information allowing to compute them) can be \char`\"{}large\char`\"{} objects, and hence require considerable memory to be stored. This is what int\+L\+P\+Max\+Sz, dbl\+R\+Acc\+Lin and dbl\+A\+Acc\+Lin are for\+: allowing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} to limit the number of linearizations (...) stored for later use during \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, i.\+e., both the maximum size of the local pool and the number (quality) of the linearizations (...) stored in there. For instance, many algorithms are interested in only one linearization, which is why by default the maximum size of the local pool is set to 1, which tells the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} that it needs to store only one linearization (which saves space by not allocating more memory than it is needed) and compute only one linearization (which can save computational time by not computing more than one linearization). Note, however, that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may only be able to produce a single linearization (say, because it is continuously differentiable), and therefore can ignore all this.
+
+The local pool is strictly local to the point where \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} has been called\+: whenever the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is evaluated again, the local pool is entirely reset. Keeping a long-\/term memory of linearizations (or information allowing to compute them) is the task of the \char`\"{}global\char`\"{} pool of linearizations. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a93f1297e7910e91cc18b303376191026}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a93f1297e7910e91cc18b303376191026}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}}
+\index{dbl\+\_\+par\+\_\+idx2str@{dbl\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+idx2str()}{dbl\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& dbl\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the double parameter with given index 
+
+This method takes a double parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a93f1297e7910e91cc18b303376191026}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a6d353ac3d1200d9bea89235da61bc4f3}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a6d353ac3d1200d9bea89235da61bc4f3}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}}
+\index{dbl\+\_\+par\+\_\+str2idx@{dbl\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{dbl\+\_\+par\+\_\+str2idx()}{dbl\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} dbl\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the double parameter with given string name 
+
+This method takes a string, which is assumed to be the name of a double parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a6d353ac3d1200d9bea89235da61bc4f3}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a538bfc1740cb18a36b0edf8b35085e2c}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a538bfc1740cb18a36b0edf8b35085e2c}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!delete\+\_\+linearization@{delete\+\_\+linearization}}
+\index{delete\+\_\+linearization@{delete\+\_\+linearization}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{delete\+\_\+linearization()}{delete\_linearization()}}
+{\footnotesize\ttfamily virtual void delete\+\_\+linearization (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+delete the given linearization from the global pool of linearizations 
+
+This method deletes the linearization associated with the given name from the global pool of linearizations. If there is no linearization associated with the given name, an exception should be thrown (unless, for instance, the concept is completely ignored). Indeed, the method has a default empty implementation as some Functions may not need to store anything. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a465a771c115acf8d5f4e32e22f003014}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a465a771c115acf8d5f4e32e22f003014}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+dbl\+\_\+par@{get\+\_\+dflt\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+dbl\+\_\+par()}{get\_dflt\_dbl\_par()}}
+{\footnotesize\ttfamily virtual double get\+\_\+dflt\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of a double parameter 
+
+Get the default value of the double parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a465a771c115acf8d5f4e32e22f003014}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a75dd1491b74c4b9476755e061dce3e04}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a75dd1491b74c4b9476755e061dce3e04}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}}
+\index{get\+\_\+dflt\+\_\+int\+\_\+par@{get\+\_\+dflt\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+dflt\+\_\+int\+\_\+par()}{get\_dflt\_int\_par()}}
+{\footnotesize\ttfamily virtual int get\+\_\+dflt\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{par }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the default value of an int parameter 
+
+Get the default value of the int parameter with given index. The method is given a void implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a75dd1491b74c4b9476755e061dce3e04}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_abb9e7e2895542986ff7748e38d0dd2e5}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_abb9e7e2895542986ff7748e38d0dd2e5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+important\+\_\+linearization\+\_\+name@{get\+\_\+important\+\_\+linearization\+\_\+name}}
+\index{get\+\_\+important\+\_\+linearization\+\_\+name@{get\+\_\+important\+\_\+linearization\+\_\+name}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+important\+\_\+linearization\+\_\+name()}{get\_important\_linearization\_name()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}} get\+\_\+important\+\_\+linearization\+\_\+name (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+return the name of \char`\"{}the important linearization\char`\"{} 
+
+This method returns the name of \char`\"{}the important linearization\char`\"{}. It has a default empty implementation, returning 0, as some Functions may not need to store linearizations, in which case the name is irrelevant. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+linearization\+\_\+coefficients@{get\+\_\+linearization\+\_\+coefficients}}
+\index{get\+\_\+linearization\+\_\+coefficients@{get\+\_\+linearization\+\_\+coefficients}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+linearization\+\_\+coefficients()}{get\_linearization\_coefficients()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual void get\+\_\+linearization\+\_\+coefficients (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a9ad432406b609e28d340f73e9474bffe}{Function\+Value}} $\ast$}]{g,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name = {\ttfamily std\+:\+:numeric\+\_\+limits$<$~\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}~$>$\+:\+:max()},  }\item[{\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga03461123d4f6090aefeb97ef653d3f2b}{c\+\_\+\+Vec\+\_\+\+Index}} $\ast$const}]{indices = {\ttfamily nullptr},  }\item[{\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}}}]{start = {\ttfamily 0},  }\item[{\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}}}]{end = {\ttfamily std\+:\+:numeric\+\_\+limits$<$~\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}}~$>$\+:\+:max()} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+retrieve the coefficients (g vector) of a linearization in a vector 
+
+This method retrieves the vector of coefficients g that is the (largest) part of the linearization with the given name.
+
+If the name of the linearization is the default value Inf$<$\+Linearization\+Name$>$(), then it refers to the last computed linearization, which may \char`\"{}not yet have a name\char`\"{} because \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ac477d0c3276fa28127d5aff69f31c367}{store\+\_\+linearization()}} may not have been called yet (and it may never be, if this linearization is not deemed \char`\"{}important enough\char`\"{} to be kept in the global pool). Otherwise, it (obviously) refers the linearization associated with the given name from the global pool of linearizations. If a linearization with the given name is not stored in the global pool, an exception may be thrown (unless, for instance, the concept is completely ignored because, say, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is a linear one and therefore all linearizations are the same).
+
+It is possible to retrieve the whole vector of coefficients or only part of it. The parameters indices, start, and end are used to indicate which components of the linearization vector should be obtained. The components of a linearization are numbered from 0 to n -\/ 1, where n = \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga6dbf09c17736b358d11f617e15856981}{get\+\_\+num\+\_\+active\+\_\+var()}} is the number of active Variables of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. Moreover, the i-\/th component of a linearization is associated with the i-\/th active \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}.
+
+The returned components are those whose indices are contained in the parameter indices {\itshape and} in the half-\/closed interval \mbox{[}start, end). Each element stored in the vector pointed by indices (if any) must be an integer between 0 and n -\/ 1, and the parameters start and end must be such that 0 $<$= start $<$ end.
+
+This is the \char`\"{}rough version\char`\"{} of the method where the output is directly in an array. If indices is null, then all components between start and min( n , end ) -\/ 1 will be stored in the array g in the positions from 0 to min( n , end ) -\/ 1 -\/ start. In other words, component i of the linearization vector will be stored in position i -\/ start of the array g. Otherwise, if indices is not null, then only the components indicated by indices {\itshape and} which are between start and end -\/ 1 will be stored in g. For example, if start = 2, end = 8, and the vector pointed by indices stores the numbers 0, 3, 7, and 9, then only the components 3 and 7 will be stored in g (respectively in g\mbox{[} 0 \mbox{]} and g\mbox{[} 1 \mbox{]}), leaving the other ones in g unchanged.
+
+The rationale for having such a \char`\"{}rough\char`\"{} version is that it allows to \char`\"{}extend linearizations already in place\char`\"{}. For instance, assume that whatever is using this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} has stored the linearizations in the global pool as a
+
+std\+::vector $<$ std\+::vector$<$ Function\+Value $>$ $>$ G;
+
+wherethe inner vectors G\mbox{[} i \mbox{]} are dimensioned to the {\itshape maximum} number of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} that the C05\+Functio may have, and that a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_mod_vars}{Function\+Mod\+Vars}} occurs which adds k more variables, say \mbox{[} n , ... , n + k -\/ 1 ). Then, the new entries of all the linearizations corresponding to these new \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} can be written in place in the existing vectors by just calling
+
+get\+\_\+linearization\+\_\+coefficients( G\mbox{[} i \mbox{]}.data() , i , null , n , k )
+
+for all i. 
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_a724b5021bd38979148afc99a6a874125}{Linear\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a896415fd6afd72c28afaf6343c8f1805}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a896415fd6afd72c28afaf6343c8f1805}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+linearization\+\_\+coefficients@{get\+\_\+linearization\+\_\+coefficients}}
+\index{get\+\_\+linearization\+\_\+coefficients@{get\+\_\+linearization\+\_\+coefficients}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+linearization\+\_\+coefficients()}{get\_linearization\_coefficients()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual void get\+\_\+linearization\+\_\+coefficients (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a58afb1e1fdc931abd7129be4f92b1f61}{Sparse\+Vector}} \&}]{g,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name = {\ttfamily std\+:\+:numeric\+\_\+limits$<$~\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}~$>$\+:\+:max()},  }\item[{\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga03461123d4f6090aefeb97ef653d3f2b}{c\+\_\+\+Vec\+\_\+\+Index}} $\ast$const}]{indices = {\ttfamily nullptr},  }\item[{\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}}}]{start = {\ttfamily 0},  }\item[{\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}}}]{end = {\ttfamily std\+:\+:numeric\+\_\+limits$<$~\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}}~$>$\+:\+:max()} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+retrieve the coefficients (g) of a linearization in a sparse vector 
+
+This method retrieves the sparse vector of coefficients g that is part of a linearization. It works like
+
+get\+\_\+linearization\+\_\+coefficients( Function\+Value $\ast$g , ... )
+
+except that the extracted coefficients are stored in the Sparse\+Vector g instead of in a \char`\"{}rough\char`\"{} array.
+
+If the Sparse\+Vector g passed as argument does not have any non-\/zero element, it will be resized to the appropriate size, which is the number n of active Variables of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}, and the desired components of the linearization will be stored in it. The computational cost of this operation is proportional to the number of desired components.
+
+If the Sparse\+Vector g already stores some non-\/zero elements, then the size of g must be equal to the number n of active Variables of this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}. Moreover, this vector will be updated. This means that for each component i of the linearization vector that is desired (components determined by the indices vector, and start and end parameters), the value of this component will be stored in g and any previously stored value in g for component i will be lost. If vector g stores a value for a component j that is not among the ones desired, this will be left unchanged in the vector. It is important to notice that the operation of updating the given sparse vector may be computationally costly; in order to avoid this, consider passing to this method an empty g.
+
+T\+O\+DO\+: default implementation of this using the other one??? 
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_aae9db96155b8cfd53076622b83922cd0}{Linear\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a3dd9dea6fa3125e0c45acb5fc28955f8}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a3dd9dea6fa3125e0c45acb5fc28955f8}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+linearization\+\_\+constant@{get\+\_\+linearization\+\_\+constant}}
+\index{get\+\_\+linearization\+\_\+constant@{get\+\_\+linearization\+\_\+constant}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+linearization\+\_\+constant()}{get\_linearization\_constant()}}
+{\footnotesize\ttfamily virtual double get\+\_\+linearization\+\_\+constant (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name = {\ttfamily std\+:\+:numeric\+\_\+limits$<$~unsigned~int~$>$\+:\+:max()} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+return the constant term of a linearization 
+
+This method returns the constant term (alpha) of a linearization. If the name of the linearization is the default value Inf$<$\+Linearization\+Name$>$(), then it refers to the last computed linearization, which many \char`\"{}not yet
+have a name\char`\"{} because \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ac477d0c3276fa28127d5aff69f31c367}{store\+\_\+linearization()}} may not have been called yet (and it may never be, if this linearization is not deemed \char`\"{}important
+enough\char`\"{} to be kept in the global pool). Otherwise, it (obviously) refers the linearization associated with the given name from the global pool of linearizations. If a linearization with the given name is not stored in the global pool, an exception may be thrown (unless, for instance, the concept is completely ignored because, say, the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is a linear one and therefore all linearizations are the same).
+
+Note that the method can be queried, after that an appropriate \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} has been issued \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_mod}{C05\+Function\+Mod}}\mbox{]}, to get the {\itshape new} value of  for each of the linearizations stored in the global pool, which may allow reoptimization to be performed. In this case, a linearization may have become invalid\+: this is signaled by returning Inf$<$\+Function\+Value$>$() as the correspondong , which might prompt the linearization to be removed from the global pool (but at least is should warn whatever algorithm is using the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} not to use it any longer). 
+
+Implemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_ad8c41e1b26609250375600fb998b1538}{Linear\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a842fd454acaded84baf6b77e0d61a950}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a842fd454acaded84baf6b77e0d61a950}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}}
+\index{get\+\_\+num\+\_\+dbl\+\_\+par@{get\+\_\+num\+\_\+dbl\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+dbl\+\_\+par()}{get\_num\_dbl\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+dbl\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of double parameters 
+
+Get the number of double parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any double parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a842fd454acaded84baf6b77e0d61a950}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}}
+\index{get\+\_\+num\+\_\+int\+\_\+par@{get\+\_\+num\+\_\+int\+\_\+par}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{get\+\_\+num\+\_\+int\+\_\+par()}{get\_num\_int\_par()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} get\+\_\+num\+\_\+int\+\_\+par (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+get the number of int parameters 
+
+Get the number of int parameters. The method is given an implementation (returning 0), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a3ad74d9506761eb2ca4c8a936fb7a1c5}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a5f49301b93b1980e945001a23d3ce2a9}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a5f49301b93b1980e945001a23d3ce2a9}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!has\+\_\+linearization@{has\+\_\+linearization}}
+\index{has\+\_\+linearization@{has\+\_\+linearization}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{has\+\_\+linearization()}{has\_linearization()}}
+{\footnotesize\ttfamily virtual bool has\+\_\+linearization (\begin{DoxyParamCaption}\item[{const bool}]{diagonal = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+tells whether a linearization is available 
+
+Called after \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}} this method has to return true if a linearization of the given type (a diagonal one if diagonal == true, a vertical one if diagonal == false) is available to be read with \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}{get\+\_\+linearization\+\_\+coefficients()}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a3dd9dea6fa3125e0c45acb5fc28955f8}{get\+\_\+linearization\+\_\+constant()}}. It is often the case that a linearization is \char`\"{}automatically\char`\"{} available as a by-\/product of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}; hence, this method is typically (but not necessarily) true after the end of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}.
+
+Once \char`\"{}the first\char`\"{} linearization (if ever) has been read, new ones may be produced, if the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} allows it, by means of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a9a77f2430dcf732f6d6d9fd50d923baf}{compute\+\_\+new\+\_\+linearization()}}.
+
+The default implementation in the base class returns the same value as diagonal, i.\+e., true if diagonal == true and false otherwise. This is OK, for instance, for a, say, algebraic \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} that is finite and continuously differentiable everywhere, so that the linearization (gradient) is well-\/defined and always easily computable as soon as the value of the active \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is set. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a61e973f39747f63b8f56d97cc62e32ce}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a61e973f39747f63b8f56d97cc62e32ce}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}}
+\index{int\+\_\+par\+\_\+idx2str@{int\+\_\+par\+\_\+idx2str}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+idx2str()}{int\_par\_idx2str()}}
+{\footnotesize\ttfamily virtual const std\+::string\& int\+\_\+par\+\_\+idx2str (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}}}]{idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the string name of the int parameter with given index 
+
+This method takes an int parameter index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() \mbox{[}see above\mbox{]} to set/get it, and returns its \char`\"{}string name\char`\"{}. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a61e973f39747f63b8f56d97cc62e32ce}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ae281b6699b0707a5cdc1e82b76d26c09}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ae281b6699b0707a5cdc1e82b76d26c09}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}}
+\index{int\+\_\+par\+\_\+str2idx@{int\+\_\+par\+\_\+str2idx}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{int\+\_\+par\+\_\+str2idx()}{int\_par\_str2idx()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_compute_interface_aa3d710629ad8c434286726ad810c3b47}{idx\+\_\+type}} int\+\_\+par\+\_\+str2idx (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+returns the index of the int parameter with given string name 
+
+This method takes a string, which is assumed to be the name of an int parameter, and returns its index, i.\+e., the integer value that can be used in \mbox{[}set/get\mbox{]}\+\_\+par() to set/get it. The method is given a void implementation (throwing exception), rather than being pure virtual, so that derived classes not having any int parameter do not have to bother with implementing it. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_ae281b6699b0707a5cdc1e82b76d26c09}{Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ade71194d2205da239374eeeb8ba82b11}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ade71194d2205da239374eeeb8ba82b11}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!is\+\_\+continuously\+\_\+differentiable@{is\+\_\+continuously\+\_\+differentiable}}
+\index{is\+\_\+continuously\+\_\+differentiable@{is\+\_\+continuously\+\_\+differentiable}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{is\+\_\+continuously\+\_\+differentiable()}{is\_continuously\_differentiable()}}
+{\footnotesize\ttfamily virtual bool is\+\_\+continuously\+\_\+differentiable (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuously differentiable 
+
+Method that returns true if and only if this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} is continuously differentiable. The default is false. Note that a continuously differentiable function, when called with the default value of the accuracy parameters dbl\+R\+Acc\+Lin and dbl\+A\+Acc\+Lin, should only return one single linearization per \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a504d4e3e174c7a518cc66156a8a45ce5}{compute()}}, as the only exact linearization is the gradient, which is unique. 
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_ae8dc9a7225895704afe3802754f4fd75}{Linear\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_ae8dc9a7225895704afe3802754f4fd75}{D\+Quad\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a59a9fcbf8f9f86d348344b2073644b0e}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a59a9fcbf8f9f86d348344b2073644b0e}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!print@{print}}
+\index{print@{print}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily virtual void print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{output }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} on an ostream 
+
+Protected method intended to print information about the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}}; it is virtual so that derived classes can print their specific information in the format they choose. 
+
+Reimplemented from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function_a2e7b9c9148a98c5c342e8c25cac95926}{Function}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_linear_function_a87f6fa05f41e6d6f00fc4e0b12321abc}{Linear\+Function}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_d_quad_function_a4e1f59c2589efba7c429a92661a1f288}{D\+Quad\+Function}}, and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c15_function_a59a9fcbf8f9f86d348344b2073644b0e}{C15\+Function}}.
+
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_acfc994eb90b924695d059aeddef6dc00}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_acfc994eb90b924695d059aeddef6dc00}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!rename\+\_\+linearization@{rename\+\_\+linearization}}
+\index{rename\+\_\+linearization@{rename\+\_\+linearization}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{rename\+\_\+linearization()}{rename\_linearization()}}
+{\footnotesize\ttfamily virtual void rename\+\_\+linearization (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{current\+\_\+name,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{new\+\_\+name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+rename a linearization that is stored in the global pool 
+
+This method renames a linearization that is stored in the global pool of linearizations. current\+\_\+name is the current name of the linearization, and new\+\_\+name is its new name; names must be integers between 0 and int\+G\+P\+Max\+Sz -\/ 1. If there is no linearization stored with the name current\+\_\+name in the global pool, an exception should be thrown (unless, for instance, the concept is completely ignored). If there is already a linearization stored with the name new\+\_\+name, it will be replaced with the linearization currently named current\+\_\+name.
+
+The method can be useful, e.\+g., to move linearizations in the initial part of the global pool, that with \char`\"{}small\char`\"{} names", before shrinking it.
+
+The method has a default emptyimplementation as some Functions may not store anything. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_a8f18fc84fa93ad03235186bda78238e4}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_a8f18fc84fa93ad03235186bda78238e4}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!set\+\_\+important\+\_\+linearization@{set\+\_\+important\+\_\+linearization}}
+\index{set\+\_\+important\+\_\+linearization@{set\+\_\+important\+\_\+linearization}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{set\+\_\+important\+\_\+linearization()}{set\_important\_linearization()}}
+{\footnotesize\ttfamily virtual void set\+\_\+important\+\_\+linearization (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+specify which linearization is \char`\"{}the important one\char`\"{} 
+
+This method sets the linearization with the given name as \char`\"{}the important
+one\char`\"{}. A linearization with the given name should be stored in the global pool of linearizations, otherwise an exception may be thrown (unless, for instance, the concept is completely ignored, see below).
+
+There is usually \char`\"{}one important convex combination\char`\"{} that is very relevant for algorithmic purposes. This can be clearly seen in the Lagrangian function example\+: for a point x$^\wedge$$\ast$ to be -\/optimal for the mininization of f (the Lagrangian Dual), one must collect a set of -\/subgradients g\+\_\+i such that 0  conv( \{ g\+\_\+i \} ). It is immediate to realize that this corresponds to a set of -\/optimal solutions u\+\_\+i to P(x$^\wedge$$\ast$) such that u$^\wedge$$\ast$ =  u\+\_\+i , for appropriate convex multipliers , is such that A u$^\wedge$$\ast$ = b. If U in (P) is a convex set then such an u$^\wedge$$\ast$ is an optimal solution to (P), otherwise u$^\wedge$$\ast$ is the optimal solution of the relaxation of (P) substituting U with conv( U ). Any reasonable algorithm for solving the Lagrangian Dual should be able to conceptually produce such an object in order to stop; when this is done, u$^\wedge$$\ast$ can be {\itshape explicitly} produced by calling \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_aa711d56d6e59b22f499eb0486df87699}{store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations()}} with the appropriate multipliers, and then be available for algorithmic purposes. For instance, u$^\wedge$$\ast$ can be used to to separation of constraints (say, in case the A u = b ones are very many, so that an active-\/set strategy is necessary), or to guide heuristics or branching operations (if the set U included integrality constraints, so that the Lagrangian Dual of (P) is only a relaxation).
+
+More in general, proving optimality/stationariety of some x$^\wedge$$\ast$ involves constructing one convex combination of linearizations with appropriate properties. It may be very useful to be able to store away this object in case the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (or other parts of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}) changes, in order to provide effective reoptimization. For instances, the changes may be such that x$^\wedge$$\ast$ may nonetheless remain an optimal solution, and the availability of the \char`\"{}important linearization\char`\"{} may allow to prove this with very little computational effort. This is why saving the \char`\"{}important linearization\char`\"{} when the algorithm is finished (but, possibly, even while it is running) may be useful.
+
+This method has a default empty implementation as some Functions may not need to store linearizations, in which case the name is irrelevant. In particular, a linear function always have the same linearization everywhere, and therefore only one well-\/known linearization can be the \char`\"{}important one\char`\"{}. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_aa711d56d6e59b22f499eb0486df87699}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_aa711d56d6e59b22f499eb0486df87699}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations@{store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations}}
+\index{store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations@{store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations()}{store\_convex\_combination\_of\_linearizations()}}
+{\footnotesize\ttfamily virtual void store\+\_\+convex\+\_\+combination\+\_\+of\+\_\+linearizations (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a70544540af2063e1072dfaed40270109}{Linear\+Combination}}}]{coefficients,  }\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+stores a convex combination of the given linearizations 
+
+This method creates a convex combination of a given set of linearizations, with given coefficients, and stores it (or information allowing to compute it) into the global pool of linearizations with the given name.
+
+The linearizations whose convex combination the new one must be created from, together with the corresponding coefficients, are indicated by vector of pairs. Each pair has the name of a linearization (that must be currently stored in the global pool of linearizations) and the coefficient this linearization must have in the convex combination. Once this convex combination is created, it is stored into the global pool with the name passed as argument. If the new linearization is stored under the name of a previously stored linearization, the latter is replaced with the former.
+
+The rationale for this method is that most approximate sub-\/differentials are convex sets. Thus, proving (approximate) optimality/stationariety of a point x$^\wedge$$\ast$ (even in the simple case where there are no constraints or other components in the objective function) amounts at proving that 0  $^\wedge$n belongs to the corresponding set of linearizations (-\/subdifferential). In general, even if called at such a x$^\wedge$$\ast$ the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} cannot be expected to produce the 0 linearization; this is why proving (approximate) optimality/stationariety of x$^\wedge$$\ast$ typically boils down to producing a set of linearizations g\+\_\+i at points x\+\_\+i \char`\"{}close\char`\"{} to x$^\wedge$$\ast$ and then proving that 0  conv( \{ g\+\_\+i \} ). Such a \char`\"{}convexified
+linearization\char`\"{} is often a valid linearization as any one directly produced by the function, and therefore can be saved in the global pool as they are. This may allow, for instance, to reduce the maximum size of the global pool by replacing many linearizarizations by just one \char`\"{}representing them all\char`\"{} (think conjugate subgradients).
+
+Note that the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function}{C05\+Function}} may freely decide to either store the convexified linearization itself, or information allowing to compute it, or both. For instance, in the Lagrangian case, any linearization g\+\_\+i corresponds to a point u\+\_\+i in U. Hence, the convexified linearization corresponds to a point in conv( U ); if U is convex then that point is still in U, otherwise it is a point in its convex hull which can still have numerous algoroithmic uses.
+
+The method has a default empty implementation as some \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may ignore this information because it can perform the other required actions \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}{get\+\_\+linearization\+\_\+coefficients()}}\mbox{]} by other means. In particular, a linear function always have the same linearization everywhere, and therefore any convex combination of these always returns the same vector. \mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_c05_function_ac477d0c3276fa28127d5aff69f31c367}\label{class_s_m_spp__di__unipi__it_1_1_c05_function_ac477d0c3276fa28127d5aff69f31c367}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}!store\+\_\+linearization@{store\+\_\+linearization}}
+\index{store\+\_\+linearization@{store\+\_\+linearization}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+C05\+Function}}
+\subsubsection{\texorpdfstring{store\+\_\+linearization()}{store\_linearization()}}
+{\footnotesize\ttfamily virtual void store\+\_\+linearization (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_ae90bf93c6d4b4ada66791c735d1c03cc}{Linearization\+Name}}}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+store a linearization in the global pool 
+
+The last linearization that was computed by calling \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a9a77f2430dcf732f6d6d9fd50d923baf}{compute\+\_\+new\+\_\+linearization()}} (which returned true) can be permanently stored in the global pool of linearizations by calling this method. Linearizations in the global pool are identified by their names, which must be integers between 0 and int\+G\+P\+Max\+Sz -\/ 1 (this allows to implement the global pool as a simple vector-\/like structure containing either the linearizations or the information allowing to compute them). The name must be provided when storing a linearization, so that this specific linearization can be later retrieved by using its name. If a linearization is stored under the name of a previously stored linearization, the latter is replaced with the former in the global pool. A linearization is kept in the global pool until it is explicitly deleted \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a538bfc1740cb18a36b0edf8b35085e2c}{delete\+\_\+linearization()}}\mbox{]} or replaced with another linearization by a call of this method. A linearization with \char`\"{}large\char`\"{} name is also deleted if the global pool of linearizations is shrank by changing int\+G\+P\+Max\+Sz.
+
+The method has a default empty implementation as some \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} may ignore this information because it can perform the other required actions \mbox{[}see \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_c05_function_a6fa70047dc8b3d43a3ed44f1859a7239}{get\+\_\+linearization\+\_\+coefficients()}}\mbox{]} by other means. In particular, a linear function always have the same linearization everywhere, and therefore there is arguably no need to store it many times over. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_c05_function_8h}{C05\+Function.\+h}}\end{DoxyCompactItemize}

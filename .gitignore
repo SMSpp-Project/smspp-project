@@ -1,0 +1,13 @@
+**/*~
+**/*.o
+**/.DS_Store
+**/*.dSYM
+.DS_Store
+*.sw[oprst]
+????-*.patch
+/TAGS
+doxygen/html
+doxygen/latex
+XCode/
+
+

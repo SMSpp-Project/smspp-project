@@ -1,0 +1,75 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod}{}\section{F\+Row\+Constraint\+Mod Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod}\index{F\+Row\+Constraint\+Mod@{F\+Row\+Constraint\+Mod}}
+
+
+class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}}  
+
+
+
+
+{\ttfamily \#include $<$F\+Row\+Constraint.\+h$>$}
+
+Inheritance diagram for F\+Row\+Constraint\+Mod\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debb}{F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type}} \{ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba2d56f392a43ca0db9b27247c7d60b944}{e\+Function\+Changed}} = e\+Row\+Const\+Mod\+Last\+Param, 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba8eb391333acd3ae33af997eeccb2e763}{e\+F\+R\+C\+Const\+Mod\+Last\+Param}}
+ \}
+\begin{DoxyCompactList}\small\item\em public enum for the types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod}{F\+Row\+Constraint\+Mod}} thrown \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_a86873c24584b5f2fd30c4f87158719ff}\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_a86873c24584b5f2fd30c4f87158719ff}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_a86873c24584b5f2fd30c4f87158719ff}{F\+Row\+Constraint\+Mod}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}} $\ast$cnst, int mod=\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba2d56f392a43ca0db9b27247c7d60b944}{e\+Function\+Changed}}, const bool cB=true)
+\begin{DoxyCompactList}\small\item\em constructor\+: just calls that of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_mod}{Row\+Constraint\+Mod}} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_aa3bfc4738d219793a14b6c09a6f304d5}\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_aa3bfc4738d219793a14b6c09a6f304d5}} 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_aa3bfc4738d219793a14b6c09a6f304d5}{$\sim$\+F\+Row\+Constraint\+Mod}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: does nothing \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_a2e7b9c9148a98c5c342e8c25cac95926}\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_a2e7b9c9148a98c5c342e8c25cac95926}} 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_a2e7b9c9148a98c5c342e8c25cac95926}{print}} (std\+::ostream \&output) const
+\begin{DoxyCompactList}\small\item\em print the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod}{F\+Row\+Constraint\+Mod}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+class to describe modifications specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}} 
+
+Derived class from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_mod}{Row\+Constraint\+Mod}} to describe \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} specific to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}}, i.\+e., changing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}}.
+
+Defining a class is a bit weird because the only thing the class does is to define am enum for the new value of the type of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} in the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_mod}{Row\+Constraint\+Mod}}. However, throwing a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} of a different class (but derived from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_row_constraint_mod}{Row\+Constraint\+Mod}}) may make it easier for the solver to handle it (at the very least, it directly knows it comes from a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}} without having to check it). 
+
+\subsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debb}\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debb}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod}!F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type@{F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type}}
+\index{F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type@{F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod}}
+\subsubsection{\texorpdfstring{F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type}{FRC\_cons\_mod\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debb}{F\+R\+C\+\_\+cons\+\_\+mod\+\_\+type}}}
+
+
+
+public enum for the types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod}{F\+Row\+Constraint\+Mod}} thrown 
+
+Public enum \char`\"{}extending\char`\"{} Row\+C\+\_\+mod\+\_\+type with the new types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} thrown by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}}. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+Function\+Changed@{e\+Function\+Changed}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod}!e\+Function\+Changed@{e\+Function\+Changed}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba2d56f392a43ca0db9b27247c7d60b944}\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba2d56f392a43ca0db9b27247c7d60b944}} 
+e\+Function\+Changed&the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} underlying this \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_f_row_constraint}{F\+Row\+Constraint}} changed whole \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{e\+F\+R\+C\+Const\+Mod\+Last\+Param@{e\+F\+R\+C\+Const\+Mod\+Last\+Param}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod}}\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+F\+Row\+Constraint\+Mod}!e\+F\+R\+C\+Const\+Mod\+Last\+Param@{e\+F\+R\+C\+Const\+Mod\+Last\+Param}}}\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba8eb391333acd3ae33af997eeccb2e763}\label{class_s_m_spp__di__unipi__it_1_1_f_row_constraint_mod_af140985c04c8a274ecc353a0eee2debba8eb391333acd3ae33af997eeccb2e763}} 
+e\+F\+R\+C\+Const\+Mod\+Last\+Param&first allowed parameter value for derived classes Convenience value for easily allow derived classes to extend the set of types of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_f_row_constraint_8h}{F\+Row\+Constraint.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,62 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{}\section{Thin\+Var\+Dep\+Interface\+:\+:iterator Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}\index{Thin\+Var\+Dep\+Interface\+::iterator@{Thin\+Var\+Dep\+Interface\+::iterator}}
+
+
+standard iterator (redirecting a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}})  
+
+
+
+
+{\ttfamily \#include $<$Thin\+Var\+Dep\+Interface.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} {\bfseries value\+\_\+type}
+\item 
+typedef \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \& {\bfseries reference}
+\item 
+typedef \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$ {\bfseries pointer}
+\item 
+typedef std\+::forward\+\_\+iterator\+\_\+tag {\bfseries iterator\+\_\+category}
+\item 
+typedef int {\bfseries difference\+\_\+type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries iterator} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} $\ast$itr)
+\item 
+{\bfseries iterator} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \&\&itr)
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \& {\bfseries operator=} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \&\&itr)
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} {\bfseries operator++} (void)
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \& {\bfseries operator++} (int)
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{reference}} {\bfseries operator$\ast$} (void) const
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{pointer}} {\bfseries operator-\/$>$} (void) const
+\item 
+bool {\bfseries operator==} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \&rhs) const
+\item 
+bool {\bfseries operator!=} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \&rhs) const
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} $\ast$ {\bfseries itr\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+standard iterator (redirecting a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}}) 
+
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{Thin\+Var\+Dep\+Interface\+::iterator}} is a full-\/fledged forward\+\_\+iterator with the right traits to allow sifting through the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. It gets a pointer to a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{Thin\+Var\+Dep\+Interface\+::v\+\_\+iterator}} and redirects all its methods to it.
+
+Note that iterator automatically destroys the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} it depends onto; hence, copy constructor and assignment operators both have the move semantic. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_thin_var_dep_interface_8h}{Thin\+Var\+Dep\+Interface.\+h}}\end{DoxyCompactItemize}

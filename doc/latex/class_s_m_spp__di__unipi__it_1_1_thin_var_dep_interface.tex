@@ -1,0 +1,109 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{}\section{Thin\+Var\+Dep\+Interface Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}\index{Thin\+Var\+Dep\+Interface@{Thin\+Var\+Dep\+Interface}}
+
+
+base class of all objects depending on a set of \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}  
+
+
+
+
+{\ttfamily \#include $<$Thin\+Var\+Dep\+Interface.\+h$>$}
+
+Inheritance diagram for Thin\+Var\+Dep\+Interface\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=9.739130cm]{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1const__iterator}{const\+\_\+iterator}}
+\begin{DoxyCompactList}\small\item\em standard const iterator (redirecting a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__const__iterator}{v\+\_\+const\+\_\+iterator}}) \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}}
+\begin{DoxyCompactList}\small\item\em standard iterator (redirecting a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}}) \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__const__iterator}{v\+\_\+const\+\_\+iterator}}
+\begin{DoxyCompactList}\small\item\em virtualized standard const iterator \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}}
+\begin{DoxyCompactList}\small\item\em virtualized standard iterator \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+typedef unsigned int \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}}
+\begin{DoxyCompactList}\small\item\em type for the indices of \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+typedef const \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gaee6156e2ce80720d57a082d80f39d8cc}{c\+\_\+\+Index}}
+\begin{DoxyCompactList}\small\item\em a const Index \end{DoxyCompactList}\item 
+typedef std\+::vector$<$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} $>$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga9a1284953e2aa5222b5867c0a7f98499}{Vec\+\_\+\+Index}}
+\begin{DoxyCompactList}\small\item\em a std\+::vector of Index \end{DoxyCompactList}\item 
+typedef const \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga9a1284953e2aa5222b5867c0a7f98499}{Vec\+\_\+\+Index}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga03461123d4f6090aefeb97ef653d3f2b}{c\+\_\+\+Vec\+\_\+\+Index}}
+\begin{DoxyCompactList}\small\item\em a const Vec\+\_\+\+Index \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Public Member Functions}
+\begin{Indent}\textbf{ Constructor and destructor}\par
+{\em Since \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} and their \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} are \char`\"{}doubly\char`\"{} linked, destroying them has the problem of ensuring that the pointers in each object\textquotesingle{}s list are still \char`\"{}live\char`\"{} when the object is destroyed. To simplify this, the underlying assumption is that \begin{DoxyVerb}*Variable are constructed before the "stuff" they are active
+ in and destructed after them*
+\end{DoxyVerb}
+
+
+which makes it possible for \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} to ignore their list when they are destroyed, possibly saving some pointless work, whereby the list are to be updated by \char`\"{}stuff\char`\"{} destroying themselves right before than the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} itself is destroyed. However, (a)symmetrically this implies that when a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} is destroyed, it has to remove itself from the list of \char`\"{}stuff\char`\"{} the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} is active in, to avoid leaving the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} (that is assumed to \char`\"{}live longer\char`\"{}) in an inconsistent state. This may still result in pointless work being done, for avoiding which the \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae16067de85b435fac4ce8558b193a99a}{clear()}} method is provided.
+
+Avoiding pointless work, however, is only one of the rationale for \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae16067de85b435fac4ce8558b193a99a}{clear()}}. The other case that needs to be considered is that of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} and their \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} (possibly std\+::vector$<$$>$ etc. of them) being fields of a \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_block}{Block}}, so that they are automatically destroyed in the corresponding destructor. As the order in which this happens is usually not very clear, one should strive to have the fields explicitly cleared in the destructor, so that all the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} are destroyed before all the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. This is simple if everything lives in S\+TL containers (std\+::vector$<$$>$ etc.) since then one can call the \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae16067de85b435fac4ce8558b193a99a}{clear()}} method of the vector to have them destroyed; however, this does not work for individual objects. Thus, besides avoiding pointless work, \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae16067de85b435fac4ce8558b193a99a}{clear()}} it allows for explicitly clearing objects, to ensure that they are in fact \char`\"{}destroyed\char`\"{} before their active \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. }\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae23264aae375852a624548a912161e7f}{Thin\+Var\+Dep\+Interface}} (void)
+\begin{DoxyCompactList}\small\item\em constructor of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}}; does nothing \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga627c883f11bd4f9b137b397be90d3996}{$\sim$\+Thin\+Var\+Dep\+Interface}} ()
+\begin{DoxyCompactList}\small\item\em destructor\+: it is virtual, and empty \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae16067de85b435fac4ce8558b193a99a}{clear}} (void)
+\begin{DoxyCompactList}\small\item\em \char`\"{}rough destructor\char`\"{} that does not warn the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods for reading the set of \char`\"{}active\char`\"{} Variable}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga6dbf09c17736b358d11f617e15856981}{get\+\_\+num\+\_\+active\+\_\+var}} (void) const =0
+\begin{DoxyCompactList}\small\item\em get the number of Variables that are \char`\"{}active\char`\"{} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga05297a4e506f89ec692a01aca971ce2d}{is\+\_\+active}} (const \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$const var) const =0
+\begin{DoxyCompactList}\small\item\em returns the Index of a given \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga88e11e9f684f5ac81df04df1cf14a423}{map\+\_\+active}} (const std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$$>$ \&vars, \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga9a1284953e2aa5222b5867c0a7f98499}{Vec\+\_\+\+Index}} \&map, const bool ordered=false) const
+\begin{DoxyCompactList}\small\item\em returns the set of indices of a given set \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga1967518603f9424434460d4ba8676c37}{get\+\_\+active\+\_\+var}} (const \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad53d6229d7ec28555a9c9c2fd9abf773}{Index}} i) const =0
+\begin{DoxyCompactList}\small\item\em get a pointer to the i-\/th \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} $\ast$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga645ab1f1a40dea7fdcef536081c78613}{v\+\_\+begin}} (void)=0
+\begin{DoxyCompactList}\small\item\em get (a pointer to) a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} for scanning the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__const__iterator}{v\+\_\+const\+\_\+iterator}} $\ast$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga6179496ecb66b6cc1504a50bcbb264e9}{v\+\_\+begin}} (void) const =0
+\begin{DoxyCompactList}\small\item\em get (a pointer to) a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__const__iterator}{v\+\_\+const\+\_\+iterator}} for scanning the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} $\ast$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga422dd4393326b2da21dbef0aa0a85bee}{v\+\_\+end}} (void)=0
+\begin{DoxyCompactList}\small\item\em get (a pointer to) a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__iterator}{v\+\_\+iterator}} for the end of the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__const__iterator}{v\+\_\+const\+\_\+iterator}} $\ast$ \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga6c504e866663eb64b230179f81370af4}{v\+\_\+end}} (void) const =0
+\begin{DoxyCompactList}\small\item\em get (a pointer to) a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1v__const__iterator}{v\+\_\+const\+\_\+iterator}} for the end the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga79162df6cbf36b4997db545dc30969e2}{begin}} (void)
+\begin{DoxyCompactList}\small\item\em get an iterator for scanning the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1const__iterator}{const\+\_\+iterator}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga4780b8a1692a5b1b810ace218aec9c63}{begin}} (void) const
+\begin{DoxyCompactList}\small\item\em get a const iterator for scanning the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1iterator}{iterator}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gae1175d5cbc6627e3e49ed9bcb58ffce9}{end}} (void)
+\begin{DoxyCompactList}\small\item\em get an iterator for the end of the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1const__iterator}{const\+\_\+iterator}} \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gabd4acdc34e7627e7740feff502da77e1}{end}} (void) const
+\begin{DoxyCompactList}\small\item\em get a const iterator for for the end of the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Methods for changing the set of \char`\"{}active\char`\"{} Variable}\par
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_gad6726141a0cbe6a0410a2b396809dade}{remove\+\_\+variable}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$var, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}})=0
+\begin{DoxyCompactList}\small\item\em removes the given \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} from the \char`\"{}active\char`\"{} ones \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{group___thin_var_dep_interface___c_l_a_s_s_e_s_ga4f21d262d25ed93ccc289134f2618ba9}{remove\+\_\+variables}} (std\+::vector$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} $\ast$$>$ \&\&vars, const bool ordered=false, \mbox{\hyperlink{group___modification___t_y_p_e_s_ga544246d8c462e9a2d817c2c30797968f}{c\+\_\+\+Mod\+Param}} issue\+Mod=\mbox{\hyperlink{group___modification___t_y_p_e_s_gga48fddcdd03a03f49b7e389ca1ed938d4a21b14b26b1c0093a0905f6fc010bad29}{e\+Mod\+Blck}})=0
+\begin{DoxyCompactList}\small\item\em removes the given set of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} from the set of \char`\"{}active\char`\"{} ones \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+
+
+\subsection{Detailed Description}
+base class of all objects depending on a set of \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} 
+
+Several objects in S\+M\+S++ explicitly depend on a set of \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}; these are \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_constraint}{Constraint}}, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_objective}{Objective}} and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_function}{Function}} (\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_solver}{Solver}} may \char`\"{}indirectly\char`\"{} depend on a set of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}, but these are not defined through this interface).
+
+The {\itshape abstract} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} class is meant to factor out many of the methods required to deal with this aspect. Factoring them is primarily meant to avoid un-\/necessary code duplication and to ensure consistency between similar parts of the interface of different objects; in particular, all \+:\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface}{Thin\+Var\+Dep\+Interface}} have to behave as standard S\+TL containers (with underlying type \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}), with iterator and \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface_1_1const__iterator}{const\+\_\+iterator}} defined to allow sifting through the set of \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. This is done by defining \char`\"{}virtual\char`\"{} iterators that can be specialized by derived classes (using inheritance, not templates) and a iterators redirecting from those. Furthermore, this allows \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} to deal with all these objects in an unified way.
+
+Another reason for introducing the class at this point of the design cycle is that S\+M\+S++ may evolve by allowing \char`\"{}more structured\char`\"{} access to the set of \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}; say, explicitly distinguishing between static and dynaic ones and/or allowing to partition them in groups, like having as input multiple whole vector/list/multi-\/arrays of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}}. However, how this is to be accomplished (if ever) is not decided yet. By factoring all aspects of the \char`\"{}active\char`\"{} \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_variable}{Variable}} interface into a single class, the effort to later refactor the interfaces to allow for this might be decreased. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_thin_var_dep_interface_8h}{Thin\+Var\+Dep\+Interface.\+h}}\end{DoxyCompactItemize}

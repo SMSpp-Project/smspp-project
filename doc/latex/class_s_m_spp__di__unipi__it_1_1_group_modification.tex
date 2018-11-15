@@ -1,0 +1,78 @@
+\hypertarget{class_s_m_spp__di__unipi__it_1_1_group_modification}{}\section{Group\+Modification Class Reference}
+\label{class_s_m_spp__di__unipi__it_1_1_group_modification}\index{Group\+Modification@{Group\+Modification}}
+
+
+concrete class for \char`\"{}a group of logically related Modification\char`\"{}  
+
+
+
+
+{\ttfamily \#include $<$Modification.\+h$>$}
+
+Inheritance diagram for Group\+Modification\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_s_m_spp__di__unipi__it_1_1_group_modification}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification_aba0f518d7a36aeeb3dfc84382fc89950}{Group\+Modification}} (const bool cB=true, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} $\ast$father=nullptr)
+\begin{DoxyCompactList}\small\item\em constructor\+: takes the value to be returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification_a22fe0cccfc755cfd89b240587d1f1cad}{concerns\+\_\+\+Block()}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_group_modification_a4f27617d2d3ed0dbfc4885660b2c80ca}\label{class_s_m_spp__di__unipi__it_1_1_group_modification_a4f27617d2d3ed0dbfc4885660b2c80ca}} 
+std\+::list$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} $>$ $>$ \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification_a4f27617d2d3ed0dbfc4885660b2c80ca}{v\+\_\+sub\+\_\+\+Modifications}}
+\begin{DoxyCompactList}\small\item\em the std\+::list of std\+::shared\+\_\+ptr$<$\+Modification$>$ \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_group_modification_a827537a991c85ad7061a572f40b66fce}\label{class_s_m_spp__di__unipi__it_1_1_group_modification_a827537a991c85ad7061a572f40b66fce}} 
+\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} $\ast$ {\bfseries f\+\_\+father}
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification_a59a9fcbf8f9f86d348344b2073644b0e}{print}} (std\+::ostream \&output) const override
+\begin{DoxyCompactList}\small\item\em printing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+concrete class for \char`\"{}a group of logically related Modification\char`\"{} 
+
+The class \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} derives from \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_a_modification}{A\+Modification}} and provides a S\+TL container of shared pointers to \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}} which can be used to implement in a simple way the concept of \char`\"{}a set of Modification logically
+related to each other\char`\"{}. Note that since \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} is a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification}{Modification}}, there is nothing preventing some of the sub-\/\+Modification of a \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} to be \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} themselves, allowing to have arbitrarily nested \char`\"{}logically related Modification\char`\"{}. Indeed, \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} also has a \char`\"{}father\char`\"{} pointer that simplifies traversals of the tree of \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}}. Note that this is a raw pointer rather than a smart pointer, as it is not supposed to be used for anything else than traversing the data structure. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_group_modification_aba0f518d7a36aeeb3dfc84382fc89950}\label{class_s_m_spp__di__unipi__it_1_1_group_modification_aba0f518d7a36aeeb3dfc84382fc89950}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification}!Group\+Modification@{Group\+Modification}}
+\index{Group\+Modification@{Group\+Modification}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification}}
+\subsubsection{\texorpdfstring{Group\+Modification()}{GroupModification()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} (\begin{DoxyParamCaption}\item[{const bool}]{cB = {\ttfamily true},  }\item[{\mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} $\ast$}]{father = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+constructor\+: takes the value to be returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification_a22fe0cccfc755cfd89b240587d1f1cad}{concerns\+\_\+\+Block()}} 
+
+Constructor of the class; takes the value to be returned by \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification_a22fe0cccfc755cfd89b240587d1f1cad}{concerns\+\_\+\+Block()}}, to be passed to the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_a_modification}{A\+Modification}} destructor, and (optionally) the \char`\"{}father\char`\"{} of the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}}. destructor\+: does nothing 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_s_m_spp__di__unipi__it_1_1_group_modification_a59a9fcbf8f9f86d348344b2073644b0e}\label{class_s_m_spp__di__unipi__it_1_1_group_modification_a59a9fcbf8f9f86d348344b2073644b0e}} 
+\index{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification}!print@{print}}
+\index{print@{print}!S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification@{S\+M\+Spp\+\_\+di\+\_\+unipi\+\_\+it\+::\+Group\+Modification}}
+\subsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily virtual void print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{output }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+printing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}} 
+
+Method for printing the \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_group_modification}{Group\+Modification}}, which basically means printing all its sub-\/\+Modification. 
+
+Implements \mbox{\hyperlink{class_s_m_spp__di__unipi__it_1_1_modification_a74372464f55d9c2cfdb603bf030f902f}{Modification}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/frangio/\+Codes/\+S\+M\+S++/\+Git\+Lab/\+S\+M\+S++/include/\mbox{\hyperlink{_modification_8h}{Modification.\+h}}\end{DoxyCompactItemize}

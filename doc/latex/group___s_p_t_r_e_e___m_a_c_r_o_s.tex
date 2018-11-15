@@ -1,0 +1,69 @@
+\hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s}{}\section{Compile-\/time switches in S\+P\+Tree.\+h}
+\label{group___s_p_t_r_e_e___m_a_c_r_o_s}\index{Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{group___s_p_t_r_e_e___m_a_c_r_o_s_gace32589e54f63e7934ba934f5893af4b}{S\+P\+T\+\_\+\+A\+L\+G\+R\+TM}}~0
+\item 
+\mbox{\Hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s_ga0f6afc876d9202c73d9d7a4ac37db521}\label{group___s_p_t_r_e_e___m_a_c_r_o_s_ga0f6afc876d9202c73d9d7a4ac37db521}} 
+\#define \mbox{\hyperlink{group___s_p_t_r_e_e___m_a_c_r_o_s_ga0f6afc876d9202c73d9d7a4ac37db521}{L\+A\+B\+E\+L\+\_\+\+S\+E\+T\+T\+I\+NG}}~0
+\begin{DoxyCompactList}\small\item\em this is a label-\/correcting S\+PT algorithm \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s_ga54593fde27c217c37d3f66200a21024d}\label{group___s_p_t_r_e_e___m_a_c_r_o_s_ga54593fde27c217c37d3f66200a21024d}} 
+\#define {\bfseries S\+P\+T\+\_\+\+S\+T\+R\+TN}~1
+\item 
+\#define \mbox{\hyperlink{group___s_p_t_r_e_e___m_a_c_r_o_s_ga51ea746230b8df61d22a28b55c30527e}{O\+R\+D\+R\+D\+\_\+\+N\+MS}}~1
+\item 
+\#define \mbox{\hyperlink{group___s_p_t_r_e_e___m_a_c_r_o_s_gac2e46738206e9f275b6249a6ef284595}{S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT}}~0
+\item 
+\#define \mbox{\hyperlink{group___s_p_t_r_e_e___m_a_c_r_o_s_gad5743edcdb08edda28cc06bd329d6f03}{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT}}~0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+These macros control some important details of the implementation. Although using macros for activating features of the implementation is not very C++, switching off some unused features may make the code more efficient in running time or memory. 
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s_gad5743edcdb08edda28cc06bd329d6f03}\label{group___s_p_t_r_e_e___m_a_c_r_o_s_gad5743edcdb08edda28cc06bd329d6f03}} 
+\index{Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}!D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT@{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT}}
+\index{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT@{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT}!Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}}
+\subsubsection{\texorpdfstring{D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT}{DYNMC\_MCF\_SPT}}
+{\footnotesize\ttfamily \#define D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT~0}
+
+Decides if the graph topology (arcs, nodes) can be changed. If D\+Y\+N\+M\+C\+\_\+\+M\+C\+F\+\_\+\+S\+PT $>$ 0, some of the methods of the public interface of class that allow to change the topology of the underlying network are actually implemented. Possible values of this macro are\+:
+
+
+\begin{DoxyItemize}
+\item 0 =$>$ the topology of the graph cannot be changed;
+\item 1 =$>$ all the methods that change the topology of the graph are implemented. 
+\end{DoxyItemize}\mbox{\Hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s_ga51ea746230b8df61d22a28b55c30527e}\label{group___s_p_t_r_e_e___m_a_c_r_o_s_ga51ea746230b8df61d22a28b55c30527e}} 
+\index{Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}!O\+R\+D\+R\+D\+\_\+\+N\+MS@{O\+R\+D\+R\+D\+\_\+\+N\+MS}}
+\index{O\+R\+D\+R\+D\+\_\+\+N\+MS@{O\+R\+D\+R\+D\+\_\+\+N\+MS}!Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}}
+\subsubsection{\texorpdfstring{O\+R\+D\+R\+D\+\_\+\+N\+MS}{ORDRD\_NMS}}
+{\footnotesize\ttfamily \#define O\+R\+D\+R\+D\+\_\+\+N\+MS~1}
+
+Decides if arc names in M\+C\+F\+Get\+X() are ordered. If O\+R\+D\+R\+D\+\_\+\+N\+MS $>$ 0, and M\+C\+F\+Get\+X() \mbox{[}see below\mbox{]} is asked for a \char`\"{}sparse\char`\"{} flow solution (i.\+e., nms != 0), then the set of indices returned at the end of the method is ordered in increasing sense. If O\+R\+D\+R\+D\+\_\+\+N\+MS == 0 instead, the set of indices may not be ordered.
+
+O\+R\+D\+R\+D\+\_\+\+N\+MS $>$ 0 may be useful for some applications, but it is more costly (basically, it requires either to compute the \char`\"{}dense\char`\"{} flow solution or to sort a vector). Also, \char`\"{}sparse\char`\"{} flow solutions in this class are guaranteed to contain no more than n -\/ 1 nonzeroes, hence if O\+R\+D\+R\+D\+\_\+\+N\+MS == 0 then the parameter `F' in M\+C\+F\+Get\+X( F , nms ) can actually point to a (n -\/ 1)-\/vector, while if O\+R\+D\+R\+D\+\_\+\+N\+MS $>$ 0 it must point to a m-\/vector anyway. \mbox{\Hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s_gac2e46738206e9f275b6249a6ef284595}\label{group___s_p_t_r_e_e___m_a_c_r_o_s_gac2e46738206e9f275b6249a6ef284595}} 
+\index{Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}!S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT@{S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT}}
+\index{S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT@{S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT}!Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}}
+\subsubsection{\texorpdfstring{S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT}{SAME\_GRPH\_SPT}}
+{\footnotesize\ttfamily \#define S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT~0}
+
+Decides if all \mbox{\hyperlink{class_m_c_f_class}{M\+C\+F\+Class}} instances share the same graph. If S\+A\+M\+E\+\_\+\+G\+R\+P\+H\+\_\+\+S\+PT $>$ 0, then all the instances of the class will work on the same \char`\"{}topological\char`\"{} network, while the costs, capacities and supplies can change from one instance to another. This allows implementations to share some data structures describing the graph, e.\+g. by declaring them \char`\"{}static\char`\"{}, saving memory when multiple instances of the solver are active at the same time. \mbox{\Hypertarget{group___s_p_t_r_e_e___m_a_c_r_o_s_gace32589e54f63e7934ba934f5893af4b}\label{group___s_p_t_r_e_e___m_a_c_r_o_s_gace32589e54f63e7934ba934f5893af4b}} 
+\index{Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}!S\+P\+T\+\_\+\+A\+L\+G\+R\+TM@{S\+P\+T\+\_\+\+A\+L\+G\+R\+TM}}
+\index{S\+P\+T\+\_\+\+A\+L\+G\+R\+TM@{S\+P\+T\+\_\+\+A\+L\+G\+R\+TM}!Compile-\/time switches in S\+P\+Tree.\+h@{Compile-\/time switches in S\+P\+Tree.\+h}}
+\subsubsection{\texorpdfstring{S\+P\+T\+\_\+\+A\+L\+G\+R\+TM}{SPT\_ALGRTM}}
+{\footnotesize\ttfamily \#define S\+P\+T\+\_\+\+A\+L\+G\+R\+TM~0}
+
+This macro decides which S\+PT algorithm has to be used. Possible values are\+:
+
+
+\begin{DoxyItemize}
+\item 0 =$>$ L\+Queue
+\item 1 =$>$ L\+Deque
+\item 2 =$>$ (currently unused)
+\item 3 =$>$ Dijkstra
+\item 4 =$>$ Heap
+\end{DoxyItemize}
+
+For algorithms based on priority lists, the macro L\+A\+B\+E\+L\+\_\+\+S\+E\+T\+T\+I\+NG \mbox{[}see below\mbox{]} can be set to 1 to say that the algorithm is of the \char`\"{}label-\/setting\char`\"{} (nodes only exit from Q once) rather than of the \char`\"{}label-\/correcting\char`\"{} (nodes may exit from Q more than once) type. 
