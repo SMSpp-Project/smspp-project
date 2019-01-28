@@ -22,10 +22,32 @@ Also, some sub-projects require further projects
 The main benefit of this umbrella project is a unified Doxygen documentation
 that can be produced by running doxygen into doxygen/.
 
+
+Legal Stuff
+===========
+
+Standard Disclaimer
+-------------------
+
+The code is currently provided free of charge for academic purposes only.
+As such, it is provided "as is", without any explicit or implicit warranty
+that it will properly behave or it will suit your needs. The Authors of
+the code cannot be considered liable, either directly or indirectly, for
+any damage or loss that anybody could suffer for having used it. More
+details about the non-warranty attached to this code are available in the
+license description file.
+
 License
 -------
 
-This code will provided under the LGPL license when it will be released.
+See each sub-project for details.
+
+
+Software Dependencies
+=====================
+
+See each sub-project for details.
+
 
 Authors
 =======
