@@ -10,3 +10,6 @@
 [submodule "MCFClass"]
 	path = MCFClass
 	url = https://github.com/frangio68/Min-Cost-Flow-Class
+[submodule "ucblock"]
+	path = ucblock
+	url = https://gitlab.com/AliGhezel/ucblock
