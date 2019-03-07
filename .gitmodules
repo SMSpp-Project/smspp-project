@@ -13,3 +13,6 @@
 [submodule "ucblock"]
 	path = ucblock
 	url = https://gitlab.com/AliGhezel/ucblock
+[submodule "milpsolver"]
+	path = milpsolver
+	url = https://gitlab.com/niccolo/milpsolver
