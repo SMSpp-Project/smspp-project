@@ -14,6 +14,10 @@ Current sub-projects:
 - [MCFBlock / MCFSolver]
   (https://gitlab.com/frangio68/sms_plus_plus_mcfblock_mcfsolver)
 
+- [MILPSolver](https://gitlab.com/niccolo/milpsolver)
+
+- [UCBlock](https://gitlab.com/AliGhezel/ucblock)
+
 Also, some sub-projects require further projects
 
 - [the MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class)
