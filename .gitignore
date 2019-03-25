@@ -6,8 +6,8 @@
 *.sw[oprst]
 ????-*.patch
 /TAGS
-doxygen/html
-doxygen/latex
+doc/html/
+doc/latex/
 XCode/
 
 
