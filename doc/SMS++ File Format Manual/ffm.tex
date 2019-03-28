@@ -272,15 +272,15 @@ The self-documenting nature of \netCDF, together with its portable readability a
 For the purpose of this document, only a relatively small set of \netCDF concepts need be discussed.
 %
 \begin{itemize}
- \item \textit{netCDF file}: is the basic container of \netCDF, e.g.~corresponding to a standard file in the filesystem of the host machine. In the \code{C++} interface used by \SMSpp it corresponds to an object of type \code{netCDF::NcFile}. A typical constructor of the object requires the pathname of the file (a standard \code{char *}) and the mode, which can be e.g.~\code{netCDF::NcFile::read} or \code{netCDF::NcFile::replace} for reading and writing, respectively.
+ \item \netCDF \textit{file}: is the basic container of \netCDF, e.g.~corresponding to a standard file in the filesystem of the host machine. In the \code{C++} interface used by \SMSpp it corresponds to an object of type \code{netCDF::NcFile}. A typical constructor of the object requires the pathname of the file (a standard \code{char *}) and the mode, which can be e.g.~\code{netCDF::NcFile::read} or \code{netCDF::NcFile::replace} for reading and writing, respectively.
  %
- \item \textit{netCDF group}: a \netCDF is organised into several \groups, which can be nested inside each other to an arbitrary degree. In the \code{C++} interface used by \SMSpp, each group corresponds to an object of type \code{netCDF::NcGroup}; note that \code{netCDF::NcFile} derives from \code{netCDF::NcGroup}, and therefore all capabilities of the group are shared by the file (but not vice-versa). Each \group has a unique string name by which it can retrieved; \code{netCDF::NcGroup} (and, therefore, \code{netCDF::NcFile}) has a method \code{getGroup()} taking as input a \code{std::string} with the group name and returning an \code{netCDF::NcGroup} object containing the \emph{child group} with the given name (if any) of that group.
+ \item \netCDF \group: a \netCDF is organised into several \groups, which can be nested inside each other to an arbitrary degree. In the \code{C++} interface used by \SMSpp, each group corresponds to an object of type \code{netCDF::NcGroup}; note that \code{netCDF::NcFile} derives from \code{netCDF::NcGroup}, and therefore all capabilities of the group are shared by the file (but not vice-versa). Each \group has a unique string name by which it can retrieved; \code{netCDF::NcGroup} (and, therefore, \code{netCDF::NcFile}) has a method \code{getGroup()} taking as input a \code{std::string} with the group name and returning an \code{netCDF::NcGroup} object containing the \emph{child group} with the given name (if any) of that group.
  %
- \item \textit{netCDF attribute}: is a simple data point specific of a netCDF group, having a unique string name by which it can retrieved and a simple value (\code{int}, \code{double}, \code{std::string}, \ldots). In the \code{C++} interface used by \SMSpp, it is represented by a \code{netCDF::NcGroupAtt} object, which can be obtained by its enclosing \code{netCDF::NcGroup} via the method \code{getAtt()} taking in input its name. Then, the method(s) \code{getValue()} (available with different signatures corresponding to the different supported basic data types) allows to retrieve its value.
+ \item \netCDF \attribute: is a simple data point specific of a netCDF group, having a unique string name by which it can retrieved and a simple value (\code{int}, \code{double}, \code{std::string}, \ldots). In the \code{C++} interface used by \SMSpp, it is represented by a \code{netCDF::NcGroupAtt} object, which can be obtained by its enclosing \code{netCDF::NcGroup} via the method \code{getAtt()} taking in input its name. Then, the method(s) \code{getValue()} (available with different signatures corresponding to the different supported basic data types) allows to retrieve its value.
  %
- \item \textit{netCDF dimension}: it basically represent the different indices over which the actual data is indexed, each of which is given a name. In the \code{C++} interface used by \SMSpp, it is represented by a \code{netCDF::NcDim} object, which can be obtained by its enclosing \code{netCDF::NcGroup} via the method \code{getDim()} taking in input its name. The dimension (a \code{size\_t} value) is returned by the method \code{getSize()}.
+ \item \netCDF \dimension: it basically represent the different indices over which the actual data is indexed, each of which is given a name. In the \code{C++} interface used by \SMSpp, it is represented by a \code{netCDF::NcDim} object, which can be obtained by its enclosing \code{netCDF::NcGroup} via the method \code{getDim()} taking in input its name. The dimension (a \code{size\_t} value) is returned by the method \code{getSize()}.
  %
- \item \textit{netCDF variable}: this is the container for the ``complex'' data of a \groups. It has a name (\code{std::string}), a basic data type (\code{int}, \code{double}, \code{std::string}, \ldots) and in principle any number of \dimensions.  In the \code{C++} interface used by \SMSpp, it is represented by a \code{netCDF::NcVar} object, which can be obtained by its enclosing \code{netCDF::NcGroup} via the method \code{getVar()} taking in input its name. Once the \code{netCDF::NcVar} object is obtained, individual values of the \variable can be read by its method(s) \code{getVar()} (available with different signatures corresponding to the different supported basic data types), taking a \code{std::vector<size\_t>} as long as the the number of \dimensions of the \variable (obtainable e.g.~with its method \code{NgetDimCount()}).
+ \item \netCDF \variable: this is the container for the ``complex'' data of a \groups. It has a name (\code{std::string}), a basic data type (\code{int}, \code{double}, \code{std::string}, \ldots) and in principle any number of \dimensions.  In the \code{C++} interface used by \SMSpp, it is represented by a \code{netCDF::NcVar} object, which can be obtained by its enclosing \code{netCDF::NcGroup} via the method \code{getVar()} taking in input its name. Once the \code{netCDF::NcVar} object is obtained, individual values of the \variable can be read by its method(s) \code{getVar()} (available with different signatures corresponding to the different supported basic data types), taking a \code{std::vector<size\_t>} as long as the the number of \dimensions of the \variable (obtainable e.g.~with its method \code{NgetDimCount()}).
 \end{itemize}
 %
 The above components allow to read and write structured data files with basically any nested format, which makes \netCDF ideal for representing the data characterizing \SMSpp, as discussed below.
@@ -298,7 +298,7 @@ In \SMSpp, files can describe two different kinds of objects:
  \item \Configuration objects, representing parameters of the solution process, either pertaining to a \Block (say, which of the different available formulations of the optimization problem should be used), or to a \Solver used to actually perform the optimizaton process.
 \end{enumerate}
 %
-Both objects have \code{serialize()} and \code{deserialize()} methods allowing to save the current state to a given \emph{netCDF file/group}, as well as \emph{factories} allowing to create a new object from scratch out of a given \emph{netCDF file/group}.
+Both objects have \code{serialize()} and \code{deserialize()} methods allowing to save the current state to a given \netCDF \textit{file}/\group, as well as \emph{factories} allowing to create a new object from scratch out of a given \netCDF \textit{file}/\group.
 
 \medskip
 \noindent
@@ -314,15 +314,14 @@ Hence, the format of a \SMSpp \netCDF file depends on wether it holds \Block inf
 
 \medskip
 \noindent
-To allow holding all this different information, a \SMSpp \netCDF file has the following general structure. It must contain (in the \code{netCDF::NcFile} object, which is also a \code{netCDF::NcGroup}) an \attribute \cstr{SMS++\_file\_type} of \code{int} type which specifies which of three different kinds of file it is. The values are encoded in the \code{enum smspp\_netCDF\_file\_type} defined in \code{SMSTypedefs.h}, as follows:
+To allow holding all this different information, a \SMSpp \netCDF file has the following general structure. It must contain (in the \code{netCDF::NcFile} object, which is also a \code{netCDF::NcGroup}) an \attribute \cstr{SMS++\_file\_type} of \code{int} type which specifies which of three different kinds of file it is. The values are encoded in the \code{enum} \code{smspp\_netCDF\_file\_type} defined in \code{SMSTypedefs.h}, as follows:
 %
 \begin{itemize}
-  \item \code{eProbFile = 0}: the file (which is also a group) has any number of child groups with names \cstr{Prob\_0}, \cstr{Prob\_1}, \ldots In turn, each child group has \emph{exactly three} child groups with names \cstr{Block}, \cstr{BlockConfig} and \cstr{BlockSolver}, respectively. The first is intended to contain the serialization of a \dBlock, the second the serialization of a \dBlockConfig of the same \dBlock, and the third the serialization of a \dBlockSolverConfig of the same \dBlock, although any of the three can in principle be empty. If any of the child is not empty, it \emph{must} necessarily contain all the information necessary to reconstruct the specific instance.
+  \item \code{eProbFile = 0}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Prob\_0}, \cstr{Prob\_1}, \ldots In turn, each child \group has \emph{exactly three} child \groups with names \cstr{Block}, \cstr{BlockConfig} and \cstr{BlockSolver}, respectively. The first is intended to contain the serialization of a \dBlock, the second the serialization of a \dBlockConfig of the same \dBlock, and the third the serialization of a \dBlockSolverConfig of the same \dBlock, although any of the three can in principle be empty. If any of the child is not empty, it \emph{must} necessarily contain all the information necessary to reconstruct the specific instance.
   %
-  \item \code{eBlockFile = 1}: the file (which is also a group) has any number of child groups with names \cstr{Block\_0}, \cstr{Block\_1}, \ldots Each child group contains the serialization of a \dBlock.
+  \item \code{eBlockFile = 1}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Block\_0}, \cstr{Block\_1}, \ldots Each child \group contains the serialization of a \dBlock.
   %
-  \item \code{eConfigFile = 2}: the file (which is also a group) has any number of child groups with names \cstr{Config\_0}, \cstr{Config\_1}, ... Each child group contains
-  *   the serialization of a \dConfiguration. Note that no distinction is required between a \dBlockConfig and a \dBlockSolverConfig, since they are both derived from \Configuration.
+  \item \code{eConfigFile = 2}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Config\_0}, \cstr{Config\_1}, ... Each child \group contains the serialization of a \dConfiguration. Note that no distinction is required between a \dBlockConfig and a \dBlockSolverConfig, since they are both derived from \Configuration.
 \end{itemize}
 %
 Note that (some variants of) the \code{deserialize()} methods of \Block / \Configuration allow to directly specify which of the different objects stored in the file to read via its index $i$ in the ``name''.
@@ -369,10 +368,10 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \ne
  %
  \item the \dimension \cstr{n\_sub\_Block} containing the number of \BlockConfig descriptions for the sub-\Block of the current \dBlock;
  %
- \item with $n$ being the size of \code{n\_sub\_Block}, $n$ \groups, with name \cstr{sub-BlockConfig\_}$i$'' for all $i = 0, \ldots, n - 1$, containing each the description of a \BlockConfig for one of the sub-\Block of the current \dBlock.
+ \item with $n$ being the size of \code{n\_sub\_Block}, $n$ \groups, with name ``{\tt sub-BlockConfig\_}$i$'' for all $i = 0, \ldots, n - 1$, containing each the description of a \BlockConfig for one of the sub-\Block of the current \dBlock.
 \end{itemize}
 %
-Of all these, only the \cstr{name} \attribute and the \cstr{n\_sub\_Block} \dimension are mandatory (they must exist, although they may be empty/zero). All other groups may not exist, in which case the corresponding field of the class is filled with a \code{nullptr}, indicating that the ``default'' configuration (whatever that may mean for the \dBlock in question) have to be used. Note that that the matching between the sub-\BlockConfig and the sub-\Block is positional: the \BlockConfig found in the group \cstr{sub-BlockConfig\_}$i$'' is that for the $i$-th sub-\Block. Note that the vector of sub-\BlockConfig is allowed to be of different size than the number of sub-\Block; if it is larger any extra \BlockConfig is simply ignored, if it shorted then all missing sub-\BlockConfig are treated as \code{nullptr} (default configuration).
+Of all these, only the \cstr{name} \attribute and the \cstr{n\_sub\_Block} \dimension are mandatory (they must exist, although they may be empty/zero). All other groups may not exist, in which case the corresponding field of the class is filled with a \code{nullptr}, indicating that the ``default'' configuration (whatever that may mean for the \dBlock in question) have to be used. Note that that the matching between the sub-\BlockConfig and the sub-\Block is positional: the \BlockConfig found in the group ``{\tt sub-BlockConfig\_}$i$'' is that for the $i$-th sub-\Block. Note that the vector of sub-\BlockConfig is allowed to be of different size than the number of sub-\Block; if it is larger any extra \BlockConfig is simply ignored, if it shorted then all missing sub-\BlockConfig are treated as \code{nullptr} (default configuration).
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\BlockSolverConfig description}
@@ -388,14 +387,14 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \ne
  %
  \item the \dimension \cstr{n\_BlockSolverConfig} containing containing the number of \BlockSolverConfig descriptions for the sub-\Block of the current \dBlock;
  %
- \item with $m$ being the size of \code{n\_BlockSolverConfig}, $m$ \groups, with name \cstr{BlockSolverConfig\_}$i$'' for all $i = 0, \ldots, m - 1$, containing each the description of a \BlockSolverConfig for one of the sub-\Block of the current \dBlock.
+ \item with $m$ being the size of \code{n\_BlockSolverConfig}, $m$ \groups, with name ``{\tt BlockSolverConfig\_}$i$'' for all $i = 0, \ldots, m - 1$, containing each the description of a \BlockSolverConfig for one of the sub-\Block of the current \dBlock.
 \end{itemize}
 %
-Of all these, only the \cstr{n\_SolverConfig} and \cstr{n\_BlockSolverConfig} \dimensions and the \cstr{SolverNames} \variable are mandatory; the individual \groups may not exist if the corresponding dimension is $0$. Note that that the matching between the sub-\BlockSolverConfig and the sub-\Block is positional: the \BlockSolverConfig found in the group \cstr{BlockSolverConfig\_}$i$'' is that for the $i$-th sub-\Block. Note that the vector of sub-\BlockSolverConfig is allowed to be of different size than the number of sub-\Block; if it is larger any extra \BlockSolverConfig is simply ignored, if it shorted then all missing sub-\BlockConfig are treated as \code{nullptr} (default configuration).
+Of all these, only the \cstr{n\_SolverConfig} and \cstr{n\_BlockSolverConfig} \dimensions and the \cstr{SolverNames} \variable are mandatory; the individual \groups may not exist if the corresponding dimension is $0$. Note that that the matching between the sub-\BlockSolverConfig and the sub-\Block is positional: the \BlockSolverConfig found in the group ``{\tt BlockSolverConfig\_}$i$'' is that for the $i$-th sub-\Block. Note that the vector of sub-\BlockSolverConfig is allowed to be of different size than the number of sub-\Block; if it is larger any extra \BlockSolverConfig is simply ignored, if it shorted then all missing sub-\BlockConfig are treated as \code{nullptr} (default configuration).
 
 \medskip
 \noindent
-Note that the \dConfiguration objects to be found in the \groups \cstr{SolverConfig\_}$i$'' are not ``any'' \dConfiguration; rather, they are assumed to be of the specific type \ComputeConfig, whose format is described in the next subsection.
+Note that the \dConfiguration objects to be found in the \groups ``{\tt SolverConfig\_}$i$'' are not ``any'' \dConfiguration; rather, they are assumed to be of the specific type \ComputeConfig, whose format is described in the next subsection.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\ComputeConfig description}\label{ssec:ComputeConfig}
@@ -427,7 +426,7 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \ne
  \item the \group \cstr{extra} containing a \Configuration object, which has no direct use in the base \ComputeConfig class, but is added so that derived classes can put there any configuration information without having to define further derived classes form \ComputeConfig (which, however, they can still do if they want).
 \end{itemize}
 %
-The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero, the corresponding variables \cstr{*\_par\_names} and \cstr{*\_par\_vals} may not be defined. The \cstr{extra} \group may not exist, in which case the corresponding Configuration object is set to a \code{nullptr}.
+The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero, the corresponding variables \cstr{*\_par\_names} and \cstr{*\_par\_vals} may not be defined. The \cstr{extra} \group may not exist, in which case the corresponding \Configuration object is set to a \code{nullptr}.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -437,7 +436,7 @@ The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero,
 This Section collects the description of the \netCDF file formats for all the implemented \dBlock developed for \textsc{plan4res}. As such, the section will be continuously updated over the course of the project as new \dBlock will be added, although as usual changes to existing input formats will be kept to a minimum, and always agreed with the partners involved with producing them before being put in production. 
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsection{\code{SimpleMILPBlock} and \code{StructuredMILPBlock}}
+\subsection{\code{SimpleMILPBlock}}
 
 \code{SimpleMILPBlock} is a simple classe, only having the ``abstract representation'', for describing Mixed-Integer Linear Programs of the generic form
 \[
@@ -451,6 +450,8 @@ where $c$, $l$, $u \in \mathbb{R}^n$, $\underline{b}$, $\bar{b} \in \mathbb{R}^m
 Besides the mandatory \cstr{type} \attribute of any \dBlock, the group will contain the following:
 %
 \begin{itemize}
+ \item the \attribute \cstr{infinity} containing the number that is used to specify that one of the bounds (entries of $\underline{b}$, $\bar{b}$, $l$ or $u$) is $\pm \infty$;
+ %
  \item the \dimension \cstr{num\_vars} containing the number $n$ of \code{Variable} (columns in the matrix $A$) of the \code{SimpleMILPBlock};
  %
  \item the \dimension \cstr{num\_constraints} containing the number $m$ of \code{Constraint} (rows in the matrix $A$) of the \code{SimpleMILPBlock};
@@ -541,7 +542,7 @@ The data of the problem consist of a (directed) graph $G = ( N , A )$ with $n = 
  & 0 \leq X[ i , j ] \leq U[ i , j ] & (i, j) \in A
 \end{align*}
 %
-The $n$ equations are the flow conservation constraints and the $2m$ inequalities are the flow nonnegativity and capacity constraints. At least one of the flow conservation constraints is redundant, as the demands must be balanced ($\sum_{ i \in N } b[ i ] = 0\); indeed, exactly $n$ - ConnectedComponents( $G$ ) flow conservation constraints are redundant, as demands must be balanced in each connected component of $G$.
+The $n$ equations are the flow conservation constraints and the $2m$ inequalities are the flow nonnegativity and capacity constraints. At least one of the flow conservation constraints is redundant, as the demands must be balanced ($\sum_{ i \in N } b[ i ] = 0$); indeed, exactly $n$ - ConnectedComponents( $G$ ) flow conservation constraints are redundant, as demands must be balanced in each connected component of $G$.
 
 \smallskip
 \noindent

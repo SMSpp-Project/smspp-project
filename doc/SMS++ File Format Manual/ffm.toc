@@ -7,7 +7,7 @@
 \contentsline {subsubsection}{\numberline {3.2.2}{\tt BlockSolverConfig}\xspace description}{6}{subsubsection.3.2.2}
 \contentsline {subsubsection}{\numberline {3.2.3}{\tt ComputeConfig}\xspace description}{6}{subsubsection.3.2.3}
 \contentsline {section}{\numberline {4}File formats of existing {\tt :Block}\xspace }{8}{section.4}
-\contentsline {subsection}{\numberline {4.1}{\tt SimpleMILPBlock} and {\tt StructuredMILPBlock}}{8}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.1}{\tt SimpleMILPBlock}}{8}{subsection.4.1}
 \contentsline {subsection}{\numberline {4.2}{\tt StructuredMILPBlock}}{9}{subsection.4.2}
 \contentsline {subsection}{\numberline {4.3}{\tt MCFBlock}}{10}{subsection.4.3}
 \contentsline {section}{\numberline {5}{\tt BlockConfig}\xspace for existing {\tt :Block}\xspace }{11}{section.5}

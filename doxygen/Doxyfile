@@ -777,6 +777,7 @@ INPUT += ../MCFBlock
 INPUT += ../MCFClass/doxigen/Manual.h ../MCFClass/OPTUtils ../MCFClass/MCFClass
 INPUT += ../MCFClass/MCFCplex ../MCFClass/MCFClone
 INPUT += ../MCFClass/MCFSimplex ../MCFClass/SPTree
+INPUT += ../UCBlock/include
 
 USE_MDFILE_AS_MAINPAGE = ../SMS++/include/README.md
 
