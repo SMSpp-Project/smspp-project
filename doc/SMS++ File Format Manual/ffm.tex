@@ -546,6 +546,10 @@ The $n$ equations are the flow conservation constraints and the $2m$ inequalitie
 
 \smallskip
 \noindent
+The graph $G$ is allowed to be ``partly dynamic''. The set of nodes and arcs that are input at the beginning are assumed not to be changed (save for changing costs, capacities, and deficits, and for arcs to be closed or opened). Then, new arcs and nodes, up to a set maximum, can be dynamically added or deleted. This means that the graph can be fully static (if the maximum number of dynamic arcs and nodes is set to zero) as well as fully dynamic (if the initial graph is empty).
+
+\smallskip
+\noindent
 Besides the mandatory \cstr{type} attribute of any \dBlock, the \group representing the \code{MCFBlock} should contain the following:
 %
 \begin{itemize}
@@ -561,10 +565,21 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
  %
  \item the \variable \cstr{SN}, of type \code{int} and indexed over the dimension \cstr{NArcs}; the $i$-th entry of the variable is assumed to contain the starting node of the $i$-th arc in the graph (note that node names here go from $1$ to $n$, they are shifted by $1$ w.r.t.~to the indices used in the \cstr{B} variable);
  %
- \item the \variable \cstr{EN}, of type \code{int} and indexed over the dimension \cstr{NArcs}; the $i$-th entry of the variable is assumed to contain the ending node of the $i$-th arc in the graph (note that node names here go from $1$ to $n$, they are shifted by $1$ w.r.t.~to the indices used in the \cstr{B} variable).
+ \item the \variable \cstr{EN}, of type \code{int} and indexed over the dimension \cstr{NArcs}; the $i$-th entry of the variable is assumed to contain the ending node of the $i$-th arc in the graph (note that node names here go from $1$ to $n$, they are shifted by $1$ w.r.t.~to the indices used in the \cstr{B} variable);
+ %
+ \item the \dimension \cstr{DynNNodes} containing the current number of dynamic nodes: all the nodes between $0$ and \cstr{NNodes} $-$ \cstr{DynNNodes} $- 1$ are static, i.e., they cannot be deleted (and re-created), whereas all those from \cstr{NNodes} + \cstr{DynNNode} to \cstr{NNodes} $- 1$ are dynamic, i.e., they can deleted and later on re-created;
+ %
+ \item the \dimension \cstr{DynNArcs} containing the current number of dynamic arcs: all the arcs between 0 and \cstr{NArcs} - \cstr{DynNArcs} $- 1$ are static, i.e., they cannot be deleted (and re-created), whereas all those from \cstr{NArcs} $+$ \cstr{DynNArcs} to \cstr{NArcs} $- 1$ are dynamic, i.e., they can deleted and later on re-created;
+ %
+ \item the \dimension \cstr{MaxDynNNodes} containing the maximum number of dynamic nodes in the graph (the maximum value that $n$ can take); data in the \code{MCFBlock} is allocated to accommodate for the fact that further \cstr{MaxDynNNodes} $-$ \cstr{DynNNodes} nodes can later on be dynamically created (and deleted); if \cstr{MaxDynNNodes} $<$ \cstr{DynNNodes} the dimension is ignored and \cstr{NNodes} is taken as the maximum overall number of nodes;
+ %
+ \item the \dimension \cstr{MaxDynNArcs} containing the maximum number of dynamic arcs in the graph (the maximum value that $m$ can take): data in the \code{MCFBlock} is allocated to accommodate for the fact that further \cstr{MaxDynNArcs} $-$ \cstr{DynNArcs} arcs can later on be dynamically created (and deleted); if \cstr{MaxDynNArcs} $<$ \cstr{DynNArcs} the dimension is ignored and \cstr{NArcs} is taken as the maximum overall number of arcs.
 \end{itemize}
-%
-The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$.
+
+ 
+\smallskip
+\noindent
+The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$. Finally, all the dimensions \cstr{DynNNodes}, \cstr{DynNArcs}, \cstr{MaxDynNNodes} and \cstr{MaxDynNArcs} are optional: if they are missing they are treated as being $0$ (this happening for all four means that the graph is "fully static" and cannot be changed).
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

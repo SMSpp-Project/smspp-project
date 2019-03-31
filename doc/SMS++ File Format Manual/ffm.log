@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.6.28)  31 MAR 2019 11:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.6.28)  31 MAR 2019 15:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -986,14 +986,30 @@ Package pdftex.def Info: img/eu_logo.png  used on input line 527.
 [9]
 File: img/p4r_logo.pdf Graphic file (type pdf)
 <use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 571.
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 574.
 (pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
 File: img/eu_logo.png Graphic file (type png)
 <use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 571.
+Package pdftex.def Info: img/eu_logo.png  used on input line 574.
 (pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
  [10]
-Overfull \hbox (48.74959pt too wide) in paragraph at lines 582--584
+Overfull \hbox (6.61024pt too wide) in paragraph at lines 574--576
+\OT1/cmr/m/n/10 ``\OT1/pcr/m/n/10 MaxDynNNodes\OT1/cmr/m/n/10 '' $\OMS/cmsy/m/n
+/10 ^^@$ \OT1/cmr/m/n/10 ``\OT1/pcr/m/n/10 DynNNodes\OT1/cmr/m/n/10 '' nodes ca
+n later on be dy-nam-i-cally cre-ated (and deleted); if ``\OT1/pcr/m/n/10 MaxDy
+nNNodes\OT1/cmr/m/n/10 ''
+ []
+
+File: img/p4r_logo.pdf Graphic file (type pdf)
+<use img/p4r_logo.pdf>
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 586.
+(pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
+File: img/eu_logo.png Graphic file (type png)
+<use img/eu_logo.png>
+Package pdftex.def Info: img/eu_logo.png  used on input line 586.
+(pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
+[11]
+Overfull \hbox (48.74959pt too wide) in paragraph at lines 597--599
 \OT1/cmr/m/n/10 with ex-actly $\OML/cmm/m/it/10 m$ \OT1/cmr/m/n/10 en-tries. Ho
 w-ever, If \OT1/cmr/m/it/10 all \OT1/cmr/m/n/10 the up-per bound are $+\OMS/cms
 y/m/n/10 1$\OT1/cmr/m/n/10 , it is pos-si-ble to skip the \OT1/pcr/m/n/10 std::
@@ -1001,21 +1017,21 @@ vector<LB0Constraint>
  []
 
 
-Overfull \hbox (154.97481pt too wide) in paragraph at lines 582--584
+Overfull \hbox (154.97481pt too wide) in paragraph at lines 597--599
 \OT1/cmr/m/n/10 en-tirely and just use the fact that the \OT1/pcr/m/n/10 ColVar
 iable can be defined to be non-negative\OT1/cmr/m/n/10 . If \OT1/pcr/m/n/10 f[]
 static[]constraints[]Configuration
  []
 
 
-Overfull \hbox (21.35791pt too wide) in paragraph at lines 584--586
+Overfull \hbox (21.35791pt too wide) in paragraph at lines 599--601
 []\OT1/pcr/m/n/10 f[]is[]feasible[]Configuration\OT1/cmr/m/n/10 . If \OT1/pcr/m
 /n/10 f[]is[]feasible[]Configuration \OT1/cmr/m/n/10 is a \OT1/pcr/m/n/10 Simpl
 eConfiguration<double>\OT1/cmr/m/n/10 ,
  []
 
 
-Overfull \hbox (134.6472pt too wide) in paragraph at lines 588--590
+Overfull \hbox (134.6472pt too wide) in paragraph at lines 603--605
 []\OT1/pcr/m/n/10 f[]solution[]Configuration\OT1/cmr/m/n/10 . For all the meth-
 ods deal-ing with so-lu-tions, i.e., \OT1/pcr/m/n/10 get[]Solution() \OT1/cmr/m
 /n/10 and \OT1/pcr/m/n/10 map[][back/forwatd][]solution()\OT1/cmr/m/n/10 ,
@@ -1023,107 +1039,93 @@ ods deal-ing with so-lu-tions, i.e., \OT1/pcr/m/n/10 get[]Solution() \OT1/cmr/m
 
 File: img/p4r_logo.pdf Graphic file (type pdf)
 <use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 594.
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 609.
 (pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
 File: img/eu_logo.png Graphic file (type png)
 <use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 594.
-(pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
-[11]
-Overfull \hbox (7.78896pt too wide) in alignment at lines 604--641
- [] [] [] 
- []
-
-
-Underfull \vbox (badness 10000) detected at line 641
- []
-
-File: img/p4r_logo.pdf Graphic file (type pdf)
-<use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 641.
-(pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
-File: img/eu_logo.png Graphic file (type png)
-<use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 641.
+Package pdftex.def Info: img/eu_logo.png  used on input line 609.
 (pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
 [12]
-Overfull \hbox (7.78896pt too wide) in alignment at lines 648--665
+Overfull \hbox (7.78896pt too wide) in alignment at lines 619--656
  [] [] [] 
  []
 
 
-Underfull \vbox (badness 10000) detected at line 665
+Underfull \vbox (badness 10000) detected at line 656
  []
 
 File: img/p4r_logo.pdf Graphic file (type pdf)
 <use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 665.
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 656.
 (pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
 File: img/eu_logo.png Graphic file (type png)
 <use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 665.
+Package pdftex.def Info: img/eu_logo.png  used on input line 656.
 (pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
 [13]
-Overfull \hbox (7.78896pt too wide) in alignment at lines 672--694
+Overfull \hbox (7.78896pt too wide) in alignment at lines 663--680
  [] [] [] 
  []
 
 
-Underfull \vbox (badness 10000) detected at line 694
+Underfull \vbox (badness 10000) detected at line 680
  []
 
 File: img/p4r_logo.pdf Graphic file (type pdf)
 <use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 694.
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 680.
 (pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
 File: img/eu_logo.png Graphic file (type png)
 <use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 694.
+Package pdftex.def Info: img/eu_logo.png  used on input line 680.
 (pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
 [14]
-Overfull \hbox (1.78896pt too wide) in alignment at lines 701--717
+Overfull \hbox (7.78896pt too wide) in alignment at lines 687--709
  [] [] [] 
  []
 
 
-Underfull \vbox (badness 10000) detected at line 717
+Underfull \vbox (badness 10000) detected at line 709
+ []
+
+File: img/p4r_logo.pdf Graphic file (type pdf)
+<use img/p4r_logo.pdf>
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 709.
+(pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
+File: img/eu_logo.png Graphic file (type png)
+<use img/eu_logo.png>
+Package pdftex.def Info: img/eu_logo.png  used on input line 709.
+(pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
+[15]
+Overfull \hbox (1.78896pt too wide) in alignment at lines 716--732
+ [] [] [] 
  []
 
 
 Underfull \vbox (badness 10000) detected at line 732
  []
 
+
+Underfull \vbox (badness 10000) detected at line 747
+ []
+
 File: img/p4r_logo.pdf Graphic file (type pdf)
 <use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 735.
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 750.
 (pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
 File: img/eu_logo.png Graphic file (type png)
 <use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 735.
+Package pdftex.def Info: img/eu_logo.png  used on input line 750.
 (pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
-[15]
-Overfull \hbox (13.78896pt too wide) in alignment at lines 740--755
+[16]
+Overfull \hbox (13.78896pt too wide) in alignment at lines 755--770
  [] [] [] 
  []
 
 
-Underfull \vbox (badness 10000) detected at line 755
+Underfull \vbox (badness 10000) detected at line 770
  []
 
-File: img/p4r_logo.pdf Graphic file (type pdf)
-<use img/p4r_logo.pdf>
-Package pdftex.def Info: img/p4r_logo.pdf  used on input line 759.
-(pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
-File: img/eu_logo.png Graphic file (type png)
-<use img/eu_logo.png>
-Package pdftex.def Info: img/eu_logo.png  used on input line 759.
-(pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
-[16] (./ffm.brf)
-\tf@brf=\write5
-\openout5 = `ffm.brf'.
-
- 
-AED: lastpage setting LastPage
 File: img/p4r_logo.pdf Graphic file (type pdf)
 <use img/p4r_logo.pdf>
 Package pdftex.def Info: img/p4r_logo.pdf  used on input line 774.
@@ -1132,21 +1134,35 @@ File: img/eu_logo.png Graphic file (type png)
 <use img/eu_logo.png>
 Package pdftex.def Info: img/eu_logo.png  used on input line 774.
 (pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
-[17]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 774.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 774.
+[17] (./ffm.brf)
+\tf@brf=\write5
+\openout5 = `ffm.brf'.
+
+ 
+AED: lastpage setting LastPage
+File: img/p4r_logo.pdf Graphic file (type pdf)
+<use img/p4r_logo.pdf>
+Package pdftex.def Info: img/p4r_logo.pdf  used on input line 789.
+(pdftex.def)             Requested size: 105.83693pt x 48.08125pt.
+File: img/eu_logo.png Graphic file (type png)
+<use img/eu_logo.png>
+Package pdftex.def Info: img/eu_logo.png  used on input line 789.
+(pdftex.def)             Requested size: 64.86816pt x 48.08217pt.
+[18]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 789.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 789.
  (./ffm.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 774.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 774.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 789.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 789.
 Package rerunfilecheck Info: File `ffm.out' has not changed.
 (rerunfilecheck)             Checksum: B3B6F03FCD120734F5791399EB1A2328;4542.
 Package rerunfilecheck Info: File `ffm.brf' has not changed.
 (rerunfilecheck)             Checksum: 3037765223D63E87F06EB590F0E88090;38.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 774.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 789.
  ) 
 Here is how much of TeX's memory you used:
- 13447 strings out of 492649
- 192254 string characters out of 6129622
+ 13448 strings out of 492649
+ 192261 string characters out of 6129622
  297381 words of memory out of 5000000
  17093 multiletter control sequences out of 15000+600000
  11343 words of font info for 45 fonts, out of 8000000 for 9000
@@ -1171,10 +1187,10 @@ st/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2018/texmf-dis
 t/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2018/texmf
 -dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2018/texmf-d
 ist/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on ffm.pdf (18 pages, 332171 bytes).
+Output written on ffm.pdf (19 pages, 334744 bytes).
 PDF statistics:
- 307 PDF objects out of 1000 (max. 8388607)
- 262 compressed objects within 3 object streams
- 51 named destinations out of 1000 (max. 500000)
+ 312 PDF objects out of 1000 (max. 8388607)
+ 266 compressed objects within 3 object streams
+ 52 named destinations out of 1000 (max. 500000)
  187 words of extra memory for PDF output out of 10000 (max. 10000000)
 
