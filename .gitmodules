@@ -16,3 +16,6 @@
 [submodule "milpsolver"]
 	path = milpsolver
 	url = https://gitlab.com/niccolo/milpsolver
+[submodule "BundleSolver"]
+	path = BundleSolver
+	url = https://gitlab.com/egorgone/bundlesolver
