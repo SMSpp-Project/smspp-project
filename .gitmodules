@@ -19,3 +19,6 @@
 [submodule "BundleSolver"]
 	path = BundleSolver
 	url = https://gitlab.com/egorgone/bundlesolver
+[submodule "SubGradSolver"]
+	path = SubGradSolver
+	url = https://gitlab.com/simone.zanda85/subgradsolver
