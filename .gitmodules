@@ -22,3 +22,6 @@
 [submodule "SubGradSolver"]
 	path = SubGradSolver
 	url = https://gitlab.com/simone.zanda85/subgradsolver
+[submodule "lukfiblock"]
+	path = lukfiblock
+	url = https://gitlab.com/egorgone/lukfiblock
