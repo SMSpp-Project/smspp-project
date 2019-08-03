@@ -580,7 +580,6 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
 The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$. Finally, all the \dimensions \cstr{DynNNodes}, \cstr{DynNArcs}, \cstr{MaxDynNNodes} and \cstr{MaxDynNArcs} are optional: if they are missing they are treated as being $0$ (this happening for all four means that the graph is "fully static" and cannot be changed).
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection {\code{UCBlock}}
 
 The class \code{UCBlock}, implements the \Block concept [see Block.h] for the Unit Commitment (UC) problem in electrical power production. This is typically a short-term (across for instance one week or one day time horizon) *deterministic* problem regarding finding an optimal schedule of the production of electrical generators satisfying a (large) set of technical constraints.
@@ -691,7 +690,7 @@ Besides the mandatory cstr{type} attribute of any \dBlock, the \group should con
  \item the \variable \cstr{PollutantHeatRho}, of type double and indexed over three \dimensions. The first \dimension can have size $1$ or \cstr{TimeHorizon}. The second and third \dimensions have sizes \cstr{NumberPollutants} and \cstr{NumberHeatBlocks}, respectively. If the first \dimension has size $1$, then the entry \code{PollutantRho[ 0 , p , h ]} is assumed to contain the conversion factor of pollutant $p$ due to the generation of *all* heat generators in \code{HeatBlock} $h$, which is equal for all time instants $t$. If, instead, the first \dimension has full size \cstr{TimeHorizon}, then the entry \code{PollutantRho[ t , p , h ]} gives the conversion factor of pollutant $p$ due to the generation of *all* heat generators in \code{HeatBlock} $h$ for time instant $t$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable does not need be defined, since it is not loaded. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded.
 \end{itemize}
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection {\code{UnitBlock}}
+\subsection {\code{UnitBlock}}
 
 The \code{UnitBlock} class, which derives from the \Block, defines a base class for any possible \cstr{unit} that can be attached to a \code{UCBlock}. A unit is in general a set of electrical generators tied together by some technical constraints, although many units actually correspond to only one generator. The base \code{UnitBlock} class only has very basic information that can characterize almost any different kind of unit:
 %
@@ -746,9 +745,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
  \item the \variable \cstr{ChangeIntervals}, of type integer and indexed over the \dimension \cstr{NumberIntervals}. The time horizon is subdivided into \code{NumberIntervals = k} of the form $[ 0 , i_1 ]$,$[ i_1 + 1 , i_2 ]$, \dots $[ i_{k-1} + 1, TimeHorizon - 1 ]$; \cstr{ChangeIntervals} then has to contain $[ i_1 , i_2 , \dots i_{k-1} ]$ . Note that, therefore, \cstr{ChangeIntervals} has one significant value less than \cstr{NumberIntervals}, which means that \code{ChangeIntervals[ NumberIntervals - 1 ]} is ignored. Anyway, the whole variable is ignored if either \cstr{NumberIntervals} \code{<= 1} (such as if it is not defined), or \cstr{NumberIntervals} \code{>=} \cstr{TimeHorizon}.
 \end{itemize}
 
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-\paragraph {\code{ThermalUnitBlock}}
+\subsubsection {\code{ThermalUnitBlock}}
 
 The \code{ThermalUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} thermal unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of conventional power plants (such as nuclear, hard coal, gas turbine, gas, combined cycle, oil, ...) which are directly connected to the transmission grid.
 \smallskip
@@ -789,12 +786,11 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 \item  the \variable \cstr{InertiaCommitment}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{IC[ t ]} that, for each time instant $t$, contains the contribution that the unit can give to the inertia constraint for the sole fact that is is on (basically, the constant to be multiplied to the commitment variable) at time $t$. The variable is optional; if it is not defined, \code{IC[ t ] == 0} for all time instants. If it has size $1$, then \code{IC[ t ] == InertiaCommitment[ 0 ]} for all $t$, regardless to what \cstr{NumberIntervals} says. Otherwise, \code{InertiaCommitment[ i ]} is the fixed value of \code{IC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ], ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}.
 
 \end{itemize}
+
+\subsubsection {\code{HydroUnitBlock}}
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\paragraph {\code{HydroUnitBlock}}
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-\subsubsection {\code{NetworkBlock}}
+\subsection {\code{NetworkBlock}}
 The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small \cstr{passive} \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (\cstr{bus}, DC equations, AC equations, OPF, ...) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network.
 \smallskip
 \noindent
@@ -823,17 +819,15 @@ Deserialize a \code{NetworkData} out of a \code{netCDF::NcGroup}, which should c
 \end{itemize}
 %
 
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\paragraph  {\code{BusNetworkBlock}}
+\subsubsection  {\code{BusNetworkBlock}}
 The \code{BusNetworkBlock} class, which derives from \code{NetworkBlock} [see NetworkBlock.h] implements the \Block concept [see Block.h] in order to define a \cstr{bus} transmission network in the Unit Commitment problem for a given instant in the time horizon. There is actually precious little that this class has to do that is not done already by the base \code{NetworkBlock} class.
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-\paragraph  {\code{DCNetworkBlock}}
+\subsubsection {\code{DCNetworkBlock}}
 The \code{DCNetworkBlock} class derives from \code{NetworkBlock}, and defines the standard linear constraints corresponding to the \cstr{DC model} of the transmission network in the Unit Commitment problem.
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection {\code{HeatBlock}}
+\subsection {\code{HeatBlock}}
 
 The \code{HeatBlock} class implements the \Block concept [see Block.h] for a set of \cstr{heat units} as required in the plan4res project. The constraints regarding heat management in the plan4res project can be described separately for each \code{HeatBlock}. In the parlance of plan4res, a HB is the intersection of an Energy Cell and a heat-ID: a set of heat-producing units that are geographically close enough to exchange heat of the same type, together with possibly a (single) storage for this type of heat, in order to satisfy a given heat demand. HBs are only connected to each other because some heat-producing units are also electricity-producing ones, where heat is a by-product or a co-product of electricity. However, this linking \cstr{happens at the level of the main UC model}, and therefore it is not required for the description of the internal constraints of a HB. All this on a given time horizon, as in the UC problem. The operations of the heat generating unit are described on a discrete time horizon where there may exist some heat-producing units, possibly of a single heat storage, and of the demand that has to be satisfied.
 \smallskip
@@ -881,6 +875,8 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group should con
  \item the scalar \variable \cstr{KeepingHeatRho}, of type double and not indexed over any \dimension, which indicates the double of keeping heat in the heat storage (if any) in this HB. This variable is optional and it must always be \code{KeepingHeatRho <= 1}, if it is not provided it is taken to be \code{KeepingHeatRho == 1}. If there is no heat storage (say, \code{MaxHeatStorage} is not defined) then this variable is not read, because it is not used;
 \end{itemize}
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 \newpage
 \section{\BlockConfig for existing \dBlock}
 
