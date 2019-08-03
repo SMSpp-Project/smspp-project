@@ -11,11 +11,17 @@
 	path = MCFClass
 	url = https://github.com/frangio68/Min-Cost-Flow-Class
 [submodule "ucblock"]
-	path = ucblock
+	path = UCBlock
 	url = https://gitlab.com/AliGhezel/ucblock
 [submodule "milpsolver"]
-	path = milpsolver
+	path = MILPSolver
 	url = https://gitlab.com/niccolo/milpsolver
 [submodule "BundleSolver"]
 	path = BundleSolver
 	url = https://gitlab.com/egorgone/bundlesolver
+[submodule "SubGradSolver"]
+	path = SubGradSolver
+	url = https://gitlab.com/simone.zanda85/subgradsolver
+[submodule "LukFiBlock"]
+	path = LukFiBlock
+	url = https://gitlab.com/egorgone/lukfiblock

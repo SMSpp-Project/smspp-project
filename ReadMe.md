@@ -18,10 +18,18 @@ Current sub-projects:
 
 - [UCBlock](https://gitlab.com/AliGhezel/ucblock)
 
+- [BundleSolver](https://gitlab.com/egorgone/bundlesolver)
+
+- [LukFiBlock](https://gitlab.com/egorgone/lukfiblock)
+
+
 Also, some sub-projects require further projects
 
 - [the MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class)
   for MCFSolver
+
+- [the NDOSolver/FiOracle project]
+  (https://gitlab.com/frangio68/ndosolver_fioracle_project)
 
 The main benefit of this umbrella project is a unified Doxygen documentation
 that can be produced by running doxygen into doxygen/.
