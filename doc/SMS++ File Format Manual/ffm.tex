@@ -294,7 +294,6 @@ In \SMSpp, files can describe two different kinds of objects:
 %
 \begin{enumerate}
  \item \Block objects, representing the data characterizing a specific instance of a (structured) optimization problem to be solved;
- %
  \item \Configuration objects, representing parameters of the solution process, either pertaining to a \Block (say, which of the different available formulations of the optimization problem should be used), or to a \Solver used to actually perform the optimizaton process.
 \end{enumerate}
 %
@@ -576,14 +575,313 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
  \item the \dimension \cstr{MaxDynNArcs} containing the maximum number of dynamic arcs in the graph (the maximum value that $m$ can take): data in the \code{MCFBlock} is allocated to accommodate for the fact that further \cstr{MaxDynNArcs} $-$ \cstr{DynNArcs} arcs can later on be dynamically created (and deleted); if \cstr{MaxDynNArcs} $<$ \cstr{DynNArcs} the dimension is ignored and \cstr{NArcs} is taken as the maximum overall number of arcs.
 \end{itemize}
 
- 
 \smallskip
 \noindent
-The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$. Finally, all the dimensions \cstr{DynNNodes}, \cstr{DynNArcs}, \cstr{MaxDynNNodes} and \cstr{MaxDynNArcs} are optional: if they are missing they are treated as being $0$ (this happening for all four means that the graph is "fully static" and cannot be changed).
+The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$. Finally, all the \dimensions \cstr{DynNNodes}, \cstr{DynNArcs}, \cstr{MaxDynNNodes} and \cstr{MaxDynNArcs} are optional: if they are missing they are treated as being $0$ (this happening for all four means that the graph is "fully static" and cannot be changed).
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\newpage	
+\subsection {\code{UCBlock}}
+
+The class \code{UCBlock}, implements the \Block concept [see Block.h] for the Unit Commitment (UC) problem in electrical power production. This is typically a short-term (across for instance one week or one day time horizon) *deterministic* problem regarding finding an optimal schedule of the production of electrical generators satisfying a (large) set of technical constraints.
+\smallskip
+The model is quite flexible due to the fact that different types of units and network constraints can be used by means of the fact that the class manages son \Block of type \code{UnitBlock} and \code{NetworkBlock}. Also \code{UCBlock} handles a reasonably large variety of constraints, regarding not only active power but also primary and secondary reserve and inertia. Admittedly, some choices in \code{UCBlock} (like \code{HeatBlock}, pollution constraints, ...) are quite specific of the UC of the plan4res project; however, all the \cstr{nonstandard} aspects of UC can be switched away from the model (by simply not providing the data describing them). The main elements that \code{UCBlock} handles are:
+%
+\begin{itemize}
+ \item The time horizon of the problem, i.e., a discrete set of (typically, equally-spaced) time instants at which decisions are made (like, the $24$ hours in a day);
+ %
+ \item A set of electricity generating units, represented by derived classes of the base class \code{UnitBlock};
+ %
+ \item A set of \code{NetworkBlock}, one for each time instant in the time horizon, which represent the constraints on the electricity demand satisfaction and the technical constraints on the transmission network. These can be basically \cstr{empty} if the capacity of the transmission network is such as to never really impact generation decisions (a \cstr{bus});
+ %
+ \item An optional set of \code{HeatBlock}, each representing the satisfaction of some specific \cstr{type of heat} on a close geographical area by heat-generating units possibly coupled with a heat storage. The link with the rest of the UC model lies in the fact that some of the heat-generating units in a \code{HeatBlock} may also be electricity generating ones (i.e., a \code{UnitBlock}); actually, the same \code{UnitBlock} can generate heat of \cstr{different types}, and therefore appear as a heat-generating units in more than one \code{HeatBlock}.
+\end{itemize}
+
+\smallskip
+\noindent
+Besides the mandatory cstr{type} attribute of any \dBlock, the \group should contain the following:
+%
+\begin{itemize}
+ \item the \dimension \cstr{TimeHorizon} containing the number of time steps in the problem;
+ %
+ \item the \dimension \cstr{NumberUnits} containing the number of units (\code{UnitBlock}) in the problem;
+ %
+ \item the \groups \cstr{UnitBlock\_0}, \cstr{UnitBlock\_1}, ... , \cstr{UnitBlock\_n} with \code{n == NumberUnits - 1}, containing each one \code{UnitBlock} corresponding to one or more electricity generating unit (electrical generator). It is an error if the corresponding groups are not there. Each \code{UnitBlock} can have more than one electrical generator (cf. \code{UnitBlock::get\_number\_generators()}), a value that is useful in the following (cf. \cstr{GeneratorNode}) is the total number of those, which we will refer to as \cstr{NumberElectricalGenerators}. This is computed by just calling \code{get\_number\_generators()} on each of the \code{UnitBlock} and summing all the results. Clearly, \code{NumberElectricalGenerators >= NumberUnits} and indeed, most of the \code{UnitBlock} can be expected to have just one electrical generator. If this happens for all the units then the \code{NumberElectricalGenerators ==  NumberUnits}. If, instead, some UnitBlock (like cascades of hydro generators or combined cycle plants) actually has more than one electrical generator, then \code{NumberElectricalGenerators > NumberUnits} (each UnitBlock must have at least one). This is because some \code{UnitBlock} (like cascades of hydro generators or combined cycle plants) can actually have more than one electrical generator in it (but each \code{UnitBlock} must have at least one). It is then useful (cf. \cstr{GeneratorNode}) to be able to assign a unique index \code{g = 0, 1, \dots, NumberElectricalGenerators - 1} to each of the electrical generators in the \code{UCBlock}. When \code{NumberElectricalGenerators == NumberUnits}, the index is the same as \code{i = 0, 1, \dots, NumberUnits - 1}(there is a one-to-one correspondence between \code{UnitBlock} and electrical generators). When, instead, \code{NumberElectricalGenerators > NumberUnits}, a mapping must be defined. The mapping is the obvious one: \code{UnitBlock} have an ordering \code{i = 0, 1, \dots, NumberUnits - 1} (cf. the groups \cstr{UnitBlock\_0}, \cstr{UnitBlock\_1}, ... above), and the electrical generators into each \code{UnitBlock} also have some natural ordering (corresponding to the columns of the matrices of variables, cf. e.g. \code{UnitBlock::get\_commitment()}). Thus, in general the mapping is:
+ \begin{itemize}
+ \item electrical generator \code{0 =} first generator of \code{UnitBlock\_0}
+ \item electrical generator \code{1 =} second generator of \code{UnitBlock\_0}
+ \item \code{\dots}
+  \item electrical generator \code{k = k-th} generator of \code{UnitBlock\_0} (\code{k = UnitBlock\_0 -> get\_number\_generators()}
+ \item electrical generator \code{k + 1 =} first generator of \code{UnitBlock\_1}
+ \item electrical generator \code{k + 2 =} second generator of \code{UnitBlock\_1}
+ \item \code{\dots}
+ \end{itemize}
+ \smallskip
+ \noindent
+ which of course boils down to \cstr{g = i} when each UnitBlock has exactly one electrical generator;
+ %
+ \item the \dimension \cstr{NumberHeatBlocks} containing the number of heat blocks in the problem. The dimension is optional: if it is not provided then it is taken to be $0$, which means that there is no heat block in the problem;
+ %
+ \item the \groups \cstr{HeatBlock\_0}, \cstr{HeatBlock\_1}, ... , \cstr{HeatBlock\_n} with \code{n == NumberHeatBlocks - 1}, containing each one a \code{HeatBlock}. When \code{NumberHeatBlocks == 0}, these groups need not be there since they are not read. If, instead, \code{NumberHeatBlocks > 0}, it is an error if the corresponding groups are not there. Since each HeatBlock can have more than one heat generator (cf. \code{HeatBlock::get\_number\_heat\_generators()}), a value that is useful in the following (cf. \cstr{HeatSet}) is the total number of those. We will refer to such number as \cstr{NumberHeatGenerators}, which is computed by just calling \code{get\_number\_heat\_generators()} on each of the \code{HeatBlock} and summing all the results. Clearly, \code{NumberHeatGenerators >= NumberHeatBlock}. Some of the \code{HeatBlock} may have just one heat generator; if this happens for all the heat blocks (but this is not likely), then \code{NumberHeatGenerators ==  NumberHeatBlocks}. It is then useful (cf. \cstr{HeatNode}) to be able to assign a unique index \code{h = 0, 1, \dots, NumberHeatGenerators - 1} to each of the heat generators in the \code{UCBlock}. When \code{NumberHeatGenerators == NumberHeatBlocks} the index is the same as \code{b = 0, 1, \dots, NumberHeatBlock - 1} (there is a one-to-one correspondence between \code{HeatBlock} and heat generators, but this is not likely to happen). When, instead, \code{NumberHeatGenerators > HeatBlock}, a mapping must be defined. The mapping is the obvious one: \code{HeatBlock} have an ordering \code{b = 0, 1, ..., NumberHeatBlocks - 1} (cf. the groups \cstr{HeatBlock\_0}, \cstr{HeatBlock\_1}, ... above), and the heat generators into each \code{HeatBlock} also have some natural ordering (corresponding to the columns of the matrices of variables, cf. e.g. \code{HeatBlock::get\_heat()}. Thus, in general the mapping is:
+ \begin{itemize}
+  \item heat generator \code{0 =} first generator of \code{HeatBlock\_0}
+  \item heat generator \code{1 =} second generator of \code{HeatBlock\_0}
+  \item \code{\dots}
+  \item heat generator \code{k = k-th} generator of \code{HeatBlock\_0} (\code{k = HeatBlock\_0 -> get\_number\_heat\_units()}
+  \item heat generator \code{k + 1 =} first generator of \code{HeatBlock\_1}
+  \item heat generator \code{k + 2 =} second generator of \code{HeatBlock\_1}
+  \item \code{\dots}
+ \end{itemize}
+ \smallskip
+ \noindent
+ which of course boils down to \cstr{h = b} when each HeatBlock has exactly one heat generator (but this is not assumed to happen);
+ %
+ \item optionally, the dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \code{NetworkData::NetworkData::deserialize()} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus);
+ %
+ \item the \groups \cstr{NetworkBlock\_0}, \cstr{NetworkBlock\_1}, ... , \cstr{NetworkBlock\_t} with \code{t = TimeHorizon - 1}, containing each the constraints on the transmission network at time $t$;
+ %
+ \item the \variable \cstr{GeneratorNode}, of type int and indexed over the set {\{0, ... , \cstr{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
+ %
+ \item the \variable \cstr{HeatNode}, of type int and indexed over the \dimension \cstr{NumberHeatBlocks}; the entry \code{HeatNode[ h ]} tells to which node of the transmission network *all* the heat generators that are also electrical generators in the \code{HeatBlock} $h$ belong. Note that this implies that, unlike electrical generators in a \code{UnitBlock}, heat generators in a \code{HeatBlock} are always "geographically near to each other" so that they are necessarily attached to the same node of the transmission network (which is a reasonable assumption since heat, unlike say water, usually cannot travel much far). If \code{NumberHeatBlocks == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded. This information is actually only used to determine in which Pollutant Zone a \code{HeatBlock} is located, in order to add the corresponding heat generators (that are not also electricity generators) to the pollution constraints. This means that also if \code{NumberPollutants == } (say, it is not provided at all) this variable is useless and therefore need not be defined, since it is not loaded. Finally, notice that for heat generators into a \code{HeatBlock} that also are electrical generators, this variable provides again an information that is already known, i.e., to which node they belong to (cf. \cstr{GeneratorNode} above). Of course *the two information must agree*, otherwise the input file is ill-defined and exception is thrown.
+ %
+ \item the \variable \cstr{HeatSet}, of type int and indexed over the set {\{0, ..., \cstr{NumberHeatGenerators} - 1\}}. If \code{HeatSet[ h ] = k < NumberElectricalGenerators}, then $k$ is the unique name of the electrical generator corresponding to the heat generator $h$; otherwise the heat generator $h$ is not also an electrical generator. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded. It is possible that different heat generators correspond to the same electrical generator (that is, \code{HeatSet[ h1 ] == HeatSet[ h2 ]} for some \code{h1 != h2}), but not vice-versa: a heat generator either corresponds to a specific electrical generator, or to no electrical generator (it is an heat-only generator);
+ %
+ \item the \variable \cstr{PowerHeatRho}, of type double and indexed over the \dimension \cstr{NumberUnits}: entry \code{PowerHeatRho[ i ]} is assumed to contain the electrical-power-to-heat ratio for *all generators* within unit $i$ (most likely, a single generator). This is only used in the constraints linking electrical units to heat units, hence if \code{NumberHeatBlocks == 0} (there are no \code{HeatBlock}) then this variable need not be defined, since it is not loaded;
+ %
+ \item the \dimension \cstr{NumberPrimaryZones} tells how many \cstr{primary spinning reserve zones} are there in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no primary reserve constraints are present in the problem;
+ %
+ \item the \variable \cstr{PrimaryZones}, of type int and indexed over the \dimension \cstr{NumberNodes}. The entry \code{PrimaryZones[ i ]} tells to which primary zone the node $i$ belongs: if \code{PrimaryZones[ i ] >= NumberPrimaryZones}, this means that node $i$ does not belong to any primary zone, and hence the corresponding electrical generators are not involved into the primary reserve constraints. If \code{NumberPrimaryZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberPrimaryZones == 1} and this variable is not defined, then there is only one primary zone and all the nodes belong to it;
+ %
+ \item the \variable \cstr{PrimaryDemand}, of type double and indexed both over the \dimensions \cstr{NumberPrimaryZones} and \cstr{TimeHorizon}: entry \code{PrimaryDemand[ i , t ]} is assumed to contain the primary reserves requirement which are specified on the primary reserve zone $i$ in the time t. If \code{NumberPrimaryZones == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded;
+ %
+ \item the \dimension \cstr{NumberSecondaryZones} tells how many \cstr{secondary spinning reserve zones} are there in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no secondary reserve constraints are present in the problem;
+ %
+ \item the \variable \cstr{SecondaryZones}, of type int and indexed over the \dimension \cstr{NumberNodes}. The entry \code{SecondaryZones[ i ]} tells to which secondary zone the node $i$ belongs: if \code{SecondaryZones[ i ] >= NumberSecondaryZones}, this means that node $i$ does not belong to any secondary zone, and hence the corresponding electrical generators are not involved into the secondary reserve constraints. If \code{NumberSecondaryZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberSecondaryZones == 1} and this variable is not defined, then there is only one secondary zone and all the nodes belong to it;
+ %
+ \item the \variable \cstr{SecondaryDemand}, of type double and indexed both over the \dimensions \cstr{NumberSecondaryZones} and \cstr{TimeHorizon}: entry \code{SecondaryDemand[ i , t ]} is assumed to contain the secondary reserves requirement which are specified on the secondary reserve zone $i$ in the time t. If \code{NumberSecondaryZones == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded;
+ %
+ \ \item the \dimension \cstr{NumberInertiaZones} tells how many \cstr{inertia constraints zones} are there in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no inertia constraints are present in the problem;
+ %
+ \item the \variable \cstr{InertiaZones}, of type int and indexed over the \dimension \cstr{NumberNodes}. The entry \code{InertiaZones[ n ]} tells to which inertia zone the node $n$ belongs: if \code{InertiaZones[ n ] >= NumberInertiaZones}, this means that node $n$ does not belong to any inertia zone, and hence the corresponding units are not involved into the inertia reserve constraints. If \code{NumberInertiaZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberInertiaZones == 1} and this variable is not defined, then there is only one inertia zone and all the nodes belong to it;
+%
+ \item the \variable \cstr{InertiaDemand}, of type double and indexed both over the \dimensions \cstr{NumberInertiaZones} and \cstr{TimeHorizon}: entry \code{InertiaDemand[ i , t ]} is assumed to contain the inertia reserves requirement which are specified on the inertia reserve zone $i$ in the time t. If \code{NumberInertiaZones == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded;
+%
+ \item the \dimension \cstr{NumberPollutants} containing the number of pollutants in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no pollutants constraints are present in the problem;
+ %
+ \item the \variable \cstr{NumberPollutantZones} of type int and indexed over the \dimension \cstr{NumberPollutants}: the entry \code{NumberPollutantZones[ p ]} is assumed to contain the number of pollutant zones associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded. Then, all number of pollutant zones associated with each pollutant $p$ is computed as: \code{TotalNumberPollutantZones == NumberPollutantZone[ 0 ] + \dots + NumberPollutantZone[ NumberPollutants - 1 ]};
+%
+ \item the \variable \cstr{PollutantZones}, of type int and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
+ %
+ \item the \variable \cstr{PollutantBudget}, of type double and indexed over the set \{ 0 , ..., \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n == 0 , ..., TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each otherit is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, ..., TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, ..., NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
+ \begin{itemize}
+  \item \code{n = 0} corresponds to the zone $0$ of pollutant $0$
+  \item \code{n = 1} corresponds to the zone $1$ of pollutant $0$
+  \item \code{\dots}
+  \item \code{n = NumberPollutantZone[ 0 ] - 1} corresponds to the zone \code{NumberPollutantZone[ 0 ] - 1} of pollutant $0$
+  \item \code{n = NumberPollutantZone[ 0 ] } corresponds to the zone $0$ of pollutant $1$
+  \item \code{n = NumberPollutantZone[ 0 ] + 1} corresponds to the zone $1$ of pollutant $1$
+  \item \code{\dots}
+ \end{itemize}
+ \smallskip
+ \noindent
+ If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
+ %
+ \item the \variable \cstr{PollutantRho}, of type double and indexed over two \dimensions which are \cstr{TimeHorizon} and \cstr{NumberPollutants} and the set \{0,..., \code{NumberElectricalGenerators} - 1\} (see comments above). The first dimension can have size either $1$ or \cstr{TimeHorizon}. In the former case the entry \code{PollutantRho[ 0 , p , g ]} is assumed to contain the conversion factor of pollutant $p$ due to the electrical generator $g$ which is equal for all time instants $t$. Otherwise, the first dimension has full size \code{TimeHorizon} and the entry \code{PollutantRho[ t , p , g ]} gives the conversion factor of pollutant $p$ due to the electrical generator $g$ for time t. If \code{NumberPollutants == 0} (it is not provided) then this variable need not be defined, since it's not loaded.
+ %
+ \item the \variable \cstr{PollutantHeatRho}, of type double and indexed over three \dimensions. The first \dimension can have size $1$ or \cstr{TimeHorizon}. The second and third \dimensions have sizes \cstr{NumberPollutants} and \cstr{NumberHeatBlocks}, respectively. If the first \dimension has size $1$, then the entry \code{PollutantRho[ 0 , p , h ]} is assumed to contain the conversion factor of pollutant $p$ due to the generation of *all* heat generators in \code{HeatBlock} $h$, which is equal for all time instants $t$. If, instead, the first \dimension has full size \cstr{TimeHorizon}, then the entry \code{PollutantRho[ t , p , h ]} gives the conversion factor of pollutant $p$ due to the generation of *all* heat generators in \code{HeatBlock} $h$ for time instant $t$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable does not need be defined, since it is not loaded. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded.
+\end{itemize}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection {\code{UnitBlock}}
+
+The \code{UnitBlock} class, which derives from the \Block, defines a base class for any possible \cstr{unit} that can be attached to a \code{UCBlock}. A unit is in general a set of electrical generators tied together by some technical constraints, although many units actually correspond to only one generator. The base \code{UnitBlock} class only has very basic information that can characterize almost any different kind of unit:
+%
+\begin{itemize}
+ \item The time horizon of the problem;
+ %
+ \item The number of generators in the unit ($1$ by default, see \code{get\_number\_generators()});
+ %
+ \item Four \code{boost::multi\_array< ColVariable, 2 >} objects, that are used to store the information regarding:
+ %
+     \begin{itemize}
+      \item the commitment of the generators in the unit;
+      %
+      \item the primary spinning reserve of the generators in the unit;
+      %
+      \item the secondary spinning reserve of the generators in the unit;
+      %
+      \item the active power produced by the generators in the unit;
+
+     \end{itemize}
+
+\end{itemize}
+%
+Each of the \code{boost::multi\_array< ColVariable, 2 >} has as first \dimension the time horizon and as second \dimension the number of generators (as returned \code{get\_number\_generators()}). There are two possible cases:
+\begin{itemize}
+ \item if some \code{boost::multi\_array< ColVariable, 2 >} is empty(), then the corresponding variable does not exist (for instance, the generator in the unit may not have reserve);
+ %
+ \item otherwise, the \code{boost::multi\_array< ColVariable, 2 >}, say $M$, must have \code{f\_time\_horizon} rows and \code{get\_number\_generators()} columns: each element $M[ t , g ]$ gives the variable for time step $t$ of generator $g$.
+\end{itemize}
+%
+The class also outputs some general information regarding how the active power and/or commitment status of each generator of the unit at a given time instant impact the unit's capability of satisfying inertia constraints, and the fixed consumption (if any) of each generator in the  unit when it is off.
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the \group representing the \code{UnitBlock} should contain the following:
+%
+\begin{itemize}
+ \item the \dimension \cstr{TimeHorizon} containing the time horizon. The \dimension is optional because the same information may be passed via the method \code{set\_time\_horizon()}, or directly retrieved from the father if it is a \code{UCBlock}; see the comments to \code{set\_time\_horizon()} for details;
+ %
+ \item the \dimension \cstr{NumberIntervals} that is provided to allow that all time-dependent data in the \code{UnitBlock} can only change at a subset of the time instants of the time interval, being therefore piecewise-constant (possibly, constant). \cstr{NumberIntervals} should therefore be \code{<=} \cstr{TimeHorizon}, with three distinct cases:
+ %
+ \begin{itemize}
+  \item  \cstr{NumberIntervals} \code{<= 1}, which is taken to mean \cstr{NumberIntervals} \code{== 1}; this is what is assumed if the \dimension, that is optional, is not there. This means that the value of each relevant data in the \code{UCBlock} is the same for each time instant \code{0, \dots,} \cstr{TimeHorizon} \code{ - 1} in the time horizon. In this case, the variable \cstr{ChangeIntervals} (see below) is ignored;
+  %
+  \item \code{1 < }\cstr{NumberIntervals} \code{<} \cstr{TimeHorizon}, which means that in some time instants, *but not all of them*, the values of some of the relevant data are changing; the intervals are then described in variable \cstr{NumberIntervals};
+  %
+  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless;
+  %
+ \end{itemize}
+ %
+ Note that this (together with \cstr{NumberIntervals}, if defined) obviously sets the \cstr{maximum frequency} at which data can change; if some data changes less frequently (say, it is constant), then the same value will have to be repeated. Individual data can also have specific provisions for the case where the data is all equal despite \cstr{NumberIntervals} saying differently.
+ %
+ \item the \variable \cstr{ChangeIntervals}, of type integer and indexed over the \dimension \cstr{NumberIntervals}. The time horizon is subdivided into \code{NumberIntervals = k} of the form $[ 0 , i_1 ]$,$[ i_1 + 1 , i_2 ]$, \dots $[ i_{k-1} + 1, TimeHorizon - 1 ]$; \cstr{ChangeIntervals} then has to contain $[ i_1 , i_2 , \dots i_{k-1} ]$ . Note that, therefore, \cstr{ChangeIntervals} has one significant value less than \cstr{NumberIntervals}, which means that \code{ChangeIntervals[ NumberIntervals - 1 ]} is ignored. Anyway, the whole variable is ignored if either \cstr{NumberIntervals} \code{<= 1} (such as if it is not defined), or \cstr{NumberIntervals} \code{>=} \cstr{TimeHorizon}.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\paragraph {\code{ThermalUnitBlock}}
+
+The \code{ThermalUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} thermal unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of conventional power plants (such as nuclear, hard coal, gas turbine, gas, combined cycle, oil, ...) which are directly connected to the transmission grid.
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The  \code{netCDF::NcGroup} must then also contain:
+%
+\begin{itemize}
+ \item  the \variable \cstr{MinPower}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MnP[ t ]} that, for each time instant $t$, contains the minimum active power output value of the unit for the corresponding time step. If \cstr{MinPower} has length $1$ then \code{MnP[ t ]} contains the same value for all $t$. Otherwise, \code{MinPower[ i ]} is the fixed value of \code{MnP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. Note that it must be \code{MnP[ t ] >= 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{changeIntervals}, which in fact is not loaded;
+ %
+ \item  the \variable \cstr{MaxPower}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MxP[ t ]} that, for each time instant $t$, contains the maximum active power output value of the unit for the corresponding time step. If \cstr{MaxPower} has length $1$ then \code{MxP[ t ]} contains the same value for all $t$. Otherwise, \code{MaxPower[ i ]} is the fixed value of \code{MxP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. Note that it must be \code{MxP[ t ] >= 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{changeIntervals}, which in fact is not loaded;
+%
+ \item  the \variable \cstr{DeltaRampUp}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{DP[ t ]} that, for each time instant $t$, contains the ramp-up value of the unit for the corresponding time step, i.e., the maximum possible increase of active power production w.r.t. the power that had been produced in time instant \code{t - 1}, if any. This variable is optional; if it is not provided then it is assumed that \code{DP[ t ] == MxP[ t ]}, i.e., the unit can ramp up by an arbitrary amount, i.e., there are no ramp-up constraints. If \cstr{DeltaRampUp} has length $1$ then \code{DP[ t ]} contains the same value for all $t$. Otherwise, \code{DeltaRampUp[ i ]} is the fixed value of \code{DP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+%
+ \item  the \variable \cstr{DeltaRampDown}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{DM[ t ]} that, for each time instant $t$, contains the ramp-down value of the unit for the corresponding time step, i.e., the maximum possible decrease of active power production w.r.t. the power that had been produced in time instant \code{t - 1}, if any. This variable is optional; if it is not provided then it is assumed that \code{DM[ t ] == MxP[ t ]}, i.e., the unit can ramp down by an arbitrary amount, i.e., there are no ramp-down constraints. If \cstr{DeltaRampDown} has length $1$ then \code{DM[ t ]} contains the same value for all $t$. Otherwise, \code{DeltaRampDown[ i ]} is the fixed value of \code{DM[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+%
+ \item the \variable \cstr{PrimaryRho}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{PR[ t ]} that, for each time instant $t$, contains the maximum possible fraction of active power that can be used as primary reserve value of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that this unit may not be capable of producing any primary reserve, which correspond to \code{PR[ t ] == 0} for all $t$. If \cstr{PrimaryRho} has length $1$ then \code{PR[ t ]} contains the same value for all $t$. Otherwise, \code{PrimaryRho[ i ]} is the fixed value of \code{PR[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ %
+ \ \item the \variable \cstr{SecondaryRho}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{SR[ t ]} that, for each time instant $t$, contains the maximum possible fraction of active power that can be used as secondary reserve value of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that this unit may not be capable of producing any secondary reserve, which correspond to \code{SR[ t ] == 0} for all $t$. If \cstr{SecondaryRho} has length $1$ then \code{SR[ t ]} contains the same value for all $t$. Otherwise, \code{SecondaryRho[ i ]} is the fixed value of \code{SR[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ %
+ \item the \variable \cstr{QuadTerm}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{A[ t ]} that, for each time instant $t$, contains the quadratic term of power cost function of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that \code{A[ t ] == 0}, i.e., the cost of the unit is linear in the produced power. If \cstr{QuadTerm} has length $1$ then \code{A[ t ]} contains the same value for all $t$. Otherwise, \code{QuadTerm[ i ]} is the fixed value of \code{A[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+%
+ \item the \variable \cstr{StartUpCost}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{SC[ t ]} that, for each time instant $t$, contains the start up cost value of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that \code{SC[ t ] == 0}, i.e., this unit may not have any start up cost. If \cstr{StartUpCost} has length $1$ then \code{SC[ t ]} contains the same value for all $t$. Otherwise, \code{StartUpCost[ i ]} is the fixed value of \code{SC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ %
+ \item the \variable \cstr{LinearTerm}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{B[ t ]} that, for each time instant $t$, contains the linear term of power cost function of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that \code{B[ t ] == 0}, i.e., the cost of the unit has no linear dependence on the produced power (say, only the quadratic one). If \cstr{LinearTerm} has length $1$ then \code{B[ t ]} contains the same value for all $t$. Otherwise, \code{LinearTerm[ i ]} is the fixed value of \code{B[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ %
+ \item the \variable \cstr{ConstTerm}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{C[ t ]} that, for each time instant $t$, contains the const term of power cost function of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that \code{C[ t ] == 0}, i.e.,  the cost of the unit has no fixed term, only those depending (linearly or quadratically) on the produced power. If \cstr{ConstTerm} has length $1$ then \code{C[ t ]} contains the same value for all $t$. Otherwise, \code{ConstTerm[ i ]} is the fixed value of \code{C[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ %
+ \item the scalar \variable \cstr{InitialPower}, of type double and not indexed over any \dimension. This variable indicates the amount of the power that the unit was producing at time instant $-1$, i.e., before the start of the time horizon; this is necessary to compute the ramp-up and ramp-down constraints. Clearly, it must be that \code{MaxPower >= InitialPower >= MinPower} if the unit was "on" at time instant $-1$, and it must be that \code{InitialPower == 0} if the unit was "off" at time instant $-1$. The on/off status of the unit is also encoded by the scalar variable \code{InitUpDownTime}: in particular, \code{InitUpDownTime > 0} then the unit was on at time instant $-1$, and therefore \code{InitialPower >= MinPower} must hold, while if \code{InitUpDownTime <= 0} then the unit was off at time instant $-1$, and therefore \code{InitialPower == 0} by definition. In fact, if \code{InitUpDownTime <= 0} then this variable need not be defined since it is not loaded.
+ %
+ \item the scalar \variable \cstr{InitUpDownTime}, of type Int64 and not indexed over any \dimension and indicates the initial time to generating the unit. If \code{InitUpDownTime > 0}, this means that the unit has been on for \code{InitUpDownTime} time stamps prior to time stamp $0$ (the beginning of the horizon). If, instead, \code{InitUpDownTime <= 0}, this means that the unit has been off for \code{- InitUpDownTime} time stamps prior to time stamp $0$; note that \code{InitUpDownTime == 0} means that the unit has been just shut down at the end of time instant $-1$, i.e., the beginning of time instant $0$;
+ %
+ \item the positive scalar \variable \cstr{MinUpTime}, of type UInt64 and not indexed over any \dimension, which indicates the minimum allowed up time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinUpTime == 0}, which mean that the unit can shut down in the very same time stamp in which it starts up.
+ %
+ \item the positive scalar \variable \cstr{MinDownTime}, of type UInt64 and not indexed over any \dimension, which indicates the minimum allowed down time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinDownTime == 0}, which mean that the unit can start up in the very same time stamp in which it starts up.
+ %
+ \item  the \variable \cstr{FixedConsumption}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{FC[ t ]} that, for each time instant $t$, contains the fixed consumption of the power plant if it is OFF at time $t$. The variable is optional; if it is not defined, \code{FC[ t ] == 0} for all time instants. If it has size $1$, then \code{FC[ t ] == FixedConsumption[ 0 ]} for all $t$, regardless to what \cstr{NumberIntervals} says. Otherwise, \code{FixedConsumption[ i ]} is the fixed value of \code{FC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ], ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}.
+%
+\item  the \variable \cstr{InertiaCommitment}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{IC[ t ]} that, for each time instant $t$, contains the contribution that the unit can give to the inertia constraint for the sole fact that is is on (basically, the constant to be multiplied to the commitment variable) at time $t$. The variable is optional; if it is not defined, \code{IC[ t ] == 0} for all time instants. If it has size $1$, then \code{IC[ t ] == InertiaCommitment[ 0 ]} for all $t$, regardless to what \cstr{NumberIntervals} says. Otherwise, \code{InertiaCommitment[ i ]} is the fixed value of \code{IC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ], ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}.
+
+\end{itemize}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\paragraph {\code{HydroUnitBlock}}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\subsubsection {\code{NetworkBlock}}
+The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small \cstr{passive} \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (\cstr{bus}, DC equations, AC equations, OPF, ...) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network.
+\smallskip
+\noindent
+The \code{NetworkData} class is a nested sub-class which only serves to have a quick way to load all the basic data (topology and electrical characteristics) that describe the transmission network. The rationale is that while often the network does not change during the (short) time horizon of UC, it makes sense to allow for this to happen. This means that individual \code{NetworkBlock} objects may in principle have different \code{NetworkData}, but most often they can share the same. By bunching all the information together we make it easy for this sharing to happen.
+\smallskip
+\noindent
+Deserialize a \code{NetworkData} out of a \code{netCDF::NcGroup}, which should contain the following:
+\begin{itemize}
+ \item the \dimension \cstr{NumberNodes} containing the number of nodes in the problem; this dimension is optional, if it is not provided then it is taken to be \code{== 1};
+ %
+ \smallskip
+ \noindent
+ If \code{NumberNodes == 1} (equivalently, it is not provided), the network is a \cstr{bus} formed of only one node, and therefore all the subsequent information need not to be present since it is not loaded. If \code{NumberNodes > 1}, then all the subsequent information is mandatory:
+ %
+ \item the \dimension \cstr{NumberLines} containing the number of lines in the transmission network;
+ %
+ \item the \variable \cstr{StartLine}, of type int and indexed over the \dimension \cstr{NumberNodes}; the $i-th$ entry of the variable is the starting point of the line (a number in \code{0, \dots, NumberNodes - 1}). Note that lines are not oriented, but the flow of energy is; that is, a positive flow along line $i$ means that energy is being taken away from \code{StartLine[ i ]} and delivered to \code{EndLine[ i ]} (see next), a negative flow means vice-versa. Note that node names here go from $0$ to \code{NNodes.getSize() - 1};
+ %
+ \item the \variable \cstr{EndLine}, of type int and indexed over the \dimension \cstr{NumberNodes}; the $i-th$ entry of the variable is the ending point of the line (a number in \code{0, \dots, NumberNodes - 1}; lines are not oriented, but see above). \code{StartLine[ i ] == EndLine[ i ]} (a self-loop) is not allowed, but multiple lines between the same pair of nodes are. Note that node names here go from $0$ to \code{NNodes.getSize() - 1};
+ %
+ \item the \variable \cstr{MinPowerFlow}, of type double and indexed over the \dimension \cstr{NumberLines}; the $i-th$ entry of the variable is assumed to contain the minimum power flow on line $i$ (note that this is typically a negative number as lines are bi-directional, see above);
+%
+ \item the \variable \cstr{MaxPowerFlow}, of type double and indexed over the \dimension \cstr{NumberLines}; the $i-th$ entry of the variable is assumed to contain the maximum power flow at line $i$ (a non-negative number);
+ %
+ \item the \variable \cstr{Susceptance}, of type double and indexed over the \dimension \cstr{NumberLines}; the $i-th$ entry of this variable is assumed to contain the susceptance of line $i$. Note that this is strictly a positive value.
+\end{itemize}
+%
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\paragraph  {\code{BusNetworkBlock}}
+The \code{BusNetworkBlock} class, which derives from \code{NetworkBlock} [see NetworkBlock.h] implements the \Block concept [see Block.h] in order to define a \cstr{bus} transmission network in the Unit Commitment problem for a given instant in the time horizon. There is actually precious little that this class has to do that is not done already by the base \code{NetworkBlock} class.
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+\paragraph  {\code{DCNetworkBlock}}
+The \code{DCNetworkBlock} class derives from \code{NetworkBlock}, and defines the standard linear constraints corresponding to the \cstr{DC model} of the transmission network in the Unit Commitment problem.
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection {\code{HeatBlock}}
+
+The \code{HeatBlock} class implements the \Block concept [see Block.h] for a set of \cstr{heat units} as required in the plan4res project. The constraints regarding heat management in the plan4res project can be described separately for each \code{HeatBlock}. In the parlance of plan4res, a HB is the intersection of an Energy Cell and a heat-ID: a set of heat-producing units that are geographically close enough to exchange heat of the same type, together with possibly a (single) storage for this type of heat, in order to satisfy a given heat demand. HBs are only connected to each other because some heat-producing units are also electricity-producing ones, where heat is a by-product or a co-product of electricity. However, this linking \cstr{happens at the level of the main UC model}, and therefore it is not required for the description of the internal constraints of a HB. All this on a given time horizon, as in the UC problem. The operations of the heat generating unit are described on a discrete time horizon where there may exist some heat-producing units, possibly of a single heat storage, and of the demand that has to be satisfied.
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain all the following:
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumberHeatUnits} containing the number heat-producing units. This is not optional, and has to be \code{>= 1};
+ %
+ \item the \dimension \cstr{TimeHorizon} containing the time horizon. The \dimension is optional because the same information may be passed via the method \code{set\_time\_horizon()}, or directly retrieved from the father if it is a \code{UCBlock}; see the comments to \code{set\_time\_horizon()} for details;
+ %
+ \item the \dimension \cstr{NumberIntervals} that is provided to allow that all time-dependent data in the \code{HeatBlock} can only change at a subset of the time instants of the time interval, being therefore piecewise-constant (possibly, constant). \cstr{NumberIntervals} should therefore be \code{<=} \cstr{TimeHorizon}, with three distinct cases:
+ %
+ \begin{itemize}
+  \item  \cstr{NumberIntervals} \code{<= 1}, which is taken to mean \cstr{NumberIntervals} \code{== 1}; this is what is assumed if the \dimension, that is optional, is not there. This means that the value of each relevant data in the \code{UCBlock} (see e.g. \cstr{CostHeatUnit}, \cstr{MinHeatProduction} and \cstr{MaxHeatProduction} below)is the same for each time instant \code{0, \dots,} \cstr{TimeHorizon} \code{ - 1} in the time horizon. In this case, the variable \cstr{ChangeIntervals} (see below) is ignored;
+  %
+  \item \code{1 < }\cstr{NumberIntervals} \code{<} \cstr{TimeHorizon}, which means that in some time instants, *but not all of them*, the values of some of the relevant data are changing; the intervals are then described in variable \cstr{NumberIntervals};
+  %
+  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless;
+  %
+ \end{itemize}
+ %
+ Note that this (together with \cstr{NumberIntervals}, if defined) obviously sets the \cstr{maximum frequency} at which data can change; if some data changes less frequently (say, it is constant), then the same value will have to be repeated. Individual data can also have specific provisions for the case where the data is all equal despite \cstr{NumberIntervals} saying differently.
+ %
+ \item the \variable \cstr{ChangeIntervals}, of type integer and indexed over the \dimension \cstr{NumberIntervals}. The time horizon is subdivided into \code{NumberIntervals = k} of the form $[ 0 , i_1 ]$,$[ i_1 + 1 , i_2 ]$, \dots $[ i_{k-1} + 1, TimeHorizon - 1 ]$; \cstr{ChangeIntervals} then has to contain $[ i_1 , i_2 , \dots i_{k-1} ]$ . Note that, therefore, \cstr{ChangeIntervals} has one significant value less than \cstr{NumberIntervals}, which means that \code{ChangeIntervals[ NumberIntervals - 1 ]} is ignored. Anyway, the whole variable is ignored if either \cstr{NumberIntervals} \code{<= 1} (such as if it is not defined), or \cstr{NumberIntervals} \code{>=} \cstr{TimeHorizon};
+ %
+ \item the \variable \cstr{TotalHeatDemand}, of type double and indexed over the \dimension \cstr{TimeHorizon}: entry \code{TotalHeatDemand[ t ]} is assumed to contain the total heat demand of this heat block to be satisfied for the corresponding time instant $t$. Note that this variable does *not* use the \cstr{NumberIntervals} / \cstr{ChangeIntervals} system, as demand is usually changing from one time instant to the next;
+ %
+ \item the variable \cstr{CostHeatUnit}, of type double and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \code{CHU[ t , i ]} which is assumed to contain the unitary cost of heat production of heat-producing unit $i$ for time instant $t$. If the first \dimension has size $1$, then the cost is the same for all time instants (for the same unit). Otherwise, \code{CostHeatUnit[ h , i ]} is the fixed value of \code{CHU[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
+ %
+ \item the \variable \cstr{MinHeatProduction}, of type double and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \cstr{MinHP[ t , i ]} which is assumed to contain the minimum heat production of heat-producing unit $i$ for time instant $t$. The variable is optional; if it is not provided at all, it is intended \cstr{MnHP[ t , i ] == 0} for all $i$ and $t$. If the first dimension has size $1$, then the minimum heat production is the same for all time instants (for the same unit). Otherwise, \code{MinHeatProduction[ h , i ]} is the fixed value of \code{MinHP[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
+ %
+ \item the \variable \cstr{MaxHeatProduction}, of type double and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \cstr{MaxHP[ t , i ]} which is assumed to contain the maximum heat production of heat-producing unit $i$ for time instant $t$. It is assumed \code{MaxHP[ t , i ] >= MinHP[ t , i ] >= 0} for all $i$ and $t$, with strict inequality holding for at least some $t$ for each unit $i$ (otherwise the production of unit $i$ is fixed and there is nothing to decide). The variable is optional; if it is not provided at all, it is intended \cstr{MaxHP[ t , i ] == 0} for all $i$ and $t$. If the first dimension has size $1$, then the maximum heat production is the same for all time instants (for the same unit). Otherwise, \code{MaxHeatProduction[ h , i ]} is the fixed value of \code{MaxHP[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
+ %
+ \item the \variable \cstr{MinHeatStorage}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{MinHS[ t ]} which, for each time instant $t$, contains the minimum heat storage of this HB. The variable is optional, if it is not provided at all it is intended that \code{MinHS[ t ] == 0} for all $t$. If the variable has size $1$, then the minimum heat storage is the same for all time instants. Otherwise, \code{MinHeatStorage[ h ]} is the fixed value of \code{MinHS[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
+ %
+ \item the \variable \cstr{MaxHeatStorage}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{MaxHS[ t ]} which, for each time instant $t$, contains the maximum heat storage of this HB. The variable is optional, if it is not provided at all it is intended that \code{MaxHS[ t ] == 0} for all $t$  and since it's assumed that \code{MaxHS[ t ] >= MinHS[ t ] >= 0} for all $t$, this means that there is no heat storage in this HB.. If the variable has size $1$, then the maximum heat storage is the same for all time instants. Otherwise, \code{MaxHeatStorage[ h ]} is the fixed value of \code{MaxHS[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
+ %
+ \item the scalar \variable \cstr{InitialHeatAvailable}, of type double and not indexed over any \dimension, which indicates the the amount of heat in the storage at the beginning of the first time instant in this HB. It is assumed that \cstr{MaxHS[ 0 ] >= InitialHeatAvailable >= MinHS[ 0 ]}. This variable is optional, if it is not provided it is taken to be \code{InitialHeatAvailable == MinHS[ 0 ]}. If there is no heat storage (say, \code{MaxHeatStorage} is not defined) then this variable is not read, because it is not used;
+ %
+ \item the scalar \variable \cstr{StoringHeatRho}, of type double and not indexed over any \dimension, which indicates the inefficiency of storing heat in the heat storage (if any) in this HB. This variable is optional and it must always be \code{StoringHeatRho <= 1}, if it is not provided it is taken to be \code{StoringHeatRho == 1}. If there is no heat storage (say, MaxHeatStorage is not defined) then this variable is not read, because it is not used;
+ %
+ \item the scalar \variable \cstr{ExtractingHeatRho}, of type double and not indexed over any \dimension, and which indicates the inefficiency of extracting heat from the heat storage (if any) in this HB. This variable is optional and it must always be \code{ExtractingHeatRho >= 1}, if it is not provided it is taken to be \code{ExtractingHeatRho == 1}. If there is no heat storage (say, \code{MaxHeatStorage} is not defined) then this variable is not read, because it is not used;
+ %
+ \item the scalar \variable \cstr{KeepingHeatRho}, of type double and not indexed over any \dimension, which indicates the double of keeping heat in the heat storage (if any) in this HB. This variable is optional and it must always be \code{KeepingHeatRho <= 1}, if it is not provided it is taken to be \code{KeepingHeatRho == 1}. If there is no heat storage (say, \code{MaxHeatStorage} is not defined) then this variable is not read, because it is not used;
+\end{itemize}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\newpage
 \section{\BlockConfig for existing \dBlock}
 
 As described in \S \ref{ssec:BlockConfig}, each \Block can have several \Configuration parameters, which can be dealt with by a \BlockConfig object. It makes therefore sense to collect here all possible \Configuration parameters for existing \dBlock, since these may end up in a \SMSpp \netCDF file.
