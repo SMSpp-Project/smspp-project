@@ -1,0 +1,31 @@
+##############################################################################
+############################ makefile-libBoost ###############################
+##############################################################################
+#									     #
+#   makefile of libBoost						     #
+#									     #
+#   Input:  $(SMS++SDR) = the directory where the core SMS++ source is       #
+#           According to the standard library layout, it is assumed that     #
+#           the external libreries live in $(SMS++SDR)../extlib              #
+#									     #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libBoostINC) = the -I$(include directories) for Boost          #
+#           $(libBoostLIB) = external libreries + -L<libdirs> for Boost      #
+#									     #
+#                                VERSION 2.00				     #
+#                	        06 - 09 - 2019				     #
+#									     #
+#			      Antonio Frangioni				     #
+#   			   Operations Research Group			     #
+#			  Dipartimento di Informatica			     #
+#   			     Universita' di Pisa			     #
+#									     #
+##############################################################################
+
+# define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
+
+libBoostINC = -I/Users/frangio/Codes/others/boost
+libBoostLIB = 
+
+############################# End of makefile ################################
