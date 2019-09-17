@@ -8,11 +8,9 @@ Current sub-projects:
 
 - [the "core" SMS++](https://gitlab.com/frangio68/sms_plus_plus)
 
-- [S[imple/tructured]MILPBlock]
-  (https://gitlab.com/frangio68/sms_plus_plus_smilpblock)
+- [S[imple/tructured]MILPBlock](https://gitlab.com/frangio68/sms_plus_plus_smilpblock)
 
-- [MCFBlock / MCFSolver]
-  (https://gitlab.com/frangio68/sms_plus_plus_mcfblock_mcfsolver)
+- [MCFBlock / MCFSolver](https://gitlab.com/frangio68/sms_plus_plus_mcfblock_mcfsolver)
 
 - [MILPSolver](https://gitlab.com/niccolo/milpsolver)
 
@@ -28,12 +26,25 @@ Also, some sub-projects require further projects
 - [the MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class)
   for MCFSolver
 
-- [the NDOSolver/FiOracle project]
-  (https://gitlab.com/frangio68/ndosolver_fioracle_project)
+- [the NDOSolver/FiOracle project](https://gitlab.com/frangio68/ndosolver_fioracle_project)
 
 The main benefit of this umbrella project is a unified Doxygen documentation
 that can be produced by running doxygen into doxygen/.
 
+Download and build
+-------------------
+
+You can download the project and all its submodules with:
+
+    git clone --recurse-submodules --remote-submodules https://gitlab.com/frangio68/sms_plus_plus_project.git
+
+Then:
+
+    cd sms_plus_plus_project
+    mkdir build
+    cd build
+    cmake ..
+    make
 
 Legal Stuff
 ===========
