@@ -25,6 +25,11 @@ set(CPLEX_DIR "/Applications/CPLEX_Studio128/cplex")
 include_directories("${CPLEX_DIR}/include/ilcplex")
 link_directories("${CPLEX_DIR}/lib/x86-64_osx/static_pic")
 
+# Options for choosing the MCF Solver
+#add_compile_definitions(HAVE_MFSMX)
+#add_compile_definitions(HAVE_CPLEX)
+add_compile_definitions(HAVE_RELAX)
+
 include_directories(SMS++/include)
 include_directories(MCFClass/MCFClass)
 include_directories(MCFClass/MCFClone)
