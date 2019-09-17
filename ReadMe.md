@@ -33,12 +33,11 @@ that can be produced by running doxygen into doxygen/.
 
 Download and build
 -------------------
-
 You can download the project and all its submodules with:
 
     git clone --recurse-submodules --remote-submodules https://gitlab.com/frangio68/sms_plus_plus_project.git
 
-Then:
+To build the project using [CMake](https://cmake.org/download/) do the following:
 
     cd sms_plus_plus_project
     mkdir build
