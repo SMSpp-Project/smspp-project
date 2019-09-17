@@ -15,15 +15,9 @@ find_package(netCDF REQUIRED)
 include_directories(${netCDF_INCLUDE_DIR})
 link_directories(${netCDF_LIB_DIR})
 
-#message(STATUS "Boost  headers found in ${Boost_INCLUDE_DIRS}")
-#message(STATUS "Eigen3 headers found in ${EIGEN3_INCLUDE_DIRS}")
-#message(STATUS "netCDF headers found in ${netCDF_INCLUDE_DIR}")
-#message(STATUS "netCDF library found in ${netCDF_LIB_DIR}")
-
-# TODO: This needs to be system-dependant
-set(CPLEX_DIR "/Applications/CPLEX_Studio128/cplex")
-include_directories("${CPLEX_DIR}/include/ilcplex")
-link_directories("${CPLEX_DIR}/lib/x86-64_osx/static_pic")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/MILPSolver/")
+find_package(CPLEX)
+include_directories(${CPLEX_INCLUDE_DIR})
 
 # Options for choosing the MCF Solver
 #add_compile_definitions(HAVE_MFSMX)
