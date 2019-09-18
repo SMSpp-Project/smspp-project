@@ -10,10 +10,10 @@
 [submodule "MCFClass"]
 	path = MCFClass
 	url = https://github.com/frangio68/Min-Cost-Flow-Class
-[submodule "ucblock"]
+[submodule "UCBlock"]
 	path = UCBlock
 	url = https://gitlab.com/AliGhezel/ucblock
-[submodule "milpsolver"]
+[submodule "MILPSolver"]
 	path = MILPSolver
 	url = https://gitlab.com/niccolo/milpsolver
 [submodule "BundleSolver"]
