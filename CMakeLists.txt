@@ -5,6 +5,13 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 project(SMS++_project DESCRIPTION "SMS++ project")
 
+if (OVERRIDE_CPLEX_INC)
+    message("Using CPLEX headers located in ${OVERRIDE_CPLEX_INC}")
+endif ()
+if (OVERRIDE_CPLEX_LIB)
+    message("Using CPLEX library located in ${OVERRIDE_CPLEX_LIB}")
+endif ()
+
 add_subdirectory(SMS++)
 add_subdirectory(MCFClass)
 add_subdirectory(MCFBlock)
