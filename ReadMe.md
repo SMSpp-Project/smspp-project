@@ -31,30 +31,6 @@ Also, some sub-projects require further projects
 The main benefit of this umbrella project is a unified Doxygen documentation
 that can be produced by running doxygen into doxygen/.
 
-Download and build
--------------------
-If you want to download the whole project (and you have access to all the repositories):
-
-    git clone --recurse-submodules --remote-submodules https://gitlab.com/frangio68/sms_plus_plus_project.git
-
-Otherwise, you can clone the umbrella project and then clone only the desired submodules:
-
-    git clone https://gitlab.com/frangio68/sms_plus_plus_project.git
-    git submodule init
-    git submodule update module1 module2 ...
-
-You will also need to comment out the missing submodules from `CMakeLists.txt` 
-
-To build the project using [CMake](https://cmake.org/download/) do the following:
-
-    cd sms_plus_plus_project
-    mkdir build
-    cd build
-    cmake ..
-    make
-
-After that, the `build` directory will contain all the libraries and test executables.
-
 Legal Stuff
 ===========
 
