@@ -46,10 +46,10 @@ add_compile_options(
 #set(CPLEX_STUDIO_DIR  "/Applications/CPLEX_Studio128")
 
 # Boost main directory
-#set(BOOST_ROOT  "/Users/niccolo/Progetti/smspp_requirements/boost_1_71_0")
+#set(BOOST_ROOT  "/usr/local/include/")
 
 # Eigen3 main directory
-#set(EIGEN3_ROOT "/Users/niccolo/Progetti/smspp_requirements/eigen-eigen-323c052e1731")
+#set(EIGEN3_ROOT "/usr/local/include/eigen3")
 
 # NetCDF headers location
 #set(NETCDF_INC  "/usr/local/include/")
@@ -62,8 +62,3 @@ add_compile_options(
 # MCF Solver (HAVE_RELAX, HAVE_CPLEX, HAVE_MFSMX)
 #add_definitions(-DHAVE_RELAX)
 add_compile_definitions(HAVE_RELAX)
-
-
-
-
-
