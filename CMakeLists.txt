@@ -14,13 +14,10 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.8...3.15)
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project)
 include(CMakeCustom.txt OPTIONAL)
-
-# We provide this in case subprojects need to know
-set(SMS++_CONFIG_ALL ON)
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
