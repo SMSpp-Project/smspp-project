@@ -12,6 +12,9 @@
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
 
+# Enable testing
+enable_testing()
+
 # ----- Build settings ------------------------------------------------------ #
 # CMake already adds the following flags for each build type:                 #
 #                                                                             #
