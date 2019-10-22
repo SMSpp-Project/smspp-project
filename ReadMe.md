@@ -50,21 +50,6 @@ cmake ..
 make
 ```
 
-- If the dependencies are not installed, or they are not installed in the default
-  system directories, you can specify custom paths in the [`CMakeCustom.txt`](CMakeCustom.txt)
-  file, e.g.:
-```cmake
-...
-# Boost main directory
-set(BOOST_ROOT  "/my/custom/path/to/boost/")
-...
-```
-
-  See [`CMakeCustom.txt`](CMakeCustom.txt) for other ways to customize the configuration of SMS++ projects.
-
-  > **Note:** Each subproject has its own [`CMakeCustom.txt`](CMakeCustom.txt) file, but if you configure and build
-  > everything from this umbrella project the individual customization files will be ignored.
-
 - Optionally, you can install the libraries in the system with:
 ```sh
 sudo make install
