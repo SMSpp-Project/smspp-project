@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.8...3.15)
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project)
-include(CMakeCustom.txt OPTIONAL)
+include(CMakeSettings.txt OPTIONAL)
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
