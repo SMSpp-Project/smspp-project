@@ -5,10 +5,6 @@
 #    and build all the SMS++ projects together. It doesn't do much besides    #
 #    calling the list files of the subprojects.                               #
 #                                                                             #
-#    If Boost, Eigen3 and netCDF are installed properly, this should          #
-#    run just fine. Otherwise, edit CMakeCustom.txt to set the proper paths.  #
-#    You can use CMakeCustom.txt also to add your own settings.               #
-#                                                                             #
 #                              Niccolo' Iardella                              #
 #                          Operations Research Group                          #
 #                         Dipartimento di Informatica                         #
@@ -28,3 +24,11 @@ add_subdirectory(MCFBlock)
 add_subdirectory(SMILPBlock)
 add_subdirectory(MILPSolver)
 add_subdirectory(UCBlock)
+
+# ----- Tools --------------------------------------------------------------- #
+add_subdirectory(SMS++/tools)
+add_subdirectory(UCBlock/tools)
+
+# ----- System tests -------------------------------------------------------- #
+add_subdirectory(MILPSolver/test_sys)
+add_subdirectory(UCBlock/test_sys)
