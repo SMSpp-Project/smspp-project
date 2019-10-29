@@ -659,9 +659,25 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \noindent
  which of course boils down to \cstr{h = b} when each HeatBlock has exactly one heat generator (but this is not assumed to happen);
  %
- \item optionally, the \dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \ref{NetworkData} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus);
+ \item optionally, the \dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \ref{NetworkData} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus). If the data of a \code{NetworkData} is specified, the \code{NetworkData} is passed to each of the \code{NetworkBlock} (see below) of the \code{UCBlock}, if any. However, if a \code{NetworkBlock} also has a \code{NetworkData} specified in its own group, then the \code{NetworkData} inside the \code{NetworkBlock} overrules that inside the \code{UCBlock}, which is ignored by that \code{NetworkBlock};
  %
- \item the \groups \cstr{NetworkBlock\_0}, \cstr{NetworkBlock\_1}, ... , \cstr{NetworkBlock\_t} with \code{t = TimeHorizon - 1}, containing each the constraints on the transmission network at time $t$;
+ \item The \variable \cstr{ActivePowerDemand}, of type double, and indexed both over the dimensions \cstr{NumberNodes} and \cstr{TimeHorizon}. This variable is optional if
+ \begin{itemize}
+  \item = a \code{NetworkBlock} is defined for each time instant (see below), and
+  \item = each of the defined \code{NetworkBlock} has the \cstr{ActiveDemand} variable specified in the corresponding group.
+ \end{itemize}
+ Otherwise it is mandatory. When it is defined, the entry \code{ActivePowerDemand[ n , t ]} is  assumed to contain the active power demand of node $n$ of the transmission network at the given time instant $t$, where the first dimension \cstr{NumberNodes} can be read via \code{NetworkBlock::NetworkData::get\_number\_nodes()} from either the \code{NetworkData} object in \code{UCBlock}, or these in the \code{NetworkBlock}. When \cstr{ActivePowerDemand} is defined, and also the \cstr{ActiveDemand} variable is defined in the group of some \code{NetworkBlock}, then \cstr{ActiveDemand} overrules the value in the corresponding row of \cstr{ActivePowerDemand}, which is ignored.
+ %
+ \item the \groups \cstr{NetworkBlock\_0}, \cstr{NetworkBlock\_1}, ... , \cstr{NetworkBlock\_t} with \code{t = TimeHorizon - 1}, containing each the constraints on the transmission network at time $t$. The \code{NetworkBlocks} are optional, but if any of them are missing, then
+ \begin{itemize}
+  \item = \cstr{ActivePowerDemand} (see above) is mandatory in \code{UCBlock}.
+  \item = also the \code{NetworkData} (see above) is mandatory in \code{UCBlock}, unless the transmission network is a bus (that is, \cstr{NumberNodes} is not provided or it is \code{== 1}).
+ \end{itemize}
+ In particular, when a \code{NetworkBlock} is not defined for a given time instant t then one of these happen:
+ \begin{itemize}
+  \item = If \code{"NumberNodes" == 1} (or it is not provided) then a \code{BusNetworkBlock} is automatically constructed for that time instant, and the entry \code{ActivePowerDemand[ 0 , t ]} contains the active demand for $t$.
+  \item = If \code{"NumberNodes" > 1}, then a \code{DCNetworkBlock} is automatically constructed for that time instant, it is provided with the \code{NetworkData} object (which must be present in \code{UCBlock}) and the row \code{ActivePowerDemand[ ... , t ]} contains the active demand of each node at time instant $t$.
+ \end{itemize}
  %
  \item the \variable \cstr{GeneratorNode}, of type int and indexed over the set {\{0, ... , \code{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
  %
@@ -979,7 +995,7 @@ The class \code{NetworkBlock}, which derives from the \Block, defines the basic 
 \begin{itemize}
  \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \ref{NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
  %
- \item The \cstr{ActiveDemand}, of type double, and of size \cstr{number of nodes}. If the \code{NetworkData} object description is present in the NcGroup this is the \dimension \cstr{NumberNodes}, but this may not happen: if \cstr{NumberNodes} is not there then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}.
+ \item The \cstr{ActiveDemand}, of type double, and of size \cstr{number of nodes}. If the \code{NetworkData} object description is present in the \code{NcGroup} this is the \dimension \cstr{NumberNodes}, but the \code{NetworkData} object is optional and it may not be there. Thus if \cstr{NumberNodes} is not there and \cstr{ActiveDemand} is, then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}. However, \cstr{ActiveDemand} itself is optional. If it is not found in the \code{NcGroup}, then it *must* be passed (either before or after the call to \code{deserialize()}) by calling \code{set\_ActiveDemand()}. Since both groups of data are optional, the \code{NcGroup}  can actually be empty which implies that all the data will be (or have been) passed by the in-memory interface. In this case, it would clearly be preferable to *entirely avoid the \code{NcGroup} to be there*, and in fact \code{UCBlock} has provisions for the \code{NcGroup} describing the \code{NetworkBlock} to be optional (see the comments to  \code{UCBlock::deserialize()}).
 \end{itemize}
 
 \newpage
