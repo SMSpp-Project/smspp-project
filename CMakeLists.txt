@@ -15,15 +15,19 @@ cmake_minimum_required(VERSION 3.8...3.15)
 project(SMS++_project)
 include(CMakeSettings.txt OPTIONAL)
 
+# ----- Dependencies -------------------------------------------------------- #
+add_subdirectory(MCFClass)
+add_subdirectory(BundleSolver/NdoFiOracle)
+
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
 
 add_subdirectory(SMS++)
-add_subdirectory(MCFClass)
 add_subdirectory(MCFBlock)
 add_subdirectory(SMILPBlock)
 add_subdirectory(MILPSolver)
 add_subdirectory(UCBlock)
+add_subdirectory(BundleSolver)
 
 # ----- Tools --------------------------------------------------------------- #
 add_subdirectory(SMS++/tools)
