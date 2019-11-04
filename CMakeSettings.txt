@@ -54,14 +54,13 @@ add_compile_options(
 #set(EIGEN3_ROOT "/usr/local/include/eigen3")
 
 # NetCDF headers location
-#set(NETCDF_INC  "/usr/local/include/")
+#set(NETCDFCXX_INC  "/usr/local/include/")
 
 # NetCDF library location
-#set(NETCDF_LIB  "/usr/local/lib")
+#set(NETCDFCXX_LIB  "/usr/local/lib")
 
 # ----- Project-specific settings ------------------------------------------- #
 
-# MCF Solver (HAVE_RELAX, HAVE_CPLEX, HAVE_MFSMX)
-#add_definitions(-DHAVE_RELAX)
-add_compile_definitions(HAVE_RELAX)
-#add_compile_definitions(MILPSLVR_DEBUG)
+# MCF Solver (relax cplex mfsmx sptree)
+set(MCF_SOLVER "relax")
+
