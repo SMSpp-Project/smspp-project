@@ -22,8 +22,8 @@
 # --------------------------------------------------------------------------- #
 #set(CMAKE_BUILD_TYPE "Debug")
 set(BUILD_SHARED_LIBS ON)
-set(BUILD_TESTING OFF)
 set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
+#set(BUILD_TESTING OFF)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Add compilation flags
