@@ -20,10 +20,19 @@
 #   - Release:        -O3 -DNDEBUG                                            #
 #   - RelWithDebInfo: -O2 -g -DNDEBUG                                         #
 # --------------------------------------------------------------------------- #
+# Build type
 #set(CMAKE_BUILD_TYPE "Debug")
-set(BUILD_SHARED_LIBS ON)
+
+# Shared or static libraries
+#set(BUILD_SHARED_LIBS ON)
+
+# Export packages from build tree (so they are found without installing them)
 set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
+
+# Disable test building
 #set(BUILD_TESTING OFF)
+
+# Enable verbose makefiles
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Add compilation flags
