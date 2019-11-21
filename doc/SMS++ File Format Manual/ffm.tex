@@ -253,7 +253,6 @@ The self-documenting nature of \netCDF, together with its portable readability a
 \addtocounter{page}{1}
 \newpage
 }
-\afterpage{\blankpage}
 \newpage
 \section{General \code{netCDF} file structure}
 
@@ -295,7 +294,6 @@ The above components allow to read and write structured data files with basicall
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\afterpage{\blankpage}
 \newpage
 
 \section{General \SMSpp file structure}
@@ -439,7 +437,7 @@ The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero,
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\afterpage{\blankpage}
+
 \newpage
 
 \section{File formats of existing \dBlock}
@@ -492,7 +490,6 @@ All these are mandatory.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\afterpage{\blankpage}
 \newpage
 
 \subsection{\code{StructuredMILPBlock}}
@@ -539,7 +536,6 @@ where $X^h$ denotes the feasible region of the $h$-th sub-\Block of the \code{St
 All these are mandatory.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\afterpage{\blankpage}
 \newpage
 
 \subsection {\code{MCFBlock}}
@@ -601,7 +597,6 @@ The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are th
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\afterpage{\blankpage}
 \newpage
 
 \subsection {\code{UCBlock}}
@@ -731,8 +726,6 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
 \end{itemize}
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\afterpage{\blankpage}
-
 \newpage
 
 \subsection {\code{UnitBlock}}
@@ -790,7 +783,6 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
  \item the \variable \cstr{ChangeIntervals}, of type integer and indexed over the \dimension \cstr{NumberIntervals}. The time horizon is subdivided into \code{NumberIntervals = k} of the form $[ 0 , i_1 ]$,$[ i_1 + 1 , i_2 ]$, \dots $[ i_{k-1} + 1, TimeHorizon - 1 ]$; \cstr{ChangeIntervals} then has to contain $[ i_1 , i_2 , \dots i_{k-1} ]$ . Note that, therefore, \cstr{ChangeIntervals} has one significant value less than \cstr{NumberIntervals}, which means that \code{ChangeIntervals[ NumberIntervals - 1 ]} is ignored. Anyway, the whole variable is ignored if either \cstr{NumberIntervals} \code{<= 1} (such as if it is not defined), or \cstr{NumberIntervals} \code{>=} \cstr{TimeHorizon}.
 \end{itemize}
 
-\afterpage{\blankpage}
 \newpage
 
 \subsubsection {\code{ThermalUnitBlock}}
@@ -835,7 +827,6 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 
 \end{itemize}
 
-\afterpage{\blankpage}
 \newpage
 
 \subsubsection {\code{HydroUnitBlock}}
@@ -926,7 +917,6 @@ The issue here is that the turbine can be geographically far enough from both $n
 \\
 A particular note of caution has to be mentioned regarding the fact that \code{UpF[ l ]} can be *negative*: this means that the water is used in the turbine *before* it goes out of reservoir $n$. This is counter-intuitive, but can be explained by the fact that the pipe between $n$ and the turbine can be full, and therefore works as a \cstr{mini reservoir} in itself. When the turbine is started, a \cstr{bubble} (depression) is created uphill the turbine; this \cstr{bubbles up} the $n ==> TURBINE$ pipe until it reaches $n$, and it is only at that point that the water in $n$ starts flowing away. Hence, there is a negative temporal delay between the water starting flowing in the turbine and it starting flowing away from n. Note that if the $n ==> TURBINE$ pipe is rather empty, the delay is positive in that one have to start sending the water, which may take some time before filling the pipe and therefore starting the turbine. Of course these are all somewhat crude approximations of the true physical behavior, but they are accurate enough for this setting. Yet, the case \code{UpF[ l ] < 0} cannot be disregarded.
 
-\afterpage{\blankpage}
 \newpage
 
 \subsubsection {\code{BatteryUnitBlock}}
@@ -970,7 +960,6 @@ Note: the special case in which \code{EBR[ t ] == SBR[ t ] == 1} for all $t$, i.
  \item The \variable \cstr{Demand}, of type double and indexed over the \dimension \cstr{TimeHorizon}: the entry \code{Demand[ t ]} is assumed to contain the amount of energy that must be discharged from the battery and \cstr{sent away for some other purpose} (say, driving your e-car) at time t. This variable is optional; if it isn't defined, then \code{Demand[ t ] == 0}. Otherwise the \code{Demand[ t ]} contains the demand value for each time instant $t$.
 \end{itemize}
 
-\afterpage{\blankpage}
 \newpage
 
 \subsubsection {\code{IntermittentUnitBlock}}
@@ -983,11 +972,12 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \variable \cstr{MaxPower}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MaxP[ t ]} that, for each time instant $t$, contains the maximum potential production value of the unit for the corresponding time step. If \cstr{MaxPower} has length $1$ then \code{MaxP[ t ]} contains the same value for all $t$. Otherwise, \code{MaxPower[ i ]} is the fixed value of \code{MaxP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded. Note that it must be \code{MxP[ t ] >= MnP[ t ] [>= 0]} for all t. Yet, \code{MxP[ t ] == MnP[ t ]} is possible: it means that (at time instant $t$) the unit cannot be curtailed and cannot provide any reserve.
  %
+ \item The \variable \cstr{InertiaPower}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{IP[ t ]} which, for each time instant $t$, contains the contribution that the unit can give to the inertia constraint which depends on the active power that it is currently generating (basically, the constant to be multiplied to the active power variable) at time t for this unit. The variable is optional; if it is not defined, \code{IP[ t ] == 0} for each time instants $t$. If it has size $1$ then the entry \code{IP[ 0 ]} is assumed to contain the the inertia power value for this unit and all time instants $t$. Otherwise, \code{InertiaPower[ i ]} is the fixed value of \code{IP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+%
  \item The scalar \variable \cstr{Gamma}, of type double and not indexed over any \dimension. This variable is used to take into account an uncertainty on the maximal potential production. Note that it must be \code{0 <= Gamma <= 1}; when \code{Gamma == 0}, the unit does not provide any reserve.
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\afterpage{\blankpage}
 \newpage
 
 \subsection {\code{NetworkBlock}}
@@ -1035,7 +1025,6 @@ The \code{BusNetworkBlock} class, which derives from \code{NetworkBlock} [see Ne
 \subsubsection {\code{DCNetworkBlock}}
 The \code{DCNetworkBlock} class derives from \code{NetworkBlock}, and defines the standard linear constraints corresponding to the \cstr{DC model} of the transmission network in the Unit Commitment problem.
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\afterpage{\blankpage}
 \newpage
 
 \subsection {\code{HeatBlock}}
