@@ -25,3 +25,6 @@
 [submodule "LukFiBlock"]
 	path = LukFiBlock
 	url = https://gitlab.com/egorgone/lukfiblock
+[submodule "tools"]
+	path = tools
+	url = https://gitlab.com/smspp/tools

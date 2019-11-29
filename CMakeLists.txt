@@ -30,8 +30,7 @@ add_subdirectory(UCBlock)
 add_subdirectory(BundleSolver)
 
 # ----- Tools --------------------------------------------------------------- #
-add_subdirectory(SMS++/tools)
-add_subdirectory(UCBlock/tools)
+add_subdirectory(tools)
 
 # ----- System tests -------------------------------------------------------- #
 add_subdirectory(MILPSolver/test_sys)
