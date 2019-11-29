@@ -28,3 +28,6 @@
 [submodule "tools"]
 	path = tools
 	url = https://gitlab.com/smspp/tools
+[submodule "tests"]
+	path = tests
+	url = https://gitlab.com/smspp/tests

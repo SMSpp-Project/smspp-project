@@ -33,5 +33,4 @@ add_subdirectory(BundleSolver)
 add_subdirectory(tools)
 
 # ----- System tests -------------------------------------------------------- #
-add_subdirectory(MILPSolver/test_sys)
-add_subdirectory(UCBlock/test_sys)
+add_subdirectory(tests)
