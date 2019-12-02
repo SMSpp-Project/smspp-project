@@ -90,8 +90,9 @@ add_test(
 )
 
 # ----- PolyhedralFunction_test --------------------------------------------- #
-add_executable(PolyhedralFunction/PolyhedralFunction_test PolyhedralFunction/test.cpp)
-target_link_libraries(SMS++::BundleSolver
+add_executable(PolyhedralFunction_test PolyhedralFunction/test.cpp)
+target_link_libraries(PolyhedralFunction_test PRIVATE
+                      SMS++::BundleSolver
                       SMS++::MILPSolver)
 
 add_test(
@@ -101,8 +102,9 @@ add_test(
 )
 
 # ----- PolyhedralFunctionBlock_test ---------------------------------------- #
-add_executable(PolyhedralFunctionBlock/PolyhedralFunctionBlock_test PolyhedralFunctionBlock/test.cpp)
-target_link_libraries(SMS++::BundleSolver
+add_executable(PolyhedralFunctionBlock_test PolyhedralFunctionBlock/test.cpp)
+target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
+                      SMS++::BundleSolver
                       SMS++::MILPSolver)
 
 add_test(
