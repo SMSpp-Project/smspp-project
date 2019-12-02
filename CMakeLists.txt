@@ -31,6 +31,7 @@ find_package(SMILPBlock REQUIRED)
 find_package(MILPSolver REQUIRED)
 find_package(MCFBlock REQUIRED)
 find_package(UCBlock REQUIRED)
+find_package(BundleSolver REQUIRED)
 
 # ----- Fetch GoogleTest ---------------------------------------------------- #
 include(FetchContent)
@@ -86,6 +87,28 @@ add_test(
         NAME ThermalUnitBlock_test
         COMMAND ThermalUnitBlock_test
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# ----- PolyhedralFunction_test --------------------------------------------- #
+add_executable(PolyhedralFunction/PolyhedralFunction_test PolyhedralFunction/test.cpp)
+target_link_libraries(SMS++::BundleSolver
+                      SMS++::MILPSolver)
+
+add_test(
+        NAME PolyhedralFunction_test
+        COMMAND PolyhedralFunction_test
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunction
+)
+
+# ----- PolyhedralFunctionBlock_test ---------------------------------------- #
+add_executable(PolyhedralFunctionBlock/PolyhedralFunctionBlock_test PolyhedralFunctionBlock/test.cpp)
+target_link_libraries(SMS++::BundleSolver
+                      SMS++::MILPSolver)
+
+add_test(
+        NAME PolyhedralFunctionBlock_test
+        COMMAND PolyhedralFunctionBlock_test
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunctionBlock
 )
 
 # ----- OLD TESTS ----------------------------------------------------------- #
