@@ -27,7 +27,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 0  # f_diff == 0 ==> all non-provided parameters are set to the default value
 
-18 # number of integer parameters
+19 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 1000   # MaxIter, max number of iterations for each call
@@ -58,6 +58,8 @@ intQPmp2   0      # MxRmv, how many variables can be removed from the base at ea
 intOSImp1  4      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
+
+intRstAlg  62     # parameter to handle the reset of the algorithm
 
 17 # number of double parameters
 

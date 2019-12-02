@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.20
+ * \version 0.21
  *
- * \date 03 - 10 - 2019
+ * \date 02 - 12 - 2019
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -483,12 +483,8 @@ int main( int argc , char **argv )
 
   // construct the Variable
   xLP = new std::vector< ColVariable >( nsvar );
-  for( auto & xi : *xLP )
-   xi.set_Block( LPBlock );
   #if DYNAMIC_VARS > 0
    xLPd = new std::list< ColVariable >( ndvar );
-   for( auto & xi : *xLPd )
-    xi.set_Block( LPBlock );
   #endif
 
   vLP = new ColVariable;
@@ -527,17 +523,15 @@ int main( int argc , char **argv )
 
   // construct the Variable
   auto xNDO = new std::vector< ColVariable >( nsvar );
+  PolyhedralFunction::VarVector vars( nvar );
+  auto vit = vars.begin();
+  for( auto & xi : *xNDO )
+   *(vit++) = & xi;
   #if DYNAMIC_VARS > 0
    auto xNDOd = new std::list< ColVariable >( ndvar );
    for( auto & xi : *xNDOd )
-    xi.set_Block( LPBlock );
+    *(vit++) = & xi;
   #endif
-  PolyhedralFunction::VarVector vars( nvar );
-  auto vit = vars.begin();
-  for( auto & xi : *xNDO ) {
-   *(vit++) = & xi;
-   xi.set_Block( NDOBlock );
-   }
 
   if( LB > - INF )     // a LB is defined
    b.push_back( LB );  // grow b by one to hold it
@@ -980,7 +974,7 @@ int main( int argc , char **argv )
      Index stp = strt + tochange;
 
      // remove them from the LP
-     xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+     auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
      auto cnst_it =
              LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )->begin();
      if( tochange == 1 ) {
@@ -1020,7 +1014,7 @@ int main( int argc , char **argv )
       PF->remove_variable( strt );
 
       auto vp = &(*std::next( xNDOd->begin() , strt ));
-      LPBlock->remove_dynamic_variable( *xLPd , vp );
+      NDOBlock->remove_dynamic_variable( *xNDOd , vp );
       }
      else {
       PF->remove_variables( Range( strt , stp ) );
@@ -1031,7 +1025,7 @@ int main( int argc , char **argv )
       for( Index i = 0 ; i < tochange ; )
        itrs[ i++ ] = vit++;
 
-      LPBlock->remove_dynamic_variables( *xNDOd , itrs );
+      NDOBlock->remove_dynamic_variables( *xNDOd , itrs );
       }
      }
     else {
@@ -1039,7 +1033,7 @@ int main( int argc , char **argv )
      Subset nms = GenerateRand( tochange , ndvar );
 
      // remove them from the LP
-     xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+     auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
      auto cnst_it =
              LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )->begin();
      if( tochange == 1 ) {
@@ -1084,7 +1078,7 @@ int main( int argc , char **argv )
       PF->remove_variable( nms[ 0 ] );
 
       auto vp = &(*std::next( xNDOd->begin() , nms[ 0 ] ));
-      LPBlock->remove_dynamic_variable( *xLPd , vp );
+      NDOBlock->remove_dynamic_variable( *xNDOd , vp );
       }
      else {
       std::vector< std::list< ColVariable >::iterator > itrs( tochange );
@@ -1096,7 +1090,7 @@ int main( int argc , char **argv )
        }
 
       PF->remove_variables( std::move( nms ) );
-      LPBlock->remove_dynamic_variables( *xNDOd , itrs );
+      NDOBlock->remove_dynamic_variables( *xNDOd , itrs );
       }
      }
 

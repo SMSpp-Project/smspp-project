@@ -2,10 +2,10 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for PolthedralFunction)                                #
+#   makefile of test (for PolthedralFunctionBlock)                           #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               23 - 07 - 2019                               #
+#                                VERSION 1.10                                #
+#                               02 - 12 - 2019                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -17,7 +17,7 @@
 ##############################################################################
 
 # module name
-NAME = test
+NAME = PolthedralFunctionBlock_test
 
 # basic directory
 DIR = ./
@@ -49,8 +49,8 @@ clean::
 # *INC is the -I<include directories>
 
 # BundleSolver
-BNDSLVSDR = ../../../BundleSolver/
-BNDSLVODR = ../../../BundleSolver/
+BNDSLVSDR = ../../BundleSolver/
+BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already
@@ -76,8 +76,8 @@ MOBJ =  $(BNDSLVOBJ)
 # libreries
 MLIB =  $(BNDSLVLIB)
 
-$(NAME): $(MOBJ) $(DIR)$(NAME).o
-	$(CC) -o test $(DIR)$(NAME).o $(MOBJ) $(MLIB) $(SW)
+$(NAME): $(MOBJ) $(DIR)test.o
+	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
@@ -89,7 +89,7 @@ MH =    $(BNDSLVH)
 
 # compile command
 
-$(DIR)$(NAME).o: $(DIR)$(NAME).cpp $(MH)
-	$(CC) -c $*.cpp -o $@ $(MINC) $(SW)
+$(DIR)test.o: $(DIR)test.cpp $(MH)
+	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################

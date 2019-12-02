@@ -4,8 +4,8 @@
 #                                                                            #
 #   makefile of test (for PolthedralFunction)                                #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               23 - 07 - 2019                               #
+#                                VERSION 1.10                                #
+#                               02 - 12 - 2019                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
