@@ -20,18 +20,18 @@ add_compile_definitions(HAVE_RELAX)
 if (NOT BUILD_SHARED_LIBS)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         add_link_options("-Wl,-all_load")
-    else()
+    else ()
         add_link_options("-Wl,--whole-archive,--allow-multiple-definition")
     endif ()
 endif ()
 
 # ----- Requirements -------------------------------------------------------- #
 # TODO: Proper requirement management
-find_package(SMILPBlock REQUIRED)
-find_package(MILPSolver REQUIRED)
-find_package(MCFBlock REQUIRED)
-find_package(UCBlock REQUIRED)
-find_package(BundleSolver REQUIRED)
+find_package(SMILPBlock QUIET)
+find_package(MILPSolver QUIET)
+find_package(MCFBlock QUIET)
+find_package(UCBlock QUIET)
+find_package(BundleSolver QUIET)
 
 # ----- Fetch GoogleTest ---------------------------------------------------- #
 include(FetchContent)
@@ -51,75 +51,90 @@ if (NOT googletest_POPULATED)
 endif ()
 
 # ----- CPXMILPSolver_test -------------------------------------------------- #
-add_executable(CPXMILPSolver_test tests_CPXMILPSolver.cpp)
-target_link_libraries(CPXMILPSolver_test PRIVATE
-                      SMS++::MILPSolver
-                      SMS++::SMILPBlock
-                      gtest)
+if (SMILPBlock_FOUND AND MILPSolver_FOUND)
+    add_executable(CPXMILPSolver_test tests_CPXMILPSolver.cpp)
+    target_link_libraries(CPXMILPSolver_test PRIVATE
+                          SMS++::MILPSolver
+                          SMS++::SMILPBlock
+                          gtest)
 
-add_test(
-        NAME CPXMILPSolver_test
-        COMMAND CPXMILPSolver_test
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+    add_test(
+            NAME CPXMILPSolver_test
+            COMMAND CPXMILPSolver_test
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endif ()
 
 # ----- MCFMILPSolvers_test ------------------------------------------------- #
-add_executable(MCFMILPSolvers_test tests_MCFMILPSolvers.cpp)
-target_link_libraries(MCFMILPSolvers_test PRIVATE
-                      SMS++::MILPSolver
-                      SMS++::MCFBlock
-                      gtest)
+if (MCFBlock_FOUND AND MILPSolver_FOUND)
+    add_executable(MCFMILPSolvers_test tests_MCFMILPSolvers.cpp)
+    target_link_libraries(MCFMILPSolvers_test PRIVATE
+                          SMS++::MILPSolver
+                          SMS++::MCFBlock
+                          gtest)
 
-add_test(
-        NAME MCFMILPSolvers_test
-        COMMAND MCFMILPSolvers_test
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+    add_test(
+            NAME MCFMILPSolvers_test
+            COMMAND MCFMILPSolvers_test
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endif ()
 
 # ----- ThermalUnitBlock_test ----------------------------------------------- #
-add_executable(ThermalUnitBlock_test tests_ThermalUnitBlock.cpp)
-target_link_libraries(ThermalUnitBlock_test PRIVATE
-                      SMS++::UCBlock
-                      SMS++::MILPSolver
-                      gtest)
+if (UCBlock_FOUND AND MILPSolver_FOUND)
+    add_executable(ThermalUnitBlock_test tests_ThermalUnitBlock.cpp)
+    target_link_libraries(ThermalUnitBlock_test PRIVATE
+                          SMS++::UCBlock
+                          SMS++::MILPSolver
+                          gtest)
 
-add_test(
-        NAME ThermalUnitBlock_test
-        COMMAND ThermalUnitBlock_test
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+    add_test(
+            NAME ThermalUnitBlock_test
+            COMMAND ThermalUnitBlock_test
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endif ()
 
 # ----- PolyhedralFunction_test --------------------------------------------- #
-add_executable(PolyhedralFunction_test PolyhedralFunction/test.cpp)
-target_link_libraries(PolyhedralFunction_test PRIVATE
-                      SMS++::BundleSolver
-                      SMS++::MILPSolver)
+if (BundleSolver_FOUND AND MILPSolver_FOUND)
 
-add_test(
-        NAME PolyhedralFunction_test
-        COMMAND PolyhedralFunction_test
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunction
-)
+    add_executable(PolyhedralFunction_test PolyhedralFunction/test.cpp)
+    target_link_libraries(PolyhedralFunction_test PRIVATE
+                          SMS++::BundleSolver
+                          SMS++::MILPSolver)
+
+    add_test(
+            NAME PolyhedralFunction_test
+            COMMAND PolyhedralFunction_test
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunction
+    )
+endif ()
 
 # ----- PolyhedralFunctionBlock_test ---------------------------------------- #
-add_executable(PolyhedralFunctionBlock_test PolyhedralFunctionBlock/test.cpp)
-target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
-                      SMS++::BundleSolver
-                      SMS++::MILPSolver)
+if (BundleSolver_FOUND AND MILPSolver_FOUND)
+    add_executable(PolyhedralFunctionBlock_test PolyhedralFunctionBlock/test.cpp)
+    target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
+                          SMS++::BundleSolver
+                          SMS++::MILPSolver)
 
-add_test(
-        NAME PolyhedralFunctionBlock_test
-        COMMAND PolyhedralFunctionBlock_test
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunctionBlock
-)
+    add_test(
+            NAME PolyhedralFunctionBlock_test
+            COMMAND PolyhedralFunctionBlock_test
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunctionBlock
+    )
+endif ()
 
 # ----- OLD TESTS ----------------------------------------------------------- #
+if (SMILPBlock_FOUND AND MILPSolver_FOUND)
 add_executable(MILPSolver_test milpsolver_test.cpp)
 target_link_libraries(MILPSolver_test PRIVATE
                       SMS++::MILPSolver
                       SMS++::SMILPBlock)
+endif ()
 
+if (MCFBlock_FOUND AND MILPSolver_FOUND)
 add_executable(MCFSolver_test mcfsolver_test.cpp)
 target_link_libraries(MCFSolver_test PRIVATE
                       SMS++::MILPSolver
                       SMS++::MCFBlock)
+endif ()
