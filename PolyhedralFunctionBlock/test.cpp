@@ -94,6 +94,9 @@ using c_Subset = Block::c_Subset;
 using FunctionValue = Function::FunctionValue;
 using c_FunctionValue = Function::c_FunctionValue;
 
+using RealVector = PolyhedralFunction::RealVector;
+using MultiVector = PolyhedralFunction::MultiVector;
+
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -386,6 +389,8 @@ int main( int argc , char **argv )
 		<< endl <<
            "             5 = add variables rows, 6 = delete variables"
   #endif
+		<< endl <<
+           "             7 (+128) = do ""abstract"" changes"
 	        << endl <<
            "       nvar: number of variables [10]"
 	        << endl <<
@@ -443,7 +448,7 @@ int main( int argc , char **argv )
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
 
-  LPBlock = new PoluhedralFunctionBlock();
+  LPBlock = new PolyhedralFunctionBlock();
 
   // pass it the data of the PolyhedralFunction, *copying it* because it'll
   // be needed again later
@@ -482,7 +487,7 @@ int main( int argc , char **argv )
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
 
-  NDOBlock = new PoluhedralFunctionBlock();
+  NDOBlock = new PolyhedralFunctionBlock();
 
   // pass it the data of the PolyhedralFunction, letting it go
   LPBlock->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
@@ -493,6 +498,7 @@ int main( int argc , char **argv )
   auto vit = vars.begin();
   for( auto & xi : *xNDO )
    *(vit++) = & xi;
+  #if DYNAMIC_VARS > 0
    auto xNDOd = new std::list< ColVariable >( ndvar );
    for( auto & xi : *xNDOd )
     *(vit++) = & xi;
@@ -579,16 +585,22 @@ int main( int argc , char **argv )
    Index tochange = Index( drand48() * n_change );
    if( tochange ) {
 
-    LOG1( "added " << tochange << " rows - " );
+    LOG1( "added " << tochange << " rows" );
 
     GenerateAb( tochange , nvar );
 
     // add them to the LP, *copying* them
-    if( tochange == 1 )
-     LPBlock->get_PolyhedralFunction().add_row( RealVector( A[ 0 ] ) ,
-						b[ 0 ] );
-    else
-     LPBlock->get_PolyhedralFunction().add_rows( MultiVector( A ) , b );
+    if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+     // in 50% of the cases do an "abstract" change
+     LOG1( "(a)" );
+     assert( false );  // not ready yet
+     }
+    else  // directly change the PolyhedralFunction
+     if( tochange == 1 )
+      LPBlock->get_PolyhedralFunction().add_row( RealVector( A[ 0 ] ) ,
+						 b[ 0 ] );
+     else
+      LPBlock->get_PolyhedralFunction().add_rows( MultiVector( A ) , b );
 
     // add them to the NDO, letting them go
     if( tochange == 1 )
@@ -597,13 +609,14 @@ int main( int argc , char **argv )
     else
      NDOBlock->get_PolyhedralFunction().add_rows( std::move( A ) , b );
 
+    LOG1( " - " );
+
     // update m
     m += tochange;
 
     // sanity checks
-    PANIC( m == PF->get_A().size() );
-    PANIC( m == PF->get_b().size() );
-    PANIC( m == cnst->size() );
+    PANIC( m == LPBlock->get_PolyhedralFunction().get_A().size() );
+    PANIC( m == NDOBlock->get_PolyhedralFunction().get_A().size() );
     }
    }
 
@@ -621,17 +634,24 @@ int main( int argc , char **argv )
     
     // in 50% of the cases do a ranged change, in the others a sparse change
     if( drand48() <= 0.5 ) {
-     LOG1( "(r) - " );
     
      Index strt = drand48() * ( m - tochange );
      Index stp = strt + tochange;
 
      // remove them from the LP
-     if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().delete_row( strt );
-     else
-      LPBlock->get_PolyhedralFunction().delete_rows( Range( strt , stp ) );
- 
+     if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+      // in 50% of the cases do an "abstract" change
+      LOG1( "(r,a) - " );
+      assert( false );  // not ready yet
+      }
+     else {  // directly change the PolyhedralFunction
+      LOG1( "(r) - " );
+      if( tochange == 1 )
+       LPBlock->get_PolyhedralFunction().delete_row( strt );
+      else
+       LPBlock->get_PolyhedralFunction().delete_rows( Range( strt , stp ) );
+      }
+
      // remove them from the NDO
      if( tochange == 1 )
       NDOBlock->get_PolyhedralFunction().delete_row( strt );
@@ -639,15 +659,22 @@ int main( int argc , char **argv )
       NDOBlock->get_PolyhedralFunction().delete_rows( Range( strt , stp ) );
      }
     else {
-     LOG1( "(s) - " );
      Subset nms = GenerateRand( tochange , m );
 
      // remove them from the LP
-     if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().delete_row( nms[ 0 ] );
-     else
-      LPBlock->get_PolyhedralFunction().delete_rows( std::move( nms ) );
-    
+     if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+      // in 50% of the cases do an "abstract" change
+      LOG1( "(s,a) - " );
+      assert( false );  // not ready yet
+      }
+     else {  // directly change the PolyhedralFunction
+      LOG1( "(s) - " );
+      if( tochange == 1 )
+       LPBlock->get_PolyhedralFunction().delete_row( nms[ 0 ] );
+      else
+       LPBlock->get_PolyhedralFunction().delete_rows( std::move( nms ) );
+      }
+
      // remove them from the NDO
      if( tochange == 1 )
       NDOBlock->get_PolyhedralFunction().delete_row( nms[ 0 ] );
@@ -659,9 +686,8 @@ int main( int argc , char **argv )
     m -= tochange;
 
     // sanity checks
-    PANIC( m == PF->get_A().size() );
-    PANIC( m == PF->get_b().size() );
-    PANIC( m == cnst->size() );
+    PANIC( m == LPBlock->get_PolyhedralFunction().get_A().size() );
+    PANIC( m == NDOBlock->get_PolyhedralFunction().get_A().size() );
     }
    }
 
@@ -680,19 +706,25 @@ int main( int argc , char **argv )
 
     // in 50% of the cases do a ranged change, in the others a sparse change
     if( drand48() <= 0.5 ) {
-     LOG1( "(r) - " );
-
      Index strt = drand48() * ( m - tochange );
      Index stp = strt + tochange;
 
      // modify them in the LP, *copying* them
-     if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().modify_row( strt ,
-						    RealVector( A[ 0 ] ) ,
-						    b[ 0 ] );
-     else
-      LPBlock->get_PolyhedralFunction().modify_rows( MultiVector( A ) , b ,
-						     Range( strt , stp ) );
+     if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+      // in 50% of the cases do an "abstract" change
+      LOG1( "(r,a) - " );
+      assert( false );  // not ready yet
+      }
+     else {  // directly change the PolyhedralFunction
+      LOG1( "(r) - " );
+      if( tochange == 1 )
+       LPBlock->get_PolyhedralFunction().modify_row( strt ,
+						     RealVector( A[ 0 ] ) ,
+						     b[ 0 ] );
+      else
+       LPBlock->get_PolyhedralFunction().modify_rows( MultiVector( A ) , b ,
+						      Range( strt , stp ) );
+      }
 
      // modify them in the NDO, letting them go
      if( tochange == 1 )
@@ -704,18 +736,24 @@ int main( int argc , char **argv )
 						      Range( strt , stp ) );
      }
     else {
-     LOG1( "(s) - " );
      Subset nms = GenerateRand( tochange , m );
 
      // modify them in the LP, *copying* them
-     if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().modify_row( nms[ 0 ] ,
-						    RealVector( A[ 0 ] ) ,
-						    b[ 0 ] );
-     else
-      LPBlock->get_PolyhedralFunction().modify_rows( MultiVector( A ) , b ,
-						     Subset( nms ) ,
-						     true );
+     if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+      // in 50% of the cases do an "abstract" change
+      LOG1( "(s,a) - " );
+      assert( false );  // not ready yet
+      }
+     else {  // directly change the PolyhedralFunction
+      LOG1( "(s) - " );
+      if( tochange == 1 )
+       LPBlock->get_PolyhedralFunction().modify_row( nms[ 0 ] ,
+						     RealVector( A[ 0 ] ) ,
+						     b[ 0 ] );
+      else
+       LPBlock->get_PolyhedralFunction().modify_rows( MultiVector( A ) , b ,
+						      Subset( nms ) , true );
+      }
 
      // modify them in the NDO, letting them go
      if( tochange == 1 )
@@ -745,18 +783,24 @@ int main( int argc , char **argv )
      
     // in 50% of the cases do a ranged change, in the others a sparse change
     if( drand48() <= 0.5 ) {
-     LOG1( "(r) - " );
-
      Index strt = drand48() * ( m - tochange );
      Index stp = strt + tochange;
 
      // change them in the LP
-     if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().modify_constant( strt , b[ 0 ] );
-     else
-      LPBlock->get_PolyhedralFunction().modify_constants( b ,
-							  Range( strt ,
-								 stp ) );
+     if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+      // in 50% of the cases do an "abstract" change
+      LOG1( "(r,a) - " );
+      assert( false );  // not ready yet
+      }
+     else {  // directly change the PolyhedralFunction
+      LOG1( "(r) - " );
+      if( tochange == 1 )
+       LPBlock->get_PolyhedralFunction().modify_constant( strt , b[ 0 ] );
+      else
+       LPBlock->get_PolyhedralFunction().modify_constants( b ,
+							   Range( strt ,
+								  stp ) );
+      }
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -767,16 +811,23 @@ int main( int argc , char **argv )
 								  stp ) );
      }
     else {
-     LOG1( "(s) - " );
      Subset nms = GenerateRand( tochange , m );
 
      // change them in the LP, *copying* them
-     if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().modify_constant( nms[ 0 ] , b[ 0 ] );
-     else
-      LpBlock->get_PolyhedralFunction().modify_constants( b , Subset( nms ) ,
-							  true );
- 
+     if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+      // in 50% of the cases do an "abstract" change
+      LOG1( "(s,a) - " );
+      assert( false );  // not ready yet
+      }
+     else {  // directly change the PolyhedralFunction
+      LOG1( "(s) - " );
+      if( tochange == 1 )
+       LPBlock->get_PolyhedralFunction().modify_constant( nms[ 0 ] , b[ 0 ] );
+      else
+       LPBlock->get_PolyhedralFunction().modify_constants( b , Subset( nms ) ,
+							   true );
+      }
+
      // modify them in the NDO, letting them go
      if( tochange == 1 )
       NDOBlock->get_PolyhedralFunction().modify_constant( nms[ 0 ] , b[ 0 ] );
@@ -796,7 +847,15 @@ int main( int argc , char **argv )
    GenerateLB();
 
    // change it in the LP
-   LPBlock->get_PolyhedralFunction().modify_bound( LB );
+   if( ( wchg & 128 ) && ( drand48() <= p_change ) ) {
+    // in 50% of the cases do an "abstract" change
+    LOG1( "(a)" );
+    assert( false );  // not ready yet
+    }
+   else  // directly change the PolyhedralFunction
+    LPBlock->get_PolyhedralFunction().modify_bound( LB );
+
+   LOG1( " - " );
 
    // change it in the NDO
    NDOBlock->get_PolyhedralFunction().modify_bound( LB );

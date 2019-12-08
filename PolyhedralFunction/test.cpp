@@ -654,7 +654,6 @@ int main( int argc , char **argv )
 
     // sanity checks
     PANIC( m == PF->get_A().size() );
-    PANIC( m == PF->get_b().size() );
     PANIC( m == cnst->size() );
     }
    }
@@ -728,7 +727,6 @@ int main( int argc , char **argv )
 
     // sanity checks
     PANIC( m == PF->get_A().size() );
-    PANIC( m == PF->get_b().size() );
     PANIC( m == cnst->size() );
     }
    }

@@ -42,11 +42,11 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Users/frangio/Codes/SMS++/GitLab/SMS++/test/PolyhedralFunction/test">
+         FilePath = "/Users/frangio/Codes/SMS++/GitLab/tests/PolyhedralFunctionBlock/PolyhedralFunctionBlock_test">
       </PathRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "112 0 100 10 0"
+            argument = "0 0 2 3 0"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -17,7 +17,7 @@
 ##############################################################################
 
 # module name
-NAME = PolthedralFunctionBlock_test
+NAME = PolyhedralFunctionBlock_test
 
 # basic directory
 DIR = ./
