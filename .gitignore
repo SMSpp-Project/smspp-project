@@ -15,6 +15,9 @@ PolyhderalFunctionBlock/PolyhderalFunctionBlock_test
 # BundleSolver log files
 *.bn
 
+# MILPSolver LP files
+*.lp
+
 # Precompiled Headers
 *.gch
 *.pch
