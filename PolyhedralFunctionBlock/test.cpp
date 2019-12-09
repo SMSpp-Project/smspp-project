@@ -47,7 +47,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = print data + solver log
@@ -246,7 +246,7 @@ static Subset && GenerateRand( Index m , Index k )
 static void printAb( const PolyhedralFunction::MultiVector & tA ,
 		     const std::vector < FunctionValue > & tb )
 {
- PANIC( tA.size() == tb.size() );
+ PANIC( ( tA.size() == tb.size() ) || ( tA.size() + 1 == tb.size() ) );
  PANIC( tA.size() == m );
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
@@ -490,8 +490,8 @@ int main( int argc , char **argv )
   NDOBlock = new PolyhedralFunctionBlock();
 
   // pass it the data of the PolyhedralFunction, letting it go
-  LPBlock->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
-							    std::move( b ) );
+  NDOBlock->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
+							     std::move( b ) );
   // construct the Variable
   auto xNDO = new std::vector< ColVariable >( nsvar );
   PolyhedralFunction::VarVector vars( nvar );
@@ -505,19 +505,19 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable, Constraint and Objective in the AbstractBlock
-  LPBlock->add_static_variable( *xNDO );
+  NDOBlock->add_static_variable( *xNDO );
   #if DYNAMIC_VARS > 0
-   LPBlock->add_dynamic_variable( *xNDOd );
+   NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
 
   // then pass them to the PolyhedralFunction
-  LPBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
+  NDOBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
 
   // generate the abstract representation
   SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
-  LPBlock->generate_abstract_variables( &cfg );
-  LPBlock->generate_abstract_constraints();
-  LPBlock->generate_objective();
+  NDOBlock->generate_abstract_variables( &cfg );
+  NDOBlock->generate_abstract_constraints();
+  NDOBlock->generate_objective();
   }
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -

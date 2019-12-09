@@ -31,7 +31,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 # now all the integer parameters
 intMaxIter 1000   # MaxIter, max number of iterations for each call
-intLogVerb 0      # LogVerb, log verbosity of main Bundle algorithm
+intLogVerb 2      # LogVerb, log verbosity of main Bundle algorithm
 
 intBPar1   20     # discard items when they have been useless for <this> iterations
 intBPar2  400     # max bundle size per component
@@ -48,7 +48,6 @@ intMPName  0      # MP solver = Cplex with quadratic stabilization
 
 # QPPenalty's parameters : - - - - - -
 intMPlvl   0      # log verbosity of Master Problem
-                  
 intQPmp1   0	  # MxAdd, how many variables can be added to the base at each
       	          # iteration in BMinQuad (0 = at will)
 intQPmp2   0      # MxRmv, how many variables can be removed from the base at each
