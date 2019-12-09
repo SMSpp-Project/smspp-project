@@ -9,8 +9,8 @@
 *.obj
 *.ko
 *.elf
-PolyhderalFunction/PolyhderalFunction_test
-PolyhderalFunctionBlock/PolyhderalFunctionBlock_test
+PolyhedralFunction/PolyhedralFunction_test
+PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 
 # BundleSolver log files
 *.bn
