@@ -974,7 +974,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \variable \cstr{InertiaPower}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{IP[ t ]} which, for each time instant $t$, contains the contribution that the unit can give to the inertia constraint which depends on the active power that it is currently generating (basically, the constant to be multiplied to the active power variable) at time t for this unit. The variable is optional; if it is not defined, \code{IP[ t ] == 0} for each time instants $t$. If it has size $1$ then the entry \code{IP[ 0 ]} is assumed to contain the the inertia power value for this unit and all time instants $t$. Otherwise, \code{InertiaPower[ i ]} is the fixed value of \code{IP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
 %
- \item The scalar \variable \cstr{Gamma}, of type double and not indexed over any \dimension. This variable is used to take into account an uncertainty on the maximal potential production. Note that it must be \code{0 <= Gamma <= 1}; when \code{Gamma == 0}, the unit does not provide any reserve.
+ \item The scalar \variable \cstr{Gamma}, of type double and not indexed over any \dimension. This \variable is used to take into account an uncertainty on the maximal potential production. Note that it must be \code{0 <= Gamma <= 1}; when \code{Gamma == 0}, the unit does not provide any reserve.
+ %
+ \item  The scalar \variable \cstr{Kappa}, of type double and not indexed over any \dimension. This \variable is used to multiply to the minimum and maximum power at each time instant $t$. This is optional, if it is not provided it is taken to be \code{Kappa == 1}.
 \end{itemize}
 
 \newpage
