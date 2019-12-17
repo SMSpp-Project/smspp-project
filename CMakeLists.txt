@@ -17,7 +17,7 @@ include(CMakeSettings.txt OPTIONAL)
 
 # ----- Dependencies -------------------------------------------------------- #
 add_subdirectory(MCFClass)
-add_subdirectory(BundleSolver/NdoFiOracle)
+#add_subdirectory(BundleSolver/NdoFiOracle)
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
@@ -27,7 +27,7 @@ add_subdirectory(MCFBlock)
 add_subdirectory(SMILPBlock)
 add_subdirectory(MILPSolver)
 add_subdirectory(UCBlock)
-add_subdirectory(BundleSolver)
+#add_subdirectory(BundleSolver)
 
 # ----- Tools --------------------------------------------------------------- #
 add_subdirectory(tools)
