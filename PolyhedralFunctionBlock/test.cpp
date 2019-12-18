@@ -255,8 +255,8 @@ static void printAb( const PolyhedralFunction::MultiVector & tA ,
  for( Index i = 0 ; i < m ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
-   cout << A[ i ][ j ] << " ";
-   cout << "], b[ " << i << " ] = " << b[ i ] << endl;
+   cout << tA[ i ][ j ] << " ";
+   cout << "], b[ " << i << " ] = " << tb[ i ] << endl;
   }
  }
 

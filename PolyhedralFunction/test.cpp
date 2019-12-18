@@ -281,7 +281,7 @@ static void ConstructLPConstraint( c_Index i , FRowConstraint & ci ,
 static void printAb( const PolyhedralFunction::MultiVector & tA ,
 		     const std::vector < FunctionValue > & tb )
 {
- PANIC( tA.size() == tb.size() );
+ PANIC( ( tA.size() <= tb.size() ) && ( tA.size() >= tb.size() - 1 ) );
  PANIC( tA.size() == m );
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
@@ -290,8 +290,8 @@ static void printAb( const PolyhedralFunction::MultiVector & tA ,
  for( Index i = 0 ; i < m ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
-   cout << A[ i ][ j ] << " ";
-   cout << "], b[ " << i << " ] = " << b[ i ] << endl;
+   cout << tA[ i ][ j ] << " ";
+   cout << "], b[ " << i << " ] = " << tb[ i ] << endl;
   }
  }
 
