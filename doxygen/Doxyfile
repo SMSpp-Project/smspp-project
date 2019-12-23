@@ -821,7 +821,7 @@ WARN_LOGFILE           =
 
 INPUT                  = ../SMS++/doxygen/mainpage.md \
                          ../SMS++/include \
-                         ../MCFClass/doxigen/Manual.h \
+                         ../MCFClass/doxygen/Manual.h \
                          ../MCFClass/OPTUtils \
                          ../MCFClass/MCFClass \
                          ../MCFClass/MCFCplex \
