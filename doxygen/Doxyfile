@@ -821,16 +821,28 @@ WARN_LOGFILE           =
 
 INPUT                  = ../SMS++/doxygen/mainpage.md \
                          ../SMS++/include \
+                         ../BundleSolver \
+                         ../BundleSolver/NDOFiOracle/Bundle \
+                         ../BundleSolver/NDOFiOracle/CutPlane \
+                         ../BundleSolver/NDOFiOracle/LukFi \
+                         ../BundleSolver/NDOFiOracle/MPTester \
+                         ../BundleSolver/NDOFiOracle/NDOSlver \
+                         ../BundleSolver/NDOFiOracle/OPTUtils \
+                         ../BundleSolver/NDOFiOracle/OSIMPSolver \
+                         ../BundleSolver/NDOFiOracle/QPPnltMP \
+                         ../BundleSolver/NDOFiOracle/SubGrad \
+                         ../BundleSolver/NDOFiOracle/TestFi \
+			 ../MCFBlock/include \
                          ../MCFClass/doxigen/Manual.h \
                          ../MCFClass/OPTUtils \
                          ../MCFClass/MCFClass \
                          ../MCFClass/MCFCplex \
                          ../MCFClass/MCFClone \
+                         ../MCFClass/RelaxIV \
                          ../MCFClass/MCFSimplex \
                          ../MCFClass/SPTree \
-                         ../MCFBlock/include \
-                         ../SMILPBlock/include \
                          ../MILPSolver/include \
+                         ../SMILPBlock/include \
                          ../UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files
