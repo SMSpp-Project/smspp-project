@@ -475,8 +475,11 @@ This section presents the description of some auxiliary structures that are
 necessary to describe some \dBlock. The \code{AbstractPath}, presented in
 Section~\ref{sssec:AbstractPath}, is used to specify a path from a \Block to
 some \SMSpp element (\Block, \Constraint, \Variable, \Objective, or \Function)
-defined in that \Block or in any of their nested \Block, recursively.
+defined in that \Block or in any of their nested \Block, recursively.  The
+\code{SimpleDataMapping}, presented in Section~\ref{sssec:SimpleDataMapping},
+offers a mechanism for changing the data of a \Block.
 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\code{AbstractPath}}\label{sssec:AbstractPath}
 
 The \code{AbstractPath} represents a path from a \Block, here referred to as
@@ -798,6 +801,238 @@ The paths are represented in the same format as specified for a single
 \cstr{PathNodeTypes}, \cstr{PathGroupIndices}, and \cstr{PathElementIndices}.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{\code{SimpleDataMapping}}\label{sssec:SimpleDataMapping}
+
+\code{DataMapping} defines an interface for all types of data mappings. The
+idea of a data mapping is to allow, in particular, to map the values given by
+a vector of \code{double} into the data of some object. Among its functions,
+it has the \code{set\_data()} pair of functions, which have the following
+signature:
+
+\begin{verbatim}
+    virtual void set_data( const std::vector< double > & data ,
+                           c_ModParam issueMod = eModBlck ,
+                           c_ModParam issueAMod = eModBlck ) const;
+
+    virtual void set_data( const Eigen::ArrayXd & data ,
+                           c_ModParam issueMod = eModBlck ,
+                           c_ModParam issueAMod = eModBlck ) const;
+\end{verbatim}
+The idea of these functions is that the values of some data of an object can
+be modified considering the given \code{data} parameter. Typically, a
+\code{DataMapping} could be used to set the data of a \Block. In this case, a
+pointer to that \Block must be available. Pointers to a \Block can be
+serialized and deserialized considering its \code{AbstractPath}, which is
+relative to some reference \Block.
+
+\code{SimpleDataMapping} is a template class that derives from
+\code{DataMapping} and is used to define some common kinds of data mapping. We
+define two vectors: the ``large'' one and the ``small'' one. The ``large''
+vector refers to the vector that is given as input to the \code{set\_data()}
+method. This is the vector containing all the data that can be used by the
+\code{SimpleDataMapping}. The ``small|'' vector is a vector formed by a subset
+of the elements of the ``large'' vector. This is the vector that will
+effectively be used to perform some computation. This computation is typically
+the task of changing the data of some object based on this ``small''
+vector. There is a mapping defined by the \code{SetFrom} set that specifies
+which elements of the ``large'' vector are used to compose the ``small''
+vector. This \code{SetFrom} set contains the indices of these elements in the
+``large'' vector. The ``small'' vector is the one that will typically impact
+the data of some object. The \code{SetTo} set can be used to specify which
+part of this data is affected.
+
+As an example, consider the case in which the ``large'' vector contains data
+related to costs and capacities of arcs of a network. Suppose this network is
+represented by a fictitious class \code{Network}. A \code{SimpleDataMapping}
+could be used to set the capacities of the arcs of a \code{Network} object
+considering the data provided by this ``large'' vector. Some elements of this
+``large'' vector would be extracted and form a ``small'' vector containing the
+capacities of some arcs. The indices of the elements that are extracted from
+the ``large'' vector are specified by the \code{SetFrom} set. This set could
+be, for instance, the set $\{0, 3, 8, 11\}$. This means that the elements at
+positions $0, 3, 8,$ and $11$ in the ``large'' vector are selected to form a
+``small'' vector with four elements. This ``small'' vector would then be used
+to change the capacities of some arcs of the \code{Network} object. The arcs
+whose capacities would be modified could be specified by the \code{SetTo}
+set. This could be the set $[2, 6)$, for instance, stating that the arcs with
+indices $2, 3, 4,$ and $5$ would have their capacities changed according to
+the ``small'' vector.
+
+Besides the \code{SetFrom} and \code{SetTo} sets, the \code{SimpleDataMapping}
+also has a pointer to a function, which is invoked within the
+\code{set\_data()} method. This is a function that receives, in particular, a
+pointer to a \Block, the ``small'' vector, and the \code{SetTo} set. If the
+\code{SetTo} set is a \code{Block::Subset}, then the type of this function is
+\begin{verbatim}
+    Block::FunctionType< typename std::vector< DataType >::const_iterator ,
+                         SetTo && , bool >
+\end{verbatim}
+If the \code{SetTo} set is a \code{Block::Range}, then the type of this
+function is
+\begin{verbatim}
+    Block::FunctionType< typename std::vector< DataType >::const_iterator ,
+                         const SetTo & >
+\end{verbatim}
+Please refer to the definition of \code{Block::FunctionType} for completely
+understanding the type of this function.
+
+In the network example above, this function could be, for instance,
+\begin{verbatim}
+    void set_capacities( Network * network ,
+                         std::vector<double>::const_iterator capacities ,
+                         const Range & indices ,
+                         c_ModParam , c_ModParam );
+\end{verbatim}
+Ignoring the details of the type of this function, this is a function that
+receives a pointer to a \code{Network} object, a vector of capacities, and a
+\code{Range} of indices. This function could be responsible for changing the
+capacities of the arcs (of the given \code{Network} object) specified by the
+\code{indices} parameter according to the given \code{capacities}.
+
+As you can see, the function associated with a \code{SimpleDataMapping}
+receives a pointer to a \Block as its first parameter. This is a pointer to
+the caller object; the object that ``invokes'' the function. In the network
+example, this would be a pointer to a Network object whose capacities would be
+modified.
+
+Finally, the \code{SimpleDataMapping} is also determined by the type of the
+data of the ``small'' vector, the \code{DataType}.
+
+Notice that a \code{SimpleDataMapping} is general enough in that it is not
+only meant to change the data of some object, but perform arbitrary
+computation defined by the function associated with this
+\code{SimpleDataMapping}.
+
+In summary, a \code{SimpleDataMapping} has the following template parameters:
+\begin{itemize}
+\item \code{SetFrom}: This is the type of the set that selects the appropriate
+  data from data vector. It must be either \code{Block::Range} or
+  \code{Block::Subset}.
+
+\item \code{SetTo}: This is the type of the set that indicates which part of
+  the data of the caller object that is affected. It must be either
+  \code{Block::Range} or \code{Block::Set}.
+
+\item \code{DataType}: This is the type of the data of the ``small'' vector
+  (typically the type of the data that will be set in the caller object).
+
+\item \code{Caller}: This is the type of the caller object, which is the
+  object that will "invoke" the function. By default, \code{Caller} is
+  \code{Block}.
+\end{itemize}
+
+Besides the description of a single \code{SimpleDataMapping}, we also provide
+a description of a vector of \code{SimpleDataMapping}. In
+Section~\ref{sssec:single_SimpleDataMapping} we present the description of a
+single \code{SimpleDataMapping} and in
+Section~\ref{sssec:vector_SimpleDataMapping} we present the description of a
+vector of \code{SimpleDataMapping}.
+
+\subsubsubsection{A single \code{SimpleDataMapping}}\label{sssec:single_SimpleDataMapping}
+
+An \SMSpp \netCDF \group for a \code{SimpleDataMapping} can contain the
+following:
+
+\begin{itemize}
+\item The \variable \cstr{FunctionName}, whose type is
+  \code{netCDF::NcString}, containing the name of the function as it is
+  registered in the methods factory.
+
+\item All the dimensions and variables that are necessary to describe an
+  \code{AbstractPath}.
+
+\item All that is necessary to describe the \code{SetFrom} set. If
+  \code{SetFrom} is a \code{Range}, then this set is specified by the
+  \variables \cstr{FirstFrom} and \cstr{SecondFrom} which contain the limits
+  of the closed-open interval defining the \code{Range}. If \code{SetFrom} is
+  a \code{Subset}, then this set is specified by the \dimension
+  \cstr{SizeFrom} indicating the size of the set and the \variable
+  \cstr{SubsetFrom} containing the elements of the set.
+
+\item All that is necessary to describe the \code{SetTo} set. Its
+  representation is the same as that of the \code{SetFrom} set, except for the
+  names of the \variables, which must be \cstr{FirstTo} and \cstr{SecondTo} if
+  \code{SetTo} is a \code{Range}, and \cstr{SubsetTo} if the set is a
+  \code{Subset} (accompanied by the \dimension \code{SizeTo}). This set is
+  optional. If it is not provided, then the full set of indices $[ 0 , N )$ is
+  considered, where $N$ is the size of the \code{SetFrom} set.
+
+\item The \attribute \cstr{TemplateParameterTypes} is a string with three
+  characters that indicate the types of the template parameters of this
+  class. The first and second characters indicate the type of the
+  \code{SetFrom} and \code{SetTo} template parameters. Each of these two first
+  characters can be either `R', indicating the set has type
+  \code{Block::Range}, or `S', indicating the set has type
+  \code{Block::Subset}. The third character indicates the type of the data
+  that this \code{SimpleDataMapping} sets. This character can be either `I',
+  indicating the type of the data is \code{int}, or `D', indicating the type
+  of the data is \code{double}. This variable is optional. If it is not
+  present, then ``RRD'' is considered, meaning that the \code{SetFrom} and
+  \code{SetTo} sets are \code{Range} and the type of the data is
+  \code{double}
+\end{itemize}.
+
+\subsubsubsection{Vector of \code{SimpleDataMapping}}\label{sssec:vector_SimpleDataMapping}
+
+An \SMSpp \netCDF \group for a vector of \code{SimpleDataMapping} can contain
+the following:
+
+\begin{itemize}
+\item The \cstr{NumberDataMappings} \dimension, indicating the number of
+  \code{SimpleDataMapping}s that is present in the vector of
+  \code{SimpleDataMapping}.
+
+\item The one-dimensional \variable \cstr{DataType}, of type \code{char} and
+  indexed over the \cstr{NumberDataMappings} \dimension, specifying the type
+  of the data that is associated with each \code{SimpleDataMapping} of the
+  vector. This is the type of the data that can be set by the
+  \code{SimpleDataMapping} (i.e., the \code{DataType} template parameter of
+  \code{SimpleDataMapping}). This variable is optional. If it is not present,
+  then the data type associated with each \code{SimpleDataMapping} in this
+  vector is assumed to be \code{double}. If it is present then, for each $i
+  \in \{0, \dots, \code{NumberDataMappings}-1\}$, \code{DataType[ i ]} is the
+  type of the data associated with the $i$-th \code{SimpleDataMapping} and can
+  be either `I' or `D', indicating that the type of the data is \code{int} or
+  \code{double}, respectively.
+
+\item The one-dimensional \variable \code{SetSize}, an array of size $(2
+  \code{NumberDataMappings})$ indicating the size of the sets that define each
+  \code{SimpleDataMapping} (the \code{SetFrom} and \code{SetTo} sets). This
+  variable is optional. If it is not present, then all sets are assumed to be
+  \code{Range}. If it is present, then \code{SetSize[ 2i + k ]} is the size of
+  the \code{SetFrom} set of the $i$-th \code{SimpleDataMapping} if $k = 0$ or
+  the size of the \code{SetTo} set of the $i$-th \code{SimpleDataMapping} if
+  $k = 1$. If \code{SetSize[ j ] == 0}, then the corresponding set is a
+  \code{Range}. Otherwise, the corresponding set is a \code{Subset} of size
+  \code{SetSize[ j ]}.
+
+\item The one-dimensional \variable \cstr{SetElements}, containing the
+  concatenation of the representations of the sets \code{SetFrom} and
+  \code{SetTo}. A \code{Subset} is represented by a sequence of indices (which
+  are the elements of the \code{Subset}); while a \code{Range} is represented
+  by two indices $a$ and $b$ such that the Range set is given by the integers
+  in the closed-open interval $[a, b)$. If we let \code{SetFrom}$_i$ and
+    \code{SetTo}$_i$ denote the representations of the \code{SetFrom} and
+    \code{SetTo} sets of the $i$-th \code{SimpleDataMapping}, then
+    \cstr{SetElements} is the array
+    \[
+      ( \code{SetFrom}_0 , \code{SetTo}_0 , \code{SetFrom}_1 , \code{SetTo}_1 , \dots, \code{SetFrom}_{N-1}, \code{SetTo}_{N-1} )
+    \]
+  where $N = \code{NumberDataMappings}$.
+
+\item The one-dimensional variable \cstr{FunctionName}, of type string and
+  indexed over \code{NumberDataMappings}, containing the names of the
+  functions associated with each \code{SimpleDataMapping}. \code{FunctionName[
+      i ]} gives the name of the function (as registered in the methods
+  factory) associated with the $i$-th \code{SimpleDataMapping}.
+
+\item The \group \cstr{AbstractPath}, containing a vector of
+  \code{AbstractPath} with the paths to the {\Block}s. The $i$-th path in this
+  vector of \code{AbstractPath} is the path to the \Block associated with the
+  $i$-th \code{SimpleDataMapping}.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \newpage
@@ -954,7 +1189,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
 
 \smallskip
 \noindent
-The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$. Finally, all the \dimensions \cstr{DynNNodes}, \cstr{DynNArcs}, \cstr{MaxDynNNodes} and \cstr{MaxDynNArcs} are optional: if they are missing they are treated as being $0$ (this happening for all four means that the graph is "fully static" and cannot be changed).
+The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are the two \variables \cstr{SN} and \cstr{EN}. The three other \variables are optional. If \cstr{C} is missing, all arc costs are assumed to be $0$. If \cstr{U} is missing, all arc capacities are assumed to be infinite. If \cstr{B} is missing, all node deficits are assumed to be $0$. Finally, all the \dimensions \cstr{DynNNodes}, \cstr{DynNArcs}, \cstr{MaxDynNNodes} and \cstr{MaxDynNArcs} are optional: if they are missing they are treated as being $0$ (this happening for all four means that the graph is ``fully static'' and cannot be changed).
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1032,13 +1267,13 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \end{itemize}
  In particular, when a \code{NetworkBlock} is not defined for a given time instant t then one of these happen:
  \begin{itemize}
-  \item = If \code{"NumberNodes" == 1} (or it is not provided) then a \code{BusNetworkBlock} is automatically constructed for that time instant, and the entry \code{ActivePowerDemand[ 0 , t ]} contains the active demand for $t$.
-  \item = If \code{"NumberNodes" > 1}, then a \code{DCNetworkBlock} is automatically constructed for that time instant, it is provided with the \code{NetworkData} object (which must be present in \code{UCBlock}) and the row \code{ActivePowerDemand[ ... , t ]} contains the active demand of each node at time instant $t$.
+  \item = If \code{NumberNodes == 1} (or it is not provided) then a \code{BusNetworkBlock} is automatically constructed for that time instant, and the entry \code{ActivePowerDemand[ 0 , t ]} contains the active demand for $t$.
+  \item = If \code{NumberNodes > 1}, then a \code{DCNetworkBlock} is automatically constructed for that time instant, it is provided with the \code{NetworkData} object (which must be present in \code{UCBlock}) and the row \code{ActivePowerDemand[ ... , t ]} contains the active demand of each node at time instant $t$.
  \end{itemize}
  %
  \item the \variable \cstr{GeneratorNode}, of type int and indexed over the set {\{0, ... , \code{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
  %
- \item the \variable \cstr{HeatNode}, of type int and indexed over the \dimension \cstr{NumberHeatBlocks}; the entry \code{HeatNode[ h ]} tells to which node of the transmission network \highlight{all} the heat generators that are also electrical generators in the \code{HeatBlock} $h$ belong. Note that this implies that, unlike electrical generators in a \code{UnitBlock}, heat generators in a \code{HeatBlock} are always "geographically near to each other" so that they are necessarily attached to the same node of the transmission network (which is a reasonable assumption since heat, unlike say water, usually cannot travel much far). If \code{NumberHeatBlocks == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded. This information is actually only used to determine in which Pollutant Zone a \code{HeatBlock} is located, in order to add the corresponding heat generators (that are not also electricity generators) to the pollution constraints. This means that also if \code{NumberPollutants == } (say, it is not provided at all) this variable is useless and therefore need not be defined, since it is not loaded. Finally, notice that for heat generators into a \code{HeatBlock} that also are electrical generators, this variable provides again an information that is already known, i.e., to which node they belong to (cf. \cstr{GeneratorNode} above). Of course \highlight{the two information must agree}, otherwise the input file is ill-defined and exception is thrown.
+ \item the \variable \cstr{HeatNode}, of type int and indexed over the \dimension \cstr{NumberHeatBlocks}; the entry \code{HeatNode[ h ]} tells to which node of the transmission network \highlight{all} the heat generators that are also electrical generators in the \code{HeatBlock} $h$ belong. Note that this implies that, unlike electrical generators in a \code{UnitBlock}, heat generators in a \code{HeatBlock} are always ``geographically near to each other'' so that they are necessarily attached to the same node of the transmission network (which is a reasonable assumption since heat, unlike say water, usually cannot travel much far). If \code{NumberHeatBlocks == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded. This information is actually only used to determine in which Pollutant Zone a \code{HeatBlock} is located, in order to add the corresponding heat generators (that are not also electricity generators) to the pollution constraints. This means that also if \code{NumberPollutants == } (say, it is not provided at all) this variable is useless and therefore need not be defined, since it is not loaded. Finally, notice that for heat generators into a \code{HeatBlock} that also are electrical generators, this variable provides again an information that is already known, i.e., to which node they belong to (cf. \cstr{GeneratorNode} above). Of course \highlight{the two information must agree}, otherwise the input file is ill-defined and exception is thrown.
  %
  \item the \variable \cstr{HeatSet}, of type int and indexed over the set {\{0, ..., \code{NumberHeatGenerators} - 1\}}. If \code{HeatSet[ h ] = k < NumberElectricalGenerators}, then $k$ is the unique name of the electrical generator corresponding to the heat generator $h$; otherwise the heat generator $h$ is not also an electrical generator. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded. It is possible that different heat generators correspond to the same electrical generator (that is, \code{HeatSet[ h1 ] == HeatSet[ h2 ]} for some \code{h1 != h2}), but not vice-versa: a heat generator either corresponds to a specific electrical generator, or to no electrical generator (it is an heat-only generator);
  %
@@ -1175,7 +1410,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item the \variable \cstr{ConstTerm}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{C[ t ]} that, for each time instant $t$, contains the const term of power cost function of the unit for the corresponding time step. This variable is optional; if it is not provided then it is assumed that \code{C[ t ] == 0}, i.e.,  the cost of the unit has no fixed term, only those depending (linearly or quadratically) on the produced power. If \cstr{ConstTerm} has length $1$ then \code{C[ t ]} contains the same value for all $t$. Otherwise, \code{ConstTerm[ i ]} is the fixed value of \code{C[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
- \item the scalar \variable \cstr{InitialPower}, of type double and not indexed over any \dimension. This variable indicates the amount of the power that the unit was producing at time instant $-1$, i.e., before the start of the time horizon; this is necessary to compute the ramp-up and ramp-down constraints. Clearly, it must be that \code{MaxPower >= InitialPower >= MinPower} if the unit was "on" at time instant $-1$, and it must be that \code{InitialPower == 0} if the unit was "off" at time instant $-1$. The on/off status of the unit is also encoded by the scalar variable \code{InitUpDownTime}: in particular, \code{InitUpDownTime > 0} then the unit was on at time instant $-1$, and therefore \code{InitialPower >= MinPower} must hold, while if \code{InitUpDownTime <= 0} then the unit was off at time instant $-1$, and therefore \code{InitialPower == 0} by definition. In fact, if \code{InitUpDownTime <= 0} then this variable need not be defined since it is not loaded.
+ \item the scalar \variable \cstr{InitialPower}, of type double and not indexed over any \dimension. This variable indicates the amount of the power that the unit was producing at time instant $-1$, i.e., before the start of the time horizon; this is necessary to compute the ramp-up and ramp-down constraints. Clearly, it must be that \code{MaxPower >= InitialPower >= MinPower} if the unit was ``on'' at time instant $-1$, and it must be that \code{InitialPower == 0} if the unit was ``off'' at time instant $-1$. The on/off status of the unit is also encoded by the scalar variable \code{InitUpDownTime}: in particular, \code{InitUpDownTime > 0} then the unit was on at time instant $-1$, and therefore \code{InitialPower >= MinPower} must hold, while if \code{InitUpDownTime <= 0} then the unit was off at time instant $-1$, and therefore \code{InitialPower == 0} by definition. In fact, if \code{InitUpDownTime <= 0} then this variable need not be defined since it is not loaded.
  %
  \item the scalar \variable \cstr{InitUpDownTime}, of type Int64 and not indexed over any \dimension and indicates the initial time to generating the unit. If \code{InitUpDownTime > 0}, this means that the unit has been on for \code{InitUpDownTime} time stamps prior to time stamp $0$ (the beginning of the horizon). If, instead, \code{InitUpDownTime <= 0}, this means that the unit has been off for \code{- InitUpDownTime} time stamps prior to time stamp $0$; note that \code{InitUpDownTime == 0} means that the unit has been just shut down at the end of time instant $-1$, i.e., the beginning of time instant $0$.
  %
@@ -1204,7 +1439,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \variable \cstr{StartArc}, of type int and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the starting point of the arc (a number in \code{0, \dots, NumberReservoirs - 1}). Note that arcs are oriented; that is, a positive flow along arc $r$ (turbine) means that water is being taken away from \code{StartArc[ r ]} and delivered to \code{EndArc[ r ]} (see next), a negative flow (pump) means vice-versa. Note that reservoir names here go from $0$ to \code{NumberReservoirs - 1}.
  %
- \item The \variable \cstr{EndArc}, of type int and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the ending point of the arc; this is a number in \code{0, \dots, NumberReservoirs}. Note: this is \code{NumberReservoirs} and \highlight{not} \code{NumberReservoirs - 1}, because arcs can end in the "fake" reservoir \code{NumberReservoirs}. This indicates that water that flows along that arc "goes away from the system" and it is no longer counted, because it can no longer be used to produce electricity further down the river, or pumped back into one of its reservoirs. Indeed, there will be something like "the most downstream turbines": after water has been used there, it just goes away down some river and does not go to any other reservoir. Arcs are oriented (see above); \code{StartArc[ r ] == EndArc[ r ]} (a self-loop) is not allowed, but multiple arcs between the same pair of reservoirs are. Indeed, often the same physical equipment can be used both as a turbine and as a pump; in our model these are represented as two parallel arcs (but with different upper and lower flow capacity, see \cstr{MinFlow} and \cstr{MaxFlow} below).
+ \item The \variable \cstr{EndArc}, of type int and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the ending point of the arc; this is a number in \code{0, \dots, NumberReservoirs}. Note: this is \code{NumberReservoirs} and \highlight{not} \code{NumberReservoirs - 1}, because arcs can end in the ``fake'' reservoir \code{NumberReservoirs}. This indicates that water that flows along that arc ``goes away from the system'' and it is no longer counted, because it can no longer be used to produce electricity further down the river, or pumped back into one of its reservoirs. Indeed, there will be something like ``the most downstream turbines'': after water has been used there, it just goes away down some river and does not go to any other reservoir. Arcs are oriented (see above); \code{StartArc[ r ] == EndArc[ r ]} (a self-loop) is not allowed, but multiple arcs between the same pair of reservoirs are. Indeed, often the same physical equipment can be used both as a turbine and as a pump; in our model these are represented as two parallel arcs (but with different upper and lower flow capacity, see \cstr{MinFlow} and \cstr{MaxFlow} below).
  %
  \item The \variable \cstr{MinFlow}, of type double and indexed over both \dimensions \cstr{NumberIntervals} and \cstr{NumberArcs}. The first \dimension may have either size $1$ or size \code{NumberIntervals} whereas the second one always has size \cstr{NumberArcs} (if the variable is provided at all). This is meant to represent the matrix \code{MinF[ t , l ]} which, for each time instant $t$ and each arc $l$, contains the minimum flow value of the unit. This variable is optional; if it is not provided then it is assumed that \code{MinF[ t , l ]== 0}, i.e., the minimum flow of the unit is zero. If the first \dimension has size $1$ then the entry \code{MinF[ 0 , l ]} gives the fixed minimum flow value of the unit for all time steps and each arc $l$. Otherwise, \code{MinFlow[ i , l ]} is the fixed value of \code{MinF[ t , l ]} for all time $t$ and arc $l$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ]= 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
@@ -1212,7 +1447,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 \end{itemize}
 \smallskip
 \noindent
-Note: \cstr{MinFlow} and \cstr{MaxFlow} values can be either positive or negative (or zero); whenever \code{MinF[ t , l ] < MaxF[ t , l ] <= 0} for each $t$ and $l$, the unit is considered a pump and whenever \code{0 <= MinF[ t , l ] < MaxF[ t , l ]}, the unit is considered a turbine. Note that an arc must \highlight{always} be the same kind for \highlight{all} instants, i.e., it is not allowed that a unit suddenly changes between a turbine and a pump, or vice-versa. This is because the flow-to-active-power function of turbines is a convex piecewise function with possibly many pieces (see \cstr{NumberPieces}, \cstr{LinearTerm}, \cstr{ConstantTerm} below) , whereas the flow-to-active-power function of a pump is a simple linear function. In other words, the "number of pieces" of a turbine is \code{>= 1}, whereas the "number of pieces" of a pump is necessarily equal to $1$. In reality, the same equipment can sometimes be used both as a pump and as a turbine. In our model this is be accounted for by artificially splitting the unit into \cstr{two units}, a pump one and a turbine one, which must be done at the data processing stage. This causes the possible problem that at some time instant both the pump and the turbine be active, which is not possible in practice. This is unlikely to happen (because pumps consume more than turbines produce for the same amount of water, so this would be uneconomical), but should it ever happen, this occurrence is not handled in our model (which lets it happen).
+Note: \cstr{MinFlow} and \cstr{MaxFlow} values can be either positive or negative (or zero); whenever \code{MinF[ t , l ] < MaxF[ t , l ] <= 0} for each $t$ and $l$, the unit is considered a pump and whenever \code{0 <= MinF[ t , l ] < MaxF[ t , l ]}, the unit is considered a turbine. Note that an arc must \highlight{always} be the same kind for \highlight{all} instants, i.e., it is not allowed that a unit suddenly changes between a turbine and a pump, or vice-versa. This is because the flow-to-active-power function of turbines is a convex piecewise function with possibly many pieces (see \cstr{NumberPieces}, \cstr{LinearTerm}, \cstr{ConstantTerm} below) , whereas the flow-to-active-power function of a pump is a simple linear function. In other words, the ``number of pieces'' of a turbine is \code{>= 1}, whereas the ``number of pieces'' of a pump is necessarily equal to $1$. In reality, the same equipment can sometimes be used both as a pump and as a turbine. In our model this is be accounted for by artificially splitting the unit into \cstr{two units}, a pump one and a turbine one, which must be done at the data processing stage. This causes the possible problem that at some time instant both the pump and the turbine be active, which is not possible in practice. This is unlikely to happen (because pumps consume more than turbines produce for the same amount of water, so this would be uneconomical), but should it ever happen, this occurrence is not handled in our model (which lets it happen).
 
 \begin{itemize}
  \item The \variable \cstr{MinVolumetric}, of type double and indexed over both \dimensions \cstr{NumberReservoirs} and \cstr{NumberIntervals}. The first \dimension always has size \cstr{NumberReservoirs} (if it is provided at all), whereas the second one may have size one or size \cstr{NumberIntervals}. This is meant to represent the matrix \code{MinV[ r , t ]} which, for each reservoir $r$ at each time instant $t$ contains the minimum volumetric value of the unit for each reservoir and corresponding time step. It must be that \code{0 <= MinV[ r , t ] < MaxV[ r , t ]} for all $r$ and $t$ and . This variable is optional; if it's not provided then it is assumed that \code{MinV[ r , t ] == 0}, i.e., the minimum volumetric of the unit is zero. If the second \dimension has size 1 then the entry \code{MinV[ r , 0 ]} gives the fixed minimum volumetric value of the unit for each reservoir $r$ along all the time horizon. Otherwise, \code{MinVolumetric[ r , i ]} is the fixed value of \code{MinV[ r , t ]} for reservoir $r$ and all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
@@ -1225,7 +1460,7 @@ Note: It may happen that \code{MinV[ r , t ] == MaxV[ r , t ]}, but only \highli
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
 \begin{itemize}
 
- \item The \variable \cstr{Inflows}, of type double and indexed over both \dimensions \cstr{NumberReservoirs} and \cstr{TimeHorizon}. This is meant to represent the matrix \code{InF[ r , t ]} which, for each reservoir $r$, contains the amount of water that "naturally" enters into reservoir $r$ (because of rain, ice melting, non-controlled rivers flowing, and of course net of water leaving by evaporation, human consumption etc.) during time al the time interval $t$, and therefore that is available in the reservoir at the end of time step $t$ (hence, the beginning of time step $t + 1$, if any). This variable is optional; if it isn't defined, it is taken to be zero. \cstr{Inflows} can be either positive or negative.
+ \item The \variable \cstr{Inflows}, of type double and indexed over both \dimensions \cstr{NumberReservoirs} and \cstr{TimeHorizon}. This is meant to represent the matrix \code{InF[ r , t ]} which, for each reservoir $r$, contains the amount of water that ``naturally'' enters into reservoir $r$ (because of rain, ice melting, non-controlled rivers flowing, and of course net of water leaving by evaporation, human consumption etc.) during time al the time interval $t$, and therefore that is available in the reservoir at the end of time step $t$ (hence, the beginning of time step $t + 1$, if any). This variable is optional; if it isn't defined, it is taken to be zero. \cstr{Inflows} can be either positive or negative.
  %
  \item The \variable \cstr{MinPower}, of type double and indexed over both \dimensions \cstr{NumberIntervals} and \cstr{NumberArcs}. The first \dimension may have either size $1$ or size \cstr{NumberIntervals}, whereas the second one always has size \cstr{NumberArcs} (if it is provided at all). This is meant to represent the matrix \code{MinP[ t , l ]} which, for each time instant $t$ at each arc $l$ contains the minimum power value of the unit; it must be that \code{MinP[ t , l ] < MaxP[ t , l ]} for each time instant $t$ and each arc $l$. This variable is optional; if it is not provided then it is assumed that \code{MinP[ t , l ] == 0}, i.e., the minimum power of all units is zero(which means, each unit is a turbine). If the first \dimension has size $1$ then the entry \code{MinP[ 0 , l ]} is assumed to contain the minimum power of arc $l$ for all time instants. Otherwise, \code{MinPower[ i , l ]} is the fixed value of \code{MinP[ t , l ]} for arc $l$ and all time $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{NumberIntervals}, which in fact is not loaded.
  %
@@ -1344,7 +1579,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 \newpage
 
 \subsubsection {\code{SlackUnitBlock}}
-The \code{SlackUnitBlock} class derives from \code{UnitBlock} and implements implements a \cstr{slack} unit; a (typically, fictitious) unit capable of producing (typically, a large amount of) active power and/or primary/secondary reserve and/or inertia at any time period completely independently from each other and from all other time periods, albeit at a (typically, huge) cost. Such a unit is typically added to a Unit Commitment problem to ensure that it has a (fictitious) feasible solution, which may help solution methods. At the very least such a modified UC would produce a "least unfeasible" solution which can be used to identify the parts of the system that lack capacity/resources.
+The \code{SlackUnitBlock} class derives from \code{UnitBlock} and implements implements a \cstr{slack} unit; a (typically, fictitious) unit capable of producing (typically, a large amount of) active power and/or primary/secondary reserve and/or inertia at any time period completely independently from each other and from all other time periods, albeit at a (typically, huge) cost. Such a unit is typically added to a Unit Commitment problem to ensure that it has a (fictitious) feasible solution, which may help solution methods. At the very least such a modified UC would produce a ``least unfeasible'' solution which can be used to identify the parts of the system that lack capacity/resources.
 \smallskip
 \noindent
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
@@ -1355,15 +1590,15 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \variable \cstr{MaxSecondaryPower}, of type double and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MaxSP[ t ]} that, for each time instant $t$, contains the maximum amount of secondary reserve that the unit can produce in the corresponding time step. If \cstr{MaxSecondaryPower} has length $1$ then \code{MaxSP[ t ]} contains the same value for all $t$. Otherwise, \code{MaxSecondaryPower[ i ]} is the fixed value of \code{MaxSP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. This \variable is optional, if is not provided then \code{MaxSP[ t ] == 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
- \item The \variable \cstr{MaxInertia}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{MaxI[ t ]} which, for each time instant $t$, contains the maximum "amount of inertia" (contribution that the SlackUnit can give to the inertia constraint) at time $t$. This \variable is optional; if it is not defined, \code{MaxI[ t ] == 0} for all time instants. If it has size $1$, then \code{MaxI[ t ] == MaxInertia[ 0 ]} for all $t$, regardless to what \cstr{NumberIntervals} says. Otherwise, \code{MaxInertia[ i ]} is the fixed value of \code{MaxI[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ \item The \variable \cstr{MaxInertia}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{MaxI[ t ]} which, for each time instant $t$, contains the maximum ``amount of inertia'' (contribution that the SlackUnit can give to the inertia constraint) at time $t$. This \variable is optional; if it is not defined, \code{MaxI[ t ] == 0} for all time instants. If it has size $1$, then \code{MaxI[ t ] == MaxInertia[ 0 ]} for all $t$, regardless to what \cstr{NumberIntervals} says. Otherwise, \code{MaxInertia[ i ]} is the fixed value of \code{MaxI[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
- \item The \variable \cstr{ActivePowerCost}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{APC[ t ]} that, for each time instant $t$, contains the cost of producing one unit of active power at the corresponding time step. This \variable is optional, if it is not provided then it's taken to be zero(although this is a very strange setting, as it would typically imply that all the demand, or at least as much as possible of it, is satisfied by the fictitious SlackUnit rather than from "real" ones). If \cstr{ActivePowerCost} has length $1$ then \code{APC[ t ]} contains the same value for $t$. Otherwise, \code{ActivePowerCost[ i ]} is the fixed value of \code{APC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ \item The \variable \cstr{ActivePowerCost}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{APC[ t ]} that, for each time instant $t$, contains the cost of producing one unit of active power at the corresponding time step. This \variable is optional, if it is not provided then it's taken to be zero(although this is a very strange setting, as it would typically imply that all the demand, or at least as much as possible of it, is satisfied by the fictitious SlackUnit rather than from ``real'' ones). If \cstr{ActivePowerCost} has length $1$ then \code{APC[ t ]} contains the same value for $t$. Otherwise, \code{ActivePowerCost[ i ]} is the fixed value of \code{APC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
  \item The \variable \cstr{PrimaryCost}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{PC[ t ]} that, for each time instant $t$, contains the cost of producing one unit of primary reserve at the corresponding time step. This \variable is optional; if it is not provided then it's taken to be zero (but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{PrimaryCost} has length $1$ then \code{PC[ t ]} contains the same value for $t$. Otherwise, \code{PrimaryCost[ i ]} is the fixed value of \code{PC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
  \item The \variable \cstr{SecondaryCost}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{SC[ t ]} that, for each time instant $t$, contains the cost of producing one unit of secondary reserve at the corresponding time step. This \variable is optional; if it is not provided then it's taken to be zero (but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{SecondaryCost} has length $1$ then \code{SC[ t ]} contains the same value for $t$. Otherwise, \code{SecondaryCost[ i ]} is the fixed value of \code{SC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
- \item The \variable \cstr{InertiaCost}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{IC[ t ]} that, for each time instant $t$, contains the "the cost of producing "one unit" of inertia. Since the inertia-producing variable is \code{u[ t ]}, which is in the interval \code{[ 0 , 1 ]}, the cost of \code{u[ t ]} is \code{MaxI[ t ] * IC[ t ]}; in other words, \code{u[ t ]} represents the fraction of the maximum possible amount of inertia (\code{MaxI[ t ]}) that can be produced at time step $t$. This \variable is optional; if it is not provided then it's taken to be zero(but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{InertiaCost} has length $1$ then \code{IC[ t ]} contains the same value for $t$. Otherwise, \code{InertiaCost[ i ]} is the fixed value of \code{IC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+ \item The \variable \cstr{InertiaCost}, of type double and either indexed over the \dimension \cstr{NumberIntervals} or has size $1$. This is meant to represent the vector \code{IC[ t ]} that, for each time instant $t$, contains the cost of producing ``one unit'' of inertia. Since the inertia-producing variable is \code{u[ t ]}, which is in the interval \code{[ 0 , 1 ]}, the cost of \code{u[ t ]} is \code{MaxI[ t ] * IC[ t ]}; in other words, \code{u[ t ]} represents the fraction of the maximum possible amount of inertia (\code{MaxI[ t ]}) that can be produced at time step $t$. This \variable is optional; if it is not provided then it's taken to be zero(but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{InertiaCost} has length $1$ then \code{IC[ t ]} contains the same value for $t$. Otherwise, \code{InertiaCost[ i ]} is the fixed value of \code{IC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
 \end{itemize}
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
@@ -1482,7 +1717,7 @@ The \code{MCFBlock} class defines the following \Configuration parameters:
  %
  \item \code{f\_is\_optimal\_Configuration}. Checking optimality of a primal-dual solution of the MCF problems means checking that both are approximately feasible, and that they approximately satisfy the Complementary Slackness Conditions. This requires two parameters for deciding what ``approximately feasible'' means, one for the primal ($\epsilon_f$) and one for the dual ($\epsilon_c$). If \code{f\_is\_optimal\_Configuration} is a \code{SimpleConfiguration< std::pair<double,double> >}, then $\epsilon_c =$ \code{f\_value.first} and $\epsilon_f =$ \code{f\_value.second}.
  %
- \item \code{f\_solution\_Configuration}. For all the methods dealing with solutions, i.e., \code{get\_Solution()} and \code{map\_\-[back/\-forward]\_solution()}, if \code{f\_solution\_Configuration} is a \code{SimpleConfiguration<int>}, then its \code{f\_value} decides what is mapped, with the following encoding: $1$ means ``only map the primal solution'', $2$ means ``only map the dual solution'', everything else (e.g., $0$) means "
+ \item \code{f\_solution\_Configuration}. For all the methods dealing with solutions, i.e., \code{get\_Solution()} and \code{map\_\-[back/\-forward]\_solution()}, if \code{f\_solution\_Configuration} is a \code{SimpleConfiguration<int>}, then its \code{f\_value} decides what is mapped, with the following encoding: $1$ means ``only map the primal solution'', $2$ means ``only map the dual solution'', everything else (e.g., $0$) means
  ``map everything''.
 \end{itemize}
 
@@ -1509,7 +1744,7 @@ The base \Solver class defines a set of ``general'' algorithmic parameters, desc
  \code{intMaxSol} & \code{int} & The algorithmic parameter for setting the maximum  number of different solutions to the \Block that the \Solver should attempt to obtain and store. Mathematical models can have (very) many solutions: an objective function precisely helps in selecting among them, but even that may not be enough to narrow the choice down to a single solution (multiple optima may exist, or quasi-optimal solutions may also be sought for for any number of reasons). On the other hand, a solution can be a ``big'' object, and storing it may be costly. It may be therefore helpful for a Solver to know beforehand how many different solutions the user would like to get. Among the reasonable values for this parameter, $1$ says ``I don't care of multiple solutions, give me only the best one'', and $0$ says ``I don't care of solutions at all, just tell me if there is any, and what its value is''. The default is $1$. \\
  %
  \hline
- \code{intLogVerb} & \code{int} & An integer parameter dictating how "verbose" the log of the \Solver has to be. The specific meaning of each value is \Solver-dependent, but it is intended that $0$ means ``no log at all'', and increasing values correspond to increasing verbosity. The default value is $0$ (no log). \\
+ \code{intLogVerb} & \code{int} & An integer parameter dictating how ``verbose'' the log of the \Solver has to be. The specific meaning of each value is \Solver-dependent, but it is intended that $0$ means ``no log at all'', and increasing values correspond to increasing verbosity. The default value is $0$ (no log). \\
  %
  \hline
  \code{dblMaxTime} & \code{dbl} & The algorithmic parameter for setting the maximum time limit that the next call to \code{solve()} can expend in trying to solve the \Block. The value is assumed to be in seconds, and it's a double (so both very quick and very slow solvers are supported). The base \Solver class does not explicitly distinguish between ``wall-clock time'' and ``CPU time'', which may be rather different especially in a parallel environment, but this concept can be easily added by derived classes.\\
