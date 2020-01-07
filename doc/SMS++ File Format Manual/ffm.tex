@@ -28,6 +28,7 @@
 \usepackage{longtable}
 \usepackage{xspace}
 \usepackage{afterpage}
+\usepackage{tabularx}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Font selection
@@ -1126,7 +1127,7 @@ where $X^h$ denotes the feasible region of the $h$-th sub-\Block of the \code{St
  %
  \item the \variable \cstr{linking\_rmatblk}, of type \code{UInt64} and indexed over the \dimension \cstr{linking\_nzcount}, that contains the block indices of the variables corresponding to nonzeros in the coefficient matrix of the ``linking'' \code{Constraint} (the matrices $B^h$); that is, the $i$-th entry of \code{linking\_rmatblk} indicates the index $h$ of the \Block to which the \code{Variable} belongs, with $h = 0$ used for the ``father'' \code{StructuredMILPBlock} and $h = 1, 2, \ldots$ used for the \code{Variable} of the 1st, 2nd, \ldots of its \code{SimpleMILPBlock} sons, while the $i$-th entry of \code{linking\_rmatind} is the index of the \code{Variable} in the $h$-th \Block;
  %
- \item the \variable \cstr{linking\_rmatbeg}, of type \code{UInt64} and indexed over the \dimension \cstr{linking\_num\_constraints}, that contains the indices into the \code{linking\_rmatval}/\code{linking\_rmatind} vectors where each ``linking''  \code{Constraint} (row of the matrices $B^h$) begins: all the nonzeros corresponding to constraint $h = 0, \dots,$ $\code{linking\_num\_constraints} - 1$ are to be found in \code{linking\_rmatval[ linking\_rmatbeg[ $h$ ] ]}, \ldots, \code{linking\_rmatval[ linking\_rmatbeg[ $h + 1$ ] $- 1$ ]}, with their column (variable) and \Block indices to be found in the corresponding entries of \code{linking\_rmatind} and \code{linking\_rmatblk}, respectively;
+ \item the \variable \cstr{linking\_rmatbeg}, of type \code{UInt64} and indexed over the \dimension \cstr{linking\_num\_constraints}, that contains the indices into the \code{linking\_rmatval}/\code{linking\_rmatind} vectors where each ``linking''  \code{Constraint} (row of the matrices $B^h$) begins: all the nonzeros corresponding to constraint $h = 0, \dots,$ \code{linking\_num\_constraints} $- 1$ are to be found in \code{linking\_rmatval[ linking\_rmatbeg[ $h$ ] ]}, \ldots, \code{linking\_rmatval[ linking\_rmatbeg[ $h + 1$ ] $- 1$ ]}, with their column (variable) and \Block indices to be found in the corresponding entries of \code{linking\_rmatind} and \code{linking\_rmatblk}, respectively;
  %
  \item the \variable \cstr{linking\_row\_lb}, of type double and indexed over the \dimension \cstr{linking\_num\_constraints}, whose $i$-th entry is the (possibly, $-\infty$) lower bound on the feasible value that the linear expression of the $i$-th ``linking'' \code{Constraint} (as specified by the coefficients in \code{linking\_rmatval}, \code{linking\_rmatind}, \code{linking\_rmatbeg}, and \code{linking\_rmatblk}) can take;
  %
@@ -1976,9 +1977,10 @@ with the ones described in the following table. Setting any of these
 parameters causes the corresponding parameter of the \code{CDASolver} of the
 inner \Block of the \code{BendersBFunction} to be overwritten (if the
 \code{BendersBFunction} has an inner \Block and this \Block has a
-\code{CDASolver} attached to it).
+\code{CDASolver} attached to it).\\
 
-\begin{longtable}{|c|c|p{13cm}|}
+\noindent
+\begin{tabularx}{\linewidth}{|c|c|X|}
  \hline
  name & type & description \\
  %
@@ -2023,7 +2025,7 @@ inner \Block of the \code{BendersBFunction} to be overwritten (if the
  \code{dblRAccLin} & \code{double} & This parameter is associated with the
  \code{CDASolver::dblAAccDSol}.\\
  \hline
-\end{longtable}
+\end{tabularx}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2061,7 +2063,7 @@ As described in \S \ref{ssec:ComputeConfig}, each \Block can have several \Compu
 
 The base \Solver class defines a set of ``general'' algorithmic parameters, described in the following table.
 
-\begin{longtable}{|c|c|p{14cm}|}
+\begin{longtable}{|c|c|p{13.5cm}|}
  \hline
  name & type & description \\
  %
@@ -2105,7 +2107,7 @@ The base \Solver class defines a set of ``general'' algorithmic parameters, desc
 
 The \code{CDASolver} class extends the parameters of \Solver with the ones described  in the following table.
 
-\begin{longtable}{|c|c|p{14cm}|}
+\begin{longtable}{|c|c|p{13.5cm}|}
  \hline
  name & type & description \\
  %
@@ -2129,7 +2131,7 @@ The \code{CDASolver} class extends the parameters of \Solver with the ones descr
 
 The base \code{Function} class defines a set of ``general'' algorithmic parameters, described in the following table.
 
-\begin{longtable}{|c|c|p{14cm}|}
+\begin{longtable}{|c|c|p{13.5cm}|}
  \hline
  name & type & description \\
  %
@@ -2158,7 +2160,7 @@ The base \code{Function} class defines a set of ``general'' algorithmic paramete
 
 The \code{C05Function} class extends the parameters of \code{Function} with the ones described in the following table.
 
-\begin{longtable}{|c|c|p{14cm}|}
+\begin{longtable}{|c|c|p{13.5cm}|}
  \hline
  name & type & description \\
  %
@@ -2182,7 +2184,7 @@ The \code{C05Function} class extends the parameters of \code{Function} with the 
 The \code{MCFSolver<>} class derives from \code{CDASolver}, and therefore it extends the parameters of with the ones described in the following table.
 
 
-\begin{longtable}{|c|c|p{14cm}|}
+\begin{longtable}{|c|c|p{14.5cm}|}
  \hline
  name & type & description \\
  %
@@ -2197,7 +2199,7 @@ However, \code{MCFSolver<>} is a template class, whose template parameter actual
 \subsubsection{Parameters of \code{MCFSolver<MCFSimplex>}}
 
 
-\begin{longtable}{|c|c|p{14cm}|}
+\begin{longtable}{|c|c|p{13.5cm}|}
  \hline
  name & type & description \\
  %
