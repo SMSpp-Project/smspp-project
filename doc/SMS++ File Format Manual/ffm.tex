@@ -119,6 +119,7 @@
 \def\Objective{\code{Objective}\xspace}
 \def\Variable{\code{Variable}\xspace}
 \def\Function{\code{Function}\xspace}
+\def\dFunction{\code{:Function}\xspace}
 
 % other commands
 \newcommand{\highlight}[1]{{\bf #1}}
@@ -474,10 +475,10 @@ The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero,
 
 This section presents the description of some auxiliary structures that are
 necessary to describe some \dBlock. The \code{AbstractPath}, presented in
-Section~\ref{sssec:AbstractPath}, is used to specify a path from a \Block to
+\S \ref{sssec:AbstractPath}, is used to specify a path from a \Block to
 some \SMSpp element (\Block, \Constraint, \Variable, \Objective, or \Function)
 defined in that \Block or in any of their nested \Block, recursively.  The
-\code{SimpleDataMapping}, presented in Section~\ref{sssec:SimpleDataMapping},
+\code{SimpleDataMapping}, presented in \S \ref{sssec:SimpleDataMapping},
 offers a mechanism for changing the data of a \Block.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -545,7 +546,7 @@ dynamic, the index of the group to which it belongs, and the index of the
 \note{The index of a \Variable (or \Constraint) within a group is a single
   number and may not be entirely obvious which number it should be (specially
   for multidimensional arrays and (multidimensional) arrays of lists). Please
-  refer to the Section~\ref{sssec:single_AbstractPath} for an explanation of
+  refer to the \S \ref{sssec:single_AbstractPath} for an explanation of
   the index of a \Variable (or \Constraint) within a group.}
 
 A `V' or `v' node is always preceded by a `B' node, unless it is the only node
@@ -608,8 +609,8 @@ that \Constraint (and thus that \Constraint is actually an
 
 Besides the description of an \code{AbstractPath}, we also provide a
 description of a vector of \code{AbstractPath}. In
-Section~\ref{sssec:single_AbstractPath} we present the description of a single
-\code{AbstractPath} and in Section~\ref{sssec:vector_AbstractPath} we present
+\S \ref{sssec:single_AbstractPath} we present the description of a single
+\code{AbstractPath} and in \S \ref{sssec:vector_AbstractPath} we present
 the description of a vector of \code{AbstractPath}.
 
 \subsubsubsection{A single \code{AbstractPath}}\label{sssec:single_AbstractPath}
@@ -927,9 +928,9 @@ In summary, a \code{SimpleDataMapping} has the following template parameters:
 
 Besides the description of a single \code{SimpleDataMapping}, we also provide
 a description of a vector of \code{SimpleDataMapping}. In
-Section~\ref{sssec:single_SimpleDataMapping} we present the description of a
+\S \ref{sssec:single_SimpleDataMapping} we present the description of a
 single \code{SimpleDataMapping} and in
-Section~\ref{sssec:vector_SimpleDataMapping} we present the description of a
+\S \ref{sssec:vector_SimpleDataMapping} we present the description of a
 vector of \code{SimpleDataMapping}.
 
 \subsubsubsection{A single \code{SimpleDataMapping}}\label{sssec:single_SimpleDataMapping}
@@ -1043,7 +1044,7 @@ the following:
 
 \section{File formats of existing \dBlock}
 
-This Section collects the description of the \netCDF file formats for all the implemented \dBlock developed for \textsc{plan4res}. As such, the section will be continuously updated over the course of the project as new \dBlock will be added, although as usual non-backward-compatible changes to existing input formats will be kept to a minimum, and always agreed upon with the involved partners before being put into production.
+This section collects the description of the \netCDF file formats for all the implemented \dBlock developed for \textsc{plan4res}. As such, the section will be continuously updated over the course of the project as new \dBlock will be added, although as usual non-backward-compatible changes to existing input formats will be kept to a minimum, and always agreed upon with the involved partners before being put into production.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{\code{SimpleMILPBlock}}
@@ -1970,64 +1971,6 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection {Parameters of \code{BendersBFunction}}
-
-The \code{BendersBFunction} class extends the parameters of \code{C05Function}
-with the ones described in the following table. Setting any of these
-parameters causes the corresponding parameter of the \code{CDASolver} of the
-inner \Block of the \code{BendersBFunction} to be overwritten (if the
-\code{BendersBFunction} has an inner \Block and this \Block has a
-\code{CDASolver} attached to it).\\
-
-\noindent
-\begin{tabularx}{\linewidth}{|c|c|X|}
- \hline
- name & type & description \\
- %
- \hline
- \code{intMaxIter} & \code{int} & This parameter is associated with the
- \code{Solver::intMaxIter}.\\
- %
- \hline
- \code{intLPMaxSz} & \code{int} & This parameter is associated with the
- \code{CDASolver::intMaxDSol} parameter.\\
- %
- \hline
- \code{intGPMaxSz} & \code{int} & The algorithmic parameter for setting the
- size of the ``global pool'', that is, the maximum number of linearizations
- that should be stored in the global pool.\\
- %
- \hline
- \code{dblMaxTime} & \code{double} & This parameter is associated with the
- \code{Solver::dblMaxTime}.\\
- %
- \hline
- \code{dblRelAcc} & \code{double} & This parameter is associated with the
- \code{Solver::dblRelAcc}.\\
- %
- \hline
- \code{dblAbsAcc} & \code{double} & This parameter is associated with the
- \code{Solver::dblAbsAcc}.\\
- %
- \hline
- \code{dblUpCutOff} & \code{double} & This parameter is associated with the
- \code{Solver::dblUpCutOff}.\\
- %
- \hline
- \code{dblLwCutOff} & \code{double} & This parameter is associated with the
- \code{Solver::dblLwCutOff}.\\
- %
- \hline
- \code{dblRAccLin} & \code{double} & This parameter is associated with the
- \code{CDASolver::dblRAccDSol}.\\
- %
- \hline
- \code{dblRAccLin} & \code{double} & This parameter is associated with the
- \code{CDASolver::dblAAccDSol}.\\
- \hline
-\end{tabularx}
-
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \newpage
@@ -2215,6 +2158,69 @@ However, \code{MCFSolver<>} is a template class, whose template parameter actual
  \code{kHotListSize} & \code{int} & Parameter to set the size of Hot List for the Candidate List Pivot method.\\
  \hline
 \end{longtable}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\newpage
+\section{\ComputeConfig for existing \dFunction}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsection {Parameters of \code{BendersBFunction}}
+
+The \code{BendersBFunction} class extends the parameters of \code{C05Function}
+with the ones described in the following table. Setting any of these
+parameters causes the corresponding parameter of the \code{CDASolver} of the
+inner \Block of the \code{BendersBFunction} to be overwritten (if the
+\code{BendersBFunction} has an inner \Block and this \Block has a
+\code{CDASolver} attached to it).\\
+
+\noindent
+\begin{tabularx}{\linewidth}{|c|c|X|}
+ \hline
+ name & type & description \\
+ %
+ \hline
+ \code{intMaxIter} & \code{int} & This parameter is associated with the
+ \code{Solver::intMaxIter}.\\
+ %
+ \hline
+ \code{intLPMaxSz} & \code{int} & This parameter is associated with the
+ \code{CDASolver::intMaxDSol} parameter.\\
+ %
+ \hline
+ \code{intGPMaxSz} & \code{int} & The algorithmic parameter for setting the
+ size of the ``global pool'', that is, the maximum number of linearizations
+ that should be stored in the global pool.\\
+ %
+ \hline
+ \code{dblMaxTime} & \code{double} & This parameter is associated with the
+ \code{Solver::dblMaxTime}.\\
+ %
+ \hline
+ \code{dblRelAcc} & \code{double} & This parameter is associated with the
+ \code{Solver::dblRelAcc}.\\
+ %
+ \hline
+ \code{dblAbsAcc} & \code{double} & This parameter is associated with the
+ \code{Solver::dblAbsAcc}.\\
+ %
+ \hline
+ \code{dblUpCutOff} & \code{double} & This parameter is associated with the
+ \code{Solver::dblUpCutOff}.\\
+ %
+ \hline
+ \code{dblLwCutOff} & \code{double} & This parameter is associated with the
+ \code{Solver::dblLwCutOff}.\\
+ %
+ \hline
+ \code{dblRAccLin} & \code{double} & This parameter is associated with the
+ \code{CDASolver::dblRAccDSol}.\\
+ %
+ \hline
+ \code{dblRAccLin} & \code{double} & This parameter is associated with the
+ \code{CDASolver::dblAAccDSol}.\\
+ \hline
+\end{tabularx}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
