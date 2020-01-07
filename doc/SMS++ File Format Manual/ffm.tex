@@ -125,7 +125,7 @@
 \newcommand{\subsubsubsection}[1]{\paragraph{#1}\ \\}
 
 \usepackage[most]{tcolorbox}
-\newcommand\note[1]{%
+\newcommand\note[2][Note:]{%
   \tcbsidebyside[
     sharp corners,
     boxrule=0.2pt,
@@ -136,8 +136,8 @@
     left=0.2cm,
     right=0.2cm,
   ]%
-  {\bf Note:}%
-  {#1}%
+  {\bf #1}%
+  {#2}%
 }
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -873,8 +873,11 @@ function is
     Block::FunctionType< typename std::vector< DataType >::const_iterator ,
                          const SetTo & >
 \end{verbatim}
-Please refer to the definition of \code{Block::FunctionType} for completely
-understanding the type of this function.
+A \code{Range} represents the closed-open interval $[a, b)$ set of indices
+(integers), determined by the integers $a$ and $b$. A \code{Subset}
+represents a set of indices by explicitly listing its elements. Please refer
+to the definition of \code{Block::FunctionType} for completely understanding
+the type of this function.
 
 In the network example above, this function could be, for instance,
 \begin{verbatim}
@@ -1790,6 +1793,237 @@ An \SMSpp \netCDF \group for a \code{StochasticBlock} contains the following:
   serialization and deserialization of each \code{SimpleDataMapping}.
 \end{itemize}
 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\newpage
+
+\subsection {\code{BendersBFunction}}
+
+The \code{BendersBFunction} is a convenience class implementing the
+``abstract'' concept of a Benders function of ``any''
+\Block. \code{BendersBFunction} derives from \textbf{both} \code{C05Function}
+and \Block.
+
+The main ingredients of a \code{BendersBFunction} are the following:
+\begin{enumerate}
+\item A ``base'' \Block $B$, representing an optimization problem of the form
+  \begin{equation}
+    \min \{ c(y) : w \le Ey \le z, y \in Y \}, \tag{B}
+    \label{eq:B}
+  \end{equation}
+   where $E$ is a matrix and $w$ and $z$ are vectors of appropriate sizes, and
+   $Y$ is a convex set. This will be the one, and only, sub-\Block of
+   \code{BendersBFunction} (when ``seen'' as a \Block).
+
+\item A matrix $A$ with $m$ rows and $n$ columns, a vector $b$ with $m$ rows,
+  and a vector of pairs $[ ( C_i , S_i ) ]_{i \in I}$, each pair being formed
+  by a pointer to a \code{RowConstraint} of \Block $B$ and a
+  \code{ConstraintSide}, where $I = \{1, \dots, m\}$.
+
+  Problem \eqref{eq:B} would typically be associated with an original problem
+  \begin{equation}
+    \min \{ d(x) + c(y) : g \le Fx + Ey \le h, x \in X, y \in Y \} \tag{$O$}
+    \label{eq:O}
+  \end{equation}
+  defined in terms of variables $x$ and $y$. By reformulating problem \eqref{eq:O} as
+  \begin{equation}
+    \min \{ d(x) + \phi(x) : x \in X \}, \tag{$O'$}
+    \label{eq:O_prime}
+  \end{equation}
+  where
+  \begin{equation}
+    \phi(x) = \min \{ c(y) : (g - Fx) \le Ey \le (h - Fx), y \in Y \}, \tag{$P$}
+    \label{eq:P}
+  \end{equation}
+
+  we see that \eqref{eq:P} assumes the form of \eqref{eq:B} with $w = g - Fx$
+  and $z = h - Fx$. The \code{BendersBFunction} represents the function $\phi$
+  whose underlying optimization problem is given by \eqref{eq:B}. The
+  variables $x$ are the active \code{Variable}s of this
+  \code{BendersBFunction}. As can be seen in \eqref{eq:P}, the left- and
+  right-hand sides of (some or all) the constraints may depend on $x$. The
+  \Block $B$, however, does not depend on $x$. In order to have the left- and
+  right-hand sides of the constraints in \eqref{eq:B} dependent on $x$, we
+  consider the mappings $x \rightarrow g - Fx$ and $x \rightarrow h - Fx$,
+  which are used to update the left- and right-hand sides $w$ and $z$ of the
+  constraints in \eqref{eq:B} according to the values of the variables $x$.
+
+  These mappings are bunched together into a single mapping $M$ defined by the
+  matrix $A$ and the vector b such that $M(x) = Ax + b$. The $i$-th component
+  of this mapping, $M_i(x) = [ Ax + b ]_i$, is associated with the left- or
+  right-hand side (or both) of the \code{RowConstraint} of \Block $B$ pointed
+  by $C_i$. The \code{ConstraintSide} $S_i$ indicates which sides of the
+  \code{RowConstraint} (pointed by) $C_i$ are affected, as follows:
+
+  \begin{itemize}
+  \item If $S_i = \code{eLHS}$, then $M_i(x)$ gives the value of the left-hand
+    side of the \code{RowConstraint} (pointed by) $C_i$.
+
+  \item If $S_i = \code{eRHS}$, then $M_i(x)$ gives the value of the
+    right-hand side of the \code{RowConstraint} (pointed by) $C_i$.
+
+  \item If $S_i = \code{eBoth}$, then $M_i(x)$ gives the value of both the
+    left- and right-hand side of the \code{RowConstraint} (pointed by)
+    $C_i$. This is the case, for example, of an equality constraint, in which
+    the left- and right-hand sides are equal.
+  \end{itemize}
+
+  Notice that the affected constraints must necessarily be
+  \code{RowConstraint}. Moreover, if a \code{RowConstraint} in \Block $B$ has
+  finite bounds that can be different from each other and are affected by the
+  values of $x$, then it would be listed twice (once for each of its
+  bounds). That is, there would be indices $i, j \in I$ such that $i \ne j$
+  and $C_i = C_j$, $S_i = \code{eLHS}$, and $S_j = \code{eRHS}$.
+
+  \note[Important:]{The vector of pairs $[ ( C_i , S_i ) ]_{i \in I}$ must
+    not contain duplicate entries (i.e., there must not exist indices $i, j
+    \in I$ such that $i \ne j$, $C_i = C_j$ and $S_i = S_j$). Moreover, if
+    there is $i \in I$ such that $S_i == \code{eBoth}$, there must not exist
+    $j \in I$ such that $C_i == C_j$.}
+
+  We stress that the $i$-th active \Variable of this \code{BendersBFunction}
+  is associated with the $i$-th column of the mapping matrix $A$. In other
+  words, the $i$-th active \Variable serves as the coefficient of the $i$-th
+  column of the $A$ matrix in the mapping $M$.
+\end{enumerate}
+
+Note that the \code{BendersBFunction} is not supposed to have any \Variable or
+\Constraint (besides those defined in its only inner \Block $B$).
+
+An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
+\begin{itemize}
+\item The \dimension \cstr{NumVar} containing the number of columns of the $A$
+  matrix, i.e., the number of active variables.
+
+\item The \dimension \cstr{NumRow} containing the number of rows of the $A$
+  matrix. This dimension is optional; if it is not provided then 0 (no
+  rows) is assumed.
+
+\item The \dimension \cstr{NumNonzero}, of type \code{netCDF::NcUint64},
+  containing the number of nonzero entries in the $A$ matrix. This dimension
+  is optional and determines in which format the matrix $A$ is given. If this
+  dimension is present, then \cstr{NumRow} must also be. If \cstr{NumNonzero}
+  is not present, then the $A$ matrix is given as a dense matrix. If it is
+  present, then the $A$ matrix is given in a sparse format as defined by the
+  variables \cstr{Row}, \cstr{Column}, and \cstr{A}. During serialization, the
+  following criterion is used to decide the format in which the $A$ matrix is
+  stored. If at most 25\% of its elements are nonzero, it is stored in sparse
+  format; otherwise, it is stored in dense format.
+
+\item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::Uint64} and
+  indexed over the dimension \cstr{NumRow}, containing the number of nonzero
+  elements of the $A$ matrix in each row. This variable is mandatory if the
+  dimension \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not
+  present, then this variable is ignored. For each $i \in \{0, \dots,
+  \code{NumRow}-1\}$, \code{NumNonzeroAtRow[i]} is the number of nonzero
+  elements in the $i$-th row of the $A$ matrix.
+
+\item The \variable \cstr{Column}, of type \code{netCDF::Uint64} and indexed
+  over the dimension \cstr{NumNonzero}, containing the column indices of the
+  entries of the matrix. This variable is mandatory if the dimension
+  \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not present, then this
+  variable is ignored. For each $k \in \{0, \dots, \code{NumNonzero}-1\}$,
+  \code{Column[k]} is the column index of the k-th nonzero entry of the $A$
+  matrix, whose value is given by \code{A[k]}. \cstr{Column} stores the column
+  indices in row-major order, that is, if $(i,j)$ and $(p,q)$ are the entries
+  of the $k$-th and $l$-th nonzero elements of $A$, respectively, with $k <
+  l$, then $i \le p$.
+
+\item The \variable \cstr{A}, of type \code{netCDF::Double}. This variable
+  stores the values of the elements of the $A$ matrix of the mapping. If the
+  dimension \cstr{NumNonzero} is present, then this variable is indexed over
+  this dimension and contains the values of the (potentially) nonzero entries
+  of the matrix. In this case, \code{A[k]} is the value of the $k$-th nonzero
+  entry, whose column index is given by \code{Column[k]}. The nonzero elements
+  of the matrix are given in left-to-right top-to-bottom (``row-major'')
+  order. If the dimension \cstr{NumNonzero} is not present, then \cstr{A} is
+  indexed over both the \cstr{NumRow} and \cstr{NumVar} dimensions (in this
+  order); it contains the (row-major) representation of the matrix $A$. This
+  variable is optional only if \code{NumRow == 0}.
+
+\item The \variable \cstr{b}, of type \code{netCDF::Double} and indexed over
+  the dimension \cstr{NumRow}, which contains the vector $b$. This variable is
+  optional only if \code{NumRow == 0}.
+
+\item The \variable \cstr{ConstraintSide}, of type \code{netCDF::Byte} and
+  indexed over the dimension \cstr{NumRow}, indicating, at position $i$, which
+  side of the $i$-th Constraint is affected. The possible values are 0 for the
+  left-hand (or lower bound) side, 1 for the right-hand (or upper bound) side,
+  and 2 for both sides. This variable is optional only if \code{NumRow == 0}.
+
+\item All the dimensions and variables necessary to describe a vector of
+  \code{AbstractPath}. The number of \code{AbstractPath} must be equal to the
+  number of rows of the $A$ matrix and, therefore, the dimension associated
+  with the number of \code{AbstractPath} is \cstr{NumRow}. The $i$-th
+  \code{AbstractPath} in this vector must be the path to the $i$-th affected
+  \code{RowConstraint} (which is associated with the $i$-th row of the $A$
+  matrix). These variables are optional only if \code{NumRow == 0}.
+
+\item The \group \cstr{Block}, containing the description of the inner
+  \Block.
+
+\item The \group \cstr{BlockConfig}, containing the \BlockConfig of the inner
+  \Block.
+
+\item The \group \cstr{BlockSolver}, containing the \BlockSolverConfig of the
+  inner \Block.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection {Parameters of \code{BendersBFunction}}
+
+The \code{BendersBFunction} class extends the parameters of \code{C05Function}
+with the ones described in the following table. Setting any of these
+parameters causes the corresponding parameter of the \code{CDASolver} of the
+inner \Block of the \code{BendersBFunction} to be overwritten (if the
+\code{BendersBFunction} has an inner \Block and this \Block has a
+\code{CDASolver} attached to it).
+
+\begin{longtable}{|c|c|p{13cm}|}
+ \hline
+ name & type & description \\
+ %
+ \hline
+ \code{intMaxIter} & \code{int} & This parameter is associated with the
+ \code{Solver::intMaxIter}.\\
+ %
+ \hline
+ \code{intLPMaxSz} & \code{int} & This parameter is associated with the
+ \code{CDASolver::intMaxDSol} parameter.\\
+ %
+ \hline
+ \code{intGPMaxSz} & \code{int} & The algorithmic parameter for setting the
+ size of the ``global pool'', that is, the maximum number of linearizations
+ that should be stored in the global pool.\\
+ %
+ \hline
+ \code{dblMaxTime} & \code{double} & This parameter is associated with the
+ \code{Solver::dblMaxTime}.\\
+ %
+ \hline
+ \code{dblRelAcc} & \code{double} & This parameter is associated with the
+ \code{Solver::dblRelAcc}.\\
+ %
+ \hline
+ \code{dblAbsAcc} & \code{double} & This parameter is associated with the
+ \code{Solver::dblAbsAcc}.\\
+ %
+ \hline
+ \code{dblUpCutOff} & \code{double} & This parameter is associated with the
+ \code{Solver::dblUpCutOff}.\\
+ %
+ \hline
+ \code{dblLwCutOff} & \code{double} & This parameter is associated with the
+ \code{Solver::dblLwCutOff}.\\
+ %
+ \hline
+ \code{dblRAccLin} & \code{double} & This parameter is associated with the
+ \code{CDASolver::dblRAccDSol}.\\
+ %
+ \hline
+ \code{dblRAccLin} & \code{double} & This parameter is associated with the
+ \code{CDASolver::dblAAccDSol}.\\
+ \hline
+\end{longtable}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1825,11 +2059,11 @@ As described in \S \ref{ssec:ComputeConfig}, each \Block can have several \Compu
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Standard parameters in \Solver}
 
-The base \Solver class defines a set of ``general'' algorithmic parameters, described in the following Table.
+The base \Solver class defines a set of ``general'' algorithmic parameters, described in the following table.
 
 \begin{longtable}{|c|c|p{14cm}|}
  \hline
- name & title & description \\
+ name & type & description \\
  %
  \hline
  \code{intMaxIter} & \code{int} & The algorithmic parameter for setting the maximum number of iterations that the next call to \code{solve()} is allowed to execute for trying to solve the \Block. The concept of ``what exactly an iteration is'' is clearly \Solver-dependent, and the user of the \Solver need supposedly be aware of which concrete \dSolver it is actually using to be able to sensibly set this parameter; however, because most \Solver will actually be iterative processes, it makes sense to offer  support for this notion in the base class. \\
@@ -1869,11 +2103,11 @@ The base \Solver class defines a set of ``general'' algorithmic parameters, desc
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Standard parameters in \code{CDASolver}}
 
-The \code{CDASolver} class extends the parameters of \Solver with the ones described  in the following Table.
+The \code{CDASolver} class extends the parameters of \Solver with the ones described  in the following table.
 
 \begin{longtable}{|c|c|p{14cm}|}
  \hline
- name & title & description \\
+ name & type & description \\
  %
  \hline
  \code{intMaxDSol} & \code{int} & The algorithmic parameter for setting the maximum number of different \emph{dual} solutions that the \Solver should attempt to obtain and store. Since dual solutions can be a ``big'' objects (in some cases, much bigger than primal sones), storing them may be costly. It may be therefore helpful for a \code{CDASolver} to know beforehand how many different dual solutions the user would like to get. Among the reasonable values for this parameter, $1$ says ``I don't care of multuple dual solutions, give me only the best one'', and $0$ says ``I don't care of dual solutions at all, just tell me if there is any, and what its value is''. The default is $1$. \\
@@ -1893,11 +2127,11 @@ The \code{CDASolver} class extends the parameters of \Solver with the ones descr
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Standard parameters in \code{Function}}
 
-The base \code{Function} class defines a set of ``general'' algorithmic parameters, described in the following Table.
+The base \code{Function} class defines a set of ``general'' algorithmic parameters, described in the following table.
 
 \begin{longtable}{|c|c|p{14cm}|}
  \hline
- name & title & description \\
+ name & type & description \\
  %
  \hline
  \code{intMaxIter} & \code{int} & The algorithmic parameter for setting the maximum number of iterations in the next call to \code{compute()}. The concept of ``what exactly an iteration is'' is clearly dependent on the \code{Function}, and it may not even make sense for all \code{Function}. However, some \code{Function} will actually be iterative processes, and therefore it makes sense to offer support for this notion in the base class. The default is $+\infty =$ no limits.\\
@@ -1922,11 +2156,11 @@ The base \code{Function} class defines a set of ``general'' algorithmic paramete
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Standard parameters in \code{C05Function}}
 
-The \code{C05Function} class extends the parameters of \code{Function} with the ones described in the following Table.
+The \code{C05Function} class extends the parameters of \code{Function} with the ones described in the following table.
 
 \begin{longtable}{|c|c|p{14cm}|}
  \hline
- name & title & description \\
+ name & type & description \\
  %
  \hline
  \code{intLPMaxSz} & \code{int} & The algorithmic parameter for setting the size of the ``local pool'', that is, the maximum number of linearizations that should be stored in the local pool. The default is $1$, which corresponds to the fact that the \code{Function} can only produce a single linearization at a time (for it is, say, smooth).\\
@@ -1945,12 +2179,12 @@ The \code{C05Function} class extends the parameters of \code{Function} with the 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Parameters of \code{MCFSolver<MCFC>}}
 
-The \code{MCFSolver<>} class derives by \code{CDASolver}, and therefore it extends the parameters of with the ones described in the following Table.
+The \code{MCFSolver<>} class derives from \code{CDASolver}, and therefore it extends the parameters of with the ones described in the following table.
 
 
 \begin{longtable}{|c|c|p{14cm}|}
  \hline
- name & title & description \\
+ name & type & description \\
  %
  \hline
  \code{kReopt} & \code{int} & Whether the MCF algorithm (whatever it is) should re-optimize after changes in the data, as opposed to restarting from scratch.\\
@@ -1965,7 +2199,7 @@ However, \code{MCFSolver<>} is a template class, whose template parameter actual
 
 \begin{longtable}{|c|c|p{14cm}|}
  \hline
- name & title & description \\
+ name & type & description \\
  %
  \hline
  \code{kAlgPrimal} & \code{int} & If $> 0$ it instructs the \code{MCFSimplex} solver to use the primal (network) simplex method, otherwise the dual one.\\
