@@ -25,15 +25,15 @@
 [submodule "LukFiBlock"]
 	path = LukFiBlock
 	url = https://gitlab.com/egorgone/lukfiblock
+[submodule "StochasticBlock"]
+	path = StochasticBlock
+	url = https://gitlab.com/smspp/stochasticblock.git
+[submodule "SDDPBlock"]
+	path = SDDPBlock
+	url = https://gitlab.com/smspp/sddpblock.git
 [submodule "tools"]
 	path = tools
 	url = https://gitlab.com/smspp/tools
 [submodule "tests"]
 	path = tests
 	url = https://gitlab.com/smspp/tests
-[submodule "SDDPBlock"]
-	path = SDDPBlock
-	url = https://gitlab.com/smspp/sddpblock.git
-[submodule "StochasticBlock"]
-	path = StochasticBlock
-	url = https://gitlab.com/smspp/stochasticblock.git
