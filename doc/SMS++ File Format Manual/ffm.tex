@@ -1878,13 +1878,13 @@ The main ingredients of a \code{BendersBFunction} are the following:
   \code{RowConstraint} (pointed by) $C_i$ are affected, as follows:
 
   \begin{itemize}
-  \item If $S_i = \code{eLHS}$, then $M_i(x)$ gives the value of the left-hand
+  \item If $S_i = $ `L', then $M_i(x)$ gives the value of the left-hand
     side of the \code{RowConstraint} (pointed by) $C_i$.
 
-  \item If $S_i = \code{eRHS}$, then $M_i(x)$ gives the value of the
+  \item If $S_i = $ `R', then $M_i(x)$ gives the value of the
     right-hand side of the \code{RowConstraint} (pointed by) $C_i$.
 
-  \item If $S_i = \code{eBoth}$, then $M_i(x)$ gives the value of both the
+  \item If $S_i = $ `B', then $M_i(x)$ gives the value of both the
     left- and right-hand side of the \code{RowConstraint} (pointed by)
     $C_i$. This is the case, for example, of an equality constraint, in which
     the left- and right-hand sides are equal.
@@ -1895,13 +1895,13 @@ The main ingredients of a \code{BendersBFunction} are the following:
   finite bounds that can be different from each other and are affected by the
   values of $x$, then it would be listed twice (once for each of its
   bounds). That is, there would be indices $i, j \in I$ such that $i \ne j$
-  and $C_i = C_j$, $S_i = \code{eLHS}$, and $S_j = \code{eRHS}$.
+  and $C_i = C_j$, $S_i = $ `L', and $S_j = $ `R'.
 
   \note[Important:]{The vector of pairs $[ ( C_i , S_i ) ]_{i \in I}$ must
     not contain duplicate entries (i.e., there must not exist indices $i, j
     \in I$ such that $i \ne j$, $C_i = C_j$ and $S_i = S_j$). Moreover, if
-    there is $i \in I$ such that $S_i == \code{eBoth}$, there must not exist
-    $j \in I$ such that $C_i == C_j$.}
+    there is $i \in I$ such that $S_i = $ `B', there must not exist
+    $j \in I$ such that $C_i = C_j$.}
 
   We stress that the $i$-th active \Variable of this \code{BendersBFunction}
   is associated with the $i$-th column of the mapping matrix $A$. In other
