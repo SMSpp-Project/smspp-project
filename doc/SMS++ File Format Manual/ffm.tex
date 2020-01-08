@@ -514,7 +514,7 @@ The path is defined as a sequence of nodes. Each node has one of the following
 types:
 
 \begin{itemize}
- \item `O', if the node is associated with an \Objective.
+ \item `O', if the node is associated with an \Objective;
 
  \item `B', if the node is associated with a \Block;
 
@@ -524,7 +524,7 @@ types:
 
  \item `V', if the node is associated with a static \Variable;
 
- \item `v', if the node is associated with a dynamic \Variable;
+ \item `v', if the node is associated with a dynamic \Variable.
 \end{itemize}
 
 Notice that, for \Constraint and \Variable, an upper case letter indicates that
@@ -535,11 +535,11 @@ nodes in the path are stored in forward order, i.e., the first node is the
 origin of the path and the last one is the destination, it is easier to
 understand the path if we look at it backwards.
 
-Consider the path from some reference Block to some \Variable. The last node in
-this path necessarily has the `V' or `v' type, indicating this is a path to a
-\Variable. This \Variable belongs to some \Block and it is either static or
+Consider the path from some reference Block to some \Variable. The last node
+in this path necessarily has the `V' or `v' type, indicating this is a path to
+a \Variable. This \Variable belongs to some \Block and it is either static or
 dynamic. This last node has all information needed to retrieve this \Variable
-from its father \Block: a boolean indicating whether the \Variable is static or
+from its father \Block: an indication of whether the \Variable is static or
 dynamic, the index of the group to which it belongs, and the index of the
 \Variable within that group.
 
@@ -593,8 +593,8 @@ associated with the inner \Block of either a \code{BendersBFunction} or a
 
 Finally, a `C' or `c' node, which is associated with a \Constraint, has
 characteristics pertaining both the `V' (and `v') and the `O' nodes. Like the
-`V' (and `v') node, it has a boolean indicating whether it is static or not,
-the index of the group to which it belongs, and the index of the \Constraint
+`V' (and `v') node, it has an indication of whether it is static or not, the
+index of the group to which it belongs, and the index of the \Constraint
 within that group (exactly as defined for \Variable). Like an `O' node, a `C'
 or `c' node is either preceded by a `B' node (which is associated with the
 \Block that owns that \Constraint) or is the only node in the path. If it is
@@ -616,28 +616,27 @@ the description of a vector of \code{AbstractPath}.
 \subsubsubsection{A single \code{AbstractPath}}\label{sssec:single_AbstractPath}
 
 \noindent
-An \SMSpp \netCDF \group for an \code{AbstractPath} can contain the following:
+An \code{AbstractPath} is described by the following \netCDF \variables and
+\dimensions. These do not need to be in a specific \netCDF \group, unless of
+course one has to specify more than one \code{AbstractPath} in a \group, in
+which case it is necessary to make specific \groups because the name of a
+\variable/\dimension cannot be duplicated in a given \group.
 
 \begin{itemize}
 \item the \dimension \cstr{TotalLength} containing the number $N$ of nodes in the path;
 
-\item the \variable \cstr{PathNodeTypes}, of type \code{netCDF::NcChar()} and
+\item the \variable \cstr{PathNodeTypes}, of type \code{netCDF::NcChar} and
   indexed over the \dimension \cstr{TotalLength}, contains the types of the
   nodes in the path;
 
-\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64()}
+\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64}
   and indexed over the \dimension \cstr{TotalLength}, contains the group
   indices associated with each node in the path;
 
-\item the \variable \cstr{PathElementIndices}, of type
-  \code{netCDF::NcUint64()} and indexed over the \dimension
-  \cstr{TotalLength}, contains the element indices associated with each node
-  in the path;
+\item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint64}
+  and indexed over the \dimension \cstr{TotalLength}, contains the element
+  indices associated with each node in the path;
 \end{itemize}
-
-This function constructs and returns an AbstractPath by deserializing it
-from the given  group. This group has a dimension called
-\cstr{TotalLength} that contains the number $N$ of nodes in the path.
 
 \note{All indices mentioned here belong to zero-based numbered sequences, that
   is, sequences whose first element is 0.}
@@ -744,25 +743,29 @@ last case is analogous.
 \subsubsubsection{Vector of \code{AbstractPath}}\label{sssec:vector_AbstractPath}
 
 \noindent
-An \SMSpp \netCDF \group for a vector of \code{AbstractPath} contains the
-following:
+A vector of \code{AbstractPath} is described by the following \netCDF
+\variables and \dimensions. These do not need to be in a specific \netCDF
+\group, unless of course one has to specify more than one vector of
+\code{AbstractPath} in a \group, in which case it is necessary to make specific
+\groups because the name of a \variable/\dimension cannot be duplicated in a
+given \group.
 
 \begin{itemize}
 \item the \dimension \cstr{PathDim};
 
 \item the \dimension \cstr{TotalLength};
 
-\item the \variable \cstr{PathStart}, of type \code{netCDF::NcUint64()} and
+\item the \variable \cstr{PathStart}, of type \code{netCDF::NcUint64} and
   indexed over \cstr{PathDim};
 
-\item the \variable \cstr{PathNodeTypes}, of type \code{netCDF::NcChar()} and
+\item the \variable \cstr{PathNodeTypes}, of type \code{netCDF::NcChar} and
   indexed over the \dimension \cstr{TotalLength};
 
-\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64()}
+\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64}
   and indexed over the \dimension \cstr{TotalLength};
 
 \item the \variable \cstr{PathElementIndices}, of type
-  \code{netCDF::NcUint64()} and indexed over the \dimension
+  \code{netCDF::NcUint64} and indexed over the \dimension
   \cstr{TotalLength}.
 \end{itemize}
 
@@ -922,7 +925,7 @@ In summary, a \code{SimpleDataMapping} has the following template parameters:
   (typically the type of the data that will be set in the caller object).
 
 \item \code{Caller}: This is the type of the caller object, which is the
-  object that will "invoke" the function. By default, \code{Caller} is
+  object that will ``invoke'' the function. By default, \code{Caller} is
   \code{Block}.
 \end{itemize}
 
@@ -935,8 +938,12 @@ vector of \code{SimpleDataMapping}.
 
 \subsubsubsection{A single \code{SimpleDataMapping}}\label{sssec:single_SimpleDataMapping}
 
-An \SMSpp \netCDF \group for a \code{SimpleDataMapping} can contain the
-following:
+\noindent
+A \code{SimpleDataMapping} is described by the following \netCDF \variables
+and \dimensions. These do not need to be in a specific \netCDF \group, unless
+of course one has to specify more than one \code{SimpleDataMapping} in a
+\group, in which case it is necessary to make specific \groups because the name
+of a \variable/\dimension cannot be duplicated in a given \group.
 
 \begin{itemize}
 \item The \variable \cstr{FunctionName}, whose type is
@@ -948,11 +955,15 @@ following:
 
 \item All that is necessary to describe the \code{SetFrom} set. If
   \code{SetFrom} is a \code{Range}, then this set is specified by the
-  \variables \cstr{FirstFrom} and \cstr{SecondFrom} which contain the limits
-  of the closed-open interval defining the \code{Range}. If \code{SetFrom} is
-  a \code{Subset}, then this set is specified by the \dimension
-  \cstr{SizeFrom} indicating the size of the set and the \variable
-  \cstr{SubsetFrom} containing the elements of the set.
+  \variables \cstr{FirstFrom} and \cstr{SecondFrom}, both of type
+  \code{netCDF::NcUint64}, which contain the limits of the closed-open
+  interval defining the \code{Range}. So, if the \code{Range} is the set $[a,
+    b)$, then \cstr{FirstFrom} must contain $a$ and \cstr{SecondFrom} must
+    contain $b$. If \code{SetFrom} is a \code{Subset}, then this set is
+    specified by the \dimension \cstr{SizeFrom} indicating the size of the set
+    and the one-dimensional \variable \cstr{SubsetFrom}, of type
+    \code{netCDF::NcUint64} and indexed over \cstr{SizeFrom}, containing the
+    elements of the set.
 
 \item All that is necessary to describe the \code{SetTo} set. Its
   representation is the same as that of the \code{SetFrom} set, except for the
@@ -962,7 +973,7 @@ following:
   optional. If it is not provided, then the full set of indices $[ 0 , N )$ is
   considered, where $N$ is the size of the \code{SetFrom} set.
 
-\item The \attribute \cstr{TemplateParameterTypes} is a string with three
+\item The \attribute \cstr{TemplateParameterTypes} is a  string with three
   characters that indicate the types of the template parameters of this
   class. The first and second characters indicate the type of the
   \code{SetFrom} and \code{SetTo} template parameters. Each of these two first
@@ -979,62 +990,71 @@ following:
 
 \subsubsubsection{Vector of \code{SimpleDataMapping}}\label{sssec:vector_SimpleDataMapping}
 
-An \SMSpp \netCDF \group for a vector of \code{SimpleDataMapping} can contain
-the following:
+\noindent
+A vector of \code{SimpleDataMapping} is described by the following \netCDF
+\variables and \dimensions. These do not need to be in a specific \netCDF
+\group, unless of course one has to specify more than one vector of
+\code{SimpleDataMapping} in a \group, in which case it is necessary to make
+specific \groups because the name of a \variable/\dimension cannot be duplicated
+in a given \group.
 
 \begin{itemize}
 \item The \cstr{NumberDataMappings} \dimension, indicating the number of
   \code{SimpleDataMapping}s that is present in the vector of
   \code{SimpleDataMapping}.
 
-\item The one-dimensional \variable \cstr{DataType}, of type \code{char} and
-  indexed over the \cstr{NumberDataMappings} \dimension, specifying the type
-  of the data that is associated with each \code{SimpleDataMapping} of the
-  vector. This is the type of the data that can be set by the
-  \code{SimpleDataMapping} (i.e., the \code{DataType} template parameter of
-  \code{SimpleDataMapping}). This variable is optional. If it is not present,
-  then the data type associated with each \code{SimpleDataMapping} in this
-  vector is assumed to be \code{double}. If it is present then, for each $i
-  \in \{0, \dots, \code{NumberDataMappings}-1\}$, \code{DataType[ i ]} is the
-  type of the data associated with the $i$-th \code{SimpleDataMapping} and can
-  be either `I' or `D', indicating that the type of the data is \code{int} or
-  \code{double}, respectively.
+\item The one-dimensional \variable \cstr{DataType}, of type
+  \code{netCDF::NcChar} and indexed over the \cstr{NumberDataMappings}
+  \dimension, specifying the type of the data that is associated with each
+  \code{SimpleDataMapping} of the vector. This is the type of the data that
+  can be set by the \code{SimpleDataMapping} (i.e., the \code{DataType}
+  template parameter of \code{SimpleDataMapping}). This variable is
+  optional. If it is not present, then the data type associated with each
+  \code{SimpleDataMapping} in this vector is assumed to be \code{double}. If
+  it is present then, for each $i \in \{0, \dots,
+  \code{NumberDataMappings}-1\}$, \code{DataType[ i ]} is the type of the data
+  associated with the $i$-th \code{SimpleDataMapping} and can be either `I' or
+  `D', indicating that the type of the data is \code{int} or \code{double},
+  respectively.
 
-\item The one-dimensional \variable \code{SetSize}, an array of size $(2
-  \code{NumberDataMappings})$ indicating the size of the sets that define each
-  \code{SimpleDataMapping} (the \code{SetFrom} and \code{SetTo} sets). This
-  variable is optional. If it is not present, then all sets are assumed to be
-  \code{Range}. If it is present, then \code{SetSize[ 2i + k ]} is the size of
-  the \code{SetFrom} set of the $i$-th \code{SimpleDataMapping} if $k = 0$ or
-  the size of the \code{SetTo} set of the $i$-th \code{SimpleDataMapping} if
-  $k = 1$. If \code{SetSize[ j ] == 0}, then the corresponding set is a
-  \code{Range}. Otherwise, the corresponding set is a \code{Subset} of size
-  \code{SetSize[ j ]}.
+\item The one-dimensional \variable \code{SetSize}, an array of type
+  \code{netCDF::NcUint64} with size given by $2
+  \times$\code{Number\-Data\-Mappings} indicating the size of the sets that
+  define each \code{SimpleDataMapping} (the \code{SetFrom} and \code{SetTo}
+  sets). This variable is optional. If it is not present, then all sets are
+  assumed to be \code{Range}. If it is present, then \code{SetSize[ 2i + k ]}
+  is the size of the \code{SetFrom} set of the $i$-th \code{SimpleDataMapping}
+  if $k = 0$ or the size of the \code{SetTo} set of the $i$-th
+  \code{SimpleDataMapping} if $k = 1$. If \code{SetSize[ j ] == 0}, then the
+  corresponding set is a \code{Range}. Otherwise, the corresponding set is a
+  \code{Subset} of size \code{SetSize[ j ]}.
 
-\item The one-dimensional \variable \cstr{SetElements}, containing the
-  concatenation of the representations of the sets \code{SetFrom} and
-  \code{SetTo}. A \code{Subset} is represented by a sequence of indices (which
-  are the elements of the \code{Subset}); while a \code{Range} is represented
-  by two indices $a$ and $b$ such that the Range set is given by the integers
-  in the closed-open interval $[a, b)$. If we let \code{SetFrom}$_i$ and
-    \code{SetTo}$_i$ denote the representations of the \code{SetFrom} and
-    \code{SetTo} sets of the $i$-th \code{SimpleDataMapping}, then
-    \cstr{SetElements} is the array
+\item The one-dimensional \variable \cstr{SetElements}, of type
+  \code{netCDF::NcUint64}, containing the concatenation of the representations
+  of the sets \code{SetFrom} and \code{SetTo}. A \code{Subset} is represented
+  by a sequence of indices (which are the elements of the \code{Subset});
+  while a \code{Range} is represented by two indices $a$ and $b$ such that the
+  Range set is given by the integers in the closed-open interval $[a, b)$. If
+    we let \code{SetFrom}$_i$ and \code{SetTo}$_i$ denote the representations
+    of the \code{SetFrom} and \code{SetTo} sets of the $i$-th
+    \code{SimpleDataMapping}, then \cstr{SetElements} is the array
     \[
       ( \code{SetFrom}_0 , \code{SetTo}_0 , \code{SetFrom}_1 , \code{SetTo}_1 , \dots, \code{SetFrom}_{N-1}, \code{SetTo}_{N-1} )
     \]
   where $N = \code{NumberDataMappings}$.
 
-\item The one-dimensional variable \cstr{FunctionName}, of type string and
-  indexed over \code{NumberDataMappings}, containing the names of the
-  functions associated with each \code{SimpleDataMapping}. \code{FunctionName[
-      i ]} gives the name of the function (as registered in the methods
-  factory) associated with the $i$-th \code{SimpleDataMapping}.
+\item The one-dimensional variable \cstr{FunctionName}, of type
+  \code{netCDF::NcString} and indexed over \code{NumberDataMappings},
+  containing the names of the functions associated with each
+  \code{SimpleDataMapping}. \code{FunctionName[ i ]} gives the name of the
+  function (as registered in the methods factory) associated with the $i$-th
+  \code{SimpleDataMapping}.
 
 \item The \group \cstr{AbstractPath}, containing a vector of
-  \code{AbstractPath} with the paths to the {\Block}s. The $i$-th path in this
-  vector of \code{AbstractPath} is the path to the \Block associated with the
-  $i$-th \code{SimpleDataMapping}.
+  \code{AbstractPath} with the paths to the {\Block}s. This vector must
+  contain \cstr{NumberDataMappings} \cstr{AbstractPath}. The $i$-th
+  \cstr{AbstractPath} in this vector of \code{AbstractPath} is the path to the
+  \Block associated with the $i$-th \code{SimpleDataMapping}.
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1332,7 +1352,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
 
 \subsection {\code{UnitBlock}}
 
-The \code{UnitBlock} class, which derives from the \Block, defines a base class for any possible \cstr{unit} that can be attached to a \code{UCBlock}. A unit is in general a set of electrical generators tied together by some technical constraints, although many units actually correspond to only one generator. The base \code{UnitBlock} class only has very basic information that can characterize almost any different kind of unit:
+The \code{UnitBlock} class, which derives from the \Block, defines a base class for any possible ``unit'' that can be attached to a \code{UCBlock}. A unit is in general a set of electrical generators tied together by some technical constraints, although many units actually correspond to only one generator. The base \code{UnitBlock} class only has very basic information that can characterize almost any different kind of unit:
 %
 \begin{itemize}
  \item The time horizon of the problem;
@@ -1755,7 +1775,8 @@ following:
   states that the demands that are stochastic are those at positions 0, 3, and
   8. We also need a way of modifying this data in $B$. For this, it suffices a
   method in $B$ that can be used to update its demand (see
-  \code{SimpleDataMapping}), let us say one called \code{set\_demand( S2 , vector )}.
+  \code{SimpleDataMapping} in \S \ref{sssec:SimpleDataMapping}), let us say one
+  called \code{set\_demand(S2, vector)}.
 
   Another \code{DataMapping} could be used to identify the cost of producing
   good number 6 as stochastic. This \code{DataMapping} would have $S_1 =
@@ -1763,7 +1784,7 @@ following:
   4 of the scenario vector) and $S_2 = \{5\}$ as the second one (indicating
   which good cost is stochastic). Again, we need a way to update this cost in
   $B_1$, which could be done, for instance, if $B_1$ provides a method like
-  \code{set\_cost( S2 , vector )}.
+  \code{set\_cost(S2, vector)}.
 
 \item It provides a method called \code{set\_data()} which has a scenario (a
   vector) as parameter and that sets the data of the inner \Block according to
@@ -1809,11 +1830,11 @@ The main ingredients of a \code{BendersBFunction} are the following:
 \begin{enumerate}
 \item A ``base'' \Block $B$, representing an optimization problem of the form
   \begin{equation}
-    \min \{ c(y) : w \le Ey \le z, y \in Y \}, \tag{B}
+    \min \{ c(y) : w \le E(y) \le z, y \in Y \}, \tag{B}
     \label{eq:B}
   \end{equation}
-   where $E$ is a matrix and $w$ and $z$ are vectors of appropriate sizes, and
-   $Y$ is a convex set. This will be the one, and only, sub-\Block of
+   where $c$, $w$, and $z$ are vectors of appropriate sizes, $E$ is a function
+   of $y$, and $Y$ is a convex set. This will be the one, and only, sub-\Block of
    \code{BendersBFunction} (when ``seen'' as a \Block).
 
 \item A matrix $A$ with $m$ rows and $n$ columns, a vector $b$ with $m$ rows,
@@ -1823,7 +1844,7 @@ The main ingredients of a \code{BendersBFunction} are the following:
 
   Problem \eqref{eq:B} would typically be associated with an original problem
   \begin{equation}
-    \min \{ d(x) + c(y) : g \le Fx + Ey \le h, x \in X, y \in Y \} \tag{$O$}
+    \min \{ d(x) + c(y) : g \le Fx + E(y) \le h, x \in X, y \in Y \} \tag{$O$}
     \label{eq:O}
   \end{equation}
   defined in terms of variables $x$ and $y$. By reformulating problem \eqref{eq:O} as
@@ -1833,7 +1854,7 @@ The main ingredients of a \code{BendersBFunction} are the following:
   \end{equation}
   where
   \begin{equation}
-    \phi(x) = \min \{ c(y) : (g - Fx) \le Ey \le (h - Fx), y \in Y \}, \tag{$P$}
+    \phi(x) = \min \{ c(y) : (g - Fx) \le E(y) \le (h - Fx), y \in Y \}, \tag{$P$}
     \label{eq:P}
   \end{equation}
 
@@ -1911,15 +1932,15 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   stored. If at most 25\% of its elements are nonzero, it is stored in sparse
   format; otherwise, it is stored in dense format.
 
-\item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::Uint64} and
-  indexed over the dimension \cstr{NumRow}, containing the number of nonzero
-  elements of the $A$ matrix in each row. This variable is mandatory if the
-  dimension \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not
+\item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::NcUint64}
+  and indexed over the dimension \cstr{NumRow}, containing the number of
+  nonzero elements of the $A$ matrix in each row. This variable is mandatory
+  if the dimension \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not
   present, then this variable is ignored. For each $i \in \{0, \dots,
   \code{NumRow}-1\}$, \code{NumNonzeroAtRow[i]} is the number of nonzero
   elements in the $i$-th row of the $A$ matrix.
 
-\item The \variable \cstr{Column}, of type \code{netCDF::Uint64} and indexed
+\item The \variable \cstr{Column}, of type \code{netCDF::NcUint64} and indexed
   over the dimension \cstr{NumNonzero}, containing the column indices of the
   entries of the matrix. This variable is mandatory if the dimension
   \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not present, then this
@@ -1930,7 +1951,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   of the $k$-th and $l$-th nonzero elements of $A$, respectively, with $k <
   l$, then $i \le p$.
 
-\item The \variable \cstr{A}, of type \code{netCDF::Double}. This variable
+\item The \variable \cstr{A}, of type \code{netCDF::NcDouble}. This variable
   stores the values of the elements of the $A$ matrix of the mapping. If the
   dimension \cstr{NumNonzero} is present, then this variable is indexed over
   this dimension and contains the values of the (potentially) nonzero entries
@@ -1942,15 +1963,16 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   order); it contains the (row-major) representation of the matrix $A$. This
   variable is optional only if \code{NumRow == 0}.
 
-\item The \variable \cstr{b}, of type \code{netCDF::Double} and indexed over
+\item The \variable \cstr{b}, of type \code{netCDF::NcDouble} and indexed over
   the dimension \cstr{NumRow}, which contains the vector $b$. This variable is
   optional only if \code{NumRow == 0}.
 
-\item The \variable \cstr{ConstraintSide}, of type \code{netCDF::Byte} and
+\item The \variable \cstr{ConstraintSide}, of type \code{netCDF::NcChar} and
   indexed over the dimension \cstr{NumRow}, indicating, at position $i$, which
-  side of the $i$-th Constraint is affected. The possible values are 0 for the
-  left-hand (or lower bound) side, 1 for the right-hand (or upper bound) side,
-  and 2 for both sides. This variable is optional only if \code{NumRow == 0}.
+  side of the $i$-th Constraint is affected. The possible values are `L' for
+  the left-hand (or lower bound) side, `R' for the right-hand (or upper bound)
+  side, and `B' for both sides. This variable is optional only if \code{NumRow
+    == 0}.
 
 \item All the dimensions and variables necessary to describe a vector of
   \code{AbstractPath}. The number of \code{AbstractPath} must be equal to the
@@ -1964,7 +1986,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   \Block.
 
 \item The \group \cstr{BlockConfig}, containing the \BlockConfig of the inner
-  \Block.
+  \Block. This \group is optional.
 
 \item The \group \cstr{BlockSolver}, containing the \BlockSolverConfig of the
   inner \Block.
