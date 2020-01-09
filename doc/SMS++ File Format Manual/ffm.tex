@@ -213,7 +213,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 07/01/2020}
+{\Large Date: 09/01/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -1726,6 +1726,164 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group should con
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
+\subsection {\code{SDDPBlock}}
+
+The \code{SDDPBlock} is a class that derives from \Block and represents a
+multistage stochastic programming problem of the form
+\[
+   \min_{\substack{x_0 \in \mathbb{R}^{n_0} \\ A_0 x_0 + B_0 x_{-1} = b_0\\
+                   x_0 \ge 0}} c_0^{\top}x_0 +
+   \mathbb{E} \left \lbrack
+   \min_{\substack{x_1 \in \mathbb{R}^{n_1} \\ A_1 x_1 + B_1 x_0 = b_1\\
+                   x_1 \ge 0}} c_1^{\top}x_1 +
+   \mathbb{E} \left \lbrack \dots +
+   \mathbb{E} \left \lbrack
+   \min_{\substack{x_{T-1} \in \mathbb{R}^{n_{T-1}} \\
+         A_{T-1} x_{T-1} + B_{T-1} x_{T-2} = b_{T-1}\\
+                   x_{T-1} \ge 0}} c_{T-1}^{\top}x_{T-1}
+   \right\rbrack \right\rbrack\right\rbrack,
+\]
+where $ T $ is called the time horizon and $ \xi = \{ (b_t, c_t, A_t, B_t)
+\}_{t \in \{1, \dots, T-1\}} $ is a stochastic process. This means that some
+(or all) the components of the matrices $ A_t $ and $ B_t $ and the vectors $
+b_t $ and $ c_t $ may be random variables. Notice that $ x_{-1} $ and $ (b_0,
+c_0, A_0, B_0) $, which we denote by $ \xi_0 $, are deterministic. The term $
+B_0 x_{-1} $ in the first stage problem could be disregarded (i.e., we could
+have $ B_0 = 0 $ or $ x_{-1} = 0 $ without loss of generality), but we keep
+them in order to have all subproblems with the same structure, which will
+facilitate our approach.
+
+For each $ t \in \{0, \dots, T-1\}$, we call
+\[
+   \min_{\substack{x_t \in \mathbb{R}^{n_t}\\
+                   A_t x_t + B_t x_{t-1} = b_t\\
+                   x_t \ge 0}} c_t^{\top}x_t +
+   \mathcal{V}_{t+1}(x_t, \xi_t)
+\]
+the problem associated with stage $ t $, where
+\[
+   \mathcal{V}_{t+1}(x_t, \xi_t) =
+     \mathbb{E}
+       \left\lbrack
+         V_{t+1}(x_t, \xi_{t+1}) \mid \xi_t
+       \right\rbrack
+\]
+is the (expected value) cost-to-go function (also called value
+function, future value function, future cost function), with $
+\mathcal{V}_{T} \equiv 0 $ and
+\[
+   V_{t}(x_{t-1}, \xi_{t}) =
+   \min_{\substack{x_t \in \mathbb{R}^{n_t} \\
+                   A_t x_t + B_t x_{t-1} = b_t\\
+                   x_t \ge 0}} c_t^{\top}x_t +
+   \mathcal{V}_{t+1}(x_t, \xi_t)
+\]
+with given $ x_{-1} $ and (deterministic) $ \xi_0$. We consider an
+approximation to the problem associated with stage $ t \in \{0, \dots, T-1\} $
+as the problem
+\begin{equation}
+   \min_{\substack{x_t \in \mathbb{R}^{n_t} \\
+                   A_t x_t + B_t x_{t-1} = b_t\\
+                   x_t \ge 0}} c_t^{\top}x_t +
+   \mathcal{P}_{t+1}(x_t
+   \label{eq:approx_prob_sddp}
+\end{equation}
+where $ \mathcal{P}_{t+1}(x_t) $ is a polyhedral
+function, i.e., it is a function of the form
+\[
+   \mathcal{P}_{t+1}(x_t) = \max_{i \in \{1,\dots,k_t\}}
+                                    \{ d_{t,i}^{\top}x_t + e_{t,i} \}
+\]
+with $ d_{t,i} \in \mathbb{R}^{n_t} $ and $ e_{t,i} \in
+\mathbb{R} $ for each $ i \in \{1,\dots,k_t\} $.
+
+An \code{SDDPBlock} is then characterized by the following:
+\begin{enumerate}
+\item It has a time horizon $ T $.
+
+\item It has $ T $ sub-{\Block}s, each one being a \code{StochasticBlock}. The
+  $t$-th sub-\Block represents an approximation to the problem associated with
+  stage $ t $ as defined in~\eqref{eq:approx_prob_sddp}.
+
+\item It has pointers to $ T - 1 $ \code{PolyhedralFunction}. The $t$-th
+  \code{PolyhedralFunction} represents the function $ \mathcal{P}_{t+1} $
+  in~\eqref{eq:approx_prob_sddp} and, therefore, must be defined in the $t$-th
+  sub-\Block of this \code{SDDPBlock} or in any of the sub-{\Block}s of that
+  sub-\Block, recursively.
+
+\item It has a set of scenarios. Each scenario is represented by a vector of
+   \code{double} and spans all the time horizon $ T $ . Each vector is divided
+   into $ T $ parts, each one being associated with a stage of the
+   multistage problem. Let $ S $ denote a vector representing a
+   scenario. Then, $ S $ is defined as
+   \[
+       S = ( S_0 , ... , S_{T-1} )
+   \]
+   where $ S_t $ is a sub-vector of S with size $s_t$, for each $ t \in
+   \{ 0, ..., T-1 \} $, and is associated with the sub-problem at stage
+   $ t $, i.e., it provides data for the $t$-th sub-\Block of this
+   \code{SDDPBlock}. We say that $ S_t $ represents the $t$-th
+   sub-scenario of the scenario represented by $ S $.
+\end{enumerate}
+
+Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
+\group for a \code{SDDPBlock} contains the following:
+\begin{itemize}
+\item The \cstr{TimeHorizon} \dimension, containing the time horizon.
+
+\item The description of the sub-{\Block}s. This is given by the sub-groups
+  \cstr{StochasticBlock} and \cstr{StochasticBlock\_t}, for each $t \in \{0,
+  \dots, \cstr{TimeHorizon} - 1 \}$. These sub-groups are optional, but they
+  cannot be all absent. If \cstr{StochasticBlock\_t} is not provided by some
+  $t \in \{0, \dots, \cstr{TimeHorizon} - 1 \}$, then the \cstr{StochasticBlock}
+  \group must be provided and contain a complete description of the $t$-th
+  sub-\Block of this \code{SDDPBlock}. If the \cstr{StochasticBlock} \group is
+  not provided, then \cstr{StochasticBlock\_t} must be provided for each $t
+  \in \{0, \dots, \cstr{TimeHorizon} - 1 \}$ and contain a complete description
+  of the $t$-th sub-\Block of this \code{SDDPBlock}.
+
+  If \cstr{StochasticBlock\_t} is provided but the description of its inner
+  \Block is not provided, then the \cstr{StochasticBlock} \group must be
+  provided and contain the description of an inner \Block of a
+  \code{StochasticBlock}. In this case, the description of the inner \Block
+  provided in the \cstr{StochasticBlock} \group will be used to construct the
+  inner \Block of the \code{StochasticBlock} described by the
+  \cstr{StochasticBlock\_t} \group.
+
+  If \cstr{StochasticBlock\_t} is provided but the description of its vector
+  of \code{DataMapping} is not provided, then if the \cstr{StochasticBlock}
+  group is provided and contains a description of a vector of
+  \code{DataMapping}, then it is used to construct the vector of
+  \code{DataMapping} of the \code{StochasticBlock} decribed by the
+  \cstr{StochasticBlock\_t} \group.
+
+\item All the \netCDF \dimensions and \variables necessary to describe a
+  vector of \code{AbstractPath} as described in \S
+  \ref{sssec:AbstractPath}. The number of \code{AbstractPath} must be equal to
+  $\cstr{TimeHorizon} - 1$. The $i$-th \code{AbstractPath} in this vector must
+  be the path to the \code{PolyhedralFunction} associated with the $i$-th
+  sub-\Block of this \code{SDDPBlock}. The $i$-th \code{AbstractPath} is taken
+  with respect to the inner \Block of the $i$-th sub-\Block of this
+  \code{SDDPBlock}.
+
+\item The \cstr{SubScenarioSize} \variable, of type \code{netCDF::NcUint64}
+  and indexed over \dimension \cstr{TimeHorizon}. This dimension is
+  optional. If it is not provided, then all sub-scenarios are assumed to have
+  the same size, i.e., $ s_i = s_j $ for all $ i,j \in \{ 0, ...,
+  \cstr{TimeHorizon} - 1 \}$. If it is present, then \code{SubScenarioSize[t]}
+  is the size of the sub-scenario associated with stage $t$, i.e.,
+  $\code{SubScenarioSize[t]} = s_t$, for each $ i \in \{ 0, ...,
+  \cstr{TimeHorizon}-1 \}$.
+
+\item The two-dimensional \variable \cstr{Scenarios} of type
+  \code{netCDF::NcDouble}, containing the scenarios. The $i$-th row of
+  \cstr{Scenarios} contains the $i$-th scenario, so that \code{Scenarios[ i ][
+      j ]} is the $j$-th component of the $i$-th scenario.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\newpage
+
 \subsection {\code{StochasticBlock}}
 
 The \code{StochasticBlock} class is meant to represent a \Block whose data may
@@ -1804,14 +1962,17 @@ implemented later on. Typically, an object of this class would be used in
 conjunction with a scenario generator and the \code{set\_data()} method of
 this object would be called to consider a particular scenario.
 
-An \SMSpp \netCDF \group for a \code{StochasticBlock} contains the following:
+Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
+\group for a \code{StochasticBlock} contains the following:
 \begin{itemize}
-\item The \group \cstr{Block}, containing the description of the inner \Block.
+\item The \group \cstr{Block}, containing the description of the inner
+  \Block. This \group is optional. If it is not provided, then the inner \Block
+  must be provided by other means.
 
 \item The description of a vector of \code{SimpleDataMapping}, containing the
-  \code{DataMapping}s associated with this \code{StochasticBlock}. For the
-  time being, each provided \code{DataMapping} is expected to be a
-  \code{SimpleDataMapping}. Moreover, the inner \Block of this
+  \code{DataMapping}s associated with this \code{StochasticBlock}. This is
+  optional. For the time being, each provided \code{DataMapping} is expected
+  to be a \code{SimpleDataMapping}. Moreover, the inner \Block of this
   \code{StochasticBlock} will serve as the reference \Block for both the
   serialization and deserialization of each \code{SimpleDataMapping}.
 \end{itemize}
@@ -1834,7 +1995,10 @@ The main ingredients of a \code{BendersBFunction} are the following:
     \label{eq:B}
   \end{equation}
    where $c$, $w$, and $z$ are vectors of appropriate sizes, $E$ is a function
-   of $y$, and $Y$ is a convex set. This will be the one, and only, sub-\Block of
+   of $y$, and $Y$ is a convex set. Let $E_i$ denote the $i$-th component of
+   $E$. If $E_i$ is nonlinear, then it must be either convex (in which case we
+   must have $w = -\infty$) or concave (in which case we must have $z =
+   +\infty$). This will be the one, and only, sub-\Block of
    \code{BendersBFunction} (when ``seen'' as a \Block).
 
 \item A matrix $A$ with $m$ rows and $n$ columns, a vector $b$ with $m$ rows,
