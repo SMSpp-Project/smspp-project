@@ -29,6 +29,9 @@
 \usepackage{xspace}
 \usepackage{afterpage}
 \usepackage{tabularx}
+\usepackage{tikz}
+\usepackage[customcolors]{hf-tikz}
+\usetikzlibrary{matrix,decorations.pathreplacing, calc, positioning,fit,tikzmark}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Font selection
@@ -105,6 +108,7 @@
 % SMS++ stuff
 \def\SMSpp{\code{SMS++}\xspace}
 \def\Block{\code{Block}\xspace}
+\def\Blocks{\code{Block}s\xspace}
 \def\dBlock{\code{:Block}\xspace}
 \def\Configuration{\code{Configuration}\xspace}
 \def\dConfiguration{\code{:Configuration}\xspace}
@@ -118,6 +122,7 @@
 \def\Constraint{\code{Constraint}\xspace}
 \def\Objective{\code{Objective}\xspace}
 \def\Variable{\code{Variable}\xspace}
+\def\Variables{\code{Variable}s\xspace}
 \def\Function{\code{Function}\xspace}
 \def\dFunction{\code{:Function}\xspace}
 
@@ -213,7 +218,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 09/01/2020}
+{\Large Date: 24/01/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -250,7 +255,6 @@ Contributors: & \cellcolor{p4r_blue} Name &
 % Indices & bibliography
 \setcounter{tocdepth}{3}
 \setcounter{secnumdepth}{4}
-
 
 \tableofcontents
 
@@ -946,47 +950,47 @@ of course one has to specify more than one \code{SimpleDataMapping} in a
 of a \variable/\dimension cannot be duplicated in a given \group.
 
 \begin{itemize}
+
+\item The \variable \cstr{DataType}, of type \code{netCDF::NcChar}, which
+  indicates indicates the type of the data that this \code{SimpleDataMapping}
+  sets. This character can be either `I', indicating the type of the data is
+  \code{int}, or `D', indicating the type of the data is \code{double}. This
+  variable is optional. If it is not present, then `D' is considered, meaning
+  that the type of the data is \code{double}.
+
+\item The one-dimensional \variable \code{SetSize}, an array of type
+  \code{netCDF::NcUint64} with two elements indicating the sizes of the
+  \code{SetFrom} and \code{SetTo} sets. \code{SetSize[0]} indicates the size
+  of the \code{SetFrom} set and \code{SetSize[1]} indicates the size of the
+  \code{SetTo} set. For each $i \in \{0,1\}$, if \code{SetSize[i] == 0}, then
+  the corresponding set is a \code{Range}. Otherwise, if $\code{SetSize[i]}
+  \ne 0$, then the corresponding set is a \code{Subset} whose size is
+  \code{SetSize[i]}. Notice, therefore, that \code{SetSize[i]} is not the size
+  of the corresponding set when \code{SetSize[i] == 0}. In this case, it only
+  indicates that the set is a \code{Range}, whose size (and elements) can be
+  determined by the \cstr{SetElement} \variable. This \variable is
+  optional. If it is not provided, then the \code{SetFrom} and \code{SetTo}
+  sets are assumed to be \code{Range}.
+
+\item The one-dimensional \variable \cstr{SetElements}, of type
+  \code{netCDF::NcUint64}, containing the concatenation of the representations
+  of the sets \code{SetFrom} and \code{SetTo}. A \code{Subset} is represented
+  by a sequence of indices (which are the elements of the \code{Subset});
+  while a \code{Range} is represented by two indices $a$ and $b$ such that the
+  \code{Range} set is given by the integers in the closed-open interval $[a,
+    b)$. For instance, if \code{SetFrom} is the \code{Subset} $\{3, 6, 8\}$
+    and \code{SetTo} is the \code{Range} $[2, 5)$, then \cstr{SetElements}
+      would be the array $(3, 6, 8, 2, 5)$.
+
 \item The \variable \cstr{FunctionName}, whose type is
   \code{netCDF::NcString}, containing the name of the function as it is
   registered in the methods factory.
 
-\item All the dimensions and variables that are necessary to describe an
-  \code{AbstractPath}.
+\item The \group \cstr{AbstractPath} containing the description of the
+  \code{AbstractPath} representing the path to the \Block that is the caller
+  object.
 
-\item All that is necessary to describe the \code{SetFrom} set. If
-  \code{SetFrom} is a \code{Range}, then this set is specified by the
-  \variables \cstr{FirstFrom} and \cstr{SecondFrom}, both of type
-  \code{netCDF::NcUint64}, which contain the limits of the closed-open
-  interval defining the \code{Range}. So, if the \code{Range} is the set $[a,
-    b)$, then \cstr{FirstFrom} must contain $a$ and \cstr{SecondFrom} must
-    contain $b$. If \code{SetFrom} is a \code{Subset}, then this set is
-    specified by the \dimension \cstr{SizeFrom} indicating the size of the set
-    and the one-dimensional \variable \cstr{SubsetFrom}, of type
-    \code{netCDF::NcUint64} and indexed over \cstr{SizeFrom}, containing the
-    elements of the set.
-
-\item All that is necessary to describe the \code{SetTo} set. Its
-  representation is the same as that of the \code{SetFrom} set, except for the
-  names of the \variables, which must be \cstr{FirstTo} and \cstr{SecondTo} if
-  \code{SetTo} is a \code{Range}, and \cstr{SubsetTo} if the set is a
-  \code{Subset} (accompanied by the \dimension \code{SizeTo}). This set is
-  optional. If it is not provided, then the full set of indices $[ 0 , N )$ is
-  considered, where $N$ is the size of the \code{SetFrom} set.
-
-\item The \attribute \cstr{TemplateParameterTypes} is a  string with three
-  characters that indicate the types of the template parameters of this
-  class. The first and second characters indicate the type of the
-  \code{SetFrom} and \code{SetTo} template parameters. Each of these two first
-  characters can be either `R', indicating the set has type
-  \code{Block::Range}, or `S', indicating the set has type
-  \code{Block::Subset}. The third character indicates the type of the data
-  that this \code{SimpleDataMapping} sets. This character can be either `I',
-  indicating the type of the data is \code{int}, or `D', indicating the type
-  of the data is \code{double}. This variable is optional. If it is not
-  present, then ``RRD'' is considered, meaning that the \code{SetFrom} and
-  \code{SetTo} sets are \code{Range} and the type of the data is
-  \code{double}
-\end{itemize}.
+\end{itemize}
 
 \subsubsubsection{Vector of \code{SimpleDataMapping}}\label{sssec:vector_SimpleDataMapping}
 
@@ -1001,7 +1005,9 @@ in a given \group.
 \begin{itemize}
 \item The \cstr{NumberDataMappings} \dimension, indicating the number of
   \code{SimpleDataMapping}s that is present in the vector of
-  \code{SimpleDataMapping}.
+  \code{SimpleDataMapping}. This \dimension is optional. If it is not present,
+  then a single \code{SimpleDataMapping} is considered, i.e., we assume
+  $\cstr{NumberDataMappings} = 1$.
 
 \item The one-dimensional \variable \cstr{DataType}, of type
   \code{netCDF::NcChar} and indexed over the \cstr{NumberDataMappings}
@@ -1034,7 +1040,7 @@ in a given \group.
   of the sets \code{SetFrom} and \code{SetTo}. A \code{Subset} is represented
   by a sequence of indices (which are the elements of the \code{Subset});
   while a \code{Range} is represented by two indices $a$ and $b$ such that the
-  Range set is given by the integers in the closed-open interval $[a, b)$. If
+  \code{Range} set is given by the integers in the closed-open interval $[a, b)$. If
     we let \code{SetFrom}$_i$ and \code{SetTo}$_i$ denote the representations
     of the \code{SetFrom} and \code{SetTo} sets of the $i$-th
     \code{SimpleDataMapping}, then \cstr{SetElements} is the array
@@ -1051,10 +1057,11 @@ in a given \group.
   \code{SimpleDataMapping}.
 
 \item The \group \cstr{AbstractPath}, containing a vector of
-  \code{AbstractPath} with the paths to the {\Block}s. This vector must
-  contain \cstr{NumberDataMappings} \cstr{AbstractPath}. The $i$-th
-  \cstr{AbstractPath} in this vector of \code{AbstractPath} is the path to the
-  \Block associated with the $i$-th \code{SimpleDataMapping}.
+  \code{AbstractPath} with the paths to the {\Block}s. The number of
+  \code{AbstractPath} that this vector must contain is
+  \cstr{NumberDataMappings}. The $i$-th \cstr{AbstractPath} in this vector of
+  \code{AbstractPath} is the path to the \Block associated with the $i$-th
+  \code{SimpleDataMapping}.
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1251,7 +1258,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \item electrical generator \code{0 =} first generator of \code{UnitBlock\_0}
  \item electrical generator \code{1 =} second generator of \code{UnitBlock\_0}
  \item \code{\dots}
-  \item electrical generator \code{k =} $k$-th generator of \code{UnitBlock\_0} \\ (\code{k = UnitBlock\_0->get\_number\_generators()})
+ \item electrical generator \code{k =} $k$-th generator of \code{UnitBlock\_0} \\ (\code{k = UnitBlock\_0->get\_number\_generators()})
  \item electrical generator \code{k + 1 =} first generator of \code{UnitBlock\_1}
  \item electrical generator \code{k + 2 =} second generator of \code{UnitBlock\_1}
  \item \code{\dots}
@@ -1276,31 +1283,31 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \noindent
  which of course boils down to \cstr{h = b} when each HeatBlock has exactly one heat generator (but this is not assumed to happen);
  %
- \item optionally, the \dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \ref{NetworkData} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus). If the data of a \code{NetworkData} is specified, the \code{NetworkData} is passed to each of the \code{NetworkBlock} (see below) of the \code{UCBlock}, if any. However, if a \code{NetworkBlock} also has a \code{NetworkData} specified in its own group, then the \code{NetworkData} inside the \code{NetworkBlock} overrules that inside the \code{UCBlock}, which is ignored by that \code{NetworkBlock};
+ \item optionally, the \dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \S \ref{NetworkData} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus). If the data of a \code{NetworkData} is specified, the \code{NetworkData} is passed to each of the \code{NetworkBlock} (see below) of the \code{UCBlock}, if any. However, if a \code{NetworkBlock} also has a \code{NetworkData} specified in its own group, then the \code{NetworkData} inside the \code{NetworkBlock} overrules that inside the \code{UCBlock}, which is ignored by that \code{NetworkBlock};
  %
  \item The \variable \cstr{ActivePowerDemand}, of type double, and indexed both over the dimensions \cstr{NumberNodes} and \cstr{TimeHorizon}. This variable is optional if
  \begin{itemize}
-  \item = a \code{NetworkBlock} is defined for each time instant (see below), and
-  \item = each of the defined \code{NetworkBlock} has the \cstr{ActiveDemand} variable specified in the corresponding group.
+  \item a \code{NetworkBlock} is defined for each time instant (see below), and
+  \item each of the defined \code{NetworkBlock} has the \cstr{ActiveDemand} variable specified in the corresponding group.
  \end{itemize}
  Otherwise it is mandatory. When it is defined, the entry \code{ActivePowerDemand[ n , t ]} is  assumed to contain the active power demand of node $n$ of the transmission network at the given time instant $t$, where the first dimension \cstr{NumberNodes} can be read via \code{NetworkBlock::NetworkData::get\_number\_nodes()} from either the \code{NetworkData} object in \code{UCBlock}, or these in the \code{NetworkBlock}. When \cstr{ActivePowerDemand} is defined, and also the \cstr{ActiveDemand} variable is defined in the group of some \code{NetworkBlock}, then \cstr{ActiveDemand} overrules the value in the corresponding row of \cstr{ActivePowerDemand}, which is ignored.
  %
- \item the \groups \cstr{NetworkBlock\_0}, \cstr{NetworkBlock\_1}, ... , \cstr{NetworkBlock\_t} with \code{t = \code{TimeHorizon} - 1}, containing each the constraints on the transmission network at time $t$. The \code{NetworkBlocks} are optional, but if any of them are missing, then
+ \item the \groups \cstr{NetworkBlock\_0}, \cstr{NetworkBlock\_1}, \dots, \cstr{NetworkBlock\_t} with \code{t = \code{TimeHorizon} - 1}, containing each the constraints on the transmission network at time $t$. The \code{NetworkBlocks} are optional, but if any of them are missing, then
  \begin{itemize}
-  \item = \cstr{ActivePowerDemand} (see above) is mandatory in \code{UCBlock}.
-  \item = also the \code{NetworkData} (see above) is mandatory in \code{UCBlock}, unless the transmission network is a bus (that is, \cstr{NumberNodes} is not provided or it is \code{== 1}).
+  \item \cstr{ActivePowerDemand} (see above) is mandatory in \code{UCBlock}.
+  \item also the \code{NetworkData} (see above) is mandatory in \code{UCBlock}, unless the transmission network is a bus (that is, \cstr{NumberNodes} is not provided or it is \code{== 1}).
  \end{itemize}
  In particular, when a \code{NetworkBlock} is not defined for a given time instant t then one of these happen:
  \begin{itemize}
-  \item = If \code{NumberNodes == 1} (or it is not provided) then a \code{BusNetworkBlock} is automatically constructed for that time instant, and the entry \code{ActivePowerDemand[ 0 , t ]} contains the active demand for $t$.
-  \item = If \code{NumberNodes > 1}, then a \code{DCNetworkBlock} is automatically constructed for that time instant, it is provided with the \code{NetworkData} object (which must be present in \code{UCBlock}) and the row \code{ActivePowerDemand[ ... , t ]} contains the active demand of each node at time instant $t$.
+  \item If \code{NumberNodes == 1} (or it is not provided) then a \code{BusNetworkBlock} is automatically constructed for that time instant, and the entry \code{ActivePowerDemand[ 0 , t ]} contains the active demand for $t$.
+  \item If \code{NumberNodes > 1}, then a \code{DCNetworkBlock} is automatically constructed for that time instant, it is provided with the \code{NetworkData} object (which must be present in \code{UCBlock}) and the row \code{ActivePowerDemand[ ... , t ]} contains the active demand of each node at time instant $t$.
  \end{itemize}
  %
- \item the \variable \cstr{GeneratorNode}, of type int and indexed over the set {\{0, ... , \code{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
+ \item the \variable \cstr{GeneratorNode}, of type int and indexed over the set {\{0, \dots , \code{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
  %
  \item the \variable \cstr{HeatNode}, of type int and indexed over the \dimension \cstr{NumberHeatBlocks}; the entry \code{HeatNode[ h ]} tells to which node of the transmission network \highlight{all} the heat generators that are also electrical generators in the \code{HeatBlock} $h$ belong. Note that this implies that, unlike electrical generators in a \code{UnitBlock}, heat generators in a \code{HeatBlock} are always ``geographically near to each other'' so that they are necessarily attached to the same node of the transmission network (which is a reasonable assumption since heat, unlike say water, usually cannot travel much far). If \code{NumberHeatBlocks == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded. This information is actually only used to determine in which Pollutant Zone a \code{HeatBlock} is located, in order to add the corresponding heat generators (that are not also electricity generators) to the pollution constraints. This means that also if \code{NumberPollutants == } (say, it is not provided at all) this variable is useless and therefore need not be defined, since it is not loaded. Finally, notice that for heat generators into a \code{HeatBlock} that also are electrical generators, this variable provides again an information that is already known, i.e., to which node they belong to (cf. \cstr{GeneratorNode} above). Of course \highlight{the two information must agree}, otherwise the input file is ill-defined and exception is thrown.
  %
- \item the \variable \cstr{HeatSet}, of type int and indexed over the set {\{0, ..., \code{NumberHeatGenerators} - 1\}}. If \code{HeatSet[ h ] = k < NumberElectricalGenerators}, then $k$ is the unique name of the electrical generator corresponding to the heat generator $h$; otherwise the heat generator $h$ is not also an electrical generator. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded. It is possible that different heat generators correspond to the same electrical generator (that is, \code{HeatSet[ h1 ] == HeatSet[ h2 ]} for some \code{h1 != h2}), but not vice-versa: a heat generator either corresponds to a specific electrical generator, or to no electrical generator (it is an heat-only generator);
+ \item the \variable \cstr{HeatSet}, of type int and indexed over the set {\{0, \dots, \code{NumberHeatGenerators} - 1\}}. If \code{HeatSet[ h ] = k < NumberElectricalGenerators}, then $k$ is the unique name of the electrical generator corresponding to the heat generator $h$; otherwise the heat generator $h$ is not also an electrical generator. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded. It is possible that different heat generators correspond to the same electrical generator (that is, \code{HeatSet[ h1 ] == HeatSet[ h2 ]} for some \code{h1 != h2}), but not vice-versa: a heat generator either corresponds to a specific electrical generator, or to no electrical generator (it is an heat-only generator);
  %
  \item the \variable \cstr{PowerHeatRho}, of type double and indexed over the \dimension \cstr{NumberUnits}: entry \code{PowerHeatRho[ i ]} is assumed to contain the electrical-power-to-heat ratio for \highlight{all generators} within unit $i$ (most likely, a single generator). This is only used in the constraints linking electrical units to heat units, hence if \code{NumberHeatBlocks == 0} (there are no \code{HeatBlock}) then this variable need not be defined, since it is not loaded;
  %
@@ -1328,7 +1335,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
 %
  \item the \variable \cstr{PollutantZones}, of type int and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
  %
- \item the \variable \cstr{PollutantBudget}, of type double and indexed over the set \{ 0 , ..., \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n == 0 , ..., TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each otherit is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, ..., TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, ..., NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
+ \item the \variable \cstr{PollutantBudget}, of type double and indexed over the set \{ 0 , \dots, \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n == 0 , ..., TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each otherit is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, ..., TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, ..., NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
  \begin{itemize}
   \item \code{n = 0} corresponds to the zone $0$ of pollutant $0$
   \item \code{n = 1} corresponds to the zone $1$ of pollutant $0$
@@ -1342,7 +1349,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \noindent
  If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
  %
- \item the \variable \cstr{PollutantRho}, of type double and indexed over three \dimensions which are \cstr{TimeHorizon} and \cstr{NumberPollutants} and the set \{0,..., \code{NumberElectricalGenerators} - 1\} (see comments above). The first \dimension can have size either $1$ or \cstr{TimeHorizon}. In the former case the entry \code{PollutantRho[ 0 , p , g ]} is assumed to contain the conversion factor of pollutant $p$ due to the electrical generator $g$ which is equal for all time instants $t$. Otherwise, the first \dimension has full size \code{TimeHorizon} and the entry \code{PollutantRho[ t , p , g ]} gives the conversion factor of pollutant $p$ due to the electrical generator $g$ for time t. If \code{NumberPollutants == 0} (it is not provided) then this variable need not be defined, since it's not loaded.
+ \item the \variable \cstr{PollutantRho}, of type double and indexed over three \dimensions which are \cstr{TimeHorizon} and \cstr{NumberPollutants} and the set \{0, \dots, \code{NumberElectricalGenerators} - 1\} (see comments above). The first \dimension can have size either $1$ or \cstr{TimeHorizon}. In the former case the entry \code{PollutantRho[ 0 , p , g ]} is assumed to contain the conversion factor of pollutant $p$ due to the electrical generator $g$ which is equal for all time instants $t$. Otherwise, the first \dimension has full size \code{TimeHorizon} and the entry \code{PollutantRho[ t , p , g ]} gives the conversion factor of pollutant $p$ due to the electrical generator $g$ for time t. If \code{NumberPollutants == 0} (it is not provided) then this variable need not be defined, since it's not loaded.
  %
  \item the \variable \cstr{PollutantHeatRho}, of type double and indexed over three \dimensions. The first \dimension can have size $1$ or \cstr{TimeHorizon}. The second and third \dimensions have sizes \cstr{NumberPollutants} and \cstr{NumberHeatBlocks}, respectively. If the first \dimension has size $1$, then the entry \code{PollutantRho[ 0 , p , h ]} is assumed to contain the conversion factor of pollutant $p$ due to the generation of \highlight{all} heat generators in \code{HeatBlock} $h$, which is equal for all time instants $t$. If, instead, the first \dimension has full size \cstr{TimeHorizon}, then the entry \code{PollutantRho[ t , p , h ]} gives the conversion factor of pollutant $p$ due to the generation of \highlight{all} heat generators in \code{HeatBlock} $h$ for time instant $t$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable does not need be defined, since it is not loaded. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded.
 \end{itemize}
@@ -1409,7 +1416,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
 
 \subsubsection {\code{ThermalUnitBlock}}
 
-The \code{ThermalUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} thermal unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of conventional power plants (such as nuclear, hard coal, gas turbine, gas, combined cycle, oil, ...) which are directly connected to the transmission grid.
+The \code{ThermalUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} thermal unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of conventional power plants (such as nuclear, hard coal, gas turbine, gas, combined cycle, oil, \dots) which are directly connected to the transmission grid.
 \smallskip
 \noindent
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
@@ -1629,9 +1636,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 \newpage
 
 \subsection {\code{NetworkBlock}}
-The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small \cstr{passive} \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (\cstr{bus}, DC equations, AC equations, OPF, ...) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
+The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small \cstr{passive} \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (\cstr{bus}, DC equations, AC equations, OPF, \dots) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
- \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \ref{NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
+ \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \S \ref{NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
  %
  \item The \cstr{ActiveDemand}, of type double, and of size \cstr{number of nodes}. If the \code{NetworkData} object description is present in the \code{NcGroup} this is the \dimension \cstr{NumberNodes}, but the \code{NetworkData} object is optional and it may not be there. Thus if \cstr{NumberNodes} is not there and \cstr{ActiveDemand} is, then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}. However, \cstr{ActiveDemand} itself is optional. If it is not found in the \code{NcGroup}, then it \highlight{must} be passed (either before or after the call to \code{deserialize()}) by calling \code{set\_ActiveDemand()}. Since both groups of data are optional, the \code{NcGroup}  can actually be empty which implies that all the data will be (or have been) passed by the in-memory interface. In this case, it would clearly be preferable to \highlight{entirely avoid the \code{NcGroup} to be there}, and in fact \code{UCBlock} has provisions for the \code{NcGroup} describing the \code{NetworkBlock} to be optional (see the comments to  \code{UCBlock::deserialize()}).
 \end{itemize}
@@ -1727,37 +1734,26 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group should con
 \newpage
 
 \subsection {\code{SDDPBlock}}
+\label{ssec:SDDPBlock}
 
 The \code{SDDPBlock} is a class that derives from \Block and represents a
 multistage stochastic programming problem of the form
 \[
-   \min_{\substack{x_0 \in \mathbb{R}^{n_0} \\ A_0 x_0 + B_0 x_{-1} = b_0\\
-                   x_0 \ge 0}} c_0^{\top}x_0 +
+   \min_{x_0 \in \mathcal{X}^{n_0}} f_0(x_0) +
    \mathbb{E} \left \lbrack
-   \min_{\substack{x_1 \in \mathbb{R}^{n_1} \\ A_1 x_1 + B_1 x_0 = b_1\\
-                   x_1 \ge 0}} c_1^{\top}x_1 +
+   \min_{x_1 \in \mathcal{X}^{n_1}} f_1(x_1) +
    \mathbb{E} \left \lbrack \dots +
    \mathbb{E} \left \lbrack
-   \min_{\substack{x_{T-1} \in \mathbb{R}^{n_{T-1}} \\
-         A_{T-1} x_{T-1} + B_{T-1} x_{T-2} = b_{T-1}\\
-                   x_{T-1} \ge 0}} c_{T-1}^{\top}x_{T-1}
+   \min_{x_{T-1} \in \mathcal{X}^{n_{T-1}}} f_{T-1}(x_{T-1})
    \right\rbrack \right\rbrack\right\rbrack,
 \]
-where $ T $ is called the time horizon and $ \xi = \{ (b_t, c_t, A_t, B_t)
-\}_{t \in \{1, \dots, T-1\}} $ is a stochastic process. This means that some
-(or all) the components of the matrices $ A_t $ and $ B_t $ and the vectors $
-b_t $ and $ c_t $ may be random variables. Notice that $ x_{-1} $ and $ (b_0,
-c_0, A_0, B_0) $, which we denote by $ \xi_0 $, are deterministic. The term $
-B_0 x_{-1} $ in the first stage problem could be disregarded (i.e., we could
-have $ B_0 = 0 $ or $ x_{-1} = 0 $ without loss of generality), but we keep
-them in order to have all subproblems with the same structure, which will
-facilitate our approach.
-
-For each $ t \in \{0, \dots, T-1\}$, we call
+where $ T $ is called the time horizon, $\mathcal{X}^{n_t} \equiv
+\mathcal{X}^{n_t}(x_{t-1}, \xi_t) \subseteq \mathbb{R}^{n_t}$ for each $t \in
+\{0, \dots, T-1\}$, and $ \xi = \{ \xi_t \}_{t \in \{1, \dots, T-1\}} $ is a
+stochastic process. Notice that $ x_{-1} $ and $ \xi_0 $ are
+deterministic. For each $ t \in \{0, \dots, T-1\}$, we call
 \[
-   \min_{\substack{x_t \in \mathbb{R}^{n_t}\\
-                   A_t x_t + B_t x_{t-1} = b_t\\
-                   x_t \ge 0}} c_t^{\top}x_t +
+   \min_{x_t \in \mathcal{X}^{n_t}} f_t(x_t) +
    \mathcal{V}_{t+1}(x_t, \xi_t)
 \]
 the problem associated with stage $ t $, where
@@ -1773,19 +1769,15 @@ function, future value function, future cost function), with $
 \mathcal{V}_{T} \equiv 0 $ and
 \[
    V_{t}(x_{t-1}, \xi_{t}) =
-   \min_{\substack{x_t \in \mathbb{R}^{n_t} \\
-                   A_t x_t + B_t x_{t-1} = b_t\\
-                   x_t \ge 0}} c_t^{\top}x_t +
+   \min_{x_t \in \mathcal{X}^{n_t}} f_t(x_t) +
    \mathcal{V}_{t+1}(x_t, \xi_t)
 \]
 with given $ x_{-1} $ and (deterministic) $ \xi_0$. We consider an
 approximation to the problem associated with stage $ t \in \{0, \dots, T-1\} $
 as the problem
 \begin{equation}
-   \min_{\substack{x_t \in \mathbb{R}^{n_t} \\
-                   A_t x_t + B_t x_{t-1} = b_t\\
-                   x_t \ge 0}} c_t^{\top}x_t +
-   \mathcal{P}_{t+1}(x_t
+   \min_{x_t \in \mathcal{X}^{n_t}} f_t(x_t) +
+   \mathcal{P}_{t+1}(x_t)
    \label{eq:approx_prob_sddp}
 \end{equation}
 where $ \mathcal{P}_{t+1}(x_t) $ is a polyhedral
@@ -1811,36 +1803,59 @@ An \code{SDDPBlock} is then characterized by the following:
   sub-\Block of this \code{SDDPBlock} or in any of the sub-{\Block}s of that
   sub-\Block, recursively.
 
-\item It has a set of scenarios. Each scenario is represented by a vector of
-   \code{double} and spans all the time horizon $ T $ . Each vector is divided
-   into $ T $ parts, each one being associated with a stage of the
-   multistage problem. Let $ S $ denote a vector representing a
-   scenario. Then, $ S $ is defined as
-   \[
-       S = ( S_0 , ... , S_{T-1} )
-   \]
-   where $ S_t $ is a sub-vector of S with size $s_t$, for each $ t \in
-   \{ 0, ..., T-1 \} $, and is associated with the sub-problem at stage
-   $ t $, i.e., it provides data for the $t$-th sub-\Block of this
-   \code{SDDPBlock}. We say that $ S_t $ represents the $t$-th
-   sub-scenario of the scenario represented by $ S $.
+\item It has a set of scenarios $\mathcal{S}$. Each scenario in $\mathcal{S}$
+  is represented by a vector of \code{double} and spans all the time horizon
+  $T$. Each vector is divided into $T$ parts, each one being associated with a
+  stage of the multistage problem. Let $S$ denote a vector representing a
+  scenario in $\mathcal{S}$. Then, $S$ is defined as
+  \[
+    S = ( S_0 , \dots, S_{T-1} )
+  \]
+  where $S_t$ is a sub-vector of $S$ with size $s_t$, for each $t \in \{ 0,
+  \dots, T-1 \}$, and is associated with the sub-problem at stage $t$, i.e.,
+  it provides data for the $t$-th sub-\Block of this \code{SDDPBlock}. We say
+  that $S_t$ represents the $t$-th sub-scenario of the scenario represented
+  by $S$.
+
+  We assume that the sub-scenarios are organized in such a way that related
+  random data appear in contiguous areas of the sub-scenario. For instance,
+  suppose that the random data is associated with demand, inflow, and wind
+  power. In this case, the data related to demand should be a contiguous
+  sub-vector $D_t$ of the sub-scenario associated with stage $t$, as well as
+  that related to inflow ($F_t$) and wind power ($W_t$). In this example, the
+  sub-scenario $S_t$ could be organized as
+  \[
+  S_t = ( D_t , F_t , W_t ).
+  \]
+  We say that this sub-scenario has three groups of related random data. The
+  order in which the groups of related random data appear in $S_t$ is not
+  relevant. We could have, for instance,
+  \[
+  S_t = ( W_t , D_t , F_t ).
+  \]
+  But the sub-scenario associated with stage $t$ must respect the same order
+  for each scenario in $\mathcal{S}$.
+%  Ideally, the number of groups should not be greater than three. If the
+%  number of groups is greater than three, then they will be arbitrarily
+%  combined in order to obtain at most three groups.
 \end{enumerate}
 
 Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
-\group for a \code{SDDPBlock} contains the following:
+\group for an \code{SDDPBlock} contains the following:
 \begin{itemize}
 \item The \cstr{TimeHorizon} \dimension, containing the time horizon.
 
-\item The description of the sub-{\Block}s. This is given by the sub-groups
-  \cstr{StochasticBlock} and \cstr{StochasticBlock\_t}, for each $t \in \{0,
-  \dots, \cstr{TimeHorizon} - 1 \}$. These sub-groups are optional, but they
-  cannot be all absent. If \cstr{StochasticBlock\_t} is not provided by some
-  $t \in \{0, \dots, \cstr{TimeHorizon} - 1 \}$, then the \cstr{StochasticBlock}
-  \group must be provided and contain a complete description of the $t$-th
-  sub-\Block of this \code{SDDPBlock}. If the \cstr{StochasticBlock} \group is
-  not provided, then \cstr{StochasticBlock\_t} must be provided for each $t
-  \in \{0, \dots, \cstr{TimeHorizon} - 1 \}$ and contain a complete description
-  of the $t$-th sub-\Block of this \code{SDDPBlock}.
+\item The description of the sub-{\Block}s of the \code{SDDPBlock}. This is
+  given by the sub-groups \cstr{StochasticBlock} and
+  \cstr{StochasticBlock\_t}, for each $t \in \{0, \dots, \cstr{TimeHorizon} -
+  1 \}$. These sub-groups are optional, but they cannot be all absent. If
+  \cstr{StochasticBlock\_t} is not provided by some $t \in \{0, \dots,
+  \cstr{TimeHorizon} - 1 \}$, then the \cstr{StochasticBlock} \group must be
+  provided and contain a complete description of the $t$-th sub-\Block of this
+  \code{SDDPBlock}. If the \cstr{StochasticBlock} \group is not provided, then
+  \cstr{StochasticBlock\_t} must be provided for each $t \in \{0, \dots,
+  \cstr{TimeHorizon} - 1 \}$ and contain a complete description of the $t$-th
+  sub-\Block of this \code{SDDPBlock}.
 
   If \cstr{StochasticBlock\_t} is provided but the description of its inner
   \Block is not provided, then the \cstr{StochasticBlock} \group must be
@@ -1857,34 +1872,62 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   \code{DataMapping} of the \code{StochasticBlock} decribed by the
   \cstr{StochasticBlock\_t} \group.
 
-\item All the \netCDF \dimensions and \variables necessary to describe a
-  vector of \code{AbstractPath} as described in \S
-  \ref{sssec:AbstractPath}. The number of \code{AbstractPath} must be equal to
-  $\cstr{TimeHorizon} - 1$. The $i$-th \code{AbstractPath} in this vector must
-  be the path to the \code{PolyhedralFunction} associated with the $i$-th
-  sub-\Block of this \code{SDDPBlock}. The $i$-th \code{AbstractPath} is taken
-  with respect to the inner \Block of the $i$-th sub-\Block of this
-  \code{SDDPBlock}.
+\item the \cstr{AbstractPath} \group containing the description of a vector of
+  \code{AbstractPath} as described in \S \ref{sssec:AbstractPath}. The number
+  of \code{AbstractPath} must be equal to $\cstr{TimeHorizon} - 1$. The $i$-th
+  \code{AbstractPath} in this vector must be the path to the
+  \code{PolyhedralFunction} associated with the $i$-th sub-\Block of this
+  \code{SDDPBlock}. The $i$-th \code{AbstractPath} is taken with respect to
+  the inner \Block of the $i$-th sub-\Block of this \code{SDDPBlock}.
 
+\item The \cstr{NumberScenarios} \dimension specifying the number of
+  scenarios.
+ 
+\item The \cstr{ScenarioSize} \dimension containing the size of a single
+  scenario, which spans all stages.
+ 
 \item The \cstr{SubScenarioSize} \variable, of type \code{netCDF::NcUint64}
   and indexed over \dimension \cstr{TimeHorizon}. This dimension is
   optional. If it is not provided, then all sub-scenarios are assumed to have
-  the same size, i.e., $ s_i = s_j $ for all $ i,j \in \{ 0, ...,
-  \cstr{TimeHorizon} - 1 \}$. If it is present, then \code{SubScenarioSize[t]}
-  is the size of the sub-scenario associated with stage $t$, i.e.,
-  $\code{SubScenarioSize[t]} = s_t$, for each $ i \in \{ 0, ...,
-  \cstr{TimeHorizon}-1 \}$.
+  the same size, i.e., $ s_t = (\cstr{ScenarioSize} / \cstr{TimeHorizon})$ for
+  all $ t \in \{ 0, \dots, \cstr{TimeHorizon} - 1 \}$. If this \dimension is
+  provided, then \code{SubScenarioSize[t]} is the size of the sub-scenario
+  associated with stage $t$, i.e., $s_t = \code{SubScenarioSize[t]}$, for each
+  $t \in \{ 0, \dots, \cstr{TimeHorizon}-1 \}$. In the latter case, the
+  following must hold:
+  \[
+    \cstr{ScenarioSize} = \sum_{t = 0}^{\cstr{TimeHorizon} - 1}
+    \cstr{SubScenarioSize}[t].
+  \]
 
 \item The two-dimensional \variable \cstr{Scenarios} of type
-  \code{netCDF::NcDouble}, containing the scenarios. The $i$-th row of
-  \cstr{Scenarios} contains the $i$-th scenario, so that \code{Scenarios[ i ][
-      j ]} is the $j$-th component of the $i$-th scenario.
+  \code{netCDF::NcDouble} and indexed over the dimensions
+  \cstr{NumberScenarios} and \cstr{ScenarioSize}, containing the
+  scenarios. The $i$-th row of \cstr{Scenarios} contains the $i$-th scenario,
+  so that \code{Scenarios[ i ][ j ]} is the $j$-th component of the $i$-th
+  scenario.
+
+\item The \cstr{NumberRandomDataGroups} \dimension containing the number of
+  groups of related random data within each sub-scenario. This \dimension is
+  optional. If it is not provided, then we assume that there is a single group
+  of related random data. Also, this \dimension is meaningful only if all
+  sub-scenarios have the same size.
+
+\item The \cstr{SizeRandomDataGroups} \variable, of type \code{netCDF::Uint64}
+  and indexed over the \cstr{NumberRandomDataGroups} dimension, containing the
+  size of each group of related random data in each sub-scenario. For each $i
+  \in \{0, \dots, \cstr{NumberRandomDataGroups} - 1\}$,
+  \code{NumberRandomDataGroups[i]} is the size of the $i$-th group of a
+  sub-scenario. This \variable is optional. It is required only if
+  \cstr{NumberRandomDataGroups} is provided and $\cstr{NumberRandomDataGroups}
+  > 1$.
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
 \subsection {\code{StochasticBlock}}
+\label{ssec:StochasticBlock}
 
 The \code{StochasticBlock} class is meant to represent a \Block whose data may
 be stochastic. The idea is that any \Block could have its stochastic version
@@ -1975,6 +2018,26 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   to be a \code{SimpleDataMapping}. Moreover, the inner \Block of this
   \code{StochasticBlock} will serve as the reference \Block for both the
   serialization and deserialization of each \code{SimpleDataMapping}.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\newpage
+
+\subsection {\code{BendersBlock}}
+
+A \code{BendersBlock} is a \Block whose \Objective is an \code{FRealObjective}
+whose \Function is a \code{BendersBFunction}. Moreover, it has a vector of
+\code{ColVariable} which are the active \Variable of that \code{BendersBFunction}.
+
+Besides the mandatory \cstr{type} attribute of any \dBlock, an \SMSpp
+\netCDF \group for a \code{BendersBlock} contains the following:
+\begin{itemize}
+\item The \dimension \cstr{NumVar} containing the number of \code{ColVariable}
+  of the \code{BendersBlock}.
+
+\item The \group \cstr{BendersBFunction} containing the description of the
+  \code{BendersBFunction} that is the \Function of the \code{FRealObjective}
+  of the \code{BendersBlock}.
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2133,7 +2196,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
 
 \item The \variable \cstr{ConstraintSide}, of type \code{netCDF::NcChar} and
   indexed over the dimension \cstr{NumRow}, indicating, at position $i$, which
-  side of the $i$-th Constraint is affected. The possible values are `L' for
+  side of the $i$-th \Constraint is affected. The possible values are `L' for
   the left-hand (or lower bound) side, `R' for the right-hand (or upper bound)
   side, and `B' for both sides. This variable is optional only if \code{NumRow
     == 0}.
@@ -2411,6 +2474,319 @@ inner \Block of the \code{BendersBFunction} to be overwritten (if the
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
+\section{Examples}
+
+\subsection{Seasonal Storage Valuation}
+
+The multistage stochastic problem in the Seasonal Storage Valuation (SSV) is
+represented by an \code{SDDPBlock} (see \S \ref{ssec:SDDPBlock}). The
+\code{SDDPBlock} has $T$ nested \Block, where $T$ is the time horizon and,
+therefore, we have $\code{TimeHorizon} = T$ in the specification of
+\code{SDDPBlock}. For each $t \in \{0, \dots,T-1\}$, the $t$-th nested \Block
+of the \code{SDDPBlock} is a \code{StochasticBlock} (see \S
+\ref{ssec:StochasticBlock}) which is associated with stage $t$. The
+\cstr{TimeHorizon} of an \code{SDDPBlock} could be, for instance, 52, the
+number of weeks of a year. Then, each sub-\Block of this \code{SDDPBlock}
+could be associated with a particular week of the year.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=1.5]{img/sddp.pdf}
+  \caption{An \code{SDDPBlock} and its nested {\Block}s.}
+\end{figure}
+
+The set of scenarios in \code{SDDPBlock} is given by a matrix (see the
+\variable \cstr{Scenarios} in \S \ref{ssec:SDDPBlock}), in which each row
+represents a scenario that spans the time horizon. If there are $m$ scenarios
+(see \variable \cstr{NumberScenarios} in \S \ref{ssec:SDDPBlock}) and each
+scenario is a (row) vector in $\mathbb{R}^n$ (in which case $n$ would be the
+size of a scenario; see \dimension \cstr{ScenarioSize} in \S
+\ref{ssec:SDDPBlock}), a matrix $\mathcal{S} \in \mathbb{R}^{m \times n}$ with
+scenarios would have the form
+
+\[
+\mathcal{S} = \left[
+\begin{array}{cccc}
+  s_{0,0}   & s_{0,1}   & \dots  & s_{0, n-1}\\
+  s_{1,0}   & s_{1,1}   & \dots  & s_{1, n-1}\\
+  \vdots    & \vdots    & \vdots & \vdots \\
+  s_{m-1,0} & s_{m-1,1} & \dots  & s_{m-1, n-1}\\
+\end{array}
+\right].
+\]
+
+For each $i \in \{ 0, \dots, m-1 \}$, the $i$-th scenario, represented by the vector
+\[
+S_i = \left( s_{i,0},  s_{i,1} , \dots , s_{i, n-1} \right),
+\]
+is assumed to be organized in such a way that
+\[
+S_i = \left( S_{i,0},  S_{i,1} , \dots , S_{i, T-1} \right),
+\]
+where $S_{i,t}$, the $t$-th sub-scenario of $S_i$, contains the data for the
+sub-problem at stage $t$ (which is represented by the $t$-th
+\code{StochasticBlock} of the \code{SDDPBlock}). The sub-scenarios for
+different stages may have different sizes. For each $i \in \{ 0, \dots, m-1 \}$
+and $t \in \{0, \dots, T-1\}$, $S_{i,t} \in \mathbb{R}^{n_t}$, so that
+\[
+n = \sum_{t = 0}^{T-1} n_t.
+\]
+In the specification of \code{SDDPBlock}, the vector $( n_0, \dots, n_{T-1})$
+containing the sizes of the sub-scenarios is given by the \variable
+\cstr{SubScenarioSize}. This \variable is optional and, in the case it is not
+provided, all sub-scenarios are assumed to have the same size, i.e., $n_t = n
+/ T$ for each $t \in \{0, \dots, T-1\}$.
+
+If all sub-scenarios have the same size, their data must be organized so that
+related random data are in contiguous parts of the vector representing a
+sub-scenario. For instance, suppose that each sub-scenario contains data
+related to demand, inflow, and wind power. In this example, we would say that
+there are three groups of data (the \dimension \cstr{NumberRandomDataGroups}
+in \code{SDDPBlock} would then be 3) and, for each $i \in \{ 0, \dots, m-1 \}$
+and $t \in \{0, \dots, T-1\}$, the sub-scenario $S_{i,t}$ would be written as
+\[
+S_{i,t} = \left( D_{i,t} , F_{i,t} , W_{i,t} \right).
+\]
+The \variable \cstr{SizeRandomDataGroups} of \code{SDDPBlock} would then be an
+array containing the sizes of the sub-vectors $D_{i,t}$, $F_{i,t}$, and
+$W_{i,t}$. For instance, if $D_{i,t}$ is a vector with size 7, $F_{i,t}$ is
+one with size 4, and $W_{i,t}$ is one with size 11, the \variable
+\cstr{SizeRandomDataGroups} would contain the array $(7, 4, 11)$. Hence, the
+matrix $\mathcal{S}$ would then have the following form:
+\begin{equation*}
+\begin{tikzpicture}[
+    baseline,
+    label distance=10pt
+  ]
+
+\tikzset{
+  s/.style={
+    above left offset={-0.2,0.45},
+    below right offset={0.2,-0.3},
+    set fill color=gray!10,
+    set border color=gray!40,
+  },
+  sin/.style={
+    set fill color=blue!5,
+    set border color=blue!30,
+}}
+
+\matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.1cm] (m) {
+\tikzmarkin[s]{S0} \tikzmarkin[sin]{S0in}D_{0,0}   & F_{0,0}   & W_{0,0}\tikzmarkend{S0in}   &  \cdots  & \tikzmarkin[sin]{S0int}D_{0,t}   & F_{0,t}   & W_{0,t}\tikzmarkend{S0int}   & \cdots  & \tikzmarkin[sin]{S0inT}D_{0,T-1}   & F_{0,T-1}   & W_{0,T-1}\tikzmarkend{S0inT}\tikzmarkend{S0}\\
+                   \vdots    & \vdots    & \vdots    &  \cdots  & \vdots    & \vdots    & \vdots    & \cdots  & \vdots      & \vdots      & \vdots\\
+\tikzmarkin[s]{S1} \tikzmarkin[sin]{S1in}D_{i,0}   & F_{i,0}   & W_{i,0}\tikzmarkend{S1in}   &  \cdots  & \tikzmarkin[sin]{S1int}D_{i,t}   & F_{i,t}   & W_{i,t}\tikzmarkend{S1int}   & \cdots  & \tikzmarkin[sin]{S1inT}D_{i,T-1}   & F_{i,T-1}   & W_{i,T-1}\tikzmarkend{S1inT}\tikzmarkend{S1}\\
+                   \vdots    & \vdots    & \vdots    &  \cdots  & \vdots    & \vdots    & \vdots    & \cdots  & \vdots      & \vdots      & \vdots\\
+\tikzmarkin[s]{Sm} \tikzmarkin[sin]{Smin}D_{m-1,0} & F_{m-1,0} & W_{m-1,0}\tikzmarkend{Smin} &  \cdots  & \tikzmarkin[sin]{Smint}D_{m-1,t} & F_{m-1,t} & W_{m-1,t}\tikzmarkend{Smint} & \cdots  & \tikzmarkin[sin]{SminT}D_{m-1,T-1} & F_{m-1,T-1} & W_{m-1,T-1}\tikzmarkend{SminT}\tikzmarkend{Sm}\\
+};
+
+\node[
+  fit=(m-1-1)(m-1-3),
+  inner xsep=0,
+  above delimiter=\{,
+  label=above:Stage $0$
+] {};
+
+\node[
+  fit=(m-1-5)(m-1-7),
+  inner xsep=0,
+  above delimiter=\{,
+  label=above:Stage $t$
+] {};
+
+\node[
+  fit=(m-1-4),
+  label=above:$\cdots$
+] {};
+
+\node[
+  fit=(m-1-8),
+  label=above:$\cdots$
+] {};
+
+\node[
+  fit=(m-1-9)(m-1-11),
+  inner xsep=0,
+  above delimiter=\{,
+  label=above:Stage $T-1$
+] {};
+
+\node[
+  fit=(m-1-11.center),
+  inner xsep=30pt,inner ysep=0,
+  label=right:Scenario $0$,
+] {};
+
+\node[
+  fit=(m-2-11),
+  inner xsep=40pt,inner ysep=0,
+  label=right:$\vdots$
+] {};
+
+\node[
+  fit=(m-3-11.center),
+  inner xsep=30pt,inner ysep=0,
+  label=right:Scenario $i$
+] {};
+
+\node[
+  fit=(m-4-11),
+  inner xsep=40pt,inner ysep=0,
+  label=right:$\vdots$
+] {};
+
+\node[
+  fit=(m-5-11.center),
+  inner xsep=30pt,inner ysep=0,
+  label=right:Scenario $m-1$
+] {};
+
+\end{tikzpicture}
+\end{equation*}
+In this example, if $T=52$, the \dimension \cstr{ScenarioSize} would
+be $52(7+4+11)$.
+
+Each sub-\Block of the \code{SDDPBlock} represents a short-term problem that
+is associated with a \code{UCBlock} as follows. For each $t \in \{0, \dots,
+T-1\}$, the inner \Block of the $t$-th \code{StochasticBlock} of the
+\code{SDDPBlock} is a \code{BendersBlock}. The \code{BendersBlock} has a set
+of {\Variable}s and an \Objective. Its \Objective is an \code{FRealObjective}
+whose \Function is a \code{BendersBFunction}. The {\Variable}s of the
+\code{BendersBlock} are the ones that are active in the
+\code{BendersBFunction}. The inner \Block of the \code{BendersBFunction} is a
+\code{UCBlock} (or a Lagrangian relaxation of a \code{UCBlock}) which depends
+on the values of the {\Variable}s that are active in the
+\code{BendersBFunction}. In the SSV, the {\Variable}s defined in the
+\code{BendersBlock} (which are active in the \code{BendersBFunction})
+represent the initial volumes of the reservoirs. These affect the values of
+the left- or right-hand side of some {\Constraint}s of the \code{UCBlock}. The
+affected {\Constraint}s and how they are affected are determined by the
+\code{BendersBFunction}. In the \code{BendersBFunction}, the affected
+{\Constraint}s are indicated by a vector of \code{AbstractPath} (each
+path being relative to the \code{BendersBlock}) and the affected sides of
+the {\Constraint}s are indicated by the one-dimensional \variable
+\cstr{ConstraintSide}.
+The way the {\Constraint}s are affected by those {\Variable}s is defined by
+the linear mapping given by the \netCDF \variables \cstr{A} and \cstr{b}
+(together with their auxiliary \variables and \dimensions).
+
+Before giving an example on how to construct the \code{BendersBlock}, we shall
+look into some details of the \code{UCBlock}. Following the example above, in
+which the \code{SDDPBlock} represents a multistage problem over 52 weeks,
+there would be one \code{UCBlock} associated with each of those 52 weeks. Each
+\code{UCBlock} could be, for instance, a multistage problem with 168 stages
+(one stage for each hour of the week). In this case, the dimension
+\code{TimeHorizon} in the specification of the \code{UCBlock} would be 168. As
+you can see, there are two independent time horizons: one at the level of the
+\code{SDDPBlock} (the mid-term problem) and one at the level of the
+\code{UCBlock} (the short-term problem). To avoid confusion, we will refer to
+the time horizon and stages of the \code{SDDPBlock} as the outer time horizon
+and outer stages, respectively, and the time horizon and stages of the
+\code{UCBlock} as the inner time horizon and inner stages, respectively.
+
+A \code{UCBlock} has three sets of sub-{\Block}s. The first one is a set of
+\code{UnitBlock}s whose size is given by the \cstr{NumberUnits}
+\dimension. The second set is a set of \code{HeatBlock}s whose size is given
+by the \cstr{NumberHeatBlocks} \dimension. The third one is a set of
+\code{NetworkBlock}s whose size is
+\cstr{TimeHorizon}. Figure~\ref{fig:ucblock} illustrates the \code{UCBlock}
+and its nested {\Block}s. In this figure, $M$ is the number of
+\code{UnitBlock}s (\dimension \cstr{NumberUnits}), $N$ is the number of
+\code{HeatBlock}s (\dimension \cstr{NumberHeatBlocks}) and $T$ is the inner
+time horizon (\dimension \cstr{TimeHorizon} in the specification of
+\code{UCBlock}).
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=1.5]{img/ucblock.pdf}
+  \caption{\code{UCBlock} and its nested {\Block}s.}
+  \label{fig:ucblock}
+\end{figure}
+
+There can be many types of \code{UnitBlock}s in the \code{UCBlock} (e.g.,
+\code{ThermalBlock}, \code{BatteryUnitBlock}, \dots). In the SSV, exactly one
+of those \code{UnitBlock}s is a \code{HydroSystemUnitBlock}. The
+\code{UnitBlock}s of the \code{UCBlock} can be given in any order the user may
+wish. But to simplify the example, we assume that the
+\code{HydroSystemUnitBlock} is the first of the \code{UnitBlock}s (in
+Figure~\ref{fig:ucblock}, it would be the \code{UnitBlock} with index
+0). Hence, the description of the \code{HydroSystemUnitBlock} should be given
+in the \group \cstr{UnitBlock\_0} in the specification of the \code{UCBlock}.
+
+The \code{HydroSystemUnitBlock} is a \code{UnitBlock} that has a list of
+\code{HydroUnitBlock}s and one \code{PolyhedralFunctionBlock} as nested
+{\Block}s. The \code{PolyhedralFunctionBlock} is the last among the
+nested {\Block}s of the \code{HydroSystemUnitBlock}. Figure~\ref{fig:hsublock}
+depicts the \code{HydroSystemUnitBlock} with its nested {\Block}s in which $H$
+denotes the number of \code{HydroUnitBlock}s (\dimension
+\cstr{NumberHydroUnits} in the specification of the
+\code{HydroSystemUnitBlock}).
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=1.5]{img/hsublock.pdf}
+  \caption{\code{HydroSystemUnitBlock} and its nested {\Block}s.}
+  \label{fig:hsublock}
+\end{figure}
+
+Let $r_i$ denote the number of reservoirs (\dimension \cstr{NumberReservoirs}
+in the specification of \code{HydroUnitBlock}) of the $i$-th
+\code{HydroUnitBlock}. For each $i \in \{0, \dots, H-1\}$ and $j \in \{0,
+\dots, r_i - 1\}$, let $v_{i,j}$ denote the initial volume of the $j$-th
+reservoir of the $i$-th \code{HydroUnitBlock}. These initial volumes are given
+by the \cstr{InitialVolumetric} \variable in the specification of the
+\code{HydroUnitBlock}. When solving the \code{SDDPBlock} by the SDDP method,
+however, the initial volumes of the reservoirs of the \code{UCBlock} at the
+outer stage $t$ are given by the values of the \Variables of the
+\code{BendersBlock}, which must be equal to the volumes of the reservoirs at
+the last inner stage of the \code{UCBlock} at the outer stage $t-1$.
+Therefore, we could define the \Variables $x$ of the \code{BendersBlock} as
+that representing the following vector:
+\[
+x =
+\begin{tikzpicture}[
+    baseline,
+    label distance=10pt
+  ]
+
+\tikzset{
+  s/.style={
+    set fill color=blue!5,
+    set border color=blue!30,
+    below right offset={0.1,-0.25},
+}}
+
+\matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.25cm] (m) {
+\tikzmarkin[s]{v0}v_{0,0} & \dots & v_{0,r_0}\tikzmarkend{v0} & \dots & \tikzmarkin[s]{vk}v_{k,0} & \dots & v_{k,r_k}\tikzmarkend{vk} & \dots &
+\tikzmarkin[s]{vH}v_{H-1,0} & \dots & v_{H-1,r_{H-1}}\tikzmarkend{vH}\\
+};
+
+\node[
+  fit=(m-1-1)(m-1-3),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $0$
+] {};
+
+\node[
+  fit=(m-1-5)(m-1-7),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $k$
+] {};
+
+\node[
+  fit=(m-1-9)(m-1-11),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $H-1$
+] {};
+\end{tikzpicture}.
+\]
+
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\newpage
 \section{Conclusion}
 
 This document is intended as a quick reference manual for anybody who is required to construct \SMSpp \netCDF input files. It should be remarked that basically all the \dBlock and \dConfiguration objects are supposed to have an in-memory interface to initialize the data. Thus, a workable way to produce \netCDF input files for those is to use the in-memory interface, and then the \code{serialize()} method to save it into a file. Yet, \netCDF has interfaces for all primary programming languages, hence files with the required format can be written independently by any \SMSpp object.
@@ -2418,11 +2794,12 @@ This document is intended as a quick reference manual for anybody who is require
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\begin{thebibliography}{plain}
+\begin{thebibliography}{1}
 %\addcontentsline{toc}{chapter}{References}
 
 \bibitem{netCDF}
-Unidata ``The \netCDF software'', \url{http://doi.org/10.5065/D6H70CW6}, 2019
+Unidata ``The \netCDF software'', \url{http://doi.org/10.5065/D6H70CW6},
+2019.
 \end{thebibliography}
 
 \end{document}
