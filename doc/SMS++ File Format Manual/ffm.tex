@@ -120,6 +120,9 @@
 \def\dBlockSolverConfig{\code{:BlockSolverConfig}\xspace}
 \def\ComputeConfig{\code{ComputeConfig}\xspace}
 \def\Constraint{\code{Constraint}\xspace}
+\def\Constraints{\code{Constraint}s\xspace}
+\def\RowConstraint{\code{RowConstraint}\xspace}
+\def\RowConstraints{\code{RowConstraints}\xspace}
 \def\Objective{\code{Objective}\xspace}
 \def\Variable{\code{Variable}\xspace}
 \def\Variables{\code{Variable}s\xspace}
@@ -341,7 +344,7 @@ In \SMSpp, files can describe two different kinds of objects:
 %
 \begin{enumerate}
  \item \Block objects, representing the data characterizing a specific instance of a (structured) optimization problem to be solved;
- \item \Configuration objects, representing parameters of the solution process, either pertaining to a \Block (say, which of the different available formulations of the optimization problem should be used), or to a \Solver used to actually perform the optimizaton process.
+ \item \Configuration objects, representing parameters of the solution process, either pertaining to a \Block (say, which of the different available formulations of the optimization problem should be used), or to a \Solver used to actually perform the optimization process.
 \end{enumerate}
 %
 Both objects have \code{serialize()} and \code{deserialize()} methods allowing to save the current state to a given \netCDF \textit{file}/\group, as well as \emph{factories} allowing to create a new object from scratch out of a given \netCDF \textit{file}/\group.
@@ -356,7 +359,7 @@ The issue of \SMSpp is that an optimization problem is represented by a \Block, 
 
 \medskip
 \noindent
-Hence, the format of a \SMSpp \netCDF file depends on wether it holds \Block information, \Configuration information, or both. For the latter, there are actually two separate kind of \Configuration information that can be attached to a \dBlock. The first describes the above-mentioned options that are inherent to the \dBlock itself, which are described by the specific derived class \BlockConfig of \Configuration. However, a \dBlock need be solved, which is done by \Solver objects; each \Block can have an arbitrary number of \Solver ``registered'' with it. A \Solver can be an arbitrarily complex solution process; in particular, the structure of \Block immediately implies that one can register \Solver with any sub-\Block, which is actually useful e.g.~to decomposition algorithms. Hence, not only each \dSolver can have an arbitrarily large set of algorithmic configuration options; an arbitrarily large set of \Solver can be attached to a \Block and to all of its sub-\Block, recursively. Thus, the different derived class \BlockSolverConfig of \Configuration is provided to describe all this information. Note, again, that this is conceptually separate from both the specific instance encoded in the \dBlock and the choice of the \Block-specific options encoded in the \BlockConfig, which justifies why a separate container is used.
+Hence, the format of a \SMSpp \netCDF file depends on whether it holds \Block information, \Configuration information, or both. For the latter, there are actually two separate kind of \Configuration information that can be attached to a \dBlock. The first describes the above-mentioned options that are inherent to the \dBlock itself, which are described by the specific derived class \BlockConfig of \Configuration. However, a \dBlock need be solved, which is done by \Solver objects; each \Block can have an arbitrary number of \Solver ``registered'' with it. A \Solver can be an arbitrarily complex solution process; in particular, the structure of \Block immediately implies that one can register \Solver with any sub-\Block, which is actually useful e.g.~to decomposition algorithms. Hence, not only each \dSolver can have an arbitrarily large set of algorithmic configuration options; an arbitrarily large set of \Solver can be attached to a \Block and to all of its sub-\Block, recursively. Thus, the different derived class \BlockSolverConfig of \Configuration is provided to describe all this information. Note, again, that this is conceptually separate from both the specific instance encoded in the \dBlock and the choice of the \Block-specific options encoded in the \BlockConfig, which justifies why a separate container is used.
 
 \medskip
 \noindent
@@ -507,7 +510,7 @@ objects (for example, a \code{Function} has a set of pointers to
 \code{Variable}, others have pointers to \Block), these pointers cannot be
 serialized and deserialized as such. Rather, an ``abstract representation'' of
 these pointers has to be serialized, from which the pointers can be
-reconstruced at deserialization time; this is the facility that
+reconstructed at deserialization time; this is the facility that
 \code{AbstractPath} offers. The fact that the representation of the path is
 independent from the reference \Block facilitates its serialization and
 deserialization, and makes it possible to use the same path to target
@@ -716,10 +719,10 @@ index equal to $n p + q$ (recall the indices start from 0). In general, for a
 multidimensional array with $k$ dimensions with sizes $(n_0, \dots, n_{k-1})$,
 the element at position $(i_0, \dots, i_{k-1})$ would have an element index
 equal to
-
-\[
-\sum_{r = 0}^{k-1} \left( \prod_{s = r + 1}^{k-1} n_s \right) i_r.
-\]
+\begin{equation}
+  \sum_{r = 0}^{k-1} \left( \prod_{s = r + 1}^{k-1} n_s \right) i_r.
+  \label{eq:element_index}
+\end{equation}
 
 A dynamic group can be one of three types:
 
@@ -736,11 +739,9 @@ In the first case, in which the group is a list of \Constraint or \Variable,
 second case, in which the group is a vector of lists of \Constraint or
 \Variable, for an element at position $j$ of the $k$-th list of the vector,
 \code{PathElementIndices[i]} is given by
-
 \[
    j + \sum_{t = 0}^{k-1} s_t
 \]
-
 where $s_t$ is the number of elements in the $t$-th list of the vector. The
 last case is analogous.
 
@@ -968,7 +969,7 @@ of a \variable/\dimension cannot be duplicated in a given \group.
   \code{SetSize[i]}. Notice, therefore, that \code{SetSize[i]} is not the size
   of the corresponding set when \code{SetSize[i] == 0}. In this case, it only
   indicates that the set is a \code{Range}, whose size (and elements) can be
-  determined by the \cstr{SetElement} \variable. This \variable is
+  determined by the \cstr{SetElements} \variable. This \variable is
   optional. If it is not provided, then the \code{SetFrom} and \code{SetTo}
   sets are assumed to be \code{Range}.
 
@@ -1228,7 +1229,7 @@ The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are th
 
 \newpage
 
-\subsection {\code{UCBlock}}
+\subsection {\code{UCBlock}}\label{ssec:UCBlock}
 
 The class \code{UCBlock}, implements the \Block concept [see Block.h] for the Unit Commitment (UC) problem in electrical power production. This is typically a short-term (across for instance one week or one day time horizon) \highlight{deterministic} problem regarding finding an optimal schedule of the production of electrical generators satisfying a (large) set of technical constraints.
 \smallskip
@@ -1335,7 +1336,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
 %
  \item the \variable \cstr{PollutantZones}, of type \code{netCDF::NcUint64} and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
  %
- \item the \variable \cstr{PollutantBudget}, of type \code{netCDF::NcDouble} and indexed over the set \{ 0 , \dots, \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n == 0 , ..., TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each otherit is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, ..., TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, ..., NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
+ \item the \variable \cstr{PollutantBudget}, of type \code{netCDF::NcDouble} and indexed over the set \{ 0 , \dots, \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n = 0 , \dots, TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each other it is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, \dots, TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, \dots, NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
  \begin{itemize}
   \item \code{n = 0} corresponds to the zone $0$ of pollutant $0$
   \item \code{n = 1} corresponds to the zone $1$ of pollutant $0$
@@ -1417,14 +1418,12 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
 \subsubsection {\code{ThermalUnitBlock}}
 
 The \code{ThermalUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} thermal unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of conventional power plants (such as nuclear, hard coal, gas turbine, gas, combined cycle, oil, \dots) which are directly connected to the transmission grid.
-\smallskip
-\noindent
-Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
+Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}(\code{netCDF::NcGroup}). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
 %
 \begin{itemize}
- \item  the \variable \cstr{MinPower}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MnP[ t ]} that, for each time instant $t$, contains the minimum active power output value of the unit for the corresponding time step. If \cstr{MinPower} has length $1$ then \code{MnP[ t ]} contains the same value for all $t$. Otherwise, \code{MinPower[ i ]} is the fixed value of \code{MnP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. Note that it must be \code{MnP[ t ] >= 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{changeIntervals}, which in fact is not loaded;
+ \item  the \variable \cstr{MinPower}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MnP[ t ]} that, for each time instant $t$, contains the minimum active power output value of the unit for the corresponding time step. If \cstr{MinPower} has length $1$ then \code{MnP[ t ]} contains the same value for all $t$. Otherwise, \code{MinPower[ i ]} is the fixed value of \code{MnP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. Note that it must be \code{MnP[ t ] >= 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded;
  %
- \item  the \variable \cstr{MaxPower}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MxP[ t ]} that, for each time instant $t$, contains the maximum active power output value of the unit for the corresponding time step. If \cstr{MaxPower} has length $1$ then \code{MxP[ t ]} contains the same value for all $t$. Otherwise, \code{MaxPower[ i ]} is the fixed value of \code{MxP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. Note that it must be \code{MxP[ t ] >= 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{changeIntervals}, which in fact is not loaded;
+ \item  the \variable \cstr{MaxPower}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{MxP[ t ]} that, for each time instant $t$, contains the maximum active power output value of the unit for the corresponding time step. If \cstr{MaxPower} has length $1$ then \code{MxP[ t ]} contains the same value for all $t$. Otherwise, \code{MaxPower[ i ]} is the fixed value of \code{MxP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. Note that it must be \code{MxP[ t ] >= 0} for all $t$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded;
 %
  \item  the \variable \cstr{DeltaRampUp}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{DP[ t ]} that, for each time instant $t$, contains the ramp-up value of the unit for the corresponding time step, i.e., the maximum possible increase of active power production w.r.t. the power that had been produced in time instant \code{t - 1}, if any. This variable is optional; if it is not provided then it is assumed that \code{DP[ t ] == MxP[ t ]}, i.e., the unit can ramp up by an arbitrary amount, i.e., there are no ramp-up constraints. If \cstr{DeltaRampUp} has length $1$ then \code{DP[ t ]} contains the same value for all $t$. Otherwise, \code{DeltaRampUp[ i ]} is the fixed value of \code{DP[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
 %
@@ -1460,9 +1459,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 
 \subsubsection {\code{HydroUnitBlock}}
 The \code{HydroUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} hydro unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of hydro storage. To model complex reservoir systems several technical parameters have to be considered. These are divided into reservoir-specific parameters, the hydro links connecting the reservoirs and finally the turbine/pump parameters. The values are collected within a reservoir database, a hydro-link database and a turbine/pump-database.
-\smallskip
-\noindent
-Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
+Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}(\code{netCDF::NcGroup}). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
 %
 \begin{itemize}
  \item The \dimension \cstr{NumberReservoirs} containing the number of all reservoirs (or nodes) in the \code{HydroUnitBlock}. The \dimension is optional, if it is not provided then it is taken to be \code{== 1}, which means that the (in principle) cascading hydro system is actually single hydro reservoir. Note, however, that a single reservoir can still have multiple hydro generating units (see \cstr{NumberArcs} below).
@@ -1492,7 +1489,7 @@ Note: It may happen that \code{MinV[ r , t ] == MaxV[ r , t ]}, but only \highli
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
 \begin{itemize}
 
- \item The \variable \cstr{Inflows}, of type \code{netCDF::NcDouble} and indexed over both \dimensions \cstr{NumberReservoirs} and \cstr{TimeHorizon}. This is meant to represent the matrix \code{InF[ r , t ]} which, for each reservoir $r$, contains the amount of water that ``naturally'' enters into reservoir $r$ (because of rain, ice melting, non-controlled rivers flowing, and of course net of water leaving by evaporation, human consumption etc.) during time al the time interval $t$, and therefore that is available in the reservoir at the end of time step $t$ (hence, the beginning of time step $t + 1$, if any). This variable is optional; if it isn't defined, it is taken to be zero. \cstr{Inflows} can be either positive or negative.
+ \item The \variable \cstr{Inflows}, of type \code{netCDF::NcDouble} and indexed over both \dimensions \cstr{NumberReservoirs} and \cstr{TimeHorizon}. This is meant to represent the matrix \code{InF[ r , t ]} which, for each reservoir $r$, contains the amount of water that ``naturally'' enters into reservoir $r$ (because of rain, ice melting, non-controlled rivers flowing, and of course net of water leaving by evaporation, human consumption etc.) during the time interval $t$, and therefore that is available in the reservoir at the end of time step $t$ (hence, the beginning of time step $t + 1$, if any). This variable is optional; if it isn't defined, it is taken to be zero. \cstr{Inflows} can be either positive or negative.
  %
  \item The \variable \cstr{MinPower}, of type \code{netCDF::NcDouble} and indexed over both \dimensions \cstr{NumberIntervals} and \cstr{NumberArcs}. The first \dimension may have either size $1$ or size \cstr{NumberIntervals}, whereas the second one always has size \cstr{NumberArcs} (if it is provided at all). This is meant to represent the matrix \code{MinP[ t , l ]} which, for each time instant $t$ at each arc $l$ contains the minimum power value of the unit; it must be that \code{MinP[ t , l ] < MaxP[ t , l ]} for each time instant $t$ and each arc $l$. This variable is optional; if it is not provided then it is assumed that \code{MinP[ t , l ] == 0}, i.e., the minimum power of all units is zero(which means, each unit is a turbine). If the first \dimension has size $1$ then the entry \code{MinP[ 0 , l ]} is assumed to contain the minimum power of arc $l$ for all time instants. Otherwise, \code{MinPower[ i , l ]} is the fixed value of \code{MinP[ t , l ]} for arc $l$ and all time $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{NumberIntervals}, which in fact is not loaded.
  %
@@ -1592,7 +1589,7 @@ Note: the special case in which \code{EBR[ t ] == SBR[ t ] == 1} for all $t$, i.
 \newpage
 
 \subsubsection {\code{IntermittentUnitBlock}}
-The \code{IntermittentUnitBlock} class derives from \code{UnitBlock} and implements a Intermittent Generation for a unit representing generation (be ir centralized or distributed) by intermittent (= unreliable) sources in the unit commitment problem, such as wind farms, solar parks and run-of-the-river hydroelectricity. Each unit is supposed to be connected to a specific node of the clustered network (which means that the \cstr{distributed} case refers to \cstr{distributed in a small region}, where of course \cstr{small} depends on the granularity of the network description. The model relies mainly on historical data of local generation of wind and solar at each node of the grid; these data are used to develop normalized generation profiles associated with wind and solar generators. Intermittent generators are supposed to be able to contribute to primary and secondary reserves. Contribution to the system inertia concerns more specifically run of river generators. The potential contribution of solar or wind generation to inertia is still the subject of active research. Reserve requirements are specified in order to be symmetrically available to increase or decrease power injected into the grid.
+The \code{IntermittentUnitBlock} class derives from \code{UnitBlock} and implements a Intermittent Generation for a unit representing generation (be it centralized or distributed) by intermittent (= unreliable) sources in the unit commitment problem, such as wind farms, solar parks and run-of-the-river hydroelectricity. Each unit is supposed to be connected to a specific node of the clustered network (which means that the \cstr{distributed} case refers to \cstr{distributed in a small region}, where of course \cstr{small} depends on the granularity of the network description. The model relies mainly on historical data of local generation of wind and solar at each node of the grid; these data are used to develop normalized generation profiles associated with wind and solar generators. Intermittent generators are supposed to be able to contribute to primary and secondary reserves. Contribution to the system inertia concerns more specifically run of river generators. The potential contribution of solar or wind generation to inertia is still the subject of active research. Reserve requirements are specified in order to be symmetrically available to increase or decrease power injected into the grid.
 \smallskip
 \noindent
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
@@ -1640,12 +1637,12 @@ The class \code{HydroSystemUnitBlock}, which derives from the \Block, in order t
 \begin{itemize}
 \item The \dimension \cstr{NumberHydroUnits} containing the number of hydro units (\code{HydroUnitBlock}) in the problem.
 %
-\item The \groups \cstr{HydroUnitBlock\_0}, \cstr{HydroUnitBlock\_1}, ... , \cstr{HydroUnitBlock\_(n-1)}, with \code{n == NumberHydroUnits}, containing each one \code{HydroUnitBlock}.
+\item The \groups \cstr{HydroUnitBlock\_0}, \cstr{HydroUnitBlock\_1}, \dots, \cstr{HydroUnitBlock\_(n-1)}, with \code{n == NumberHydroUnits}, containing each one \code{HydroUnitBlock}.
 %
 \item The \group \cstr{PolyhedralFunctionBlock} which contains a \code{PolyhedralFunctionBlock}, whose \code{PolyhedralFunction} represents the future value of the water (a.k.a. \cstr{Bellman values}) left at the end of the time horizon in all the reservoirs of all the \code{HydroUnitBlock} of the \code{HydroSystemUnitBlock}.
 %
 \end{itemize}
-The future value of water function is represented by the single \code{PolyhedralFunction} which lives inside the \code{PolyhedralFunctionBlock}. The vector of \cstr{active} variable of \code{PolyhedralFunction} is therefore in a one-to-one correspondence with the set of \code{ColVariable} in the \code{HydroUnitBlock} that represent the amount of water left in each reservoir at the end of the time horizon. Thus, it is necessary to specify the order of the active \code{ColVariable} of the \code{PolyhedralFunction}. Let us denote by \code{X[ 0 ], X[ 1 ], ... , X[ R - 1 ]} the vector of active \code{ColVariable} (i.e., \code{X[ i ]} is the one returned by \code{get\_active\_var( i )} and \code{R = get\_num\_active\_var())}. Since each \code{HydroUnitBlock} can have more than one reservoir (cf. \code{HydroUnitBlock::get\_number\_reservoirs())}, $R$ is just the total number of reservoir, which is computed by just calling \code{get\_number\_reservoirs()} on each of the \code{HydroUnitBlock} and summing all the results. Clearly, \code{R >= NumberHydroUnits}. Some of the \code{HydroUnitBlock} may have just one reservoir; if this happens for all the hydro unit blocks(but this is not likely), then \code{R == NumberHydroUnits}. In this case the mapping is obvious: \code{X[ i ]} is the \code{ColVariable} that represent the amount of water left in the only reservoir of \code{HydroUnitBlock\_i} at the end of the time horizon. When, instead, \code{R > NumberHydroUnits}, a mapping must be defined. The mapping is the obvious one: \code{HydroUnitBlock} have an ordering \code{n = 0, 1, ..., NumberHydroUnits - 1}  (cf. the \groups \cstr{HydroUnitBlock\_0}, \cstr{HydroUnitBlock\_1}, ... above), and the reservoirs into each \code{HydroUnitBlock} also have a natural ordering, Thus, in general the mapping is:
+The future value of water function is represented by the single \code{PolyhedralFunction} which lives inside the \code{PolyhedralFunctionBlock}. The vector of \cstr{active} variable of \code{PolyhedralFunction} is therefore in a one-to-one correspondence with the set of \code{ColVariable} in the \code{HydroUnitBlock} that represent the amount of water left in each reservoir at the end of the time horizon. Thus, it is necessary to specify the order of the active \code{ColVariable} of the \code{PolyhedralFunction}. Let us denote by \code{X[ 0 ], X[ 1 ], \dots, X[ R - 1 ]} the vector of active \code{ColVariable} (i.e., \code{X[ i ]} is the one returned by \code{get\_active\_var( i )} and \code{R = get\_num\_active\_var())}. Since each \code{HydroUnitBlock} can have more than one reservoir (cf. \code{HydroUnitBlock::get\_number\_reservoirs())}, $R$ is just the total number of reservoir, which is computed by just calling \code{get\_number\_reservoirs()} on each of the \code{HydroUnitBlock} and summing all the results. Clearly, \code{R >= NumberHydroUnits}. Some of the \code{HydroUnitBlock} may have just one reservoir; if this happens for all the hydro unit blocks(but this is not likely), then \code{R == NumberHydroUnits}. In this case the mapping is obvious: \code{X[ i ]} is the \code{ColVariable} that represent the amount of water left in the only reservoir of \code{HydroUnitBlock\_i} at the end of the time horizon. When, instead, \code{R > NumberHydroUnits}, a mapping must be defined. The mapping is the obvious one: \code{HydroUnitBlock} have an ordering \code{n = 0, 1, \dots, NumberHydroUnits - 1}  (cf. the \groups \cstr{HydroUnitBlock\_0}, \cstr{HydroUnitBlock\_1}, \dots above), and the reservoirs into each \code{HydroUnitBlock} also have a natural ordering, Thus, in general the mapping is:
 \begin{itemize}
 \item \code{X[ 0 ] =} \code{ColVariable} representing the amount of water left in the first reservoir of \code{HydroUnitBlock\_0} at the end of the time horizon
 %
@@ -1653,7 +1650,7 @@ The future value of water function is represented by the single \code{Polyhedral
 %
 \item \code{\dots}
 %
-\item \code{X[ k ] =} \code{ColVariable} representing the amount of water left in the \code{k-th} reservoir of \code{HydroUnitBlock\_0} at the end of the time horizon, with \code{k = HydroUnitBlock\_0->get\_number\_reservoirs()}
+\item \code{X[ k ] =} \code{ColVariable} representing the amount of water left in the $k$-th reservoir of \code{HydroUnitBlock\_0} at the end of the time horizon, with \code{k = HydroUnitBlock\_0->get\_number\_reservoirs()}
 %
 \item \code{X[ k + 1 ] =} \code{ColVariable} representing the amount of water left in the first reservoir of \code{HydroUnitBlock\_1} at the end of the time horizon
 %
@@ -1661,21 +1658,22 @@ The future value of water function is represented by the single \code{Polyhedral
 %
 \item \code{\dots}
 \end{itemize}
-This must be the format of the data (linear inequalities) that define the \code{PolyhedralFunction}: the \code{i-th} entry of each vector is related to the future value of the water stored in the reservoir identified by the above mapping. See \code{PolyhedralFunction::deserialize()} for details about how the data must be stored in the \code{PolyhedralFunctionBlock} \group.
+This must be the format of the data (linear inequalities) that define the \code{PolyhedralFunction}: the $i$-th entry of each vector is related to the future value of the water stored in the reservoir identified by the above mapping. See \code{PolyhedralFunction::deserialize()} for details about how the data must be stored in the \code{PolyhedralFunctionBlock} \group.
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
 \subsection {\code{PolyhedralFunctionBlock}}
-The class \code{PolyhedralFunctionBlock} derives from \code{AbstractBlock} to define the following concept: a \Block whose sole distinguishing feature is a \code{PolyhedralFunction} as objective, but which can otherwise contain any kind of \cstr{abstract} Variable and Constraint (provided these are handled by the base \code{AbstractBlock} class). The rationale for the \code{PolyhedralFunctionBlock} class is that a \code{PolyhedralFunction} is a perfectly fine object in itself, but one that several solver cannot easily deal with in its \cstr{natural} form. However, a \code{PolyhedralFunction} can also be represented in a very natural way by means of ome extra continuous \code{ColVariable} plus a finite set of (dynamic)\code{FRowConstraint} with \code{LinearFunction} inside (a.k.a., linear constraints). Thus, the main feature that \code{PolyhedralFunctionBlock} implements is the ability to \cstr{present} itself (construct an \cstr{abstract representation}) as either having a \code{FRealObjective} with a \code{PolyhedralFunction} inside, or having a set of (continuous) \code{ColVariable} and (linear) \code{RowConstraint}. We call the first the \cstr{natural representation} of a \code{PolyhedralFunctionBlock}, and the latter its \cstr{linearized representation}. Note that most individual changes in the \code{PolyhedralFunction} result in many changes to the \cstr{linearized representation}, that are properly bunched into appropriate \code{GroupModification}. Conversely, many individual changes to the \cstr{linearized representation} cannot (or would be too complex to) be implemented in the \code{PolyhedralFunction}, because each one of them individually would lead it to end in a partly inconsistent state, and only a co-ordinated set of them (say, properly bunched into an appropriate \code{GroupModification}) would work. Hence, a number of changes to the \cstr{linearized representation} are not allowed; see the comments to the protected method \code{guts\_of\_add\_Modification\_LR()} for details. Other than that, \code{PolyhedralFunctionBlock} entirely relies on the machinery proivided by \code{AbstractBlock} to handle all the rest of the \Block, and therefore is subject to the limitations of that class regarding what kind of \code{Constraint}, \code{Variable} and \code{Objective} are supported. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
+The class \code{PolyhedralFunctionBlock} derives from \code{AbstractBlock} to define the following concept: a \Block whose sole distinguishing feature is a \code{PolyhedralFunction} as objective, but which can otherwise contain any kind of ``abstract'' Variable and Constraint (provided these are handled by the base \code{AbstractBlock} class). The rationale for the \code{PolyhedralFunctionBlock} class is that a \code{PolyhedralFunction} is a perfectly fine object in itself, but one that several solver cannot easily deal with in its ``natural'' form. However, a \code{PolyhedralFunction} can also be represented in a very natural way by means of one extra continuous \code{ColVariable} plus a finite set of (dynamic) \code{FRowConstraint} with \code{LinearFunction} inside (a.k.a., linear constraints). Thus, the main feature that \code{PolyhedralFunctionBlock} implements is the ability to ``present'' itself (construct an ``abstract representation'') as either having a \code{FRealObjective} with a \code{PolyhedralFunction} inside, or having a set of (continuous) \code{ColVariable} and (linear) \code{RowConstraint}. We call the first the ``natural representation''  of a \code{PolyhedralFunctionBlock}, and the latter its ``linearized representation''. Note that most individual changes in the \code{PolyhedralFunction} result in many changes to the ``linearized representation'', that are properly bunched into appropriate \code{GroupModification}. Conversely, many individual changes to the ``linearized representation'' cannot (or would be too complex to) be implemented in the \code{PolyhedralFunction}, because each one of them individually would lead it to end in a partly inconsistent state, and only a co-ordinated set of them (say, properly bunched into an appropriate \code{GroupModification}) would work. Hence, a number of changes to the ``linearized representation'' are not allowed; see the comments to the protected method \code{guts\_of\_add\_Modification\_LR()} for details. Other than that, \code{PolyhedralFunctionBlock} entirely relies on the machinery provided by \code{AbstractBlock} to handle all the rest of the \Block, and therefore is subject to the limitations of that class regarding what kind of \code{Constraint}, \code{Variable} and \code{Objective} are supported. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
-\item all the data necessary to describe a \code{PolyhedralFunction}; see \code{PolyhedralFunction::serialize()} for details;
+\item all the data necessary to describe a \code{PolyhedralFunction}; see \S \ref{sssec:PolyhedralFunction} for details;
 %
-\item any other data necessary to represent the \cstr{arbitrary} part of the \code{AbstractBlock}, see \code{AbstractBlock::deserialize()} for details.
+\item any other data necessary to represent the ``arbitrary'' part of the
+  \code{AbstractBlock}; see \code{AbstractBlock::\-de\-se\-rialize()} for details.
 \end{itemize}
 
 
-\subsection {\code{PolyhedralFunction}}
-The \code{PolyhedralFunction} class derives from \code{C05Function}, and defines a simple implementation of a convex (or concave) \code{Function} defined by the maximum (or minimum) of a \cstr{small} number of explicitly provided affine forms. In other words, if the \code{PolyhedralFunction} depends on a set of $n$ \code{ColVariable}, its input data is a $m \times n$ matrix $A$ and a $m \times 1$ vector $b$ (with $m$ given and \cstr{small}). Serialize a \code{PolyhedralFunction} into a \code{netCDF::NcGroup}, with the following format:
+\subsubsection {\code{PolyhedralFunction}} \label{sssec:PolyhedralFunction}
+The \code{PolyhedralFunction} class derives from \code{C05Function}, and defines a simple implementation of a convex (or concave) \code{Function} defined by the maximum (or minimum) of a ``small'' number of explicitly provided affine forms. In other words, if the \code{PolyhedralFunction} depends on a set of $n$ \code{ColVariable}, its input data is a $m \times n$ matrix $A$ and a $m \times 1$ vector $b$ (with $m$ given and ``small''). Serialize a \code{PolyhedralFunction} into a \code{netCDF::NcGroup}, with the following format:
 
 \begin{itemize}
 \item The \dimension \cstr{PolyFunction\_NumVar} containing the number of columns of the $A$ matrix, i.e., the number of active variables.
@@ -1686,20 +1684,20 @@ The \code{PolyhedralFunction} class derives from \code{C05Function}, and defines
 %
 \item The \variable \cstr{PolyFunction\_b}, of type \code{netCDF::NcDouble} and indexed over the \dimension \code{NumRow}, which contains the vector $b$. The variable is only optional if \code{NumRow == 0}.
 %
-\item The \dimension \cstr{PolyFunction\_sign} (actually a bool), which contains the \cstr{verse} of the \code{PolyhedralFunction}, i.e., true for a convex max-function and false for a concave min-function (encoded in the obvious way, i.e., zero for false, nonzero for true). The \variable is optional, if it is not provided true is assumed.
+\item The \dimension \cstr{PolyFunction\_sign} (actually a bool), which contains the ``verse'' of the \code{PolyhedralFunction}, i.e., true for a convex max-function and false for a concave min-function (encoded in the obvious way, i.e., zero for false, nonzero for true). The \variable is optional, if it is not provided true is assumed.
 %
-\item The scalar \variable \cstr{PolyFunction\_lb}, of type \code{netCDF::NcDouble} and not indexed over any \dimension, which contains the global lower (if \code{PolyFunction\_sign ==} true, upper otherwise) bound on the value of the function over all the space. The \variable is optional, if it is not provided it means that no finite lower (upper) bound exist, i.e., the lower (upper) bound is \code{-(+) Inf<FunctionValue>()}.
+\item The scalar \variable \cstr{PolyFunction\_lb}, of type \code{netCDF::NcDouble} and not indexed over any \dimension, which contains the global lower (if \code{PolyFunction\_sign ==} true, upper otherwise) bound on the value of the function over all the space. The \variable is optional; if it is not provided it means that no finite lower (upper) bound exists, i.e., the lower (upper) bound is \code{-inf} (\code{+inf}).
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
 \subsection {\code{NetworkBlock}}
-The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small \cstr{passive} \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (\cstr{bus}, DC equations, AC equations, OPF, \dots) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
+The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small ``passive'' \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (``bus'', DC equations, AC equations, OPF, \dots) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
- \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \S \ref{NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
+ \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \code{NetworkData} in \S \ref{NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
  %
- \item The \cstr{ActiveDemand}, of type \code{netCDF::NcDouble}, and of size \cstr{number of nodes}. If the \code{NetworkData} object description is present in the \code{NcGroup} this is the \dimension \cstr{NumberNodes}, but the \code{NetworkData} object is optional and it may not be there. Thus if \cstr{NumberNodes} is not there and \cstr{ActiveDemand} is, then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}. However, \cstr{ActiveDemand} itself is optional. If it is not found in the \code{NcGroup}, then it \highlight{must} be passed (either before or after the call to \code{deserialize()}) by calling \code{set\_ActiveDemand()}. Since both groups of data are optional, the \code{NcGroup}  can actually be empty which implies that all the data will be (or have been) passed by the in-memory interface. In this case, it would clearly be preferable to \highlight{entirely avoid the \code{NcGroup} to be there}, and in fact \code{UCBlock} has provisions for the \code{NcGroup} describing the \code{NetworkBlock} to be optional (see the comments to  \code{UCBlock::deserialize()}).
+ \item The \cstr{ActiveDemand}, of type \code{netCDF::NcDouble}, and of size ``number of nodes''. If the \code{NetworkData} object description is present in the \code{NcGroup} this is the \dimension \cstr{NumberNodes}, but the \code{NetworkData} object is optional and it may not be there. Thus if \cstr{NumberNodes} is not there and \cstr{ActiveDemand} is, then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}. However, \cstr{ActiveDemand} itself is optional. If it is not found in the \code{NcGroup}, then it \highlight{must} be passed (either before or after the call to \code{deserialize()}) by calling \code{set\_ActiveDemand()}. Since both groups of data are optional, the \code{NcGroup}  can actually be empty which implies that all the data will be (or have been) passed by the in-memory interface. In this case, it would clearly be preferable to \highlight{entirely avoid the \code{NcGroup} to be there}, and in fact \code{UCBlock} has provisions for the \code{NcGroup} describing the \code{NetworkBlock} to be optional (see \code{UCBlock} in \S \ref{ssec:UCBlock}).
 \end{itemize}
 
 \newpage
@@ -1714,7 +1712,7 @@ Deserialize a \code{NetworkData} out of a \code{netCDF::NcGroup}, which should c
  %
  \smallskip
  \noindent
- If \code{NumberNodes == 1} (equivalently, it is not provided), the network is a \cstr{bus} formed of only one node, and therefore all the subsequent information need not to be present since it is not loaded. If \code{NumberNodes > 1}, then all the subsequent information is mandatory:
+ If \code{NumberNodes == 1} (equivalently, it is not provided), the network is a ``bus'' formed of only one node, and therefore all the subsequent information need not to be present since it is not loaded. If \code{NumberNodes > 1}, then all the subsequent information is mandatory:
  %
  \item the \dimension \cstr{NumberLines} containing the number of lines in the transmission network;
  %
@@ -1737,13 +1735,13 @@ The \code{BusNetworkBlock} class, which derives from \code{NetworkBlock} [see Ne
 
 
 \subsubsection {\code{DCNetworkBlock}}
-The \code{DCNetworkBlock} class derives from \code{NetworkBlock}, and defines the standard linear constraints corresponding to the \cstr{DC model} of the transmission network in the Unit Commitment problem.
+The \code{DCNetworkBlock} class derives from \code{NetworkBlock}, and defines the standard linear constraints corresponding to the ``DC model'' of the transmission network in the Unit Commitment problem.
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
 \subsection {\code{HeatBlock}}
 
-The \code{HeatBlock} class implements the \Block concept [see \code{Block.h}] for a set of ``heat units'' as required in the plan4res project. The constraints regarding heat management in the plan4res project can be described separately for each \code{HeatBlock}. In the parlance of plan4res, a \code{HeatBlock} is the intersection of an Energy Cell and a heat-ID: a set of heat-producing units that are geographically close enough to exchange heat of the same type, together with possibly a (single) storage for this type of heat, in order to satisfy a given heat demand. \code{HeatBlock}s are only connected to each other because some heat-producing units are also electricity-producing ones, where heat is a by-product or a co-product of electricity. However, this linking \cstr{happens at the level of the main UC model}, and therefore it is not required for the description of the internal constraints of a \code{HeatBlock}. All this on a given time horizon, as in the UC problem. The operations of the heat generating unit are described on a discrete time horizon where there may exist some heat-producing units, possibly of a single heat storage, and of the demand that has to be satisfied.
+The \code{HeatBlock} class implements the \Block concept [see \code{Block.h}] for a set of ``heat units'' as required in the plan4res project. The constraints regarding heat management in the plan4res project can be described separately for each \code{HeatBlock}. In the parlance of plan4res, a \code{HeatBlock} is the intersection of an Energy Cell and a heat-ID: a set of heat-producing units that are geographically close enough to exchange heat of the same type, together with possibly a (single) storage for this type of heat, in order to satisfy a given heat demand. \code{HeatBlock}s are only connected to each other because some heat-producing units are also electricity-producing ones, where heat is a by-product or a co-product of electricity. However, this linking ``happens at the level of the main UC model'', and therefore it is not required for the description of the internal constraints of a \code{HeatBlock}. All this on a given time horizon, as in the UC problem. The operations of the heat generating unit are described on a discrete time horizon where there may exist some heat-producing units, possibly of a single heat storage, and of the demand that has to be satisfied.
 \smallskip
 \noindent
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain all the following:
@@ -1772,7 +1770,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group should con
  %
  \item the \variable \cstr{CostHeatUnit}, of type \code{netCDF::NcDouble} and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \code{CHU[ t , i ]} which is assumed to contain the unitary cost of heat production of heat-producing unit $i$ for time instant $t$. If the first \dimension has size $1$, then the cost is the same for all time instants (for the same unit). Otherwise, \code{CostHeatUnit[ h , i ]} is the fixed value of \code{CHU[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
  %
- \item the \variable \cstr{MinHeatProduction}, of type \code{netCDF::NcDouble} and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \cstr{MinHP[ t , i ]} which is assumed to contain the minimum heat production of heat-producing unit $i$ for time instant $t$. The variable is optional; if it is not provided at all, it is intended \cstr{MnHP[ t , i ] == 0} for all $i$ and $t$. If the first \dimension has size $1$, then the minimum heat production is the same for all time instants (for the same unit). Otherwise, \code{MinHeatProduction[ h , i ]} is the fixed value of \code{MinHP[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
+ \item the \variable \cstr{MinHeatProduction}, of type \code{netCDF::NcDouble} and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \cstr{MinHP[ t , i ]} which is assumed to contain the minimum heat production of heat-producing unit $i$ for time instant $t$. The variable is optional; if it is not provided at all, it is intended \cstr{MinHP[ t , i ] == 0} for all $i$ and $t$. If the first \dimension has size $1$, then the minimum heat production is the same for all time instants (for the same unit). Otherwise, \code{MinHeatProduction[ h , i ]} is the fixed value of \code{MinHP[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
  %
  \item the \variable \cstr{MaxHeatProduction}, of type \code{netCDF::NcDouble} and indexed over two \dimensions. The first \dimension can have size $1$ or \cstr{NumberIntervals}. The second \dimension has size \cstr{NumberHeatUnits}. This is meant to represent the matrix \cstr{MaxHP[ t , i ]} which is assumed to contain the maximum heat production of heat-producing unit $i$ for time instant $t$. It is assumed \code{MaxHP[ t , i ] >= MinHP[ t , i ] >= 0} for all $i$ and $t$, with strict inequality holding for at least some $t$ for each unit $i$ (otherwise the production of unit $i$ is fixed and there is nothing to decide). The variable is optional; if it is not provided at all, it is intended \cstr{MaxHP[ t , i ] == 0} for all $i$ and $t$. If the first \dimension has size $1$, then the maximum heat production is the same for all time instants (for the same unit). Otherwise, \code{MaxHeatProduction[ h , i ]} is the fixed value of \code{MaxHP[ t , i ]} for all $t$ in the interval \code{[ ChangeIntervals[ h - 1 ], ChangeIntervals[ h ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0};
  %
@@ -1928,7 +1926,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   of \code{DataMapping} is not provided, then if the \cstr{StochasticBlock}
   group is provided and contains a description of a vector of
   \code{DataMapping}, then it is used to construct the vector of
-  \code{DataMapping} of the \code{StochasticBlock} decribed by the
+  \code{DataMapping} of the \code{StochasticBlock} described by the
   \cstr{StochasticBlock\_t} \group.
 
 \item the \cstr{AbstractPath} \group containing the description of a vector of
@@ -2102,7 +2100,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, an \SMSpp
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
-\subsection {\code{BendersBFunction}}
+\subsection {\code{BendersBFunction}}\label{ssec:BendersBFunction}
 
 The \code{BendersBFunction} is a convenience class implementing the
 ``abstract'' concept of a Benders function of ``any''
@@ -2363,7 +2361,7 @@ The \code{CDASolver} class extends the parameters of \Solver with the ones descr
  name & type & description \\
  %
  \hline
- \code{intMaxDSol} & \code{int} & The algorithmic parameter for setting the maximum number of different \emph{dual} solutions that the \Solver should attempt to obtain and store. Since dual solutions can be a ``big'' objects (in some cases, much bigger than primal sones), storing them may be costly. It may be therefore helpful for a \code{CDASolver} to know beforehand how many different dual solutions the user would like to get. Among the reasonable values for this parameter, $1$ says ``I don't care of multuple dual solutions, give me only the best one'', and $0$ says ``I don't care of dual solutions at all, just tell me if there is any, and what its value is''. The default is $1$. \\
+ \code{intMaxDSol} & \code{int} & The algorithmic parameter for setting the maximum number of different \emph{dual} solutions that the \Solver should attempt to obtain and store. Since dual solutions can be a ``big'' objects (in some cases, much bigger than primal ones), storing them may be costly. It may be therefore helpful for a \code{CDASolver} to know beforehand how many different dual solutions the user would like to get. Among the reasonable values for this parameter, $1$ says ``I don't care of multiple dual solutions, give me only the best one'', and $0$ says ``I don't care of dual solutions at all, just tell me if there is any, and what its value is''. The default is $1$. \\
  %
  \hline
  \code{dblRAccDSol} & \code{dbl} & The algorithmic parameter for setting the relative accuracy of the accepted \emph{dual} solutions. It instructs the \code{CDASolver} not to even consider a solution among the ones to be reported (see \code{intMaxDSol}) if its objective function value is ``too'' bad. If the original problem is a minimization one, its dual is a maximization one. Hence, the objective function value of a dual solution provides a lower bound $lb$ on the optimal dual value (which may, or may not, be equal to that of the primal problem). Assuming an upper bound $ub$ on the optimal value of the \emph{dual} problem has been found (note that this can be obtained by means of the objective value of a feasible \emph{primal} solution), a solution is deemed acceptable with the provided parameter $\varepsilon$ if $ub - lb \leq \varepsilon \max( |ub| , |lb| , 1 )$. Note that if no $ub$ is available, the above formula can be replaced with $f_{best} - lb \leq \varepsilon \max( |f_{best}| , |lb| , 1 )$ where $f_{best}$ is the value of the best (with largest objective value) solution found so far. The roles of $ub$ and $lb$ are suitably reversed if the primal is a maximization problem, so that the dual is a minimization one. The default is $+\infty$. \\
@@ -2727,6 +2725,16 @@ the {\Constraint}s are indicated by the one-dimensional \variable
 The way the {\Constraint}s are affected by those {\Variable}s is defined by
 the linear mapping given by the \netCDF \variables \cstr{A} and \cstr{b}
 (together with their auxiliary \variables and \dimensions).
+Figure~\ref{fig:stochastic_block} summarizes the structure of an
+\code{StochasticBlock} in which $x_t$ represent the \Variables of the
+\code{BendersBlock}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=1.5]{img/stochastic_block.pdf}
+  \caption{Structure of an \code{StochasticBlock} in the SSV.}
+  \label{fig:stochastic_block}
+\end{figure}
 
 Before giving an example on how to construct the \code{BendersBlock}, we shall
 look into some details of the \code{UCBlock}. Following the example above, in
@@ -2740,7 +2748,9 @@ you can see, there are two independent time horizons: one at the level of the
 \code{UCBlock} (the short-term problem). To avoid confusion, we will refer to
 the time horizon and stages of the \code{SDDPBlock} as the outer time horizon
 and outer stages, respectively, and the time horizon and stages of the
-\code{UCBlock} as the inner time horizon and inner stages, respectively.
+\code{UCBlock} as the inner time horizon and inner stages, respectively. We
+will also use the notations $T^{\text{out}}$ and $T^{\text{in}}$ to refer to
+the outer and inner time horizons when necessary.
 
 A \code{UCBlock} has three sets of sub-{\Block}s. The first one is a set of
 \code{UnitBlock}s whose size is given by the \cstr{NumberUnits}
@@ -2787,17 +2797,39 @@ denotes the number of \code{HydroUnitBlock}s (\dimension
   \label{fig:hsublock}
 \end{figure}
 
+The \Variables of the \code{BendersBlock} represent the dependence between
+consecutive \code{UnitBlock}s. In the SSV, this dependence is related to the
+volumes of the reservoirs: the initial volume of a reservoir of a
+\code{HydroUnitBlock} at the outer stage $t \in \{1, \dots,
+T^{\text{out}}-1\}$ must be equal to the volume of that reservoir at the last
+inner stage of the \code{HydroUnitBlock} at the outer stage $t-1$.  The
+\Variables of the \code{BendersBlock} at the outer stage $t \in \{0, \dots,
+T^{\text{out}} - 1\}$ thus represent the initial volumes of the reservoirs of
+the \code{HydroUnitBlock}s at that stage.
+
 Let $r_i$ denote the number of reservoirs (\dimension \cstr{NumberReservoirs}
 in the specification of \code{HydroUnitBlock}) of the $i$-th
-\code{HydroUnitBlock}. For each $i \in \{0, \dots, H-1\}$ and $j \in \{0,
-\dots, r_i - 1\}$, let $v_{i,j}$ denote the initial volume of the $j$-th
-reservoir of the $i$-th \code{HydroUnitBlock}. These initial volumes are given
-by the \cstr{InitialVolumetric} \variable in the specification of the
-\code{HydroUnitBlock}. When solving the \code{SDDPBlock} by the SDDP method,
-however, the initial volumes of the reservoirs of the \code{UCBlock} at the
-outer stage $t$ are given by the values of the \Variables of the
-\code{BendersBlock}, which must be equal to the volumes of the reservoirs at
-the last inner stage of the \code{UCBlock} at the outer stage $t-1$.
+\code{HydroUnitBlock}. For each $i \in \{0, \dots, H-1\}$ and $j \in
+\mathcal{N}^i = \{0, \dots, r_i - 1\}$, let $\tilde{v}_{i,j}$ denote the
+initial volume of the $j$-th reservoir of the $i$-th
+\code{HydroUnitBlock}. These initial volumes appear in the ``final volumes
+constraints'' of the \code{HydroUnitBlock}. For the inner stage $t=0$ and the
+$i$-th \code{HydroUnitBlock}, these constraints are
+\begin{equation}
+v^{i}_{j,t} = \tilde{v}_{i,j} + F^i_{j,t} +
+\Big(\sum_{\substack{l=(d,s)\\(s,d) \in \mathcal{L}^{i}} } f^i_{t -
+  \tau^{i,\text{dn}}_l , l } - \sum_{l \in \mathcal{L}^{i} } f^i_{t -
+  \tau^{i,\text{up}}_l , l }\Big), \quad \forall j \in \mathcal{N}^{i} \text{
+  and } t = 0.
+\label{eq:initial_volume}
+\end{equation}
+In these constraints, $v^{i}_{j,t}$ denotes the volume of the $j$-th reservoir
+at the (inner) stage $t$, $F^i_{j,t}$ denotes the inflow at the $j$-th
+reservoir at the (inner) stage $t$, $f^{i}_{k,l}$ is the flow rate at time $k$
+for arc $l$, and $\tau^{i,\text{dn}}_l$ and $\tau^{i,\text{up}}_l$ denote the
+uphill and downhill flow rates at arc $l$, respectively.  (See the
+documentation of the \code{HydroUnitBlock} class for details.)
+
 Therefore, we could define the \Variables $x$ of the \code{BendersBlock} as
 that representing the following vector:
 \[
@@ -2815,8 +2847,9 @@ x =
 }}
 
 \matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.25cm] (m) {
-\tikzmarkin[s]{v0}v_{0,0} & \dots & v_{0,r_0}\tikzmarkend{v0} & \dots & \tikzmarkin[s]{vk}v_{k,0} & \dots & v_{k,r_k}\tikzmarkend{vk} & \dots &
-\tikzmarkin[s]{vH}v_{H-1,0} & \dots & v_{H-1,r_{H-1}}\tikzmarkend{vH}\\
+\tikzmarkin[s]{v0}\tilde{v}_{0,0} & \dots & \tilde{v}_{0,r_0}\tikzmarkend{v0} & \dots &
+\tikzmarkin[s]{vk}\tilde{v}_{k,0} & \dots & \tilde{v}_{k,r_k}\tikzmarkend{vk} & \dots &
+\tikzmarkin[s]{vH}\tilde{v}_{H-1,0} & \dots & \tilde{v}_{H-1,r_{H-1}}\tikzmarkend{vH}\\
 };
 
 \node[
@@ -2839,7 +2872,179 @@ x =
   below delimiter=\},
   label=below:\code{HydroUnitBlock} $H-1$
 ] {};
-\end{tikzpicture}.
+\end{tikzpicture}^{\top}.
+\]
+As aforementioned, these are the active \Variables of the
+\code{BendersBFunction}. Based on the values of these \Variables, the
+\code{BendersBFunction} is responsible for updating the \Constraints of the
+\code{HydroUnitBlock}s. By isolating the independent terms in constraints
+\eqref{eq:initial_volume}, we can rewrite them as
+\begin{equation}
+v^{i}_{j,t} - \Big(\sum_{\substack{l=(d,s)\\(s,d) \in \mathcal{L}^{i}} }
+f^i_{t - \tau^{i,\text{dn}}_l , l } - \sum_{l \in \mathcal{L}^{i} } f^i_{t -
+  \tau^{i,\text{up}}_l , l }\Big) = \tilde{v}_{i,j} + F^i_{j,t}, \quad \forall
+j \in \mathcal{N}^{i} \text{ and } t = 0.
+\label{eq:initial_volume2}
+\end{equation}
+Notice that the independent terms appear in the right-hand side of this
+constraint.  Since it is an equality constraint, the left- and right-hand
+sides of the \code{RowConstraint} representing this constraint must be equal
+to $\tilde{v}_{i,j} + F^i_{j,t}$ and, therefore, are identically affected by
+the initial volumes of the reservoir. This means that we could define the
+mapping $M$ in the \code{BendersBFunction} (see \S
+\ref{ssec:BendersBFunction}) as
+\[
+M(x) = x + F,
+\]
+where
+\begin{equation}
+F =
+\begin{tikzpicture}[
+    baseline,
+    label distance=10pt
+  ]
+
+\tikzset{
+  s/.style={
+    set fill color=blue!5,
+    set border color=blue!30,
+    below right offset={0.1,-0.25},
+}}
+
+\matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.25cm] (F) {
+\tikzmarkin[s]{F0}F^0_{0,0} & \dots & F^0_{r_0,0}\tikzmarkend{F0} & \dots &
+\tikzmarkin[s]{Fk}F^k_{0,0} & \dots & F^k_{r_k,0}\tikzmarkend{Fk} & \dots &
+\tikzmarkin[s]{FH}F^{H-1}_{0,0} & \dots & F^{H-1}_{r_{H-1},0}\tikzmarkend{FH}\\
+};
+
+\node[
+  fit=(F-1-1)(F-1-3),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $0$
+] {};
+
+\node[
+  fit=(F-1-5)(F-1-7),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $k$
+] {};
+
+\node[
+  fit=(F-1-9)(F-1-11),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $H-1$
+] {};
+\end{tikzpicture}^{\top}.
+\label{eq:inflow}
+\end{equation}
+Since the mapping matrix $A$ is very sparse (it is the identity matrix), it
+would be convenient to use the sparse representation of the mapping. The
+number of rows and columns of the mapping matrix are equal to the total number
+of reservoirs.  Also the number of nonzero entries in the mapping matrix is
+equal to that number. Therefore, in the specification of the
+\code{BendersBFunction}, we would have
+\[
+\cstr{NumVar} = R, \quad
+\cstr{NumRow} = R, \quad \text{ and } \quad 
+\cstr{NumNonzero} = R,
+\]
+where $R$ is the total number of reservoirs, i.e., $R = \sum_{i = 0}^{H - 1}
+r_i$. Since there is a single nonzero entry at each row, the \variable
+\cstr{NumNonzeroAtRow} would be a vector of size \cstr{NumRow} (i.e., $R$)
+with all entries equal to 1:
+\[
+\cstr{NumNonzeroAtRow} = ( 1, \dots, 1 ).
+\]
+The \variable \cstr{Column} would be the vector
+\[
+\cstr{Column} = ( 0, 1, \dots, R-1 )
+\]
+and the \variable \cstr{A}, containing the nonzero entries of the mapping
+matrix, would be the vector of size \cstr{NumNonzero} (i.e., $R$) given by
+\[
+\cstr{A} = ( 1, \dots, 1 ).
+\]
+Finally, the \variable \cstr{b}, containing the constant term of the vector, would
+be the vector of size \cstr{NumRow} (i.e., $R$) given by
+\[
+\cstr{b} = F,
+\]
+with $F$ given by \eqref{eq:inflow}.
+
+Now, to each row of the mapping, we must associate the corresponding
+\code{RowConstraint}. In a \code{HydroUnitBlock},
+constraints~\eqref{eq:initial_volume2} belong to a two-dimensional group of
+\code{RowConstraint}s which is indexed over the dimensions (inner)
+\cstr{TimeHorizon} and \cstr{NumberReservoirs}.  Thus, in that group of
+\code{RowConstraint}s, the $j$-th constraint in \eqref{eq:initial_volume2} is
+represented by the \code{RowConstraint} whose (two-dimensional) index is $(0,
+j)$. In the specification of the \code{BendersBFunction}, each of those
+\code{RowConstraint}s would be indicated by an \code{AbstractPath} starting
+from the \code{BendersBlock}, i.e., having the \code{BendersBlock} as the
+reference \Block.
+
+Considering the structure of the \code{BendersBlock} illustrated by
+Figure~\ref{fig:stochastic_block} and the structure of the \code{UCBlock}
+depicted in Figure~\ref{fig:ucblock}, assuming the \code{HydroSystemUnitBlock}
+is the first \code{UnitBlock} in the \code{UCBlock}, an \code{AbstractPath}
+from the \code{BendersBlock} to the ``final volume'' \Constraint with
+(two-dimensional) index $(0,j)$ of the $i$-th \code{HydroUnitBlock} would be
+given by
+\begin{equation}
+  O \rightarrow B(0) \rightarrow B(i) \rightarrow C(11, j),
+  \label{path}
+\end{equation}
+where $B(k)$ indicated the $k$-th nested \Block of a \Block and $C(k_1, k_2)$
+indicates the \Constraint whose element index is $k_2$ within the group of
+\Constraints whose index is $k_1$.
+
+To understand this path, we can start from the \RowConstraint of interest and
+navigate up to the reference \Block. Since the two-dimensional index of the
+target \RowConstraint is $(0,j)$, its element index is $j$ according to the
+definition of ``element index'' of a \Constraint in an \code{AbstractPath}
+(see \eqref{eq:element_index} for details).  Moreover, that \RowConstraint
+belongs to the group of \Constraints whose index is 11 (the ``final volume''
+constraints are the twelfth group of \Constraints in a \code{HydroUnitBlock};
+see the comments of the \code{HydroUnitBlock} class for details).  The target
+\RowConstraint belongs to the $i$-th \code{HydroUnitBlock}, i.e., the $i$-th
+nested \Block of the \code{HydroSystemUnitBlock}. Hence, we have the node
+$B(i)$. The code{HydroSystemUnitBlock} is the first nested \Block of the
+\code{UCBlock}. Hence, we have the node $B(0)$. Finally, the \code{UCBlock} is
+the inner \Block of the \code{BendersBFunction}, which is the \Function of the
+\code{FRealObjective} of the \code{BendersBlock}. Hence, we have the node $O$.
+
+The \code{AbstractPath}s of those \RowConstraints must be given as a vector of
+\code{AbstractPath}. From the general path \eqref{path}, it is straightforward
+to construct a vector of \code{AbstractPath}s to those \RowConstraints. By
+concatenating the sequence of nodes of all \code{AbstractPath}s, we would have
+the following vectors of size $4R$:
+\begin{align*}
+\cstr{PathNodeTypes} = ( & \text{`O'}, \text{`B'}, \text{`B'}, \text{`C'}, \dots,
+\text{`O'}, \text{`B'}, \text{`B'}, \text{`C'})\\
+\cstr{PathGroupIndices} = ( & \code{inf}, 0, 0, 11, \dots, \code{inf}, 0, i, 11,
+                            \dots, \code{inf}, 0, H-1, 11 )\\
+\cstr{PathElementIndices} = (
+& \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_0-1,\\
+& \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_1-1,\\
+& \dots,\\
+& \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_{H-1}-1 ).
+\end{align*}
+Since each \code{AbstractPath} has four nodes and there are a total of $R$
+\code{AbstractPath}s, we would have
+\[
+\cstr{PathDim} = R, \quad \cstr{TotalLength} = 4R, \quad \text{ and } \quad
+\cstr{PathStart} = (0, 4, 8, \dots, 4(R - 1)).
+\]
+
+Lastly, since all those \RowConstraints represent equality constraints, the
+\cstr{ConstraintSide} \variable would be a vector of size \cstr{NumRow} (i.e.,
+$R$) with all elements equal to `B', meaning that both sides of the
+\RowConstraint are equally affected:
+\[
+\cstr{ConstraintSide} = (\text{`B'}, \dots, \text{`B'}).
 \]
 
 
