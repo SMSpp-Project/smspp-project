@@ -56,9 +56,9 @@
 % Hyperlinks (required, but should be loaded last)
 \usepackage{ifpdf}
 \ifpdf
-  \usepackage[pdftex,pagebackref=true]{hyperref}
+  \usepackage[pdftex,pagebackref=false]{hyperref}
 \else
-  \usepackage[ps2pdf,pagebackref=true]{hyperref}
+  \usepackage[ps2pdf,pagebackref=false]{hyperref}
 \fi
 \hypersetup{%
   colorlinks=true,%
@@ -1457,7 +1457,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 
 \newpage
 
-\subsubsection {\code{HydroUnitBlock}}
+\subsubsection {\code{HydroUnitBlock}}\label{HydroUnitBlock}
 The \code{HydroUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} hydro unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of hydro storage. To model complex reservoir systems several technical parameters have to be considered. These are divided into reservoir-specific parameters, the hydro links connecting the reservoirs and finally the turbine/pump parameters. The values are collected within a reservoir database, a hydro-link database and a turbine/pump-database.
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}(\code{netCDF::NcGroup}). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
 %
@@ -1632,7 +1632,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
-\subsection {\code{HydroSystemUnitBlock}}
+\subsection {\code{HydroSystemUnitBlock}}\label{sec:HydroSystemUnitBlock}
 The class \code{HydroSystemUnitBlock}, which derives from the \Block, in order to define a base class for any possible \cstr{hydro unit} plus the linking \code{PolyhedralFunctionBlock} to describe the future value of water function in a \code{UCBlock}. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
 \item The \dimension \cstr{NumberHydroUnits} containing the number of hydro units (\code{HydroUnitBlock}) in the problem.
@@ -2537,7 +2537,7 @@ inner \Block of the \code{BendersBFunction} to be overwritten (if the
 
 The multistage stochastic problem in the Seasonal Storage Valuation (SSV) is
 represented by an \code{SDDPBlock} (see \S \ref{ssec:SDDPBlock}). The
-\code{SDDPBlock} has $T$ nested \Block, where $T$ is the time horizon and,
+\code{SDDPBlock} has $T$ nested \Blocks, where $T$ is the time horizon and,
 therefore, we have $\code{TimeHorizon} = T$ in the specification of
 \code{SDDPBlock}. For each $t \in \{0, \dots,T-1\}$, the $t$-th nested \Block
 of the \code{SDDPBlock} is a \code{StochasticBlock} (see \S
@@ -2760,7 +2760,7 @@ by the \cstr{NumberHeatBlocks} \dimension. The third one is a set of
 \cstr{TimeHorizon}. Figure~\ref{fig:ucblock} illustrates the \code{UCBlock}
 and its nested {\Block}s. In this figure, $M$ is the number of
 \code{UnitBlock}s (\dimension \cstr{NumberUnits}), $N$ is the number of
-\code{HeatBlock}s (\dimension \cstr{NumberHeatBlocks}) and $T$ is the inner
+\code{HeatBlock}s (\dimension \cstr{NumberHeatBlocks}), and $T$ is the inner
 time horizon (\dimension \cstr{TimeHorizon} in the specification of
 \code{UCBlock}).
 
@@ -2781,14 +2781,15 @@ Figure~\ref{fig:ucblock}, it would be the \code{UnitBlock} with index
 0). Hence, the description of the \code{HydroSystemUnitBlock} should be given
 in the \group \cstr{UnitBlock\_0} in the specification of the \code{UCBlock}.
 
-The \code{HydroSystemUnitBlock} is a \code{UnitBlock} that has a list of
-\code{HydroUnitBlock}s and one \code{PolyhedralFunctionBlock} as nested
-{\Block}s. The \code{PolyhedralFunctionBlock} is the last among the
-nested {\Block}s of the \code{HydroSystemUnitBlock}. Figure~\ref{fig:hsublock}
-depicts the \code{HydroSystemUnitBlock} with its nested {\Block}s in which $H$
-denotes the number of \code{HydroUnitBlock}s (\dimension
-\cstr{NumberHydroUnits} in the specification of the
-\code{HydroSystemUnitBlock}).
+The \code{HydroSystemUnitBlock} (see \S \ref{sec:HydroSystemUnitBlock}) is a
+\code{UnitBlock} that has a list of \code{HydroUnitBlock}s (see \S
+\ref{HydroUnitBlock}) and one \code{PolyhedralFunctionBlock} as nested
+    {\Block}s. The \code{PolyhedralFunctionBlock} is the last among the nested
+    {\Block}s of the \code{HydroSystemUnitBlock}. Figure~\ref{fig:hsublock}
+    depicts the \code{HydroSystemUnitBlock} with its nested {\Block}s in which
+    $H$ denotes the number of \code{HydroUnitBlock}s (\dimension
+    \cstr{NumberHydroUnits} in the specification of the
+    \code{HydroSystemUnitBlock}).
 
 \begin{figure}[h!]
   \centering
@@ -3011,16 +3012,16 @@ constraints are the twelfth group of \Constraints in a \code{HydroUnitBlock};
 see the comments of the \code{HydroUnitBlock} class for details).  The target
 \RowConstraint belongs to the $i$-th \code{HydroUnitBlock}, i.e., the $i$-th
 nested \Block of the \code{HydroSystemUnitBlock}. Hence, we have the node
-$B(i)$. The code{HydroSystemUnitBlock} is the first nested \Block of the
+$B(i)$. The \code{HydroSystemUnitBlock} is the first nested \Block of the
 \code{UCBlock}. Hence, we have the node $B(0)$. Finally, the \code{UCBlock} is
 the inner \Block of the \code{BendersBFunction}, which is the \Function of the
 \code{FRealObjective} of the \code{BendersBlock}. Hence, we have the node $O$.
 
 The \code{AbstractPath}s of those \RowConstraints must be given as a vector of
-\code{AbstractPath}. From the general path \eqref{path}, it is straightforward
-to construct a vector of \code{AbstractPath}s to those \RowConstraints. By
-concatenating the sequence of nodes of all \code{AbstractPath}s, we would have
-the following vectors of size $4R$:
+\code{AbstractPath}. From the general path \eqref{path} to a \RowConstraint,
+it is straightforward to construct a vector of \code{AbstractPath}s to those
+\RowConstraints. By concatenating the sequence of nodes of all
+\code{AbstractPath}s, we would have the following vectors of size $4R$:
 \begin{align*}
 \cstr{PathNodeTypes} = ( & \text{`O'}, \text{`B'}, \text{`B'}, \text{`C'}, \dots,
 \text{`O'}, \text{`B'}, \text{`B'}, \text{`C'})\\
