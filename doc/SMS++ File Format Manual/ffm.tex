@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 24/01/2020}
+{\Large Date: 27/01/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -1947,11 +1947,12 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   and indexed over \dimension \cstr{TimeHorizon}. This dimension is
   optional. If it is not provided, then all sub-scenarios are assumed to have
   the same size, i.e., $ s_t = (\cstr{ScenarioSize} / \cstr{TimeHorizon})$ for
-  all $ t \in \{ 0, \dots, \cstr{TimeHorizon} - 1 \}$. If this \dimension is
-  provided, then \code{SubScenarioSize[t]} is the size of the sub-scenario
-  associated with stage $t$, i.e., $s_t = \code{SubScenarioSize[t]}$, for each
-  $t \in \{ 0, \dots, \cstr{TimeHorizon}-1 \}$. In the latter case, the
-  following must hold:
+  all $ t \in \{ 0, \dots, \cstr{TimeHorizon} - 1 \}$, and \cstr{ScenarioSize}
+  is a multiple of \cstr{TimeHorizon}. If this \dimension is provided, then
+  \code{SubScenarioSize[t]} is the size of the sub-scenario associated with
+  stage $t$, i.e., $s_t = \code{SubScenarioSize[t]}$, for each $t \in \{ 0,
+  \dots, \cstr{TimeHorizon}-1 \}$. In the latter case, the following must
+  hold:
   \[
     \cstr{ScenarioSize} = \sum_{t = 0}^{\cstr{TimeHorizon} - 1}
     \cstr{SubScenarioSize}[t].
@@ -1978,6 +1979,52 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   sub-scenario. This \variable is optional. It is required only if
   \cstr{NumberRandomDataGroups} is provided and $\cstr{NumberRandomDataGroups}
   > 1$.
+
+\item The \cstr{StateSize} \variable, of type \code{netCDF::Uint64} and being
+  either a scalar or a one-dimensional array indexed over \cstr{TimeHorizon}
+  dimension, specifying the sizes of the states at each stage. If this
+  \variable is a scalar, then all states are assumed to have the same size
+  given by \cstr{StateSize}. If it is an array then, for each $t \in
+  \{0,\dots,\cstr{TimeHorizon}-1\}$, \cstr{StateSize}\code{[t]} contains the
+  size of the state at stage $t$. The state being a vector, its size is the
+  dimension of the space in which it lies.
+
+%\item The \cstr{TotalStateSize} \dimension, of type \code{netCDF::Uint64},
+%  specifying the sum of the sizes of the states of each stage. This dimension
+%  is optional.
+
+\item The \cstr{AdmissibleState} \variable, of type \code{netCDF::NcDouble},
+  containing an admissible state for each stage. An admissible state for a
+  stage is an state which makes the problem at that stage feasible.
+  If \cstr{StateSize} is scalar and \cstr{AdmissibleState} has
+    \dimension \cstr{StateSize}, then all stages are assumed to have the same
+    admissible state given by \cstr{AdmissibleState}. Otherwise,
+    \cstr{AdmissibleState} contains the concatenation of the states for all
+    stages as follows.
+    \begin{itemize}
+    \item If \cstr{StateSize} is scalar then, for each $t \in \{ 0. \dots,
+      \cstr{TimeHorizon} - 1\}$, an admissible state for stage $t$ is given by
+      \[
+      ( \code{AdmissibleState[}s_t\code{]}, \dots, \cstr{AdmissibleState[}s_t
+        + \code{StateSize} - 1 ),
+      \]
+      where $s_t = t \times \cstr{StateSize}$. In this case,
+      \cstr{AdmissibleState} must have size $\cstr{TimeHorizon} \times
+      \cstr{StateSize}$.
+
+    \item If \cstr{StateSize} is a one-dimensional array then, for each $t \in
+      \{ 0. \dots, \cstr{TimeHorizon} - 1\}$, an admissible state for stage
+      $t$ is given by
+      \[
+      ( \code{AdmissibleState[}s_t\code{]}, \dots, \cstr{AdmissibleState[}s_t
+        + \code{StateSize[t] - 1]}),
+      \]
+      where $s_t = \sum_{i=0}^{t-1} \cstr{StateSize[i]}$. In this case,
+      \cstr{AdmissibleState} must have size
+      \[
+      \sum_{i=0}^{\cstr{TimeHorizon} -1} \cstr{StateSize[i]}.
+      \]
+    \end{itemize}
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2218,28 +2265,35 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
 
 \item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::NcUint64}
   and indexed over the dimension \cstr{NumRow}, containing the number of
-  nonzero elements of the $A$ matrix in each row. This variable is mandatory
-  if the dimension \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not
-  present, then this variable is ignored. For each $i \in \{0, \dots,
-  \code{NumRow}-1\}$, \code{NumNonzeroAtRow[i]} is the number of nonzero
-  elements in the $i$-th row of the $A$ matrix.
+  nonzero elements of the $A$ matrix in each row.  If the dimension
+  \cstr{NumNonzero} is not present, then this variable is ignored.  If
+  \cstr{NumNonzero} is present, then \cstr{NumNonzeroAtRow} is optional only
+  if \cstr{NumVar}, \cstr{NumRow}, and \cstr{NumNonzero} are equal. In this
+  case, if \cstr{NumNonzeroAtRow} is not provided, then the $A$ matrix is
+  assumed to be the identity matrix. If \cstr{NumVar}, \cstr{NumRow}, and
+  \cstr{NumNonzero} are not all equal, then \cstr{NumNonzeroAtRow} must be
+  provided. For each $i \in \{0, \dots, \code{NumRow}-1\}$,
+  \code{NumNonzeroAtRow[i]} is the number of nonzero elements in the $i$-th
+  row of the $A$ matrix.
 
 \item The \variable \cstr{Column}, of type \code{netCDF::NcUint64} and indexed
   over the dimension \cstr{NumNonzero}, containing the column indices of the
-  entries of the matrix. This variable is mandatory if the dimension
-  \cstr{NumNonzero} is present. If \cstr{NumNonzero} is not present, then this
-  variable is ignored. For each $k \in \{0, \dots, \code{NumNonzero}-1\}$,
-  \code{Column[k]} is the column index of the k-th nonzero entry of the $A$
-  matrix, whose value is given by \code{A[k]}. \cstr{Column} stores the column
-  indices in row-major order, that is, if $(i,j)$ and $(p,q)$ are the entries
-  of the $k$-th and $l$-th nonzero elements of $A$, respectively, with $k <
-  l$, then $i \le p$.
+  entries of the matrix. If \cstr{NumNonzero} or \cstr{NumNonzeroAtRow} is not
+  present, then this variable is ignored. For each $k \in \{0, \dots,
+  \code{NumNonzero}-1\}$, \code{Column[k]} is the column index of the k-th
+  nonzero entry of the $A$ matrix, whose value is given by
+  \code{A[k]}. \cstr{Column} stores the column indices in row-major order,
+  that is, if $(i,j)$ and $(p,q)$ are the entries of the $k$-th and $l$-th
+  nonzero elements of $A$, respectively, with $k < l$, then $i \le p$.
 
 \item The \variable \cstr{A}, of type \code{netCDF::NcDouble}. This variable
   stores the values of the elements of the $A$ matrix of the mapping. If the
-  dimension \cstr{NumNonzero} is present, then this variable is indexed over
-  this dimension and contains the values of the (potentially) nonzero entries
-  of the matrix. In this case, \code{A[k]} is the value of the $k$-th nonzero
+  dimension \cstr{NumNonzero} is provided but \cstr{NumNonzeroAtRow} is not,
+  then the $A$ matrix is assumed to be the identity matrix and this \variable
+  is ignored. If both the dimensions \cstr{NumNonzero} and
+  \cstr{NumNonzeroAtRow} are provided, then this variable is indexed over this
+  dimension and contains the values of the (potentially) nonzero entries of
+  the matrix. In this case, \code{A[k]} is the value of the $k$-th nonzero
   entry, whose column index is given by \code{Column[k]}. The nonzero elements
   of the matrix are given in left-to-right top-to-bottom (``row-major'')
   order. If the dimension \cstr{NumNonzero} is not present, then \cstr{A} is
@@ -2255,16 +2309,17 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   indexed over the dimension \cstr{NumRow}, indicating, at position $i$, which
   side of the $i$-th \Constraint is affected. The possible values are `L' for
   the left-hand (or lower bound) side, `R' for the right-hand (or upper bound)
-  side, and `B' for both sides. This variable is optional only if \code{NumRow
-    == 0}.
+  side, and `B' for both sides. This variable is optional. If it is not
+  provided, then all entries of this array are assumed to be `B'.
 
-\item All the dimensions and variables necessary to describe a vector of
-  \code{AbstractPath}. The number of \code{AbstractPath} must be equal to the
-  number of rows of the $A$ matrix and, therefore, the dimension associated
-  with the number of \code{AbstractPath} is \cstr{NumRow}. The $i$-th
-  \code{AbstractPath} in this vector must be the path to the $i$-th affected
-  \code{RowConstraint} (which is associated with the $i$-th row of the $A$
-  matrix). These variables are optional only if \code{NumRow == 0}.
+\item The \group \cstr{AbstractPath} containing the description of a vector of
+  \code{AbstractPath} to the affected \RowConstraints. The number of
+  \code{AbstractPath} in that vector must be equal to the number of rows of
+  the $A$ matrix and, therefore, the dimension associated with the number of
+  \code{AbstractPath} is \cstr{NumRow}. The $i$-th \code{AbstractPath} in this
+  vector must be the path to the $i$-th affected \code{RowConstraint} (which
+  is associated with the $i$-th row of the $A$ matrix). This \group is
+  optional only if \code{NumRow == 0}.
 
 \item The \group \cstr{Block}, containing the description of the inner
   \Block.
@@ -2555,7 +2610,7 @@ could be associated with a particular week of the year.
 The set of scenarios in \code{SDDPBlock} is given by a matrix (see the
 \variable \cstr{Scenarios} in \S \ref{ssec:SDDPBlock}), in which each row
 represents a scenario that spans the time horizon. If there are $m$ scenarios
-(see \variable \cstr{NumberScenarios} in \S \ref{ssec:SDDPBlock}) and each
+(see \dimension \cstr{NumberScenarios} in \S \ref{ssec:SDDPBlock}) and each
 scenario is a (row) vector in $\mathbb{R}^n$ (in which case $n$ would be the
 size of a scenario; see \dimension \cstr{ScenarioSize} in \S
 \ref{ssec:SDDPBlock}), a matrix $\mathcal{S} \in \mathbb{R}^{m \times n}$ with
@@ -2592,7 +2647,7 @@ In the specification of \code{SDDPBlock}, the vector $( n_0, \dots, n_{T-1})$
 containing the sizes of the sub-scenarios is given by the \variable
 \cstr{SubScenarioSize}. This \variable is optional and, in the case it is not
 provided, all sub-scenarios are assumed to have the same size, i.e., $n_t = n
-/ T$ for each $t \in \{0, \dots, T-1\}$.
+/ T$ for each $t \in \{0, \dots, T-1\}$, and $n$ is a multiple of $T$.
 
 If all sub-scenarios have the same size, their data must be organized so that
 related random data are in contiguous parts of the vector representing a
@@ -2736,12 +2791,14 @@ Figure~\ref{fig:stochastic_block} summarizes the structure of an
   \label{fig:stochastic_block}
 \end{figure}
 
+\subsubsection{\code{BendersBlock}}
+
 Before giving an example on how to construct the \code{BendersBlock}, we shall
 look into some details of the \code{UCBlock}. Following the example above, in
 which the \code{SDDPBlock} represents a multistage problem over 52 weeks,
 there would be one \code{UCBlock} associated with each of those 52 weeks. Each
-\code{UCBlock} could be, for instance, a multistage problem with 168 stages
-(one stage for each hour of the week). In this case, the dimension
+\code{UCBlock} could be, for instance, a deterministic multistage problem with
+168 stages (one stage for each hour of the week). In this case, the dimension
 \code{TimeHorizon} in the specification of the \code{UCBlock} would be 168. As
 you can see, there are two independent time horizons: one at the level of the
 \code{SDDPBlock} (the mid-term problem) and one at the level of the
@@ -2752,16 +2809,13 @@ and outer stages, respectively, and the time horizon and stages of the
 will also use the notations $T^{\text{out}}$ and $T^{\text{in}}$ to refer to
 the outer and inner time horizons when necessary.
 
-A \code{UCBlock} has three sets of sub-{\Block}s. The first one is a set of
+A \code{UCBlock} has two sets of sub-{\Block}s. The first one is a set of
 \code{UnitBlock}s whose size is given by the \cstr{NumberUnits}
-\dimension. The second set is a set of \code{HeatBlock}s whose size is given
-by the \cstr{NumberHeatBlocks} \dimension. The third one is a set of
-\code{NetworkBlock}s whose size is
-\cstr{TimeHorizon}. Figure~\ref{fig:ucblock} illustrates the \code{UCBlock}
-and its nested {\Block}s. In this figure, $M$ is the number of
-\code{UnitBlock}s (\dimension \cstr{NumberUnits}), $N$ is the number of
-\code{HeatBlock}s (\dimension \cstr{NumberHeatBlocks}), and $T$ is the inner
-time horizon (\dimension \cstr{TimeHorizon} in the specification of
+\dimension. The second one is a set of \code{NetworkBlock}s whose size is
+(inner) \cstr{TimeHorizon}. Figure~\ref{fig:ucblock} illustrates the
+\code{UCBlock} and its nested {\Block}s. In this figure, $N$ is the number of
+\code{UnitBlock}s (\dimension \cstr{NumberUnits}) and $T^{\text{in}}$ is the
+inner time horizon (\dimension \cstr{TimeHorizon} in the specification of
 \code{UCBlock}).
 
 \begin{figure}[h!]
@@ -2772,8 +2826,8 @@ time horizon (\dimension \cstr{TimeHorizon} in the specification of
 \end{figure}
 
 There can be many types of \code{UnitBlock}s in the \code{UCBlock} (e.g.,
-\code{ThermalBlock}, \code{BatteryUnitBlock}, \dots). In the SSV, exactly one
-of those \code{UnitBlock}s is a \code{HydroSystemUnitBlock}. The
+\code{ThermalUnitBlock}, \code{BatteryUnitBlock}, \dots). In the SSV, exactly
+one of those \code{UnitBlock}s is a \code{HydroSystemUnitBlock}. The
 \code{UnitBlock}s of the \code{UCBlock} can be given in any order the user may
 wish. But to simplify the example, we assume that the
 \code{HydroSystemUnitBlock} is the first of the \code{UnitBlock}s (in
@@ -2953,7 +3007,11 @@ equal to that number. Therefore, in the specification of the
 \cstr{NumNonzero} = R,
 \]
 where $R$ is the total number of reservoirs, i.e., $R = \sum_{i = 0}^{H - 1}
-r_i$. Since there is a single nonzero entry at each row, the \variable
+r_i$. Since the $A$ matrix is the identity matrix, the \variables
+\cstr{NumNonzeroAtRow}, \cstr{Column}, and \cstr{A} do not need to be
+provided. But just as an exercise, we explain how the $A$ matrix could be
+provided in terms of the \variables \cstr{NumNonzeroAtRow}, \cstr{Column}, and
+\cstr{A}. Since there is a single nonzero entry at each row, the \variable
 \cstr{NumNonzeroAtRow} would be a vector of size \cstr{NumRow} (i.e., $R$)
 with all entries equal to 1:
 \[
@@ -3047,7 +3105,20 @@ $R$) with all elements equal to `B', meaning that both sides of the
 \[
 \cstr{ConstraintSide} = (\text{`B'}, \dots, \text{`B'}).
 \]
+But since all elements are equal to `B', the \cstr{ConstraintSide} \variable
+does not need to be provided.
 
+%% \subsubsection{\code{StochasticBlock}}
+
+%% The \group \cstr{Block} of the \cstr{StochasticBlock} must contain the
+%% description of the associated \code{BendersBlock}. Moreover, it also requires
+%% a vector of \code{SimpleDataMapping}. Each \code{SimpleDataMapping} in that
+%% vector would be associated to a particular stochastic data of some
+%% \Block. Suppose that we have as stochastic data the active demand in
+%% \code{NetworkBlock}, the 
+
+%% Following the example above, consider demand, inflow, and wind
+%% power as stochastic data. 
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
