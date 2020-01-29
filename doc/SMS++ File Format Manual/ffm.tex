@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 27/01/2020}
+{\Large Date: 29/01/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -390,7 +390,7 @@ The only content that any \netCDF \group describing a \dBlock must necessarily h
 The only content that any \netCDF \group describing a \dConfiguration must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be exact, e.g., as returned by the protected virtual method \code{name()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Configuration are allowed, with the standard notation \cstr{class\_name<template\_paramaters>}; see for instance the template \code{SimpleConfiguration<>} class.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{\BlockConfig description}\label{ssec:BlockConfig}
+\subsubsection{\BlockConfig description}\label{sec:BlockConfig}
 
 Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \netCDF \group for a \BlockConfig can contain the following:
 %
@@ -446,7 +446,7 @@ Of all these, only the \cstr{n\_SolverConfig} and \cstr{n\_BlockSolverConfig} \d
 Note that the \dConfiguration objects to be found in the \groups \cstr{SolverConfig\_$i$} are not ``any'' \dConfiguration; rather, they are assumed to be of the specific type \ComputeConfig, whose format is described in the next subsection.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{\ComputeConfig description}\label{ssec:ComputeConfig}
+\subsubsection{\ComputeConfig description}\label{sec:ComputeConfig}
 
 \ComputeConfig (defined in \code{ThinComputeInterface.h}) is a class of \dConfiguration objects specifically tailored for representing sets of algorithmic parameters of solution algorithms, like the ones presumably required by a \dSolver.
 Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \netCDF \group for a \ComputeConfig can contain the following:
@@ -482,14 +482,14 @@ The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero,
 
 This section presents the description of some auxiliary structures that are
 necessary to describe some \dBlock. The \code{AbstractPath}, presented in
-\S \ref{sssec:AbstractPath}, is used to specify a path from a \Block to
+\S \ref{sec:AbstractPath}, is used to specify a path from a \Block to
 some \SMSpp element (\Block, \Constraint, \Variable, \Objective, or \Function)
 defined in that \Block or in any of their nested \Block, recursively.  The
-\code{SimpleDataMapping}, presented in \S \ref{sssec:SimpleDataMapping},
+\code{SimpleDataMapping}, presented in \S \ref{sec:SimpleDataMapping},
 offers a mechanism for changing the data of a \Block.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{\code{AbstractPath}}\label{sssec:AbstractPath}
+\subsubsection{\code{AbstractPath}}\label{sec:AbstractPath}
 
 The \code{AbstractPath} represents a path from a \Block, here referred to as
 the reference \Block, to one of its elements (the target element): a \Block, a
@@ -553,7 +553,7 @@ dynamic, the index of the group to which it belongs, and the index of the
 \note{The index of a \Variable (or \Constraint) within a group is a single
   number and may not be entirely obvious which number it should be (specially
   for multidimensional arrays and (multidimensional) arrays of lists). Please
-  refer to the \S \ref{sssec:single_AbstractPath} for an explanation of
+  refer to the \S \ref{sec:single_AbstractPath} for an explanation of
   the index of a \Variable (or \Constraint) within a group.}
 
 A `V' or `v' node is always preceded by a `B' node, unless it is the only node
@@ -616,11 +616,11 @@ that \Constraint (and thus that \Constraint is actually an
 
 Besides the description of an \code{AbstractPath}, we also provide a
 description of a vector of \code{AbstractPath}. In
-\S \ref{sssec:single_AbstractPath} we present the description of a single
-\code{AbstractPath} and in \S \ref{sssec:vector_AbstractPath} we present
+\S \ref{sec:single_AbstractPath} we present the description of a single
+\code{AbstractPath} and in \S \ref{sec:vector_AbstractPath} we present
 the description of a vector of \code{AbstractPath}.
 
-\subsubsubsection{A single \code{AbstractPath}}\label{sssec:single_AbstractPath}
+\subsubsubsection{A single \code{AbstractPath}}\label{sec:single_AbstractPath}
 
 \noindent
 An \code{AbstractPath} is described by the following \netCDF \variables and
@@ -642,7 +642,9 @@ which case it is necessary to make specific \groups because the name of a
 
 \item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint64}
   and indexed over the \dimension \cstr{TotalLength}, contains the element
-  indices associated with each node in the path;
+  indices associated with each node in the path. This \variable is
+  optional. If it is not provided, then \code{PathElementIndices[i]} is
+  assumed to be \code{inf} for all $i \in \{0, \dots, \cstr{TotalLength}-1\}$.
 \end{itemize}
 
 \note{All indices mentioned here belong to zero-based numbered sequences, that
@@ -745,7 +747,7 @@ second case, in which the group is a vector of lists of \Constraint or
 where $s_t$ is the number of elements in the $t$-th list of the vector. The
 last case is analogous.
 
-\subsubsubsection{Vector of \code{AbstractPath}}\label{sssec:vector_AbstractPath}
+\subsubsubsection{Vector of \code{AbstractPath}}\label{sec:vector_AbstractPath}
 
 \noindent
 A vector of \code{AbstractPath} is described by the following \netCDF
@@ -769,9 +771,10 @@ given \group.
 \item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64}
   and indexed over the \dimension \cstr{TotalLength};
 
-\item the \variable \cstr{PathElementIndices}, of type
-  \code{netCDF::NcUint64} and indexed over the \dimension
-  \cstr{TotalLength}.
+\item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint64}
+  and indexed over the \dimension \cstr{TotalLength}. This \variable is
+  optional. If it is not provided, then \code{PathElementIndices[i]} is
+  assumed to be \code{inf} for all $i \in \{0, \dots, \cstr{TotalLength}-1\}$.
 \end{itemize}
 
 The format of a vector of \code{AbstractPath} is similar to that of a single
@@ -811,7 +814,7 @@ The paths are represented in the same format as specified for a single
 \cstr{PathNodeTypes}, \cstr{PathGroupIndices}, and \cstr{PathElementIndices}.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{\code{SimpleDataMapping}}\label{sssec:SimpleDataMapping}
+\subsubsection{\code{SimpleDataMapping}}\label{sec:SimpleDataMapping}
 
 \code{DataMapping} defines an interface for all types of data mappings. The
 idea of a data mapping is to allow, in particular, to map the values given by
@@ -936,12 +939,12 @@ In summary, a \code{SimpleDataMapping} has the following template parameters:
 
 Besides the description of a single \code{SimpleDataMapping}, we also provide
 a description of a vector of \code{SimpleDataMapping}. In
-\S \ref{sssec:single_SimpleDataMapping} we present the description of a
+\S \ref{sec:single_SimpleDataMapping} we present the description of a
 single \code{SimpleDataMapping} and in
-\S \ref{sssec:vector_SimpleDataMapping} we present the description of a
+\S \ref{sec:vector_SimpleDataMapping} we present the description of a
 vector of \code{SimpleDataMapping}.
 
-\subsubsubsection{A single \code{SimpleDataMapping}}\label{sssec:single_SimpleDataMapping}
+\subsubsubsection{A single \code{SimpleDataMapping}}\label{sec:single_SimpleDataMapping}
 
 \noindent
 A \code{SimpleDataMapping} is described by the following \netCDF \variables
@@ -993,7 +996,7 @@ of a \variable/\dimension cannot be duplicated in a given \group.
 
 \end{itemize}
 
-\subsubsubsection{Vector of \code{SimpleDataMapping}}\label{sssec:vector_SimpleDataMapping}
+\subsubsubsection{Vector of \code{SimpleDataMapping}}\label{sec:vector_SimpleDataMapping}
 
 \noindent
 A vector of \code{SimpleDataMapping} is described by the following \netCDF
@@ -1229,7 +1232,7 @@ The two \dimensions \cstr{NNodes} and \cstr{NArcs} are mandatory, such as are th
 
 \newpage
 
-\subsection {\code{UCBlock}}\label{ssec:UCBlock}
+\subsection {\code{UCBlock}}\label{sec:UCBlock}
 
 The class \code{UCBlock}, implements the \Block concept [see Block.h] for the Unit Commitment (UC) problem in electrical power production. This is typically a short-term (across for instance one week or one day time horizon) \highlight{deterministic} problem regarding finding an optimal schedule of the production of electrical generators satisfying a (large) set of technical constraints.
 \smallskip
@@ -1284,7 +1287,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \noindent
  which of course boils down to \cstr{h = b} when each HeatBlock has exactly one heat generator (but this is not assumed to happen);
  %
- \item optionally, the \dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \S \ref{NetworkData} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus). If the data of a \code{NetworkData} is specified, the \code{NetworkData} is passed to each of the \code{NetworkBlock} (see below) of the \code{UCBlock}, if any. However, if a \code{NetworkBlock} also has a \code{NetworkData} specified in its own group, then the \code{NetworkData} inside the \code{NetworkBlock} overrules that inside the \code{UCBlock}, which is ignored by that \code{NetworkBlock};
+ \item optionally, the \dimensions and variables necessary to deserialize a \code{NetworkData} object that describes the transmission network; see \S \ref{sec:NetworkData} for details. If that is not provided (basically, \cstr{NumberNodes} is not provided or it is \code{== 1}), then the transmission network is taken to have only one node (a bus). If the data of a \code{NetworkData} is specified, the \code{NetworkData} is passed to each of the \code{NetworkBlock} (see below) of the \code{UCBlock}, if any. However, if a \code{NetworkBlock} also has a \code{NetworkData} specified in its own group, then the \code{NetworkData} inside the \code{NetworkBlock} overrules that inside the \code{UCBlock}, which is ignored by that \code{NetworkBlock};
  %
  \item The \variable \cstr{ActivePowerDemand}, of type \code{netCDF::NcDouble}, and indexed both over the dimensions \cstr{NumberNodes} and \cstr{TimeHorizon}. This variable is optional if
  \begin{itemize}
@@ -1395,7 +1398,7 @@ The class also outputs some general information regarding how the active power a
 Besides the mandatory \cstr{type} attribute of any \dBlock, the \group representing the \code{UnitBlock} should contain the following:
 %
 \begin{itemize}
- \item the \dimension \cstr{TimeHorizon} containing the time horizon. The \dimension is optional because the same information may be passed via the method \code{set\_time\_horizon()}, or directly retrieved from the father if it is a \code{UCBlock}; see the comments to \code{set\_time\_horizon()} for details;
+ \item the \dimension \cstr{TimeHorizon} containing the time horizon. The \dimension is optional because the same information may be passed via the method \code{set\_time\_horizon()}, or directly retrieved from the father if it is a \code{UCBlock}; see the comments to \code{set\_time\_horizon()} for details.
  %
  \item the \dimension \cstr{NumberIntervals} that is provided to allow that all time-dependent data in the \code{UnitBlock} can only change at a subset of the time instants of the time interval, being therefore piecewise-constant (possibly, constant). \cstr{NumberIntervals} should therefore be \code{<=} \cstr{TimeHorizon}, with three distinct cases:
  %
@@ -1404,7 +1407,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
   %
   \item \code{1 < }\cstr{NumberIntervals} \code{<} \cstr{TimeHorizon}, which means that in some time instants, \highlight{but not all of them}, the values of some of the relevant data are changing; the intervals are then described in variable \cstr{NumberIntervals};
   %
-  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless;
+  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless.
   %
  \end{itemize}
  %
@@ -1457,7 +1460,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
 
 \newpage
 
-\subsubsection {\code{HydroUnitBlock}}\label{HydroUnitBlock}
+\subsubsection {\code{HydroUnitBlock}}\label{sec:HydroUnitBlock}
 The \code{HydroUnitBlock} class derives from \code{UnitBlock} and implements a \cstr{reasonably standard} hydro unit of a Unit Commitment Problem. That is, the class is designed in order to give mathematical formulation to describe the operation of large set of hydro storage. To model complex reservoir systems several technical parameters have to be considered. These are divided into reservoir-specific parameters, the hydro links connecting the reservoirs and finally the turbine/pump parameters. The values are collected within a reservoir database, a hydro-link database and a turbine/pump-database.
 Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}(\code{netCDF::NcGroup}). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. The \code{netCDF::NcGroup} must then also contain:
 %
@@ -1665,14 +1668,14 @@ This must be the format of the data (linear inequalities) that define the \code{
 \subsection {\code{PolyhedralFunctionBlock}}
 The class \code{PolyhedralFunctionBlock} derives from \code{AbstractBlock} to define the following concept: a \Block whose sole distinguishing feature is a \code{PolyhedralFunction} as objective, but which can otherwise contain any kind of ``abstract'' Variable and Constraint (provided these are handled by the base \code{AbstractBlock} class). The rationale for the \code{PolyhedralFunctionBlock} class is that a \code{PolyhedralFunction} is a perfectly fine object in itself, but one that several solver cannot easily deal with in its ``natural'' form. However, a \code{PolyhedralFunction} can also be represented in a very natural way by means of one extra continuous \code{ColVariable} plus a finite set of (dynamic) \code{FRowConstraint} with \code{LinearFunction} inside (a.k.a., linear constraints). Thus, the main feature that \code{PolyhedralFunctionBlock} implements is the ability to ``present'' itself (construct an ``abstract representation'') as either having a \code{FRealObjective} with a \code{PolyhedralFunction} inside, or having a set of (continuous) \code{ColVariable} and (linear) \code{RowConstraint}. We call the first the ``natural representation''  of a \code{PolyhedralFunctionBlock}, and the latter its ``linearized representation''. Note that most individual changes in the \code{PolyhedralFunction} result in many changes to the ``linearized representation'', that are properly bunched into appropriate \code{GroupModification}. Conversely, many individual changes to the ``linearized representation'' cannot (or would be too complex to) be implemented in the \code{PolyhedralFunction}, because each one of them individually would lead it to end in a partly inconsistent state, and only a co-ordinated set of them (say, properly bunched into an appropriate \code{GroupModification}) would work. Hence, a number of changes to the ``linearized representation'' are not allowed; see the comments to the protected method \code{guts\_of\_add\_Modification\_LR()} for details. Other than that, \code{PolyhedralFunctionBlock} entirely relies on the machinery provided by \code{AbstractBlock} to handle all the rest of the \Block, and therefore is subject to the limitations of that class regarding what kind of \code{Constraint}, \code{Variable} and \code{Objective} are supported. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
-\item all the data necessary to describe a \code{PolyhedralFunction}; see \S \ref{sssec:PolyhedralFunction} for details;
+\item all the data necessary to describe a \code{PolyhedralFunction}; see \S \ref{sec:PolyhedralFunction} for details;
 %
 \item any other data necessary to represent the ``arbitrary'' part of the
   \code{AbstractBlock}; see \code{AbstractBlock::\-de\-se\-rialize()} for details.
 \end{itemize}
 
 
-\subsubsection {\code{PolyhedralFunction}} \label{sssec:PolyhedralFunction}
+\subsubsection {\code{PolyhedralFunction}} \label{sec:PolyhedralFunction}
 The \code{PolyhedralFunction} class derives from \code{C05Function}, and defines a simple implementation of a convex (or concave) \code{Function} defined by the maximum (or minimum) of a ``small'' number of explicitly provided affine forms. In other words, if the \code{PolyhedralFunction} depends on a set of $n$ \code{ColVariable}, its input data is a $m \times n$ matrix $A$ and a $m \times 1$ vector $b$ (with $m$ given and ``small''). Serialize a \code{PolyhedralFunction} into a \code{netCDF::NcGroup}, with the following format:
 
 \begin{itemize}
@@ -1695,14 +1698,14 @@ The \code{PolyhedralFunction} class derives from \code{C05Function}, and defines
 \subsection {\code{NetworkBlock}}
 The class \code{NetworkBlock}, which derives from the \Block, defines the basic interface for the constraints/optimization problems which describe the behaviour of the transmission network in a specific time instant in the Unit Commitment (UC) problem, as represented in \code{UCBlock}. The base class handles only basic information: it allows to read/set the topology (and capacity/susceptances) of the network, and the active power demand at the different nodes in the given time instant. This information is actually bunched together in a small ``passive'' \code{NetworkData} object (no methods, just a data repository) that can be either de-serialized or passed ready-made (typically, by the \code{UCBlock}). Details of the kind of network that is implemented (``bus'', DC equations, AC equations, OPF, \dots) are entirely demanded to derived objects. The interface between a \code{NetworkBlock} and the rest of the UC is just the vector of node injection variables, which will have to satisfy the technical constraints of the transmission network. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
- \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \code{NetworkData} in \S \ref{NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
+ \item Optionally, the \dimensions and variables necessary to a \code{NetworkData} object, that describe the transmission network; see \code{NetworkData} in \S \ref{sec:NetworkData} for details. All that is optional, because the \code{NetworkData} object can alternatively be passed to the \code{NetworkBlock} via a call to \code{set\_NetworkData()}. Note that if \code{set\_NetworkData()} is called, but the representation of a \code{NetworkData} object is found in the NcGroup, then the \code{NetworkData} passed by \code{set\_NetworkData()} is ignored, and a new \code{NetworkData} object is read from the \code{NcGroup} and used instead.
  %
- \item The \cstr{ActiveDemand}, of type \code{netCDF::NcDouble}, and of size ``number of nodes''. If the \code{NetworkData} object description is present in the \code{NcGroup} this is the \dimension \cstr{NumberNodes}, but the \code{NetworkData} object is optional and it may not be there. Thus if \cstr{NumberNodes} is not there and \cstr{ActiveDemand} is, then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}. However, \cstr{ActiveDemand} itself is optional. If it is not found in the \code{NcGroup}, then it \highlight{must} be passed (either before or after the call to \code{deserialize()}) by calling \code{set\_ActiveDemand()}. Since both groups of data are optional, the \code{NcGroup}  can actually be empty which implies that all the data will be (or have been) passed by the in-memory interface. In this case, it would clearly be preferable to \highlight{entirely avoid the \code{NcGroup} to be there}, and in fact \code{UCBlock} has provisions for the \code{NcGroup} describing the \code{NetworkBlock} to be optional (see \code{UCBlock} in \S \ref{ssec:UCBlock}).
+ \item The \cstr{ActiveDemand}, of type \code{netCDF::NcDouble}, and of size ``number of nodes''. If the \code{NetworkData} object description is present in the \code{NcGroup} this is the \dimension \cstr{NumberNodes}, but the \code{NetworkData} object is optional and it may not be there. Thus if \cstr{NumberNodes} is not there and \cstr{ActiveDemand} is, then the \code{NetworkData} object must have been passed by \code{set\_NetworkData()}, and the number of nodes can be read via \code{NetworkData::get\_number\_nodes()}. However, \cstr{ActiveDemand} itself is optional. If it is not found in the \code{NcGroup}, then it \highlight{must} be passed (either before or after the call to \code{deserialize()}) by calling \code{set\_ActiveDemand()}. Since both groups of data are optional, the \code{NcGroup}  can actually be empty which implies that all the data will be (or have been) passed by the in-memory interface. In this case, it would clearly be preferable to \highlight{entirely avoid the \code{NcGroup} to be there}, and in fact \code{UCBlock} has provisions for the \code{NcGroup} describing the \code{NetworkBlock} to be optional (see \code{UCBlock} in \S \ref{sec:UCBlock}).
 \end{itemize}
 
 \newpage
 
-\subsubsection  {\code{NetworkData}} \label{NetworkData}
+\subsubsection  {\code{NetworkData}} \label{sec:NetworkData}
 The \code{NetworkData} class is a nested sub-class which only serves to have a quick way to load all the basic data (topology and electrical characteristics) that describe the transmission network. The rationale is that while often the network does not change during the (short) time horizon of UC, it makes sense to allow for this to happen. This means that individual \code{NetworkBlock} objects may in principle have different \code{NetworkData}, but most often they can share the same. By bunching all the information together we make it easy for this sharing to happen.
 \smallskip
 \noindent
@@ -1758,7 +1761,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group should con
   %
   \item \code{1 < }\cstr{NumberIntervals} \code{<} \cstr{TimeHorizon}, which means that in some time instants, \highlight{but not all of them}, the values of some of the relevant data are changing; the intervals are then described in variable \cstr{NumberIntervals};
   %
-  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless;
+  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless.
   %
  \end{itemize}
  %
@@ -1791,7 +1794,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group should con
 \newpage
 
 \subsection {\code{SDDPBlock}}
-\label{ssec:SDDPBlock}
+\label{sec:SDDPBlock}
 
 The \code{SDDPBlock} is a class that derives from \Block and represents a
 multistage stochastic programming problem of the form
@@ -1930,7 +1933,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   \cstr{StochasticBlock\_t} \group.
 
 \item the \cstr{AbstractPath} \group containing the description of a vector of
-  \code{AbstractPath} as described in \S \ref{sssec:AbstractPath}. The number
+  \code{AbstractPath} as described in \S \ref{sec:AbstractPath}. The number
   of \code{AbstractPath} must be equal to $\cstr{TimeHorizon} - 1$. The $i$-th
   \code{AbstractPath} in this vector must be the path to the
   \code{PolyhedralFunction} associated with the $i$-th sub-\Block of this
@@ -2031,16 +2034,32 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
 \newpage
 
 \subsection {\code{StochasticBlock}}
-\label{ssec:StochasticBlock}
+\label{sec:StochasticBlock}
 
-The \code{StochasticBlock} class is meant to represent a \Block whose data may
-be stochastic. The idea is that any \Block could have its stochastic version
-without any changes in its implementation. The \code{StochasticBlock} comes to
-facilitate this process. A \code{StochasticBlock} is characterized by the
-following:
+Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
+\group for a \code{StochasticBlock} contains the following:
+\begin{itemize}
+\item The \group \cstr{Block}, containing the description of the inner
+  \Block. This \group is optional. If it is not provided, then the inner \Block
+  must be provided by other means.
+
+\item The description of a vector of \code{SimpleDataMapping}, containing the
+  \code{DataMapping}s associated with this \code{StochasticBlock}. This is
+  optional. For the time being, each provided \code{DataMapping} is expected
+  to be a \code{SimpleDataMapping}. Moreover, the inner \Block of this
+  \code{StochasticBlock} will serve as the reference \Block for both the
+  serialization and deserialization of each \code{SimpleDataMapping}.
+\end{itemize}
+
+In order to better understand what the different elements, a comment about
+\code{StochasticBlock} is in order. The \code{StochasticBlock} class is meant
+to represent a \Block whose data may be stochastic. The idea is that any
+\Block could have its stochastic version without any changes in its
+implementation. The \code{StochasticBlock} comes to facilitate this process. A
+\code{StochasticBlock} is characterized by the following:
 \begin{enumerate}
-\item It has a pointer to a \Block (called here as the inner \Block), which is
-  the \Block that is becoming stochastic. This can be any \dBlock.
+\item It has exactly one sub-\Block (called here as the inner \Block), which
+  is the \Block that is becoming stochastic. This can be any \dBlock.
 
 \item It is aware that some data of the inner \Block is stochastic (and may be
   subject to changes) and that the value for this data is represented by a
@@ -2080,7 +2099,7 @@ following:
   states that the demands that are stochastic are those at positions 0, 3, and
   8. We also need a way of modifying this data in $B$. For this, it suffices a
   method in $B$ that can be used to update its demand (see
-  \code{SimpleDataMapping} in \S \ref{sssec:SimpleDataMapping}), let us say one
+  \code{SimpleDataMapping} in \S \ref{sec:SimpleDataMapping}), let us say one
   called \code{set\_demand(S2, vector)}.
 
   Another \code{DataMapping} could be used to identify the cost of producing
@@ -2109,21 +2128,6 @@ implemented later on. Typically, an object of this class would be used in
 conjunction with a scenario generator and the \code{set\_data()} method of
 this object would be called to consider a particular scenario.
 
-Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
-\group for a \code{StochasticBlock} contains the following:
-\begin{itemize}
-\item The \group \cstr{Block}, containing the description of the inner
-  \Block. This \group is optional. If it is not provided, then the inner \Block
-  must be provided by other means.
-
-\item The description of a vector of \code{SimpleDataMapping}, containing the
-  \code{DataMapping}s associated with this \code{StochasticBlock}. This is
-  optional. For the time being, each provided \code{DataMapping} is expected
-  to be a \code{SimpleDataMapping}. Moreover, the inner \Block of this
-  \code{StochasticBlock} will serve as the reference \Block for both the
-  serialization and deserialization of each \code{SimpleDataMapping}.
-\end{itemize}
-
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
@@ -2147,7 +2151,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, an \SMSpp
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
-\subsection {\code{BendersBFunction}}\label{ssec:BendersBFunction}
+\subsection {\code{BendersBFunction}}\label{sec:BendersBFunction}
 
 The \code{BendersBFunction} is a convenience class implementing the
 ``abstract'' concept of a Benders function of ``any''
@@ -2337,7 +2341,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
 \newpage
 \section{\BlockConfig for existing \dBlock}
 
-As described in \S \ref{ssec:BlockConfig}, each \Block can have several \Configuration parameters, which can be dealt with by a \BlockConfig object. It makes therefore sense to collect here all possible \Configuration parameters for existing \dBlock, since these may end up in a \SMSpp \netCDF file.
+As described in \S \ref{sec:BlockConfig}, each \Block can have several \Configuration parameters, which can be dealt with by a \BlockConfig object. It makes therefore sense to collect here all possible \Configuration parameters for existing \dBlock, since these may end up in a \SMSpp \netCDF file.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Parameters of \code{MCFBlock}}
@@ -2360,7 +2364,7 @@ The \code{MCFBlock} class defines the following \Configuration parameters:
 \newpage
 \section{\ComputeConfig for existing \dSolver}
 
-As described in \S \ref{ssec:ComputeConfig}, each \Block can have several \ComputeConfig parameters, which can be dealt with by a \BlockSolverConfig object. It makes therefore sense to collect here all possible \ComputeConfig parameters for the existing objects that define actual values for their algorithmic parameters, since these may end up in a \SMSpp \netCDF file.
+As described in \S \ref{sec:ComputeConfig}, each \Block can have several \ComputeConfig parameters, which can be dealt with by a \BlockSolverConfig object. It makes therefore sense to collect here all possible \ComputeConfig parameters for the existing objects that define actual values for their algorithmic parameters, since these may end up in a \SMSpp \netCDF file.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Standard parameters in \Solver}
@@ -2591,12 +2595,12 @@ inner \Block of the \code{BendersBFunction} to be overwritten (if the
 \subsection{Seasonal Storage Valuation}
 
 The multistage stochastic problem in the Seasonal Storage Valuation (SSV) is
-represented by an \code{SDDPBlock} (see \S \ref{ssec:SDDPBlock}). The
+represented by an \code{SDDPBlock} (see \S \ref{sec:SDDPBlock}). The
 \code{SDDPBlock} has $T$ nested \Blocks, where $T$ is the time horizon and,
 therefore, we have $\code{TimeHorizon} = T$ in the specification of
 \code{SDDPBlock}. For each $t \in \{0, \dots,T-1\}$, the $t$-th nested \Block
 of the \code{SDDPBlock} is a \code{StochasticBlock} (see \S
-\ref{ssec:StochasticBlock}) which is associated with stage $t$. The
+\ref{sec:StochasticBlock}) which is associated with stage $t$. The
 \cstr{TimeHorizon} of an \code{SDDPBlock} could be, for instance, 52, the
 number of weeks of a year. Then, each sub-\Block of this \code{SDDPBlock}
 could be associated with a particular week of the year.
@@ -2608,12 +2612,12 @@ could be associated with a particular week of the year.
 \end{figure}
 
 The set of scenarios in \code{SDDPBlock} is given by a matrix (see the
-\variable \cstr{Scenarios} in \S \ref{ssec:SDDPBlock}), in which each row
+\variable \cstr{Scenarios} in \S \ref{sec:SDDPBlock}), in which each row
 represents a scenario that spans the time horizon. If there are $m$ scenarios
-(see \dimension \cstr{NumberScenarios} in \S \ref{ssec:SDDPBlock}) and each
+(see \dimension \cstr{NumberScenarios} in \S \ref{sec:SDDPBlock}) and each
 scenario is a (row) vector in $\mathbb{R}^n$ (in which case $n$ would be the
 size of a scenario; see \dimension \cstr{ScenarioSize} in \S
-\ref{ssec:SDDPBlock}), a matrix $\mathcal{S} \in \mathbb{R}^{m \times n}$ with
+\ref{sec:SDDPBlock}), a matrix $\mathcal{S} \in \mathbb{R}^{m \times n}$ with
 scenarios would have the form
 
 \[
@@ -2837,7 +2841,7 @@ in the \group \cstr{UnitBlock\_0} in the specification of the \code{UCBlock}.
 
 The \code{HydroSystemUnitBlock} (see \S \ref{sec:HydroSystemUnitBlock}) is a
 \code{UnitBlock} that has a list of \code{HydroUnitBlock}s (see \S
-\ref{HydroUnitBlock}) and one \code{PolyhedralFunctionBlock} as nested
+\ref{sec:HydroUnitBlock}) and one \code{PolyhedralFunctionBlock} as nested
     {\Block}s. The \code{PolyhedralFunctionBlock} is the last among the nested
     {\Block}s of the \code{HydroSystemUnitBlock}. Figure~\ref{fig:hsublock}
     depicts the \code{HydroSystemUnitBlock} with its nested {\Block}s in which
@@ -2947,7 +2951,7 @@ sides of the \code{RowConstraint} representing this constraint must be equal
 to $\tilde{v}_{i,j} + F^i_{j,t}$ and, therefore, are identically affected by
 the initial volumes of the reservoir. This means that we could define the
 mapping $M$ in the \code{BendersBFunction} (see \S
-\ref{ssec:BendersBFunction}) as
+\ref{sec:BendersBFunction}) as
 \[
 M(x) = x + F,
 \]
@@ -3108,17 +3112,267 @@ $R$) with all elements equal to `B', meaning that both sides of the
 But since all elements are equal to `B', the \cstr{ConstraintSide} \variable
 does not need to be provided.
 
-%% \subsubsection{\code{StochasticBlock}}
+\subsubsection{\code{StochasticBlock}}
 
-%% The \group \cstr{Block} of the \cstr{StochasticBlock} must contain the
-%% description of the associated \code{BendersBlock}. Moreover, it also requires
-%% a vector of \code{SimpleDataMapping}. Each \code{SimpleDataMapping} in that
-%% vector would be associated to a particular stochastic data of some
-%% \Block. Suppose that we have as stochastic data the active demand in
-%% \code{NetworkBlock}, the 
+The \group \cstr{Block} of the \cstr{StochasticBlock} must contain the
+description of the associated \code{BendersBlock}. Moreover, the
+\cstr{StochasticBlock} also requires a vector of \code{SimpleDataMapping}
+which, in the case of the SSV, defines how the the data of the \code{UCBlock}
+is updated considering a given sub-scenario. A sub-scenario is a vector of
+\code{double} containing a realization of the stochastic data of the
+\code{UCBlock}. Each \code{SimpleDataMapping} (see \S
+\ref{sec:SimpleDataMapping}) would be associated with a particular part of the
+sub-scenario and a particular stochastic data of some \dBlock. A
+\code{SimpleDataMapping} requires five elements:
+\begin{itemize}
+\item A \dBlock whose data is affected.
 
-%% Following the example above, consider demand, inflow, and wind
-%% power as stochastic data. 
+\item The name of the function that will be responsible for updating the data
+  of that \dBlock.
+
+\item An ordered multiset of indices that specifies which elements of the
+  sub-scenario should be considered. This multiset must therefore contain
+  elements between 0 and $n-1$, where $n$ is the size of the sub-scenario.  We
+  call this multiset the \code{SetFrom} multiset.
+
+\item An ordered multiset of indices that specifies which elements of the
+  \dBlock will be updated. We call this multiset the \code{SetTo} multiset.
+
+\item The type of the data that will be updated.
+\end{itemize}
+(A multiset is a set that can contain multiple instances of the same
+element. For instance, $\{2, 2, 4, 4, 7\}$ is a multiset with cardinality
+5. An ordered multiset is a multiset in which the order of the elements
+matter. For instance, $\{2, 2, 4, 4, 7\}$ and $\{2, 4, 4, 2, 7\}$ are
+different multisets. In most cases, if not all, the \code{SetFrom} and
+\code{SetTo} multisets will be simple sets.) The \code{SetFrom} multiset
+defines a mapping $\mathcal{M}: \mathbb{R}^n \rightarrow \mathbb{R}^m$, where
+$n$ is the size of the sub-scenario and $m$ is the cardinality of the
+\code{SetFrom} multiset. Let $s_i$ denote the $i$-th element of the
+\code{SetFrom} multiset. For a given sub-scenario $\xi$, $\mathcal{M}(\xi)$ is
+the vector whose $i$-th element is $\xi_{s_i}$. The \code{SetTo} multiset will
+be used to associate each element of $\mathcal{M}(\xi)$ to a particular
+element of in the data structure of the \dBlock.
+
+Consider, for example, a \code{UCBlock} that has $N$ \code{UnitBlock}s, one of
+them being a \code{HydroSystemUnitBlock} and two of them being
+\code{ThermalUnitBlock}s. Suppose that the maximum power of the first
+\code{ThermalUnitBlock} is stochastic for the inner stages 2 and 5 and that
+the maximum power of the second \code{ThermalUnitBlock} is stochastic for the
+inner stages 0, 1, 2, and 3. Suppose also that the \code{NetworkBlock}
+associated with the inner stage 1 has 10 nodes, indexed from 0 to 9, and that
+the active demand at nodes with indices 1 and 4 are stochastic. Finally,
+suppose that the fourth \code{HydroUnitBlock} of the
+\code{HydroSystemUnitBlock} has some stochastic inflows. The inflow occurs at
+each reservoir of a \code{HydroUnitBlock} at each inner stage. To simplify,
+let us suppose that the inflows at the second reservoir at the inner stage 12
+the inflows at the fifth reservoir at the inner stage 15 are stochastic.
+
+We could define a sub-scenario $\xi$ as a vector in $\mathbb{R}^{10}$ such
+that
+\begin{itemize}
+\item $(\xi_0, \xi_1)$ represent the maximum power of the first
+  \code{ThermalUnitBlock} for the inner stages 2 and 5.
+\item $(\xi_2, \xi_3, \xi_4, \xi_5)$ represent the maximum power of the first
+  \code{ThermalUnitBlock} for the inner stages 0, 1, 2, and 3.
+\item $(\xi_6, \xi_7)$ represent the active demand of the \code{NetworkBlock}
+  associated with the inner stage 1 at nodes with indices 1 and 4.
+\item $(\xi_8, \xi_9)$ represent the inflows at the second and fifth
+  reservoirs of the fourth \code{HydroUnitBlock} at the inner stages 12 and
+  15, respectively.
+\end{itemize}
+
+In this case, we can construct four \code{SimpleDataMapping}s to update the
+stochastic data. First of all, here is a list of functions that are registered
+in the methods factory. In the context of the SSV, they can be used to define
+the stochastic data (through the \code{SimpleDataMapping}) as we will see in
+the sequel.
+\begin{itemize}
+\item \code{NetworkBlock::set\_active\_demand}\\ This function updates the
+  active demand of a \code{NetworkBlock}. The active demand is represented by
+  a one-dimensional array whose $i$-th element is the active demand at the
+  $i$-th node.
+
+\item \code{ThermalUnitBlock::set\_maximum\_power}\\ This function updates the
+  maximum active power output of a \code{ThermalUnitBlock}. The maximum active
+  power output is represented by a one-dimensional array whose $t$-th element
+  is the maximum active power output at the inner stage $t$.
+
+\item \code{HydroUnitBlock::set\_inflow}\\ This function updates the inflow of
+  a \code{HydroUnitBlock}. The inflow is represented by a two-dimensional
+  array whose element at position $(i, t)$ is the inflow at node $i$ at the
+  inner stage $t$.
+
+\item \code{IntermittentUnitBlock::set\_maximum\_power}\\ This function
+  updates the maximum potential power production of a
+  \code{IntermittentUnitBlock}. The maximum potential power production is
+  represented by a one-dimensional array whose $t$-th element is the maximum
+  potential power production at the inner stage $t$.
+\end{itemize}
+
+Let us begin with the first \code{ThermalUnitBlock}. Its data is given in the
+first two entries of the sub-scenario and is associated with the maximum power
+at the inner stages 2 and 5. Therefore, we have $\{0,1\}$ as the
+\code{SetFrom} set and $\{2,5\}$ as the \code{SetTo} set. Since the maximum
+power is of type \code{double}, its data type is `D'. The name of the function
+responsible for updating the maximum power is
+\code{ThermalUnitBlock::set\_maximum\_power}. Finally, we need to specify that
+this data is associated with our first \code{ThermalUnitBlock}. This is done
+by providing an \code{AbstractPath} to that \Block. Suppose that this
+\code{ThermalUnitBlock} is the second sub-\Block of the \code{UCBlock} so that
+its group index is 1 (this \code{ThermalUnitBlock} would be the
+\code{UnitBlock} with index 1 in Figure~\ref{fig:ucblock} and associated with
+\group \code{UnitBlock\_0} in the specification of the \code{UCBlock}; see \S
+\ref{sec:UCBlock}). The path from the \code{BendersBlock} to this
+\code{ThermalUnitBlock} would then be given by
+\begin{equation}
+  O \rightarrow B(0) \rightarrow B(1).
+\end{equation}
+
+Analogously, for the second \code{ThermalUnitBlock}, we would have
+$\{2,3,4,5\}$ as the \code{SetFrom} set, $\{0,1,2,3\}$ as the
+\code{SetTo} set and, assuming it is the fourth sub-\Block of the
+\code{UCBlock} (and thus its group index is 5), the path to this \Block would
+be
+\begin{equation}
+  O \rightarrow B(0) \rightarrow B(5).
+\end{equation}
+
+For the \code{NetworkBlock}, we would have $\{6,7\}$ as the \code{SetFrom}
+set and $\{1, 4\}$ (the indices of the nodes) as the \code{SetTo}
+set. The name of the function that updates this data is
+\code{NetworkBlock::set\_active\_demand} and the data is also of type
+\code{double} (indicated by `D'). Finally, we need to specify the path from
+the \code{BendersBlock} to this \code{NetworkBlock}. As we see in
+Figure~\ref{fig:ucblock}, the \code{NetworkBlock}s come after the
+\code{UnitBlock}s. Since in our example the \code{UCBlock} has $N$
+\code{UnitBlock}s and the \code{NetworkBlock} of interest is associated with
+stage 1 (the stages being indexed from 0 to $T^{\text{in}}$), the group index
+of this \code{NetworkBlock} would be $N+1$. Therefore, the path from the
+\code{BendersBlock} to this \code{NetworkBlock} would be given by
+\begin{equation}
+  O \rightarrow B(0) \rightarrow B(N+1).
+\end{equation}
+
+For the \code{HydroUnitBlock}, we would have $\{8,9\}$ as the \code{SetFrom}.
+Since the inflow of a \code{HydroUnitBlock} is associated with a
+two-dimensional data structure, the specification of the \code{SetTo} is a
+little bit more complicated (but not too much). This data structure, let us
+call it \code{inflow}, is such that \code{inflow[i][t]} gives the inflow at
+reservoir $i$ at the inner stage $t$. As you may notice, a single inflow is
+identified by two indices (the index of the reservoir and the inner stage)
+while \code{SetTo} is a set of simple indices. So, we must convert a pair of
+indices into a single index. The conversion is made considering that a
+multi-dimensional structure is vectorized by making its last dimension varying
+faster. This means that for a two-dimensional matrix $A$ with $m$ rows $a_0,
+\dots, a_{m-1}$ and $n$ columns, its vectorized form is given by arranging its
+rows in sequence: $( a_0 , a_1 , \dots, a_{m-1} )$. Then, the element at
+position $(i,j)$ in the matrix $A$ is the element at position $i \times n + j$
+in its vector representation. See~\eqref{eq:element_index} for the index of an
+element in an arbitrarily multi-dimensional array. The pairs of indices that
+we need to convert are $(1,12)$ (the second reservoir, whose index is 1, and
+the inner stage 12) and $(4,15)$ (the fifth reservoir, whose index is 4, and
+the inner stage 15). Since the fourth \code{HydroUnitBlock} has $r_3$
+reservoirs and the inner time horizon is $T^{\text{in}}$, the data structure
+representing the inflows is a $r_3 \times T^{\text{in}}$ two-dimensional
+array. Thus, the single indices associated with $(1,12)$ and $(4,15)$ are
+$T^{\text{in}} + 12$ and $4T^{\text{in}} + 15$, respectively. Thus, we would
+have $\{T^{\text{in}} + 12, 4T^{\text{in}} + 15\}$ as the \code{SetTo}
+set. The name of the function that updates the inflow is
+\code{HydroUnitBlock::set\_inflow} and the data is of type \code{double}
+(indicated by `D'). Finally, we need to provide the path from the
+\code{BendersBlock} to this \code{HydroUnitBlock}. We are assuming that the
+\code{HydroSystemUnitBlock} is the first \Block in the
+\code{UCBlock}. Therefore, since our \code{HydroUnitBlock} of interest has
+index 3 (it is the fourth \code{HydroUnitBlock} of the
+\code{HydroSystemUnitBlock}), the path would be given by
+\begin{equation}
+  O \rightarrow B(0) \rightarrow B(0) \rightarrow B(3).
+\end{equation}
+
+In the specification of the \code{StochasticBlock}, these
+\code{SimpleDataMapping}s must be provided as a vector of
+\code{SimpleDataMapping} (see \S \ref{sec:vector_SimpleDataMapping}). Since
+there are four \code{SimpleDataMapping}s, we have $\cstr{NumberDataMappings}
+= 4$. All stochastic data have a type \code{double}, so \cstr{DataType} does
+not need to be provided. Anyway, it could be specified as
+\begin{center}
+\cstr{DataType} = (`D', `D', `D', `D').
+\end{center}
+All multisets can be provided as \code{Subset}s. However, since the
+representation of a \code{Range} is more compact, we will use it whenever
+possible. Table~\ref{tab:sets} shows the sets that we need to provide.
+\begin{table}
+  \centering
+  \begin{tabular}{|l|l|}
+    \hline
+    \code{SetFrom} & \code{SetTo}\\
+    \hline
+    $\{0,1\}$ & $\{2,5\}$\\
+    $\{2,3,4,5\}$ & $\{0,1,2,3\}$\\
+    $\{6,7\}$ & $\{1,4\}$\\
+    $\{8,9\}$ & $\{T^{\text{in}} + 12, 4T^{\text{in}} + 15\}$\\
+    \hline
+  \end{tabular}
+  \caption{The \code{SetFrom} and \code{SetTo} sets.}
+  \label{tab:sets}
+\end{table}
+Except for the last \code{SetTo} set, all sets can be represented as a
+\code{Range}. We begin with the \code{SetSize} \variable. This one-dimensional
+\variable indicates the size or the type of each set. For a \code{Subset}, we
+must include its size in \code{SetSize}. For a \code{Range}, we must include
+the number 0 in \code{SetSize}. Thus, in our example, this \variable would be
+given as
+\[
+\code{SetSize} = ( 0, 0, \quad 0, 0, \quad 0, 2, \quad 0, 2)
+\]
+Recall that the elements at positions $2i$ and $2i+1$ correspond to the sizes
+(or types) of the $i$-th \code{SetFrom} and \code{SetTo} sets. Now, we must
+specify the elements that belong to each set. For a \code{Range} representing
+the set $[a,b)$, we must provide $a$ and $b$. For a \code{Subset}, we must
+provide its elements. Thus, the \cstr{SetElements} \variable would be given as
+\[
+\cstr{SetElements} = ( 0, 2, 2, 6, \quad 2, 6, 0, 4, \quad 6, 8, 1, 4, \quad
+8, 10, T^{\text{in}} + 12, 4T^{\text{in}} + 15).
+\]
+The \cstr{FunctionName} \variable must contain the names of the functions
+(registered in the ``methods factory'') responsible for updating the data of
+the \Blocks. In our example, we would have
+\begin{align*}
+  \cstr{FunctionName} = (
+  & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
+  & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
+  & ``\code{NetworkBlock::set\_active\_demand}" ,\\
+  & ``\code{HydroUnitBlock::set\_inflow}")
+\end{align*}
+
+We must also provide a vector of \code{AbstractPath} to the affected
+\Blocks. Since we have four \code{SimpleDataMapping}s, we also have four
+paths. So, we have $\cstr{PathDim} = 4$. In our example, the first three paths
+have size 3 and the last path has size 4. So, we have
+\[
+\cstr{TotalLength} = 13 \quad \text{ and } \quad \cstr{PathStart} = (0, 3, 6, 9).
+\]
+Finally, we have
+\begin{align*}
+\cstr{PathNodeTypes} = ( &
+  \text{`O'}, \text{`B'}, \text{`B'}, \quad
+  \text{`O'}, \text{`B'}, \text{`B'}, \quad
+  \text{`O'}, \text{`B'}, \text{`B'}, \quad
+  \text{`O'}, \text{`B'}, \text{`B'}, \text{`B'})\\
+\cstr{PathGroupIndices} = ( &
+  \code{inf}, 0, 1, \quad
+  \code{inf}, 0, 5, \quad
+  \code{inf}, 0, N+1, \quad
+  \code{inf}, 0, 1, 3)\\
+\cstr{PathElementIndices} = ( &
+  \code{inf}, \code{inf}, \code{inf}, \quad
+  \code{inf}, \code{inf}, \code{inf}, \quad
+  \code{inf}, \code{inf}, \code{inf}, \quad
+  \code{inf}, \code{inf}, \code{inf}, \code{inf}).
+\end{align*}
+Since all elements of \cstr{PathElementIndices} are equal to \code{inf}, this
+\variable does not need to be provided.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
