@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 29/01/2020}
+{\Large Date: 04/02/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -542,7 +542,7 @@ nodes in the path are stored in forward order, i.e., the first node is the
 origin of the path and the last one is the destination, it is easier to
 understand the path if we look at it backwards.
 
-Consider the path from some reference Block to some \Variable. The last node
+Consider the path from some reference \Block to some \Variable. The last node
 in this path necessarily has the `V' or `v' type, indicating this is a path to
 a \Variable. This \Variable belongs to some \Block and it is either static or
 dynamic. This last node has all information needed to retrieve this \Variable
@@ -564,28 +564,14 @@ other words, if the target \Variable of the path belongs to the reference
 `v'.
 
 A `B' node is associated with a \Block and may contain the index of this
-\Block in the vector of nested \Block of its father Block. There are two cases
-in which this node does not have this index. In each of these cases, the index
-has the value $+\infty$. These cases are:
-
-\begin{enumerate}
-\item The node is associated with the reference \Block. Since the reference
-  \Block is the root of the three that contains the path, no allusion to the
-  father of the reference \Block must be made.
-
-\item The \Block with which the node is associated does not have a father
-  \Block. In this case, if the \Block is not the reference \Block, then it
-  must be the inner Block of a \code{BendersBFunction} or that of a
-  \code{LagBFunction}.  The idea is that the \code{BendersBFunction} or
-  \code{LagBFunction} then appear as the \Function in a \code{FRealObjective}
-  or \code{FRowConstraint}, which belong to a \Block, and therefore the path
-  can ``go up'' from there; in this case the previous node in the path has
-  type `O', `C' or `c'.
-\end{enumerate}
-
-If the index of a `B' node is not $+\infty$, then this node is necessarily
-preceded by another `B' node, which is associated with the father of that
-\Block.
+\Block in the vector of nested \Blocks of its father \Block. There is one case
+in which this node does not have this index, which is when the node is
+associated with the reference \Block. Since the reference \Block is the root
+of the three that contains the path, no allusion to the father of the
+reference \Block must be made. In this case, the index has the value
+$+\infty$. If the index of a `B' node is not $+\infty$, then this node is
+necessarily preceded by another `B' node, which is associated with the father
+of that \Block.
 
 An `O' node, which is associated with an \Objective, is either preceded by a
 `B' node (which is associated with the \Block that owns that \Objective) or is
@@ -1645,7 +1631,7 @@ The class \code{HydroSystemUnitBlock}, which derives from the \Block, in order t
 \item The \group \cstr{PolyhedralFunctionBlock} which contains a \code{PolyhedralFunctionBlock}, whose \code{PolyhedralFunction} represents the future value of the water (a.k.a. \cstr{Bellman values}) left at the end of the time horizon in all the reservoirs of all the \code{HydroUnitBlock} of the \code{HydroSystemUnitBlock}.
 %
 \end{itemize}
-The future value of water function is represented by the single \code{PolyhedralFunction} which lives inside the \code{PolyhedralFunctionBlock}. The vector of \cstr{active} variable of \code{PolyhedralFunction} is therefore in a one-to-one correspondence with the set of \code{ColVariable} in the \code{HydroUnitBlock} that represent the amount of water left in each reservoir at the end of the time horizon. Thus, it is necessary to specify the order of the active \code{ColVariable} of the \code{PolyhedralFunction}. Let us denote by \code{X[ 0 ], X[ 1 ], \dots, X[ R - 1 ]} the vector of active \code{ColVariable} (i.e., \code{X[ i ]} is the one returned by \code{get\_active\_var( i )} and \code{R = get\_num\_active\_var())}. Since each \code{HydroUnitBlock} can have more than one reservoir (cf. \code{HydroUnitBlock::get\_number\_reservoirs())}, $R$ is just the total number of reservoir, which is computed by just calling \code{get\_number\_reservoirs()} on each of the \code{HydroUnitBlock} and summing all the results. Clearly, \code{R >= NumberHydroUnits}. Some of the \code{HydroUnitBlock} may have just one reservoir; if this happens for all the hydro unit blocks(but this is not likely), then \code{R == NumberHydroUnits}. In this case the mapping is obvious: \code{X[ i ]} is the \code{ColVariable} that represent the amount of water left in the only reservoir of \code{HydroUnitBlock\_i} at the end of the time horizon. When, instead, \code{R > NumberHydroUnits}, a mapping must be defined. The mapping is the obvious one: \code{HydroUnitBlock} have an ordering \code{n = 0, 1, \dots, NumberHydroUnits - 1}  (cf. the \groups \cstr{HydroUnitBlock\_0}, \cstr{HydroUnitBlock\_1}, \dots above), and the reservoirs into each \code{HydroUnitBlock} also have a natural ordering, Thus, in general the mapping is:
+The future value of water function is represented by the single \code{PolyhedralFunction} which lives inside the \code{PolyhedralFunctionBlock}. The vector of \cstr{active} variable of \code{PolyhedralFunction} is therefore in a one-to-one correspondence with the set of \code{ColVariable} in the \code{HydroUnitBlock} that represent the amount of water left in each reservoir at the end of the time horizon. Thus, it is necessary to specify the order of the active \code{ColVariable} of the \code{PolyhedralFunction}. Let us denote by \code{X[ 0 ], X[ 1 ], \dots, X[ R - 1 ]} the vector of active \code{ColVariable} (i.e., \code{X[ i ]} is the one returned by \code{get\_active\_var( i )} and \code{R = get\_num\_active\_var())}. Since each \code{HydroUnitBlock} can have more than one reservoir (cf. \code{HydroUnitBlock::get\_number\_reservoirs())}, $R$ is just the total number of reservoir, which is computed by just calling \code{get\_number\_reservoirs()} on each of the \code{HydroUnitBlock} and summing all the results. Clearly, \code{R >= NumberHydroUnits}. Some of the \code{HydroUnitBlock} may have just one reservoir; if this happens for all the hydro unit blocks (but this is not likely), then \code{R == NumberHydroUnits}. In this case the mapping is obvious: \code{X[ i ]} is the \code{ColVariable} that represent the amount of water left in the only reservoir of \code{HydroUnitBlock\_i} at the end of the time horizon. When, instead, \code{R > NumberHydroUnits}, a mapping must be defined. The mapping is the obvious one: \code{HydroUnitBlock} have an ordering \code{n = 0, 1, \dots, NumberHydroUnits - 1}  (cf. the \groups \cstr{HydroUnitBlock\_0}, \cstr{HydroUnitBlock\_1}, \dots above), and the reservoirs into each \code{HydroUnitBlock} also have a natural ordering. Thus, in general the mapping is:
 \begin{itemize}
 \item \code{X[ 0 ] =} \code{ColVariable} representing the amount of water left in the first reservoir of \code{HydroUnitBlock\_0} at the end of the time horizon
 %
@@ -1665,8 +1651,8 @@ This must be the format of the data (linear inequalities) that define the \code{
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \newpage
 
-\subsection {\code{PolyhedralFunctionBlock}}
-The class \code{PolyhedralFunctionBlock} derives from \code{AbstractBlock} to define the following concept: a \Block whose sole distinguishing feature is a \code{PolyhedralFunction} as objective, but which can otherwise contain any kind of ``abstract'' Variable and Constraint (provided these are handled by the base \code{AbstractBlock} class). The rationale for the \code{PolyhedralFunctionBlock} class is that a \code{PolyhedralFunction} is a perfectly fine object in itself, but one that several solver cannot easily deal with in its ``natural'' form. However, a \code{PolyhedralFunction} can also be represented in a very natural way by means of one extra continuous \code{ColVariable} plus a finite set of (dynamic) \code{FRowConstraint} with \code{LinearFunction} inside (a.k.a., linear constraints). Thus, the main feature that \code{PolyhedralFunctionBlock} implements is the ability to ``present'' itself (construct an ``abstract representation'') as either having a \code{FRealObjective} with a \code{PolyhedralFunction} inside, or having a set of (continuous) \code{ColVariable} and (linear) \code{RowConstraint}. We call the first the ``natural representation''  of a \code{PolyhedralFunctionBlock}, and the latter its ``linearized representation''. Note that most individual changes in the \code{PolyhedralFunction} result in many changes to the ``linearized representation'', that are properly bunched into appropriate \code{GroupModification}. Conversely, many individual changes to the ``linearized representation'' cannot (or would be too complex to) be implemented in the \code{PolyhedralFunction}, because each one of them individually would lead it to end in a partly inconsistent state, and only a co-ordinated set of them (say, properly bunched into an appropriate \code{GroupModification}) would work. Hence, a number of changes to the ``linearized representation'' are not allowed; see the comments to the protected method \code{guts\_of\_add\_Modification\_LR()} for details. Other than that, \code{PolyhedralFunctionBlock} entirely relies on the machinery provided by \code{AbstractBlock} to handle all the rest of the \Block, and therefore is subject to the limitations of that class regarding what kind of \code{Constraint}, \code{Variable} and \code{Objective} are supported. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
+\subsection {\code{PolyhedralFunctionBlock}}\label{sec:PolyhedralFunctionBlock}
+The class \code{PolyhedralFunctionBlock} derives from \code{AbstractBlock} to define the following concept: a \Block whose sole distinguishing feature is a \code{PolyhedralFunction} as objective, but which can otherwise contain any kind of ``abstract'' Variable and Constraint (provided these are handled by the base \code{AbstractBlock} class). The rationale for the \code{PolyhedralFunctionBlock} class is that a \code{PolyhedralFunction} is a perfectly fine object in itself, but one that several solvers cannot easily deal with in its ``natural'' form. However, a \code{PolyhedralFunction} can also be represented in a very natural way by means of one extra continuous \code{ColVariable} plus a finite set of (dynamic) \code{FRowConstraint} with \code{LinearFunction} inside (a.k.a., linear constraints). Thus, the main feature that \code{PolyhedralFunctionBlock} implements is the ability to ``present'' itself (construct an ``abstract representation'') as either having a \code{FRealObjective} with a \code{PolyhedralFunction} inside, or having a set of (continuous) \code{ColVariable} and (linear) \code{RowConstraint}. We call the first the ``natural representation''  of a \code{PolyhedralFunctionBlock}, and the latter its ``linearized representation''. Note that most individual changes in the \code{PolyhedralFunction} result in many changes to the ``linearized representation'', that are properly bunched into appropriate \code{GroupModification}. Conversely, many individual changes to the ``linearized representation'' cannot (or would be too complex to) be implemented in the \code{PolyhedralFunction}, because each one of them individually would lead it to end in a partly inconsistent state, and only a co-ordinated set of them (say, properly bunched into an appropriate \code{GroupModification}) would work. Hence, a number of changes to the ``linearized representation'' are not allowed; see the comments to the protected method \code{guts\_of\_add\_Modification\_LR()} for details. Other than that, \code{PolyhedralFunctionBlock} entirely relies on the machinery provided by \code{AbstractBlock} to handle all the rest of the \Block, and therefore is subject to the limitations of that class regarding what kind of \code{Constraint}, \code{Variable} and \code{Objective} are supported. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
 \item all the data necessary to describe a \code{PolyhedralFunction}; see \S \ref{sec:PolyhedralFunction} for details;
 %
@@ -1933,12 +1919,19 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   \cstr{StochasticBlock\_t} \group.
 
 \item the \cstr{AbstractPath} \group containing the description of a vector of
-  \code{AbstractPath} as described in \S \ref{sec:AbstractPath}. The number
-  of \code{AbstractPath} must be equal to $\cstr{TimeHorizon} - 1$. The $i$-th
-  \code{AbstractPath} in this vector must be the path to the
+  \code{AbstractPath} as described in \S \ref{sec:AbstractPath}. The number of
+  \code{AbstractPath} must be equal to either 1 or $\cstr{TimeHorizon} -
+  1$. If the number of \code{AbstractPath} is $\cstr{TimeHorizon} - 1$ then
+  the $i$-th \code{AbstractPath} in this vector must be the path to the
   \code{PolyhedralFunction} associated with the $i$-th sub-\Block of this
   \code{SDDPBlock}. The $i$-th \code{AbstractPath} is taken with respect to
-  the inner \Block of the $i$-th sub-\Block of this \code{SDDPBlock}.
+  the inner \Block of the $i$-th sub-\Block of this \code{SDDPBlock}. If the
+  number of \code{AbstractPath} in this vector is 1, then all paths are
+  assumed to be equal: for each $i \in \{0, \dots, \cstr{TimeHorizon}-1\}$,
+  the provided \code{AbstractPath} will be the path to the
+  \code{PolyhedralFunction} associated with the $i$-th sub-\Block of this
+  \code{SDDPBlock} (taken with respect to the inner \Block of this $i$-th
+  sub-\Block).
 
 \item The \cstr{NumberScenarios} \dimension specifying the number of
   scenarios.
@@ -2592,7 +2585,7 @@ inner \Block of the \code{BendersBFunction} to be overwritten (if the
 \newpage
 \section{Examples}
 
-\subsection{Seasonal Storage Valuation}
+\subsection{Seasonal Storage Valuation}\label{sec:SSV}
 
 The multistage stochastic problem in the Seasonal Storage Valuation (SSV) is
 represented by an \code{SDDPBlock} (see \S \ref{sec:SDDPBlock}). The
@@ -2679,12 +2672,12 @@ matrix $\mathcal{S}$ would then have the following form:
   s/.style={
     above left offset={-0.2,0.45},
     below right offset={0.2,-0.3},
-    set fill color=gray!10,
-    set border color=gray!40,
+    set fill color=gray!5,
+    set border color=gray!20,
   },
   sin/.style={
-    set fill color=blue!5,
-    set border color=blue!30,
+    set fill color=gray!20,
+    set border color=gray!60,
 }}
 
 \matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.1cm] (m) {
@@ -2728,7 +2721,7 @@ matrix $\mathcal{S}$ would then have the following form:
 
 \node[
   fit=(m-1-11.center),
-  inner xsep=30pt,inner ysep=0,
+  inner xsep=25pt,inner ysep=0,
   label=right:Scenario $0$,
 ] {};
 
@@ -2740,7 +2733,7 @@ matrix $\mathcal{S}$ would then have the following form:
 
 \node[
   fit=(m-3-11.center),
-  inner xsep=30pt,inner ysep=0,
+  inner xsep=25pt,inner ysep=0,
   label=right:Scenario $i$
 ] {};
 
@@ -2752,14 +2745,15 @@ matrix $\mathcal{S}$ would then have the following form:
 
 \node[
   fit=(m-5-11.center),
-  inner xsep=30pt,inner ysep=0,
+  inner xsep=25pt,inner ysep=0,
   label=right:Scenario $m-1$
 ] {};
 
 \end{tikzpicture}
 \end{equation*}
-In this example, if $T=52$, the \dimension \cstr{ScenarioSize} would
-be $52(7+4+11)$.
+In this example, if $T=52$, the \dimension \cstr{ScenarioSize} would be
+$52(7+4+11)$. The light gray box indicate a scenario while a dark gray box
+indicates a sub-scenario.
 
 Each sub-\Block of the \code{SDDPBlock} represents a short-term problem that
 is associated with a \code{UCBlock} as follows. For each $t \in \{0, \dots,
@@ -2891,7 +2885,7 @@ documentation of the \code{HydroUnitBlock} class for details.)
 
 Therefore, we could define the \Variables $x$ of the \code{BendersBlock} as
 that representing the following vector:
-\[
+\begin{equation}
 x =
 \begin{tikzpicture}[
     baseline,
@@ -2932,7 +2926,8 @@ x =
   label=below:\code{HydroUnitBlock} $H-1$
 ] {};
 \end{tikzpicture}^{\top}.
-\]
+\label{eq:benders_variables}
+\end{equation}
 As aforementioned, these are the active \Variables of the
 \code{BendersBFunction}. Based on the values of these \Variables, the
 \code{BendersBFunction} is responsible for updating the \Constraints of the
@@ -3088,7 +3083,7 @@ it is straightforward to construct a vector of \code{AbstractPath}s to those
 \cstr{PathNodeTypes} = ( & \text{`O'}, \text{`B'}, \text{`B'}, \text{`C'}, \dots,
 \text{`O'}, \text{`B'}, \text{`B'}, \text{`C'})\\
 \cstr{PathGroupIndices} = ( & \code{inf}, 0, 0, 11, \dots, \code{inf}, 0, i, 11,
-                            \dots, \code{inf}, 0, H-1, 11 )\\
+                            \dots, \code{inf}, 0, R-1, 11 )\\
 \cstr{PathElementIndices} = (
 & \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_0-1,\\
 & \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_1-1,\\
@@ -3112,7 +3107,7 @@ $R$) with all elements equal to `B', meaning that both sides of the
 But since all elements are equal to `B', the \cstr{ConstraintSide} \variable
 does not need to be provided.
 
-\subsubsection{\code{StochasticBlock}}
+\subsubsection{\code{StochasticBlock}}\label{sec:StochasticBlock_example}
 
 The \group \cstr{Block} of the \cstr{StochasticBlock} must contain the
 description of the associated \code{BendersBlock}. Moreover, the
@@ -3173,7 +3168,7 @@ that
 \begin{itemize}
 \item $(\xi_0, \xi_1)$ represent the maximum power of the first
   \code{ThermalUnitBlock} for the inner stages 2 and 5.
-\item $(\xi_2, \xi_3, \xi_4, \xi_5)$ represent the maximum power of the first
+\item $(\xi_2, \xi_3, \xi_4, \xi_5)$ represent the maximum power of the second
   \code{ThermalUnitBlock} for the inner stages 0, 1, 2, and 3.
 \item $(\xi_6, \xi_7)$ represent the active demand of the \code{NetworkBlock}
   associated with the inner stage 1 at nodes with indices 1 and 4.
@@ -3324,7 +3319,7 @@ must include its size in \code{SetSize}. For a \code{Range}, we must include
 the number 0 in \code{SetSize}. Thus, in our example, this \variable would be
 given as
 \[
-\code{SetSize} = ( 0, 0, \quad 0, 0, \quad 0, 2, \quad 0, 2)
+\code{SetSize} = ( 0, 0, \quad 0, 0, \quad 0, 2, \quad 0, 2).
 \]
 Recall that the elements at positions $2i$ and $2i+1$ correspond to the sizes
 (or types) of the $i$-th \code{SetFrom} and \code{SetTo} sets. Now, we must
@@ -3332,9 +3327,23 @@ specify the elements that belong to each set. For a \code{Range} representing
 the set $[a,b)$, we must provide $a$ and $b$. For a \code{Subset}, we must
 provide its elements. Thus, the \cstr{SetElements} \variable would be given as
 \[
-\cstr{SetElements} = ( 0, 2, 2, 6, \quad 2, 6, 0, 4, \quad 6, 8, 1, 4, \quad
+\cstr{SetElements} = ( 0, 2, 2, 5, \quad 2, 6, 0, 4, \quad 6, 8, 1, 4, \quad
 8, 10, T^{\text{in}} + 12, 4T^{\text{in}} + 15).
 \]
+(The first \code{SimpleDataMapping} has $\{0, 1\}$ as its \code{SetFrom} set
+and $\{2,5\}$ as its \code{SetTo} set. In this case, the \code{SetFrom} can be
+represented as the \code{Range} $[0, 2)$. The \code{SetTo} cannot be
+  represented as a \code{Range} (it is not an interval of integers), so we
+  need to explicitly list all its elements. Thus, the first elements of
+  \code{SetElements} are 0 and 2 (describing the first \code{SetFrom}) and 2
+  and 5 (describing the first \code{SetTo}). The next elements of
+  \code{SetElements} are those describing the \code{SetFrom} and \code{SetTo}
+  sets of the second \code{SimpleDataMapping}. In the second
+  \code{SimpleDataMapping}, we have ${2,3,4,5}$ as the \code{SetFrom} set and
+  ${0,1,2,3}$ as the \code{SetTo} set. These sets can be represented as the
+  \code{Range}s $[2, 6)$ and $[0, 4)$, respectively. So, the next elements of
+      \code{SetElements} are 2, 6, 0, 4. And so on.)
+
 The \cstr{FunctionName} \variable must contain the names of the functions
 (registered in the ``methods factory'') responsible for updating the data of
 the \Blocks. In our example, we would have
@@ -3343,7 +3352,7 @@ the \Blocks. In our example, we would have
   & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
   & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
   & ``\code{NetworkBlock::set\_active\_demand}" ,\\
-  & ``\code{HydroUnitBlock::set\_inflow}")
+  & ``\code{HydroUnitBlock::set\_inflow}").
 \end{align*}
 
 We must also provide a vector of \code{AbstractPath} to the affected
@@ -3373,6 +3382,257 @@ Finally, we have
 \end{align*}
 Since all elements of \cstr{PathElementIndices} are equal to \code{inf}, this
 \variable does not need to be provided.
+
+\subsubsection{\code{SDDPBlock}}
+
+We now describe the remaining part of the \code{SDDPBlock}. In the beginning
+of \S \ref{sec:SSV}, we have seen how the scenarios are specified in the
+\code{SDDPBlock}. According to our notation, the \dimension \cstr{TimeHorizon}
+of \code{SDDPBlock} would be equal to $T^{\text{out}}$. Following the example
+of \S \ref{sec:StochasticBlock_example}, each sub-scenario (a part of the
+scenario that is associated with a particular outer stage) has size
+10. Assuming all sub-scenarios have the same size, there would be no need to
+provide the \dimension \cstr{SubScenarioSize} and the \dimension
+\cstr{ScenarioSize} would be equal to $10 T^{\text{out}}$ (for each stage $t
+\in \{0, \dots, T^{\text{out}}-1\}$, the size of a sub-scenario associated
+with stage $t$ would be 10). Also, assuming there is a total of $m$ scenarios,
+the \dimension \cstr{NumberScenarios} would be equal to $m$. In our example,
+we can identify three groups of related random data: maximum power of a
+\code{ThermalUnitBlock}, active demand of a \code{NetworkBlock}, and inflows
+of a \code{HydroUnitBlock}. Thus, the \dimension \cstr{NumberRandomDataGroups}
+would be equal to 3. The first group would then have size 6 (the maximum power
+of both affected \code{ThermalUnitBlock}s) and the second and third groups
+would have each one size 2. Therefore, the \cstr{SizeRandomDataGroups}
+\variable would be given by
+\[
+\cstr{SizeRandomDataGroups} = (6, 2, 2).
+\]
+For instance, if we had $T^{\text{out}}=3$ and $m=5$, the \cstr{Scenarios}
+\variable could be the following matrix:
+\begin{equation*}
+\begin{tikzpicture}[
+    baseline,
+    label distance=10pt
+  ]
+\tikzset{
+  sin/.style={
+    above left offset={-0.2,0.45},
+    below right offset={0.2,-0.3},
+    set fill color=gray!10,
+    set border color=gray!40,
+  },
+  sin1/.style={
+    set fill color=green!5,
+    set border color=green!30,
+  },
+  sin2/.style={
+    set fill color=red!5,
+    set border color=red!30,
+  },
+  sin3/.style={
+    set fill color=blue!5,
+    set border color=blue!30,
+}}
+
+\matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.5cm,column sep=0.1cm] (me) {
+\tikzmarkin[sin]{Se_1_0}\tikzmarkin[sin1]{Se_1_0_1_in}1 & 2 & 5 & 7 & 6 & 8\tikzmarkend{Se_1_0_1_in} & \tikzmarkin[sin2]{Se_1_0_2_in}7 & 2\tikzmarkend{Se_1_0_2_in} & \tikzmarkin[sin3]{Se_1_0_3_in}4 & 7\tikzmarkend{Se_1_0_3_in}\tikzmarkend{Se_1_0} & \ & \tikzmarkin[sin]{Se_1_1}\tikzmarkin[sin1]{Se_1_1_1_in}3 & 2 & 7 & 6 & 7 & 2\tikzmarkend{Se_1_1_1_in} & \tikzmarkin[sin2]{Se_1_1_2_in}8 & 2\tikzmarkend{Se_1_1_2_in} & \tikzmarkin[sin3]{Se_1_1_3_in}3 & 2\tikzmarkend{Se_1_1_3_in}\tikzmarkend{Se_1_1} & \ & \tikzmarkin[sin]{Se_1_2}\tikzmarkin[sin1]{Se_1_2_1_in}0 & 2 & 7 & 4 & 4 & 4\tikzmarkend{Se_1_2_1_in} & \tikzmarkin[sin2]{Se_1_2_2_in}6 & 3\tikzmarkend{Se_1_2_2_in} & \tikzmarkin[sin3]{Se_1_2_3_in}7 & 0\tikzmarkend{Se_1_2_3_in}\tikzmarkend{Se_1_2}\\
+\tikzmarkin[sin]{Se_2_0}\tikzmarkin[sin1]{Se_2_0_1_in}7 & 6 & 6 & 2 & 3 & 0\tikzmarkend{Se_2_0_1_in} & \tikzmarkin[sin2]{Se_2_0_2_in}0 & 1\tikzmarkend{Se_2_0_2_in} & \tikzmarkin[sin3]{Se_2_0_3_in}1 & 4\tikzmarkend{Se_2_0_3_in}\tikzmarkend{Se_2_0} & \ & \tikzmarkin[sin]{Se_2_1}\tikzmarkin[sin1]{Se_2_1_1_in}7 & 7 & 7 & 5 & 3 & 8\tikzmarkend{Se_2_1_1_in} & \tikzmarkin[sin2]{Se_2_1_2_in}2 & 0\tikzmarkend{Se_2_1_2_in} & \tikzmarkin[sin3]{Se_2_1_3_in}4 & 6\tikzmarkend{Se_2_1_3_in}\tikzmarkend{Se_2_1} & \ & \tikzmarkin[sin]{Se_2_2}\tikzmarkin[sin1]{Se_2_2_1_in}2 & 5 & 6 & 1 & 7 & 1\tikzmarkend{Se_2_2_1_in} & \tikzmarkin[sin2]{Se_2_2_2_in}3 & 7\tikzmarkend{Se_2_2_2_in} & \tikzmarkin[sin3]{Se_2_2_3_in}0 & 7\tikzmarkend{Se_2_2_3_in}\tikzmarkend{Se_2_2}\\
+\tikzmarkin[sin]{Se_3_0}\tikzmarkin[sin1]{Se_3_0_1_in}1 & 5 & 8 & 7 & 0 & 7\tikzmarkend{Se_3_0_1_in} & \tikzmarkin[sin2]{Se_3_0_2_in}5 & 6\tikzmarkend{Se_3_0_2_in} & \tikzmarkin[sin3]{Se_3_0_3_in}7 & 5\tikzmarkend{Se_3_0_3_in}\tikzmarkend{Se_3_0} & \ & \tikzmarkin[sin]{Se_3_1}\tikzmarkin[sin1]{Se_3_1_1_in}3 & 0 & 2 & 3 & 1 & 5\tikzmarkend{Se_3_1_1_in} & \tikzmarkin[sin2]{Se_3_1_2_in}7 & 6\tikzmarkend{Se_3_1_2_in} & \tikzmarkin[sin3]{Se_3_1_3_in}3 & 2\tikzmarkend{Se_3_1_3_in}\tikzmarkend{Se_3_1} & \ & \tikzmarkin[sin]{Se_3_2}\tikzmarkin[sin1]{Se_3_2_1_in}6 & 1 & 3 & 1 & 2 & 7\tikzmarkend{Se_3_2_1_in} & \tikzmarkin[sin2]{Se_3_2_2_in}2 & 1\tikzmarkend{Se_3_2_2_in} & \tikzmarkin[sin3]{Se_3_2_3_in}4 & 7\tikzmarkend{Se_3_2_3_in}\tikzmarkend{Se_3_2}\\
+\tikzmarkin[sin]{Se_4_0}\tikzmarkin[sin1]{Se_4_0_1_in}8 & 0 & 4 & 0 & 1 & 0\tikzmarkend{Se_4_0_1_in} & \tikzmarkin[sin2]{Se_4_0_2_in}0 & 7\tikzmarkend{Se_4_0_2_in} & \tikzmarkin[sin3]{Se_4_0_3_in}1 & 5\tikzmarkend{Se_4_0_3_in}\tikzmarkend{Se_4_0} & \ & \tikzmarkin[sin]{Se_4_1}\tikzmarkin[sin1]{Se_4_1_1_in}6 & 1 & 5 & 5 & 0 & 3\tikzmarkend{Se_4_1_1_in} & \tikzmarkin[sin2]{Se_4_1_2_in}1 & 1\tikzmarkend{Se_4_1_2_in} & \tikzmarkin[sin3]{Se_4_1_3_in}0 & 7\tikzmarkend{Se_4_1_3_in}\tikzmarkend{Se_4_1} & \ & \tikzmarkin[sin]{Se_4_2}\tikzmarkin[sin1]{Se_4_2_1_in}5 & 0 & 5 & 8 & 0 & 8\tikzmarkend{Se_4_2_1_in} & \tikzmarkin[sin2]{Se_4_2_2_in}8 & 3\tikzmarkend{Se_4_2_2_in} & \tikzmarkin[sin3]{Se_4_2_3_in}4 & 5\tikzmarkend{Se_4_2_3_in}\tikzmarkend{Se_4_2}\\
+\tikzmarkin[sin]{Se_5_0}\tikzmarkin[sin1]{Se_5_0_1_in}5 & 3 & 0 & 2 & 3 & 8\tikzmarkend{Se_5_0_1_in} & \tikzmarkin[sin2]{Se_5_0_2_in}8 & 3\tikzmarkend{Se_5_0_2_in} & \tikzmarkin[sin3]{Se_5_0_3_in}5 & 1\tikzmarkend{Se_5_0_3_in}\tikzmarkend{Se_5_0} & \ & \tikzmarkin[sin]{Se_5_1}\tikzmarkin[sin1]{Se_5_1_1_in}8 & 3 & 6 & 1 & 7 & 5\tikzmarkend{Se_5_1_1_in} & \tikzmarkin[sin2]{Se_5_1_2_in}6 & 0\tikzmarkend{Se_5_1_2_in} & \tikzmarkin[sin3]{Se_5_1_3_in}0 & 2\tikzmarkend{Se_5_1_3_in}\tikzmarkend{Se_5_1} & \ & \tikzmarkin[sin]{Se_5_2}\tikzmarkin[sin1]{Se_5_2_1_in}3 & 2 & 1 & 4 & 1 & 0\tikzmarkend{Se_5_2_1_in} & \tikzmarkin[sin2]{Se_5_2_2_in}4 & 4\tikzmarkend{Se_5_2_2_in} & \tikzmarkin[sin3]{Se_5_2_3_in}1 & 6\tikzmarkend{Se_5_2_3_in}\tikzmarkend{Se_5_2}\\
+};
+
+\node[
+fit=(me-1-1)(me-1-10),
+inner xsep=0,
+above delimiter=\{,
+label=above:Stage $0$
+] {};
+\node[
+fit=(me-1-12)(me-1-21),
+inner xsep=0,
+above delimiter=\{,
+label=above:Stage $1$
+] {};
+\node[
+fit=(me-1-23)(me-1-32),
+inner xsep=0,
+above delimiter=\{,
+label=above:Stage $2$
+] {};
+\node[
+fit=(me-1-32.center),
+inner xsep=5pt,inner ysep=0,
+label=right:Scenario $0$,
+] {};
+\node[
+fit=(me-2-32.center),
+inner xsep=5pt,inner ysep=0,
+label=right:Scenario $1$,
+] {};
+\node[
+fit=(me-3-32.center),
+inner xsep=5pt,inner ysep=0,
+label=right:Scenario $2$,
+] {};
+\node[
+fit=(me-4-32.center),
+inner xsep=5pt,inner ysep=0,
+label=right:Scenario $3$,
+] {};
+\node[
+fit=(me-5-32.center),
+inner xsep=5pt,inner ysep=0,
+label=right:Scenario $4$,
+] {};
+\end{tikzpicture}
+\end{equation*}
+The green, red, and blue boxes indicate the maximum power of the
+\code{ThermalUnitBlock}s, the active demand of the \code{NetworkBlock}, and
+the inflows of the \code{HydroUnitBlock}, respectively. The gray box indicates
+a sub-scenario.
+
+The last sub-\Block of a \code{HydroSystemUnitBlock} is a
+\code{PolyhedralFunctionBlock} (see \S \ref{sec:PolyhedralFunctionBlock})
+which contains a \code{PolyhedralFunction} (see \S
+\ref{sec:PolyhedralFunction}). For each $t \in \{0, \dots,
+T^{\text{out}}-2\}$, the \code{PolyhedralFunction} associated with the outer
+stage $t$ represents an approximation to the (unknown) expected future cost
+function. This is the function that is updated at each step of the SDDP
+method. This function depends on the volumes of all reservoirs at the last
+inner stage ($T^{\text{in}}-1$). Following the same notation used to describe
+constraints \eqref{eq:initial_volume2}, this function depends on the variables
+$v^i_{j,T^{\text{in}}-1}$ for each \code{HydroUnitBlock} $i \in \{0, \dots,
+H-1\}$ and for each reservoir $j \in \mathcal{N}^i$ of that
+\code{HydroUnitBlock}. The only thing that must be provided in the
+specification of the \code{PolyhedralFunction} is the \dimension
+\cstr{PolyFunction\_NumVar}. This \dimension must be equal to the total number
+of reservoirs (which is $R$ in our example).
+
+If one wishes to provide an initial approximation of the future cost function,
+then other \variables and \dimensions must also be provided. The
+\code{PolyhedralFunction} represents a function $f$ of the form
+\begin{equation}
+  f(x) = \max_{k \in \{0,\dots,p-1\}} a_k^\top x + b_k
+  \label{eq:poly_max}
+\end{equation}
+or
+\begin{equation}
+  f(x) = \min_{k \in \{0,\dots,p-1\}} a_k^\top x + b_k.
+  \label{eq:poly_min}
+\end{equation}
+The \dimension \cstr{PolyFunction\_sign} indicates whether the
+\code{PolyhedralFunction} has the form \eqref{eq:poly_max}, and therefore is a
+convex, or \eqref{eq:poly_min}, and thus is concave. In the SSV, the future
+cost function is convex and has the form \eqref{eq:poly_max}, so that
+\cstr{PolyFunction\_sign} should be \code{true}. The \dimension
+\cstr{PolyFunction\_NumRow} indicates the number of affine functions that
+define the polyhedral function. In \eqref{eq:poly_max} and
+\eqref{eq:poly_min}, this number is $p$. The vectors $a_k$ and the constants
+$b_k$ are provided in the \cstr{PolyFunction\_A} and \cstr{PolyFunction\_b}
+\variables, respectively. \cstr{PolyFunction\_A} must contain a matrix $A \in
+\mathbb{R}^{p \times R}$ such that, for each $k \in \{0, \dots, p-1\}$, $a_k$
+is its $k$-th row, and \cstr{PolyFunction\_b} is a one-dimensional array whose
+$k$-th element is $b_k$. Finally, it is also possible to indicate a global
+lower (or upper) bound on the value of the function by setting the
+\cstr{PolyFunction\_lb} \variable. In the SSV, a valid global lower bound on
+the value of the future cost function is zero.
+
+In the specification of the \code{SDDPBlock}, it is necessary to specify a
+path to each of these \code{PolyhedralFunction}s. For each outer stage $t \in
+\{0, \dots, T^{\text{out}}-2\}$, the required path is an \code{AbstracPath}
+from the \code{BendersBlock} associated with stage $t$ to the
+\code{PolyhedralFunction}. Recall that we assumed that the
+\code{HydroSystemUnitBlock} is the first sub-\Block of the \code{UCBlock}, so
+that its group index is 0. Thus, the path from the \code{BendersBlock} to the
+\code{PolyhedralFunction} would be the following:
+\begin{equation}
+  O \rightarrow B(0) \rightarrow B(0) \rightarrow B(H).
+  \label{path_poly}
+\end{equation}
+We have seen in \S \ref{sec:StochasticBlock_example} an example on how to
+specify a vector of \code{AbstractPath}s. Here we assume that all paths are
+equal (that is, we assume that the \code{HydroSystemUnitBlock} is the first
+sub-\Block of \code{UCBlock} and that the \code{PolyhedralFunctionBlock} is
+the last sub-\Block of the \code{HydroSystemUnitBlock}). In this case, a
+vector with a single \code{AbstractPath} can be provided. Thus, the
+\cstr{PathDim} \dimension would be 1 and, according \eqref{path_poly}, we
+would have \cstr{TotalLength} = 4, \cstr{PathStart} = (0) and
+\begin{align*}
+\cstr{PathNodeTypes} = ( &
+\text{`O'}, \text{`B'}, \text{`B'}, \text{`B'})\\
+\cstr{PathGroupIndices} = ( &
+  \code{inf}, 0, 0, H)\\
+\cstr{PathElementIndices} = ( &
+  \code{inf}, \code{inf}, \code{inf}, \code{inf}).
+\end{align*}
+Again, since all elements of \cstr{PathElementIndices} are equal to
+\code{inf}, this \variable does not need to be provided.
+
+The \code{SDDPBlock} also requires an admissible state for each outer
+stage. In the SSV, a state for a given stage is formed by the initial volumes
+of all the reservoirs at that stage. Thus, the \cstr{StateSize} would be equal
+to $R$, the total number of reservoirs. An admissible state for stage $t \in
+\{0, \dots, T^{\text{out}}-1\}$ is a state for which the sub-problem at stage
+$t$ is feasible. Trivial examples of non-admissible states include those in
+which the volumes of the reservoirs are too low (so that the demand may not be
+satisfied) or too high (so that the maximum volume limit of the reservoir may
+be exceeded if there is enough inflow). The state is a vector that must follow
+the same convention as that chosen for the vector $x$ defined in
+\eqref{eq:benders_variables}. So, a state $s^t$ for the stage $t \in \{0,
+\dots, T^{\text{out}}-1\}$ must be a vector in $\mathbb{R}^R$ with the form
+\begin{equation}
+s^t =
+\begin{tikzpicture}[
+    baseline,
+    label distance=10pt
+  ]
+
+\tikzset{
+  s/.style={
+    set fill color=blue!5,
+    set border color=blue!30,
+    below right offset={0.1,-0.25},
+}}
+
+\matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.25cm] (mstate) {
+\tikzmarkin[s]{state0}s^t_{0,0} & \dots & s^t_{0,r_0}\tikzmarkend{state0} & \dots &
+\tikzmarkin[s]{statek}s^t_{i,0} & \dots & s^t_{i,r_i}\tikzmarkend{statek} & \dots &
+\tikzmarkin[s]{stateH}s^t_{H-1,0} & \dots & s^t_{H-1,r_{H-1}}\tikzmarkend{stateH}\\
+};
+
+\node[
+  fit=(mstate-1-1)(mstate-1-3),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $0$
+] {};
+
+\node[
+  fit=(mstate-1-5)(mstate-1-7),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $i$
+] {};
+
+\node[
+  fit=(mstate-1-9)(mstate-1-11),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:\code{HydroUnitBlock} $H-1$
+] {};
+\end{tikzpicture}
+\label{eq:state}
+\end{equation}
+where $s^t_{i,j}$ is the initial volume for the $j$-th reservoir of the $i$-th
+\code{HydroUnitBlock}. The \cstr{AdmissibleState} \variable would then be a
+one-dimensional array of size $RT^{\text{out}}$ containing the states for all
+outer stages arranged as follows:
+\[
+\cstr{AdmissibleState} = ( s^0, \dots, s^{T^{\text{out}}-1}),
+\]
+where $s^t \in \mathbb{R}^R$ is given by \eqref{eq:state} for each $t \in \{0,
+\dots, T^{\text{out}}-1\}$.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
