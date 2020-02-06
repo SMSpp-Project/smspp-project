@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 04/02/2020}
+{\Large Date: 06/02/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -2300,7 +2300,8 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
 
 \item The \variable \cstr{b}, of type \code{netCDF::NcDouble} and indexed over
   the dimension \cstr{NumRow}, which contains the vector $b$. This variable is
-  optional only if \code{NumRow == 0}.
+  optional. If it is not provided, then we assume \code{b[i] = 0} for each $i
+  \in \{0, \dots, \cstr{NumRow} - 1\}$.
 
 \item The \variable \cstr{ConstraintSide}, of type \code{netCDF::NcChar} and
   indexed over the dimension \cstr{NumRow}, indicating, at position $i$, which
@@ -3152,26 +3153,26 @@ element of in the data structure of the \dBlock.
 Consider, for example, a \code{UCBlock} that has $N$ \code{UnitBlock}s, one of
 them being a \code{HydroSystemUnitBlock} and two of them being
 \code{ThermalUnitBlock}s. Suppose that the maximum power of the first
-\code{ThermalUnitBlock} is stochastic for the inner stages 2 and 5 and that
-the maximum power of the second \code{ThermalUnitBlock} is stochastic for the
-inner stages 0, 1, 2, and 3. Suppose also that the \code{NetworkBlock}
+\code{ThermalUnitBlock} is stochastic for the inner stages 2, 3, and 5 and
+that the maximum power of the second \code{ThermalUnitBlock} is stochastic for
+the inner stages 0, 1, 2, and 3. Suppose also that the \code{NetworkBlock}
 associated with the inner stage 1 has 10 nodes, indexed from 0 to 9, and that
-the active demand at nodes with indices 1 and 4 are stochastic. Finally,
-suppose that the fourth \code{HydroUnitBlock} of the
-\code{HydroSystemUnitBlock} has some stochastic inflows. The inflow occurs at
-each reservoir of a \code{HydroUnitBlock} at each inner stage. To simplify,
-let us suppose that the inflows at the second reservoir at the inner stage 12
-the inflows at the fifth reservoir at the inner stage 15 are stochastic.
+the active demand at the node with index 4 is stochastic. Finally, suppose
+that the fourth \code{HydroUnitBlock} of the \code{HydroSystemUnitBlock} has
+some stochastic inflows. The inflow occurs at each reservoir of a
+\code{HydroUnitBlock} at each inner stage. To simplify, let us suppose that
+the inflows at the second reservoir at the inner stage 12 and the inflows at
+the fifth reservoir at the inner stage 15 are stochastic.
 
 We could define a sub-scenario $\xi$ as a vector in $\mathbb{R}^{10}$ such
 that
 \begin{itemize}
-\item $(\xi_0, \xi_1)$ represent the maximum power of the first
-  \code{ThermalUnitBlock} for the inner stages 2 and 5.
-\item $(\xi_2, \xi_3, \xi_4, \xi_5)$ represent the maximum power of the second
+\item $(\xi_0, \xi_1, \xi_2)$ represent the maximum power of the first
+  \code{ThermalUnitBlock} for the inner stages 2, 3, and 5.
+\item $(\xi_3, \xi_4, \xi_5, \xi_6)$ represent the maximum power of the second
   \code{ThermalUnitBlock} for the inner stages 0, 1, 2, and 3.
-\item $(\xi_6, \xi_7)$ represent the active demand of the \code{NetworkBlock}
-  associated with the inner stage 1 at nodes with indices 1 and 4.
+\item $(\xi_7)$ represent the active demand of the \code{NetworkBlock}
+  associated with the inner stage 1 at node with index 4.
 \item $(\xi_8, \xi_9)$ represent the inflows at the second and fifth
   reservoirs of the fourth \code{HydroUnitBlock} at the inner stages 12 and
   15, respectively.
@@ -3207,8 +3208,8 @@ the sequel.
 
 Let us begin with the first \code{ThermalUnitBlock}. Its data is given in the
 first two entries of the sub-scenario and is associated with the maximum power
-at the inner stages 2 and 5. Therefore, we have $\{0,1\}$ as the
-\code{SetFrom} set and $\{2,5\}$ as the \code{SetTo} set. Since the maximum
+at the inner stages 2, 3, and 5. Therefore, we have $\{0,1,2\}$ as the
+\code{SetFrom} set and $\{2,3,5\}$ as the \code{SetTo} set. Since the maximum
 power is of type \code{double}, its data type is `D'. The name of the function
 responsible for updating the maximum power is
 \code{ThermalUnitBlock::set\_maximum\_power}. Finally, we need to specify that
@@ -3225,7 +3226,7 @@ its group index is 1 (this \code{ThermalUnitBlock} would be the
 \end{equation}
 
 Analogously, for the second \code{ThermalUnitBlock}, we would have
-$\{2,3,4,5\}$ as the \code{SetFrom} set, $\{0,1,2,3\}$ as the
+$\{3,4,5,6\}$ as the \code{SetFrom} set, $\{0,1,2,3\}$ as the
 \code{SetTo} set and, assuming it is the fourth sub-\Block of the
 \code{UCBlock} (and thus its group index is 5), the path to this \Block would
 be
@@ -3233,8 +3234,8 @@ be
   O \rightarrow B(0) \rightarrow B(5).
 \end{equation}
 
-For the \code{NetworkBlock}, we would have $\{6,7\}$ as the \code{SetFrom}
-set and $\{1, 4\}$ (the indices of the nodes) as the \code{SetTo}
+For the \code{NetworkBlock}, we would have $\{7\}$ as the \code{SetFrom}
+set and $\{4\}$ (the index of the node) as the \code{SetTo}
 set. The name of the function that updates this data is
 \code{NetworkBlock::set\_active\_demand} and the data is also of type
 \code{double} (indicated by `D'). Finally, we need to specify the path from
@@ -3303,23 +3304,23 @@ possible. Table~\ref{tab:sets} shows the sets that we need to provide.
     \hline
     \code{SetFrom} & \code{SetTo}\\
     \hline
-    $\{0,1\}$ & $\{2,5\}$\\
-    $\{2,3,4,5\}$ & $\{0,1,2,3\}$\\
-    $\{6,7\}$ & $\{1,4\}$\\
+    $\{0,1,2\}$ & $\{2,3,5\}$\\
+    $\{3,4,5,6\}$ & $\{0,1,2,3\}$\\
+    $\{7\}$ & $\{4\}$\\
     $\{8,9\}$ & $\{T^{\text{in}} + 12, 4T^{\text{in}} + 15\}$\\
     \hline
   \end{tabular}
   \caption{The \code{SetFrom} and \code{SetTo} sets.}
   \label{tab:sets}
 \end{table}
-Except for the last \code{SetTo} set, all sets can be represented as a
-\code{Range}. We begin with the \code{SetSize} \variable. This one-dimensional
-\variable indicates the size or the type of each set. For a \code{Subset}, we
-must include its size in \code{SetSize}. For a \code{Range}, we must include
-the number 0 in \code{SetSize}. Thus, in our example, this \variable would be
-given as
+Except for the first and last \code{SetTo} sets, all sets can be represented
+as a \code{Range}. We begin with the \code{SetSize} \variable. This
+one-dimensional \variable indicates the size or the type of each set. For a
+\code{Subset}, we must include its size in \code{SetSize}. For a \code{Range},
+we must include the number 0 in \code{SetSize}. Thus, in our example, this
+\variable would be given as
 \[
-\code{SetSize} = ( 0, 0, \quad 0, 0, \quad 0, 2, \quad 0, 2).
+\code{SetSize} = ( 0, 3, \quad 0, 0, \quad 0, 0, \quad 0, 2).
 \]
 Recall that the elements at positions $2i$ and $2i+1$ correspond to the sizes
 (or types) of the $i$-th \code{SetFrom} and \code{SetTo} sets. Now, we must
@@ -3327,22 +3328,37 @@ specify the elements that belong to each set. For a \code{Range} representing
 the set $[a,b)$, we must provide $a$ and $b$. For a \code{Subset}, we must
 provide its elements. Thus, the \cstr{SetElements} \variable would be given as
 \[
-\cstr{SetElements} = ( 0, 2, 2, 5, \quad 2, 6, 0, 4, \quad 6, 8, 1, 4, \quad
+\cstr{SetElements} = ( 0, 3, 2, 3, 5, \quad 3, 7, 0, 4, \quad 7, 8, 4, 5, \quad
 8, 10, T^{\text{in}} + 12, 4T^{\text{in}} + 15).
 \]
-(The first \code{SimpleDataMapping} has $\{0, 1\}$ as its \code{SetFrom} set
-and $\{2,5\}$ as its \code{SetTo} set. In this case, the \code{SetFrom} can be
-represented as the \code{Range} $[0, 2)$. The \code{SetTo} cannot be
-  represented as a \code{Range} (it is not an interval of integers), so we
-  need to explicitly list all its elements. Thus, the first elements of
-  \code{SetElements} are 0 and 2 (describing the first \code{SetFrom}) and 2
-  and 5 (describing the first \code{SetTo}). The next elements of
-  \code{SetElements} are those describing the \code{SetFrom} and \code{SetTo}
-  sets of the second \code{SimpleDataMapping}. In the second
-  \code{SimpleDataMapping}, we have ${2,3,4,5}$ as the \code{SetFrom} set and
-  ${0,1,2,3}$ as the \code{SetTo} set. These sets can be represented as the
-  \code{Range}s $[2, 6)$ and $[0, 4)$, respectively. So, the next elements of
-      \code{SetElements} are 2, 6, 0, 4. And so on.)
+(The first \code{SimpleDataMapping} has $\{0, 1, 2\}$ as its \code{SetFrom}
+set and $\{2,3,5\}$ as its \code{SetTo} set. In this case, the \code{SetFrom}
+can be represented as the \code{Range} $[0, 3)$. The \code{SetTo} cannot be
+represented as a \code{Range} (it is not an interval of integers), so we
+need to explicitly list all its elements. Thus, the first elements of
+\code{SetElements} are 0 and 3 (describing the first \code{SetFrom}) and 2,
+3, and 5 (describing the first \code{SetTo}). The next elements of
+\code{SetElements} are those describing the \code{SetFrom} and \code{SetTo}
+sets of the second \code{SimpleDataMapping}. In the second
+\code{SimpleDataMapping}, we have $\{3,4,5,6\}$ as the \code{SetFrom} set
+and $\{0,1,2,3\}$ as the \code{SetTo} set. These sets can be represented as
+the \code{Range}s $[3, 7)$ and $[0, 4)$, respectively. So, the next elements
+of \code{SetElements} are 3, 7, 0, 4. And so on.) Of course, we could
+also have represented each set as a \code{Subset}. For instance, if we
+had represented the second \code{SetFrom} set (which is $\{3,4,5,6\}$) as a
+\code{Subset}, we would have
+\[
+\code{SetSize} = ( 0, 3, \quad 4, 0, \quad 0, 0, \quad 0, 2)
+\]
+and
+\[
+\cstr{SetElements} = ( 0, 3, 2, 3, 5, \quad 3, 4, 5, 6, 0, 4, \quad 7, 8, 4, 5, \quad
+8, 10, T^{\text{in}} + 12, 4T^{\text{in}} + 15).
+\]
+(That is, in \code{SetSize} we replaced a 0 (which was indicating that the set
+is a \code{Range}) by a 4 (which is the size of the set) and in
+\cstr{SetElements} we replaced $3,7$ (which was indicating the \code{Range}
+$[3,7)$) by $3,4,5,6$ (which are the elements of the set).)
 
 The \cstr{FunctionName} \variable must contain the names of the functions
 (registered in the ``methods factory'') responsible for updating the data of
@@ -3579,8 +3595,9 @@ which the volumes of the reservoirs are too low (so that the demand may not be
 satisfied) or too high (so that the maximum volume limit of the reservoir may
 be exceeded if there is enough inflow). The state is a vector that must follow
 the same convention as that chosen for the vector $x$ defined in
-\eqref{eq:benders_variables}. So, a state $s^t$ for the stage $t \in \{0,
-\dots, T^{\text{out}}-1\}$ must be a vector in $\mathbb{R}^R$ with the form
+\eqref{eq:benders_variables}. So, a state $s^t$ for the outer stage $t \in
+\{0, \dots, T^{\text{out}}-1\}$ must be a vector in $\mathbb{R}^R$ with the
+form
 \begin{equation}
 s^t =
 \begin{tikzpicture}[
