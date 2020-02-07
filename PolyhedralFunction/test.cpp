@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.21
+ * \version 0.30
  *
- * \date 02 - 12 - 2019
+ * \date 07 - 02 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -23,32 +23,10 @@
  * Copyright &copy by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
-/*------------------------------ DEFINES -----------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------*/
-/*------------------------------ INCLUDES ----------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-
-#include "AbstractBlock.h"
-
-#include "BundleSolver.h"
-
-#include "CPXMILPSolver.h"
-
-#include "PolyhedralFunction.h"
-
-// #include "FakeSolver.h"
-
-/*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -81,6 +59,22 @@
 
 #define DYNAMIC_VARS 0
 // if 1, half of the variables are dynamic
+
+/*--------------------------------------------------------------------------*/
+/*------------------------------ INCLUDES ----------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
+#include "AbstractBlock.h"
+
+#include "BundleSolver.h"
+
+#include "CPXMILPSolver.h"
+
+#include "PolyhedralFunction.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
