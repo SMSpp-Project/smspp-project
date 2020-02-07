@@ -1,0 +1,17 @@
+#/bin/bash
+
+what=1
+
+for size in 2 10 50 100 200
+do
+for dens in 3 1.1
+do
+for (( seed=0 ; seed<20 ; seed++ ))
+do
+
+printf "$size-$dens-$seed: "
+./PolyhedralFunction_test $seed $what $size $dens
+
+done
+done
+done

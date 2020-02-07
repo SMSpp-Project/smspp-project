@@ -513,6 +513,10 @@ int main( int argc , char **argv )
   // then pass them to the PolyhedralFunction
   NDOBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
 
+  // if no globally valid lower bound, set a "conditional" one
+  if( LB <= - INF )
+   NDOBlock->set_valid_lower_bound( lb , true );
+
   // generate the abstract representation
   SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
   NDOBlock->generate_abstract_variables( &cfg );
@@ -860,13 +864,9 @@ int main( int argc , char **argv )
    // change it in the NDO
    NDOBlock->get_PolyhedralFunction().modify_bound( LB );
 
-   // set lower bound, be it "hard" or "conditional"
-   /*!!
-   if( LB > - INF )
-    NDOBlock->set_valid_lower_bound( LB );
-   else
+   // if no globally valid lower bound, set a "conditional" one
+   if( LB <= - INF )
     NDOBlock->set_valid_lower_bound( lb , true );
-    !!*/
    }
 
  // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

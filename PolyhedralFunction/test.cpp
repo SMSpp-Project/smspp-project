@@ -51,7 +51,8 @@
 #define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
-// 2 = print data + solver log
+// 2 = + solver log
+// 3 = + print data + save LP file
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -66,6 +67,15 @@
                    }
 
 #define PANIC( x ) if( ! ( x ) ) PANICMSG
+
+#define USECOLORS 1
+#if( USECOLORS )
+ #define RED( x ) "\x1B[31m" #x "\033[0m"
+ #define GREEN( x ) "\x1B[32m" #x "\033[0m"
+#else
+ #define RED( x ) #x
+ #define GREEN( x ) #x
+#endif
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
@@ -313,7 +323,7 @@ static bool SolveBoth( void )
    auto foLP = slvrLP->get_ub();
    auto foNDO = slvrNDO->get_ub();
    if( abs( foLP - foNDO )
-       <= 2e-8 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
+       <= 2e-7 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
     LOG1( "OK(f)" << endl );
     return( true );
     }
@@ -345,7 +355,7 @@ static bool SolveBoth( void )
     }
 
   #if( LOG_LEVEL >= 1 )
-   cout << " ~ LPBlock = ";
+   cout << "LPBlock = ";
    if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
     cout << slvrLP->get_ub();
    else
@@ -359,7 +369,7 @@ static bool SolveBoth( void )
 
    cout << " ~ NDOBlock = ";
    if( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
-    cout << slvrNDO->get_ub() << endl;
+    cout << slvrNDO->get_ub();
    else
     if( rtrnNDO == Solver::kInfeasible )
      cout << "    +INF(?)";
@@ -395,7 +405,7 @@ int main( int argc , char **argv )
  double dens = 4;  
  double p_change = 0.5;
  Index n_change = 10;
- Index n_repeat = 0;
+ Index n_repeat = 40;
 
  switch( argc ) {
   case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
@@ -463,7 +473,7 @@ int main( int argc , char **argv )
  GenerateAb( m , nvar );
  GenerateLB();
 
- #if( LOG_LEVEL >= 2 )
+ #if( LOG_LEVEL >= 3 )
   printAb( A , b );
   if( LB > - INF )
    cout << "LB = " << LB << endl;
@@ -587,17 +597,22 @@ int main( int argc , char **argv )
    cerr << "Warning: cannot open log file """ << logF << """" << endl;
   else
    ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
+   //!!((NDOBlock->get_registered_solvers()).front())->set_log( &clog );
 
-  ((LPBlock->get_registered_solvers()).front())->set_par(
+  #if( LOG_LEVEL >= 3 )
+   ((LPBlock->get_registered_solvers()).front())->set_par(
 	                      CPXMILPSolver::strOutputFile , "LPBlock.lp" );
+  #endif
  #endif
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- cout << "First call: ";
- cout.setf( ios::scientific, ios::floatfield );
- cout << setprecision( 6 );
+ #if( LOG_LEVEL >= 1 )
+  cout << "First call: ";
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 6 );
+ #endif
 
  bool AllPassed = SolveBoth();
  
@@ -613,7 +628,7 @@ int main( int argc , char **argv )
 
  for( Index rep = 0 ; rep < n_repeat ; ++rep ) {
 
-  LOG1( "Changes: ");
+  LOG1( rep << ": ");
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1113,7 +1128,7 @@ int main( int argc , char **argv )
 
   // if verbose, print out stuff- - - - - - - - - - - - - - - - - - - - - - -
 
-  #if( LOG_LEVEL >= 2 )
+  #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
 		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
 		                  std::to_string( rep ) + ".lp" );
@@ -1131,9 +1146,9 @@ int main( int argc , char **argv )
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  if( AllPassed )
-  cout << "All test passed!!" << endl;
+  cout << GREEN( All test passed!! ) << endl;
  else
-  cout << "Shit happened!!" << endl;
+  cout << RED( Shit happened!! ) << endl;
  
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
