@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 06/02/2020}
+{\Large Date: 08/02/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -1045,6 +1045,17 @@ in a given \group.
   \code{SimpleDataMapping}. \code{FunctionName[ i ]} gives the name of the
   function (as registered in the methods factory) associated with the $i$-th
   \code{SimpleDataMapping}.
+
+\item The one-dimensional variable \cstr{Caller}, of type
+  \code{netCDF::NcChar} and indexed over \code{NumberDataMappings}, containing
+  the types of the caller objects associated with each
+  \code{SimpleDataMapping}. \code{Caller[ i ]} gives the type of the caller
+  object associated with the $i$-th \code{SimpleDataMapping} and can be either
+  `B', indicating that the caller is a \Block, or `F', indicating that the
+  caller is a \Function. This \variable is optional. If it is not provided,
+  then we assume that \code{Caller[ i ] = 'B'} for each $i \in \{0, \dots,
+  \cstr{NumberDataMappings} - 1\}$, that is, we assume that all callers are
+  \Blocks.
 
 \item The \group \cstr{AbstractPath}, containing a vector of
   \code{AbstractPath} with the paths to the {\Block}s. The number of
@@ -2185,7 +2196,6 @@ The main ingredients of a \code{BendersBFunction} are the following:
     \phi(x) = \min \{ c(y) : (g - Fx) \le E(y) \le (h - Fx), y \in Y \}, \tag{$P$}
     \label{eq:P}
   \end{equation}
-
   we see that \eqref{eq:P} assumes the form of \eqref{eq:B} with $w = g - Fx$
   and $z = h - Fx$. The \code{BendersBFunction} represents the function $\phi$
   whose underlying optimization problem is given by \eqref{eq:B}. The
@@ -2199,7 +2209,12 @@ The main ingredients of a \code{BendersBFunction} are the following:
   constraints in \eqref{eq:B} according to the values of the variables $x$.
 
   These mappings are bunched together into a single mapping $M$ defined by the
-  matrix $A$ and the vector b such that $M(x) = Ax + b$. The $i$-th component
+  matrix $A$ and the vector b such that
+  \begin{equation}
+    M(x) = Ax + b.
+    \label{eq:benders_mapping}
+  \end{equation}
+  The $i$-th component
   of this mapping, $M_i(x) = [ Ax + b ]_i$, is associated with the left- or
   right-hand side (or both) of the \code{RowConstraint} of \Block $B$ pointed
   by $C_i$. The \code{ConstraintSide} $S_i$ indicates which sides of the
@@ -2790,7 +2805,7 @@ Figure~\ref{fig:stochastic_block} summarizes the structure of an
   \label{fig:stochastic_block}
 \end{figure}
 
-\subsubsection{\code{BendersBlock}}
+\subsubsection{\code{BendersBlock}}\label{sec:ssv_benders_block}
 
 Before giving an example on how to construct the \code{BendersBlock}, we shall
 look into some details of the \code{UCBlock}. Following the example above, in
@@ -2901,9 +2916,9 @@ x =
 }}
 
 \matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.25cm] (m) {
-\tikzmarkin[s]{v0}\tilde{v}_{0,0} & \dots & \tilde{v}_{0,r_0}\tikzmarkend{v0} & \dots &
-\tikzmarkin[s]{vk}\tilde{v}_{k,0} & \dots & \tilde{v}_{k,r_k}\tikzmarkend{vk} & \dots &
-\tikzmarkin[s]{vH}\tilde{v}_{H-1,0} & \dots & \tilde{v}_{H-1,r_{H-1}}\tikzmarkend{vH}\\
+\tikzmarkin[s]{v0}\tilde{v}_{0,0} & \dots & \tilde{v}_{0,r_0-1}\tikzmarkend{v0} & \dots &
+\tikzmarkin[s]{vk}\tilde{v}_{k,0} & \dots & \tilde{v}_{k,r_k-1}\tikzmarkend{vk} & \dots &
+\tikzmarkin[s]{vH}\tilde{v}_{H-1,0} & \dots & \tilde{v}_{H-1,r_{H-1}-1}\tikzmarkend{vH}\\
 };
 
 \node[
@@ -2967,9 +2982,9 @@ F =
 }}
 
 \matrix [matrix of math nodes,left delimiter={[},right delimiter={]},row sep=0.1cm,column sep=0.25cm] (F) {
-\tikzmarkin[s]{F0}F^0_{0,0} & \dots & F^0_{r_0,0}\tikzmarkend{F0} & \dots &
-\tikzmarkin[s]{Fk}F^k_{0,0} & \dots & F^k_{r_k,0}\tikzmarkend{Fk} & \dots &
-\tikzmarkin[s]{FH}F^{H-1}_{0,0} & \dots & F^{H-1}_{r_{H-1},0}\tikzmarkend{FH}\\
+\tikzmarkin[s]{F0}F^0_{0,0} & \dots & F^0_{r_0-1,0}\tikzmarkend{F0} & \dots &
+\tikzmarkin[s]{Fk}F^k_{0,0} & \dots & F^k_{r_k-1,0}\tikzmarkend{Fk} & \dots &
+\tikzmarkin[s]{FH}F^{H-1}_{0,0} & \dots & F^{H-1}_{r_{H-1}-1,0}\tikzmarkend{FH}\\
 };
 
 \node[
@@ -3161,7 +3176,7 @@ the active demand at the node with index 4 is stochastic. Finally, suppose
 that the fourth \code{HydroUnitBlock} of the \code{HydroSystemUnitBlock} has
 some stochastic inflows. The inflow occurs at each reservoir of a
 \code{HydroUnitBlock} at each inner stage. To simplify, let us suppose that
-the inflows at the second reservoir at the inner stage 12 and the inflows at
+the inflows at the second reservoir at the inner stage 0 and the inflows at
 the fifth reservoir at the inner stage 15 are stochastic.
 
 We could define a sub-scenario $\xi$ as a vector in $\mathbb{R}^{10}$ such
@@ -3174,15 +3189,17 @@ that
 \item $(\xi_7)$ represent the active demand of the \code{NetworkBlock}
   associated with the inner stage 1 at node with index 4.
 \item $(\xi_8, \xi_9)$ represent the inflows at the second and fifth
-  reservoirs of the fourth \code{HydroUnitBlock} at the inner stages 12 and
+  reservoirs of the fourth \code{HydroUnitBlock} at the inner stages 0 and
   15, respectively.
 \end{itemize}
 
 In this case, we can construct four \code{SimpleDataMapping}s to update the
-stochastic data. First of all, here is a list of functions that are registered
-in the methods factory. In the context of the SSV, they can be used to define
-the stochastic data (through the \code{SimpleDataMapping}) as we will see in
-the sequel.
+stochastic data of these \Blocks and one \code{SimpleDataMapping} to update
+the \code{BendersBFunction} (which depends on the inflow at the first inner
+stage). First of all, here is a list of functions that are registered in the
+methods factory. In the context of the SSV, they can be used to define the
+stochastic data (through the \code{SimpleDataMapping}) as we will see in the
+sequel.
 \begin{itemize}
 \item \code{NetworkBlock::set\_active\_demand}\\ This function updates the
   active demand of a \code{NetworkBlock}. The active demand is represented by
@@ -3204,6 +3221,10 @@ the sequel.
   \code{IntermittentUnitBlock}. The maximum potential power production is
   represented by a one-dimensional array whose $t$-th element is the maximum
   potential power production at the inner stage $t$.
+
+\item \code{BendersBFunction::modify\_constants}\\ This function updates the
+  constant $b$ of the mapping of the \code{BendersBFunction} (see
+  \eqref{eq:benders_mapping} in \S \ref{sec:BendersBFunction}).
 \end{itemize}
 
 Let us begin with the first \code{ThermalUnitBlock}. Its data is given in the
@@ -3221,18 +3242,18 @@ its group index is 1 (this \code{ThermalUnitBlock} would be the
 \group \code{UnitBlock\_0} in the specification of the \code{UCBlock}; see \S
 \ref{sec:UCBlock}). The path from the \code{BendersBlock} to this
 \code{ThermalUnitBlock} would then be given by
-\begin{equation}
+\[
   O \rightarrow B(0) \rightarrow B(1).
-\end{equation}
+\]
 
 Analogously, for the second \code{ThermalUnitBlock}, we would have
 $\{3,4,5,6\}$ as the \code{SetFrom} set, $\{0,1,2,3\}$ as the
 \code{SetTo} set and, assuming it is the fourth sub-\Block of the
 \code{UCBlock} (and thus its group index is 5), the path to this \Block would
 be
-\begin{equation}
+\[
   O \rightarrow B(0) \rightarrow B(5).
-\end{equation}
+\]
 
 For the \code{NetworkBlock}, we would have $\{7\}$ as the \code{SetFrom}
 set and $\{4\}$ (the index of the node) as the \code{SetTo}
@@ -3246,9 +3267,9 @@ Figure~\ref{fig:ucblock}, the \code{NetworkBlock}s come after the
 stage 1 (the stages being indexed from 0 to $T^{\text{in}}$), the group index
 of this \code{NetworkBlock} would be $N+1$. Therefore, the path from the
 \code{BendersBlock} to this \code{NetworkBlock} would be given by
-\begin{equation}
+\[
   O \rightarrow B(0) \rightarrow B(N+1).
-\end{equation}
+\]
 
 For the \code{HydroUnitBlock}, we would have $\{8,9\}$ as the \code{SetFrom}.
 Since the inflow of a \code{HydroUnitBlock} is associated with a
@@ -3266,14 +3287,14 @@ rows in sequence: $( a_0 , a_1 , \dots, a_{m-1} )$. Then, the element at
 position $(i,j)$ in the matrix $A$ is the element at position $i \times n + j$
 in its vector representation. See~\eqref{eq:element_index} for the index of an
 element in an arbitrarily multi-dimensional array. The pairs of indices that
-we need to convert are $(1,12)$ (the second reservoir, whose index is 1, and
-the inner stage 12) and $(4,15)$ (the fifth reservoir, whose index is 4, and
+we need to convert are $(1,0)$ (the second reservoir, whose index is 1, and
+the inner stage 0) and $(4,15)$ (the fifth reservoir, whose index is 4, and
 the inner stage 15). Since the fourth \code{HydroUnitBlock} has $r_3$
 reservoirs and the inner time horizon is $T^{\text{in}}$, the data structure
 representing the inflows is a $r_3 \times T^{\text{in}}$ two-dimensional
-array. Thus, the single indices associated with $(1,12)$ and $(4,15)$ are
-$T^{\text{in}} + 12$ and $4T^{\text{in}} + 15$, respectively. Thus, we would
-have $\{T^{\text{in}} + 12, 4T^{\text{in}} + 15\}$ as the \code{SetTo}
+array. Thus, the single indices associated with $(1,0)$ and $(4,15)$ are
+$T^{\text{in}}$ and $4T^{\text{in}} + 15$, respectively. Thus, we would
+have $\{T^{\text{in}}, 4T^{\text{in}} + 15\}$ as the \code{SetTo}
 set. The name of the function that updates the inflow is
 \code{HydroUnitBlock::set\_inflow} and the data is of type \code{double}
 (indicated by `D'). Finally, we need to provide the path from the
@@ -3282,22 +3303,43 @@ set. The name of the function that updates the inflow is
 \code{UCBlock}. Therefore, since our \code{HydroUnitBlock} of interest has
 index 3 (it is the fourth \code{HydroUnitBlock} of the
 \code{HydroSystemUnitBlock}), the path would be given by
-\begin{equation}
+\[
   O \rightarrow B(0) \rightarrow B(0) \rightarrow B(3).
-\end{equation}
+\]
+
+As we saw in \S \ref{sec:ssv_benders_block}, the mapping of the
+\code{BendersBFunction} depends on the inflows at the first inner stage. In
+our example, the inflow at the second reservoir of the fourth
+\code{HydroUnitBlock} at the inner stage 0 is stochastic. Therefore, we also
+need a \code{SimpleDataMapping} to update the mapping of the
+\code{BendersBFunction}. In that mapping, the inflows appear in the vector $F$
+defined in \eqref{eq:inflow}. In $F$, the initial inflow at the second
+reservoir of the fourth \code{HydroUnitBlock} is linked with index $r_0 + r_1
++ r_2 + 1$. Thus, in the \code{SimpleDataMapping} used to update the
+\code{BendersBFunction} we would have $\{8\}$ as the \code{SetFrom} set (since
+the initial inflow at the second reservoir of the fourth \code{HydroUnitBlock}
+is given by $\xi_8$) and $\{r_0 + r_1 + r_2 + 1\}$ as the \code{SetTo}
+set. The name of the function that updates the constant part of the mapping of
+the \code{BendersBFunction} is \code{BendersBFunction::modify\_constants} and
+the data is of type \code{double} (indicated by `D'). The path from the
+\code{BendersBlock} to the \code{BendersBFunction} is given by
+\[
+O.
+\]
 
 In the specification of the \code{StochasticBlock}, these
 \code{SimpleDataMapping}s must be provided as a vector of
 \code{SimpleDataMapping} (see \S \ref{sec:vector_SimpleDataMapping}). Since
-there are four \code{SimpleDataMapping}s, we have $\cstr{NumberDataMappings}
-= 4$. All stochastic data have a type \code{double}, so \cstr{DataType} does
+there are five \code{SimpleDataMapping}s, we have $\cstr{NumberDataMappings}
+= 5$. All stochastic data have a type \code{double}, so \cstr{DataType} does
 not need to be provided. Anyway, it could be specified as
 \begin{center}
-\cstr{DataType} = (`D', `D', `D', `D').
+\cstr{DataType} = (`D', `D', `D', `D', `D').
 \end{center}
 All multisets can be provided as \code{Subset}s. However, since the
-representation of a \code{Range} is more compact, we will use it whenever
-possible. Table~\ref{tab:sets} shows the sets that we need to provide.
+representation of a \code{Range} is more compact for sets with at least three
+elements, we will use it whenever is convenient. Table~\ref{tab:sets} shows
+the sets that we need to provide.
 \begin{table}
   \centering
   \begin{tabular}{|l|l|}
@@ -3307,20 +3349,22 @@ possible. Table~\ref{tab:sets} shows the sets that we need to provide.
     $\{0,1,2\}$ & $\{2,3,5\}$\\
     $\{3,4,5,6\}$ & $\{0,1,2,3\}$\\
     $\{7\}$ & $\{4\}$\\
-    $\{8,9\}$ & $\{T^{\text{in}} + 12, 4T^{\text{in}} + 15\}$\\
+    $\{8,9\}$ & $\{T^{\text{in}}, 4T^{\text{in}} + 15\}$\\
+    $\{8\}$ & $\{r_0 + r_1 + r_2 + 1\}$\\
     \hline
   \end{tabular}
   \caption{The \code{SetFrom} and \code{SetTo} sets.}
   \label{tab:sets}
 \end{table}
-Except for the first and last \code{SetTo} sets, all sets can be represented
-as a \code{Range}. We begin with the \code{SetSize} \variable. This
-one-dimensional \variable indicates the size or the type of each set. For a
-\code{Subset}, we must include its size in \code{SetSize}. For a \code{Range},
-we must include the number 0 in \code{SetSize}. Thus, in our example, this
-\variable would be given as
+The first two \code{SetFrom} sets and the second \code{SetTo} set have at
+least three elements, so we will use a \code{Range} to represent each of
+them. We begin with the \code{SetSize} \variable. This one-dimensional
+\variable indicates the size or the type of each set. For a \code{Subset}, we
+must include its size in \code{SetSize}. For a \code{Range}, we must include
+the number 0 in \code{SetSize}. Thus, in our example, this \variable would be
+given as
 \[
-\code{SetSize} = ( 0, 3, \quad 0, 0, \quad 0, 0, \quad 0, 2).
+\code{SetSize} = ( 0, 3, \quad 0, 0, \quad 1, 1, \quad 2, 2, \quad 1, 1).
 \]
 Recall that the elements at positions $2i$ and $2i+1$ correspond to the sizes
 (or types) of the $i$-th \code{SetFrom} and \code{SetTo} sets. Now, we must
@@ -3328,37 +3372,27 @@ specify the elements that belong to each set. For a \code{Range} representing
 the set $[a,b)$, we must provide $a$ and $b$. For a \code{Subset}, we must
 provide its elements. Thus, the \cstr{SetElements} \variable would be given as
 \[
-\cstr{SetElements} = ( 0, 3, 2, 3, 5, \quad 3, 7, 0, 4, \quad 7, 8, 4, 5, \quad
-8, 10, T^{\text{in}} + 12, 4T^{\text{in}} + 15).
+\cstr{SetElements} = ( 0, 3, 2, 3, 5, \quad 3, 7, 0, 4, \quad 7, 4, \quad
+8, 9, T^{\text{in}}, 4T^{\text{in}} + 15, \quad 8, r_0 + r_1 + r_2 + 1).
 \]
 (The first \code{SimpleDataMapping} has $\{0, 1, 2\}$ as its \code{SetFrom}
 set and $\{2,3,5\}$ as its \code{SetTo} set. In this case, the \code{SetFrom}
 can be represented as the \code{Range} $[0, 3)$. The \code{SetTo} cannot be
 represented as a \code{Range} (it is not an interval of integers), so we
 need to explicitly list all its elements. Thus, the first elements of
-\code{SetElements} are 0 and 3 (describing the first \code{SetFrom}) and 2,
-3, and 5 (describing the first \code{SetTo}). The next elements of
-\code{SetElements} are those describing the \code{SetFrom} and \code{SetTo}
-sets of the second \code{SimpleDataMapping}. In the second
-\code{SimpleDataMapping}, we have $\{3,4,5,6\}$ as the \code{SetFrom} set
-and $\{0,1,2,3\}$ as the \code{SetTo} set. These sets can be represented as
-the \code{Range}s $[3, 7)$ and $[0, 4)$, respectively. So, the next elements
-of \code{SetElements} are 3, 7, 0, 4. And so on.) Of course, we could
-also have represented each set as a \code{Subset}. For instance, if we
-had represented the second \code{SetFrom} set (which is $\{3,4,5,6\}$) as a
-\code{Subset}, we would have
-\[
-\code{SetSize} = ( 0, 3, \quad 4, 0, \quad 0, 0, \quad 0, 2)
-\]
-and
-\[
-\cstr{SetElements} = ( 0, 3, 2, 3, 5, \quad 3, 4, 5, 6, 0, 4, \quad 7, 8, 4, 5, \quad
-8, 10, T^{\text{in}} + 12, 4T^{\text{in}} + 15).
-\]
-(That is, in \code{SetSize} we replaced a 0 (which was indicating that the set
-is a \code{Range}) by a 4 (which is the size of the set) and in
-\cstr{SetElements} we replaced $3,7$ (which was indicating the \code{Range}
-$[3,7)$) by $3,4,5,6$ (which are the elements of the set).)
+
+\code{SetSize} are 0 and 3 (indicating that the first \code{SetFrom} set is a
+\code{Range} and the first \code{SetTo} set is a \code{Subset} with three
+elements). Moreover, the first elements of \code{SetElements} are 0 and 3
+(describing the first \code{SetFrom}) and 2, 3, and 5 (describing the first
+\code{SetTo}). The next elements of \code{SetSize} and \code{SetElements} are
+those describing the \code{SetFrom} and \code{SetTo} sets of the second
+\code{SimpleDataMapping}. In the second \code{SimpleDataMapping}, we have
+$\{3,4,5,6\}$ as the \code{SetFrom} set and $\{0,1,2,3\}$ as the \code{SetTo}
+set. These sets can be represented as the \code{Range}s $[3, 7)$ and $[0, 4)$,
+respectively. So, the next elements of \code{SetSize} are 0, 0 (indicating
+that both sets are \code{Range}s) and the next elements of
+\code{SetElements} are 3, 7, 0, 4. And so on.)
 
 The \cstr{FunctionName} \variable must contain the names of the functions
 (registered in the ``methods factory'') responsible for updating the data of
@@ -3368,36 +3402,46 @@ the \Blocks. In our example, we would have
   & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
   & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
   & ``\code{NetworkBlock::set\_active\_demand}" ,\\
-  & ``\code{HydroUnitBlock::set\_inflow}").
+  & ``\code{HydroUnitBlock::set\_inflow}" ,\\
+  & ``\code{BendersBFunction::modify\_constants}" ).
 \end{align*}
 
-We must also provide a vector of \code{AbstractPath} to the affected
-\Blocks. Since we have four \code{SimpleDataMapping}s, we also have four
-paths. So, we have $\cstr{PathDim} = 4$. In our example, the first three paths
-have size 3 and the last path has size 4. So, we have
+We must also provide a vector of \code{AbstractPath} to the affected \Blocks
+and the \code{BendersBFunction}. Since we have five \code{SimpleDataMapping}s,
+we also have five paths. So, we have $\cstr{PathDim} = 5$. In our example, the
+first three paths have size 3, the fourth path has size 4, and the last path
+has size 1. So, we have
 \[
-\cstr{TotalLength} = 13 \quad \text{ and } \quad \cstr{PathStart} = (0, 3, 6, 9).
+\cstr{TotalLength} = 14 \quad \text{ and } \quad \cstr{PathStart} = (0, 3, 6, 9, 13).
 \]
-Finally, we have
+We also have
 \begin{align*}
 \cstr{PathNodeTypes} = ( &
   \text{`O'}, \text{`B'}, \text{`B'}, \quad
   \text{`O'}, \text{`B'}, \text{`B'}, \quad
   \text{`O'}, \text{`B'}, \text{`B'}, \quad
-  \text{`O'}, \text{`B'}, \text{`B'}, \text{`B'})\\
+  \text{`O'}, \text{`B'}, \text{`B'}, \text{`B'}, \quad
+  \text{`O'})\\
 \cstr{PathGroupIndices} = ( &
   \code{inf}, 0, 1, \quad
   \code{inf}, 0, 5, \quad
   \code{inf}, 0, N+1, \quad
-  \code{inf}, 0, 1, 3)\\
+  \code{inf}, 0, 1, 3, \quad
+  \code{inf})\\
 \cstr{PathElementIndices} = ( &
   \code{inf}, \code{inf}, \code{inf}, \quad
   \code{inf}, \code{inf}, \code{inf}, \quad
   \code{inf}, \code{inf}, \code{inf}, \quad
-  \code{inf}, \code{inf}, \code{inf}, \code{inf}).
+  \code{inf}, \code{inf}, \code{inf}, \code{inf}, \quad
+  \code{inf}).
 \end{align*}
 Since all elements of \cstr{PathElementIndices} are equal to \code{inf}, this
-\variable does not need to be provided.
+\variable does not need to be provided. Finally, we need to inform the type of
+each affected object. The first four objects are \Blocks while the last one is
+a \Function. Thus, we have
+\[
+\cstr{Caller} = (\text{`B'}, \text{`B'}, \text{`B'}, \text{`B'}, \text{`F'}).
+\]
 
 \subsubsection{\code{SDDPBlock}}
 
