@@ -6,20 +6,25 @@
 # --------------------------------------------------------------------------- #
 
 submodules=(
-#  "LukFiBlock"
+  "BundleSolver"
+  "LukFiBlock"
   "MCFBlock"
   "MCFClass"
   "MILPSolver"
+  "SDDPBlock"
   "SMILPBlock"
   "SMS++"
+  "StochasticBlock"
 #  "SubGradSolver"
   "UCBlock"
+  "tests"
+  "tools"
 )
 
 for i in "${submodules[@]}"; do
   :
   git submodule init "$i"
-  git submodule update --remote "$i"
+  git submodule update --recursive --remote "$i"
 done
 
 git submodule foreach git checkout master
