@@ -21,7 +21,7 @@
 	url = https://gitlab.com/smspp/bundlesolver
 [submodule "SubGradSolver"]
 	path = SubGradSolver
-	url = https://gitlab.com/simone.zanda85/subgradsolver
+	url = https://gitlab.com/smspp/subgradsolver
 [submodule "LukFiBlock"]
 	path = LukFiBlock
 	url = https://gitlab.com/smspp/lukfiblock
