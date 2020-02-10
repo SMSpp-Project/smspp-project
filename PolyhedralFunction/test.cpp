@@ -467,6 +467,9 @@ int main( int argc , char **argv )
  GenerateAb( m , nvar );
  GenerateLB();
 
+ cout.setf( ios::scientific, ios::floatfield );
+ cout << setprecision( 10 );
+
  #if( LOG_LEVEL >= 3 )
   printAb( A , b );
   if( LB > - INF )
@@ -589,9 +592,12 @@ int main( int argc , char **argv )
   ofstream LOGFile( logF , ofstream::out );
   if( ! LOGFile.is_open() )
    cerr << "Warning: cannot open log file """ << logF << """" << endl;
-  else
+  else {
+   LOGFile.setf( ios::scientific, ios::floatfield );
+   LOGFile << setprecision( 10 );
    ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
    //!!((NDOBlock->get_registered_solvers()).front())->set_log( &clog );
+   }
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
@@ -604,8 +610,6 @@ int main( int argc , char **argv )
 
  #if( LOG_LEVEL >= 1 )
   cout << "First call: ";
-  cout.setf( ios::scientific, ios::floatfield );
-  cout << setprecision( 6 );
  #endif
 
  bool AllPassed = SolveBoth();

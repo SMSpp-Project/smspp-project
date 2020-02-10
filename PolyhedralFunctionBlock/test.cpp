@@ -12,9 +12,9 @@
  * are compared. The two PolyhedralFunctionBlock are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.10
+ * \version 0.20
  *
- * \date 02 - 12 - 2019
+ * \date 09 - 02 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -24,33 +24,14 @@
  * Copyright &copy by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
-/*------------------------------ DEFINES -----------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------*/
-/*------------------------------ INCLUDES ----------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-
-#include "BundleSolver.h"
-
-#include "CPXMILPSolver.h"
-
-#include "PolyhedralFunctionBlock.h"
-
-// #include "FakeSolver.h"
-
-/*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
-// 2 = print data + solver log
+// 2 = + solver log
+// 3 = + print data + save LP file
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -66,10 +47,33 @@
 
 #define PANIC( x ) if( ! ( x ) ) PANICMSG
 
+#define USECOLORS 1
+#if( USECOLORS )
+ #define RED( x ) "\x1B[31m" #x "\033[0m"
+ #define GREEN( x ) "\x1B[32m" #x "\033[0m"
+#else
+ #define RED( x ) #x
+ #define GREEN( x ) #x
+#endif
+
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
 #define DYNAMIC_VARS 0
 // if 1, half of the variables are dynamic
+
+/*--------------------------------------------------------------------------*/
+/*------------------------------ INCLUDES ----------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
+#include "BundleSolver.h"
+
+#include "CPXMILPSolver.h"
+
+#include "PolyhedralFunctionBlock.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -131,15 +135,6 @@ Index m;                   // number of rows
 PolyhedralFunction::MultiVector A;
 
 std::vector < FunctionValue > b;
-
-/*
-ColVariable * vLP;                 // pointer to v LP variable
-
-std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
-#if DYNAMIC_VARS > 0
- std::list< ColVariable > * xLPd;  // pointer to (dynamic) x LP variables
-#endif
-*/
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -278,7 +273,7 @@ static bool SolveBoth( void )
    auto foLP = slvrLP->get_ub();
    auto foNDO = slvrNDO->get_ub();
    if( abs( foLP - foNDO )
-       <= 2e-8 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
+       <= 2e-7 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
     LOG1( "OK(f)" << endl );
     return( true );
     }
@@ -310,7 +305,7 @@ static bool SolveBoth( void )
     }
 
   #if( LOG_LEVEL >= 1 )
-   cout << " ~ LPBlock = ";
+   cout << "LPBlock = ";
    if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
     cout << slvrLP->get_ub();
    else
@@ -324,7 +319,7 @@ static bool SolveBoth( void )
 
    cout << " ~ NDOBlock = ";
    if( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
-    cout << slvrNDO->get_ub() << endl;
+    cout << slvrNDO->get_ub();
    else
     if( rtrnNDO == Solver::kInfeasible )
      cout << "    +INF(?)";
@@ -360,7 +355,7 @@ int main( int argc , char **argv )
  double dens = 4;  
  double p_change = 0.5;
  Index n_change = 10;
- Index n_repeat = 0;
+ Index n_repeat = 40;
 
  switch( argc ) {
   case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
@@ -432,7 +427,10 @@ int main( int argc , char **argv )
  if( LB > - INF )     // a LB is defined
   b.push_back( LB );  // grow b by one to hold it
 
- #if( LOG_LEVEL >= 2 )
+ cout.setf( ios::scientific, ios::floatfield );
+ cout << setprecision( 10 );
+
+ #if( LOG_LEVEL >= 3 )
   printAb( A , b );
   if( LB > - INF )
    cout << "LB = " << LB << endl;
@@ -553,19 +551,24 @@ int main( int argc , char **argv )
   ofstream LOGFile( logF , ofstream::out );
   if( ! LOGFile.is_open() )
    cerr << "Warning: cannot open log file """ << logF << """" << endl;
-  else
+  else {
+   LOGFile.setf( ios::scientific, ios::floatfield );
+   LOGFile << setprecision( 10 );
    ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
+   }
 
-  ((LPBlock->get_registered_solvers()).front())->set_par(
+  #if( LOG_LEVEL >= 3 )
+   ((LPBlock->get_registered_solvers()).front())->set_par(
 	                      CPXMILPSolver::strOutputFile , "LPBlock.lp" );
+  #endif
  #endif
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- cout << "First call: ";
- cout.setf( ios::scientific, ios::floatfield );
- cout << setprecision( 6 );
+ #if( LOG_LEVEL >= 1 )
+  cout << "First call: ";
+ #endif
 
  bool AllPassed = SolveBoth();
  
@@ -581,7 +584,7 @@ int main( int argc , char **argv )
 
  for( Index rep = 0 ; rep < n_repeat ; ++rep ) {
 
-  LOG1( "Changes: ");
+  LOG1( rep << ": ");
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1046,7 +1049,7 @@ int main( int argc , char **argv )
 
   // if verbose, print out stuff- - - - - - - - - - - - - - - - - - - - - - -
 
-  #if( LOG_LEVEL >= 2 )
+  #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
 		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
 		                  std::to_string( rep ) + ".lp" );
@@ -1062,9 +1065,9 @@ int main( int argc , char **argv )
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  if( AllPassed )
-  cout << "All test passed!!" << endl;
+  cout << GREEN( All test passed!! ) << endl;
  else
-  cout << "Shit happened!!" << endl;
+  cout << RED( Shit happened!! ) << endl;
  
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
