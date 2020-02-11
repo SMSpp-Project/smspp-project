@@ -6,8 +6,11 @@ variables:
 before_script:
   - apk update
   - apk add doxygen
-## Uncomment the following line if you use graphviz dot graphs
-#- apk add ttf-freefont graphviz
+  - apk add openssh
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#  - mkdir -p ~/.ssh
+#  - chmod 700 ~/.ssh
 
 test:
   script:
