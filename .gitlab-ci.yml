@@ -1,7 +1,7 @@
 image: alpine
 
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
+#variables:
+#  GIT_SUBMODULE_STRATEGY: recursive
 
 before_script:
   - apk update
@@ -14,12 +14,16 @@ before_script:
 
 test:
   script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
     - doxygen doxygen/Doxyfile
   except:
     - master
 
 pages:
   script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
     - doxygen doxygen/Doxyfile
     - mv doc/html/ public/
   artifacts:
