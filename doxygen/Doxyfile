@@ -44,7 +44,7 @@ PROJECT_NUMBER         = 0.1
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "Structured Modeling System - the whole bunch"
+PROJECT_BRIEF          = "A Structured Modeling System for mathematical models"
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -822,9 +822,13 @@ WARN_LOGFILE           =
 INPUT                  = SMS++/doxygen/mainpage.md \
                          SMS++/include \
                          BundleSolver \
+                         #LukFiBlock \
                          MCFBlock/include \
                          MILPSolver/include \
+                         SDDPBlock/include \
                          SMILPBlock/include \
+                         StochasticBlock/include \
+                         SubGradSolver \
                          UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files
