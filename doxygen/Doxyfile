@@ -820,18 +820,13 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = SMS++/doxygen/mainpage.md \
-                         SMS++/include \
                          BundleSolver \
-                         BundleSolver/NDOFiOracle/Bundle \
-                         BundleSolver/NDOFiOracle/CutPlane \
-                         BundleSolver/NDOFiOracle/LukFi \
+                         BundleSolver/NDOFiOracle/Bundle/MPSolver.h \
                          BundleSolver/NDOFiOracle/MPTester \
                          BundleSolver/NDOFiOracle/NDOSlver \
-                         BundleSolver/NDOFiOracle/OPTUtils \
                          BundleSolver/NDOFiOracle/OSIMPSolver \
                          BundleSolver/NDOFiOracle/QPPnltMP \
-                         BundleSolver/NDOFiOracle/SubGrad \
-                         BundleSolver/NDOFiOracle/TestFi \
+			 LukFiBlock \
                          MCFBlock/include \
                          MCFClass/doxigen/Manual.h \
                          MCFClass/OPTUtils \
@@ -843,6 +838,8 @@ INPUT                  = SMS++/doxygen/mainpage.md \
                          MCFClass/SPTree \
                          MILPSolver/include \
                          SMILPBlock/include \
+                         SMS++/include \
+			 StochasticBlock/include \
                          UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files
