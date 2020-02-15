@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -226,12 +226,12 @@ static void GenerateLB( void )
 
 /*--------------------------------------------------------------------------*/
 
-static Subset && GenerateRand( Index m , Index k )
+static Subset GenerateRand( Index m , Index k )
 {
  // generate a sorted random k-vector of unique integers in 0 ... m - 1
 
  Subset rnd( m );
- std::iota( rnd.begin() , rnd.end() , 1 );
+ std::iota( rnd.begin() , rnd.end() , 0 );
 
  for( Index i = 0 ; i < k ; i++ )
   swap( rnd[ i ] , rnd[ i + drand48() * ( m - i ) ] );
@@ -239,7 +239,7 @@ static Subset && GenerateRand( Index m , Index k )
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
- return( std::move( rnd ) );
+ return( rnd );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -710,7 +710,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , m );
+     Subset nms = GenerateRand( m , tochange );
 
      // remove them from the LP
      if( tochange == 1 )
@@ -721,7 +721,8 @@ int main( int argc , char **argv )
       Index prev = 0;
       auto cit = cnst->begin();
       for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i ] = cit = std::next( cit , nms[ i ] - prev );
+       cit = std::next( cit , nms[ i ] - prev );
+       itrs[ i ] = cit;
        prev = nms[ i++ ];
        }
 
@@ -784,7 +785,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , m );
+     Subset nms = GenerateRand( m , tochange );
 
      // modify them in the LP
      vLP = LPBlock->get_static_variable< ColVariable >( 0 );
@@ -846,7 +847,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , m );
+     Subset nms = GenerateRand( m , tochange );
 
      // change them in the LP
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
@@ -1041,7 +1042,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , ndvar );
+     Subset nms = GenerateRand( ndvar , tochange );
 
      // remove them from the LP
      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
