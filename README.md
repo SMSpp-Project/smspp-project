@@ -185,4 +185,5 @@ check the individual projects for their respective authors.
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public
-License version 3.0](https://opensource.org/licenses/lgpl-3.0.html).
+License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
+see the [LICENSE](LICENSE) file for details.
