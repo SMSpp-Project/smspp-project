@@ -83,22 +83,34 @@ These instructions will let you build the projects on your local machine.
 
 See the individual projects.
 
-### Build and install
+### Getting the code
 
-You can use the [`get_all.sh`](get_all.sh) script to fetch all the submodules:
+Getting the whole umbrella project and all the sub-projects can be done with
+just
+```sh
+git clone --recursive https://gitlab.com/smspp/smspp-project
+```
+Otherwise, it is possible to fetch only the umbrella project with
+```sh
+git clone https://gitlab.com/smspp/smspp-project
+```
+and then use the [`get_all.sh`](get_all.sh) script to fetch all the submodules:
 ```sh
 cd sms_plus_plus_project
 ./get_all.sh
 ```
-
-If you don't have the permissions to fetch some of the submodules, comment them
-out from the script. You will be asked for your credentials multiple times, to
-avoid that configure Git to store the credentials temporarily:
+This allows to edit the script and comment away/delete unwanted ones. This is
+useful in particular if you don't have the permissions to fetch some of them.
+You will be asked for your credentials multiple times, to avoid that configure
+Git to store the credentials temporarily:
 ```sh
 git config --global credential.helper cache
 ```
 
-Configure and build all the projects at once with:
+### Build and install with Cmake
+
+Using Cmake it is possible to configure and build all the projects at once
+with:
 ```sh
 mkdir build
 cd build
@@ -111,9 +123,48 @@ Optionally install the libraries in the system with:
 sudo make install
 ```
 
+### Build and install with makefiles
+
+Most modules, and in particular the "core" SMS++ classes, also come with
+hand-made makefiles. Using them requires to dabble with some make editing,
+but is it independent on cmake.
+
+The main step is to edit the makefiles into extlib/. There is one for each
+of the external libraries that any module requires (starting with Boost,
+Eigen and netCDF that are required by the core library and therefore by
+everyone). Setting the
+
+    lib*INC = -I<paths to include files directories>
+    lib*LIB = -L<paths to lib files directories> -l<libs>
+
+in each allows one to set any non-standard path if the library is not
+installed in the system (or leave them empty if they are).
+
+The "core" SMS++ classes have a makefile for building the corresponding
+library in
+
+    SMS++/lib/makefile-lib
+
+The makefile allow to choose the compiler name and the optimization/debug.
+This builds the lib/libSMS++.a that can be linked upon. Also, the
+
+    SMS++/lib/makefile-inc
+
+file is provided for allowing external makefiles to ensure that the library
+is up-to-date (useful in case one is actually developing it). The simplest
+way to learn how to use it is to check the makefiles for testers, such as
+those in
+
+    LukFiBlock/test
+    MCFBlock/test
+	tests/PolyhedralFunction
+	tests/PolyhedralFunctionBlock
+
+
 ## Contributing
 
 This section is not ready yet.
+
 
 ## Authors
 
@@ -129,6 +180,7 @@ check the individual projects for their respective authors.
   *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
+
 
 ## License
 
