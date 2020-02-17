@@ -2886,8 +2886,8 @@ constraints'' of the \code{HydroUnitBlock}. For the inner stage $t=0$ and the
 $i$-th \code{HydroUnitBlock}, these constraints are
 \begin{equation}
 v^{i}_{j,t} = \tilde{v}_{i,j} + F^i_{j,t} +
-\Big(\sum_{\substack{l=(d,s)\\(s,d) \in \mathcal{L}^{i}} } f^i_{t -
-  \tau^{i,\text{dn}}_l , l } - \sum_{l \in \mathcal{L}^{i} } f^i_{t -
+\Big(\sum_{l=(d,j) \in \mathcal{L}^{i}} f^i_{t -
+  \tau^{i,\text{dn}}_l , l } - \sum_{l=(j,d) \in \mathcal{L}^{i} } f^i_{t -
   \tau^{i,\text{up}}_l , l }\Big), \quad \forall j \in \mathcal{N}^{i} \text{
   and } t = 0.
 \label{eq:initial_volume}
@@ -2950,8 +2950,8 @@ As aforementioned, these are the active \Variables of the
 \code{HydroUnitBlock}s. By isolating the independent terms in constraints
 \eqref{eq:initial_volume}, we can rewrite them as
 \begin{equation}
-v^{i}_{j,t} - \Big(\sum_{\substack{l=(d,s)\\(s,d) \in \mathcal{L}^{i}} }
-f^i_{t - \tau^{i,\text{dn}}_l , l } - \sum_{l \in \mathcal{L}^{i} } f^i_{t -
+v^{i}_{j,t} - \Big(\sum_{l=(d,j) \in \mathcal{L}^{i}}
+f^i_{t - \tau^{i,\text{dn}}_l , l } - \sum_{l=(j,d)\in \mathcal{L}^{i} } f^i_{t -
   \tau^{i,\text{up}}_l , l }\Big) = \tilde{v}_{i,j} + F^i_{j,t}, \quad \forall
 j \in \mathcal{N}^{i} \text{ and } t = 0.
 \label{eq:initial_volume2}
