@@ -13,14 +13,14 @@ before_script:
 #  - echo "$SSH_PRIVATE_KEY" | ssh-add -
 #  - ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
 
-test:
-  script:
-    - ./add_tokens.sh
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-    - doxygen doxygen/Doxyfile
-  except:
-    - master
+#test:
+#  script:
+#    - ./add_tokens.sh
+#    - git submodule sync --recursive
+#    - git submodule update --init --recursive
+#    - doxygen doxygen/Doxyfile
+#  except:
+#    - master
 
 pages:
   script:

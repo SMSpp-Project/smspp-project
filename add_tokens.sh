@@ -29,7 +29,5 @@ submodules=(
 for i in "${submodules[@]}"; do
   :
   TOKEN_NAME="${i}_TOKEN"
-  echo "$TOKEN_NAME"
-  echo "${!TOKEN_NAME}"
   sed -i "s/gitlab.com\/smspp\/$i/pages-job:${!TOKEN_NAME}@gitlab.com\/smspp\/$i/" .gitmodules
 done
