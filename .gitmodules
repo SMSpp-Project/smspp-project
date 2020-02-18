@@ -1,39 +1,39 @@
 [submodule "SMS++"]
 	path = SMS++
-	url = git@gitlab.com:smspp/smspp
+	url = https://gitlab.com/smspp/smspp
 [submodule "SMILPBlock"]
 	path = SMILPBlock
-	url = git@gitlab.com:smspp/smilpblock
+	url = https://gitlab.com/smspp/smilpblock
 [submodule "MCFBlock"]
 	path = MCFBlock
-	url = git@gitlab.com:smspp/mcfblock
+	url = https://gitlab.com/smspp/mcfblock
 [submodule "MCFClass"]
 	path = MCFClass
 	url = https://github.com/frangio68/Min-Cost-Flow-Class
 [submodule "UCBlock"]
 	path = UCBlock
-	url = git@gitlab.com:smspp/ucblock
+	url = https://gitlab.com/smspp/ucblock
 [submodule "MILPSolver"]
 	path = MILPSolver
-	url = git@gitlab.com:smspp/milpsolver
+	url = https://gitlab.com/smspp/milpsolver
 [submodule "BundleSolver"]
 	path = BundleSolver
-	url = git@gitlab.com:smspp/bundlesolver
+	url = https://gitlab.com/smspp/bundlesolver
 [submodule "SubGradSolver"]
 	path = SubGradSolver
-	url = git@gitlab.com:smspp/subgradsolver
+	url = https://gitlab.com/smspp/subgradsolver
 [submodule "LukFiBlock"]
 	path = LukFiBlock
-	url = git@gitlab.com:smspp/lukfiblock
+	url = https://gitlab.com/smspp/lukfiblock
 [submodule "StochasticBlock"]
 	path = StochasticBlock
-	url = git@gitlab.com:smspp/stochasticblock
+	url = https://gitlab.com/smspp/stochasticblock
 [submodule "SDDPBlock"]
 	path = SDDPBlock
-	url = git@gitlab.com:smspp/sddpblock
+	url = https://gitlab.com/smspp/sddpblock
 [submodule "tools"]
 	path = tools
-	url = git@gitlab.com:smspp/tools
+	url = https://gitlab.com/smspp/tools
 [submodule "tests"]
 	path = tests
-	url = git@gitlab.com:smspp/tests
+	url = https://gitlab.com/smspp/tests
