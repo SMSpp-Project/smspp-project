@@ -829,7 +829,7 @@ INPUT                  = ./README.md \
                          BundleSolver/NDOFiOracle/QPPnltMP \
 			 LukFiBlock \
                          MCFBlock/include \
-                         MCFClass/doxigen/Manual.h \
+                         MCFClass/doxygen/Manual.h \
                          MCFClass/OPTUtils \
                          MCFClass/MCFClass \
                          MCFClass/MCFCplex \
