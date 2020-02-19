@@ -9,9 +9,8 @@ issues that involve all the modules or the project in general.
 Documentation
 -------------
 
-The documentation of all modules of the SMS++ Project, automatically kept
-up-to-date thanks to the CD/CI features of GitLab, will always be available
-on [GitLab.io](https://smspp.gitlab.io).
+The documentation of all modules of the SMS++ Project is available
+at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project).
 
 Current projects
 ----------------
