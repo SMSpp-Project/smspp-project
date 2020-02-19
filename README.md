@@ -1,17 +1,20 @@
-# The SMS++ Project
+The SMS++ Project
+=================
 
 Splash page of the SMS++ Project, an "umbrella project" meant to provide a
 quick way to download and install all the projects related to the SMS++
 framework. It also allows to produce an unified documentation and to track
 issues that involve all the modules or the project in general.
 
-## Documentation
+Documentation
+-------------
 
 The documentation of all modules of the SMS++ Project, automatically kept
 up-to-date thanks to the CD/CI features of GitLab, will always be available
 on [GitLab.io](https://smspp.gitlab.io).
 
-## Current projects
+Current projects
+----------------
 
 - [SMS++ core library](https://gitlab.com/smspp/smspp), the repository
   defining the general SMS++ framework features
@@ -75,15 +78,16 @@ on [GitLab.io](https://smspp.gitlab.io).
   different sub-projects so that they are better not included in any specific
   sub-project.
 
-## Getting started
+Getting started
+---------------
 
 These instructions will let you build the projects on your local machine.
 
-### Requirements
+*Requirements*
 
 See the individual projects.
 
-### Getting the code
+*Getting the code*
 
 Getting the whole umbrella project and all the sub-projects can be done with
 just
@@ -114,7 +118,7 @@ Git to store the credentials temporarily:
 git config --global credential.helper cache
 ```
 
-### Build and install with Cmake
+*Build and install with Cmake*
 
 Using Cmake it is possible to configure and build all the projects at once
 with:
@@ -132,7 +136,7 @@ Optionally install the libraries in the system with:
 sudo make install
 ```
 
-### Build and install with makefiles
+*Build and install with makefiles*
 
 Most modules, and in particular the "core" SMS++ classes, also come with
 hand-made makefiles. Using them requires to dabble with some make editing,
@@ -177,11 +181,13 @@ tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ````
 
-## Contributing
+Contributing
+------------
 
 This section is not ready yet.
 
-## Authors
+Authors
+-------
 
 These authors are for the umbrella project alone,
 check the individual projects for their respective authors.
@@ -196,7 +202,9 @@ check the individual projects for their respective authors.
   Dipartimento di Informatica  
   Università di Pisa
 
-## License
+
+License
+-------
 
 This code is provided free of charge under the [GNU Lesser General Public
 License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
