@@ -941,20 +941,14 @@ of a \variable/\dimension cannot be duplicated in a given \group.
 
 \begin{itemize}
 
-\item The \variable \cstr{DataType}, of type \code{netCDF::NcChar}, which
-  indicates indicates the type of the data that this \code{SimpleDataMapping}
-  sets. This character can be either `I', indicating the type of the data is
-  \code{int}, or `D', indicating the type of the data is \code{double}. This
-  variable is optional. If it is not present, then `D' is considered, meaning
-  that the type of the data is \code{double}.
-
 \item The one-dimensional \variable \code{SetSize}, an array of type
-  \code{netCDF::NcUint64} with two elements indicating the sizes of the
-  \code{SetFrom} and \code{SetTo} sets. \code{SetSize[0]} indicates the size
-  of the \code{SetFrom} set and \code{SetSize[1]} indicates the size of the
-  \code{SetTo} set. For each $i \in \{0,1\}$, if \code{SetSize[i] == 0}, then
-  the corresponding set is a \code{Range}. Otherwise, if $\code{SetSize[i]}
-  \ne 0$, then the corresponding set is a \code{Subset} whose size is
+  \code{netCDF::NcUint64} with two elements indicating the sizes (or types) of
+  the \code{SetFrom} and \code{SetTo} sets. \code{SetSize[0]} indicates the
+  size (or type) of the \code{SetFrom} set and \code{SetSize[1]} indicates the
+  size (or type) of the \code{SetTo} set. For each $i \in \{0,1\}$, if
+  \code{SetSize[i] == 0}, then the corresponding set is a
+  \code{Range}. Otherwise, if $\code{SetSize[i]} \ne 0$, then the
+  corresponding set is a \code{Subset} whose size is
   \code{SetSize[i]}. Notice, therefore, that \code{SetSize[i]} is not the size
   of the corresponding set when \code{SetSize[i] == 0}. In this case, it only
   indicates that the set is a \code{Range}, whose size (and elements) can be
@@ -977,8 +971,7 @@ of a \variable/\dimension cannot be duplicated in a given \group.
   registered in the methods factory.
 
 \item The \group \cstr{AbstractPath} containing the description of the
-  \code{AbstractPath} representing the path to the \Block that is the caller
-  object.
+  \code{AbstractPath} representing the path to the caller object.
 
 \end{itemize}
 
