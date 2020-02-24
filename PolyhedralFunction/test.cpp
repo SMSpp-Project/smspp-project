@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.30
+ * \version 0.31
  *
- * \date 07 - 02 - 2020
+ * \date 24 - 02 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -140,7 +140,6 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
 #if DYNAMIC_VARS > 0
  std::list< ColVariable > * xLPd;  // pointer to (dynamic) x LP variables
 #endif
-
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -274,10 +273,29 @@ static void ConstructLPConstraint( c_Index i , FRowConstraint & ci ,
    vars[ j + 1 ] = std::make_pair( &(*xLPdit) , - A[ i ][ j ] );
  #endif
 
-
  ci.set_function( new LinearFunction( std::move( vars ) ) );
  if( setblock )
   ci.set_Block( LPBlock );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void ChangeLPConstraint( c_Index i , FRowConstraint & ci )
+{
+ ci.set_lhs( b[ i ] );
+
+ LinearFunction::Vec_FunctionValue coeffs( nvar + 1 );
+ Index j = 0;
+
+ // first, v
+ coeffs[ j ] = 1;
+
+ // then, static & dynamic x
+ for( ; j < nvar ; ++j )
+  coeffs[ j + 1 ] = - A[ i ][ j ];
+
+ auto f = static_cast< LinearFunction * >( ci.get_function() );
+ f->modify_coefficients( std::move( coeffs ) );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -686,7 +704,7 @@ int main( int argc , char **argv )
     // in 50% of the cases do a ranged change, in the others a sparse change
     if( drand48() <= 0.5 ) {
      LOG1( "(r) - " );
-    
+
      Index strt = drand48() * ( m - tochange );
      Index stp = strt + tochange;
 
@@ -748,7 +766,7 @@ int main( int argc , char **argv )
   // modify rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 4 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+   Index tochange = std::min( m , Index( drand48() * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " rows" );
 
@@ -775,7 +793,7 @@ int main( int argc , char **argv )
 
      auto cit = std::next( cnst->begin() , strt );
      for( Index i = 0 ; i < tochange ; )
-      ConstructLPConstraint( i++ , *(cit++) );
+      ChangeLPConstraint( i++ , *(cit++) );
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -800,7 +818,7 @@ int main( int argc , char **argv )
      for( Index i = 0 ; i < tochange ; ) {
       cit = std::next( cit , nms[ i ] - prev );
       prev = nms[ i ];
-      ConstructLPConstraint( i++ , *cit );
+      ChangeLPConstraint( i++ , *cit );
       }
 
      // modify them in the NDO
@@ -815,7 +833,7 @@ int main( int argc , char **argv )
   // modify constants - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 8 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+   Index tochange = std::min( m , Index( drand48() * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " constants" );
 

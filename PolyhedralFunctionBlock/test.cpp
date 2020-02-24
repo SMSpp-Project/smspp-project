@@ -12,9 +12,9 @@
  * are compared. The two PolyhedralFunctionBlock are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.20
+ * \version 0.21
  *
- * \date 09 - 02 - 2020
+ * \date 24 - 02 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -701,7 +701,7 @@ int main( int argc , char **argv )
   // modify rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 4 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+   Index tochange = std::min( m , Index( drand48() * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " rows" );
 
@@ -778,7 +778,7 @@ int main( int argc , char **argv )
   // modify constants - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 8 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+   Index tochange = std::min( m , Index( drand48() * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " constants" );
 
