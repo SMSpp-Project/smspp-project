@@ -1153,6 +1153,10 @@ int main( int argc , char **argv )
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
    PANIC( PF );
    printAb( PF->get_A() , PF->get_b() );
+   if( PF->get_global_lower_bound() > - INF )
+    cout << "LB = " << PF->get_global_lower_bound() << endl;
+   else
+    cout << "LB = - INF" << endl;
   #endif
 
   // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
