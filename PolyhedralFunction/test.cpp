@@ -282,20 +282,17 @@ static void ConstructLPConstraint( c_Index i , FRowConstraint & ci ,
 
 static void ChangeLPConstraint( c_Index i , FRowConstraint & ci )
 {
+ // change the constant == LHS of the constraint
  ci.set_lhs( b[ i ] );
 
- LinearFunction::Vec_FunctionValue coeffs( nvar + 1 );
- Index j = 0;
+ // now change the coefficients, except that of v that is always 1
+ LinearFunction::Vec_FunctionValue coeffs( nvar );
 
- // first, v
- coeffs[ j ] = 1;
-
- // then, static & dynamic x
- for( ; j < nvar ; ++j )
-  coeffs[ j + 1 ] = - A[ i ][ j ];
+ for( Index j = 0 ; j < nvar ; ++j )
+  coeffs[ j ] = - A[ i ][ j ];
 
  auto f = static_cast< LinearFunction * >( ci.get_function() );
- f->modify_coefficients( std::move( coeffs ) );
+ f->modify_coefficients( std::move( coeffs ) , Range( 1 , nvar + 1 ) );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -792,8 +789,8 @@ int main( int argc , char **argv )
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
 
      auto cit = std::next( cnst->begin() , strt );
-     for( Index i = 0 ; i < tochange ; )
-      ChangeLPConstraint( i++ , *(cit++) );
+     for( Index i = 0 ; i < tochange ; ++i )
+      ChangeLPConstraint( i , *(cit++) );
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -815,10 +812,10 @@ int main( int argc , char **argv )
 
      Index prev = 0;
      auto cit = cnst->begin();
-     for( Index i = 0 ; i < tochange ; ) {
+     for( Index i = 0 ; i < tochange ; ++i ) {
       cit = std::next( cit , nms[ i ] - prev );
       prev = nms[ i ];
-      ChangeLPConstraint( i++ , *cit );
+      ChangeLPConstraint( i , *cit );
       }
 
      // modify them in the NDO

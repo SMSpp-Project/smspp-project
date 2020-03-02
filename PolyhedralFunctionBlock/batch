@@ -2,7 +2,7 @@
 
 what=1
 
-for size in 2 10 50 100 200
+for size in 2 10 50 100
 do
 for dens in 3 1.1
 do
