@@ -380,14 +380,27 @@ Note that (some variants of) the \code{deserialize()} methods of \Block / \Confi
 To completely describe the file formats we now have to describe the format of the \netCDF \group as far as the base \Block and \Configuration (for the latter, actually both sub-classes \BlockConfig and \BlockSolverConfig) are concerned, i.e., the (possibly, small) part of the contents that do not depend on the specific derived class.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsection{\Block description}
+\subsection{\Block description}\label{ssec:Block}
 
-The only content that any \netCDF \group describing a \dBlock must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be exact, e.g., as returned by the protected virtual method \code{name()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Block are allowed, with the standard notation \cstr{class\_name<template\_paramaters>}.
+The only content that any \netCDF \group describing a \dBlock must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be \emph{exactly} what is returned by the protected virtual method \code{classname()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Block are allowed, with the standard notation \cstr{class\_name<template\_paramaters>}. However, due to a technical issue about using macros (see the comments to \code{SMSpp\_insert\_in\_factory\_cpp\_*} in \code{SMSTypedefs.h}), \emph{the name given to the class must not contain any ``,'' (comma)}. That is, something like ``\code{myBlock< std::pair< int , int > >}'' \emph{cannot} be used when defining the \Block. The typical way is to resort to a using declaration, i.e.,
+
+\medskip
+\begin{tabular}{l}
+ \code{using myBlock\_i\_i = myBlock< std::pair< int , int > >;} \\
+ \code{SMSpp\_insert\_in\_factory\_cpp\_1\_t( myBlock\_i\_i );}
+\end{tabular}
+
+\medskip
+\noindent
+This implies that the \cstr{type} of that \Block as returned by \code{classname()}, and therefore the one that has to be used in the \netCDF file, must necessarily be ``\cstr{myBlock\_i\_i}''. The exact string will typically be defined in the .cpp file where the \Block is implemented, precisely in the corresponding invocation of the macro \code{SMSpp\_insert\_in\_factory\_cpp\_*}. In all non-complicated-template cases, the name should just be the only possible form in which the classname can be written.
+
+\medskip
+Besides the mandatory \cstr{type} \attribute, all \Block support an optional  \cstr{name} \attribute of string type. If present, this is supposed to  contain the ``name'' of the \Block, as returned by the \code{name()} method; if not present (and not set in-memory via \code{set\_name()}), \code{name()} will return an empty string. This is not a classname, but rather a string describing something about the \Block that is supposedly useful when printing/debugging it.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{\Configuration description}
 
-The only content that any \netCDF \group describing a \dConfiguration must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be exact, e.g., as returned by the protected virtual method \code{name()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Configuration are allowed, with the standard notation \cstr{class\_name<template\_paramaters>}; see for instance the template \code{SimpleConfiguration<>} class.
+The only content that any \netCDF \group describing a \dConfiguration must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be exactly what is returned by the protected virtual method \code{classname()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Configuration are allowed, with the standard notation \cstr{class\_name<template\_paramaters>}; see for instance the template \code{SimpleConfiguration<>} class. However, the same issue with ``,'' (commas) not being allowed to the class name as in \Block applies here, see \S \ref{ssec:Block} for more details.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\BlockConfig description}\label{sec:BlockConfig}
@@ -395,8 +408,6 @@ The only content that any \netCDF \group describing a \dConfiguration must neces
 Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \netCDF \group for a \BlockConfig can contain the following:
 %
 \begin{itemize}
- \item the \attribute \cstr{name} of string type containing the ``name'' of the \Block (this is not a classname, but rather a string describing something about the \Block that is supposedly useful when printing/debugging);
- %
  \item the \group \cstr{static\_constraints} containing a \Configuration object for the static constraints of the \Block;
  %
  \item the \group \cstr{dynamic\_constraints } containing a \Configuration object for the dynamic constraints of the \Block;
