@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 08/02/2020}
+{\Large Date: 06/03/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -999,9 +999,9 @@ in a given \group.
 \begin{itemize}
 \item The \cstr{NumberDataMappings} \dimension, indicating the number of
   \code{SimpleDataMapping}s that is present in the vector of
-  \code{SimpleDataMapping}. This \dimension is optional. If it is not present,
-  then a single \code{SimpleDataMapping} is considered, i.e., we assume
-  $\cstr{NumberDataMappings} = 1$.
+  \code{SimpleDataMapping}. This \dimension is optional. This dimension is
+  optional. If it is not provided, then $\cstr{NumberDataMappings} = 0$ is
+  assumed and every element in this \group is ignored.
 
 \item The one-dimensional \variable \cstr{DataType}, of type
   \code{netCDF::NcChar} and indexed over the \cstr{NumberDataMappings}
@@ -1910,7 +1910,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   given by the sub-groups \cstr{StochasticBlock} and
   \cstr{StochasticBlock\_t}, for each $t \in \{0, \dots, \cstr{TimeHorizon} -
   1 \}$. These sub-groups are optional, but they cannot be all absent. If
-  \cstr{StochasticBlock\_t} is not provided by some $t \in \{0, \dots,
+  \cstr{StochasticBlock\_t} is not provided for some $t \in \{0, \dots,
   \cstr{TimeHorizon} - 1 \}$, then the \cstr{StochasticBlock} \group must be
   provided and contain a complete description of the $t$-th sub-\Block of this
   \code{SDDPBlock}. If the \cstr{StochasticBlock} \group is not provided, then
@@ -1928,12 +1928,12 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
 
   If \cstr{StochasticBlock\_t} is provided but the description of its vector
   of \code{DataMapping} is not provided, then if the \cstr{StochasticBlock}
-  group is provided and contains a description of a vector of
+  \group is provided and contains a description of a vector of
   \code{DataMapping}, then it is used to construct the vector of
   \code{DataMapping} of the \code{StochasticBlock} described by the
   \cstr{StochasticBlock\_t} \group.
 
-\item the \cstr{AbstractPath} \group containing the description of a vector of
+\item The \cstr{AbstractPath} \group containing the description of a vector of
   \code{AbstractPath} as described in \S \ref{sec:AbstractPath}. The number of
   \code{AbstractPath} must be equal to either 1 or $\cstr{TimeHorizon} -
   1$. If the number of \code{AbstractPath} is $\cstr{TimeHorizon} - 1$ then
@@ -2013,25 +2013,25 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
     \cstr{AdmissibleState} contains the concatenation of the states for all
     stages as follows.
     \begin{itemize}
-    \item If \cstr{StateSize} is scalar then, for each $t \in \{ 0. \dots,
+    \item If \cstr{StateSize} is scalar then, for each $t \in \{ 0, \dots,
       \cstr{TimeHorizon} - 1\}$, an admissible state for stage $t$ is given by
       \[
       ( \code{AdmissibleState[}s_t\code{]}, \dots, \cstr{AdmissibleState[}s_t
-        + \code{StateSize} - 1 ),
+        + \code{StateSize - 1]} ),
       \]
       where $s_t = t \times \cstr{StateSize}$. In this case,
       \cstr{AdmissibleState} must have size $\cstr{TimeHorizon} \times
       \cstr{StateSize}$.
 
     \item If \cstr{StateSize} is a one-dimensional array then, for each $t \in
-      \{ 0. \dots, \cstr{TimeHorizon} - 1\}$, an admissible state for stage
+      \{ 0, \dots, \cstr{TimeHorizon} - 1\}$, an admissible state for stage
       $t$ is given by
       \[
       ( \code{AdmissibleState[}s_t\code{]}, \dots, \cstr{AdmissibleState[}s_t
         + \code{StateSize[t] - 1]}),
       \]
       where $s_t = \sum_{i=0}^{t-1} \cstr{StateSize[i]}$. In this case,
-      \cstr{AdmissibleState} must have size
+      \cstr{AdmissibleState} must have size equal to
       \[
       \sum_{i=0}^{\cstr{TimeHorizon} -1} \cstr{StateSize[i]}.
       \]
