@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.30
+ * \version 0.31
  *
- * \date 07 - 02 - 2020
+ * \date 24 - 02 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 3
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -141,7 +141,6 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
  std::list< ColVariable > * xLPd;  // pointer to (dynamic) x LP variables
 #endif
 
-
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -226,12 +225,12 @@ static void GenerateLB( void )
 
 /*--------------------------------------------------------------------------*/
 
-static Subset && GenerateRand( Index m , Index k )
+static Subset GenerateRand( Index m , Index k )
 {
  // generate a sorted random k-vector of unique integers in 0 ... m - 1
 
  Subset rnd( m );
- std::iota( rnd.begin() , rnd.end() , 1 );
+ std::iota( rnd.begin() , rnd.end() , 0 );
 
  for( Index i = 0 ; i < k ; i++ )
   swap( rnd[ i ] , rnd[ i + drand48() * ( m - i ) ] );
@@ -239,7 +238,7 @@ static Subset && GenerateRand( Index m , Index k )
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
- return( std::move( rnd ) );
+ return( rnd );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -274,10 +273,26 @@ static void ConstructLPConstraint( c_Index i , FRowConstraint & ci ,
    vars[ j + 1 ] = std::make_pair( &(*xLPdit) , - A[ i ][ j ] );
  #endif
 
-
  ci.set_function( new LinearFunction( std::move( vars ) ) );
  if( setblock )
   ci.set_Block( LPBlock );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void ChangeLPConstraint( c_Index i , FRowConstraint & ci )
+{
+ // change the constant == LHS of the constraint
+ ci.set_lhs( b[ i ] );
+
+ // now change the coefficients, except that of v that is always 1
+ LinearFunction::Vec_FunctionValue coeffs( nvar );
+
+ for( Index j = 0 ; j < nvar ; ++j )
+  coeffs[ j ] = - A[ i ][ j ];
+
+ auto f = static_cast< LinearFunction * >( ci.get_function() );
+ f->modify_coefficients( std::move( coeffs ) , Range( 1 , nvar + 1 ) );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -686,7 +701,7 @@ int main( int argc , char **argv )
     // in 50% of the cases do a ranged change, in the others a sparse change
     if( drand48() <= 0.5 ) {
      LOG1( "(r) - " );
-    
+
      Index strt = drand48() * ( m - tochange );
      Index stp = strt + tochange;
 
@@ -710,7 +725,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , m );
+     Subset nms = GenerateRand( m , tochange );
 
      // remove them from the LP
      if( tochange == 1 )
@@ -721,7 +736,8 @@ int main( int argc , char **argv )
       Index prev = 0;
       auto cit = cnst->begin();
       for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i ] = cit = std::next( cit , nms[ i ] - prev );
+       cit = std::next( cit , nms[ i ] - prev );
+       itrs[ i ] = cit;
        prev = nms[ i++ ];
        }
 
@@ -747,7 +763,7 @@ int main( int argc , char **argv )
   // modify rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 4 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+   Index tochange = std::min( m , Index( drand48() * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " rows" );
 
@@ -773,8 +789,8 @@ int main( int argc , char **argv )
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
 
      auto cit = std::next( cnst->begin() , strt );
-     for( Index i = 0 ; i < tochange ; )
-      ConstructLPConstraint( i++ , *(cit++) );
+     for( Index i = 0 ; i < tochange ; ++i )
+      ChangeLPConstraint( i , *(cit++) );
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -784,7 +800,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , m );
+     Subset nms = GenerateRand( m , tochange );
 
      // modify them in the LP
      vLP = LPBlock->get_static_variable< ColVariable >( 0 );
@@ -796,10 +812,10 @@ int main( int argc , char **argv )
 
      Index prev = 0;
      auto cit = cnst->begin();
-     for( Index i = 0 ; i < tochange ; ) {
+     for( Index i = 0 ; i < tochange ; ++i ) {
       cit = std::next( cit , nms[ i ] - prev );
       prev = nms[ i ];
-      ConstructLPConstraint( i++ , *cit );
+      ChangeLPConstraint( i , *cit );
       }
 
      // modify them in the NDO
@@ -814,7 +830,7 @@ int main( int argc , char **argv )
   // modify constants - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 8 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+   Index tochange = std::min( m , Index( drand48() * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " constants" );
 
@@ -846,7 +862,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , m );
+     Subset nms = GenerateRand( m , tochange );
 
      // change them in the LP
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
@@ -1041,7 +1057,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( tochange , ndvar );
+     Subset nms = GenerateRand( ndvar , tochange );
 
      // remove them from the LP
      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
@@ -1134,6 +1150,10 @@ int main( int argc , char **argv )
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
    PANIC( PF );
    printAb( PF->get_A() , PF->get_b() );
+   if( PF->get_global_lower_bound() > - INF )
+    cout << "LB = " << PF->get_global_lower_bound() << endl;
+   else
+    cout << "LB = - INF" << endl;
   #endif
 
   // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
