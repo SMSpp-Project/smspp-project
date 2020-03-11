@@ -80,17 +80,17 @@ if (MCFBlock_FOUND AND MILPSolver_FOUND)
     )
 endif ()
 
-# ----- ThermalUnitBlock_test ----------------------------------------------- #
+# ----- TUB_MILPSolver_test ------------------------------------------------- #
 if (UCBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(ThermalUnitBlock_test tests_ThermalUnitBlock.cpp)
-    target_link_libraries(ThermalUnitBlock_test PRIVATE
+    add_executable(TUB_MILPSolver_test tests_TUB_MILPSolver.cpp)
+    target_link_libraries(TUB_MILPSolver_test PRIVATE
                           SMS++::UCBlock
                           SMS++::MILPSolver
                           gtest)
 
     add_test(
-            NAME ThermalUnitBlock_test
-            COMMAND ThermalUnitBlock_test
+            NAME TUB_MILPSolver_test
+            COMMAND TUB_MILPSolver_test
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif ()
