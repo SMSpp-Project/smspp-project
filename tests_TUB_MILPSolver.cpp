@@ -15,16 +15,16 @@ struct TestParameters {
 /*------------------------- PARAMETRIZED FIXTURE ---------------------------*/
 /*--------------------------------------------------------------------------*/
 
-class ThermalUnitBlockTest :
+class TUBMILPSolverTest :
  public ::testing::TestWithParam< TestParameters > {
 
  protected:
 
  ThermalUnitBlock * block{};
 
- ThermalUnitBlockTest() = default;
+ TUBMILPSolverTest() = default;
 
- ~ThermalUnitBlockTest() override = default;
+ ~TUBMILPSolverTest() override = default;
 
  void SetUp() override {
   std::string filename( GetParam().test_file );
@@ -78,7 +78,7 @@ class ThermalUnitBlockTest :
 /*--------------------------------------------------------------------------*/
 /*------------------------ PARAMETRIZED TEST CASES -------------------------*/
 /*--------------------------------------------------------------------------*/
-TEST_P( ThermalUnitBlockTest, Serialize ) {
+TEST_P( TUBMILPSolverTest, Serialize ) {
  netCDF::NcFile f1( "output.nc4", netCDF::NcFile::replace );
  f1.putAtt( "SMS++_file_type", netCDF::NcInt(), eBlockFile );
  auto bg1 = f1.addGroup( "Block_0" );
@@ -93,7 +93,7 @@ TEST_P( ThermalUnitBlockTest, Serialize ) {
  ASSERT_EQ( res1.compare( res2 ), 0 );
 }
 
-TEST_P( ThermalUnitBlockTest, GenerateAbsRepresentation ) {
+TEST_P( TUBMILPSolverTest, GenerateAbsRepresentation ) {
  int tmp = 15;
  SimpleConfiguration< int > myconfig( tmp );
 
@@ -107,7 +107,7 @@ TEST_P( ThermalUnitBlockTest, GenerateAbsRepresentation ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P( ThermalUnitBlockTest, SimpleSolve ) {
+TEST_P( TUBMILPSolverTest, SimpleSolve ) {
  auto milpsolver = new CPXMILPSolver();
  block->register_Solver( milpsolver );
 
@@ -130,20 +130,20 @@ TEST_P( ThermalUnitBlockTest, SimpleSolve ) {
 /*------------------------- TEST CASE INSTANCES ----------------------------*/
 /*--------------------------------------------------------------------------*/
 
-INSTANTIATE_TEST_CASE_P( ThermalUnitBlockTests,
-                         ThermalUnitBlockTest,
+INSTANTIATE_TEST_CASE_P( TUBMILPSolverTests,
+                         TUBMILPSolverTest,
                          ::testing::Values(
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp1_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp2_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp3_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp4_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp5_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp6_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp7_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp8_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp9_24.nc4" }
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp1_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp2_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp3_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp4_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp5_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp6_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp7_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp8_24.nc4" },
+                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp9_24.nc4" }
                          ),
-                         ThermalUnitBlockTest::PrintToStringParamName() );
+                         TUBMILPSolverTest::PrintToStringParamName() );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/

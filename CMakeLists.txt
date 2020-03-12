@@ -50,47 +50,47 @@ if (NOT googletest_POPULATED)
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 endif ()
 
-# ----- CPXMILPSolver_test -------------------------------------------------- #
+# ----- tests_CPXMILPSolver ------------------------------------------------- #
 if (SMILPBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(CPXMILPSolver_test tests_CPXMILPSolver.cpp)
-    target_link_libraries(CPXMILPSolver_test PRIVATE
+    add_executable(tests_CPXMILPSolver tests_CPXMILPSolver.cpp)
+    target_link_libraries(tests_CPXMILPSolver PRIVATE
                           SMS++::MILPSolver
                           SMS++::SMILPBlock
                           gtest)
 
     add_test(
-            NAME CPXMILPSolver_test
-            COMMAND CPXMILPSolver_test
+            NAME tests_CPXMILPSolver
+            COMMAND tests_CPXMILPSolver
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif ()
 
-# ----- MCFMILPSolvers_test ------------------------------------------------- #
+# ----- tests_MCF_MILPSolver ------------------------------------------------ #
 if (MCFBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(MCFMILPSolvers_test tests_MCFMILPSolvers.cpp)
-    target_link_libraries(MCFMILPSolvers_test PRIVATE
+    add_executable(tests_MCF_MILPSolver tests_MCF_MILPSolver.cpp)
+    target_link_libraries(tests_MCF_MILPSolver PRIVATE
                           SMS++::MILPSolver
                           SMS++::MCFBlock
                           gtest)
 
     add_test(
-            NAME MCFMILPSolvers_test
-            COMMAND MCFMILPSolvers_test
+            NAME tests_MCF_MILPSolver
+            COMMAND tests_MCF_MILPSolver
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif ()
 
-# ----- TUB_MILPSolver_test ------------------------------------------------- #
+# ----- tests_TUB_MILPSolver ------------------------------------------------ #
 if (UCBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(TUB_MILPSolver_test tests_TUB_MILPSolver.cpp)
-    target_link_libraries(TUB_MILPSolver_test PRIVATE
+    add_executable(tests_TUB_MILPSolver tests_TUB_MILPSolver.cpp)
+    target_link_libraries(tests_TUB_MILPSolver PRIVATE
                           SMS++::UCBlock
                           SMS++::MILPSolver
                           gtest)
 
     add_test(
-            NAME TUB_MILPSolver_test
-            COMMAND TUB_MILPSolver_test
+            NAME tests_TUB_MILPSolver
+            COMMAND tests_TUB_MILPSolver
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif ()
@@ -126,15 +126,15 @@ endif ()
 
 # ----- OLD TESTS ----------------------------------------------------------- #
 if (SMILPBlock_FOUND AND MILPSolver_FOUND)
-add_executable(MILPSolver_test milpsolver_test.cpp)
-target_link_libraries(MILPSolver_test PRIVATE
-                      SMS++::MILPSolver
-                      SMS++::SMILPBlock)
+    add_executable(MILPSolver_test milpsolver_test.cpp)
+    target_link_libraries(MILPSolver_test PRIVATE
+                          SMS++::MILPSolver
+                          SMS++::SMILPBlock)
 endif ()
 
 if (MCFBlock_FOUND AND MILPSolver_FOUND)
-add_executable(MCFSolver_test mcfsolver_test.cpp)
-target_link_libraries(MCFSolver_test PRIVATE
-                      SMS++::MILPSolver
-                      SMS++::MCFBlock)
+    add_executable(MCFSolver_test mcfsolver_test.cpp)
+    target_link_libraries(MCFSolver_test PRIVATE
+                          SMS++::MILPSolver
+                          SMS++::MCFBlock)
 endif ()
