@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 06/03/2020}
+{\Large Date: 13/03/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -2265,24 +2265,24 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   matrix, i.e., the number of active variables.
 
 \item The \dimension \cstr{NumRow} containing the number of rows of the $A$
-  matrix. This dimension is optional; if it is not provided then 0 (no
+  matrix. This \dimension is optional; if it is not provided then 0 (no
   rows) is assumed.
 
 \item The \dimension \cstr{NumNonzero}, of type \code{netCDF::NcUint64},
-  containing the number of nonzero entries in the $A$ matrix. This dimension
+  containing the number of nonzero entries in the $A$ matrix. This \dimension
   is optional and determines in which format the matrix $A$ is given. If this
-  dimension is present, then \cstr{NumRow} must also be. If \cstr{NumNonzero}
+  \dimension is present, then \cstr{NumRow} must also be. If \cstr{NumNonzero}
   is not present, then the $A$ matrix is given as a dense matrix. If it is
   present, then the $A$ matrix is given in a sparse format as defined by the
-  variables \cstr{Row}, \cstr{Column}, and \cstr{A}. During serialization, the
+  \variables \cstr{Row}, \cstr{Column}, and \cstr{A}. During serialization, the
   following criterion is used to decide the format in which the $A$ matrix is
   stored. If at most 25\% of its elements are nonzero, it is stored in sparse
   format; otherwise, it is stored in dense format.
 
 \item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::NcUint64}
-  and indexed over the dimension \cstr{NumRow}, containing the number of
-  nonzero elements of the $A$ matrix in each row.  If the dimension
-  \cstr{NumNonzero} is not present, then this variable is ignored.  If
+  and indexed over the \dimension \cstr{NumRow}, containing the number of
+  nonzero elements of the $A$ matrix in each row.  If the \dimension
+  \cstr{NumNonzero} is not present, then this \variable is ignored.  If
   \cstr{NumNonzero} is present, then \cstr{NumNonzeroAtRow} is optional only
   if \cstr{NumVar}, \cstr{NumRow}, and \cstr{NumNonzero} are equal. In this
   case, if \cstr{NumNonzeroAtRow} is not provided, then the $A$ matrix is
@@ -2293,46 +2293,47 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   row of the $A$ matrix.
 
 \item The \variable \cstr{Column}, of type \code{netCDF::NcUint64} and indexed
-  over the dimension \cstr{NumNonzero}, containing the column indices of the
+  over the \dimension \cstr{NumNonzero}, containing the column indices of the
   entries of the matrix. If \cstr{NumNonzero} or \cstr{NumNonzeroAtRow} is not
-  present, then this variable is ignored. For each $k \in \{0, \dots,
+  present, then this \variable is ignored. For each $k \in \{0, \dots,
   \code{NumNonzero}-1\}$, \code{Column[k]} is the column index of the k-th
   nonzero entry of the $A$ matrix, whose value is given by
   \code{A[k]}. \cstr{Column} stores the column indices in row-major order,
   that is, if $(i,j)$ and $(p,q)$ are the entries of the $k$-th and $l$-th
   nonzero elements of $A$, respectively, with $k < l$, then $i \le p$.
 
-\item The \variable \cstr{A}, of type \code{netCDF::NcDouble}. This variable
+\item The \variable \cstr{A}, of type \code{netCDF::NcDouble}. This \variable
   stores the values of the elements of the $A$ matrix of the mapping. If the
-  dimension \cstr{NumNonzero} is provided but \cstr{NumNonzeroAtRow} is not,
-  then the $A$ matrix is assumed to be the identity matrix and this \variable
-  is ignored. If both the dimensions \cstr{NumNonzero} and
-  \cstr{NumNonzeroAtRow} are provided, then this variable is indexed over this
-  dimension and contains the values of the (potentially) nonzero entries of
+  \dimension \cstr{NumNonzero} is provided but the \variable
+  \cstr{NumNonzeroAtRow} is not, then the $A$ matrix is assumed to be the
+  identity matrix and the \variable \cstr{A} is ignored. If both the
+  \dimension \cstr{NumNonzero} and the \variable \cstr{NumNonzeroAtRow} are
+  provided, then the \cstr{A} \variable is indexed over the \cstr{NumNonzero}
+  \dimension and contains the values of the (potentially) nonzero entries of
   the matrix. In this case, \code{A[k]} is the value of the $k$-th nonzero
   entry, whose column index is given by \code{Column[k]}. The nonzero elements
   of the matrix are given in left-to-right top-to-bottom (``row-major'')
-  order. If the dimension \cstr{NumNonzero} is not present, then \cstr{A} is
-  indexed over both the \cstr{NumRow} and \cstr{NumVar} dimensions (in this
+  order. If the \dimension \cstr{NumNonzero} is not present, then \cstr{A} is
+  indexed over both the \cstr{NumRow} and \cstr{NumVar} \dimensions (in this
   order); it contains the (row-major) representation of the matrix $A$. This
-  variable is optional only if \code{NumRow == 0}.
+  \variable is optional only if \code{NumRow == 0}.
 
 \item The \variable \cstr{b}, of type \code{netCDF::NcDouble} and indexed over
-  the dimension \cstr{NumRow}, which contains the vector $b$. This variable is
+  the \dimension \cstr{NumRow}, which contains the vector $b$. This \variable is
   optional. If it is not provided, then we assume \code{b[i] = 0} for each $i
   \in \{0, \dots, \cstr{NumRow} - 1\}$.
 
 \item The \variable \cstr{ConstraintSide}, of type \code{netCDF::NcChar} and
-  indexed over the dimension \cstr{NumRow}, indicating, at position $i$, which
+  indexed over the \dimension \cstr{NumRow}, indicating, at position $i$, which
   side of the $i$-th \Constraint is affected. The possible values are `L' for
   the left-hand (or lower bound) side, `R' for the right-hand (or upper bound)
-  side, and `B' for both sides. This variable is optional. If it is not
+  side, and `B' for both sides. This \variable is optional. If it is not
   provided, then all entries of this array are assumed to be `B'.
 
 \item The \group \cstr{AbstractPath} containing the description of a vector of
   \code{AbstractPath} to the affected \RowConstraints. The number of
   \code{AbstractPath} in that vector must be equal to the number of rows of
-  the $A$ matrix and, therefore, the dimension associated with the number of
+  the $A$ matrix and, therefore, the \dimension associated with the number of
   \code{AbstractPath} is \cstr{NumRow}. The $i$-th \code{AbstractPath} in this
   vector must be the path to the $i$-th affected \code{RowConstraint} (which
   is associated with the $i$-th row of the $A$ matrix). This \group is
