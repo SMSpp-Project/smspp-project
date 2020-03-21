@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 13/03/2020}
+{\Large Date: 20/03/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -633,11 +633,11 @@ which case it is necessary to make specific \groups because the name of a
   indexed over the \dimension \cstr{TotalLength}, contains the types of the
   nodes in the path;
 
-\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64}
+\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{TotalLength}, contains the group
   indices associated with each node in the path;
 
-\item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint64}
+\item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{TotalLength}, contains the element
   indices associated with each node in the path. This \variable is
   optional. If it is not provided, then \code{PathElementIndices[i]} is
@@ -759,16 +759,16 @@ given \group.
 
 \item the \dimension \cstr{TotalLength};
 
-\item the \variable \cstr{PathStart}, of type \code{netCDF::NcUint64} and
+\item the \variable \cstr{PathStart}, of type \code{netCDF::NcUint} and
   indexed over \cstr{PathDim};
 
 \item the \variable \cstr{PathNodeTypes}, of type \code{netCDF::NcChar} and
   indexed over the \dimension \cstr{TotalLength};
 
-\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint64}
+\item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{TotalLength};
 
-\item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint64}
+\item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{TotalLength}. This \variable is
   optional. If it is not provided, then \code{PathElementIndices[i]} is
   assumed to be \code{inf} for all $i \in \{0, \dots, \cstr{TotalLength}-1\}$.
@@ -953,7 +953,7 @@ of a \variable/\dimension cannot be duplicated in a given \group.
 \begin{itemize}
 
 \item The one-dimensional \variable \code{SetSize}, an array of type
-  \code{netCDF::NcUint64} with two elements indicating the sizes (or types) of
+  \code{netCDF::NcUint} with two elements indicating the sizes (or types) of
   the \code{SetFrom} and \code{SetTo} sets. \code{SetSize[0]} indicates the
   size (or type) of the \code{SetFrom} set and \code{SetSize[1]} indicates the
   size (or type) of the \code{SetTo} set. For each $i \in \{0,1\}$, if
@@ -968,7 +968,7 @@ of a \variable/\dimension cannot be duplicated in a given \group.
   sets are assumed to be \code{Range}.
 
 \item The one-dimensional \variable \cstr{SetElements}, of type
-  \code{netCDF::NcUint64}, containing the concatenation of the representations
+  \code{netCDF::NcUint}, containing the concatenation of the representations
   of the sets \code{SetFrom} and \code{SetTo}. A \code{Subset} is represented
   by a sequence of indices (which are the elements of the \code{Subset});
   while a \code{Range} is represented by two indices $a$ and $b$ such that the
@@ -1018,7 +1018,7 @@ in a given \group.
   respectively.
 
 \item The one-dimensional \variable \code{SetSize}, an array of type
-  \code{netCDF::NcUint64} with size given by $2
+  \code{netCDF::NcUint} with size given by $2
   \times$\code{Number\-Data\-Mappings} indicating the size of the sets that
   define each \code{SimpleDataMapping} (the \code{SetFrom} and \code{SetTo}
   sets). This variable is optional. If it is not present, then all sets are
@@ -1030,7 +1030,7 @@ in a given \group.
   \code{Subset} of size \code{SetSize[ j ]}.
 
 \item The one-dimensional \variable \cstr{SetElements}, of type
-  \code{netCDF::NcUint64}, containing the concatenation of the representations
+  \code{netCDF::NcUint}, containing the concatenation of the representations
   of the sets \code{SetFrom} and \code{SetTo}. A \code{Subset} is represented
   by a sequence of indices (which are the elements of the \code{Subset});
   while a \code{Range} is represented by two indices $a$ and $b$ such that the
@@ -1308,37 +1308,37 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
   \item If \code{NumberNodes > 1}, then a \code{DCNetworkBlock} is automatically constructed for that time instant, it is provided with the \code{NetworkData} object (which must be present in \code{UCBlock}) and the row \code{ActivePowerDemand[ ... , t ]} contains the active demand of each node at time instant $t$.
  \end{itemize}
  %
- \item the \variable \cstr{GeneratorNode}, of type \code{netCDF::NcUint64} and indexed over the set {\{0, \dots , \code{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
+ \item the \variable \cstr{GeneratorNode}, of type \code{netCDF::NcUint} and indexed over the set {\{0, \dots , \code{NumberElectricalGenerators} - 1\}}; \code{GeneratorNode[ g ]} tells to which node of the transmission network, the specified electrical generator $g$ belongs. Note that this means that different electrical generators in the same \code{UnitBlock} can belong to different nodes of the transmission network. This is justified e.g. by hydro cascade units where different turbines can be rather far apart geographically, but still linked by (long) stretches of rivers. If \code{NumberElectricalGenerators == NumberUnits } (all \code{UnitBlock} have exactly one electrical generator), then this variable is indexed over \code{NumberUnits}. If \code{NumberNodes == 1} (say, it is not provided at all), then this variable need not be defined, since it is not loaded.
  %
- \item the \variable \cstr{HeatNode}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberHeatBlocks}; the entry \code{HeatNode[ h ]} tells to which node of the transmission network \highlight{all} the heat generators that are also electrical generators in the \code{HeatBlock} $h$ belong. Note that this implies that, unlike electrical generators in a \code{UnitBlock}, heat generators in a \code{HeatBlock} are always ``geographically near to each other'' so that they are necessarily attached to the same node of the transmission network (which is a reasonable assumption since heat, unlike say water, usually cannot travel much far). If \code{NumberHeatBlocks == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded. This information is actually only used to determine in which Pollutant Zone a \code{HeatBlock} is located, in order to add the corresponding heat generators (that are not also electricity generators) to the pollution constraints. This means that also if \code{NumberPollutants == } (say, it is not provided at all) this variable is useless and therefore need not be defined, since it is not loaded. Finally, notice that for heat generators into a \code{HeatBlock} that also are electrical generators, this variable provides again an information that is already known, i.e., to which node they belong to (cf. \cstr{GeneratorNode} above). Of course \highlight{the two information must agree}, otherwise the input file is ill-defined and exception is thrown.
+ \item the \variable \cstr{HeatNode}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberHeatBlocks}; the entry \code{HeatNode[ h ]} tells to which node of the transmission network \highlight{all} the heat generators that are also electrical generators in the \code{HeatBlock} $h$ belong. Note that this implies that, unlike electrical generators in a \code{UnitBlock}, heat generators in a \code{HeatBlock} are always ``geographically near to each other'' so that they are necessarily attached to the same node of the transmission network (which is a reasonable assumption since heat, unlike say water, usually cannot travel much far). If \code{NumberHeatBlocks == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded. This information is actually only used to determine in which Pollutant Zone a \code{HeatBlock} is located, in order to add the corresponding heat generators (that are not also electricity generators) to the pollution constraints. This means that also if \code{NumberPollutants == } (say, it is not provided at all) this variable is useless and therefore need not be defined, since it is not loaded. Finally, notice that for heat generators into a \code{HeatBlock} that also are electrical generators, this variable provides again an information that is already known, i.e., to which node they belong to (cf. \cstr{GeneratorNode} above). Of course \highlight{the two information must agree}, otherwise the input file is ill-defined and exception is thrown.
  %
- \item the \variable \cstr{HeatSet}, of type \code{netCDF::NcUint64} and indexed over the set {\{0, \dots, \code{NumberHeatGenerators} - 1\}}. If \code{HeatSet[ h ] = k < NumberElectricalGenerators}, then $k$ is the unique name of the electrical generator corresponding to the heat generator $h$; otherwise the heat generator $h$ is not also an electrical generator. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded. It is possible that different heat generators correspond to the same electrical generator (that is, \code{HeatSet[ h1 ] == HeatSet[ h2 ]} for some \code{h1 != h2}), but not vice-versa: a heat generator either corresponds to a specific electrical generator, or to no electrical generator (it is an heat-only generator);
+ \item the \variable \cstr{HeatSet}, of type \code{netCDF::NcUint} and indexed over the set {\{0, \dots, \code{NumberHeatGenerators} - 1\}}. If \code{HeatSet[ h ] = k < NumberElectricalGenerators}, then $k$ is the unique name of the electrical generator corresponding to the heat generator $h$; otherwise the heat generator $h$ is not also an electrical generator. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded. It is possible that different heat generators correspond to the same electrical generator (that is, \code{HeatSet[ h1 ] == HeatSet[ h2 ]} for some \code{h1 != h2}), but not vice-versa: a heat generator either corresponds to a specific electrical generator, or to no electrical generator (it is an heat-only generator);
  %
  \item the \variable \cstr{PowerHeatRho}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberUnits}: entry \code{PowerHeatRho[ i ]} is assumed to contain the electrical-power-to-heat ratio for \highlight{all generators} within unit $i$ (most likely, a single generator). This is only used in the constraints linking electrical units to heat units, hence if \code{NumberHeatBlocks == 0} (there are no \code{HeatBlock}) then this variable need not be defined, since it is not loaded;
  %
  \item the \dimension \cstr{NumberPrimaryZones} tells how many \cstr{primary spinning reserve zones} are there in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no primary reserve constraints are present in the problem;
  %
- \item the \variable \cstr{PrimaryZones}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberNodes}. The entry \code{PrimaryZones[ i ]} tells to which primary zone the node $i$ belongs: if \code{PrimaryZones[ i ] >= NumberPrimaryZones}, this means that node $i$ does not belong to any primary zone, and hence the corresponding electrical generators are not involved into the primary reserve constraints. If \code{NumberPrimaryZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberPrimaryZones == 1} and this variable is not defined, then there is only one primary zone and all the nodes belong to it;
+ \item the \variable \cstr{PrimaryZones}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberNodes}. The entry \code{PrimaryZones[ i ]} tells to which primary zone the node $i$ belongs: if \code{PrimaryZones[ i ] >= NumberPrimaryZones}, this means that node $i$ does not belong to any primary zone, and hence the corresponding electrical generators are not involved into the primary reserve constraints. If \code{NumberPrimaryZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberPrimaryZones == 1} and this variable is not defined, then there is only one primary zone and all the nodes belong to it;
  %
  \item the \variable \cstr{PrimaryDemand}, of type \code{netCDF::NcDouble} and indexed both over the \dimensions \cstr{NumberPrimaryZones} and \cstr{TimeHorizon}: entry \code{PrimaryDemand[ i , t ]} is assumed to contain the primary reserves requirement which are specified on the primary reserve zone $i$ in the time t. If \code{NumberPrimaryZones == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded;
  %
  \item the \dimension \cstr{NumberSecondaryZones} tells how many \cstr{secondary spinning reserve zones} are there in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no secondary reserve constraints are present in the problem;
  %
- \item the \variable \cstr{SecondaryZones}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberNodes}. The entry \code{SecondaryZones[ i ]} tells to which secondary zone the node $i$ belongs: if \code{SecondaryZones[ i ] >= NumberSecondaryZones}, this means that node $i$ does not belong to any secondary zone, and hence the corresponding electrical generators are not involved into the secondary reserve constraints. If \code{NumberSecondaryZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberSecondaryZones == 1} and this variable is not defined, then there is only one secondary zone and all the nodes belong to it;
+ \item the \variable \cstr{SecondaryZones}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberNodes}. The entry \code{SecondaryZones[ i ]} tells to which secondary zone the node $i$ belongs: if \code{SecondaryZones[ i ] >= NumberSecondaryZones}, this means that node $i$ does not belong to any secondary zone, and hence the corresponding electrical generators are not involved into the secondary reserve constraints. If \code{NumberSecondaryZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberSecondaryZones == 1} and this variable is not defined, then there is only one secondary zone and all the nodes belong to it;
  %
  \item the \variable \cstr{SecondaryDemand}, of type \code{netCDF::NcDouble} and indexed both over the \dimensions \cstr{NumberSecondaryZones} and \cstr{TimeHorizon}: entry \code{SecondaryDemand[ i , t ]} is assumed to contain the secondary reserves requirement which are specified on the secondary reserve zone $i$ in the time t. If \code{NumberSecondaryZones == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded;
  %
  \ \item the \dimension \cstr{NumberInertiaZones} tells how many \cstr{inertia constraints zones} are there in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no inertia constraints are present in the problem;
  %
- \item the \variable \cstr{InertiaZones}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberNodes}. The entry \code{InertiaZones[ n ]} tells to which inertia zone the node $n$ belongs: if \code{InertiaZones[ n ] >= NumberInertiaZones}, this means that node $n$ does not belong to any inertia zone, and hence the corresponding units are not involved into the inertia reserve constraints. If \code{NumberInertiaZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberInertiaZones == 1} and this variable is not defined, then there is only one inertia zone and all the nodes belong to it;
+ \item the \variable \cstr{InertiaZones}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberNodes}. The entry \code{InertiaZones[ n ]} tells to which inertia zone the node $n$ belongs: if \code{InertiaZones[ n ] >= NumberInertiaZones}, this means that node $n$ does not belong to any inertia zone, and hence the corresponding units are not involved into the inertia reserve constraints. If \code{NumberInertiaZones == 0} (say, it is not provided at all) then this variable need not be defined, since it is not loaded. If \code{NumberInertiaZones == 1} and this variable is not defined, then there is only one inertia zone and all the nodes belong to it;
 %
  \item the \variable \cstr{InertiaDemand}, of type \code{netCDF::NcDouble} and indexed both over the \dimensions \cstr{NumberInertiaZones} and \cstr{TimeHorizon}: entry \code{InertiaDemand[ i , t ]} is assumed to contain the inertia reserves requirement which are specified on the inertia reserve zone $i$ in the time t. If \code{NumberInertiaZones == 0} (say, it is not provided at all), then this variable need not be defined, since it is not loaded;
 %
  \item the \dimension \cstr{NumberPollutants} containing the number of pollutants in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no pollutants constraints are present in the problem;
  %
- \item the \variable \cstr{NumberPollutantZones} of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberPollutants}: the entry \code{NumberPollutantZones[ p ]} is assumed to contain the number of pollutant zones associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded. Then, all number of pollutant zones associated with each pollutant $p$ is computed as: \code{TotalNumberPollutantZones == NumberPollutantZone[ 0 ] + \dots + NumberPollutantZone[ NumberPollutants - 1 ]};
+ \item the \variable \cstr{NumberPollutantZones} of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberPollutants}: the entry \code{NumberPollutantZones[ p ]} is assumed to contain the number of pollutant zones associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded. Then, all number of pollutant zones associated with each pollutant $p$ is computed as: \code{TotalNumberPollutantZones == NumberPollutantZone[ 0 ] + \dots + NumberPollutantZone[ NumberPollutants - 1 ]};
 %
- \item the \variable \cstr{PollutantZones}, of type \code{netCDF::NcUint64} and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
+ \item the \variable \cstr{PollutantZones}, of type \code{netCDF::NcUint} and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
  %
  \item the \variable \cstr{PollutantBudget}, of type \code{netCDF::NcDouble} and indexed over the set \{ 0 , \dots, \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n = 0 , \dots, TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each other it is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, \dots, TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, \dots, NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
  \begin{itemize}
@@ -1401,16 +1401,32 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
 \begin{itemize}
  \item the \dimension \cstr{TimeHorizon} containing the time horizon. The \dimension is optional because the same information may be passed via the method \code{set\_time\_horizon()}, or directly retrieved from the father if it is a \code{UCBlock}; see the comments to \code{set\_time\_horizon()} for details.
  %
- \item the \dimension \cstr{NumberIntervals} that is provided to allow that all time-dependent data in the \code{UnitBlock} can only change at a subset of the time instants of the time interval, being therefore piecewise-constant (possibly, constant). \cstr{NumberIntervals} should therefore be \code{<=} \cstr{TimeHorizon}, with three distinct cases:
+ \item the \dimension \cstr{NumberIntervals} that is provided to allow that all time-dependent data in the \code{UnitBlock} can only change at a subset of the time instants of the time interval, being therefore piecewise-constant (possibly, constant). \cstr{NumberIntervals} should therefore be \code{<=} \cstr{TimeHorizon}, with four distinct cases:
  %
- \begin{itemize}
-  \item  \cstr{NumberIntervals} \code{<= 1}, which is taken to mean \cstr{NumberIntervals} \code{== 1}; this is what is assumed if the \dimension, that is optional, is not there. This means that the value of each relevant data in the \code{UCBlock} is the same for each time instant \code{0, \dots,} \cstr{TimeHorizon} \code{ - 1} in the time horizon. In this case, the variable \cstr{ChangeIntervals} (see below) is ignored;
-  %
-  \item \code{1 < }\cstr{NumberIntervals} \code{<} \cstr{TimeHorizon}, which means that in some time instants, \highlight{but not all of them}, the values of some of the relevant data are changing; the intervals are then described in variable \cstr{NumberIntervals};
-  %
-  \item \cstr{NumberIntervals} \code{==} \cstr{TimeHorizon},  which means that values of the relevant data changes at every time interval (in principle; of course there is nothing preventing the same value to be repeated in the \code{netCDF} input). Also in this case the variable \cstr{NumberIntervals} is ignored, since it is useless.
-  %
- \end{itemize}
+ \begin{enumerate}
+ \item $1 < \cstr{NumberIntervals} < \cstr{TimeHorizon}$, which means that
+   at some time instants, \textbf{but not all of them}, the values of some
+   of the relevant data are changing; the intervals are then described in
+   \variable \cstr{ChangeIntervals}.
+
+ \item \label{NumberIntervals_eq_1} $\cstr{NumberIntervals} == 1$, which means that the value of each
+   relevant data in the \code{UnitBlock} is the same for each time instant $0,
+   \dots, \cstr{TimeHorizon} - 1$ in the time horizon. In this case, the
+   \variable \cstr{ChangeIntervals} (see below) is ignored.
+
+ \item \label{NumberIntervals_eq_TimeHorizon} $\cstr{NumberIntervals} ==
+   \cstr{TimeHorizon}$, which means that values of the relevant data changes
+   at every time interval (in principle; of course there is nothing preventing
+   the same value to be repeated in the \netCDF input). Also in this case the
+   \variable \cstr{ChangeIntervals} is ignored, since it is useless.
+
+ \item The dimension \cstr{NumberIntervals} is not provided, which means that
+   the values of the relevant data may be the same for each time instant (as
+   in case \ref{NumberIntervals_eq_1} above) or indexed over
+   \cstr{TimeHorizon} (as in case \ref{NumberIntervals_eq_TimeHorizon}
+   above). Also in this case, of course, \cstr{ChangeIntervals} (see below) is
+   ignored, and therefore it can (and should) not be present.
+ \end{enumerate}
  %
  Note that this (together with \cstr{NumberIntervals}, if defined) obviously sets the \cstr{maximum frequency} at which data can change; if some data changes less frequently (say, it is constant), then the same value will have to be repeated. Individual data can also have specific provisions for the case where the data is all equal despite \cstr{NumberIntervals} saying differently.
  %
@@ -1449,9 +1465,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item the scalar \variable \cstr{InitUpDownTime}, of type \code{netCDF::NcInt64} and not indexed over any \dimension and indicates the initial time to generating the unit. If \code{InitUpDownTime > 0}, this means that the unit has been on for \code{InitUpDownTime} time stamps prior to time stamp $0$ (the beginning of the horizon). If, instead, \code{InitUpDownTime <= 0}, this means that the unit has been off for \code{- InitUpDownTime} time stamps prior to time stamp $0$; note that \code{InitUpDownTime == 0} means that the unit has been just shut down at the end of time instant $-1$, i.e., the beginning of time instant $0$.
  %
- \item the positive scalar \variable \cstr{MinUpTime}, of type \code{netCDF::NcUint64} and not indexed over any \dimension, which indicates the minimum allowed up time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinUpTime == 0}, which mean that the unit can shut down in the very same time stamp in which it starts up.
+ \item the positive scalar \variable \cstr{MinUpTime}, of type \code{netCDF::NcUint} and not indexed over any \dimension, which indicates the minimum allowed up time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinUpTime == 0}, which mean that the unit can shut down in the very same time stamp in which it starts up.
  %
- \item the positive scalar \variable \cstr{MinDownTime}, of type \code{netCDF::NcUint64} and not indexed over any \dimension, which indicates the minimum allowed down time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinDownTime == 0}, which mean that the unit can start up in the very same time stamp in which it starts up.
+ \item the positive scalar \variable \cstr{MinDownTime}, of type \code{netCDF::NcUint} and not indexed over any \dimension, which indicates the minimum allowed down time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinDownTime == 0}, which mean that the unit can start up in the very same time stamp in which it starts up.
  %
  \item  the \variable \cstr{FixedConsumption}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals}. This is meant to represent the vector \code{FC[ t ]} that, for each time instant $t$, contains the fixed consumption of the power plant if it is OFF at time $t$. The variable is optional; if it is not defined, \code{FC[ t ] == 0} for all time instants. If it has size $1$, then \code{FC[ t ] == FixedConsumption[ 0 ]} for all $t$, regardless to what \cstr{NumberIntervals} says. Otherwise, \code{FixedConsumption[ i ]} is the fixed value of \code{FC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ], ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}.
 %
@@ -1470,9 +1486,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \dimension \cstr{NumberArcs} containing the set of arcs (or units) connecting the reservoirs in cascading system. Each arc represents either a turbine generating electricity by converting potential energy of water going downhill, or a pump consuming electricity for moving water uphill.
  %
- \item The \variable \cstr{StartArc}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the starting point of the arc (a number in \code{0, \dots, NumberReservoirs - 1}). Note that arcs are oriented; that is, a positive flow along arc $r$ (turbine) means that water is being taken away from \code{StartArc[ r ]} and delivered to \code{EndArc[ r ]} (see next), a negative flow (pump) means vice-versa. Note that reservoir names here go from $0$ to \code{NumberReservoirs - 1}.
+ \item The \variable \cstr{StartArc}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the starting point of the arc (a number in \code{0, \dots, NumberReservoirs - 1}). Note that arcs are oriented; that is, a positive flow along arc $r$ (turbine) means that water is being taken away from \code{StartArc[ r ]} and delivered to \code{EndArc[ r ]} (see next), a negative flow (pump) means vice-versa. Note that reservoir names here go from $0$ to \code{NumberReservoirs - 1}.
  %
- \item The \variable \cstr{EndArc}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the ending point of the arc; this is a number in \code{0, \dots, NumberReservoirs}. Note: this is \code{NumberReservoirs} and \highlight{not} \code{NumberReservoirs - 1}, because arcs can end in the ``fake'' reservoir \code{NumberReservoirs}. This indicates that water that flows along that arc ``goes away from the system'' and it is no longer counted, because it can no longer be used to produce electricity further down the river, or pumped back into one of its reservoirs. Indeed, there will be something like ``the most downstream turbines'': after water has been used there, it just goes away down some river and does not go to any other reservoir. Arcs are oriented (see above); \code{StartArc[ r ] == EndArc[ r ]} (a self-loop) is not allowed, but multiple arcs between the same pair of reservoirs are. Indeed, often the same physical equipment can be used both as a turbine and as a pump; in our model these are represented as two parallel arcs (but with different upper and lower flow capacity, see \cstr{MinFlow} and \cstr{MaxFlow} below).
+ \item The \variable \cstr{EndArc}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}; the r-th entry of the variable is the ending point of the arc; this is a number in \code{0, \dots, NumberReservoirs}. Note: this is \code{NumberReservoirs} and \highlight{not} \code{NumberReservoirs - 1}, because arcs can end in the ``fake'' reservoir \code{NumberReservoirs}. This indicates that water that flows along that arc ``goes away from the system'' and it is no longer counted, because it can no longer be used to produce electricity further down the river, or pumped back into one of its reservoirs. Indeed, there will be something like ``the most downstream turbines'': after water has been used there, it just goes away down some river and does not go to any other reservoir. Arcs are oriented (see above); \code{StartArc[ r ] == EndArc[ r ]} (a self-loop) is not allowed, but multiple arcs between the same pair of reservoirs are. Indeed, often the same physical equipment can be used both as a turbine and as a pump; in our model these are represented as two parallel arcs (but with different upper and lower flow capacity, see \cstr{MinFlow} and \cstr{MaxFlow} below).
  %
  \item The \variable \cstr{MinFlow}, of type \code{netCDF::NcDouble} and indexed over both \dimensions \cstr{NumberIntervals} and \cstr{NumberArcs}. The first \dimension may have either size $1$ or size \code{NumberIntervals} whereas the second one always has size \cstr{NumberArcs} (if the variable is provided at all). This is meant to represent the matrix \code{MinF[ t , l ]} which, for each time instant $t$ and each arc $l$, contains the minimum flow value of the unit. This variable is optional; if it is not provided then it is assumed that \code{MinF[ t , l ]== 0}, i.e., the minimum flow of the unit is zero. If the first \dimension has size $1$ then the entry \code{MinF[ 0 , l ]} gives the fixed minimum flow value of the unit for all time steps and each arc $l$. Otherwise, \code{MinFlow[ i , l ]} is the fixed value of \code{MinF[ t , l ]} for all time $t$ and arc $l$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ]= 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
@@ -1530,7 +1546,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The negative or positive scalar \variable \cstr{UphillFlow}, of type \code{netCDF::NcInt64} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{UpF[ l ]} indicates the uphill flow delay for each unit (arc) $l$; the nontrivial concept is detailed below. This variable is optional, if it is not provided it is taken to be \code{UpF[ l ] == 0}.
  %
- \item The positive scalar \variable \cstr{DownhillFlow}, of type \code{netCDF::NcUint64} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{DnF[ l ]} indicates the downhill flow delay for each arc (unit) $l$. This variable is optional, if it is not provided it is taken to be \code{DnF[ l ] == 0}.
+ \item The positive scalar \variable \cstr{DownhillFlow}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{DnF[ l ]} indicates the downhill flow delay for each arc (unit) $l$. This variable is optional, if it is not provided it is taken to be \code{DnF[ l ] == 0}.
 \end{itemize}
 
 The last two quantities require some comment. Let us assume that we have any arc $l$, with \code{( StartArc[ l ] = n , EndArc[ l ] = n' )}, which corresponds to (say) a turbine. This means that a positive flow along $l$ implies that water is being taken away from $n$ and delivered to $n'$, passing through the turbine to produce flow, as graphically depicted below:
@@ -1954,7 +1970,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
 \item The \cstr{ScenarioSize} \dimension containing the size of a single
   scenario, which spans all stages.
  
-\item The \cstr{SubScenarioSize} \variable, of type \code{netCDF::NcUint64}
+\item The \cstr{SubScenarioSize} \variable, of type \code{netCDF::NcUint}
   and indexed over \dimension \cstr{TimeHorizon}. This dimension is
   optional. If it is not provided, then all sub-scenarios are assumed to have
   the same size, i.e., $ s_t = (\cstr{ScenarioSize} / \cstr{TimeHorizon})$ for
@@ -2268,7 +2284,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   matrix. This \dimension is optional; if it is not provided then 0 (no
   rows) is assumed.
 
-\item The \dimension \cstr{NumNonzero}, of type \code{netCDF::NcUint64},
+\item The \dimension \cstr{NumNonzero}, of type \code{netCDF::NcUint},
   containing the number of nonzero entries in the $A$ matrix. This \dimension
   is optional and determines in which format the matrix $A$ is given. If this
   \dimension is present, then \cstr{NumRow} must also be. If \cstr{NumNonzero}
@@ -2279,7 +2295,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   stored. If at most 25\% of its elements are nonzero, it is stored in sparse
   format; otherwise, it is stored in dense format.
 
-\item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::NcUint64}
+\item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{NumRow}, containing the number of
   nonzero elements of the $A$ matrix in each row.  If the \dimension
   \cstr{NumNonzero} is not present, then this \variable is ignored.  If
@@ -2292,7 +2308,7 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   \code{NumNonzeroAtRow[i]} is the number of nonzero elements in the $i$-th
   row of the $A$ matrix.
 
-\item The \variable \cstr{Column}, of type \code{netCDF::NcUint64} and indexed
+\item The \variable \cstr{Column}, of type \code{netCDF::NcUint} and indexed
   over the \dimension \cstr{NumNonzero}, containing the column indices of the
   entries of the matrix. If \cstr{NumNonzero} or \cstr{NumNonzeroAtRow} is not
   present, then this \variable is ignored. For each $k \in \{0, \dots,
