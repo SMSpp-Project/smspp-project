@@ -29,8 +29,8 @@ add_subdirectory(MILPSolver)
 add_subdirectory(UCBlock)
 add_subdirectory(LukFiBlock)
 add_subdirectory(BundleSolver)
-add_subdirectory(SDDPBlock)
 add_subdirectory(StochasticBlock)
+add_subdirectory(SDDPBlock)
 #add_subdirectory(SubGradSolver)
 
 # ----- Tools --------------------------------------------------------------- #
