@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 21/03/2020}
+{\Large Date: 31/03/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -1463,7 +1463,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item the scalar \variable \cstr{InitialPower}, of type \code{netCDF::NcDouble} and not indexed over any \dimension. This variable indicates the amount of the power that the unit was producing at time instant $-1$, i.e., before the start of the time horizon; this is necessary to compute the ramp-up and ramp-down constraints. Clearly, it must be that \code{MaxPower >= InitialPower >= MinPower} if the unit was ``on'' at time instant $-1$, and it must be that \code{InitialPower == 0} if the unit was ``off'' at time instant $-1$. The on/off status of the unit is also encoded by the scalar variable \code{InitUpDownTime}: in particular, \code{InitUpDownTime > 0} then the unit was on at time instant $-1$, and therefore \code{InitialPower >= MinPower} must hold, while if \code{InitUpDownTime <= 0} then the unit was off at time instant $-1$, and therefore \code{InitialPower == 0} by definition. In fact, if \code{InitUpDownTime <= 0} then this variable need not be defined since it is not loaded.
  %
- \item the scalar \variable \cstr{InitUpDownTime}, of type \code{netCDF::NcInt64} and not indexed over any \dimension and indicates the initial time to generating the unit. If \code{InitUpDownTime > 0}, this means that the unit has been on for \code{InitUpDownTime} time stamps prior to time stamp $0$ (the beginning of the horizon). If, instead, \code{InitUpDownTime <= 0}, this means that the unit has been off for \code{- InitUpDownTime} time stamps prior to time stamp $0$; note that \code{InitUpDownTime == 0} means that the unit has been just shut down at the end of time instant $-1$, i.e., the beginning of time instant $0$.
+ \item the scalar \variable \cstr{InitUpDownTime}, of type \code{netCDF::NcInt} and not indexed over any \dimension and indicates the initial time to generating the unit. If \code{InitUpDownTime > 0}, this means that the unit has been on for \code{InitUpDownTime} time stamps prior to time stamp $0$ (the beginning of the horizon). If, instead, \code{InitUpDownTime <= 0}, this means that the unit has been off for \code{- InitUpDownTime} time stamps prior to time stamp $0$; note that \code{InitUpDownTime == 0} means that the unit has been just shut down at the end of time instant $-1$, i.e., the beginning of time instant $0$.
  %
  \item the positive scalar \variable \cstr{MinUpTime}, of type \code{netCDF::NcUint} and not indexed over any \dimension, which indicates the minimum allowed up time in this unit. This variable is optional, if it is not provided it is taken to be \code{MinUpTime == 0}, which mean that the unit can shut down in the very same time stamp in which it starts up.
  %
@@ -1544,7 +1544,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \variable \cstr{InitialVolumetric}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberReservoirs}. Each entry \code{InV[ r ]} indicates the volumes of water in reservoir $r$ at time instant $-1$.
  %
- \item The negative or positive scalar \variable \cstr{UphillFlow}, of type \code{netCDF::NcInt64} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{UpF[ l ]} indicates the uphill flow delay for each unit (arc) $l$; the nontrivial concept is detailed below. This variable is optional, if it is not provided it is taken to be \code{UpF[ l ] == 0}.
+ \item The negative or positive scalar \variable \cstr{UphillFlow}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{UpF[ l ]} indicates the uphill flow delay for each unit (arc) $l$; the nontrivial concept is detailed below. This variable is optional, if it is not provided it is taken to be \code{UpF[ l ] == 0}.
  %
  \item The positive scalar \variable \cstr{DownhillFlow}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{DnF[ l ]} indicates the downhill flow delay for each arc (unit) $l$. This variable is optional, if it is not provided it is taken to be \code{DnF[ l ] == 0}.
 \end{itemize}
@@ -2018,7 +2018,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   of related random data. Also, this \dimension is meaningful only if all
   sub-scenarios have the same size.
 
-\item The \cstr{SizeRandomDataGroups} \variable, of type \code{netCDF::Uint64}
+\item The \cstr{SizeRandomDataGroups} \variable, of type \code{netCDF::NcUint}
   and indexed over the \cstr{NumberRandomDataGroups} dimension, containing the
   size of each group of related random data in each sub-scenario. For each $i
   \in \{0, \dots, \cstr{NumberRandomDataGroups} - 1\}$,
@@ -2027,7 +2027,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   \cstr{NumberRandomDataGroups} is provided and $\cstr{NumberRandomDataGroups}
   > 1$.
 
-\item The \cstr{StateSize} \variable, of type \code{netCDF::Uint64} and being
+\item The \cstr{StateSize} \variable, of type \code{netCDF::NcUint} and being
   either a scalar or a one-dimensional array indexed over \cstr{TimeHorizon}
   dimension, specifying the sizes of the states at each stage. If this
   \variable is a scalar, then all states are assumed to have the same size
@@ -2036,7 +2036,7 @@ Besides the mandatory \cstr{type} attribute of any \Block, an \SMSpp \netCDF
   size of the state at stage $t$. The state being a vector, its size is the
   dimension of the space in which it lies.
 
-%\item The \cstr{TotalStateSize} \dimension, of type \code{netCDF::Uint64},
+%\item The \cstr{TotalStateSize} \dimension, of type \code{netCDF::NcUint},
 %  specifying the sum of the sizes of the states of each stage. This dimension
 %  is optional.
 
@@ -2373,7 +2373,10 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
   \code{AbstractPath} is \cstr{NumRow}. The $i$-th \code{AbstractPath} in this
   vector must be the path to the $i$-th affected \code{RowConstraint} (which
   is associated with the $i$-th row of the $A$ matrix). This \group is
-  optional only if \code{NumRow == 0}.
+  optional only if \code{NumRow == 0}. Each \code{AbstractPath} is taken with
+  respect to the inner \Block of this \code{BendersBFunction} (i.e., the inner
+  \Block of this \code{BendersBFunction} must be the reference \Block of the
+  path).
 
 \item The \group \cstr{Block}, containing the description of the inner
   \Block.
@@ -3101,15 +3104,16 @@ j)$. In the specification of the \code{BendersBFunction}, each of those
 from the \code{BendersBlock}, i.e., having the \code{BendersBlock} as the
 reference \Block.
 
-Considering the structure of the \code{BendersBlock} illustrated by
+Considering the structure of the \code{BendersBFunction} illustrated by
 Figure~\ref{fig:stochastic_block} and the structure of the \code{UCBlock}
 depicted in Figure~\ref{fig:ucblock}, assuming the \code{HydroSystemUnitBlock}
 is the first \code{UnitBlock} in the \code{UCBlock}, an \code{AbstractPath}
-from the \code{BendersBlock} to the ``final volume'' \Constraint with
+from the \code{UCBlock} (which is the inner \Block of the
+\code{BendersBFunction}) to the ``final volume'' \Constraint with
 (two-dimensional) index $(0,j)$ of the $i$-th \code{HydroUnitBlock} would be
 given by
 \begin{equation}
-  O \rightarrow B(0) \rightarrow B(i) \rightarrow C(11, j),
+  B(0) \rightarrow B(i) \rightarrow C(11, j),
   \label{path}
 \end{equation}
 where $B(k)$ indicated the $k$-th nested \Block of a \Block and $C(k_1, k_2)$
@@ -3117,41 +3121,40 @@ indicates the \Constraint whose element index is $k_2$ within the group of
 \Constraints whose index is $k_1$.
 
 To understand this path, we can start from the \RowConstraint of interest and
-navigate up to the reference \Block. Since the two-dimensional index of the
-target \RowConstraint is $(0,j)$, its element index is $j$ according to the
-definition of ``element index'' of a \Constraint in an \code{AbstractPath}
-(see \eqref{eq:element_index} for details).  Moreover, that \RowConstraint
-belongs to the group of \Constraints whose index is 11 (the ``final volume''
-constraints are the twelfth group of \Constraints in a \code{HydroUnitBlock};
-see the comments of the \code{HydroUnitBlock} class for details).  The target
+navigate up to the reference \Block (which is the \code{UCBlock}). Since the
+two-dimensional index of the target \RowConstraint is $(0,j)$, its element
+index is $j$ according to the definition of ``element index'' of a \Constraint
+in an \code{AbstractPath} (see \eqref{eq:element_index} for details).
+Moreover, that \RowConstraint belongs to the group of \Constraints whose index
+is 11 (the ``final volume'' constraints are the twelfth group of \Constraints
+in a \code{HydroUnitBlock}; see the comments of the \code{HydroUnitBlock}
+class for details). Hence, we have the node $C(11, j)$. The target
 \RowConstraint belongs to the $i$-th \code{HydroUnitBlock}, i.e., the $i$-th
 nested \Block of the \code{HydroSystemUnitBlock}. Hence, we have the node
-$B(i)$. The \code{HydroSystemUnitBlock} is the first nested \Block of the
-\code{UCBlock}. Hence, we have the node $B(0)$. Finally, the \code{UCBlock} is
-the inner \Block of the \code{BendersBFunction}, which is the \Function of the
-\code{FRealObjective} of the \code{BendersBlock}. Hence, we have the node $O$.
+$B(i)$. Finally, the \code{HydroSystemUnitBlock} is the first nested \Block of
+the \code{UCBlock}. Hence, we have the node $B(0)$.
 
 The \code{AbstractPath}s of those \RowConstraints must be given as a vector of
 \code{AbstractPath}. From the general path \eqref{path} to a \RowConstraint,
 it is straightforward to construct a vector of \code{AbstractPath}s to those
 \RowConstraints. By concatenating the sequence of nodes of all
-\code{AbstractPath}s, we would have the following vectors of size $4R$:
+\code{AbstractPath}s, we would have the following vectors of size $3R$:
 \begin{align*}
-\cstr{PathNodeTypes} = ( & \text{`O'}, \text{`B'}, \text{`B'}, \text{`C'}, \dots,
-\text{`O'}, \text{`B'}, \text{`B'}, \text{`C'})\\
-\cstr{PathGroupIndices} = ( & \code{inf}, 0, 0, 11, \dots, \code{inf}, 0, i, 11,
-                            \dots, \code{inf}, 0, R-1, 11 )\\
+\cstr{PathNodeTypes} = ( & \text{`B'}, \text{`B'}, \text{`C'}, \dots,
+\text{`B'}, \text{`B'}, \text{`C'})\\
+\cstr{PathGroupIndices} = ( & 0, 0, 11, \dots, 0, i, 11,
+                            \dots, 0, R-1, 11 )\\
 \cstr{PathElementIndices} = (
-& \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_0-1,\\
-& \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_1-1,\\
+& \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_0-1,\\
+& \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_1-1,\\
 & \dots,\\
-& \code{inf}, \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, \code{inf}, r_{H-1}-1 ).
+& \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_{H-1}-1 ).
 \end{align*}
-Since each \code{AbstractPath} has four nodes and there are a total of $R$
+Since each \code{AbstractPath} has three nodes and there are a total of $R$
 \code{AbstractPath}s, we would have
 \[
-\cstr{PathDim} = R, \quad \cstr{TotalLength} = 4R, \quad \text{ and } \quad
-\cstr{PathStart} = (0, 4, 8, \dots, 4(R - 1)).
+\cstr{PathDim} = R, \quad \cstr{TotalLength} = 3R, \quad \text{ and } \quad
+\cstr{PathStart} = (0, 3, 6, \dots, 3(R - 1)).
 \]
 
 Lastly, since all those \RowConstraints represent equality constraints, the
