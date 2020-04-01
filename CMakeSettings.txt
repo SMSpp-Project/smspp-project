@@ -35,6 +35,10 @@ set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 # Enable verbose makefiles
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
+# Option to prevent some Boost related warnings
+# Should be fixed soon by CMake team
+set(Boost_USE_MULTITHREADED FALSE)
+
 # Add compilation flags
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
 add_compile_options(
