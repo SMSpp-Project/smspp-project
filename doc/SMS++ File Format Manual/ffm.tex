@@ -221,7 +221,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 01/04/2020}
+{\Large Date: 12/04/2020}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -849,7 +849,8 @@ which elements of the ``large'' vector are used to compose the ``small''
 vector. This \code{SetFrom} set contains the indices of these elements in the
 ``large'' vector. The ``small'' vector is the one that will typically impact
 the data of some object. The \code{SetTo} set can be used to specify which
-part of this data is affected.
+part of this data is affected. Actually, \code{SetFrom} and \code{SetTo} are
+ordered multisets, but we will refer to them as sets for simplicity.
 
 As an example, consider the case in which the ``large'' vector contains data
 related to costs and capacities of arcs of a network. Suppose this network is
@@ -867,6 +868,16 @@ whose capacities would be modified could be specified by the \code{SetTo}
 set. This could be the set $[2, 6)$, for instance, stating that the arcs with
 indices $2, 3, 4,$ and $5$ would have their capacities changed according to
 the ``small'' vector.
+
+Usually, the \code{SetFrom} and the \code{SetTo} sets will have the same
+cardinality, so that the $i$-th element of the \code{SetFrom} set will be
+associated with the $i$-th element of the \code{SetTo} set. However, the
+\code{SetFrom} set is also allowed to be smaller than the \code{SetTo} set. In
+this case, the cardinality of the \code{SetTo} set must be a positive multiple
+of the cardinality of the \code{SetFrom} set and the $i$-th element of the
+\code{SetTo} set will be associated with the element of the \code{SetFrom} set
+located at position $\lfloor i/r \rfloor$, where $r$ is the ratio between the
+cardinalities of the \code{SetTo} and \code{SetFrom} sets.
 
 Besides the \code{SetFrom} and \code{SetTo} sets, the \code{SimpleDataMapping}
 also has a pointer to a function, which is invoked within the
@@ -3424,7 +3435,6 @@ set and $\{2,3,5\}$ as its \code{SetTo} set. In this case, the \code{SetFrom}
 can be represented as the \code{Range} $[0, 3)$. The \code{SetTo} cannot be
 represented as a \code{Range} (it is not an interval of integers), so we
 need to explicitly list all its elements. Thus, the first elements of
-
 \code{SetSize} are 0 and 3 (indicating that the first \code{SetFrom} set is a
 \code{Range} and the first \code{SetTo} set is a \code{Subset} with three
 elements). Moreover, the first elements of \code{SetElements} are 0 and 3
