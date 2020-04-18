@@ -45,6 +45,7 @@ inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
 intMPName  8      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+                  # + 8 = check for duplicate linearizations
 
 # QPPenalty's parameters : - - - - - -
 intMPlvl   4      # log verbosity of Master Problem
