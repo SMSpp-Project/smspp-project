@@ -57,19 +57,29 @@ add_compile_options(
 # ----- Custom locations for dependencies ----------------------------------- #
 
 # CPLEX Studio main directory
-#set(CPLEX_STUDIO_DIR  "/Applications/CPLEX_Studio128")
+#set(CPLEX_STUDIO_DIR "/Applications/CPLEX_Studio128")
 
 # Boost main directory
-#set(BOOST_ROOT  "/usr/local/include/")
+#set(BOOST_ROOT "/usr/local/include/")
 
 # Eigen3 main directory
 #set(EIGEN3_ROOT "/usr/local/include/eigen3")
 
-# NetCDF headers location
-#set(NETCDFCXX_INC  "/usr/local/include/")
+# NetCDF headers and library locations
+#set(NETCDFCXX_INC "/usr/local/include/")
+#set(NETCDFCXX_LIB "/usr/local/lib")
 
-# NetCDF library location
-#set(NETCDFCXX_LIB  "/usr/local/lib")
+# Coin-OR CoinUtils headers and library locations
+#set(COIN_INC "/usr/local/include")
+#set(COIN_LIB "/usr/local/lib")
+
+# Coin-OR Osi headers and library locations
+#set(OSI_INC "/usr/local/include")
+#set(OSI_LIB "/usr/local/lib")
+
+# Coin-OR Clp headers and library locations
+#set(CLP_INC "/usr/local/include")
+#set(CLP_LIB "/usr/local/lib")
 
 # ----- Project-specific settings ------------------------------------------- #
 
