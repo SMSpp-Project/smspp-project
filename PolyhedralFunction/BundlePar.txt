@@ -27,7 +27,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 0  # f_diff == 0 ==> all non-provided parameters are set to the default value
 
-19 # number of integer parameters
+20 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 1000000   # MaxIter, max number of iterations for each call
@@ -38,13 +38,14 @@ intBPar2  400     # max bundle size per component
 intBPar3    1     # max n. of items to fetch from Fi() at each iteration
 intBPar4    1     # min n. of items to fetch from Fi() at each iteration
 intBPar6    0     # second parameter for dynamic max n. of items per iteration
+intBPar7    1     # the linearizations of the C05Function must be deleted by BundleSolver
 intMnSSC    0     # min number of consecutive SS with the same t for a t increase
 intMnNSC    1     # min number of consecutive NS with the same t for a t decrease
 inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intMPName  8      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+intMPName  0      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
 
 # QPPenalty's parameters : - - - - - -
 intMPlvl   4      # log verbosity of Master Problem
