@@ -204,8 +204,15 @@ static inline bool SolveMCF() {
  try {
   Solver * milpsolver = mcfb->get_registered_solvers().front();
   Solver * mcfsolver = mcfb->get_registered_solvers().back();
-  int milp_status = milpsolver->compute( false );
-  int mcf_status = mcfsolver->compute( false );
+
+  auto t1 = milpsolver->compute_async( false );
+  auto t2 = mcfsolver->compute_async( false );
+
+  t1.wait();
+  t2.wait();
+
+  auto milp_status = t1.get();
+  auto mcf_status = t2.get();
 
   // Print problem on file
   // ofstream output_stream;
