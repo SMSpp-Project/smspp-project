@@ -156,7 +156,7 @@ static inline void load( char * fn ) {
     exit( 1 );
    }
 
-   int type;
+   int type = 0;
    gtype.getValues( &type );
 
    if( type != eBlockFile ) {
@@ -445,8 +445,8 @@ int main( int argc, char ** argv ) {
 
     if( abstract ) {
      cout << "(a)" << std::endl;
-     auto obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-     auto lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+     auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+     auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
      assert( lf );
      LinearFunction::v_coeff nc = { newcst };
      lf->modify_coefficient( arc, nc.front() );
@@ -468,8 +468,8 @@ int main( int argc, char ** argv ) {
      if( abstract ) {
 
       cout << "s(r,a)" << std::endl;
-      auto obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-      auto lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+      auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+      auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
       assert( lf );
       lf->modify_coefficients( std::move( newcsts ) ,
                                Function::Range( strt , stp ) );
@@ -495,8 +495,8 @@ int main( int argc, char ** argv ) {
 
       // Change via abstract representation
       cout << "s(s,a)" << std::endl;
-      auto obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-      auto lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+      auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+      auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
       assert( lf );
       lf->modify_coefficients( std::move( newcsts ),
                                std::move( nms ),
@@ -582,10 +582,10 @@ int main( int argc, char ** argv ) {
   if( wchg & 4u ) {
    cout << "2 deficits";
 
-   MCFClass::Index posn;
-   MCFClass::Index negn;
-   MCFClass::FNumber posd;
-   MCFClass::FNumber negd;
+   MCFClass::Index posn = 0;
+   MCFClass::Index negn = 0;
+   MCFClass::FNumber posd = NAN;
+   MCFClass::FNumber negd = NAN;
 
    if( nz_deficits ) {
     MCFBlock::Vec_FNumber dfcts( n );
@@ -660,7 +660,7 @@ int main( int argc, char ** argv ) {
 
      cout << "(a)";
      for( auto i : nms ) {
-      auto x = mcfb->i2p_x( i );
+      auto *x = mcfb->i2p_x( i );
       x->set_value( 0 );
       x->is_fixed( true );
      }
@@ -764,7 +764,8 @@ int main( int argc, char ** argv ) {
 
     ++changed;
 
-    MCFBlock::Index sn, en;
+    MCFBlock::Index sn = 0;
+    MCFBlock::Index en = 0;
     do {
      sn = drand48() * mcfb->get_NNodes() + 1;
      en = drand48() * mcfb->get_NNodes() + 1;

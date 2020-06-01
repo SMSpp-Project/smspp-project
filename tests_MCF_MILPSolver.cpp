@@ -136,8 +136,8 @@ class MCFMILPSolversTest :
 
   // mcfb->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
   // mcfb->register_Solver( Solver::new_Solver( solver_name( MCFC ) ) );
-  auto mcfsolver = new MCFSolver< MCFC >();
-  auto milpsolver = new CPXMILPSolver();
+  auto *mcfsolver = new MCFSolver< MCFC >();
+  auto *milpsolver = new CPXMILPSolver();
 
   mcfb->register_Solver( milpsolver );
   mcfsolver->set_par( Solver::dblAbsAcc, u_avg * 1e-8 );
@@ -194,7 +194,7 @@ class MCFMILPSolversTest :
   netCDF::NcGroupAtt gtype = f.getAtt( "SMS++_file_type" );
   ASSERT_FALSE( gtype.isNull() );
 
-  int type;
+  int type = 0;
   gtype.getValues( &type );
   ASSERT_EQ( type, eBlockFile );
 
@@ -253,8 +253,8 @@ TEST_P ( MCFMILPSolversTest, ChangeOneCost_Abstract ) {
   auto newcst = c_min + MCFBlock::CNumber( drand48() * ( c_max - c_min ) );
   auto arc = MCFBlock::Index( drand48() * ( m - 1 ) );
 
-  auto obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-  auto lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+  auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+  auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
   LinearFunction::v_coeff nc = { newcst };
   lf->modify_coefficient( arc, nc.front() );
 
@@ -289,8 +289,8 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_RangedAbstract ) {
   MCFBlock::Index strt = drand48() * ( m - tochange );
   MCFBlock::Index stp = strt + tochange;
 
-  auto obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-  auto lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+  auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+  auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
 
   lf->modify_coefficients( std::move( newcsts ), Function::Range( strt, stp ) );
 
@@ -339,8 +339,8 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_SparseAbstract ) {
   sort( nms.begin(), end );
   nms.resize( tochange );
 
-  auto obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-  auto lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+  auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+  auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
 
   lf->modify_coefficients( std::move( newcsts ),
                            std::move( nms ),
@@ -502,10 +502,10 @@ TEST_P ( MCFMILPSolversTest, ChangeCapacities_SparsePhysical ) {
 TEST_P ( MCFMILPSolversTest, ChangeDeficits_Abstract ) {
 
  while( num_repeats-- ) {
-  MCFClass::Index posn;
-  MCFClass::Index negn;
-  MCFClass::FNumber posd;
-  MCFClass::FNumber negd;
+  MCFClass::Index posn = 0;
+  MCFClass::Index negn = 0;
+  MCFClass::FNumber posd = NAN;
+  MCFClass::FNumber negd = NAN;
 
   if( nz_deficits ) {
    MCFBlock::Vec_FNumber dfcts( n );
@@ -547,10 +547,10 @@ TEST_P ( MCFMILPSolversTest, ChangeDeficits_Abstract ) {
 TEST_P ( MCFMILPSolversTest, ChangeDeficits_Physical ) {
 
  while( num_repeats-- ) {
-  MCFClass::Index posn;
-  MCFClass::Index negn;
-  MCFClass::FNumber posd;
-  MCFClass::FNumber negd;
+  MCFClass::Index posn = 0;
+  MCFClass::Index negn = 0;
+  MCFClass::FNumber posd = NAN;
+  MCFClass::FNumber negd = NAN;
 
   if( nz_deficits ) {
    MCFBlock::Vec_FNumber dfcts( n );
@@ -614,7 +614,7 @@ TEST_P ( MCFMILPSolversTest, CloseArcs_Abstract ) {
    nms.resize( changed );
 
    for( auto i : nms ) {
-    auto x = mcfb->i2p_x( i );
+    auto *x = mcfb->i2p_x( i );
     x->set_value( 0 );
     x->is_fixed( true );
    }
@@ -774,7 +774,7 @@ TEST_P ( MCFMILPSolversTest, AddNewArcs ) {
 
    ++changed;
 
-   MCFBlock::Index sn, en;
+   MCFBlock::Index sn = 0, en = 0;
    do {
     sn = drand48() * mcfb->get_NNodes() + 1;
     en = drand48() * mcfb->get_NNodes() + 1;
@@ -830,3 +830,5 @@ int main( int argc, char ** argv ) {
  ::testing::InitGoogleTest( &argc, argv );
  return RUN_ALL_TESTS();
 }
+
+#pragma clang diagnostic pop
