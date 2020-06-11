@@ -1,6 +1,6 @@
 #/bin/bash
 
-what=4
+what=3
 
 for size in 2 10 50 100
 do

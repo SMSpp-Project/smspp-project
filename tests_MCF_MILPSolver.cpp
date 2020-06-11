@@ -154,8 +154,15 @@ class MCFMILPSolversTest :
   Solver * milpsolver = mcfb->get_registered_solvers().front();
   Solver * mcfsolver = mcfb->get_registered_solvers().back();
 
-  auto milp_status = milpsolver->compute( false );
-  auto mcf_status = mcfsolver->compute( false );
+  auto t1 = milpsolver->compute_async( false );
+  auto t2 = mcfsolver->compute_async( false );
+
+  t1.wait();
+  t2.wait();
+
+  auto milp_status = t1.get();
+  auto mcf_status = t2.get();
+
   EXPECT_EQ( milp_status, mcf_status );
 
   auto milp_ub = milpsolver->get_ub();

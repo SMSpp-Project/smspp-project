@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 3
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -300,7 +300,7 @@ static void ChangeLPConstraint( c_Index i , FRowConstraint & ci )
 static void printAb( const PolyhedralFunction::MultiVector & tA ,
 		     const std::vector < FunctionValue > & tb )
 {
- PANIC( ( tA.size() <= tb.size() ) && ( tA.size() >= tb.size() - 1 ) );
+ PANIC( tA.size() == tb.size() );
  PANIC( tA.size() == m );
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
@@ -406,6 +406,12 @@ static bool SolveBoth( void )
 
 int main( int argc , char **argv )
 {
+ /*!!
+ cout << std::boolalpha
+      << "Lock free = " << std::atomic< int >{}.is_lock_free() << endl;
+ return( 0 );
+ !!*/
+
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -555,14 +561,11 @@ int main( int argc , char **argv )
     *(vit++) = & xi;
   #endif
 
-  if( LB > - INF )     // a LB is defined
-   b.push_back( LB );  // grow b by one to hold it
-
   // construct the Objective
   auto objNDO = new FRealObjective();
   objNDO->set_function( new PolyhedralFunction( std::move( vars ) ,
 						std::move( A ) ,
-						std::move( b ) ) );
+						std::move( b ) , LB ) );
 
   // now set the Variable and Objective in the AbstractBlock
   NDOBlock->add_static_variable( *xNDO );
@@ -1164,7 +1167,7 @@ int main( int argc , char **argv )
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  if( AllPassed )
-  cout << GREEN( All test passed!! ) << endl;
+  cout << GREEN( All tests passed!! ) << endl;
  else
   cout << RED( Shit happened!! ) << endl;
  

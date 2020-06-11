@@ -34,7 +34,7 @@ intMaxIter 1000000   # MaxIter, max number of iterations for each call
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
 intBPar1   20     # discard items when they have been useless for <this> iterations
-intBPar2  400     # max bundle size per component
+intBPar2  400    # max bundle size per component
 intBPar3    1     # max n. of items to fetch from Fi() at each iteration
 intBPar4    1     # min n. of items to fetch from Fi() at each iteration
 intBPar6    0     # second parameter for dynamic max n. of items per iteration
@@ -46,6 +46,7 @@ inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
 intMPName  0      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+                  # + 8 = check for duplicate linearizations
 
 # QPPenalty's parameters : - - - - - -
 intMPlvl   4      # log verbosity of Master Problem
@@ -65,11 +66,11 @@ intRstAlg  62     # parameter to handle the reset of the algorithm
 17 # number of double parameters
 
 # now all the double parameters
-dblRelAcc    1e-8 # relative accuracy 
-dblRelMPAcc  1e-12 # precision required to the MP Solver (optimality)
-dblRMPAccSol 1e-12 # precision required to the MP Solver (feasibility)
-#dblRelMPAcc  1e-9 # precision required to the MP Solver (optimality)
-#dblRMPAccSol 1e-9 # precision required to the MP Solver (feasibility)
+dblRelAcc    1e-9 # relative accuracy
+#dblRelMPAcc  1e-12 # precision required to the MP Solver (optimality)
+#dblRMPAccSol 1e-12 # precision required to the MP Solver (feasibility)
+dblRelMPAcc  1e-9 # precision required to the MP Solver (optimality)
+dblRMPAccSol 1e-9 # precision required to the MP Solver (feasibility)
 
 dbltStar   1e+4   # stopping parameter related to norm of residual
 dblBPar5   4      # first parameter for dynamic max n. of items per iteration

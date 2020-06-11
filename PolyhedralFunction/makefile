@@ -23,7 +23,7 @@ NAME = PolyhedralFunction_test
 DIR = ./
 
 # debug switches
-SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1  -lz -lbz2
 # production switches
 #SW = -O3 -std=c++17 -DNDEBUG
 
@@ -50,7 +50,6 @@ clean::
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already

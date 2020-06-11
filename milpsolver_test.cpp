@@ -43,7 +43,10 @@ int main(int argc, char** argv) {
  block->register_Solver(solver);
 
  // First solve
- int status = solver->compute();
+ auto solving = solver->compute_async();
+ solving.wait();
+
+ auto status = solving.get();
  if (solver->has_var_solution()) {
   solver->get_var_solution();
  }
