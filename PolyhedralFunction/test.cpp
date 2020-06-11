@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 3
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -406,6 +406,12 @@ static bool SolveBoth( void )
 
 int main( int argc , char **argv )
 {
+ /*!!
+ cout << std::boolalpha
+      << "Lock free = " << std::atomic< int >{}.is_lock_free() << endl;
+ return( 0 );
+ !!*/
+
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
