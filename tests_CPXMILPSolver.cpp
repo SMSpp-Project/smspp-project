@@ -81,11 +81,12 @@ TEST_P( MILPSolverTest, SimpleSolve ) {
 /*------------------------- TEST CASE INSTANCES ----------------------------*/
 /*--------------------------------------------------------------------------*/
 
-INSTANTIATE_TEST_CASE_P( CPXMILPSolverTests,
-                         MILPSolverTest,
-                         ::testing::Values(
-                          TestParameter( TestFile( "data/test.milp" ), OptVars{ 4, 1 }, OptSolution( -22 ) )
-                         ) );
+INSTANTIATE_TEST_SUITE_P( CPXMILPSolverTests,
+                          MILPSolverTest,
+                          ::testing::Values(
+                           TestParameter( TestFile( "data/test.milp" ),
+                                          OptVars{ 4, 1 },
+                                          OptSolution( -22 ) ) ) );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/

@@ -130,20 +130,20 @@ TEST_P( TUBMILPSolverTest, SimpleSolve ) {
 /*------------------------- TEST CASE INSTANCES ----------------------------*/
 /*--------------------------------------------------------------------------*/
 
-INSTANTIATE_TEST_CASE_P( TUBMILPSolverTests,
-                         TUBMILPSolverTest,
-                         ::testing::Values(
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp1_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp2_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp3_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp4_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp5_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp6_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp7_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp8_24.nc4" },
-                          TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp9_24.nc4" }
-                         ),
-                         TUBMILPSolverTest::PrintToStringParamName() );
+INSTANTIATE_TEST_SUITE_P( TUBMILPSolverTests,
+                          TUBMILPSolverTest,
+                          ::testing::Values(
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp1_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp2_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp3_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp4_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp5_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp6_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp7_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp8_24.nc4" },
+                           TestParameters{ "../UCBlock/netCDF_files/1UC_Data/24/S1ramp9_24.nc4" }
+                          ),
+                          TUBMILPSolverTest::PrintToStringParamName() );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/
