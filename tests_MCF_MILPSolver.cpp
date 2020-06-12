@@ -134,8 +134,6 @@ class MCFMILPSolversTest :
   mcfb->generate_objective();
   compute_costs_deficits();
 
-  // mcfb->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
-  // mcfb->register_Solver( Solver::new_Solver( solver_name( MCFC ) ) );
   auto *mcfsolver = new MCFSolver< MCFC >();
   auto *milpsolver = new CPXMILPSolver();
 
@@ -168,8 +166,12 @@ class MCFMILPSolversTest :
   auto milp_ub = milpsolver->get_ub();
   auto mcf_ub = mcfsolver->get_ub();
 
-  auto abs_error = 1e-9 * max( double( 1 ), abs( max( milp_ub, mcf_ub ) ) );
-  EXPECT_NEAR( milp_ub, mcf_ub, abs_error );
+  if( milp_ub == std::numeric_limits< double >::infinity() ) {
+   EXPECT_EQ( milp_ub, mcf_ub );
+  } else {
+   auto abs_error = 1e-9 * max( double( 1 ), abs( max( milp_ub, mcf_ub ) ) );
+   EXPECT_NEAR( milp_ub, mcf_ub, abs_error );
+  }
  }
 
  static inline double rndfctr() {
@@ -837,5 +839,3 @@ int main( int argc, char ** argv ) {
  ::testing::InitGoogleTest( &argc, argv );
  return RUN_ALL_TESTS();
 }
-
-#pragma clang diagnostic pop
