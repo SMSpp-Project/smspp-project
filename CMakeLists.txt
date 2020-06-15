@@ -25,14 +25,6 @@ if (NOT BUILD_SHARED_LIBS)
     endif ()
 endif ()
 
-# ----- Requirements -------------------------------------------------------- #
-# TODO: Proper requirement management
-find_package(SMILPBlock QUIET)
-find_package(MILPSolver QUIET)
-find_package(MCFBlock QUIET)
-find_package(UCBlock QUIET)
-find_package(BundleSolver QUIET)
-
 # ----- Fetch GoogleTest ---------------------------------------------------- #
 include(FetchContent)
 fetchcontent_declare(
@@ -50,91 +42,9 @@ if (NOT googletest_POPULATED)
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 endif ()
 
-# ----- tests_CPXMILPSolver ------------------------------------------------- #
-if (SMILPBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(tests_CPXMILPSolver tests_CPXMILPSolver.cpp)
-    target_link_libraries(tests_CPXMILPSolver PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::SMILPBlock
-                          gtest)
-
-    add_test(
-            NAME tests_CPXMILPSolver
-            COMMAND tests_CPXMILPSolver
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif ()
-
-# ----- tests_MCF_MILPSolver ------------------------------------------------ #
-if (MCFBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(tests_MCF_MILPSolver tests_MCF_MILPSolver.cpp)
-    target_link_libraries(tests_MCF_MILPSolver PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::MCFBlock
-                          gtest)
-
-    add_test(
-            NAME tests_MCF_MILPSolver
-            COMMAND tests_MCF_MILPSolver
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif ()
-
-# ----- tests_TUB_MILPSolver ------------------------------------------------ #
-if (UCBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(tests_TUB_MILPSolver tests_TUB_MILPSolver.cpp)
-    target_link_libraries(tests_TUB_MILPSolver PRIVATE
-                          SMS++::UCBlock
-                          SMS++::MILPSolver
-                          gtest)
-
-    add_test(
-            NAME tests_TUB_MILPSolver
-            COMMAND tests_TUB_MILPSolver
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif ()
-
-# ----- PolyhedralFunction_test --------------------------------------------- #
-if (BundleSolver_FOUND AND MILPSolver_FOUND)
-
-    add_executable(PolyhedralFunction_test PolyhedralFunction/test.cpp)
-    target_link_libraries(PolyhedralFunction_test PRIVATE
-                          SMS++::BundleSolver
-                          SMS++::MILPSolver)
-
-    add_test(
-            NAME PolyhedralFunction_test
-            COMMAND PolyhedralFunction_test
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunction
-    )
-endif ()
-
-# ----- PolyhedralFunctionBlock_test ---------------------------------------- #
-if (BundleSolver_FOUND AND MILPSolver_FOUND)
-    add_executable(PolyhedralFunctionBlock_test PolyhedralFunctionBlock/test.cpp)
-    target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
-                          SMS++::BundleSolver
-                          SMS++::MILPSolver)
-
-    add_test(
-            NAME PolyhedralFunctionBlock_test
-            COMMAND PolyhedralFunctionBlock_test
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedralFunctionBlock
-    )
-endif ()
-
-# ----- OLD TESTS ----------------------------------------------------------- #
-if (SMILPBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(MILPSolver_test milpsolver_test.cpp)
-    target_link_libraries(MILPSolver_test PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::SMILPBlock)
-endif ()
-
-if (MCFBlock_FOUND AND MILPSolver_FOUND)
-    add_executable(MCFSolver_test mcfsolver_test.cpp)
-    target_link_libraries(MCFSolver_test PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::MCFBlock)
-endif ()
+# ----- Subdirectories ------------------------------------------------------ #
+add_subdirectory(CPXMILPSolver)
+add_subdirectory(MCF_MILP)
+add_subdirectory(PolyhedralFunction)
+add_subdirectory(PolyhedralFunctionBlock)
+add_subdirectory(ThermalUnitBlock_MILP)

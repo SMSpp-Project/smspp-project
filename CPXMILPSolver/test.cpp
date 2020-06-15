@@ -52,10 +52,6 @@ class MILPSolverTest :
 /*------------------------ PARAMETRIZED TEST CASES -------------------------*/
 /*--------------------------------------------------------------------------*/
 TEST_P( MILPSolverTest, SimpleSolve ) {
-
- // block->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
- // auto solver = ( block->get_registered_solvers() ).front();
-
  // Solve
  Solver * solver = new CPXMILPSolver();
  block->register_Solver( solver );
@@ -84,7 +80,7 @@ TEST_P( MILPSolverTest, SimpleSolve ) {
 INSTANTIATE_TEST_SUITE_P( CPXMILPSolverTests,
                           MILPSolverTest,
                           ::testing::Values(
-                           TestParameter( TestFile( "data/test.milp" ),
+                           TestParameter( TestFile( "test.milp" ),
                                           OptVars{ 4, 1 },
                                           OptSolution( -22 ) ) ) );
 
