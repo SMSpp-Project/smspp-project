@@ -1,3 +1,25 @@
+/**
+ * @file
+ * This file contains a (parametrized) test suite that solves a MCF problem
+ * with both a MCFSolver and a MILPSolver and compares the results; the tests
+ * explore all MCFBlock modifications.
+ *
+ * The suite uses the Google Test framework, see:
+ * https://github.com/google/googletest
+ *
+ * \author Antonio Frangioni \n
+ *         Operations Research Group \n
+ *         Dipartimento di Informatica \n
+ *         Universita' di Pisa \n
+ *
+ * \author Niccolo' Iardella \n
+ *         Operations Research Group \n
+ *         Dipartimento di Informatica \n
+ *         Universita' di Pisa \n
+ *
+ * Copyright &copy; by Antonio Frangioni, Niccolo' Iardella
+ */
+
 /*--------------------------------------------------------------------------*/
 /*------------------------------ DEFINES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -86,7 +108,11 @@ using namespace SMSpp_di_unipi_it;
 template<> const std::vector< int > MCFSolver< MCFC >::Solver_2_MCFClass_int;
 template<> const std::vector< int > MCFSolver< MCFC >::Solver_2_MCFClass_dbl;
 
-// Typedefs for a more readable parametrization
+/*--------------------------------------------------------------------------*/
+/*----------------------- PARAMETERIZED TEST FIXTURE -----------------------*/
+/*--------------------------------------------------------------------------*/
+
+// Structure containing the input parameters, for convenience
 struct TestParameters {
  std::string test_file;
  long int seed;
@@ -94,20 +120,23 @@ struct TestParameters {
  unsigned int num_repeats;
 };
 
-/*--------------------------------------------------------------------------*/
-/*------------------------- PARAMETRIZED FIXTURE ---------------------------*/
-/*--------------------------------------------------------------------------*/
-
-class MCFMILPSolversTest :
+/*
+ * Main test fixture
+ *
+ * A test fixture is a class used when multiple tests in a suite share code.
+ * This fixture is parameterized, it will be instantiated with different input
+ * parameters using the INSTANTIATE_TEST_SUITE_P() macro.
+ */
+class MCFMILPTest :
  public ::testing::TestWithParam< TestParameters > {
  protected:
- MCFMILPSolversTest() {
+ MCFMILPTest() {
   seed = GetParam().seed;
   num_repeats = GetParam().num_repeats;
   max_changes = GetParam().max_changes;
  }
 
- ~MCFMILPSolversTest() override = default;
+ ~MCFMILPTest() override = default;
 
  long int seed;
  unsigned int max_changes;
@@ -134,8 +163,8 @@ class MCFMILPSolversTest :
   mcfb->generate_objective();
   compute_costs_deficits();
 
-  auto *mcfsolver = new MCFSolver< MCFC >();
-  auto *milpsolver = new CPXMILPSolver();
+  auto * mcfsolver = new MCFSolver< MCFC >();
+  auto * milpsolver = new CPXMILPSolver();
 
   mcfb->register_Solver( milpsolver );
   mcfsolver->set_par( Solver::dblAbsAcc, u_avg * 1e-8 );
@@ -148,6 +177,7 @@ class MCFMILPSolversTest :
   delete mcfb;
  }
 
+ // Solves the problem using the two solvers and compares the results
  void solve() {
   Solver * milpsolver = mcfb->get_registered_solvers().front();
   Solver * mcfsolver = mcfb->get_registered_solvers().back();
@@ -174,17 +204,19 @@ class MCFMILPSolversTest :
   }
  }
 
+ // Returns a random number between 0.5 and 2, with 50% prob. of being < 1
  static inline double rndfctr() {
-  // return a random number between 0.5 and 2, with 50% prob. of being < 1
   double fctr = drand48() - 0.5;
   return ( fctr < 0 ? -fctr : fctr * 4 );
  }
 
  public:
- // Prints the test name
+
+ // Generates a meaningful test name for each instance
  struct PrintToStringParamName {
   template< class ParamType >
-  std::string operator()( const testing::TestParamInfo< ParamType > & info ) const {
+  std::string
+  operator()( const testing::TestParamInfo< ParamType > & info ) const {
    auto s = static_cast<TestParameters>(info.param).test_file;
    // Test names must be non-empty, unique, and may only contain ASCII
    // alphanumeric characters or underscore.
@@ -196,6 +228,8 @@ class MCFMILPSolversTest :
  };
 
  private:
+
+ // Loads a nc4 file
  void load_nc4( std::string & filename ) {
   netCDF::NcFile f( filename, netCDF::NcFile::read );
   ASSERT_FALSE( f.isNull() );
@@ -213,6 +247,7 @@ class MCFMILPSolversTest :
   mcfb->deserialize( bg );
  }
 
+ // Computes costs and deficits from the MCFBlock
  void compute_costs_deficits() {
   m = mcfb->get_NArcs();
   n = mcfb->get_NNodes();
@@ -248,22 +283,28 @@ class MCFMILPSolversTest :
 };
 
 /*--------------------------------------------------------------------------*/
-/*------------------------ PARAMETRIZED TEST CASES -------------------------*/
+/*--------------------------- PARAMETERIZED TESTS --------------------------*/
 /*--------------------------------------------------------------------------*/
-TEST_P ( MCFMILPSolversTest, SimpleSolve ) {
+
+/*
+ * Each test (case) should test a single functionality of the class/system
+ * being tested. The syntax is: TEST_P(TestFixtureName, TestName)
+ */
+
+TEST_P ( MCFMILPTest, SimpleSolve ) {
  solve();
 }
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeOneCost_Abstract ) {
+TEST_P ( MCFMILPTest, ChangeOneCostAbstract ) {
 
  while( num_repeats-- ) {
   auto newcst = c_min + MCFBlock::CNumber( drand48() * ( c_max - c_min ) );
   auto arc = MCFBlock::Index( drand48() * ( m - 1 ) );
 
-  auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-  auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+  auto * obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+  auto * lf = dynamic_cast<LinearFunction *>( obj->get_function() );
   LinearFunction::v_coeff nc = { newcst };
   lf->modify_coefficient( arc, nc.front() );
 
@@ -273,7 +314,7 @@ TEST_P ( MCFMILPSolversTest, ChangeOneCost_Abstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeOneCost_Physical ) {
+TEST_P ( MCFMILPTest, ChangeOneCostPhysical ) {
 
  while( num_repeats-- ) {
   auto newcst = c_min + MCFBlock::CNumber( drand48() * ( c_max - c_min ) );
@@ -286,7 +327,7 @@ TEST_P ( MCFMILPSolversTest, ChangeOneCost_Physical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCosts_RangedAbstract ) {
+TEST_P ( MCFMILPTest, ChangeCostsRangedAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -298,8 +339,8 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_RangedAbstract ) {
   MCFBlock::Index strt = drand48() * ( m - tochange );
   MCFBlock::Index stp = strt + tochange;
 
-  auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-  auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+  auto * obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+  auto * lf = dynamic_cast<LinearFunction *>( obj->get_function() );
 
   lf->modify_coefficients( std::move( newcsts ), Function::Range( strt, stp ) );
 
@@ -309,7 +350,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_RangedAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCosts_RangedPhysical ) {
+TEST_P ( MCFMILPTest, ChangeCostsRangedPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -329,7 +370,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_RangedPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCosts_SparseAbstract ) {
+TEST_P ( MCFMILPTest, ChangeCostsSparseAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -348,8 +389,8 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_SparseAbstract ) {
   sort( nms.begin(), end );
   nms.resize( tochange );
 
-  auto *obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
-  auto *lf = dynamic_cast<LinearFunction *>( obj->get_function() );
+  auto * obj = dynamic_cast<FRealObjective *>( mcfb->get_objective() );
+  auto * lf = dynamic_cast<LinearFunction *>( obj->get_function() );
 
   lf->modify_coefficients( std::move( newcsts ),
                            std::move( nms ),
@@ -361,7 +402,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_SparseAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCosts_SparsePhysical ) {
+TEST_P ( MCFMILPTest, ChangeCostsSparsePhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -388,7 +429,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCosts_SparsePhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeOneCapacity_Abstract ) {
+TEST_P ( MCFMILPTest, ChangeOneCapacityAbstract ) {
 
  while( num_repeats-- ) {
   auto arc = MCFBlock::Index( drand48() * ( m - 1 ) );
@@ -402,7 +443,7 @@ TEST_P ( MCFMILPSolversTest, ChangeOneCapacity_Abstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeOneCapacity_Physical ) {
+TEST_P ( MCFMILPTest, ChangeOneCapacityPhysical ) {
 
  while( num_repeats-- ) {
   auto arc = MCFBlock::Index( drand48() * ( m - 1 ) );
@@ -416,7 +457,7 @@ TEST_P ( MCFMILPSolversTest, ChangeOneCapacity_Physical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCapacities_RangedAbstract ) {
+TEST_P ( MCFMILPTest, ChangeCapacitiesRangedAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -436,7 +477,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCapacities_RangedAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCapacities_RangedPhysical ) {
+TEST_P ( MCFMILPTest, ChangeCapacitiesRangedPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -455,7 +496,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCapacities_RangedPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCapacities_SparseAbstract ) {
+TEST_P ( MCFMILPTest, ChangeCapacitiesSparseAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -482,7 +523,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCapacities_SparseAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeCapacities_SparsePhysical ) {
+TEST_P ( MCFMILPTest, ChangeCapacitiesSparsePhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -508,7 +549,7 @@ TEST_P ( MCFMILPSolversTest, ChangeCapacities_SparsePhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeDeficits_Abstract ) {
+TEST_P ( MCFMILPTest, ChangeDeficitsAbstract ) {
 
  while( num_repeats-- ) {
   MCFClass::Index posn = 0;
@@ -553,7 +594,7 @@ TEST_P ( MCFMILPSolversTest, ChangeDeficits_Abstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, ChangeDeficits_Physical ) {
+TEST_P ( MCFMILPTest, ChangeDeficitsPhysical ) {
 
  while( num_repeats-- ) {
   MCFClass::Index posn = 0;
@@ -598,7 +639,7 @@ TEST_P ( MCFMILPSolversTest, ChangeDeficits_Physical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, CloseArcs_Abstract ) {
+TEST_P ( MCFMILPTest, CloseArcsAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Subset nms( max_changes );
@@ -623,7 +664,7 @@ TEST_P ( MCFMILPSolversTest, CloseArcs_Abstract ) {
    nms.resize( changed );
 
    for( auto i : nms ) {
-    auto *x = mcfb->i2p_x( i );
+    auto * x = mcfb->i2p_x( i );
     x->set_value( 0 );
     x->is_fixed( true );
    }
@@ -635,7 +676,7 @@ TEST_P ( MCFMILPSolversTest, CloseArcs_Abstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, CloseArcs_Physical ) {
+TEST_P ( MCFMILPTest, CloseArcsPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Subset nms( max_changes );
@@ -667,7 +708,7 @@ TEST_P ( MCFMILPSolversTest, CloseArcs_Physical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, OpenArcs_Abstract ) {
+TEST_P ( MCFMILPTest, OpenArcsAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index changed = 0;
@@ -699,7 +740,7 @@ TEST_P ( MCFMILPSolversTest, OpenArcs_Abstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, OpenArcs_Physical ) {
+TEST_P ( MCFMILPTest, OpenArcsPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index changed = 0;
@@ -730,7 +771,7 @@ TEST_P ( MCFMILPSolversTest, OpenArcs_Physical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, DeleteArcs ) {
+TEST_P ( MCFMILPTest, DeleteArcs ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index changed = 0;
@@ -772,7 +813,7 @@ TEST_P ( MCFMILPSolversTest, DeleteArcs ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPSolversTest, AddNewArcs ) {
+TEST_P ( MCFMILPTest, AddNewArcs ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index changed = 0;
@@ -809,11 +850,20 @@ TEST_P ( MCFMILPSolversTest, AddNewArcs ) {
 }
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- TEST CASE INSTANCES ----------------------------*/
+/*------------------------- TEST SUITE INSTANCES ---------------------------*/
 /*--------------------------------------------------------------------------*/
 
-INSTANTIATE_TEST_SUITE_P( MCFMILPSolversTests,
-                          MCFMILPSolversTest,
+/*
+ * With INSTANTIATE_TEST_SUITE_P(), multiple test suites, each with different
+ * input parameters are generated. The syntax is:
+ *
+ * INSTANTIATE_TEST_SUITE_P(InstantiationName,
+ *                          TestFixtureName,
+ *                          testing::Values("meeny", "miny", "moe"));
+ */
+
+INSTANTIATE_TEST_SUITE_P( MCFMILPTests,
+                          MCFMILPTest,
                           ::testing::Values(
                            TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 1 },
                            TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 1 },
@@ -830,7 +880,7 @@ INSTANTIATE_TEST_SUITE_P( MCFMILPSolversTests,
                            TestParameters{ "data/N3-5-5-1-1.nc4", 0, 10, 1 },
                            TestParameters{ "data/N3-5-5-2-2.nc4", 0, 10, 1 }
                           ),
-                          MCFMILPSolversTest::PrintToStringParamName() );
+                          MCFMILPTest::PrintToStringParamName() );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/

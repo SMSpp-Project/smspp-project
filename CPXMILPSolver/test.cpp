@@ -22,8 +22,9 @@ typedef double OptSolution;
 typedef std::tuple< TestFile, OptVars, OptSolution > TestParameter;
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- PARAMETRIZED FIXTURE ---------------------------*/
+/*----------------------- PARAMETERIZED TEST FIXTURE -----------------------*/
 /*--------------------------------------------------------------------------*/
+
 class MILPSolverTest :
  public ::testing::TestWithParam< TestParameter > {
  protected:
@@ -49,8 +50,9 @@ class MILPSolverTest :
 };
 
 /*--------------------------------------------------------------------------*/
-/*------------------------ PARAMETRIZED TEST CASES -------------------------*/
+/*--------------------------- PARAMETERIZED TESTS --------------------------*/
 /*--------------------------------------------------------------------------*/
+
 TEST_P( MILPSolverTest, SimpleSolve ) {
  // Solve
  Solver * solver = new CPXMILPSolver();
@@ -74,7 +76,7 @@ TEST_P( MILPSolverTest, SimpleSolve ) {
 }
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- TEST CASE INSTANCES ----------------------------*/
+/*------------------------- TEST SUITE INSTANCES ---------------------------*/
 /*--------------------------------------------------------------------------*/
 
 INSTANTIATE_TEST_SUITE_P( CPXMILPSolverTests,

@@ -44,7 +44,7 @@ endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(CPXMILPSolver)
-add_subdirectory(MCF_MILP)
+add_subdirectory(MCFMILP)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
-add_subdirectory(ThermalUnitBlock_MILP)
+add_subdirectory(TUBMILP)
