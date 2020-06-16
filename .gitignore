@@ -9,6 +9,7 @@
 *.obj
 *.ko
 *.elf
+MCFMILP/MCFMILP_test
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 
@@ -72,7 +73,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-Makefile
+#Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
