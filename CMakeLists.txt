@@ -11,7 +11,6 @@ project(SMS++_tests VERSION 0.2.0 LANGUAGES CXX)
 
 # ----- Settings ------------------------------------------------------------ #
 include(CTest)
-add_compile_definitions(HAVE_RELAX)
 
 # Since we are using the block factory, objects from statically linked libraries
 # may wrongly appear unused, and by default the linker does not include them,

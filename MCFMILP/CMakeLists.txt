@@ -2,6 +2,20 @@
 find_package(MCFBlock)
 find_package(MILPSolver)
 
+if (MCF_SOLVER STREQUAL "relax")
+    message(STATUS "Using RelaxIV solver")
+    add_compile_definitions(HAVE_RELAX)
+elseif (MCF_SOLVER STREQUAL "cplex")
+    message(STATUS "Using CPLEX solver")
+    add_compile_definitions(HAVE_CPLEX)
+elseif (MCF_SOLVER STREQUAL "mfsmx")
+    message(STATUS "Using Simplex solver")
+    add_compile_definitions(HAVE_MFSMX)
+elseif (MCF_SOLVER STREQUAL "sptree")
+    message(STATUS "Using Shortest Path Tree solver")
+    add_compile_definitions(HAVE_SPTRE)
+endif ()
+
 # ----- Tests --------------------------------------------------------------- #
 if (MCFBlock_FOUND AND MILPSolver_FOUND)
     # Googletest
