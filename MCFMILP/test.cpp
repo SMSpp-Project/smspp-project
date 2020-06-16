@@ -639,12 +639,13 @@ TEST_P ( MCFMILPTest, ChangeDeficitsPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, CloseArcsAbstract ) {
+TEST_P ( MCFMILPTest, CloseOpenArcsAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Subset nms( max_changes );
   MCFBlock::Index changed = 0;
 
+  // Arcs to change
   for( MCFBlock::Index i = mcfb->get_NStaticArcs();
        i < mcfb->get_NArcs(); ++i ) {
 
@@ -660,9 +661,9 @@ TEST_P ( MCFMILPTest, CloseArcsAbstract ) {
     break;
   }
 
+  // Close
   if( changed ) {
    nms.resize( changed );
-
    for( auto i : nms ) {
     auto * x = mcfb->i2p_x( i );
     x->set_value( 0 );
@@ -671,65 +672,9 @@ TEST_P ( MCFMILPTest, CloseArcsAbstract ) {
   }
 
   solve();
- }
-}
 
-/*--------------------------------------------------------------------------*/
-
-TEST_P ( MCFMILPTest, CloseArcsPhysical ) {
-
- while( num_repeats-- ) {
-  MCFBlock::Subset nms( max_changes );
-  MCFBlock::Index changed = 0;
-
-  for( MCFBlock::Index i = mcfb->get_NStaticArcs();
-       i < mcfb->get_NArcs(); ++i ) {
-
-   if( mcfb->is_deleted( i ) )
-    continue;
-   if( mcfb->is_closed( i ) )
-    continue;
-   if( drand48() <= 0.5 )
-    continue;
-
-   nms[ changed++ ] = i;
-   if( changed >= max_changes )
-    break;
-  }
-
+  // Re-open
   if( changed ) {
-   nms.resize( changed );
-   mcfb->close_arcs( std::move( nms ) );
-  }
-
-  solve();
- }
-}
-
-/*--------------------------------------------------------------------------*/
-
-TEST_P ( MCFMILPTest, OpenArcsAbstract ) {
-
- while( num_repeats-- ) {
-  MCFBlock::Index changed = 0;
-
-  MCFBlock::Subset nms( max_changes );
-  for( MCFBlock::Index i = mcfb->get_NStaticArcs();
-       i < mcfb->get_NArcs(); ++i ) {
-   if( mcfb->is_deleted( i ) )
-    continue;
-   if( !mcfb->is_closed( i ) )
-    continue;
-   if( drand48() <= 0.5 )
-    continue;
-
-   nms[ changed++ ] = i;
-   if( changed >= max_changes )
-    break;
-  }
-
-  if( changed ) {
-   nms.resize( changed );
    for( auto i : nms )
     mcfb->i2p_x( i )->is_fixed( false );
   }
@@ -740,29 +685,43 @@ TEST_P ( MCFMILPTest, OpenArcsAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, OpenArcsPhysical ) {
+TEST_P ( MCFMILPTest, CloseOpenArcsPhysical ) {
 
  while( num_repeats-- ) {
+  MCFBlock::Subset nms1( max_changes );
+  MCFBlock::Subset nms2( max_changes );
   MCFBlock::Index changed = 0;
 
-  MCFBlock::Subset nms( max_changes );
+  // Arcs to change
   for( MCFBlock::Index i = mcfb->get_NStaticArcs();
        i < mcfb->get_NArcs(); ++i ) {
+
    if( mcfb->is_deleted( i ) )
     continue;
-   if( !mcfb->is_closed( i ) )
+   if( mcfb->is_closed( i ) )
     continue;
    if( drand48() <= 0.5 )
     continue;
 
-   nms[ changed++ ] = i;
+   nms1[ changed ] = i;
+   nms2[ changed ] = i;
+   changed++;
    if( changed >= max_changes )
     break;
   }
 
+  // Close
   if( changed ) {
-   nms.resize( changed );
-   mcfb->open_arcs( std::move( nms ) );
+   nms1.resize( changed );
+   mcfb->close_arcs( std::move( nms1 ) );
+  }
+
+  solve();
+
+  // Re-open
+  if( changed ) {
+   nms2.resize( changed );
+   mcfb->open_arcs( std::move( nms2 ) );
   }
 
   solve();
@@ -865,20 +824,20 @@ TEST_P ( MCFMILPTest, AddNewArcs ) {
 INSTANTIATE_TEST_SUITE_P( MCFMILPTests,
                           MCFMILPTest,
                           ::testing::Values(
-                           TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-0-0-0-5.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-0-0-1-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-0-0-5-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-0-1-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-0-5-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-1-0-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-1-1-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-1-1-1-1.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-5-0-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-5-5-0-0.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-5-5-1-1.nc4", 0, 10, 1 },
-                           TestParameters{ "data/N3-5-5-2-2.nc4", 0, 10, 1 }
+                           TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-0-5.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-1-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-5-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-1-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-5-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-1-0-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-1-1-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-1-1-1-1.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-0-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-5-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-5-1-1.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-5-2-2.nc4", 0, 10, 10 }
                           ),
                           MCFMILPTest::PrintToStringParamName() );
 
