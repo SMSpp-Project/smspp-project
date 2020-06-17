@@ -59,22 +59,28 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
-# MCFBlock
-MCFBkSDR = ../../MCFBlock/
-include $(MCFBkSDR)makefile-c
-
 # not necessary, MCFBlock does that already
 # define input macros for SMS++ complete makefile, then include it
 #SMS++SDR = ../..SMS++/
 #include $(SMS++SDR)lib/makefile-inc
 
+# MCFBlock
+MCFBkSDR = ../../MCFBlock/
+include $(MCFBkSDR)makefile-c
+
+# not necessary, MILPSolver does that already
 # define input macros for libCPLEX complete makefile, then include it
-libCPLEXDIR = ../../extlib/
-include $(libCPLEXDIR)makefile-libCPLEX
+#libCPLEXDIR = ../../extlib/
+#include $(libCPLEXDIR)makefile-libCPLEX
+
+# not necessary, MILPSolver does that already
+# define input macros for libSCIP complete makefile, then include it
+#libSCIPDIR = ../../extlib/
+#include $(libSCIPDIR)makefile-libSCIP
 
 # MILPSolver
 MILPSSDR = ../../MILPSolver/
-include $(MILPSSDR)makefile
+include $(MILPSSDR)makefile-c
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -85,7 +91,7 @@ MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
 MLIB =  $(MCFBkLIB) $(MILPSLIB) -lgtest
 
 $(NAME): $(MOBJ) $(DIR)test.o
-	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW) $(MCFCS)
+	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
@@ -98,6 +104,6 @@ MH =    $(MCFBkH) $(MILPSH)
 # compile command
 
 $(DIR)test.o: $(DIR)test.cpp $(MH)
-	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW) $(MCFCS)
+	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################
