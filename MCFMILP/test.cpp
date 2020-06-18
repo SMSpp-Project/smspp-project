@@ -764,9 +764,8 @@ TEST_P ( MCFMILPTest, DeleteArcs ) {
     if( changed >= max_changes )
      break;
    }
-
-   solve();
   }
+   solve();
  }
 }
 
