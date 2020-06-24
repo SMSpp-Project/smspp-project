@@ -822,7 +822,7 @@ TEST_P ( MCFMILPTest, AddNewArcs ) {
 
 INSTANTIATE_TEST_SUITE_P( MCFMILPTests,
                           MCFMILPTest,
-                          ::testing::Values(
+                          ::testing::Values(  // file, seed, changes, repeats
                            TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 10 },
                            TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 10 },
                            TestParameters{ "data/N3-0-0-0-5.nc4", 0, 10, 10 },

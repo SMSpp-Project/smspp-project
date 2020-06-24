@@ -74,9 +74,7 @@
 #endif
 
 #ifdef HAVE_RELAX
-
 #include "RelaxIV.h"
-
 #define MCFC RelaxIV
 #endif
 
