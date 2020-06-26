@@ -25,10 +25,9 @@ if (MCFBlock_FOUND AND MILPSolver_FOUND)
                           SMS++::MCFBlock
                           gtest)
 
-    add_test(
-            NAME MCFMILP_test
-            COMMAND MCFMILP_test
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    add_test(NAME MCFMILP_test
+             COMMAND MCFMILP_test
+             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Old test
     add_executable(MCFMILP_test_old test_old.cpp)

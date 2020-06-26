@@ -10,9 +10,8 @@ if (UCBlock_FOUND AND MILPSolver_FOUND)
                           SMS++::MILPSolver
                           gtest)
 
-    add_test(
-            NAME TUBMILP_test
-            COMMAND TUBMILP_test
-            WORKING_DIRECTORY
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../UCBlock/netCDF_files)
+    add_test(NAME TUBMILP_test
+             COMMAND TUBMILP_test
+             WORKING_DIRECTORY
+             ${CMAKE_CURRENT_SOURCE_DIR}/../../UCBlock/netCDF_files)
 endif ()
