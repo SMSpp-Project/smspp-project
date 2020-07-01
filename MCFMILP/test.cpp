@@ -86,7 +86,7 @@
 
 #include "MCFBlock.h"
 #include "MCFSolver.h"
-#include "SCIPMILPSolver.h"
+#include "CPXMILPSolver.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -162,7 +162,7 @@ class MCFMILPTest :
   compute_costs_deficits();
 
   auto * mcfsolver = new MCFSolver< MCFC >();
-  auto * milpsolver = new SCIPMILPSolver();
+  auto * milpsolver = new CPXMILPSolver();
 
   mcfb->register_Solver( milpsolver );
   mcfsolver->set_par( Solver::dblAbsAcc, u_avg * 1e-8 );
@@ -821,20 +821,20 @@ TEST_P ( MCFMILPTest, AddNewArcs ) {
 INSTANTIATE_TEST_SUITE_P( MCFMILPTests,
                           MCFMILPTest,
                           ::testing::Values(  // file, seed, changes, repeats
-                           // TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-0-0-0-5.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-0-0-1-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-0-0-5-0.nc4", 0, 10, 10 },
-                           TestParameters{ "data/N3-0-1-0-0.nc4", 1, 1, 1 }
-                           // TestParameters{ "data/N3-0-5-0-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-1-0-0-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-1-1-0-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-1-1-1-1.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-5-0-0-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-5-5-0-0.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-5-5-1-1.nc4", 0, 10, 10 },
-                           // TestParameters{ "data/N3-5-5-2-2.nc4", 0, 10, 10 }
+                           TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-0-5.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-1-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-0-5-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-1-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-0-5-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-1-0-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-1-1-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-1-1-1-1.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-0-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-5-0-0.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-5-1-1.nc4", 0, 10, 10 },
+                           TestParameters{ "data/N3-5-5-2-2.nc4", 0, 10, 10 }
                           ),
                           MCFMILPTest::PrintToStringParamName() );
 
