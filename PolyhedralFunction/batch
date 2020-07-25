@@ -1,6 +1,6 @@
 #/bin/bash
 
-what=3
+what=15
 
 for size in 2 10 50 100
 do

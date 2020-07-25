@@ -26,11 +26,12 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
-// 3 = + print data + save LP file
+// 3 = + save LP file
+// 4 = + print data
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -39,6 +40,31 @@
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
+
+/*--------------------------------------------------------------------------*/
+
+#define DETACH_NDO 0
+// if nonzero, the Solver attched to the NDOBlock is detached and re-attached
+// to it at all iterations
+
+#define DETACH_LP 0
+// if nonzero, the Solver attched to the LPBlock is detached and re-attached
+// to it at all iterations
+
+/*--------------------------------------------------------------------------*/
+
+#define SKIP_BEAT 0
+// if nonzero, the two Block are not solved at every round of changes, but
+// only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
+// therefore puts more pressure on the Modification handling of the Solver
+// (in case this tries to do "smart" things rather than dumbly processing
+// each one in turn)
+//
+// note that the number of rounds of changes is them multiplied by
+// SKIP_BEAT + 1, so that the input parameter still dictates the number of
+// Block solutions
+
+/*--------------------------------------------------------------------------*/
 
 #define PANICMSG { cout << endl << "something very bad happened!" << endl; \
 		   exit( 1 ); \
@@ -321,10 +347,18 @@ static bool SolveBoth( void )
  try {
   // solve the LPBlock- - - - - - - - - - - - - - - - - - - - - - - - - - - -
   Solver * slvrLP = (LPBlock->get_registered_solvers()).front();
+  #if DETACH_LP
+   LPBlock->unregister_Solver( slvrLP );
+   LPBlock->register_Solver( slvrLP );
+  #endif
   int rtrnLP = slvrLP->compute( false );
 
   // solve the NODBlock - - - - - - - - - - - - - - - - - - - - - - - - - - -
   Solver * slvrNDO = (NDOBlock->get_registered_solvers()).front();
+  #if DETACH_NDO
+   NDOBlock->unregister_Solver( slvrNDO );
+   NDOBlock->register_Solver( slvrNDO );
+  #endif
   int rtrnNDO = slvrNDO->compute( false );
 
   if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) &&
@@ -415,6 +449,9 @@ int main( int argc , char **argv )
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ assert( SKIP_BEAT >= 0 );
+
+
  long int seed = 1;
  Index wchg = 127;
  double dens = 4;  
@@ -432,11 +469,7 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-  #if DYNAMIC_VARS > 0
 	   " seed [wchg nvar dens #rounds #chng %chng]"
-  #else
-	   " seed [wchg nvar dens #rounds rchng]"
-  #endif
  		<< endl <<
            "       wchg: what to change, coded bit-wise "
 		<< endl <<
@@ -445,10 +478,8 @@ int main( int argc , char **argv )
            "             2 = modify rows, 3 = modify constants"
 		<< endl <<
            "             4 = change global lower/upper bound"
-  #if DYNAMIC_VARS > 0  
 		<< endl <<
            "             5 = add variables rows, 6 = delete variables"
-  #endif
 	        << endl <<
            "       nvar: number of variables [10]"
 	        << endl <<
@@ -491,7 +522,7 @@ int main( int argc , char **argv )
  cout.setf( ios::scientific, ios::floatfield );
  cout << setprecision( 10 );
 
- #if( LOG_LEVEL >= 3 )
+ #if( LOG_LEVEL >= 4 )
   printAb( A , b );
   if( LB > - INF )
    cout << "LB = " << LB << endl;
@@ -642,7 +673,7 @@ int main( int argc , char **argv )
  //
  // then the two problems are re-solved
 
- for( Index rep = 0 ; rep < n_repeat ; ++rep ) {
+ for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
 
   LOG1( rep << ": ");
 
@@ -924,10 +955,10 @@ int main( int argc , char **argv )
 
     // add them in the LP
     std::list< ColVariable > nxLPd( tochange );
-    std::vector< Variable * > nxp( tochange );
-    auto nxit = nxLPd.begin();
+    std::vector< ColVariable * > nxp( tochange );
+    auto nxlpit = nxLPd.begin();
     for( Index i = 0 ; i < tochange ; )
-     nxp[ i++ ] = &(*(nxit++));
+     nxp[ i++ ] = &(*(nxlpit++));
 
     LPBlock->add_dynamic_variables(
 	      *(LPBlock->get_dynamic_variable< ColVariable >( 0 )) , nxLPd );
@@ -947,18 +978,18 @@ int main( int argc , char **argv )
 					       (cnst_it++)->get_function() );
       PANIC( fi );
       LinearFunction::v_coeff_pair ncp( tochange );
-      for( Index j = 0 ; j < ncp ; ++j ) {
-       ncp[ i ].first = nxp[ i ];
-       ncp[ i ].second = - A[ i ][ j ];
+      for( Index j = 0 ; j < ncp.size() ; ++j ) {
+       ncp[ j ].first = nxp[ j ];
+       ncp[ j ].second = - A[ i ][ j ];
        }
       fi->add_variables( std::move( ncp ) );
       }
 
     // add them in the NDO
     std::list< ColVariable > nxNDOd( tochange );
-    auto nxit = nxNDOd.begin();
+    auto nxndit = nxNDOd.begin();
     for( Index i = 0 ; i < tochange ; )
-     nxp[ i++ ] = &(*(nxit++));
+     nxp[ i++ ] = &(*(nxndit++));
 
     NDOBlock->add_dynamic_variables(
 	    *(NDOBlock->get_dynamic_variable< ColVariable >( 0 )) , nxNDOd );
@@ -1140,8 +1171,7 @@ int main( int argc , char **argv )
      PANIC( ndvar == ci.get_num_active_var() );
     }
    }
-
-  #endif  // DYNAMIC_VARS > 0
+  #endif
 
   // if verbose, print out stuff- - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1149,19 +1179,23 @@ int main( int argc , char **argv )
    ((LPBlock->get_registered_solvers()).front())->set_par(
 		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
 		                  std::to_string( rep ) + ".lp" );
-   auto PF = dynamic_cast< PolyhedralFunction * >(
+   #if( LOG_LEVEL >= 4 )
+    auto PF = dynamic_cast< PolyhedralFunction * >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-   PANIC( PF );
-   printAb( PF->get_A() , PF->get_b() );
-   if( PF->get_global_lower_bound() > - INF )
-    cout << "LB = " << PF->get_global_lower_bound() << endl;
-   else
-    cout << "LB = - INF" << endl;
+    PANIC( PF );
+    printAb( PF->get_A() , PF->get_b() );
+    if( PF->get_global_lower_bound() > - INF )
+     cout << "LB = " << PF->get_global_lower_bound() << endl;
+    else
+     cout << "LB = - INF" << endl;
+   #endif
   #endif
 
   // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
+  // ... every SKIP_BEAT + 1 rounds
 
-  AllPassed &= SolveBoth();
+  if( ! ( ++rep % ( SKIP_BEAT + 1 ) ) )
+   AllPassed &= SolveBoth();
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

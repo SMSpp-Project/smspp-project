@@ -23,7 +23,7 @@ NAME = PolyhedralFunction_test
 DIR = ./
 
 # debug switches
-SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1  -lz -lbz2
+SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
 # production switches
 #SW = -O3 -std=c++17 -DNDEBUG
 
@@ -66,6 +66,10 @@ include $(BNDSLVSDR)makefile-c
 # MILPSolver
 #MILPSSDR = ../../../MILPSolver/
 #include $(MILPSSDR)makefile
+
+# define input macros for libSCIP library makefile, then include it
+#libSCIPDIR = ../../extlib/
+#include $(libSCIPDIR)makefile-libscip
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
