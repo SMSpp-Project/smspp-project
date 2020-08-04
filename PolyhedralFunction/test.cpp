@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 0.31
+ * \version 1.00
  *
- * \date 24 - 02 - 2020
+ * \date 04 - 08 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -94,6 +94,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include <random>
+
 #include "AbstractBlock.h"
 
 #include "BundleSolver.h"
@@ -156,6 +158,9 @@ Index nvar = 10;           // number of variables
 
 Index m;                   // number of rows
 
+std::mt19937 rg;           // base random generator
+std::uniform_real_distribution<> dis( 0.0 , 1.0 );
+
 PolyhedralFunction::MultiVector A;
 
 std::vector < FunctionValue > b;
@@ -183,7 +188,7 @@ static inline double rndfctr( void )
 {
  // return a random number between 0.5 and 2, with 50% probability of being
  // < 1
- double fctr = drand48() - 0.5;
+ double fctr = dis( rg ) - 0.5;
  return( fctr < 0 ? - fctr : fctr * 4 );
  }
 
@@ -196,7 +201,7 @@ static void GenerateA( Index nr , Index nc )
  for( auto & Ai : A ) {
   Ai.resize( nc );
   for( auto & aij : Ai )
-   aij = scale * ( 2 * drand48() - 1 );
+   aij = scale * ( 2 * dis( rg ) - 1 );
   }
  }
 
@@ -207,7 +212,7 @@ static void Generateb( Index nr )
  b.resize( nr );
 
  for( auto & bj : b )
-  bj = scale * nvar * ( 2 * drand48() - 1 ) / 4;
+  bj = scale * nvar * ( 2 * dis( rg ) - 1 ) / 4;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -236,13 +241,13 @@ static void GenerateLB( void )
  // (tight) 33% of the time, a mean of 2 times that (loose) 33% of the time,
  // and -INF the rest
 
- if( drand48() <= 0.333 ) {  // "tight" LB
-  LB = - drand48() * 5 * scale * nvar / 4;
+ if( dis( rg ) <= 0.333 ) {  // "tight" LB
+  LB = - dis( rg ) * 5 * scale * nvar / 4;
   return;
   }
 
- if( drand48() <= 0.333 ) {  // "loose" LB
-  LB = - drand48() * 5 * scale * nvar;
+ if( dis( rg ) <= 0.333 ) {  // "loose" LB
+  LB = - dis( rg ) * 5 * scale * nvar;
   return;
   }
 
@@ -257,14 +262,11 @@ static Subset GenerateRand( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
-
- for( Index i = 0 ; i < k ; i++ )
-  swap( rnd[ i ] , rnd[ i + drand48() * ( m - i ) ] );
-
+ std::shuffle( rnd.begin() , rnd.end() , rg );    
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
- return( rnd );
+ return( std::move( rnd ) );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -440,17 +442,10 @@ static bool SolveBoth( void )
 
 int main( int argc , char **argv )
 {
- /*!!
- cout << std::boolalpha
-      << "Lock free = " << std::atomic< int >{}.is_lock_free() << endl;
- return( 0 );
- !!*/
-
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  assert( SKIP_BEAT >= 0 );
-
 
  long int seed = 1;
  Index wchg = 127;
@@ -510,7 +505,7 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- srand48( seed );  // seed the pseudo-random number generator
+ rg.seed( seed );  // seed the pseudo-random number generator
 
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -657,9 +652,7 @@ int main( int argc , char **argv )
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- #if( LOG_LEVEL >= 1 )
-  cout << "First call: ";
- #endif
+ LOG1( "First call: " );
 
  bool AllPassed = SolveBoth();
  
@@ -679,8 +672,8 @@ int main( int argc , char **argv )
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 1 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+  if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
 
     LOG1( "added " << tochange << " rows - " );
@@ -722,8 +715,8 @@ int main( int argc , char **argv )
 
   // delete rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 2 ) && ( drand48() <= p_change ) ) {
-   Index tochange = min( m - 1 , Index( drand48() * n_change ) );
+  if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = min( m - 1 , Index( dis( rg ) * n_change ) );
    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
    if( tochange ) {
     LOG1( "deleted " << tochange << " rows" );
@@ -733,10 +726,10 @@ int main( int argc , char **argv )
     PANIC( PF );
     
     // in 50% of the cases do a ranged change, in the others a sparse change
-    if( drand48() <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {
      LOG1( "(r) - " );
 
-     Index strt = drand48() * ( m - tochange );
+     Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
      // remove them from the LP
@@ -759,7 +752,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( m , tochange );
+     Subset nms( GenerateRand( m , tochange ) );
 
      // remove them from the LP
      if( tochange == 1 )
@@ -796,8 +789,8 @@ int main( int argc , char **argv )
 
   // modify rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 4 ) && ( drand48() <= p_change ) ) {
-   Index tochange = std::min( m , Index( drand48() * n_change ) );
+  if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = std::min( m , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " rows" );
 
@@ -808,10 +801,10 @@ int main( int argc , char **argv )
     GenerateAb( tochange , nvar );
 
     // in 50% of the cases do a ranged change, in the others a sparse change
-    if( drand48() <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {
      LOG1( "(r) - " );
 
-     Index strt = drand48() * ( m - tochange );
+     Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
      // modify them in the LP
@@ -834,7 +827,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( m , tochange );
+     Subset nms( GenerateRand( m , tochange ) );
 
      // modify them in the LP
      vLP = LPBlock->get_static_variable< ColVariable >( 0 );
@@ -863,8 +856,8 @@ int main( int argc , char **argv )
 
   // modify constants - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 8 ) && ( drand48() <= p_change ) ) {
-   Index tochange = std::min( m , Index( drand48() * n_change ) );
+  if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = std::min( m , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " constants" );
 
@@ -875,10 +868,10 @@ int main( int argc , char **argv )
     PANIC( PF );
      
     // in 50% of the cases do a ranged change, in the others a sparse change
-    if( drand48() <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {
      LOG1( "(r) - " );
 
-     Index strt = drand48() * ( m - tochange );
+     Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
      // change them in the LP
@@ -896,7 +889,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( m , tochange );
+     Subset nms( GenerateRand( m , tochange ) );
 
      // change them in the LP
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
@@ -920,7 +913,7 @@ int main( int argc , char **argv )
 
   // modify bound - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 16 ) && ( drand48() <= p_change ) ) {
+  if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
    LOG1( "modified bound - " );
 
    GenerateLB();
@@ -946,8 +939,8 @@ int main( int argc , char **argv )
  // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   #if DYNAMIC_VARS > 0
-  if( ( wchg & 32 ) && ( drand48() <= p_change ) ) {
-   Index tochange = Index( drand48() * n_change );
+  if( ( wchg & 32 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
     LOG1( "added " << tochange << " variables - " );
 
@@ -1022,16 +1015,16 @@ int main( int argc , char **argv )
 
   // remove variables - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 64 ) && ( drand48() <= p_change ) ) {
-   Index tochange = min( ndvar , Index( drand48() * n_change ) );
+  if( ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = min( ndvar , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "removed " << tochange << " variables" );
 
     // in 50% of the cases do a ranged change, in the others a sparse change
-    if( drand48() <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {
      LOG1( "(r) - " );
 
-     Index strt = drand48() * ( ndvar - tochange );
+     Index strt = dis( rg ) * ( ndvar - tochange );
      Index stp = strt + tochange;
 
      // remove them from the LP
@@ -1091,7 +1084,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( ndvar , tochange );
+     Subset nms( GenerateRand( ndvar , tochange ) );
 
      // remove them from the LP
      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
@@ -1196,6 +1189,10 @@ int main( int argc , char **argv )
 
   if( ! ( ++rep % ( SKIP_BEAT + 1 ) ) )
    AllPassed &= SolveBoth();
+  #if( LOG_LEVEL >= 1 )
+  else
+   cout << endl;
+  #endif
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
