@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -733,16 +733,7 @@ int main( int argc , char **argv )
      Index stp = strt + tochange;
 
      // remove them from the LP
-     auto cit = std::next( cnst->begin() , strt );
-     if( tochange == 1 )
-      LPBlock->remove_dynamic_constraint( *cnst , cit );
-     else {
-      std::vector< std::list< FRowConstraint >::iterator > itrs( tochange );
-      for( Index i = 0 ; i < tochange ; )
-       itrs[ i++ ] = cit++;
-
-      LPBlock->remove_dynamic_constraints( *cnst , itrs );
-      }
+     LPBlock->remove_dynamic_constraints( *cnst , Range( strt , stp ) );
  
      // remove them from the NDO
      if( tochange == 1 )
@@ -758,24 +749,14 @@ int main( int argc , char **argv )
      if( tochange == 1 )
       LPBlock->remove_dynamic_constraint( *cnst , std::next( cnst->begin() ,
 							     nms[ 0 ] ) );
-     else {
-      std::vector< std::list< FRowConstraint >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto cit = cnst->begin();
-      for( Index i = 0 ; i < tochange ; ) {
-       cit = std::next( cit , nms[ i ] - prev );
-       itrs[ i ] = cit;
-       prev = nms[ i++ ];
-       }
-
-      LPBlock->remove_dynamic_constraints( *cnst , itrs );
-      }
+     else
+      LPBlock->remove_dynamic_constraints( *cnst , Subset( nms ) , true );
     
      // remove them from the NDO
      if( tochange == 1 )
       PF->delete_row( nms[ 0 ] );
      else
-      PF->delete_rows( std::move( nms ) );
+      PF->delete_rows( std::move( nms ) , true );
      }
 
     // update m
@@ -1031,18 +1012,14 @@ int main( int argc , char **argv )
      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
      auto cnst_it =
              LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )->begin();
-     if( tochange == 1 ) {
+     if( tochange == 1 )
       for( Index i = 0 ; i < m ; ++i ) {
        auto fi = dynamic_cast< LinearFunction * >(
 					       (cnst_it++)->get_function() );
        PANIC( fi );
        fi->remove_variable( strt + 1 );
        }
-
-      auto vp = &(*std::next( *xLPd() , strt ));
-      LPBlock->remove_dynamic_variable( *xLPd , vp );
-      }
-     else {
+     else
       for( Index i = 0 ; i < m ; ++i ) {
        auto fi = dynamic_cast< LinearFunction * >(
 					       (cnst_it++)->get_function() );
@@ -1050,13 +1027,7 @@ int main( int argc , char **argv )
        fi->remove_variables( Range( strt + 1 , stp + 1 ) ) , true );
        }
 
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = std::next( xLPd->begin() , strt );
-      for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i++ ] = vit++;
-      LPBlock->remove_dynamic_variables( *xLPd , itrs );
-      }
+    LPBlock->remove_dynamic_variables( *xLPd , Range( strt , stp ) );
 
      // remove them from the NDO
      auto PF = dynamic_cast< PolyhedralFunction * >(
@@ -1064,23 +1035,12 @@ int main( int argc , char **argv )
      PANIC( PF );
 
      auto xNDOd = NDOBlock->get_dynamic_variable< ColVariable >( 0 );
-     if( tochange == 1 ) {
+     if( tochange == 1 )
       PF->remove_variable( strt );
-
-      auto vp = &(*std::next( xNDOd->begin() , strt ));
-      NDOBlock->remove_dynamic_variable( *xNDOd , vp );
-      }
-     else {
+     else
       PF->remove_variables( Range( strt , stp ) );
 
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = std::next( xNDOd->begin() , strt );
-      for( Index i = 0 ; i < tochange ; )
-       itrs[ i++ ] = vit++;
-
-      NDOBlock->remove_dynamic_variables( *xNDOd , itrs );
-      }
+     NDOBlock->remove_dynamic_variables( *xNDOd , Range( strt , stp ) );
      }
     else {
      LOG1( "(s) - " );
@@ -1112,14 +1072,7 @@ int main( int argc , char **argv )
        fi->remove_variables( std::move( nms1 ) , true );
        }
 
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = xLPd->begin();
-      for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i ] = vit = std::next( vit , nms[ i ] - prev );
-       prev = nms[ i++ ];
-       }
-      LPBlock->remove_dynamic_variables( *xLPd , itrs );
+      LPBlock->remove_dynamic_variables( *xLPd , Subset( nms ) );
       }
 
      // remove them from the NDO
@@ -1135,16 +1088,8 @@ int main( int argc , char **argv )
       NDOBlock->remove_dynamic_variable( *xNDOd , vp );
       }
      else {
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = xNDOd->begin();
-      for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i ] = vit = std::next( vit , nms[ i ] - prev );
-       prev = nms[ i++ ];
-       }
-
-      PF->remove_variables( std::move( nms ) );
-      NDOBlock->remove_dynamic_variables( *xNDOd , itrs );
+      PF->remove_variables( Subset( nms ) );
+      NDOBlock->remove_dynamic_variables( *xNDOd , std::move( nms ) );
       }
      }
 

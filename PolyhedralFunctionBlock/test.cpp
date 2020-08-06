@@ -910,6 +910,9 @@ int main( int argc , char **argv )
     for( Index i = 0 ; i < tochange ; )
      nxpLP[ i++ ] = &(*(nxit++));
 
+    LPBlock->add_dynamic_variables(
+	      *(LPBlock->get_dynamic_variable< ColVariable >( 0 )) , nxLPd );
+
     if( tochange == 1 )
      LPBlock->get_PolyhedralFunction().add_variable( nxpLP[ 0 ] , A[ 0 ] );
     else
@@ -922,6 +925,9 @@ int main( int argc , char **argv )
      auto nxit = nxNDOd.begin();
     for( Index i = 0 ; i < tochange ; )
      nxpNDO[ i++ ] = &(*(nxit++));
+
+    NDOBlock->add_dynamic_variables(
+	    *(NDOBlock->get_dynamic_variable< ColVariable >( 0 )) , nxNDOd );
 
     if( tochange == 1 )
      NDOBlock->get_PolyhedralFunction().add_variable( nxpNDO[ 0 ] , A[ 0 ] );
@@ -962,45 +968,23 @@ int main( int argc , char **argv )
 
      // remove them from the LP
      auto xLPd = NDOBlock->get_dynamic_variable< ColVariable >( 0 );
-     if( tochange == 1 ) {
+     if( tochange == 1 )
       LPBlock->get_PolyhedralFunction().remove_variable( strt );
-
-      auto vp = &(*std::next( xNDOd->begin() , strt ));
-      LPBlock->remove_dynamic_variable( *xLPd , vp );
-      }
-     else {
+     else
       LPBlock->get_PolyhedralFunction().remove_variables( Range( strt ,
 								 stp ) );
 
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = std::next( xLPd->begin() , strt );
-      for( Index i = 0 ; i < tochange ; )
-       itrs[ i++ ] = vit++;
-
-      LPBlock->remove_dynamic_variables( *xLPd , itrs );
-      }
+     LPBlock->remove_dynamic_variables( *xLPd , Range( strt , stp ) );
 
      // remove them from the NDO
      auto xNDOd = NDOBlock->get_dynamic_variable< ColVariable >( 0 );
-     if( tochange == 1 ) {
+     if( tochange == 1 )
       NDOBlock->get_PolyhedralFunction().remove_variable( strt );
-
-      auto vp = &(*std::next( xNDOd->begin() , strt ));
-      NDOBlock->remove_dynamic_variable( *xNDOd , vp );
-      }
-     else {
+     else
       NDOBlock->get_PolyhedralFunction().remove_variables( Range( strt ,
 								  stp ) );
 
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = std::next( xNDOd->begin() , strt );
-      for( Index i = 0 ; i < tochange ; )
-       itrs[ i++ ] = vit++;
-
-      NDOBlock->remove_dynamic_variables( *xNDOd , itrs );
-      }
+     NDOBlock->remove_dynamic_variables( *xNDOd , Range( strt , stp ) );
      }
     else {
      LOG1( "(s) - " );
@@ -1010,42 +994,24 @@ int main( int argc , char **argv )
      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
      if( tochange == 1 ) {
       LPBlock->get_PolyhedralFunction().remove_variable( nms[ 0 ] );
-
       auto vp = &(*std::next( xLPd->begin() , nms[ 0 ] ));
       LPBlock->remove_dynamic_variable( *xLPd , vp );
       }
      else {
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = xLPd->begin();
-      for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i ] = vit = std::next( vit , nms[ i ] - prev );
-       prev = nms[ i++ ];
-       }
-
-      LPBlock->get_PolyhedralFunction().remove_variables( std::move( nms ) );
-      LPBlock->remove_dynamic_variables( *xLPd , itrs );
+      LPBlock->get_PolyhedralFunction().remove_variables( Subset( nms ) );
+      LPBlock->remove_dynamic_variables( *xLPd , Subset( nms ) );
       }
 
-     // remove them from the NDO, letting names go
+     // remove them from the NDO, finally letting names go
      auto xNDOd = NDOBlock->get_dynamic_variable< ColVariable >( 0 );
      if( tochange == 1 ) {
       NDOBlock->get_PolyhedralFunction().remove_variable( nms[ 0 ] );
-
       auto vp = &(*std::next( xNDOd->begin() , nms[ 0 ] ));
       NDOBlock->remove_dynamic_variable( *xNDOd , vp );
       }
      else {
-      std::vector< std::list< ColVariable >::iterator > itrs( tochange );
-      Index prev = 0;
-      auto vit = xNDOd->begin();
-      for( Index i = 0 ; i < tochange ; ) {
-       itrs[ i ] = vit = std::next( vit , nms[ i ] - prev );
-       prev = nms[ i++ ];
-       }
-
-      NDOBlock->get_PolyhedralFunction().remove_variables( std::move( nms ) );
-      NDOBlock->remove_dynamic_variables( *xNDOd , itrs );
+      NDOBlock->get_PolyhedralFunction().remove_variables( Subset( nms ) );
+      NDOBlock->remove_dynamic_variables( *xNDOd , std::move( nms ) );
       }
      }
 
