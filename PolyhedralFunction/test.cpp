@@ -127,6 +127,9 @@ using c_Subset = Block::c_Subset;
 using FunctionValue = Function::FunctionValue;
 using c_FunctionValue = Function::c_FunctionValue;
 
+using MultiVector = PolyhedralFunction::MultiVector;
+using RealVector = PolyhedralFunction::RealVector;
+
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -161,9 +164,8 @@ Index m;                   // number of rows
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 
-PolyhedralFunction::MultiVector A;
-
-std::vector < FunctionValue > b;
+MultiVector A;
+RealVector b;
 
 ColVariable * vLP;                 // pointer to v LP variable
 
@@ -177,14 +179,14 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
 /*--------------------------------------------------------------------------*/
 
 template<class T>
-static inline void Str2Sthg( const char* const str , T &sthg )
+static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
 
-static inline double rndfctr( void )
+static double rndfctr( void )
 {
  // return a random number between 0.5 and 2, with 50% probability of being
  // < 1
@@ -271,7 +273,7 @@ static Subset GenerateRand( Index m , Index k )
 
 /*--------------------------------------------------------------------------*/
 
-static void ConstructLPConstraint( c_Index i , FRowConstraint & ci ,
+static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
 				   bool setblock = true )
 {
  // construct constraint ci out of A[ i ] and b[ i ]:
@@ -308,7 +310,7 @@ static void ConstructLPConstraint( c_Index i , FRowConstraint & ci ,
 
 /*--------------------------------------------------------------------------*/
 
-static void ChangeLPConstraint( c_Index i , FRowConstraint & ci )
+static void ChangeLPConstraint( Index i , FRowConstraint & ci )
 {
  // change the constant == LHS of the constraint
  ci.set_lhs( b[ i ] );
@@ -325,8 +327,7 @@ static void ChangeLPConstraint( c_Index i , FRowConstraint & ci )
 
 /*--------------------------------------------------------------------------*/
 
-static void printAb( const PolyhedralFunction::MultiVector & tA ,
-		     const std::vector < FunctionValue > & tb )
+static void printAb( const MultiVector & tA , const RealVector & tb )
 {
  PANIC( tA.size() == tb.size() );
  PANIC( tA.size() == m );
@@ -609,12 +610,13 @@ int main( int argc , char **argv )
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // do this by reading appropriate BlockSolverConfig from files and use
- // set_SolverConfig()
+ // for LPBlock, "manually" attach a CPXMILPSolver
 
  LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
 
  {
+  // for NDOBlock do this by reading appropriate BlockSolverConfig from
+  // files and use set_SolverConfig()
   ifstream BundleParFile( "BundlePar.txt" );
   if( ! BundleParFile.is_open() ) {
    cerr << "Error: cannot open file BundlePar.txt" << endl;
@@ -725,8 +727,7 @@ int main( int argc , char **argv )
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
     PANIC( PF );
     
-    // in 50% of the cases do a ranged change, in the others a sparse change
-    if( dis( rg ) <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
 
      Index strt = dis( rg ) * ( m - tochange );
@@ -741,7 +742,7 @@ int main( int argc , char **argv )
      else
       PF->delete_rows( Range( strt , stp ) );
      }
-    else {
+    else {  // in the other 50% of the cases, do a sparse change
      LOG1( "(s) - " );
      Subset nms( GenerateRand( m , tochange ) );
 
@@ -781,8 +782,7 @@ int main( int argc , char **argv )
 
     GenerateAb( tochange , nvar );
 
-    // in 50% of the cases do a ranged change, in the others a sparse change
-    if( dis( rg ) <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
 
      Index strt = dis( rg ) * ( m - tochange );
@@ -806,7 +806,7 @@ int main( int argc , char **argv )
      else
       PF->modify_rows( std::move( A ) , b , Range( strt , stp ) );
      }
-    else {
+    else {  // in the other 50% of the cases, do a sparse change
      LOG1( "(s) - " );
      Subset nms( GenerateRand( m , tochange ) );
 
@@ -848,8 +848,7 @@ int main( int argc , char **argv )
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
     PANIC( PF );
      
-    // in 50% of the cases do a ranged change, in the others a sparse change
-    if( dis( rg ) <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
 
      Index strt = dis( rg ) * ( m - tochange );
@@ -868,7 +867,7 @@ int main( int argc , char **argv )
      else
       PF->modify_constants( b , Range( strt , stp ) );
      }
-    else {
+    else {  // in the other 50% of the cases, do a sparse change
      LOG1( "(s) - " );
      Subset nms( GenerateRand( m , tochange ) );
 
@@ -1001,8 +1000,7 @@ int main( int argc , char **argv )
    if( tochange ) {
     LOG1( "removed " << tochange << " variables" );
 
-    // in 50% of the cases do a ranged change, in the others a sparse change
-    if( dis( rg ) <= 0.5 ) {
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
 
      Index strt = dis( rg ) * ( ndvar - tochange );
@@ -1042,7 +1040,7 @@ int main( int argc , char **argv )
 
      NDOBlock->remove_dynamic_variables( *xNDOd , Range( strt , stp ) );
      }
-    else {
+    else {  // in the other 50% of the cases, do a sparse change
      LOG1( "(s) - " );
      Subset nms( GenerateRand( ndvar , tochange ) );
 
