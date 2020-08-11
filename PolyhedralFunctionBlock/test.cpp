@@ -533,9 +533,6 @@ int main( int argc , char **argv )
 
   LPBlock = new PolyhedralFunctionBlock();
 
-  // pass it the data of the PolyhedralFunction
-  LPBlock->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
-							    std::move( b ) );
   // construct the Variable
   auto xLP = new std::vector< ColVariable >( nsvar );
   PolyhedralFunction::VarVector vars( nvar );
@@ -557,6 +554,10 @@ int main( int argc , char **argv )
   // then pass them to the PolyhedralFunction
   LPBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
 
+  // pass all the data of the PolyhedralFunction
+  LPBlock->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
+							    std::move( b ) ,
+							    LB );
   // generate the abstract representation
   SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
   LPBlock->generate_abstract_variables( &cfg );
@@ -610,7 +611,7 @@ int main( int argc , char **argv )
  // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver
 
  LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
- LPBlock->register_Solver( Solver::new_Solver( "UpdateSolver" ) );
+ LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
@@ -1137,7 +1138,9 @@ int main( int argc , char **argv )
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ NDOBlock->set_SolverConfig();  // reset all Solver attached to NDOBlock
  delete NDOBlock;
+ LPBlock->set_SolverConfig();   // reset all Solver attached to LPBlock
  delete LPBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

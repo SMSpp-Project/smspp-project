@@ -1148,7 +1148,9 @@ int main( int argc , char **argv )
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ NDOBlock->set_SolverConfig();  // reset all Solver attached to NDOBlock
  delete NDOBlock;
+ LPBlock->set_SolverConfig();   // reset all Solver attached to LPBlock
  delete LPBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
