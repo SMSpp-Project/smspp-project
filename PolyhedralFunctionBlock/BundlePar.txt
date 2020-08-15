@@ -30,7 +30,7 @@ ComputeConfig # exact type of the ComputeConfig object
 20 # number of integer parameters
 
 # now all the integer parameters
-intMaxIter 1000000   # MaxIter, max number of iterations for each call
+intMaxIter 100000   # MaxIter, max number of iterations for each call
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
 intBPar1   20     # discard items when they have been useless for <this> iterations

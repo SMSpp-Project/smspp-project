@@ -261,14 +261,20 @@ static Subset GenerateRand( Index m , Index k )
 
 /*--------------------------------------------------------------------------*/
 
-static void printAb( const MultiVector & tA , const RealVector & tb )
+static void printAb( const MultiVector & tA , const RealVector & tb ,
+		     double lb )
 {
  PANIC( ( tA.size() == tb.size() ) || ( tA.size() + 1 == tb.size() ) );
  PANIC( tA.size() == m );
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
 
- cout << "n = " << nvar << ", m = " << m << endl;
+ cout << "n = " << nvar << ", m = " << m;
+ if( lb > - INF )
+  cout << ", LB = " << lb << endl;
+ else
+  cout << ", LB = - INF" << endl;
+
  for( Index i = 0 ; i < m ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
@@ -437,9 +443,9 @@ int main( int argc , char **argv )
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- long int seed = 1;
- Index wchg = 127;
- double dens = 4;  
+ long int seed = 0;
+ Index wchg = 159;
+ double dens = 3;
  double p_change = 0.5;
  Index n_change = 10;
  Index n_repeat = 40;
@@ -454,13 +460,9 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-  #if DYNAMIC_VARS > 0
 	   " seed [wchg nvar dens #rounds #chng %chng]"
-  #else
-	   " seed [wchg nvar dens #rounds rchng]"
-  #endif
  		<< endl <<
-           "       wchg: what to change, coded bit-wise "
+           "       wchg: what to change, coded bit-wise [159]"
 		<< endl <<
            "             0 = add rows, 1 = delete rows "
 		<< endl <<
@@ -472,17 +474,17 @@ int main( int argc , char **argv )
            "             5 = add variables rows, 6 = delete variables"
   #endif
 		<< endl <<
-           "             7 (+128) = do ""abstract"" changes"
+           "             7 (+128) = do \"abstract\" changes"
 	        << endl <<
            "       nvar: number of variables [10]"
 	        << endl <<
-           "       dens: rows / variables [4]"
+           "       dens: rows / variables [3]"
 	        << endl <<
-           "       #rounds: how many iterations [80]"
+           "       #rounds: how many iterations [40]"
 	        << endl <<
-           "       #chng: number changes [10]"
+           "       #chng: number of changes [10]"
 	        << endl <<
-           "       %chng: probability of changing [50%]"
+           "       %chng: probability of changing [0.5]"
 	        << endl;
 	   return( 1 );
   }
@@ -516,11 +518,7 @@ int main( int argc , char **argv )
  cout << setprecision( 10 );
 
  #if( LOG_LEVEL >= 4 )
-  printAb( A , b );
-  if( LB > - INF )
-   cout << "LB = " << LB << endl;
-  else
-   cout << "LB = - INF" << endl;
+  printAb( A , b , LB );
  #endif
 
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
@@ -595,9 +593,8 @@ int main( int argc , char **argv )
   // then pass them to the PolyhedralFunction
   NDOBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
 
-  // if no globally valid lower bound, set a "conditional" one
-  if( LB <= - INF )
-   NDOBlock->set_valid_lower_bound( lb , true );
+  // set the worst-case "conditional" lower bound
+  NDOBlock->set_valid_lower_bound( lb , true );
 
   // generate the abstract representation
   SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
@@ -944,7 +941,7 @@ int main( int argc , char **argv )
   // modify bound - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
-   LOG1( "modified bound - " );
+   LOG1( "modified bound" );
 
    GenerateLB();
 
@@ -1114,12 +1111,12 @@ int main( int argc , char **argv )
 		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
 		                  std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
-    auto PF = & NDOBlock->get_PolyhedralFunction();
-    printAb( PF->get_A() , PF->get_b() );
-    if( PF->get_global_lower_bound() > - INF )
-     cout << "LB = " << PF->get_global_lower_bound() << endl;
-    else
-     cout << "LB = - INF" << endl;
+    cout << endl << "LPBlock-PF: ";
+    auto PF = & LPBlock->get_PolyhedralFunction();
+    printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
+    cout << "NDOBlock-PF: ";
+    PF = & NDOBlock->get_PolyhedralFunction();
+    printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
    #endif
   #endif
 

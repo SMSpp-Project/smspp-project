@@ -327,14 +327,20 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci )
 
 /*--------------------------------------------------------------------------*/
 
-static void printAb( const MultiVector & tA , const RealVector & tb )
+static void printAb( const MultiVector & tA , const RealVector & tb ,
+		     double lb )
 {
- PANIC( tA.size() == tb.size() );
+ PANIC( ( tA.size() == tb.size() ) || ( tA.size() + 1 == tb.size() ) );
  PANIC( tA.size() == m );
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
 
- cout << "n = " << nvar << ", m = " << m << endl;
+ cout << "n = " << nvar << ", m = " << m;
+ if( lb > - INF )
+  cout << ", LB = " << lb << endl;
+ else
+  cout << ", LB = - INF" << endl;
+
  for( Index i = 0 ; i < m ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
@@ -519,11 +525,7 @@ int main( int argc , char **argv )
  cout << setprecision( 10 );
 
  #if( LOG_LEVEL >= 4 )
-  printAb( A , b );
-  if( LB > - INF )
-   cout << "LB = " << LB << endl;
-  else
-   cout << "LB = - INF" << endl;
+  printAb( A , b , LB );
  #endif
 
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
@@ -1119,11 +1121,7 @@ int main( int argc , char **argv )
     auto PF = dynamic_cast< PolyhedralFunction * >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
     PANIC( PF );
-    printAb( PF->get_A() , PF->get_b() );
-    if( PF->get_global_lower_bound() > - INF )
-     cout << "LB = " << PF->get_global_lower_bound() << endl;
-    else
-     cout << "LB = - INF" << endl;
+    printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
    #endif
   #endif
 
