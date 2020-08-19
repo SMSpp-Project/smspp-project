@@ -454,7 +454,7 @@ int main( int argc , char **argv )
 
  assert( SKIP_BEAT >= 0 );
 
- long int seed = 1;
+ long int seed = 0;
  Index wchg = 127;
  double dens = 4;  
  double p_change = 0.5;
@@ -473,7 +473,7 @@ int main( int argc , char **argv )
   default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise "
+           "       wchg: what to change, coded bit-wise [127]"
 		<< endl <<
            "             0 = add rows, 1 = delete rows "
 		<< endl <<
@@ -487,11 +487,11 @@ int main( int argc , char **argv )
 	        << endl <<
            "       dens: rows / variables [4]"
 	        << endl <<
-           "       #rounds: how many iterations [80]"
+           "       #rounds: how many iterations [40]"
 	        << endl <<
            "       #chng: number changes [10]"
 	        << endl <<
-           "       %chng: probability of changing [50%]"
+           "       %chng: probability of changing [0.5]"
 	        << endl;
 	   return( 1 );
   }

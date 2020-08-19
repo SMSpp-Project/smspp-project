@@ -27,7 +27,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 4
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -51,6 +51,19 @@
 #define DETACH_LP 0
 // if nonzero, the Solver attched to the LPBlock is detached and re-attached
 // to it at all iterations
+
+/*--------------------------------------------------------------------------*/
+
+#define SKIP_BEAT 0
+// if nonzero, the two Block are not solved at every round of changes, but
+// only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
+// therefore puts more pressure on the Modification handling of the Solver
+// (in case this tries to do "smart" things rather than dumbly processing
+// each one in turn)
+//
+// note that the number of rounds of changes is them multiplied by
+// SKIP_BEAT + 1, so that the input parameter still dictates the number of
+// Block solutions
 
 /*--------------------------------------------------------------------------*/
 
@@ -118,22 +131,24 @@ using c_FunctionValue = Function::c_FunctionValue;
 using MultiVector = PolyhedralFunction::MultiVector;
 using RealVector = PolyhedralFunction::RealVector;
 
+using p_PFB = PolyhedralFunctionBlock *;
+
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
 const double scale = 10;
-const char *const logF = "log.bn";
+const char * const logF = "log.bn";
 
-const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
+c_FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- GLOBALS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-PolyhedralFunctionBlock * LPBlock;   // the "linearized" representaion
+AbstractBlock * LPBlock;   // the "linearized" representaion
 
-PolyhedralFunctionBlock * NDOBlock;  // the "natural" representation
+AbstractBlock * NDOBlock;  // the "natural" representation
 
 double lb = - 1000;        // a tentative LB to detect unbounded instances
 
@@ -146,8 +161,6 @@ Index nvar = 10;           // number of variables
 #else
  #define nsvar nvar        // all variables are static
 #endif
-
-Index m;                   // number of rows
 
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
@@ -166,18 +179,17 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
-static inline void Str2Sthg( const char* const str , T &sthg )
+template< class T >
+static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
 
-static inline double rndfctr( void )
+static double rndfctr( void )
 {
- // return a random number between 0.5 and 2, with 50% probability of being
- // < 1
+ // a random number between 0.5 and 2, with 50% probability of being < 1
  double fctr = dis( rg ) - 0.5;
  return( fctr < 0 ? - fctr : fctr * 4 );
  }
@@ -264,18 +276,17 @@ static Subset GenerateRand( Index m , Index k )
 static void printAb( const MultiVector & tA , const RealVector & tb ,
 		     double lb )
 {
- PANIC( ( tA.size() == tb.size() ) || ( tA.size() + 1 == tb.size() ) );
- PANIC( tA.size() == m );
+ PANIC( tA.size() == tb.size() )
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
 
- cout << "n = " << nvar << ", m = " << m;
+ cout << "n = " << nvar << ", m = " << tA.size();
  if( lb > - INF )
   cout << ", LB = " << lb << endl;
  else
   cout << ", LB = - INF" << endl;
 
- for( Index i = 0 ; i < m ; ++i ) {
+ for( Index i = 0 ; i < tA.size() ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
    cout << tA[ i ][ j ] << " ";
@@ -285,8 +296,7 @@ static void printAb( const MultiVector & tA , const RealVector & tb ,
 
 /*--------------------------------------------------------------------------*/
 
-static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
-				   bool setblock = true )
+static void ConstructLPConstraint( Index i , FRowConstraint & ci )
 {
  // construct constraint ci out of A[ i ] and b[ i ]:
  // the constraint is b[ i ] <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= INF
@@ -316,8 +326,6 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
  #endif
 
  ci.set_function( new LinearFunction( std::move( vars ) ) );
- if( setblock )
-  ci.set_Block( LPBlock );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -345,11 +353,8 @@ static bool SolveBoth( void )
   // solve the LPBlock- - - - - - - - - - - - - - - - - - - - - - - - - - - -
   Solver * slvrLP = (LPBlock->get_registered_solvers()).front();
   #if DETACH_LP
-   Solver * slvrU = (LPBlock->get_registered_solvers()).back();
-   LPBlock->unregister_Solver( slvrU );
    LPBlock->unregister_Solver( slvrLP );
-   LPBlock->register_Solver( slvrLP );
-   LPBlock->register_Solver( slvrU );
+   LPBlock->register_Solver( slvrLP , true );  // push it to the front
   #endif
   int rtrnLP = slvrLP->compute( false );
 
@@ -443,24 +448,28 @@ int main( int argc , char **argv )
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ assert( SKIP_BEAT >= 0 );
+
  long int seed = 0;
  Index wchg = 159;
  double dens = 3;
- double p_change = 0.5;
- Index n_change = 10;
+ int nf = 0;
  Index n_repeat = 40;
+ Index n_change = 10;
+ double p_change = 0.5;
 
  switch( argc ) {
-  case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
-  case( 7 ): Str2Sthg( argv[ 6 ] , n_change );
-  case( 6 ): Str2Sthg( argv[ 5 ] , n_repeat );
+  case( 9 ): Str2Sthg( argv[ 8 ] , p_change );
+  case( 8 ): Str2Sthg( argv[ 7 ] , n_change );
+  case( 7 ): Str2Sthg( argv[ 6 ] , n_repeat );
+  case( 6 ): Str2Sthg( argv[ 5 ] , nf );
   case( 5 ): Str2Sthg( argv[ 4 ] , dens );
   case( 4 ): Str2Sthg( argv[ 3 ] , nvar );
   case( 3 ): Str2Sthg( argv[ 2 ] , wchg );
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-	   " seed [wchg nvar dens #rounds #chng %chng]"
+	   " seed [wchg nvar dens #nf #rounds #chng %chng]"
  		<< endl <<
            "       wchg: what to change, coded bit-wise [159]"
 		<< endl <<
@@ -479,6 +488,8 @@ int main( int argc , char **argv )
            "       nvar: number of variables [10]"
 	        << endl <<
            "       dens: rows / variables [3]"
+	        << endl <<
+           "       #nf: number of PolyhedralFunction in the sub-Block [0]"
 	        << endl <<
            "       #rounds: how many iterations [40]"
 	        << endl <<
@@ -499,7 +510,7 @@ int main( int argc , char **argv )
   ndvar = nvar - nsvar;  // the other half are static
  #endif
 
- m = nvar * dens;
+ Index m = nvar * dens;  // number of rows
  if( m < 1 ) {
   cout << "error: dens too small";
   exit( 1 );
@@ -509,17 +520,9 @@ int main( int argc , char **argv )
 
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // construct the matrix m x nvar matrix A and the m-vector b
- 
- GenerateAb( m , nvar );
- GenerateLB();
 
  cout.setf( ios::scientific, ios::floatfield );
  cout << setprecision( 10 );
-
- #if( LOG_LEVEL >= 4 )
-  printAb( A , b , LB );
- #endif
 
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -529,7 +532,15 @@ int main( int argc , char **argv )
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
 
-  LPBlock = new PolyhedralFunctionBlock();
+  if( nf ) {
+   LPBlock = new AbstractBlock();
+   auto & ib = LPBlock->access_nested_Blocks();
+   ib.resize( std::abs( nf ) );
+   for( auto & ibi : ib )
+    ibi = new PolyhedralFunctionBlock( LPBlock );
+   }
+  else
+   LPBlock = new PolyhedralFunctionBlock();
 
   // construct the Variable
   auto xLP = new std::vector< ColVariable >( nsvar );
@@ -549,16 +560,56 @@ int main( int argc , char **argv )
    LPBlock->add_dynamic_variable( *xLPd );
   #endif
 
-  // then pass them to the PolyhedralFunction
-  LPBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
+  if( nf ) {
+   auto & ib = LPBlock->access_nested_Blocks();
+   for( Index i = 0 ; i < ib.size() ; ++i ) {
+    auto & pf =
+     static_cast< p_PFB >( ib[ i ] )->get_PolyhedralFunction();
+    // pass the Variable to the PolyhedralFunction (copy the vector)
+    pf.set_variables( PolyhedralFunction::VarVector( vars ) );
 
-  // pass all the data of the PolyhedralFunction
-  LPBlock->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
-							    std::move( b ) ,
-							    LB );
-  // generate the abstract representation
-  SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
-  LPBlock->generate_abstract_variables( &cfg );
+    // construct the m x nvar matrix A, the m-vector b, and the bound
+    GenerateAb( m , nvar );
+    GenerateLB();
+
+    #if( LOG_LEVEL >= 4 )
+     cout << "PF[ " << i << " ] = " << endl;
+     printAb( A , b , LB );
+    #endif
+
+    // pass all the data of the PolyhedralFunction
+    pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) , LB );
+
+    // configure it to use the "linearised" representation
+    auto bc = new BlockConfig();
+    bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
+    ib[ i ]->set_BlockConfig( bc );
+    }
+
+   LPBlock->generate_abstract_variables();
+   }
+  else {
+   auto & pf = static_cast< p_PFB >( LPBlock )->get_PolyhedralFunction();
+
+   // pass the Variable to the PolyhedralFunction (move the vector)
+   pf.set_variables( std::move( vars ) );
+
+   // construct the m x nvar matrix A, the m-vector b, and the bound
+   GenerateAb( m , nvar );
+   GenerateLB();
+
+   #if( LOG_LEVEL >= 4 )
+    printAb( A , b , LB );
+   #endif
+
+   // pass all the data of the PolyhedralFunction
+   pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) , LB );
+
+   // generate the abstract representation
+   SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
+   LPBlock->generate_abstract_variables( &cfg );
+   }
+   
   LPBlock->generate_abstract_constraints();
   LPBlock->generate_objective();
   }
@@ -568,8 +619,12 @@ int main( int argc , char **argv )
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
 
-  NDOBlock = dynamic_cast< PolyhedralFunctionBlock * >(
-						  LPBlock->get_R3_Block() );
+  if( nf )
+   NDOBlock = dynamic_cast< AbstractBlock * >(
+		    LPBlock->get_R3_Block( nullptr , new AbstractBlock() ) );
+  else
+   NDOBlock = dynamic_cast< AbstractBlock * >( LPBlock->get_R3_Block() );
+
   assert( NDOBlock );  // excess of caution (we know it is)
 
   // construct the Variable
@@ -590,9 +645,16 @@ int main( int argc , char **argv )
    NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
 
-  // then pass them to the PolyhedralFunction
-  NDOBlock->get_PolyhedralFunction().set_variables( std::move( vars ) );
-
+  if( nf ) {
+   auto &  ib = NDOBlock->access_nested_Blocks();
+   for( auto ibi : ib )
+    // pass the Variable to the PolyhedralFunction (copy the vector)
+    static_cast< p_PFB >( ibi )->get_PolyhedralFunction().set_variables(
+				    PolyhedralFunction::VarVector( vars ) );
+   }
+  else  // pass the Variable to the PolyhedralFunction (move the vector)
+   static_cast< p_PFB >( NDOBlock )->get_PolyhedralFunction().set_variables(
+							   std::move( vars ) );
   // set the worst-case "conditional" lower bound
   NDOBlock->set_valid_lower_bound( lb , true );
 
@@ -605,10 +667,19 @@ int main( int argc , char **argv )
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver
+ // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
+ // each PolyhedralFunctionBlock in LPBlock)
 
  LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
- LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
+
+ if( nf ) {
+  auto & ibLP = LPBlock->access_nested_Blocks();
+  auto & ibNDO = NDOBlock->access_nested_Blocks();
+  for( int i = 0 ; i < ibLP.size() ; ++i )
+   ibLP[ i ]->register_Solver( new UpdateSolver( ibNDO[ i ] ) );
+  }
+ else
+  LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
@@ -666,10 +737,26 @@ int main( int argc , char **argv )
  // IMPORTANT NOTE: only LPBlock is changed, because UpdateSolver takes
  //                 care of intercepting all (physical) Modification and
  //                 map_forward them to NDOBlock
+ //
+ // if there are multiple PolyhedralFunctionBlock inside LPBlock and
+ // NDOBlock, at each iteration only one of them is changed; however, by
+ // playing with SKIP_BEAT one can solve the Block after having changed an
+ // arbitrary number of them
 
- for( Index rep = 0 ; rep < n_repeat ; ++rep ) {
+ for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
 
-  LOG1( rep << ": ");
+  p_PFB LPBr;
+  if( nf ) {
+   LPBr = static_cast< p_PFB >( LPBlock->get_nested_Blocks()[
+						    rep % std::abs( nf ) ] );
+   LOG1( rep << " [" << rep % std::abs( nf ) << "]: ");
+   }
+  else {
+   LPBr = static_cast< p_PFB >( LPBlock );
+   LOG1( rep << ": ");
+   }
+
+  m = LPBr->get_PolyhedralFunction().get_nrows();
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -680,7 +767,7 @@ int main( int argc , char **argv )
 
     GenerateAb( tochange , nvar );
 
-    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+    auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
     if( ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
      // in 50% of the cases do an "abstract" change
@@ -697,13 +784,13 @@ int main( int argc , char **argv )
      for( Index i = 0 ; i < tochange ; )
       ConstructLPConstraint( i++ , *(ncit++) );
 
-     LPBlock->add_dynamic_constraints( *cnst , nc );
+     LPBr->add_dynamic_constraints( *cnst , nc );
      }
     else  // directly change the PolyhedralFunction in LPBlock
      if( tochange == 1 )
-      LPBlock->get_PolyhedralFunction().add_row( std::move( A[ 0 ] ) , b[ 0 ] );
+      LPBr->get_PolyhedralFunction().add_row( std::move( A[ 0 ] ) , b[ 0 ] );
      else
-      LPBlock->get_PolyhedralFunction().add_rows( std::move( A ) , b );
+      LPBr->get_PolyhedralFunction().add_rows( std::move( A ) , b );
 
     LOG1( " - " );
 
@@ -711,8 +798,7 @@ int main( int argc , char **argv )
     m += tochange;
 
     // sanity checks
-    PANIC( m == LPBlock->get_PolyhedralFunction().get_A().size() );
-    PANIC( m == NDOBlock->get_PolyhedralFunction().get_A().size() );
+    PANIC( m == LPBr->get_PolyhedralFunction().get_nrows() );
     PANIC( m == cnst->size() );
     }
    }
@@ -724,7 +810,7 @@ int main( int argc , char **argv )
    if( tochange ) {
     LOG1( "deleted " << tochange << " rows" );
 
-    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+    auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
     if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
     
@@ -735,17 +821,17 @@ int main( int argc , char **argv )
       // in 50% of the cases do an "abstract" change
       LOG1( "(r,a) - " );
       if( tochange == 1 )
-       LPBlock->remove_dynamic_constraint( *cnst , std::next( cnst->begin() ,
-							      strt ) );
+       LPBr->remove_dynamic_constraint( *cnst , std::next( cnst->begin() ,
+							   strt ) );
       else
-       LPBlock->remove_dynamic_constraints( *cnst , Range( strt , stp ) );
+       LPBr->remove_dynamic_constraints( *cnst , Range( strt , stp ) );
       }
      else {  // directly change the PolyhedralFunction
       LOG1( "(r) - " );
       if( tochange == 1 )
-       LPBlock->get_PolyhedralFunction().delete_row( strt );
+       LPBr->get_PolyhedralFunction().delete_row( strt );
       else
-       LPBlock->get_PolyhedralFunction().delete_rows( Range( strt , stp ) );
+       LPBr->get_PolyhedralFunction().delete_rows( Range( strt , stp ) );
       }
      }
     else {  // in the other 50% of the cases, do a sparse change
@@ -756,17 +842,17 @@ int main( int argc , char **argv )
       // in 50% of the cases do an "abstract" change
       LOG1( "(s,a) - " );
       if( tochange == 1 )
-       LPBlock->remove_dynamic_constraint( *cnst , std::next( cnst->begin() ,
-							      nms[ 0 ] ) );
+       LPBr->remove_dynamic_constraint( *cnst , std::next( cnst->begin() ,
+							   nms[ 0 ] ) );
       else
-       LPBlock->remove_dynamic_constraints( *cnst , std::move( nms ) , true );
+       LPBr->remove_dynamic_constraints( *cnst , std::move( nms ) , true );
       }
      else {  // directly change the PolyhedralFunction
       LOG1( "(s) - " );
       if( tochange == 1 )
-       LPBlock->get_PolyhedralFunction().delete_row( nms[ 0 ] );
+       LPBr->get_PolyhedralFunction().delete_row( nms[ 0 ] );
       else
-       LPBlock->get_PolyhedralFunction().delete_rows( std::move( nms ) );
+       LPBr->get_PolyhedralFunction().delete_rows( std::move( nms ) );
       }
      }
 
@@ -774,8 +860,7 @@ int main( int argc , char **argv )
     m -= tochange;
 
     // sanity checks
-    PANIC( m == LPBlock->get_PolyhedralFunction().get_A().size() );
-    PANIC( m == NDOBlock->get_PolyhedralFunction().get_A().size() );
+    PANIC( m == LPBr->get_PolyhedralFunction().get_nrows() );
     PANIC( m == cnst->size() );
     }
    }
@@ -803,26 +888,27 @@ int main( int argc , char **argv )
       #if DYNAMIC_VARS > 0
        xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
       #endif
-      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+      auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBlock->open_channel();
+      Observer::ChnlName chnl = LPBr->open_channel();
 
       auto cit = std::next( cnst->begin() , strt );
       for( Index i = 0 ; i < tochange ; ++i )
        ChangeLPConstraint( i , *(cit++) ,
 			   Observer::make_par( eModBlck , chnl ) );
 
-      LPBlock->close_channel( chnl );
+      LPBr->close_channel( chnl );
       }
      else {  // directly change the PolyhedralFunction
       LOG1( "(r) - " );
       if( tochange == 1 )
-       LPBlock->get_PolyhedralFunction().modify_row( strt ,
-						     std::move( A[ 0 ] ) ,						             b[ 0 ] );
+       LPBr->get_PolyhedralFunction().modify_row( strt ,
+						  std::move( A[ 0 ] ) ,
+						  b[ 0 ] );
       else
-       LPBlock->get_PolyhedralFunction().modify_rows( std::move( A ) , b ,
-						      Range( strt , stp ) );
+       LPBr->get_PolyhedralFunction().modify_rows( std::move( A ) , b ,
+						   Range( strt , stp ) );
       }
      }
     else {  // in the other 50% of the cases, do a sparse change
@@ -837,10 +923,10 @@ int main( int argc , char **argv )
       #if DYNAMIC_VARS > 0
        xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
       #endif
-      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+      auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBlock->open_channel();
+      Observer::ChnlName chnl = LPBr->open_channel();
 
       Index prev = 0;
       auto cit = cnst->begin();
@@ -850,17 +936,17 @@ int main( int argc , char **argv )
        ChangeLPConstraint( i , *cit , Observer::make_par( eModBlck , chnl ) );
        }
 
-      LPBlock->close_channel( chnl );
+      LPBr->close_channel( chnl );
       }
      else {  // directly change the PolyhedralFunction
       LOG1( "(s) - " );
       if( tochange == 1 )
-       LPBlock->get_PolyhedralFunction().modify_row( nms[ 0 ] ,
-						     std::move( A[ 0 ] ) ,
-						     b[ 0 ] );
+       LPBr->get_PolyhedralFunction().modify_row( nms[ 0 ] ,
+						  std::move( A[ 0 ] ) ,
+						  b[ 0 ] );
       else
-       LPBlock->get_PolyhedralFunction().modify_rows( std::move( A ) , b ,
-						      Subset( nms ) , true );
+       LPBr->get_PolyhedralFunction().modify_rows( std::move( A ) , b ,
+						   Subset( nms ) , true );
       }
      }
     }
@@ -883,25 +969,24 @@ int main( int argc , char **argv )
       // in 50% of the cases do an "abstract" change
       LOG1( "(r,a) - " );
 
-      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+      auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBlock->open_channel();
+      Observer::ChnlName chnl = LPBr->open_channel();
 
       auto cit = std::next( cnst->begin() , strt );
       for( Index i = 0 ; i < tochange ; )
        (*(cit++)).set_lhs( b[ i++ ] , Observer::make_par( eModBlck , chnl ) );
 
-      LPBlock->close_channel( chnl );
+      LPBr->close_channel( chnl );
       }
      else {  // directly change the PolyhedralFunction
       LOG1( "(r) - " );
       if( tochange == 1 )
-       LPBlock->get_PolyhedralFunction().modify_constant( strt , b[ 0 ] );
+       LPBr->get_PolyhedralFunction().modify_constant( strt , b[ 0 ] );
       else
-       LPBlock->get_PolyhedralFunction().modify_constants( b ,
-							   Range( strt ,
-								  stp ) );
+       LPBr->get_PolyhedralFunction().modify_constants( b ,
+							Range( strt , stp ) );
       }
      }
     else {  // in the other 50% of the cases, do a sparse change
@@ -911,10 +996,10 @@ int main( int argc , char **argv )
       // in 50% of the cases do an "abstract" change
       LOG1( "(s,a) - " );
 
-      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+      auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBlock->open_channel();
+      Observer::ChnlName chnl = LPBr->open_channel();
 
       Index prev = 0;
       auto cit = cnst->begin();
@@ -924,15 +1009,15 @@ int main( int argc , char **argv )
        (*cit).set_lhs( b[ i++ ] , Observer::make_par( eModBlck , chnl ) );
        }
 
-      LPBlock->close_channel( chnl );
+      LPBr->close_channel( chnl );
       }
      else {  // directly change the PolyhedralFunction
       LOG1( "(s) - " );
       if( tochange == 1 )
-       LPBlock->get_PolyhedralFunction().modify_constant( nms[ 0 ] , b[ 0 ] );
+       LPBr->get_PolyhedralFunction().modify_constant( nms[ 0 ] , b[ 0 ] );
       else
-       LPBlock->get_PolyhedralFunction().modify_constants( b , Subset( nms ) ,
-							   true );
+       LPBr->get_PolyhedralFunction().modify_constants( b , Subset( nms ) ,
+							true );
       }
      }
     }
@@ -949,10 +1034,10 @@ int main( int argc , char **argv )
     // in 50% of the cases do an "abstract" change
     LOG1( "(a)" );
 
-    LPBlock->get_static_constraint< BoxConstraint >( 0 )->set_lhs( LB );
+    LPBr->get_static_constraint< BoxConstraint >( 0 )->set_lhs( LB );
     }
    else  // directly change the PolyhedralFunction
-    LPBlock->get_PolyhedralFunction().modify_bound( LB );
+    LPBr->get_PolyhedralFunction().modify_bound( LB );
 
    LOG1( " - " );
 
@@ -970,6 +1055,8 @@ int main( int argc , char **argv )
    Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
     LOG1( "added " << tochange << " variables - " );
+
+    throw( std::logic_error( "adding variables not implemented yet" ) );
 
     GenerateA( m , tochange );
 
@@ -1008,6 +1095,7 @@ int main( int argc , char **argv )
     // update ndvar
     ndvar += tochange;
 
+    /*!!
     // sanity checks
     PANIC( ndvar == PF->get_num_active_var() );
     for( auto & ai : *PF->get_A() )
@@ -1019,6 +1107,7 @@ int main( int argc , char **argv )
     for( auto & ci :
 	          *(LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )) )
      PANIC( ndvar == ci.get_num_active_var() );
+     !!*/
     }
    }
 
@@ -1028,6 +1117,8 @@ int main( int argc , char **argv )
    Index tochange = min( ndvar , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "removed " << tochange << " variables" );
+
+    throw( std::logic_error( "removing variables not implemented yet" ) );
 
     // in 50% of the cases do a ranged change, in the others a sparse change
     if( dis( rg ) <= 0.5 ) {
@@ -1088,6 +1179,7 @@ int main( int argc , char **argv )
     // update ndvar
     ndvar -= tochange;
 
+    /*!!
     // sanity checks
     PANIC( ndvar == PF->get_num_active_var() );
     for( auto & ai : *PF->get_A() )
@@ -1099,6 +1191,7 @@ int main( int argc , char **argv )
     for( auto & ci :
 	          *(LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )) )
      PANIC( ndvar == ci.get_num_active_var() );
+     !!*/
     }
    }
 
@@ -1112,17 +1205,29 @@ int main( int argc , char **argv )
 		                  std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
     cout << endl << "LPBlock-PF: ";
-    auto PF = & LPBlock->get_PolyhedralFunction();
+    auto PF = & LPBr->get_PolyhedralFunction();
     printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
+    p_PFB NDOBr;
+    if( nf )
+     NDOBr = static_cast< p_PFB >( NDOBlock->get_nested_Blocks()[
+						    rep % std::abs( nf ) ] );
+    else
+     NDOBr = static_cast< p_PFB >( NDOBlock );
     cout << "NDOBlock-PF: ";
-    PF = & NDOBlock->get_PolyhedralFunction();
+    PF = & NDOBr->get_PolyhedralFunction();
     printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
    #endif
   #endif
 
   // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
+  // ... every SKIP_BEAT + 1 rounds
 
-  AllPassed &= SolveBoth();
+  if( ! ( ++rep % ( SKIP_BEAT + 1 ) ) )
+   AllPassed &= SolveBoth();
+  #if( LOG_LEVEL >= 1 )
+  else
+   cout << endl;
+  #endif
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
