@@ -27,7 +27,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 4
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -37,6 +37,11 @@
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
  #define CLOG1( y , x ) if( y ) cout << x
+
+ #if( LOG_LEVEL >= 2 )
+  #define LOG_ON_COUT 0
+  // if nonzero, the BundleSolver log is sent on cout rather than on a file
+ #endif
 #else
  #define LOG1( x )
  #define CLOG1( y , x )
@@ -154,6 +159,7 @@ double lb = - 1000;        // a tentative LB to detect unbounded instances
 
 FunctionValue LB;          // the "true" LB in the PolyhedralFunction (if any)
 
+int nf = 0;                // number of sub-Block
 Index nvar = 10;           // number of variables
 #if DYNAMIC_VARS > 0
  Index nsvar;              // number of static variables
@@ -347,6 +353,43 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 
 /*--------------------------------------------------------------------------*/
 
+static double ComputeGlobalBound( void )
+{
+ // this is only called if nf != 0
+
+ double glb = 0;
+ for( auto bi : LPBlock->get_nested_Blocks() ) {
+  auto PBi = static_cast< p_PFB >( bi );
+  auto lbi = PBi->get_PolyhedralFunction().get_global_lower_bound();
+  if( lbi <= - INF )
+   return( - INF );
+  glb += lbi;
+  }
+
+ return( glb );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void SetGlobalBound( void )
+{
+ auto bound = lb;   // the worst-case lower bound
+ auto cond = true;  // is conditional
+
+ if( nf ) {
+   // if nf != 0, try to set a global bound by summing the global bounds on
+   // all the components; this is not necessary if nf == 0 since
+   // PolyhedralFunctionBlock does that automatically (for just one PF)
+   bound = std::max( ComputeGlobalBound() , lb );
+   cond = ( bound == lb );
+   }
+
+ // set the lower bound, be it "conditional"  or not
+ NDOBlock->set_valid_lower_bound( bound , cond );
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static bool SolveBoth( void ) 
 {
  try {
@@ -453,7 +496,6 @@ int main( int argc , char **argv )
  long int seed = 0;
  Index wchg = 159;
  double dens = 3;
- int nf = 0;
  Index n_repeat = 40;
  Index n_change = 10;
  double p_change = 0.5;
@@ -515,6 +557,9 @@ int main( int argc , char **argv )
   cout << "error: dens too small";
   exit( 1 );
   }
+
+ // adjust lb depending on the number of components
+ lb *= std::max( 1 , std::abs( nf ) );
 
  rg.seed( seed );  // seed the pseudo-random number generator
 
@@ -655,8 +700,7 @@ int main( int argc , char **argv )
   else  // pass the Variable to the PolyhedralFunction (move the vector)
    static_cast< p_PFB >( NDOBlock )->get_PolyhedralFunction().set_variables(
 							   std::move( vars ) );
-  // set the worst-case "conditional" lower bound
-  NDOBlock->set_valid_lower_bound( lb , true );
+  SetGlobalBound();
 
   // generate the abstract representation
   SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
@@ -702,14 +746,18 @@ int main( int argc , char **argv )
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  #if( LOG_LEVEL >= 2 )
-  ofstream LOGFile( logF , ofstream::out );
-  if( ! LOGFile.is_open() )
-   cerr << "Warning: cannot open log file """ << logF << """" << endl;
-  else {
-   LOGFile.setf( ios::scientific, ios::floatfield );
-   LOGFile << setprecision( 10 );
-   ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
-   }
+  #if( LOG_ON_COUT )
+   ((NDOBlock->get_registered_solvers()).front())->set_log( &cout );
+  #else
+   ofstream LOGFile( logF , ofstream::out );
+   if( ! LOGFile.is_open() )
+    cerr << "Warning: cannot open log file """ << logF << """" << endl;
+   else {
+    LOGFile.setf( ios::scientific, ios::floatfield );
+    LOGFile << setprecision( 10 );
+    ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
+    }
+  #endif
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
@@ -1039,13 +1087,9 @@ int main( int argc , char **argv )
    else  // directly change the PolyhedralFunction
     LPBr->get_PolyhedralFunction().modify_bound( LB );
 
-   LOG1( " - " );
+   SetGlobalBound();
 
-   /*!!??
-   // if no globally valid lower bound, set a "conditional" one
-   if( LB <= - INF )
-    NDOBlock->set_valid_lower_bound( lb , true );
-   */
+   LOG1( " - " );
    }
 
  // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
