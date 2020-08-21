@@ -1,6 +1,7 @@
 #/bin/bash
 
 what=31
+#iter=0
 
 for size in 2 10 50 100
 do
@@ -9,8 +10,8 @@ do
 for (( seed=0 ; seed<20 ; seed++ ))
 do
 
-printf "$size-$dens-$seed: "
-./PolyhedralFunction_test $seed $what $size $dens
+printf "$seed-$what-$size-$dens: "
+./PolyhedralFunction_test $seed $what $size $dens $iter
 
 done
 done

@@ -1,8 +1,8 @@
 #/bin/bash
 
-#what=159
+what=159
 #what=31
-what=3
+#what=3
 #iter=0
 nf=1
 

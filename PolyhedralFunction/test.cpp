@@ -310,7 +310,7 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
 
 /*--------------------------------------------------------------------------*/
 
-static void ChangeLPConstraint( Index i , FRowConstraint & ci )
+static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 {
  // change the constant == LHS of the constraint
  ci.set_lhs( b[ i ] );
@@ -322,7 +322,7 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci )
   coeffs[ j ] = - A[ i ][ j ];
 
  auto f = static_cast< LinearFunction * >( ci.get_function() );
- f->modify_coefficients( std::move( coeffs ) , Range( 1 , nvar + 1 ) );
+ f->modify_coefficients( std::move( coeffs ) , Range( 1 , nvar + 1 ) , iAM );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -805,9 +805,15 @@ int main( int argc , char **argv )
      #endif
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
 
+     // send all the Modification to the same channel
+     Observer::ChnlName chnl = LPBlock->open_channel();
+     const auto iAM = Observer::make_par( eModBlck , chnl );
+
      auto cit = std::next( cnst->begin() , strt );
      for( Index i = 0 ; i < tochange ; ++i )
-      ChangeLPConstraint( i , *(cit++) );
+      ChangeLPConstraint( i , *(cit++) , iAM );
+
+     LPBlock->close_channel( chnl );
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -827,13 +833,19 @@ int main( int argc , char **argv )
      #endif
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
 
+     // send all the Modification to the same channel
+     Observer::ChnlName chnl = LPBlock->open_channel();
+     const auto iAM = Observer::make_par( eModBlck , chnl );
+
      Index prev = 0;
      auto cit = cnst->begin();
      for( Index i = 0 ; i < tochange ; ++i ) {
       cit = std::next( cit , nms[ i ] - prev );
       prev = nms[ i ];
-      ChangeLPConstraint( i , *cit );
+      ChangeLPConstraint( i , *cit , iAM );
       }
+
+     LPBlock->close_channel( chnl );
 
      // modify them in the NDO
      if( tochange == 1 )

@@ -174,13 +174,6 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 MultiVector A;
 RealVector b;
 
-ColVariable * vLP;                 // pointer to v LP variable
-
-std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
-#if DYNAMIC_VARS > 0
- std::list< ColVariable > * xLPd;  // pointer to (dynamic) x LP variables
-#endif
-
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -304,34 +297,6 @@ static void printAb( const MultiVector & tA , const RealVector & tb ,
 
 static void ConstructLPConstraint( Index i , FRowConstraint & ci )
 {
- // construct constraint ci out of A[ i ] and b[ i ]:
- // the constraint is b[ i ] <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= INF
- //
- // note: constraints are constructed dense (elements == 0, which are
- //       anyway quite unlikely, are ignored) to make things simpler
- //
- // note: variable x[ i ] is given index i + 1, variable v has index 0
-
- ci.set_lhs( b[ i ] );
- ci.set_rhs( INF );
- LinearFunction::v_coeff_pair vars( nvar + 1 );
- Index j = 0;
-
- // first, v
- vars[ j ] = std::make_pair( vLP , 1 );
-
- // then, static x
- for( ; j < nsvar ; ++j )
-  vars[ j + 1 ] = std::make_pair( &((*xLP)[ j ] ) , - A[ i ][ j ] );
-
- #if DYNAMIC_VARS > 0
-  // finally, dynamic x
-  auto xLPdit = xLPd.begin();
-  for( ; j < nvar ; ++j , ++xLPdit )
-   vars[ j + 1 ] = std::make_pair( &(*xLPdit) , - A[ i ][ j ] );
- #endif
-
- ci.set_function( new LinearFunction( std::move( vars ) ) );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -822,16 +787,52 @@ int main( int argc , char **argv )
      // in 50% of the cases do an "abstract" change
      LOG1( "(a)" );
 
-     vLP = LPBlock->get_static_variable< ColVariable >( 0 );
-     xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+     ColVariable * vLP;                 // pointer to v LP variable
+     std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
+     if( nf ) {
+      vLP = LPBr->get_static_variable< ColVariable >( 0 );
+      xLP = LPBlock->get_static_variable_v< ColVariable >( 0 );
+      }
+     else {
+      vLP = LPBlock->get_static_variable< ColVariable >( 0 );
+      xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+      }
      #if DYNAMIC_VARS > 0
-      xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
      #endif
 
      std::list< FRowConstraint > nc( tochange );
      auto ncit = nc.begin();
-     for( Index i = 0 ; i < tochange ; )
-      ConstructLPConstraint( i++ , *(ncit++) );
+     for( Index i = 0 ; i < tochange ; ++i , ++ncit ) {
+      // construct constraint ci out of A[ i ] and b[ i ]:
+      // the constraint is b[ i ] <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= INF
+      //
+      // note: constraints are constructed dense (elements == 0, which are
+      //       anyway quite unlikely, are ignored) to make things simpler
+      //
+      // note: variable x[ i ] is given index i + 1, variable v has index 0
+
+      ncit->set_lhs( b[ i ] );
+      ncit->set_rhs( INF );
+      LinearFunction::v_coeff_pair vars( nvar + 1 );
+      Index j = 0;
+
+      // first, v
+      vars[ j ] = std::make_pair( vLP , 1 );
+
+      // then, static x
+      for( ; j < nsvar ; ++j )
+       vars[ j + 1 ] = std::make_pair( &((*xLP)[ j ] ) , - A[ i ][ j ] );
+
+      #if DYNAMIC_VARS > 0
+       // finally, dynamic x
+       auto xLPdit = xLPd.begin();
+       for( ; j < nvar ; ++j , ++xLPdit )
+	vars[ j + 1 ] = std::make_pair( &(*xLPdit) , - A[ i ][ j ] );
+      #endif
+
+      ncit->set_function( new LinearFunction( std::move( vars ) ) );
+      }
 
      LPBr->add_dynamic_constraints( *cnst , nc );
      }
@@ -932,20 +933,28 @@ int main( int argc , char **argv )
       LOG1( "(r,a) - " );
 
       // modify them in the LP
-      vLP = LPBlock->get_static_variable< ColVariable >( 0 );
-      xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+      ColVariable * vLP;                 // pointer to v LP variable
+      std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
+      if( nf ) {
+       vLP = LPBr->get_static_variable< ColVariable >( 0 );
+       xLP = LPBlock->get_static_variable_v< ColVariable >( 0 );
+       }
+      else {
+       vLP = LPBlock->get_static_variable< ColVariable >( 0 );
+       xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+       }
       #if DYNAMIC_VARS > 0
-       xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+       auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
       #endif
       auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
       Observer::ChnlName chnl = LPBr->open_channel();
+      const auto iAM = Observer::make_par( eModBlck , chnl );
 
       auto cit = std::next( cnst->begin() , strt );
       for( Index i = 0 ; i < tochange ; ++i )
-       ChangeLPConstraint( i , *(cit++) ,
-			   Observer::make_par( eModBlck , chnl ) );
+       ChangeLPConstraint( i++ , *(cit++) , iAM );
 
       LPBr->close_channel( chnl );
       }
@@ -967,22 +976,32 @@ int main( int argc , char **argv )
       // in 50% of the cases do an "abstract" change
       LOG1( "(s,a) - " );
 
-      vLP = LPBlock->get_static_variable< ColVariable >( 0 );
-      xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+      // modify them in the LP
+      ColVariable * vLP;                 // pointer to v LP variable
+      std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
+      if( nf ) {
+       vLP = LPBr->get_static_variable< ColVariable >( 0 );
+       xLP = LPBlock->get_static_variable_v< ColVariable >( 0 );
+       }
+      else {
+       vLP = LPBlock->get_static_variable< ColVariable >( 0 );
+       xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+       }
       #if DYNAMIC_VARS > 0
-       xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+       auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
       #endif
       auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
       Observer::ChnlName chnl = LPBr->open_channel();
+      const auto iAM = Observer::make_par( eModBlck , chnl );
 
       Index prev = 0;
       auto cit = cnst->begin();
       for( Index i = 0 ; i < tochange ; ++i ) {
        cit = std::next( cit , nms[ i ] - prev );
        prev = nms[ i ];
-       ChangeLPConstraint( i , *cit , Observer::make_par( eModBlck , chnl ) );
+       ChangeLPConstraint( i , *cit , iAM );
        }
 
       LPBr->close_channel( chnl );
@@ -995,7 +1014,7 @@ int main( int argc , char **argv )
 						  b[ 0 ] );
       else
        LPBr->get_PolyhedralFunction().modify_rows( std::move( A ) , b ,
-						   Subset( nms ) , true );
+						   std::move( nms ) , true );
       }
      }
     }
@@ -1022,10 +1041,11 @@ int main( int argc , char **argv )
 
       // send all the Modification to the same channel
       Observer::ChnlName chnl = LPBr->open_channel();
+      const auto iAM = Observer::make_par( eModBlck , chnl );
 
       auto cit = std::next( cnst->begin() , strt );
       for( Index i = 0 ; i < tochange ; )
-       (*(cit++)).set_lhs( b[ i++ ] , Observer::make_par( eModBlck , chnl ) );
+       (cit++)->set_lhs( b[ i++ ] , iAM );
 
       LPBr->close_channel( chnl );
       }
@@ -1049,13 +1069,14 @@ int main( int argc , char **argv )
 
       // send all the Modification to the same channel
       Observer::ChnlName chnl = LPBr->open_channel();
+      const auto iAM = Observer::make_par( eModBlck , chnl );
 
       Index prev = 0;
       auto cit = cnst->begin();
       for( Index i = 0 ; i < tochange ; ) {
        cit = std::next( cit , nms[ i ] - prev );
        prev = nms[ i ];
-       (*cit).set_lhs( b[ i++ ] , Observer::make_par( eModBlck , chnl ) );
+       cit->set_lhs( b[ i++ ] , iAM );
        }
 
       LPBr->close_channel( chnl );
@@ -1065,7 +1086,7 @@ int main( int argc , char **argv )
       if( tochange == 1 )
        LPBr->get_PolyhedralFunction().modify_constant( nms[ 0 ] , b[ 0 ] );
       else
-       LPBr->get_PolyhedralFunction().modify_constants( b , Subset( nms ) ,
+       LPBr->get_PolyhedralFunction().modify_constants( b , std::move( nms ) ,
 							true );
       }
      }
