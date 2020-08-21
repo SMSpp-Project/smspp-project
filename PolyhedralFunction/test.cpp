@@ -327,6 +327,16 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci )
 
 /*--------------------------------------------------------------------------*/
 
+static void SetGlobalBound( void )
+{
+ if( LB > - INF )
+  NDOBlock->set_valid_lower_bound( LB );
+ else
+  NDOBlock->set_valid_lower_bound( lb , true );
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static void printAb( const MultiVector & tA , const RealVector & tb ,
 		     double lb )
 {
@@ -390,6 +400,7 @@ static bool SolveBoth( void )
    if( slvrNDO->get_ub() <= lb * ( 1 + 1e-9 ) ) {
     LOG1( "OK(?lb?)" << endl );
     lb *= 2;
+    SetGlobalBound();
     return( true );
     }
    }
@@ -603,11 +614,7 @@ int main( int argc , char **argv )
   #endif
   NDOBlock->set_objective( objNDO );
 
-  // set lower bound, be it "hard" or "conditional"
-  if( LB > - INF )
-   NDOBlock->set_valid_lower_bound( LB );
-  else
-   NDOBlock->set_valid_lower_bound( lb , true );
+  SetGlobalBound();  // set lower bound, be it "hard" or "conditional"
   }
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
@@ -911,11 +918,7 @@ int main( int argc , char **argv )
 
    PF->modify_bound( LB );
 
-   // set lower bound, be it "hard" or "conditional"
-   if( LB > - INF )
-    NDOBlock->set_valid_lower_bound( LB );
-   else
-    NDOBlock->set_valid_lower_bound( lb , true );
+   SetGlobalBound();  // set lower bound, be it "hard" or "conditional"
    }
 
  // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
