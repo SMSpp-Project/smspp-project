@@ -545,10 +545,8 @@ int main( int argc , char **argv )
 
   if( nf ) {
    LPBlock = new AbstractBlock();
-   auto & ib = LPBlock->access_nested_Blocks();
-   ib.resize( std::abs( nf ) );
-   for( auto & ibi : ib )
-    ibi = new PolyhedralFunctionBlock( LPBlock );
+   for( Index i = 0 ; i < std::abs( nf ) ; ++i )
+    LPBlock->add_nested_Block( new PolyhedralFunctionBlock( LPBlock ) );
    }
   else
    LPBlock = new PolyhedralFunctionBlock();
@@ -572,10 +570,9 @@ int main( int argc , char **argv )
   #endif
 
   if( nf ) {
-   auto & ib = LPBlock->access_nested_Blocks();
-   for( Index i = 0 ; i < ib.size() ; ++i ) {
-    auto & pf =
-     static_cast< p_PFB >( ib[ i ] )->get_PolyhedralFunction();
+   for( Index i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i ) {
+    auto bi = static_cast< p_PFB >( LPBlock->get_nested_Block( i ) );
+    auto & pf = bi->get_PolyhedralFunction();
     // pass the Variable to the PolyhedralFunction (copy the vector)
     pf.set_variables( PolyhedralFunction::VarVector( vars ) );
 
@@ -594,7 +591,7 @@ int main( int argc , char **argv )
     // configure it to use the "linearised" representation
     auto bc = new BlockConfig();
     bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
-    ib[ i ]->set_BlockConfig( bc );
+    bi->set_BlockConfig( bc );
     }
 
    LPBlock->generate_abstract_variables();
@@ -657,10 +654,10 @@ int main( int argc , char **argv )
   #endif
 
   if( nf ) {
-   auto &  ib = NDOBlock->access_nested_Blocks();
-   for( auto ibi : ib )
+  for( Index i = 0 ; i < NDOBlock->get_number_nested_Blocks() ; ++i )
     // pass the Variable to the PolyhedralFunction (copy the vector)
-    static_cast< p_PFB >( ibi )->get_PolyhedralFunction().set_variables(
+    static_cast< p_PFB >( NDOBlock->get_nested_Block( i ) )->
+     get_PolyhedralFunction().set_variables(
 				    PolyhedralFunction::VarVector( vars ) );
    }
   else  // pass the Variable to the PolyhedralFunction (move the vector)
@@ -682,12 +679,10 @@ int main( int argc , char **argv )
 
  LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
 
- if( nf ) {
-  auto & ibLP = LPBlock->access_nested_Blocks();
-  auto & ibNDO = NDOBlock->access_nested_Blocks();
-  for( int i = 0 ; i < ibLP.size() ; ++i )
-   ibLP[ i ]->register_Solver( new UpdateSolver( ibNDO[ i ] ) );
-  }
+ if( nf )
+  for( int i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i )
+   LPBlock->get_nested_Block( i )->register_Solver(
+		       new UpdateSolver( NDOBlock->get_nested_Block( i ) ) );
  else
   LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
 
