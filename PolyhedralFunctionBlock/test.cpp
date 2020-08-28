@@ -27,7 +27,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 4
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -122,13 +122,10 @@ using namespace SMSpp_di_unipi_it;
 /*--------------------------------------------------------------------------*/
 
 using Index = Block::Index;
-using c_Index = Block::c_Index;
 
 using Range = Block::Range;
-using c_Range = Block::c_Range;
 
 using Subset = Block::Subset;
-using c_Subset = Block::c_Subset;
 
 using FunctionValue = Function::FunctionValue;
 using c_FunctionValue = Function::c_FunctionValue;
@@ -295,8 +292,31 @@ static void printAb( const MultiVector & tA , const RealVector & tb ,
 
 /*--------------------------------------------------------------------------*/
 
-static void ConstructLPConstraint( Index i , FRowConstraint & ci )
+static void ConstructObj( AbstractBlock * AB )
 {
+ // in the AbstractBlock x is the 0-th group of static Variable, and this
+ // is only called if nf < 0
+
+ auto x = AB->get_static_variable_v< ColVariable >( 0 );
+ #if DYNAMIC_VARS > 0
+  auto xd = AB->get_dynamic_variable< ColVariable >( 0 );
+ #endif
+
+ LinearFunction::v_coeff_pair vars( nvar );
+ Index i = 0;
+ // static x
+ for( ; i < nsvar ; ++i )
+  vars[ i ] = std::make_pair( &((*x)[ i ] ) , A[ 0 ][ i ] );
+
+ #if DYNAMIC_VARS > 0
+  // dynamic x
+  auto xdit = xd.begin();
+  for( ; i < nvar ; ++i , ++xdit )
+   vars[ j ] = std::make_pair( &(*xdit) , A[ 0 ][ i ] );
+ #endif
+
+ AB->set_objective( new FRealObjective( AB ,
+			new LinearFunction( std::move( vars ) ) ) , eNoMod );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -320,7 +340,7 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 
 static double ComputeGlobalBound( void )
 {
- // this is only called if nf != 0
+ // this is only called if nf > 0
 
  double glb = 0;
  for( auto bi : LPBlock->get_nested_Blocks() ) {
@@ -341,13 +361,16 @@ static void SetGlobalBound( void )
  auto bound = lb;   // the worst-case lower bound
  auto cond = true;  // is conditional
 
- if( nf ) {
-   // if nf != 0, try to set a global bound by summing the global bounds on
-   // all the components; this is not necessary if nf == 0 since
-   // PolyhedralFunctionBlock does that automatically (for just one PF)
-   bound = std::max( ComputeGlobalBound() , lb );
-   cond = ( bound == lb );
-   }
+ if( nf > 0 ) {
+  // if nf > 0, try to set a global bound by summing the global bounds on
+  // all the components; this is not necessary if nf == 0 since
+  // PolyhedralFunctionBlock does that automatically (for just one PF),
+  // and it is not possible for nf < 0 since the extra linear function
+  // surely is not bounded below (unless in the vanishingly small chance
+  // it is all-0, which we disregard)
+  bound = std::max( ComputeGlobalBound() , lb );
+  cond = ( bound == lb );
+  }
 
  // set the lower bound, be it "conditional"  or not
  NDOBlock->set_valid_lower_bound( bound , cond );
@@ -570,6 +593,7 @@ int main( int argc , char **argv )
   #endif
 
   if( nf ) {
+   // construct the sub-Block
    for( Index i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i ) {
     auto bi = static_cast< p_PFB >( LPBlock->get_nested_Block( i ) );
     auto & pf = bi->get_PolyhedralFunction();
@@ -592,6 +616,20 @@ int main( int argc , char **argv )
     auto bc = new BlockConfig();
     bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
     bi->set_BlockConfig( bc );
+    }
+
+   // construct the objective of LPBlock
+   if( nf < 0 ) {
+    GenerateA( 1 , nvar );
+     
+    ConstructObj( LPBlock );
+
+    #if( LOG_LEVEL >= 4 )
+     cout << "L = [ ";
+     for( Index j = 0 ; j < nvar ; ++j )
+      cout << A[ 0 ][ j ] << " ";
+     cout << "]" << endl;
+    #endif
     }
 
    LPBlock->generate_abstract_variables();
@@ -627,9 +665,11 @@ int main( int argc , char **argv )
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
 
-  if( nf )
+  if( nf ) {
+   // contruct the sub-Block (via R3 Block)
    NDOBlock = dynamic_cast< AbstractBlock * >(
 		    LPBlock->get_R3_Block( nullptr , new AbstractBlock() ) );
+   }
   else
    NDOBlock = dynamic_cast< AbstractBlock * >( LPBlock->get_R3_Block() );
 
@@ -654,11 +694,15 @@ int main( int argc , char **argv )
   #endif
 
   if( nf ) {
-  for( Index i = 0 ; i < NDOBlock->get_number_nested_Blocks() ; ++i )
+   for( Index i = 0 ; i < NDOBlock->get_number_nested_Blocks() ; ++i )
     // pass the Variable to the PolyhedralFunction (copy the vector)
     static_cast< p_PFB >( NDOBlock->get_nested_Block( i ) )->
      get_PolyhedralFunction().set_variables(
 				    PolyhedralFunction::VarVector( vars ) );
+
+   // construct the objective of NDOBlock
+   if( nf < 0 )
+    ConstructObj( NDOBlock );
    }
   else  // pass the Variable to the PolyhedralFunction (move the vector)
    static_cast< p_PFB >( NDOBlock )->get_PolyhedralFunction().set_variables(

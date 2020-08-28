@@ -30,7 +30,7 @@ ComputeConfig # exact type of the ComputeConfig object
 20 # number of integer parameters
 
 # now all the integer parameters
-intMaxIter 100000   # MaxIter, max number of iterations for each call
+intMaxIter 1000000   # MaxIter, max number of iterations for each call
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -81,7 +81,7 @@ dblmxIncr  10     # max increase of t
 dblmnIncr  1.5    # min increase of t (each time it is increased)
 dblmxDecr  0.1    # max decrease of t
 dblmnDecr  0.66   # min decrease of t (each time it is decreased)
-dbltMaior  1e+2   # maximum value for t
+dbltMaior  1e+4   # maximum value for t
 dbltMinor  1e-4   # minimum value for t
 dbltInit   1      # initial value for t
 dbltSPar2  0.001  # parameter for the long-term t-strategy
