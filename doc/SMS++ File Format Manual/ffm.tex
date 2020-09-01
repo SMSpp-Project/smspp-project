@@ -3124,7 +3124,7 @@ from the \code{UCBlock} (which is the inner \Block of the
 (two-dimensional) index $(0,j)$ of the $i$-th \code{HydroUnitBlock} would be
 given by
 \begin{equation}
-  B(0) \rightarrow B(i) \rightarrow C(11, j),
+  B(0) \rightarrow B(i) \rightarrow C(0, j),
   \label{path}
 \end{equation}
 where $B(k)$ indicated the $k$-th nested \Block of a \Block and $C(k_1, k_2)$
@@ -3137,9 +3137,9 @@ two-dimensional index of the target \RowConstraint is $(0,j)$, its element
 index is $j$ according to the definition of ``element index'' of a \Constraint
 in an \code{AbstractPath} (see \eqref{eq:element_index} for details).
 Moreover, that \RowConstraint belongs to the group of \Constraints whose index
-is 11 (the ``final volume'' constraints are the twelfth group of \Constraints
+is 0 (the ``final volume'' constraints are the first group of \Constraints
 in a \code{HydroUnitBlock}; see the comments of the \code{HydroUnitBlock}
-class for details). Hence, we have the node $C(11, j)$. The target
+class for details). Hence, we have the node $C(0, j)$. The target
 \RowConstraint belongs to the $i$-th \code{HydroUnitBlock}, i.e., the $i$-th
 nested \Block of the \code{HydroSystemUnitBlock}. Hence, we have the node
 $B(i)$. Finally, the \code{HydroSystemUnitBlock} is the first nested \Block of
@@ -3153,8 +3153,8 @@ it is straightforward to construct a vector of \code{AbstractPath}s to those
 \begin{align*}
 \cstr{PathNodeTypes} = ( & \text{`B'}, \text{`B'}, \text{`C'}, \dots,
 \text{`B'}, \text{`B'}, \text{`C'})\\
-\cstr{PathGroupIndices} = ( & 0, 0, 11, \dots, 0, i, 11,
-                            \dots, 0, R-1, 11 )\\
+\cstr{PathGroupIndices} = ( & 0, 0, 0, \dots, 0, i, 0,
+                            \dots, 0, R-1, 0 )\\
 \cstr{PathElementIndices} = (
 & \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_0-1,\\
 & \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_1-1,\\
