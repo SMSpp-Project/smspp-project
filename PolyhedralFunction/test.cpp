@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -36,6 +36,11 @@
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
  #define CLOG1( y , x ) if( y ) cout << x
+
+ #if( LOG_LEVEL >= 2 )
+  #define LOG_ON_COUT 1
+  // if nonzero, the BundleSolver log is sent on cout rather than on a file
+ #endif
 #else
  #define LOG1( x )
  #define CLOG1( y , x )
@@ -644,15 +649,18 @@ int main( int argc , char **argv )
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  #if( LOG_LEVEL >= 2 )
-  ofstream LOGFile( logF , ofstream::out );
-  if( ! LOGFile.is_open() )
-   cerr << "Warning: cannot open log file """ << logF << """" << endl;
-  else {
-   LOGFile.setf( ios::scientific, ios::floatfield );
-   LOGFile << setprecision( 10 );
-   ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
-   //!!((NDOBlock->get_registered_solvers()).front())->set_log( &clog );
-   }
+  #if( LOG_ON_COUT )
+   ((NDOBlock->get_registered_solvers()).front())->set_log( &cout );
+  #else
+   ofstream LOGFile( logF , ofstream::out );
+   if( ! LOGFile.is_open() )
+    cerr << "Warning: cannot open log file """ << logF << """" << endl;
+   else {
+    LOGFile.setf( ios::scientific, ios::floatfield );
+    LOGFile << setprecision( 10 );
+    ((NDOBlock->get_registered_solvers()).front())->set_log( &LOGFile );
+    }
+  #endif
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
