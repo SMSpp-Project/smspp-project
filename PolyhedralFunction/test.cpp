@@ -103,6 +103,8 @@
 
 #include "AbstractBlock.h"
 
+#include "BlockSolverConfig.h"
+
 #include "BundleSolver.h"
 
 #include "CPXMILPSolver.h"
@@ -637,11 +639,11 @@ int main( int argc , char **argv )
    return( 1 );
    }
 
-  BlockSolverConfig * bsc = new BlockSolverConfig;
+  auto bsc = new RBlockSolverConfig;
   BundleParFile >> *( bsc );
   BundleParFile.close();
 
-  NDOBlock->set_SolverConfig( bsc );
+  bsc->apply( NDOBlock );
   delete bsc;
   }
 
@@ -1169,9 +1171,14 @@ int main( int argc , char **argv )
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- NDOBlock->set_SolverConfig();  // reset all Solver attached to NDOBlock
+ RBlockSolverConfig NDOBlock_SolverConfig( NDOBlock , false , true );
+ NDOBlock_SolverConfig.reset_Solver( NDOBlock );  // reset all Solver attached
+                                                  // to NDOBlock
  delete NDOBlock;
- LPBlock->set_SolverConfig();   // reset all Solver attached to LPBlock
+
+ RBlockSolverConfig LPBlock_SolverConfig( LPBlock , false , true );
+ LPBlock_SolverConfig.reset_Solver( LPBlock );   // reset all Solver attached
+                                                 // to LPBlock
  delete LPBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
