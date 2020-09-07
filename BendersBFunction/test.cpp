@@ -29,7 +29,6 @@
 #include "cwl-mcf/cwl-mcf.h"
 
 #include <iostream>
-#include <filesystem>
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -62,11 +61,11 @@ BlockSolverConfig * build_config( const std::string & config_file_path ) {
 
 /*--------------------------------------------------------------------------*/
 
-double solve_with_BundleSolver( std::string file_name ,
+double solve_with_BundleSolver( std::filesystem::path file_path ,
                                 bool continuous_relaxation ) {
  auto inner_block_solver = new CPXMILPSolver();
  auto block = build_CWL_block_with_Benders_decomposition
-   ( file_name , continuous_relaxation , inner_block_solver );
+   ( file_path , continuous_relaxation , inner_block_solver );
 
  auto block_solver_config = build_config( "BundlePar-cwl.txt" );
  block_solver_config->apply( block );
@@ -74,7 +73,7 @@ double solve_with_BundleSolver( std::string file_name ,
  auto solver = block->get_registered_solvers().front();
  auto status = solver->compute();
  if( status != ThinComputeInterface::kOK )
-  std::cout << "Problem not solved for instance " << file_name << std::endl;
+  std::cout << "Problem not solved for instance " << file_path << std::endl;
  auto solution_value = solver->get_var_value();
  std::cout << solution_value << std::endl;
 
@@ -86,14 +85,14 @@ double solve_with_BundleSolver( std::string file_name ,
 
 /*--------------------------------------------------------------------------*/
 
-double solve_with_MILPSolver( std::string file_name ,
+double solve_with_MILPSolver( std::filesystem::path file_path ,
                               bool continuous_relaxation ) {
- auto block = build_CWL_block( file_name , continuous_relaxation );
+ auto block = build_CWL_block( file_path , continuous_relaxation );
  auto solver = new CPXMILPSolver();
  block->register_Solver( solver );
  auto status = solver->compute();
  if( status != ThinComputeInterface::kOK )
-  std::cout << "Problem not solved for instance " << file_name << std::endl;
+  std::cout << "Problem not solved for instance " << file_path << std::endl;
  auto solution_value = solver->get_var_value();
  delete block;
  return solution_value;
@@ -109,27 +108,31 @@ void compare( std::string data_dir_path ,
 
  for( const auto & file :
        std::filesystem::directory_iterator( data_dir_path ) ) {
-  auto file_name = file.path();
+  auto file_path = file.path();
+
+  if( file_path.filename() == "manual.txt" ||
+      file_path.filename() == "readme.txt" )
+   continue;
 
   double solution_value = 0;
 
   if( solver_type == SolverType::MILPSolver )
-   solution_value = solve_with_MILPSolver( file_name , continuous_relaxation );
+   solution_value = solve_with_MILPSolver( file_path , continuous_relaxation );
   else if( solver_type == SolverType::BundleSolver )
-   solution_value = solve_with_BundleSolver( file_name , continuous_relaxation );
+   solution_value = solve_with_BundleSolver( file_path , continuous_relaxation );
   else {
    std::cerr << "Unknown Solver type: " << solver_type << std::endl;
    exit( 1 );
   }
 
-  auto cwl_mcf_value = cwl_mcf( file_name );
+  auto cwl_mcf_value = cwl_mcf( file_path );
   auto diff = std::abs( solution_value - cwl_mcf_value );
   auto max_diff = std::max( epsilon , epsilon *
                             std::min( abs( solution_value ),
                                       abs( cwl_mcf_value ) ) );
   if( diff > max_diff )
    std::cout << "Solution value difference for instance " <<
-    file_name << ": "  << diff << std::endl;
+    file_path << ": "  << diff << std::endl;
  }
 }
 

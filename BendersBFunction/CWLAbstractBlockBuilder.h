@@ -29,6 +29,7 @@
 #include "LinearFunction.h"
 
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -74,10 +75,11 @@ struct CWLInstance {
 /*------------------------------- FUNCTIONS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-CWLInstance read_cwl_instance( std::string file_name ) {
- std::ifstream stream( file_name );
+CWLInstance read_cwl_instance( std::filesystem::path file_path ) {
+ std::ifstream stream( file_path );
  if( ! stream.is_open() )
-  throw std::invalid_argument( "File " + file_name + " could not be opened." );
+  throw std::invalid_argument
+   ( "File " + file_path.string() + " could not be opened." );
 
  CWLInstance instance;
  int num_locations , num_customers;
@@ -85,24 +87,25 @@ CWLInstance read_cwl_instance( std::string file_name ) {
  stream >> num_locations >> num_customers;
 
  if( stream.fail() || stream.bad() )
-  throw std::runtime_error( "Error while reading file " + file_name );
+  throw std::runtime_error( "Error while reading file " + file_path.string() );
 
  instance.set( num_locations , num_customers );
 
  for( int i = 0 ; i < num_locations ; ++i ) {
   stream >> instance.capacity[ i ] >> instance.fixed_cost[ i ];
   if( stream.fail() || stream.bad() )
-   throw std::runtime_error( "Error while reading file " + file_name );
+   throw std::runtime_error( "Error while reading file " + file_path.string() );
  }
 
  for( int j = 0 ; j < num_customers ; ++j ) {
   stream >> instance.demand[ j ];
   if( stream.fail() || stream.bad() )
-   throw std::runtime_error( "Error while reading file " + file_name );
+   throw std::runtime_error( "Error while reading file " + file_path.string() );
   for( int i = 0 ; i < num_locations ; ++i ) {
    stream >> instance.cost[ i ][ j ];
    if( stream.fail() || stream.bad() )
-    throw std::runtime_error( "Error while reading file " + file_name );
+    throw std::runtime_error( "Error while reading file " +
+                              file_path.string() );
   }
  }
 
@@ -111,10 +114,10 @@ CWLInstance read_cwl_instance( std::string file_name ) {
 
 /*--------------------------------------------------------------------------*/
 
-AbstractBlock * build_CWL_block( std::string file_name ,
+AbstractBlock * build_CWL_block( std::filesystem::path file_path ,
                                  bool continuous_relaxation = false ) {
 
- auto instance = read_cwl_instance( file_name );
+ auto instance = read_cwl_instance( file_path );
 
  auto block = new AbstractBlock();
 
@@ -527,10 +530,10 @@ AbstractBlock * build_Benders_master_block
 /*--------------------------------------------------------------------------*/
 
 AbstractBlock * build_CWL_block_with_Benders_decomposition
-( std::string file_name , bool continuous_relaxation = false ,
+( std::filesystem::path file_path , bool continuous_relaxation = false ,
   Solver * inner_block_solver = nullptr) {
 
- auto instance = read_cwl_instance( file_name );
+ auto instance = read_cwl_instance( file_path );
  std::vector< ColVariable * > y;
  auto master_block = build_Benders_master_block( instance ,
                                                  continuous_relaxation , y );
