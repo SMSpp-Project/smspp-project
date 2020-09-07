@@ -42,6 +42,7 @@ if (NOT googletest_POPULATED)
 endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
+add_subdirectory(BendersBFunction)
 add_subdirectory(CPXMILPSolver)
 add_subdirectory(MCFMILP)
 add_subdirectory(PolyhedralFunction)
