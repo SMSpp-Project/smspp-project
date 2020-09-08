@@ -27,7 +27,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -338,46 +338,6 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 
 /*--------------------------------------------------------------------------*/
 
-static double ComputeGlobalBound( void )
-{
- // this is only called if nf > 0
-
- double glb = 0;
- for( auto bi : LPBlock->get_nested_Blocks() ) {
-  auto PBi = static_cast< p_PFB >( bi );
-  auto lbi = PBi->get_PolyhedralFunction().get_global_lower_bound();
-  if( lbi <= - INF )
-   return( - INF );
-  glb += lbi;
-  }
-
- return( glb );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static void SetGlobalBound( void )
-{
- auto bound = lb;   // the worst-case lower bound
- auto cond = true;  // is conditional
-
- if( nf > 0 ) {
-  // if nf > 0, try to set a global bound by summing the global bounds on
-  // all the components; this is not necessary if nf == 0 since
-  // PolyhedralFunctionBlock does that automatically (for just one PF),
-  // and it is not possible for nf < 0 since the extra linear function
-  // surely is not bounded below (unless in the vanishingly small chance
-  // it is all-0, which we disregard)
-  bound = std::max( ComputeGlobalBound() , lb );
-  cond = ( bound == lb );
-  }
-
- // set the lower bound, be it "conditional"  or not
- NDOBlock->set_valid_lower_bound( bound , cond );
- }
-
-/*--------------------------------------------------------------------------*/
-
 static bool SolveBoth( void ) 
 {
  try {
@@ -417,7 +377,7 @@ static bool SolveBoth( void )
    if( slvrNDO->get_ub() <= lb * ( 1 + 1e-9 ) ) {
     LOG1( "OK(?lb?)" << endl );
     lb *= 2;
-    SetGlobalBound();
+    NDOBlock->set_valid_lower_bound( lb , true );
     return( true );
     }
    }
@@ -706,8 +666,8 @@ int main( int argc , char **argv )
    }
   else  // pass the Variable to the PolyhedralFunction (move the vector)
    static_cast< p_PFB >( NDOBlock )->get_PolyhedralFunction().set_variables(
-							   std::move( vars ) );
-  SetGlobalBound();
+							  std::move( vars ) );
+  NDOBlock->set_valid_lower_bound( lb , true );
 
   // generate the abstract representation
   SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
@@ -1147,8 +1107,6 @@ int main( int argc , char **argv )
     }
    else  // directly change the PolyhedralFunction
     LPBr->get_PolyhedralFunction().modify_bound( LB );
-
-   SetGlobalBound();
 
    LOG1( " - " );
    }
