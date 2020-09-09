@@ -734,7 +734,7 @@ int main( int argc , char **argv )
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
-  // files and use set_SolverConfig()
+  // files and apply() it to the NDOBlock
   ifstream BundleParFile( "BundlePar.txt" );
   if( ! BundleParFile.is_open() ) {
    cerr << "Error: cannot open file BundlePar.txt" << endl;
@@ -1347,6 +1347,7 @@ int main( int argc , char **argv )
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+<<<<<<< Updated upstream
  RBlockSolverConfig NDOBlock_SolverConfig( NDOBlock , false , true );
  NDOBlock_SolverConfig.reset_Solver( NDOBlock );  // reset all Solver attached
                                                   // to NDOBlock
@@ -1355,6 +1356,14 @@ int main( int argc , char **argv )
  RBlockSolverConfig LPBlock_SolverConfig( LPBlock , false , true );
  LPBlock_SolverConfig.reset_Solver( LPBlock );   // reset all Solver attached
                                                  // to LPBlock
+=======
+ // unregister (and delete) all Solvers attached to the Blocks
+ NDOBlock->unregister_Solvers();
+ LPBlock->unregister_Solvers();
+
+ // delete the Blocks
+ delete NDOBlock;
+>>>>>>> Stashed changes
  delete LPBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
