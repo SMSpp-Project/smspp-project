@@ -3256,7 +3256,7 @@ methods factory. In the context of the SSV, they can be used to define the
 stochastic data (through the \code{SimpleDataMapping}) as we will see in the
 sequel.
 \begin{itemize}
-\item \code{NetworkBlock::set\_active\_demand}\\ This function updates the
+\item \code{DCNetworkBlock::set\_active\_demand}\\ This function updates the
   active demand of a \code{NetworkBlock}. The active demand is represented by
   a one-dimensional array whose $i$-th element is the active demand at the
   $i$-th node.
@@ -3313,7 +3313,7 @@ be
 For the \code{NetworkBlock}, we would have $\{7\}$ as the \code{SetFrom}
 set and $\{4\}$ (the index of the node) as the \code{SetTo}
 set. The name of the function that updates this data is
-\code{NetworkBlock::set\_active\_demand} and the data is also of type
+\code{DCNetworkBlock::set\_active\_demand} and the data is also of type
 \code{double} (indicated by `D'). Finally, we need to specify the path from
 the \code{BendersBlock} to this \code{NetworkBlock}. As we see in
 Figure~\ref{fig:ucblock}, the \code{NetworkBlock}s come after the
@@ -3455,7 +3455,7 @@ the \Blocks. In our example, we would have
   \cstr{FunctionName} = (
   & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
   & ``\code{ThermalUnitBlock::set\_maximum\_power}" ,\\
-  & ``\code{NetworkBlock::set\_active\_demand}" ,\\
+  & ``\code{DCNetworkBlock::set\_active\_demand}" ,\\
   & ``\code{HydroUnitBlock::set\_inflow}" ,\\
   & ``\code{BendersBFunction::modify\_constants}" ).
 \end{align*}
