@@ -4,17 +4,25 @@
 /** @file
  * Main for testing PolyhedralFunctionBlock
  *
- * A "random" PolyhedralFunction is constructed inside a
- * PolyhedralFunctionBlock, then R3-Block-ed to another. The first is
- * configured to use the "linearized" representation, and has a MILPSolver
- * attached, plus an UpdateSolver that maps all the Modification to the
- * second, which is configured to use the "natural" representation and has a
- * BundleSolver attached. Two PolyhedralFunctionBlock are then repeatedly
- * randomly modified "in the same way", and re-solved several times.
+ * Given the parameter nf, abs( nf ) "random" PolyhedralFunction are
+ * constructed, each inside a PolyhedralFunctionBlock, then R3-Block-ed each
+ * to another PolyhedralFunctionBlock. If abs( nf ) > 1, both sets of
+ * PolyhedralFunctionBlock are bunched each as sons of two separate
+ * AbstractBlock. If nf < 0, the two AbstractBlock are also given two
+ * identical linear Objective (a FRealObjective with a LinearFunction inside).
+ * Then, the first is configured to use the "linearized" representation, and
+ * has a MILPSolver registered; also, UpdateSolver are registered to all its
+ * sons (PolyhedralFunctionBlock) that maps all the Modification to the
+ * corresponding son of the second. The latter is configured to use the
+ * "natural" representation and has a BundleSolver attached. At each round a
+ * "linearized" PolyhedralFunctionBlock is randomly modified, with the
+ * Modification automatically transmitted to the corresponding "natural"
+ * PolyhedralFunctionBlock to keep them in synch. Then both are solved and
+ * the results compared.
  *
- * \version 0.10
+ * \version 0.11
  *
- * \date 09 - 08 - 2020
+ * \date 11 - 09 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -27,7 +35,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -741,7 +749,7 @@ int main( int argc , char **argv )
    return( 1 );
    }
 
-  auto bsc = new RBlockSolverConfig;
+  auto bsc = new BlockSolverConfig;
   BundleParFile >> *( bsc );
   BundleParFile.close();
 

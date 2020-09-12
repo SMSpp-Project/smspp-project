@@ -274,7 +274,6 @@ MultiVector C;             // arc costs
 RealVector s;              // supplies
 RealVector d;              // demands
 
-
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -364,11 +363,18 @@ static void GenerateCosts( void )
 
  for( auto & Ci : C ) {
   Ci.resize( nvar );
-  for( auto & cij : Ci )
-   cij = - 10 * dis( rg );
+  GenerateCosts( i );
   }
  }
 
+
+/*--------------------------------------------------------------------------*/
+
+static void GenerateCosts( Index i )
+{
+ for( auto & cij : C[ i ] )
+  cij = - 10 * dis( rg );
+ }
 
 /*--------------------------------------------------------------------------*/
 
@@ -575,7 +581,7 @@ static bool SolveBoth( void )
   cerr << "Error: unknown exception thrown" << endl;
   exit( 1 );
   }
- }
+ }  // end( SolveBoth )
 
 /*--------------------------------------------------------------------------*/
 
@@ -625,9 +631,9 @@ int main( int argc , char **argv )
 	        << endl <<
            "       nvar: number of variables [10]"
 	        << endl <<
-           "       #nf: number of PolyhedralFunction in the sub-Block [1]"
+           "       |#nf|: number of PolyFunction (< 0: linear function) [1]"
 	        << endl <<
-           "       #nt: number of transportations in the sub-Block [1]"
+           "       |#nt|: number of transportations (< 0: easy comp.) [1]"
 	        << endl <<
            "       dens: rows / variables [3]"
 	        << endl <<
@@ -645,10 +651,10 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- if( nt < 0 ) {
-  cout << "error: nt negative";
-  exit( 1 );
-  }
+ bool HasLin = ( nf < 0 );
+ nf = std::abs( nf );
+ bool HasEasy = ( nt < 0 );;
+ nt = std::abs( nt );
 
  if( ( ! ns ) && ( ! nt ) ) {
   cout << "error: no sub-Block";
@@ -723,10 +729,10 @@ int main( int argc , char **argv )
    NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
 
-  // construct the objective (in both)
-  if( nf < 0 ) {  // if any
+  // construct the linear objective (in both)
+  if( HasLin ) {  // if any
    GenerateA( 1 , nvar );
-     
+
    ConstructObj( LPBlock );
    ConstructObj( NDOBlock );
 
@@ -740,7 +746,7 @@ int main( int argc , char **argv )
 
   // construct the PolyhedralFunctionBlocks (in both) - - - - - - - - - - - -
 
-  for( Index k = 0 ; i < std::abs( nf ) ; ++k ) {
+  for( Index k = 0 ; i < nf ; ++k ) {
    // construct the PolyhedralFunctionBlock
    auto PFBLPk = new PolyhedralFunctionBlock( LPBlock );
    PFBLPk->set_name( "LP-PFB_" + std::to_string( k ) );
@@ -917,9 +923,13 @@ int main( int argc , char **argv )
    // pass the sign constraints to the inner Block
    IBNDOp->add_static_constraints( nzc , "nzc" );
 
+   // construct the objective of the inner Block
+   auto ibo = new FRealObjective( IBNDOp ,
+				  new LinearFunction( std::move( ocf ) ) );
+   ibo->set_sense( Objective::eMax );  // ... to be *max*imized
+
    // pass the objective to the inner Block
-   IBNDOp->set_objective( new FRealObjective( IBNDOp ,
-			  new LinearFunction( std::move( ocf ) ) ) , eNoMod );
+   IBNDOp->set_objective( ibo , eNoMod );
 
    // pass the inner Block to the LagBFunction
    LBF->set_inner_block( IBNDOp );
@@ -940,13 +950,13 @@ int main( int argc , char **argv )
 			      new LinearFunction( std::move( cfj ) ) );
     }
 
-   // pass the dual pair to the LagBFunction
+   // pass the dual pairs to the LagBFunction
    LBF->set_dual_pairs( std::move( lp ) , eNoBlck );
 
    // construct the objective to the transportation Block
    TNDOp->set_objective( new FRealObjective( TNDOp , LBF ) , eNoMod );
 
-   // finally, pass the transportation Block to NDOBlock
+   // finally, pass the transportation Block to the NDOBlock
    NDOBlock->add_nested_Block( TNDOp );
 
    }  // end( for( p ) )
@@ -958,7 +968,7 @@ int main( int argc , char **argv )
  LPBlock->generate_abstract_constraints();
  LPBlock->generate_objective();
 
- NDOBlock->generate_abstract_variables( &cfg );
+ NDOBlock->generate_abstract_variables();
  NDOBlock->generate_abstract_constraints();
  NDOBlock->generate_objective();
 
@@ -969,7 +979,7 @@ int main( int argc , char **argv )
 
  LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
 
- for( int i = 0 ; i < std::abs( nf ) ; ++i )
+ for( int i = 0 ; i < nf ; ++i )
   LPBlock->get_nested_Block( i )->register_Solver(
 		       new UpdateSolver( NDOBlock->get_nested_Block( i ) ) );
 
@@ -982,23 +992,28 @@ int main( int argc , char **argv )
    return( 1 );
    }
 
-  auto bsc = new RBlockSolverConfig;
+  auto bsc = new BlockSolverConfig;
   BundleParFile >> *( bsc );
   BundleParFile.close();
 
-  bsc->apply( NDOBlock );
+  // ensure the "easy components" parameter is properly set
+  for( int i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
+   if( bsc->get_SolverName( i ) == "BundleSolver" )
+    bsc->get_SolverConfig( i )->set_par( "intNoEasy" ,
+					 HasEasy ? int( 0 ) : int( 1 ) );
+ 
+  bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
   delete bsc;
 
-  // read the parameter of BundleSolver deciding whether or not easy
-  // components are used, if not attach CPXMILPSolver to each of the
-  // inner Block in each of the LagBFunction
-
-  for( Index p = 0 ; p < nt ; ++p ) {
-   auto fro = static_cast< FRealObjective * >(
-	            NDOBlock->get_nested_Block( nf + p )->get_objective() );
-   auto lbf = static_cast< LagBFunction * >( fro->get_function() );
-   lbf->get_nested_Block( 0 )->register_Solver(
+  if( ! HasEasy ) {  // transportation problems are treated as "difficult"
+   // also attach a proper Solver to each inner Block of LagBFunction
+   for( Index p = nf ; p < nf + nt ; ++p ) {
+    auto FRO =
+         NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
+    auto LBF = static_cast< LagBFunction * >( FRO->get_function() );
+    LBF->get_nested_Block( 0 )->register_Solver(
 				    Solver::new_Solver( "CPXMILPSolver" ) );
+    }
    }
   }
 
@@ -1057,16 +1072,18 @@ int main( int argc , char **argv )
   p_AB NDOTr = nullptr;
   p_PFB LPBr = nullptr;
 
-  auto bn = rep % ( std::abs( nf ) + nt );  // which sub-Block to change
+  Index bn = rep % ( nf + nt );  // which sub-Block to change
 
-  if( nf && ( bn < std::abs( nf ) ) ) {
-   LPBr = static_cast< p_PFB >( LPBlock->get_nested_Blocks()[ bn ] );
-   m = LPBr->get_PolyhedralFunction().get_nrows();
+  if( bn < nf ) {
+   LPBr = static_cast< p_PFB >( LPBlock->get_nested_Block( bn ) );
    LOG1( rep << "[PFB " << bn << "]: ");
    }
   else {
-   LPTr = static_cast< p_AB >( LPBlock->get_nested_Blocks()[ bn ] );
-   NDOTr = static_cast< p_AB >( NDOBlock->get_nested_Blocks()[ bn ] );
+   LPTr = static_cast< p_AB >( LPBlock->get_nested_Block( bn ) );
+   NDOTr = static_cast< p_AB >( NDOBlock->get_nested_Block( bn ) );
+   auto PF = static_cast< PolyhedralFunction * >(
+				   NDOTr->get_objective()->get_function() );
+   NDOTr = static_cast< p_AB >( PF->get_nested_Blocks( 0 ) );
    LOG1( rep << "[TB " << bn - std::abs( nf ) << "]: ");
    }
 
@@ -1085,19 +1102,13 @@ int main( int argc , char **argv )
      LPBr->get_PolyhedralFunction().add_row( std::move( A[ 0 ] ) , b[ 0 ] );
     else
      LPBr->get_PolyhedralFunction().add_rows( std::move( A ) , b );
-
-    // update m
-    m += tochange;
-
-    // sanity checks
-    PANIC( m == LPBr->get_PolyhedralFunction().get_nrows() );
-    PANIC( m == cnst->size() );
     }
    }
 
   // delete rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPBr && ( wchg & 2 ) && ( dis( rg ) <= p_change ) ) {
+   m = LPBr->get_PolyhedralFunction().get_nrows();
    Index tochange = min( m - 1 , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "deleted " << tochange << " rows" );
@@ -1124,19 +1135,13 @@ int main( int argc , char **argv )
      else
       LPBr->get_PolyhedralFunction().delete_rows( std::move( nms ) );
      }
-
-    // update m
-    m -= tochange;
-
-    // sanity checks
-    PANIC( m == LPBr->get_PolyhedralFunction().get_nrows() );
-    PANIC( m == cnst->size() );
     }
    }
 
   // modify rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPBr && ( wchg & 4 ) && ( dis( rg ) <= p_change ) ) {
+   m = LPBr->get_PolyhedralFunction().get_nrows();
    Index tochange = std::min( m , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " rows" );
@@ -1173,6 +1178,7 @@ int main( int argc , char **argv )
   // modify constants - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPBr && ( wchg & 8 ) && ( dis( rg ) <= p_change ) ) {
+   m = LPBr->get_PolyhedralFunction().get_nrows();
    Index tochange = std::min( m , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "modified " << tochange << " constants" );
@@ -1216,19 +1222,57 @@ int main( int argc , char **argv )
   // change costs - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPTr && ( wchg & 32 ) && ( dis( rg ) <= p_change ) ) {
-   LOG1( "modified costs" );
+   // modify the costs of all outgoing arcs from i
+   Index i = dis( rg ) * nvar:
 
-   std::cerr << "change costs not implemented yet" << std::end;
-   exit( 1 );
+    LOG1( "modified costs " << i << " - " );
+
+   GenerateCosts( i );
+
+   // in the dual transportation problem these are the RHS of the
+   // potential constraints: send all the corresponding Modification to
+   // a new channel
+   auto pc = LPTr->get_static_constraints< FRowConstraint , 2 >( "pc" );
+
+   Observer::ChnlName chnl = LPTr->open_channel();
+   const auto iAM = Observer::make_par( eModBlck , chnl );
+   for( Index j = 0 ; j < nvar ; ++j )
+    (*pc)[ i ][ j ].set_lhs( C[ i ][ j ] , iAM );
+
+   LPBr->close_channel( chnl );  // then close the chanel
+
+   // in the transportation problem inside the LagBFunction these are a
+   // slice of the coefficients of the objective
+   auto lf = static_cast< LinearFunction * >(
+		  NDOTr->get_objective< FRealObjective >()->get_function() );
+   lf->modify_coefficients( RealVector( C[ i ] ) ,
+			    Range( i * nvar , ( i + 1 ) * nvar ) );
    }
 
   // change demands - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPTr && ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
-   LOG1( "modified demands" );
+   LOG1( "modified demands - " );
 
-   std::cerr << "change demands not implemented yet" << std::end;
-   exit( 1 );
+   GenerateDemands();
+
+   // in the transportation problem inside the LagBFunction these are the
+   // RHS of the demand constraints: send all the corresponding Modification
+   // to a new channel
+   auto dc = NDOTr->get_static_constraints_v< FRowConstraint >( "dc" );
+
+   Observer::ChnlName chnl = NDOTr->open_channel();
+   const auto iAM = Observer::make_par( eModBlck , chnl );
+   for( Index j = 0 ; j < nvar ; ++j )
+    (*dc)[ j ].set_both( d[ j ] , iAM );
+
+   NDOTr->close_channel( chnl );  // then close the chanel
+
+   // in the dual transportation problem these are a slice of the coefficients
+   // of the objective
+   auto lf = static_cast< LinearFunction * >(
+		  LPTr->get_objective< FRealObjective >()->get_function() );
+   lf->modify_coefficients( std::move( d ) , Range( nvar , 2 * nvar ) ); 
    }
 
   // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1390,15 +1434,6 @@ int main( int argc , char **argv )
     cout << endl << "LPBlock-PF: ";
     auto PF = & LPBr->get_PolyhedralFunction();
     printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
-    p_PFB NDOBr;
-    if( nf )
-     NDOBr = static_cast< p_PFB >( NDOBlock->get_nested_Blocks()[
-						    rep % std::abs( nf ) ] );
-    else
-     NDOBr = static_cast< p_PFB >( NDOBlock );
-    cout << "NDOBlock-PF: ";
-    PF = & NDOBr->get_PolyhedralFunction();
-    printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
    #endif
   #endif
 
@@ -1425,6 +1460,14 @@ int main( int argc , char **argv )
 
  // unregister (and delete) all Solvers attached to the Blocks
  NDOBlock->unregister_Solvers();
+ if( HasEasy )
+  for( Index p = nf ; p < nf + nt ; ++p ) {
+   auto FRO =
+       NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >() );
+   auto PF = static_cast< PolyhedralFunction * >( FRO->get_function() );
+   PF->get_nested_Blocks( 0 )->unregister_Solvers();
+   }
+
  LPBlock->unregister_Solvers();
 
  // delete the Blocks

@@ -4,7 +4,7 @@
 # A txt description of a BlockSolverConfig for a Block having a single
 # BundleSolver attached, and no sub-Block
 #
-#   version 1.0 , 17/11/2019
+#   version 2.0 , 12/09/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -97,11 +97,6 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 * # [none]
 
 # end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-0 # number of BlockSolverConfig for the sub-Block
-
-# now all BlockSolverConfig for the sub-Block
-# [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - END BundlePar.txt - - - - - - - - - - - - - - -

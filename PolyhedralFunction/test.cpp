@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.00
+ * \version 1.01
  *
- * \date 04 - 08 - 2020
+ * \date 12 - 09 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -639,7 +639,7 @@ int main( int argc , char **argv )
    return( 1 );
    }
 
-  auto bsc = new RBlockSolverConfig;
+  auto bsc = new BlockSolverConfig;
   BundleParFile >> *( bsc );
   BundleParFile.close();
 
