@@ -23,14 +23,15 @@ BundleSolver # name of 1st Solver
 # now all the ComputeConfig
 # 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ComputeConfig # exact type of the ComputeConfig object
+ComputeConfig     # exact type of the ComputeConfig object
 
 0  # f_diff == 0 ==> all non-provided parameters are set to the default value
 
-20 # number of integer parameters
+21 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
+intEverykIt 1     # periodicity of eEverykIteration events
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -45,16 +46,11 @@ inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intRstAlg   2     # parameter to handle the reset of the algorithm
-
-# MPSolver parameters :- - - - - - - -
-
-intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+intMPName  15      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
-intMPlvl   4      # log verbosity of Master Problem
-
 # QPPenalty's parameters : - - - - - -
+intMPlvl   4      # log verbosity of Master Problem
                   
 intQPmp1   0	  # MxAdd, how many variables can be added to the base at each
       	          # iteration in BMinQuad (0 = at will)
@@ -66,12 +62,11 @@ intOSImp1  1      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
 
+intRstAlg   2     # parameter to handle the reset of the algorithm
 
 17 # number of double parameters
 
 # now all the double parameters
-#dblMinNrEvls   -1 # percentage of components to evaluate at every iteration
-
 dblRelAcc    1e-9 # relative accuracy
 #dblRelMPAcc  1e-12 # precision required to the MP Solver (optimality - for QPP)
 #dblRMPAccSol 1e-12 # precision required to the MP Solver (feasibility - for QPP)
@@ -88,7 +83,7 @@ dblmnIncr  1.5    # min increase of t (each time it is increased)
 dblmxDecr  0.1    # max decrease of t
 dblmnDecr  0.66   # min decrease of t (each time it is decreased)
 dbltMaior  1e+4   # maximum value for t
-dbltMinor  1e-8   # minimum value for t
+dbltMinor  1e-4   # minimum value for t
 dbltInit   1      # initial value for t
 dbltSPar2  0.001  # parameter for the long-term t-strategy
 

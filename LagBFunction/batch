@@ -1,0 +1,22 @@
+#/bin/bash
+
+what=31
+#what=1
+#iter=0
+nf=-4
+nt=2
+
+for size in 2 10 50 100
+do
+for dens in 3 1.1
+do
+for (( seed=0 ; seed<20 ; seed++ ))
+do
+
+printf "$seed-$what-$size-$nf-$nt-$dens: "
+
+./LagBFunction_test $seed $what $size $nf $nt $dens $iter
+
+done
+done
+done

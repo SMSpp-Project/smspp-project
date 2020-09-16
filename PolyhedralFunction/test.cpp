@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.00
+ * \version 1.01
  *
- * \date 04 - 08 - 2020
+ * \date 12 - 09 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -102,6 +102,8 @@
 #include <random>
 
 #include "AbstractBlock.h"
+
+#include "BlockSolverConfig.h"
 
 #include "BundleSolver.h"
 
@@ -630,18 +632,18 @@ int main( int argc , char **argv )
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
-  // files and use set_SolverConfig()
+  // files and apply() it to the NDOBlock
   ifstream BundleParFile( "BundlePar.txt" );
   if( ! BundleParFile.is_open() ) {
    cerr << "Error: cannot open file BundlePar.txt" << endl;
    return( 1 );
    }
 
-  BlockSolverConfig * bsc = new BlockSolverConfig;
+  auto bsc = new BlockSolverConfig;
   BundleParFile >> *( bsc );
   BundleParFile.close();
 
-  NDOBlock->set_SolverConfig( bsc );
+  bsc->apply( NDOBlock );
   delete bsc;
   }
 
@@ -1169,9 +1171,12 @@ int main( int argc , char **argv )
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- NDOBlock->set_SolverConfig();  // reset all Solver attached to NDOBlock
+ // unregister (and delete) all Solvers attached to the Blocks
+ NDOBlock->unregister_Solvers();
+ LPBlock->unregister_Solvers();
+
+ // delete the Blocks
  delete NDOBlock;
- LPBlock->set_SolverConfig();   // reset all Solver attached to LPBlock
  delete LPBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
