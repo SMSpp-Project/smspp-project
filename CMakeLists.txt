@@ -7,7 +7,7 @@
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11...3.15)
-project(SMS++_tests VERSION 0.2.0 LANGUAGES CXX)
+project(SMS++_tests VERSION 0.3.0 LANGUAGES CXX)
 
 # ----- Settings ------------------------------------------------------------ #
 include(CTest)
