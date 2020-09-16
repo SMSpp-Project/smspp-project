@@ -69,6 +69,7 @@ double solve_with_BundleSolver( std::filesystem::path file_path ,
 
  auto block_solver_config = build_config( "BundlePar-cwl.txt" );
  block_solver_config->apply( block );
+ block_solver_config->clear();
 
  auto solver = block->get_registered_solvers().front();
  auto status = solver->compute();
@@ -77,7 +78,7 @@ double solve_with_BundleSolver( std::filesystem::path file_path ,
  auto solution_value = solver->get_var_value();
  std::cout << solution_value << std::endl;
 
- block_solver_config->reset_Solver( block );
+ block_solver_config->apply( block );
  delete block_solver_config;
  delete block;
  return solution_value;
