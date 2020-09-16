@@ -104,10 +104,10 @@
  *
  * - A MILPSolver is attached to this AbstractBlock
  *
- * The PolyhedralFunction and/or the capacities and demands (not supplies)
- * of the uncapacitated transportation problema are then repeatedly
- * randomly modified "in the same way", and re-solved several times;
- * results of the two solvers are compared.
+ * The PolyhedralFunction and/or the costs and demands (not supplies) of the
+ * uncapacitated transportation problems are then repeatedly randomly
+ * modified "in the same way", and re-solved several times; results of the
+ * two solvers are compared.
  *
  * \version 0.10
  *
@@ -124,19 +124,20 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
 // 3 = + save LP file
 // 4 = + print data
+// 5 = + save every LP for every iteration
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the BundleSolver log is sent on cout rather than on a file
  #endif
 #else
@@ -156,7 +157,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -297,15 +298,20 @@ static double rndfctr( void )
 
 /*--------------------------------------------------------------------------*/
 
+static void GenerateAi( RealVector & Ai , Index nc )
+{
+ Ai.resize( nc );
+ for( auto & aij : Ai )
+  aij = scale * ( 2 * dis( rg ) - 1 );
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static void GenerateA( Index nr , Index nc )
 {
  A.resize( nr );
-
- for( auto & Ai : A ) {
-  Ai.resize( nc );
-  for( auto & aij : Ai )
-   aij = scale * ( 2 * dis( rg ) - 1 );
-  }
+ for( auto & Ai : A )
+  GenerateAi( Ai , nc );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -359,7 +365,7 @@ static void GenerateLB( void )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateCosts( RealVector & Ci )
+static void GenerateCi( RealVector & Ci )
 {
  for( auto & cij : Ci )
   cij = - 10 * dis( rg );
@@ -373,7 +379,7 @@ static void GenerateCosts( void )
 
  for( auto & Ci : C ) {
   Ci.resize( nvar );
-  GenerateCosts( Ci );
+  GenerateCi( Ci );
   }
  }
 
@@ -438,6 +444,28 @@ static void printAb( const MultiVector & tA , const RealVector & tb ,
   for( Index j = 0 ; j < nvar ; ++j )
    cout << tA[ i ][ j ] << " ";
    cout << "], b[ " << i << " ] = " << tb[ i ] << endl;
+  }
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void printT( void )
+{
+ cout << "s = [ ";
+ for( Index j = 0 ; j < nvar ; ++j )
+  cout << s[ j ] << " ";
+ cout << "]" << endl;
+
+ cout << "d = [ ";
+ for( Index j = 0 ; j < nvar ; ++j )
+  cout << d[ j ] << " ";
+ cout << "]" << endl;
+
+ for( Index i = 0 ; i < nvar ; ++i ) {
+  cout << "C[ " << i << " ] = [ ";
+  for( Index j = 0 ; j < nvar ; ++j )
+   cout << C[ i ][ j ] << " ";
+   cout << "]" << endl;
   }
  }
 
@@ -607,7 +635,7 @@ int main( int argc , char **argv )
   case( 9 ): Str2Sthg( argv[ 8 ] , n_change );
   case( 8 ): Str2Sthg( argv[ 7 ] , n_repeat );
   case( 7 ): Str2Sthg( argv[ 6 ] , dens );
-  case( 6 ): Str2Sthg( argv[ 5 ] , nf );
+  case( 6 ): Str2Sthg( argv[ 5 ] , nt );
   case( 5 ): Str2Sthg( argv[ 4 ] , nf );
   case( 4 ): Str2Sthg( argv[ 3 ] , nvar );
   case( 3 ): Str2Sthg( argv[ 2 ] , wchg );
@@ -690,6 +718,9 @@ int main( int argc , char **argv )
  NDOBlock = new AbstractBlock();
  NDOBlock->set_name( "NDOBlock" );
 
+ // immediately set the global conditional lower bound
+ NDOBlock->set_valid_lower_bound( lb , true );
+
  {
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
@@ -732,7 +763,8 @@ int main( int argc , char **argv )
 
   // construct the linear objective (in both)
   if( HasLin ) {  // if any
-   GenerateA( 1 , nvar );
+   A.resize( 1 );
+   GenerateAi( A[ 0 ] , nvar );
 
    ConstructObj( LPBlock );
    ConstructObj( NDOBlock );
@@ -774,7 +806,7 @@ int main( int argc , char **argv )
    PFBNDOk->set_name( "NDO-PFB_" + std::to_string( k ) );
 
    // pass it to NDOBlock
-   NDOBlock->add_nested_Block( PFBLPk );
+   NDOBlock->add_nested_Block( PFBNDOk );
 
    // pass the Variable to the PolyhedralFunction in LP (copy the vector)
    PFBLPk->get_PolyhedralFunction().set_variables(
@@ -799,6 +831,11 @@ int main( int argc , char **argv )
    GenerateSupplies();  // generate random supplies
    GenerateDemands();   // generate random demands
 
+   #if( LOG_LEVEL >= 4 )
+    cout << "T[ " << p << " ] = " << endl;
+    printT();
+   #endif
+
    // construct the AbstractBlock for LP transportation - - - - - - - - - - -
    auto TLPp = new AbstractBlock( LPBlock );
    TLPp->set_name( "LP-TB_" + std::to_string( p ) );
@@ -809,7 +846,7 @@ int main( int argc , char **argv )
 
    // construct and initialise the (potential) constraints
    auto pc = new boost::multi_array< FRowConstraint , 2 >(
-					  boost::extents[ nvar ][ nvar ] );
+					    boost::extents[ nvar ][ nvar ] );
 
    // ... that link with the variables in the root LPBlock
    auto xLP = LPBlock->get_static_variable_v< ColVariable >( 0 );
@@ -840,7 +877,7 @@ int main( int argc , char **argv )
 
    // pass the (dual) variables to the AbstractBlock
    TLPp->add_static_variable( *ys , "ys" );
-   TLPp->add_static_variable( *ys , "yd" );
+   TLPp->add_static_variable( *yd , "yd" );
 
    // pass the (potential) constraints to the AbstractBlock
    TLPp->add_static_constraint( *pc , "pc" );
@@ -853,11 +890,11 @@ int main( int argc , char **argv )
    LPBlock->add_nested_Block( TLPp );
 
    // construct the AbstractBlock for NDO transportation- - - - - - - - - - -
+   // the AbstractBlock just has a FRealObjective with a LagBFunction inside;
+   // the inner Block of the LagBFunction is the transportation probem
+   
    auto TNDOp = new AbstractBlock( NDOBlock );
    TNDOp->set_name( "NDO-TB_" + std::to_string( p ) );
-
-   // its objective is a LagBFunction
-   auto LBF = new LagBFunction();
 
    // construct the inner Block for the LagBFunction
    auto IBNDOp = new AbstractBlock();
@@ -933,8 +970,8 @@ int main( int argc , char **argv )
    // pass the objective to the inner Block
    IBNDOp->set_objective( ibo , eNoMod );
 
-   // pass the inner Block to the LagBFunction
-   LBF->set_inner_block( IBNDOp );
+   // construct the LagBFunction, passing it the inner Block
+   auto LBF = new LagBFunction( IBNDOp );
 
    // construct the dual pairs
    LagBFunction::v_dual_pair lp( nvar );
@@ -955,7 +992,8 @@ int main( int argc , char **argv )
    // pass the dual pairs to the LagBFunction
    LBF->set_dual_pairs( std::move( lp ) , eNoBlck );
 
-   // construct the objective to the transportation Block
+   // construct the objective to the transportation Block, passing it the
+   // LagBFunction
    TNDOp->set_objective( new FRealObjective( TNDOp , LBF ) , eNoMod );
 
    // finally, pass the transportation Block to the NDOBlock
@@ -1016,6 +1054,37 @@ int main( int argc , char **argv )
     LBF->get_nested_Block( 0 )->register_Solver(
 				    Solver::new_Solver( "CPXMILPSolver" ) );
     }
+
+   #if( LOG_LEVEL >= 5 )
+    // in the extremely verbose mode, set an event that spits out the LPs
+    // in the LagBFunctions every k iterations; k must be in the parameter
+    // file via intEverykIt (0 by default == never)
+
+   for( auto slvr : NDOBlock->get_registered_solvers() ) {
+    auto bslvr = dynamic_cast< BundleSolver * >( slvr );
+    if( ! bslvr )
+     continue;
+
+    bslvr->set_event_handler( ThinComputeInterface::eEverykIteration ,
+     // define the event via an appropriate Lambda
+     [ & ] () {
+      for( Index p = nf ; p < nf + nt ; ++p ) {
+       auto FRO =
+	NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
+       auto LBF = static_cast< LagBFunction * >( FRO->get_function() );
+       auto slv =
+	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
+       slv->set_par( CPXMILPSolver::strOutputFile ,
+		     "TB-" + std::to_string( p - nf ) + "-" +
+		     std::to_string( bslvr->n_calls() ) + "-" +
+		     std::to_string( bslvr->n_iter() ) + ".lp" );
+       }
+
+      return( ThinComputeInterface::eContinue );
+      }  // end of Lambda
+			      );
+    }
+   #endif
    }
   }
 
@@ -1051,11 +1120,15 @@ int main( int argc , char **argv )
  
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // now, for n_repeat times:
- // - up to n_change rows are added
- // - up to n_change rows are deleted
- // - up to n_change rows are modified
- // - up to n_change rows are modified
+ // now, for n_repeat times, one inner Block is selected and:
+ // - if it is a PolyhedralFunctionBlock
+ //   = up to n_change rows are added
+ //   = up to n_change rows are deleted
+ //   = up to n_change rows are modified
+ //   = up to n_change constants are modified
+ // - if it is an AbstractBlock (transportation problem)
+ //   = costs are modified
+ //   = demands are modified
  //
  // then the two problems are re-solved
  //
@@ -1063,10 +1136,8 @@ int main( int argc , char **argv )
  //                 care of intercepting all (physical) Modification and
  //                 map_forward them to NDOBlock
  //
- // if there are multiple PolyhedralFunctionBlock inside LPBlock and
- // NDOBlock, at each iteration only one of them is changed; however, by
- // playing with SKIP_BEAT one can solve the Block after having changed an
- // arbitrary number of them
+ // by playing with SKIP_BEAT one can re-solve the two problems after having
+ // changed an arbitrary number of inner Blocks
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
 
@@ -1086,7 +1157,7 @@ int main( int argc , char **argv )
    auto LBF = static_cast< LagBFunction * >(
 		  NDOTr->get_objective< FRealObjective >()->get_function() );
    NDOTr = static_cast< p_AB >( LBF->get_nested_Block( 0 ) );
-   LOG1( rep << "[TB " << bn - std::abs( nf ) << "]: ");
+   LOG1( rep << "[TB " << bn - nf << "]: ");
    }
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1229,7 +1300,7 @@ int main( int argc , char **argv )
 
    LOG1( "modified costs " << i << " - " );
 
-   GenerateCosts( C[ i ] );
+   GenerateCi( C[ 0 ] );
 
    // in the dual transportation problem these are the RHS of the
    // potential constraints: send all the corresponding Modification to
@@ -1239,7 +1310,7 @@ int main( int argc , char **argv )
    Observer::ChnlName chnl = LPTr->open_channel();
    const auto iAM = Observer::make_par( eModBlck , chnl );
    for( Index j = 0 ; j < nvar ; ++j )
-    (*pc)[ i ][ j ].set_lhs( C[ i ][ j ] , iAM );
+    (*pc)[ i ][ j ].set_lhs( C[ 0 ][ j ] , iAM );
 
    LPBr->close_channel( chnl );  // then close the chanel
 
@@ -1247,7 +1318,7 @@ int main( int argc , char **argv )
    // slice of the coefficients of the objective
    auto lf = static_cast< LinearFunction * >(
 		  NDOTr->get_objective< FRealObjective >()->get_function() );
-   lf->modify_coefficients( RealVector( C[ i ] ) ,
+   lf->modify_coefficients( RealVector( C[ 0 ] ) ,
 			    Range( i * nvar , ( i + 1 ) * nvar ) );
    }
 

@@ -27,10 +27,11 @@ ComputeConfig     # exact type of the ComputeConfig object
 
 0  # f_diff == 0 ==> all non-provided parameters are set to the default value
 
-20 # number of integer parameters
+21 # number of integer parameters
 
 # now all the integer parameters
-intMaxIter 1000000   # MaxIter, max number of iterations for each call
+intMaxIter 100000   # MaxIter, max number of iterations for each call
+intEverykIt 1     # periodicity of eEverykIteration events
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
 intBPar1   20     # discard items when they have been useless for <this> iterations
