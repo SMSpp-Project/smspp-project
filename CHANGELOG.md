@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.0] - 2020-09-16
+
+### Added
+
+- Support for concurrency.
+- Support for new configuration framework.
+
+### Changed
+
+- Files reorganized.
+
 ## [0.2.0] - 2020-03-06
 
 ### Added
@@ -22,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First test release.
 
-[Unreleased]: https://gitlab.com/smspp/tests/-/compare/0.2.0...develop
+[Unreleased]: https://gitlab.com/smspp/tests/-/compare/0.3.0...develop
+[0.3.0]: https://gitlab.com/smspp/tests/-/compare/0.2.0...0.3.0
 [0.2.0]: https://gitlab.com/smspp/tests/-/compare/0.1.0...0.2.0
 [0.1.0]: https://gitlab.com/smspp/tests/-/tags/0.1.0

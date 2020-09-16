@@ -4,7 +4,7 @@
 # A txt description of a BlockSolverConfig for a Block having a single
 # BundleSolver attached, and no sub-Block
 #
-#   version 1.0 , 17/11/2019
+#   version 2.0 , 12/09/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -27,7 +27,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 0  # f_diff == 0 ==> all non-provided parameters are set to the default value
 
-19 # number of integer parameters
+20 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 1000000   # MaxIter, max number of iterations for each call
@@ -38,13 +38,15 @@ intBPar2  400     # max bundle size per component
 intBPar3    1     # max n. of items to fetch from Fi() at each iteration
 intBPar4    1     # min n. of items to fetch from Fi() at each iteration
 intBPar6    0     # second parameter for dynamic max n. of items per iteration
+intBPar7   11     # how to deal with the global pools
 intMnSSC    0     # min number of consecutive SS with the same t for a t increase
 intMnNSC    1     # min number of consecutive NS with the same t for a t decrease
 inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intMPName  8      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+intMPName  15      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+                  # + 8 = check for duplicate linearizations
 
 # QPPenalty's parameters : - - - - - -
 intMPlvl   4      # log verbosity of Master Problem
@@ -59,16 +61,16 @@ intOSImp1  1      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
 
-intRstAlg  62     # parameter to handle the reset of the algorithm
+intRstAlg   2     # parameter to handle the reset of the algorithm
 
 17 # number of double parameters
 
 # now all the double parameters
-dblRelAcc    1e-8 # relative accuracy 
-dblRelMPAcc  1e-12 # precision required to the MP Solver (optimality)
-dblRMPAccSol 1e-12 # precision required to the MP Solver (feasibility)
-#dblRelMPAcc  1e-9 # precision required to the MP Solver (optimality)
-#dblRMPAccSol 1e-9 # precision required to the MP Solver (feasibility)
+dblRelAcc     1e-9 # relative accuracy
+#dblRelMPAcc  1e-12 # precision required to the MP Solver (optimality - for QPP)
+#dblRMPAccSol 1e-12 # precision required to the MP Solver (feasibility - for QPP)
+dblRelMPAcc  1e-9 # precision required to the MP Solver (optimality - for OSIMP)
+dblRMPAccSol 1e-9 # precision required to the MP Solver (feasibility - for OSIMP)
 
 dbltStar   1e+4   # stopping parameter related to norm of residual
 dblBPar5   4      # first parameter for dynamic max n. of items per iteration
@@ -79,9 +81,8 @@ dblmxIncr  10     # max increase of t
 dblmnIncr  1.5    # min increase of t (each time it is increased)
 dblmxDecr  0.1    # max decrease of t
 dblmnDecr  0.66   # min decrease of t (each time it is decreased)
-dbltMaior  1e+2   # maximum value for t
-#dbltMaior  1e+4   # maximum value for t
-dbltMinor  1e-9   # minimum value for t
+dbltMaior  1e+4   # maximum value for t
+dbltMinor  1e-4   # minimum value for t
 dbltInit   1      # initial value for t
 dbltSPar2  0.001  # parameter for the long-term t-strategy
 
@@ -96,11 +97,6 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 * # [none]
 
 # end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-0 # number of BlockSolverConfig for the sub-Block
-
-# now all BlockSolverConfig for the sub-Block
-# [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - END BundlePar.txt - - - - - - - - - - - - - - -

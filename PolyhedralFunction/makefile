@@ -50,7 +50,6 @@ clean::
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already
@@ -67,6 +66,10 @@ include $(BNDSLVSDR)makefile-c
 # MILPSolver
 #MILPSSDR = ../../../MILPSolver/
 #include $(MILPSSDR)makefile
+
+# define input macros for libSCIP library makefile, then include it
+#libSCIPDIR = ../../extlib/
+#include $(libSCIPDIR)makefile-libscip
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 

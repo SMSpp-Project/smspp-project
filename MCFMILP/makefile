@@ -2,10 +2,10 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for PolthedralFunctionBlock)                           #
+#   makefile of test (for MCFMILP)                                           #
 #                                                                            #
-#                                VERSION 1.10                                #
-#                               02 - 12 - 2019                               #
+#                                VERSION 1.00                                #
+#                               16 - 06 - 2020                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -17,15 +17,26 @@
 ##############################################################################
 
 # module name
-NAME = PolyhedralFunctionBlock_test
+NAME = MCFMILP_test
 
 # basic directory
 DIR = ./
 
+# switch to select the :MCFClass solver, supported values are
+# -DHAVE_CSCL2      for the CS2 class
+# -DHAVE_CPLEX      for the MCFCplex class
+# -DHAVE_MFSMX      for the MCFSimplex class
+# -DHAVE_MFZIB      for the MCFZIB class
+# -DHAVE_RELAX      for the RelaxIV class
+# -DHAVE_CPLEX      for the MCFCplex class
+# -DHAVE_SPTRE      for the SPTree class; note that SPTree cannot solve
+#                   most MCF instances, except those with SPT structure
+MCFCS = -DHAVE_MFSMX
+
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 $(MCFCS)
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG
+#SW = -O3 -std=c++17 -DNDEBUG $(MCFCS)
 
 # compiler
 CC = clang++
@@ -48,33 +59,36 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
-# BundleSolver
-BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
-
-# not necessary, BundleSolver does that already
+# not necessary, MCFBlock does that already
 # define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../../../SMS++/
+#SMS++SDR = ../..SMS++/
 #include $(SMS++SDR)lib/makefile-inc
 
-# not necessary, BundleSolver does that already
+# MCFBlock
+MCFBkSDR = ../../MCFBlock/
+include $(MCFBkSDR)makefile-c
+
+# not necessary, MILPSolver does that already
 # define input macros for libCPLEX complete makefile, then include it
-#libCPLEXDIR = ../../../extlib/
+#libCPLEXDIR = ../../extlib/
 #include $(libCPLEXDIR)makefile-libCPLEX
 
-# not necessary, BundleSolver does that already
+# not necessary, MILPSolver does that already
+# define input macros for libSCIP complete makefile, then include it
+#libSCIPDIR = ../../extlib/
+#include $(libSCIPDIR)makefile-libSCIP
+
 # MILPSolver
-#MILPSSDR = ../../../MILPSolver/
-#include $(MILPSSDR)makefile
+MILPSSDR = ../../MILPSolver/
+include $(MILPSSDR)makefile-c
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ)
+MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
 
 # libreries
-MLIB =  $(BNDSLVLIB)
+MLIB =  $(MCFBkLIB) $(MILPSLIB) -lgtest
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
@@ -82,10 +96,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC)
+MINC =  $(MCFBkINC) $(MILPSINC)
 
 # includes
-MH =    $(BNDSLVH)
+MH =    $(MCFBkH) $(MILPSH)
 
 # compile command
 

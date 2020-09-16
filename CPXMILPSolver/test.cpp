@@ -22,8 +22,9 @@ typedef double OptSolution;
 typedef std::tuple< TestFile, OptVars, OptSolution > TestParameter;
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- PARAMETRIZED FIXTURE ---------------------------*/
+/*----------------------- PARAMETERIZED TEST FIXTURE -----------------------*/
 /*--------------------------------------------------------------------------*/
+
 class MILPSolverTest :
  public ::testing::TestWithParam< TestParameter > {
  protected:
@@ -49,13 +50,10 @@ class MILPSolverTest :
 };
 
 /*--------------------------------------------------------------------------*/
-/*------------------------ PARAMETRIZED TEST CASES -------------------------*/
+/*--------------------------- PARAMETERIZED TESTS --------------------------*/
 /*--------------------------------------------------------------------------*/
+
 TEST_P( MILPSolverTest, SimpleSolve ) {
-
- // block->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
- // auto solver = ( block->get_registered_solvers() ).front();
-
  // Solve
  Solver * solver = new CPXMILPSolver();
  block->register_Solver( solver );
@@ -78,14 +76,15 @@ TEST_P( MILPSolverTest, SimpleSolve ) {
 }
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- TEST CASE INSTANCES ----------------------------*/
+/*------------------------- TEST SUITE INSTANCES ---------------------------*/
 /*--------------------------------------------------------------------------*/
 
-INSTANTIATE_TEST_CASE_P( CPXMILPSolverTests,
-                         MILPSolverTest,
-                         ::testing::Values(
-                          TestParameter( TestFile( "data/test.milp" ), OptVars{ 4, 1 }, OptSolution( -22 ) )
-                         ) );
+INSTANTIATE_TEST_SUITE_P( CPXMILPSolverTests,
+                          MILPSolverTest,
+                          ::testing::Values(
+                           TestParameter( TestFile( "test.milp" ),
+                                          OptVars{ 4, 1 },
+                                          OptSolution( -22 ) ) ) );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/

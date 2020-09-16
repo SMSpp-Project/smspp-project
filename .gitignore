@@ -9,6 +9,8 @@
 *.obj
 *.ko
 *.elf
+LagBFunction/LagBFunction_test
+MCFMILP/MCFMILP_test
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 

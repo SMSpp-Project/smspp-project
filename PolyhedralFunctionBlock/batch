@@ -1,6 +1,11 @@
 #/bin/bash
 
-what=1
+#what=159
+#what=143
+what=31
+#what=1
+#iter=0
+nf=-10
 
 for size in 2 10 50 100
 do
@@ -9,8 +14,13 @@ do
 for (( seed=0 ; seed<20 ; seed++ ))
 do
 
-printf "$size-$dens-$seed: "
-./PolyhedralFunctionBlock_test $seed $what $size $dens
+if [ -z "$nf" ]; then
+printf "$seed-$what-$size-$dens: "
+else
+printf "$seed-$what-$size-$dens-$nf: "
+fi
+
+./PolyhedralFunctionBlock_test $seed $what $size $dens $nf $iter
 
 done
 done

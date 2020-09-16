@@ -12,19 +12,19 @@ struct TestParameters {
 };
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- PARAMETRIZED FIXTURE ---------------------------*/
+/*----------------------- PARAMETERIZED TEST FIXTURE -----------------------*/
 /*--------------------------------------------------------------------------*/
 
-class ThermalUnitBlockTest :
+class TUBMILPTest :
  public ::testing::TestWithParam< TestParameters > {
 
  protected:
 
  ThermalUnitBlock * block{};
 
- ThermalUnitBlockTest() = default;
+ TUBMILPTest() = default;
 
- ~ThermalUnitBlockTest() override = default;
+ ~TUBMILPTest() override = default;
 
  void SetUp() override {
   std::string filename( GetParam().test_file );
@@ -63,7 +63,8 @@ class ThermalUnitBlockTest :
  // Prints the test name
  struct PrintToStringParamName {
   template< class ParamType >
-  std::string operator()( const testing::TestParamInfo< ParamType > & info ) const {
+  std::string
+  operator()( const testing::TestParamInfo< ParamType > & info ) const {
    auto s = static_cast<TestParameters>(info.param).test_file;
    // Test names must be non-empty, unique, and may only contain ASCII
    // alphanumeric characters or underscore.
@@ -76,9 +77,10 @@ class ThermalUnitBlockTest :
 };
 
 /*--------------------------------------------------------------------------*/
-/*------------------------ PARAMETRIZED TEST CASES -------------------------*/
+/*--------------------------- PARAMETERIZED TESTS --------------------------*/
 /*--------------------------------------------------------------------------*/
-TEST_P( ThermalUnitBlockTest, Serialize ) {
+
+TEST_P( TUBMILPTest, Serialize ) {
  netCDF::NcFile f1( "output.nc4", netCDF::NcFile::replace );
  f1.putAtt( "SMS++_file_type", netCDF::NcInt(), eBlockFile );
  auto bg1 = f1.addGroup( "Block_0" );
@@ -93,7 +95,7 @@ TEST_P( ThermalUnitBlockTest, Serialize ) {
  ASSERT_EQ( res1.compare( res2 ), 0 );
 }
 
-TEST_P( ThermalUnitBlockTest, GenerateAbsRepresentation ) {
+TEST_P( TUBMILPTest, GenerateAbsRepresentation ) {
  int tmp = 15;
  SimpleConfiguration< int > myconfig( tmp );
 
@@ -107,7 +109,7 @@ TEST_P( ThermalUnitBlockTest, GenerateAbsRepresentation ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P( ThermalUnitBlockTest, SimpleSolve ) {
+TEST_P( TUBMILPTest, SimpleSolve ) {
  auto milpsolver = new CPXMILPSolver();
  block->register_Solver( milpsolver );
 
@@ -127,27 +129,28 @@ TEST_P( ThermalUnitBlockTest, SimpleSolve ) {
 }
 
 /*--------------------------------------------------------------------------*/
-/*------------------------- TEST CASE INSTANCES ----------------------------*/
+/*------------------------- TEST SUITE INSTANCES ---------------------------*/
 /*--------------------------------------------------------------------------*/
 
-INSTANTIATE_TEST_CASE_P( ThermalUnitBlockTests,
-                         ThermalUnitBlockTest,
-                         ::testing::Values(
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp1_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp2_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp3_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp4_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp5_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp6_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp7_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp8_24.nc4" },
-                          TestParameters{ "../netCDF_files/1UC_Data/24/S1ramp9_24.nc4" }
-                         ),
-                         ThermalUnitBlockTest::PrintToStringParamName() );
+INSTANTIATE_TEST_SUITE_P( TUBMILPTests,
+                          TUBMILPTest,
+                          ::testing::Values(
+                           TestParameters{ "1UC_Data/24/S1ramp1_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp2_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp3_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp4_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp5_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp6_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp7_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp8_24.nc4" },
+                           TestParameters{ "1UC_Data/24/S1ramp9_24.nc4" }
+                          ),
+                          TUBMILPTest::PrintToStringParamName() );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/
 /*--------------------------------------------------------------------------*/
+
 int main( int argc, char ** argv ) {
  ::testing::InitGoogleTest( &argc, argv );
  return RUN_ALL_TESTS();
