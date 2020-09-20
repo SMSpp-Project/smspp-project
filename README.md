@@ -65,9 +65,9 @@ Alternatively you can use the plain makefiles inside each directory.
   Dipartimento di Informatica  
   Università di Pisa
 
-- **Rafael Durbano Lobato**
-  *Operations Research Group*
-  Dipartimento di Informatica
+- **Rafael Durbano Lobato**  
+  *Operations Research Group*  
+  Dipartimento di Informatica  
   Università di Pisa
 
 ## License
