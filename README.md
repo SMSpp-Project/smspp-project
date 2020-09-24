@@ -8,6 +8,7 @@ to that module. For this reason, we ship them in a separate repository.
 
 The following tests are provided:
 
+- [`BendersBFunction`](BendersBFunction)
 - [`CPXMILPSolver`](CPXMILPSolver) - solve a `SimpleMILPBlock` with a `CPXMILPSolver`
 - [`MCFMILP`](MCFMILP) - solve a `MCFBlock` with both a `MILPSolver` and an `MCFSolver` and compare the results, test the Modifications.
 - [`PolyhedralFunction`](PolyhedralFunction)
@@ -60,6 +61,11 @@ Alternatively you can use the plain makefiles inside each directory.
   Università di Pisa
 
 - **Niccolò Iardella**  
+  *Operations Research Group*  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+- **Rafael Durbano Lobato**  
   *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
