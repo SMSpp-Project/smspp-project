@@ -124,7 +124,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -157,7 +157,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define SKIP_BEAT 3
+#define SKIP_BEAT 2
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -375,12 +375,8 @@ static void GenerateCi( RealVector & Ci )
 
 static void GenerateCosts( void )
 {
- C.resize( nvar );
-
- for( auto & Ci : C ) {
-  Ci.resize( nvar );
+ for( auto & Ci : C )
   GenerateCi( Ci );
-  }
  }
 
 /*--------------------------------------------------------------------------*/
@@ -738,9 +734,9 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable in LPBlock
-  LPBlock->add_static_variable( *xLP );
+   LPBlock->add_static_variable( *xLP , "x" );
   #if DYNAMIC_VARS > 0
-   LPBlock->add_dynamic_variable( *xLPd );
+   LPBlock->add_dynamic_variable( *xLPd , "xd" );
   #endif
 
    // construct the Variable in NDOBlock
@@ -756,9 +752,9 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable in NDOBlock
-  NDOBlock->add_static_variable( *xNDO );
+   NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
-   NDOBlock->add_dynamic_variable( *xNDOd );
+   NDOBlock->add_dynamic_variable( *xNDOd , "xd" );
   #endif
 
   // construct the linear objective (in both)
@@ -826,6 +822,11 @@ int main( int argc , char **argv )
 
   // now construct the transportation problems (and their duals)- - - - - - -
 
+  // first allocate memory once and for all
+  C.resize( nvar );
+  for( auto & Ci : C )
+   Ci.resize( nvar );
+  
   for( Index p = 0 ; p < nt ; ++p ) {
    GenerateCosts();     // generate random costs
    GenerateSupplies();  // generate random supplies
@@ -990,7 +991,7 @@ int main( int argc , char **argv )
     }
 
    // pass the dual pairs to the LagBFunction
-   LBF->set_dual_pairs( std::move( lp ) , eNoBlck );
+   LBF->set_dual_pairs( std::move( lp ) );
 
    // construct the objective to the transportation Block, passing it the
    // LagBFunction
@@ -1032,8 +1033,7 @@ int main( int argc , char **argv )
    return( 1 );
    }
 
-  auto bsc = new BlockSolverConfig;
-  BundleParFile >> *( bsc );
+  auto bsc = new BlockSolverConfig( BundleParFile );
   BundleParFile.close();
 
   // ensure the "easy components" parameter is properly set
@@ -1068,6 +1068,14 @@ int main( int argc , char **argv )
     bslvr->set_event_handler( ThinComputeInterface::eEverykIteration ,
      // define the event via an appropriate Lambda
      [ & ] () {
+      // print the current point
+      auto l = bslvr->get_current_point();
+      cout << endl << "            CP = [ ";
+      for( auto el : l )
+       cout << el << " ";
+      cout << "]" << endl;
+
+      // have the inner CPXMILPSolver spit out the LP at this iteration
       for( Index p = nf ; p < nf + nt ; ++p ) {
        auto FRO =
 	NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
@@ -1165,7 +1173,7 @@ int main( int argc , char **argv )
   if( LPBr && ( wchg & 1 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
-    LOG1( "added " << tochange << " rows -" );
+    LOG1( "added " << tochange << " rows - " );
 
     GenerateAb( tochange , nvar );
 
@@ -1301,6 +1309,12 @@ int main( int argc , char **argv )
    LOG1( "modified costs " << i << " - " );
 
    GenerateCi( C[ 0 ] );
+   #if( LOG_LEVEL >= 5 )
+    cout << endl << "C[ " << i << " ] = [ ";
+    for( auto el : C[ 0 ] )
+     cout << el << " ";
+    cout << " ]" << endl;
+   #endif
 
    // in the dual transportation problem these are the RHS of the
    // potential constraints: send all the corresponding Modification to
@@ -1312,7 +1326,7 @@ int main( int argc , char **argv )
    for( Index j = 0 ; j < nvar ; ++j )
     (*pc)[ i ][ j ].set_lhs( C[ 0 ][ j ] , iAM );
 
-   LPBr->close_channel( chnl );  // then close the chanel
+   LPTr->close_channel( chnl );  // then close the chanel
 
    // in the transportation problem inside the LagBFunction these are a
    // slice of the coefficients of the objective
@@ -1504,9 +1518,11 @@ int main( int argc , char **argv )
 		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
 		                  std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
-    cout << endl << "LPBlock-PF: ";
-    auto PF = & LPBr->get_PolyhedralFunction();
-    printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
+    if( bn < nf ) {
+     cout << endl << "LPBlock-PF: ";
+     auto PF = & LPBr->get_PolyhedralFunction();
+     printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
+     }
    #endif
   #endif
 

@@ -1,6 +1,6 @@
 #/bin/bash
 
-what=31
+what=32
 #what=1
 #iter=0
 nf=-4
@@ -13,7 +13,7 @@ do
 for (( seed=0 ; seed<20 ; seed++ ))
 do
 
-printf "$seed-$what-$size-$nf-$nt-$dens: "
+printf "[$seed $what $size $nf $nt $dens]: "
 
 ./LagBFunction_test $seed $what $size $nf $nt $dens $iter
 
