@@ -43,6 +43,7 @@ endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(BendersBFunction)
+add_subdirectory(LagBFunction)
 add_subdirectory(CPXMILPSolver)
 add_subdirectory(MCFMILP)
 add_subdirectory(PolyhedralFunction)

@@ -5,8 +5,7 @@ find_package(MILPSolver)
 # ----- Tests --------------------------------------------------------------- #
 if (MCFBlock_FOUND AND MILPSolver_FOUND)
 
-    set(MCF_SOLVER "cplex") # FIXME: Dirty workaround
-
+    # MCF_SOLVER should be read from MCFBlock configuration
     if (MCF_SOLVER STREQUAL "relax")
         message(STATUS "Using RelaxIV solver")
         add_compile_definitions(HAVE_RELAX)
