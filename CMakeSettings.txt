@@ -84,4 +84,4 @@ add_compile_options(
 # ----- Project-specific settings ------------------------------------------- #
 
 # MCF Solver (relax cplex mfsmx sptree)
-set(MCF_SOLVER "cplex")
+#set(MCF_SOLVER "cplex")
