@@ -3,8 +3,8 @@
 what=32
 #what=1
 #iter=0
-nf=-4
-nt=2
+nf=-2
+nt=1
 
 for size in 2 10 50 100
 do
