@@ -1,10 +1,10 @@
 #/bin/bash
 
-what=32
+what=31
 #what=1
 #iter=0
-nf=-2
-nt=1
+nf=-10
+nt=-3
 
 for size in 2 10 50 100
 do

@@ -157,7 +157,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define SKIP_BEAT 2
+#define SKIP_BEAT 3
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -367,11 +367,11 @@ static void GenerateLB( void )
 
 static Index GenerateCi( RealVector & Ci )
 {
- // 30% of costs are zero, the rest random between -10 and 0
+ // 10% of costs are zero, the rest random between -10 and 0
 
  Index nzc = 0;
  for( auto & cij : Ci )
-  if( dis( rg ) < 0.3 )
+  if( dis( rg ) < 0.1 )
    cij = 0;
   else {
    cij = - 10 * dis( rg );

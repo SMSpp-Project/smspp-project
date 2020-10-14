@@ -67,16 +67,12 @@ intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
 
 
-17 # number of double parameters
+15 # number of double parameters
 
 # now all the double parameters
 #dblMinNrEvls   -1 # percentage of components to evaluate at every iteration
 
 dblRelAcc    1e-9 # relative accuracy
-#dblRelMPAcc  1e-12 # precision required to the MP Solver (optimality - for QPP)
-#dblRMPAccSol 1e-12 # precision required to the MP Solver (feasibility - for QPP)
-dblRelMPAcc  1e-9 # precision required to the MP Solver (optimality - for OSIMP)
-dblRMPAccSol 1e-9 # precision required to the MP Solver (feasibility - for OSIMP)
 
 dbltStar   1e+4   # stopping parameter related to norm of residual
 dblBPar5   4      # first parameter for dynamic max n. of items per iteration

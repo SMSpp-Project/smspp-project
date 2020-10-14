@@ -11,7 +11,12 @@ do
 for (( seed=0 ; seed<20 ; seed++ ))
 do
 
-printf "$seed-$what-$size-$dens: "
+if [ -z "$iter" ]; then
+printf "[$seed $what $size $dens]: "
+else
+printf "[$seed $what $size $dens $iter]: "
+fi
+
 ./PolyhedralFunction_test $seed $what $size $dens $iter
 
 done
