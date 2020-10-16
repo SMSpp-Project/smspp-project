@@ -6,7 +6,7 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.11...3.15)
+cmake_minimum_required(VERSION 3.11)
 project(SMS++_tests VERSION 0.3.2 LANGUAGES CXX)
 
 # ----- Settings ------------------------------------------------------------ #
