@@ -1,8 +1,7 @@
 #/bin/bash
 
-#what=159
-#what=143
-what=31
+#what=287
+what=32
 #what=1
 #iter=0
 nf=-10

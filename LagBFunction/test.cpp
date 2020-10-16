@@ -137,7 +137,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 1
+  #define LOG_ON_COUT 0
   // if nonzero, the BundleSolver log is sent on cout rather than on a file
  #endif
 #else

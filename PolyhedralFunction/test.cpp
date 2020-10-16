@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.01
+ * \version 1.10
  *
- * \date 12 - 09 - 2020
+ * \date 14 - 10 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -248,7 +248,7 @@ static void GenerateAb( Index nr , Index nc )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateLB( void )
+static void GenerateBND( void )
 {
  // rationale: we expect the solution x^* to have entries ~= 1 (in absolute
  // value, and the coefficients of A are <= scale (in absolute value), so
@@ -342,9 +342,9 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 {
  // change the constant == LHS or RHS of the constraint (depending on convex)
  if( convex )
-  ci.set_lhs( b[ i ] );
+  ci.set_lhs( b[ i ] , iAM );
  else
-  ci.set_rhs( b[ i ] );
+  ci.set_rhs( b[ i ] , iAM );
 
  // now change the coefficients, except that of v that is always 1
  LinearFunction::Vec_FunctionValue coeffs( nvar );
@@ -375,7 +375,7 @@ static void SetGlobalBound( void )
 /*--------------------------------------------------------------------------*/
 
 static void printAb( const MultiVector & tA , const RealVector & tb ,
-		     double lb )
+		     double bound )
 {
  PANIC( ( tA.size() == tb.size() ) || ( tA.size() + 1 == tb.size() ) );
  PANIC( tA.size() == m );
@@ -383,10 +383,10 @@ static void printAb( const MultiVector & tA , const RealVector & tb ,
   PANIC( tai.size() == nvar );
 
  cout << "n = " << nvar << ", m = " << m;
- if( BND == INF )
+ if( std::abs( bound ) == INF )
   cout << " (no bound)" << endl;
  else
-  cout << ", bound = " << rs( bound ) << endl;
+  cout << ", bound = " << bound << endl;
 
  for( Index i = 0 ; i < m ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
@@ -474,10 +474,10 @@ static bool SolveBoth( void )
     cout << ( convex ? slvrNDO->get_ub() : slvrNDO->get_lb() );
    else
     if( rtrnNDO == Solver::kInfeasible )
-     cout << "      Unbounded";
+     cout << "    Unfeas(?)";
     else
      if( rtrnNDO == Solver::kUnbounded )
-      cout << "        -INF";
+      cout << "      Unbounded";
      else
       cout << "      Error!";
    cout << endl;
@@ -569,12 +569,12 @@ int main( int argc , char **argv )
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // choosing whether convex or concave: toss a(n unbiased, two-sided) coin
- //!! convex = ( dis( rg ) < 0.5 );
+ convex = ( dis( rg ) < 0.5 );
 
  // construct the matrix m x nvar matrix A and the m-vector b
 
  GenerateAb( m , nvar );
- GenerateLB();
+ GenerateBND();
 
  cout.setf( ios::scientific, ios::floatfield );
  cout << setprecision( 10 );
@@ -657,7 +657,7 @@ int main( int argc , char **argv )
 				    std::move( b ) );
   if( BND != INF )
    PF->modify_bound( rs( BND ) );
-  PF->set_is_convex( convex );
+  PF->set_is_convex( convex , eNoMod );
   auto objNDO = new FRealObjective();
   objNDO->set_function( PF );
   objNDO->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
@@ -928,9 +928,13 @@ int main( int argc , char **argv )
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
 
      auto cit = std::next( cnst->begin() , strt );
-     for( Index i = 0 ; i < tochange ; )
-      (*(cit++)).set_lhs( b[ i++ ] );
-
+     if( convex )
+      for( Index i = 0 ; i < tochange ; )
+       (*(cit++)).set_lhs( b[ i++ ] );
+     else
+      for( Index i = 0 ; i < tochange ; )
+       (*(cit++)).set_rhs( b[ i++ ] );
+ 
      // modify them in the NDO
      if( tochange == 1 )
       PF->modify_constant( strt , b[ 0 ] );
@@ -946,11 +950,18 @@ int main( int argc , char **argv )
 
      Index prev = 0;
      auto cit = cnst->begin();
-     for( Index i = 0 ; i < tochange ; ) {
-      cit = std::next( cit , nms[ i ] - prev );
-      prev = nms[ i ];
-      (*cit).set_lhs( b[ i++ ] );
-      }
+     if( convex )
+      for( Index i = 0 ; i < tochange ; ) {
+       cit = std::next( cit , nms[ i ] - prev );
+       prev = nms[ i ];
+       (*cit).set_lhs( b[ i++ ] );
+       }
+     else
+      for( Index i = 0 ; i < tochange ; ) {
+       cit = std::next( cit , nms[ i ] - prev );
+       prev = nms[ i ];
+       (*cit).set_rhs( b[ i++ ] );
+       }
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -965,7 +976,7 @@ int main( int argc , char **argv )
   if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
    LOG1( "modified bound - " );
 
-   GenerateLB();
+   GenerateBND();
 
    // change it in the LP
    auto cnst = LPBlock->get_static_constraint< BoxConstraint >( 0 );
@@ -1189,7 +1200,7 @@ int main( int argc , char **argv )
     PANIC( PF );
     printAb( PF->get_A() , PF->get_b() ,
 	     convex ? PF->get_global_lower_bound()
-	            : PF->get_global_lower_bound() );
+	            : PF->get_global_upper_bound() );
    #endif
   #endif
 
