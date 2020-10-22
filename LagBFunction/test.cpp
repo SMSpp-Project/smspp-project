@@ -12,8 +12,9 @@
  * - p random uncapacitated *max-cost* transportation problems
  *   (with *negative* costs) on complete bipartite n-graphs (n origins, n
  *   destinations) are constructed "by hand", each inside an AbstractBlock;
- *   the problems have balanced supply and demands, no capacities, and no
- *   directed cycles, hence they surely attain optimal solutions.
+ *   the problems have balanced supply and demands, no directed cycles,
+ *   and no capacities on a craftly chosen set of "crucial" arcs, so as to
+ *   ensure that they surely attain finite optimal solutions.
  *
  * - The above p AbstractBlock are inserted as inner Block, each inside a
  *   LagBFunction.
@@ -26,13 +27,12 @@
  *   AbstractBlock (NDOBlock), possibly with a linear function, to represent
  *   a problem of the form (for k = 1 and p = 2)
  *
- *   min { l x + f(x)
- *         + max { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
- *         + max { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 } }
+ *   min { l x + f(x) + max { ( B x + c_1 ) z_1 : E z_1 = b_1 , 0 <= z_1 }
+ *                    + max { ( B x + c_2 ) z_2 : E z_2 = b_2 , 0 <= z_2 } }
  *
  *   Assuming that arcs are ordered lexicographically (first all the ones
  *   outgoing node 0, ordered by tail node, then all the ones outgoing node
- *   1, ...), the matrix E has the form
+ *   1, ...), the matrix E has the form (ignoring bound constraints)
  *
  *             n^2
  *      | e^T  0  ...  0  |
@@ -44,9 +44,9 @@
  *
  *   corresponding to constraints (with I = J =  { 0 ... n - 1 })
  *
- *      \sum_{ j \in J } x[ i ][ j ] == s[ i ]   i \in I
+ *      \sum_{ j \in J } z[ i ][ j ] == s[ i ]   i \in I
  *
- *      \sum_{ i \in I } x[ i ][ j ] == d[ j ]   j \in J
+ *      \sum_{ i \in I } z[ i ][ j ] == d[ j ]   j \in J
  *
  *   with s[] and d[] being the vectors of supplies and demand. The matrix
  *   B has the form
@@ -60,6 +60,26 @@
  *
  *   i.e., x[ j ] is added to the cost of all arcs ingoing destination j.
  *
+ * - Some arc ( i , j ) will have a finite upper bound u[ i ][ j ] >= 0,
+ *   with the value 0 being possible (basically, fixing the variable).
+ *   However, this immediately creates the risk that the transportation
+ *   problem is unfeasible, which we don't want to handle. To avoid that,
+ *   the following cunning plan has been devised:
+ *
+ *   = none of the arcs ( i , i ) will ever have finite upper bound;
+ *
+ *   = the i-th supply and demand will be equal: s[ i ] = d[ i ].
+ *
+ *   This guarantees that satisfying the i-th supply/demand pair via the
+ *   direct arc ( i , j ) is always possible, albeit is may easily not be
+ *   the best choice due to the costs being random. Note that one may have
+ *   also put any finite upper bound >= s[ i ] = d[ i ] for this to work,
+ *   but if bounds and capacities are randomly changed then one should be
+ *   careful to guarantee that this always holds; by not having the bound
+ *   at all we guarantee that this can never be a problem, since we will
+ *   never create a finite upper bound when an infinite one was (nor
+ *   vice-versa, for that matter).
+ *
  * - A BundleSolver is attached to NDOBlock
  *
  * Then, an LP equivalent of NDOBlock is constructed into a different
@@ -71,13 +91,12 @@
  * - For the p LagBFunction, an LP equivalent is constructed by the
  *   following derivation:
  *
- *   min { l x + f(x)
- *         + max { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
- *         + max { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 } } =
+ *   min { l x + f(x) + max { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
+ *                    + max { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 }
+ *         } =
  *
- *   min { l x + f(x)
- *         + min { y_1 b_1 : y_1 E >= B x + c_1 }
- *         + min { y_2 b_2 : y_2 E >= B x + c_2 } } =
+ *   min { l x + f(x) + min { y_1 b_1 : y_1 E >= B x + c_1 }
+ *                    + min { y_2 b_2 : y_2 E >= B x + c_2 } } =
  *
  *   min { l x + f(x) + y_1 b_1 + y_2 b_2 :
  *         y_1 E >= B x + c_1 , y_2 E >= B x + c_2 }
@@ -96,7 +115,39 @@
  *
  *      ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
  *
- *   for all i \in I and j \in J.
+ *   for all i \in I and j \in J. This works if the variable z[ i ][ j ] has
+ *   *no* finite bound; if, instead, the constraint
+ *
+ *      z[ i ][ j ] <= u[ i ][ j ]
+ *
+ *   is present (with u[ i ][ j ] = 0 possible), then it has a dual variable
+ *   w[ i ][ j ]; this means that a term u[ i ][ j ] * w[ i ][ j ] is added
+ *   to the objective function, and that the constraint becomes
+ *
+ *      ys[ i ] + yd[ j ] + w[ i ][ j ] - x[ j ] >= c[ i ][ j ]
+ *
+ *      w[ i ][ j ] >= 0
+ *
+ *   All this, however, is only correct for the convex case; in the concave
+ *   one, the problem is rather
+ *
+ *   max { l x + f(x) + min { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
+ *                    + min { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 } }
+ *   yelding
+ *
+ *   max { l x + f(x) + y_1 b_1 + y_2 b_2 :
+ *         y_1 E <= B x + c_1 , y_2 E <= B x + c_2 }
+ *
+ *   and therefore the constraints are
+ *
+ *      ys[ i ] + yd[ j ] - w[ i ][ j ] - x[ j ] <= c[ i ][ j ]
+ *
+ *      w[ i ][ j ] >= 0
+ *
+ *   assuming u[ i ][ j ] is finite, else without the "- w[ i ][ j ]" term
+ *   and the w[ i ][ j ] variable; note having put a "-" to keep w[ i ][ j ]
+ *   non-negative, since the natural sign of the dual variable of a <=
+ *   constraint in a minimization LP is <= 0.
  *
  * - The variables ys[ i ] and yd[ j ], the objective function and the
  *   constraints (linking them with x[]) are constructed manually into an
@@ -109,9 +160,9 @@
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 0.10
+ * \version 1.00
  *
- * \date 11 - 09 - 2020
+ * \date 21 - 10 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -124,7 +175,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 5
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -137,7 +188,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the BundleSolver log is sent on cout rather than on a file
  #endif
 #else
@@ -146,18 +197,28 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
+// if HAVE_CONSTRAINTS == 1, then about 50% of the variables will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
+// if HAVE_CONSTRAINTS == 2, then about 50% of the variables will have
+// bound constraints; of these, 33% will only have 0 lower bound, 33% will
+// only have random upper bound, and the rest will have both. of the
+// remaining 50% of the variables, another 50% will have a non-negativity
+// constraint implemented via ColVariable::is_positive()
 
-#define DETACH_NDO 0
+#define HAVE_CONSTRAINTS 0
+
+/*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attched to the NDOBlock is detached and re-attached
 // to it at all iterations
 
-#define DETACH_LP 0
+#define DETACH_NDO 0
+
 // if nonzero, the Solver attched to the LPBlock is detached and re-attached
 // to it at all iterations
 
-/*--------------------------------------------------------------------------*/
+#define DETACH_LP 0
 
-#define SKIP_BEAT 3
+/*--------------------------------------------------------------------------*/
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -167,6 +228,8 @@
 // note that the number of rounds of changes is them multiplied by
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // compute() calls per (Solver per) Block
+
+#define SKIP_BEAT 3
 
 /*--------------------------------------------------------------------------*/
 
@@ -180,9 +243,9 @@
 #endif
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+// if 1, half of the variables are dynamic
 
 #define DYNAMIC_VARS 0
-// if 1, half of the variables are dynamic
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
@@ -252,13 +315,15 @@ c_FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 /*------------------------------- GLOBALS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-p_AB LPBlock;              // the "linearized" representaion
+p_AB LPBlock;              // the "partially dualised" LP representaion
 
-p_AB NDOBlock;             // the "natural" representation
+p_AB NDOBlock;             // the "natural" NDO representation
 
-double lb = - 1000;        // a tentative LB to detect unbounded instances
+bool convex = true;        // true if everything is convex
 
-FunctionValue LB;          // the "true" LB (if any)
+double bound = 1000;       // a tentative bound to detect unbounded instances
+
+FunctionValue BND;         // the bound in the PolyhedralFunction (if any)
 
 Index nvar = 10;           // number of variables
 #if DYNAMIC_VARS > 0
@@ -275,11 +340,16 @@ MultiVector A;             // rows
 RealVector b;              // constants
 
 MultiVector C;             // arc costs
-RealVector s;              // supplies
-RealVector d;              // demands
+MultiVector U;             // arc capacities
+RealVector s;              // supplies == demands
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
+/*--------------------------------------------------------------------------*/
+// convex ==> minimize ==> negative numbers
+
+static double rs( double x ) { return( convex ? -x : x ); }
+
 /*--------------------------------------------------------------------------*/
 
 template< class T >
@@ -340,7 +410,7 @@ static void GenerateAb( Index nr , Index nc )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateLB( void )
+static void GenerateBND( void )
 {
  // rationale: we expect the solution x^* to have entries ~= 1 (in absolute
  // value, and the coefficients of A are <= scale (in absolute value), so
@@ -350,33 +420,45 @@ static void GenerateLB( void )
  // (tight) 33% of the time, a mean of 2 times that (loose) 33% of the time,
  // and -INF the rest
 
- if( dis( rg ) <= 0.333 ) {  // "tight" LB
-  LB = - dis( rg ) * 5 * scale * nvar / 4;
+ if( dis( rg ) <= 0.333 ) {  // "tight" bound
+  BND = rs( dis( rg ) * 5 * scale * nvar / 4 );
   return;
   }
 
- if( dis( rg ) <= 0.333 ) {  // "loose" LB
-  LB = - dis( rg ) * 5 * scale * nvar;
+ if( dis( rg ) <= 0.333 ) {  // "loose" bound
+  BND = rs( dis( rg ) * 5 * scale * nvar );
   return;
   }
 
- LB = - INF;
+ BND = INF;
  }
 
 /*--------------------------------------------------------------------------*/
 
 static Index GenerateCi( RealVector & Ci )
 {
- // 10% of costs are zero, the rest random between -10 and 0
+ // 10% of costs are zero, the rest random between:
+ // -10 and 0 in the convex case (where the problem is max)
+ // 0 and 10 in the concave case (where the problem is min)
 
  Index nzc = 0;
- for( auto & cij : Ci )
-  if( dis( rg ) < 0.1 )
-   cij = 0;
-  else {
-   cij = - 10 * dis( rg );
-   ++nzc;
-   }
+ if( convex ) {
+  for( auto & cij : Ci )
+   if( dis( rg ) < 0.1 )
+    cij = 0;
+   else {
+    cij = - 10 * dis( rg );
+    ++nzc;
+    }
+  }
+ else
+  for( auto & cij : Ci )
+   if( dis( rg ) < 0.1 )
+    cij = 0;
+   else {
+    cij = 10 * dis( rg );
+    ++nzc;
+    }
 
  return( nzc );
  }
@@ -394,26 +476,33 @@ static Index GenerateCosts( void )
 
 /*--------------------------------------------------------------------------*/
 
+static void GenerateUi( RealVector & Ui , Index numel )
+{
+ // in 85% of the cases the capacity is random between 0 and 5 (to make it
+ // hopefully "byte" over a demand between 0 and 10), in the remaining 15%
+ // of the cases it is 0 (which "surely bytes")
+ Ui.resize( numel );
+ for( auto & uij : Ui )
+  uij = dis( rg ) < 0.15 ? 0 : 5 * dis( rg );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void GenerateCapacities( void )
+{
+ // note that all arc capacities are generated, even if only 70% will be used
+ U.resize( nvar );
+ for( auto & Ui : U )
+  GenerateUi( Ui , nvar );
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static void GenerateSupplies( void )
 {
  s.resize( nvar );
  for( auto & si : s )
   si = 10 * dis( rg );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static void GenerateDemands( void )
-{
- d.resize( nvar );
- for( auto & di : d )
-  di = 10 * dis( rg );
-
- auto tots = std::accumulate( s.begin() , s.end() , double( 0 ) );
- auto totd = std::accumulate( d.begin() , d.end() , double( 0 ) );
- auto r = tots / totd;
- for( auto & di : d )
-  di *= r;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -434,19 +523,23 @@ static Subset GenerateSubset( Index m , Index k )
 /*--------------------------------------------------------------------------*/
 
 static void printAb( const MultiVector & tA , const RealVector & tb ,
-		     double lb )
+		     double bound )
 {
  cout << "n = " << nvar << ", m = " << tA.size();
- if( lb > - INF )
-  cout << ", LB = " << lb << endl;
+ if( convex )
+  cout << " (convex)";
  else
-  cout << ", LB = - INF" << endl;
+  cout << " (concave)";
+ if( std::abs( bound ) == INF )
+  cout << " (no bound)" << endl;
+ else
+  cout << ", bound = " << bound << endl;
 
  for( Index i = 0 ; i < tA.size() ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
    cout << tA[ i ][ j ] << " ";
-   cout << "], b[ " << i << " ] = " << tb[ i ] << endl;
+  cout << "], b[ " << i << " ] = " << tb[ i ] << endl;
   }
  }
 
@@ -471,11 +564,6 @@ static void printT( void )
   cout << s[ j ] << " ";
  cout << "]" << endl;
 
- cout << "d = [ ";
- for( Index j = 0 ; j < nvar ; ++j )
-  cout << d[ j ] << " ";
- cout << "]" << endl;
-
  printC();
  }
 
@@ -484,46 +572,30 @@ static void printT( void )
 static void ConstructObj( p_AB AB )
 {
  // construct the Linear Objective (FRealObjective with a LinearFunction
- // inside) in the given AbstractBlock; x is the 0-th group of static
- // Variable in AB, and this is only called if nf < 0
+ // inside) in the given AbstractBlock on the "x" static Variable; this is
+ // only called if nf < 0
 
- auto x = AB->get_static_variable_v< ColVariable >( 0 );
+ auto x = AB->get_static_variable_v< ColVariable >( "x" );
  #if DYNAMIC_VARS > 0
-  auto xd = AB->get_dynamic_variable< ColVariable >( 0 );
+  auto xd = AB->get_dynamic_variable< ColVariable >( "x" );
  #endif
 
- v_coeff_pair vars( nvar );
+ v_coeff_pair cp( nvar );
  Index i = 0;
  // static x
  for( ; i < nsvar ; ++i )
-  vars[ i ] = std::make_pair( &((*x)[ i ] ) , A[ 0 ][ i ] );
+  cp[ i ] = std::make_pair( &((*x)[ i ] ) , A[ 0 ][ i ] );
 
  #if DYNAMIC_VARS > 0
   // dynamic x
   auto xdit = xd.begin();
   for( ; i < nvar ; ++i , ++xdit )
-   vars[ j ] = std::make_pair( &(*xdit) , A[ 0 ][ i ] );
+   cp[ j ] = std::make_pair( &(*xdit) , A[ 0 ][ i ] );
  #endif
 
- AB->set_objective( new FRealObjective( AB ,
-			new LinearFunction( std::move( vars ) ) ) , eNoMod );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
-{
- // change the constant == LHS of the constraint
- ci.set_lhs( b[ i ] , iAM );
-
- // now change the coefficients, except that of v that is always 1
- RealVector coeffs( nvar );
-
- for( Index j = 0 ; j < nvar ; ++j )
-  coeffs[ j ] = - A[ i ][ j ];
-
- static_cast< p_LF >( ci.get_function() )->modify_coefficients(
-		          std::move( coeffs ) , Range( 1 , nvar + 1 ) , iAM );
+ auto obj = new FRealObjective( AB , new LinearFunction( std::move( cp ) ) );
+ obj->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
+ AB->set_objective( obj , eNoMod );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -549,8 +621,8 @@ static bool SolveBoth( void )
 
   if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) &&
       ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) ) {
-   auto foLP = slvrLP->get_ub();
-   auto foNDO = slvrNDO->get_ub();
+   auto foLP = convex ? slvrLP->get_ub() : slvrLP->get_lb();
+   auto foNDO = convex ? slvrNDO->get_ub() : slvrNDO->get_lb();
    if( abs( foLP - foNDO )
        <= 2e-7 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
     LOG1( "OK(f)" << endl );
@@ -564,10 +636,15 @@ static bool SolveBoth( void )
     * problem unbounded below. This may be because the tentative lb is too
     * high, check it this actually is the case and if so declare the
     * run a success (but also decrease the lb). */
-   if( slvrNDO->get_ub() <= lb * ( 1 + 1e-9 ) ) {
-    LOG1( "OK(?lb?)" << endl );
-    lb *= 2;
-    NDOBlock->set_valid_lower_bound( lb , true );
+   auto foNDO = convex ? slvrNDO->get_ub() : slvrNDO->get_lb();
+   if( ( convex && ( slvrNDO->get_ub() <= bound * ( 1 + 1e-9 ) ) ) ||
+       ( ( ! convex ) && ( slvrNDO->get_lb() >= bound * ( 1 + 1e-9 ) ) ) ) {
+    LOG1( "OK(?bound?)" << endl );
+    bound *= 2;
+    if( convex )
+     NDOBlock->set_valid_lower_bound( -bound );
+    else
+     NDOBlock->set_valid_upper_bound( bound );
     return( true );
     }
    }
@@ -587,25 +664,25 @@ static bool SolveBoth( void )
   #if( LOG_LEVEL >= 1 )
    cout << "LPBlock = ";
    if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
-    cout << slvrLP->get_ub();
+    cout << ( convex ? slvrLP->get_ub() : slvrLP->get_lb() );
    else
     if( rtrnLP == Solver::kInfeasible )
-     cout << "    +INF(?)";
+     cout << "    Unfeas(?)";
     else
      if( rtrnLP == Solver::kUnbounded )
-      cout << "        -INF";
+      cout << "      Unbounded";
      else
       cout << "      Error!";
 
    cout << " ~ NDOBlock = ";
    if( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
-    cout << slvrNDO->get_ub();
+    cout << ( convex ? slvrNDO->get_ub() : slvrNDO->get_lb() );
    else
     if( rtrnNDO == Solver::kInfeasible )
-     cout << "    +INF(?)";
+     cout << "    Unfeas(?)";
     else
      if( rtrnNDO == Solver::kUnbounded )
-      cout << "        -INF";
+      cout << "      Unbounded";
      else
       cout << "      Error!";
    cout << endl;
@@ -633,7 +710,7 @@ int main( int argc , char **argv )
  assert( SKIP_BEAT >= 0 );
 
  long int seed = 0;
- Index wchg = 159;
+ Index wchg = 511;
  int nf = 1;
  int nt = 1;
  double dens = 3;
@@ -655,7 +732,7 @@ int main( int argc , char **argv )
   default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar #nf #nt dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [159]"
+           "       wchg: what to change, coded bit-wise [511]"
 		<< endl <<
            "             0 = add rows, 1 = delete rows "
 		<< endl <<
@@ -664,9 +741,13 @@ int main( int argc , char **argv )
            "             4 = change global lower/upper bound"
 		<< endl <<
            "             5 = modify costs, 6 = modify demands"
+		<< endl <<
+           "             7 = modify flow bounds"
+		<< endl <<
+           "             8 = change linear objective"
   #if DYNAMIC_VARS > 0  
 		<< endl <<
-           "             7 = add variables rows, 8 = delete variables"
+           "             9 = add variables, 10 = delete variables"
   #endif
 	        << endl <<
            "       nvar: number of variables [10]"
@@ -712,8 +793,8 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- // adjust lb depending on the number of components
- lb *= std::max( 1 , std::abs( nf ) );
+ // adjust the bound depending on the number of components
+ bound *= std::max( 1 , std::abs( nf ) );
 
  rg.seed( seed );  // seed the pseudo-random number generator
 
@@ -722,6 +803,8 @@ int main( int argc , char **argv )
 
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // choosing whether convex or concave: toss a(n unbiased, two-sided) coin
+ convex = ( dis( rg ) < 0.5 );
 
  LPBlock = new AbstractBlock();
  LPBlock->set_name( "LPBlock" );
@@ -729,8 +812,11 @@ int main( int argc , char **argv )
  NDOBlock = new AbstractBlock();
  NDOBlock->set_name( "NDOBlock" );
 
- // immediately set the global conditional lower bound
- NDOBlock->set_valid_lower_bound( lb , true );
+ // immediately set the global conditional bound on NDOBlock
+ if( convex )
+  NDOBlock->set_valid_lower_bound( -bound , true );
+ else
+  NDOBlock->set_valid_upper_bound( bound , true );
 
  {
   // ensure all original pointers go out of scope immediately after that
@@ -749,9 +835,9 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable in LPBlock
-   LPBlock->add_static_variable( *xLP , "x" );
+  LPBlock->add_static_variable( *xLP , "x" );
   #if DYNAMIC_VARS > 0
-   LPBlock->add_dynamic_variable( *xLPd , "xd" );
+   LPBlock->add_dynamic_variable( *xLPd , "x" );
   #endif
 
    // construct the Variable in NDOBlock
@@ -767,9 +853,9 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable in NDOBlock
-   NDOBlock->add_static_variable( *xNDO , "x" );
+  NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
-   NDOBlock->add_dynamic_variable( *xNDOd , "xd" );
+   NDOBlock->add_dynamic_variable( *xNDOd , "x" );
   #endif
 
   // construct the linear objective (in both)
@@ -800,17 +886,18 @@ int main( int argc , char **argv )
 
    // construct the m x nvar matrix A, the m-vector b, and the bound
    GenerateAb( m , nvar );
-   GenerateLB();
+   GenerateBND();
 
    #if( LOG_LEVEL >= 4 )
     cout << "PF[ " << k << " ] = " << endl;
-    printAb( A , b , LB );
+    printAb( A , b , rs( BND ) );
    #endif
 
    // pass all the data of the PolyhedralFunction
-    PFBLPk->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
-							     std::move( b ) ,
-							     LB );
+   PFBLPk->get_PolyhedralFunction().set_PolyhedralFunction( std::move( A ) ,
+							    std::move( b ) ,
+							    rs( BND ) ,
+							    convex );
    // copy the PolyhedralFunctionBlock
    auto PFBNDOk = static_cast< p_PFB >(
 		      PFBLPk->get_R3_Block( nullptr , nullptr , NDOBlock ) );
@@ -835,7 +922,7 @@ int main( int argc , char **argv )
 
   // now construct the transportation problems (and their duals)- - - - - - -
 
-  // first allocate memory once and for all
+  // first allocate C memory once and for all
   C.resize( nvar );
   for( auto & Ci : C )
    Ci.resize( nvar );
@@ -843,37 +930,76 @@ int main( int argc , char **argv )
   for( Index p = 0 ; p < nt ; ++p ) {  // for all transportation sub-Block- -
                                        // - - - - - - - - - - - - - - - - - -
    Index nzc = GenerateCosts();        // generate random costs
-   GenerateSupplies();                 // generate random supplies
-   GenerateDemands();                  // generate random demands
-
+   GenerateSupplies();                 // generate random supplies == demands
+   GenerateCapacities();               // generate random capacities
+ 
    #if( LOG_LEVEL >= 4 )
     cout << "T[ " << p << " ] = " << endl;
     printT();
    #endif
 
    // construct the AbstractBlock for LP transportation - - - - - - - - - - -
+   // in fact, meanwhile also construct the bound constraints for the NDO
+   // transportation. the issue here is to keep track which w corresponds
+   // to each bound; not only here, but also when random changes are made.
+   // this is solved by ensuring that the list of w and that of bound
+   // constraints are parallel; also, it will be convenient that the
+   // coefficients in the objective of the LP transportation will have
+   // exactly the same order, which implies that we will have pairs with a
+   // 0 coefficient
+   //
+   // note: it is actually a gross mis-use of the concept of dynamic stuff
+   //       that w and bc are dynamic variable/constraint; this is only
+   //       done because one does not know how many of them will be there
+   //       from the beginning, but they will not be dynamically chaged.
+   //       yet, this is a good crash test for MILPSolver
+
+   // construct the bound constraints for NDO transportation
+   auto bc = new std::list< BoxConstraint >;
+
+   // ... which of course requires to construct the flow variables
+   auto f = new boost::multi_array< ColVariable , 2 >(
+				            boost::extents[ nvar ][ nvar ] );
+
    auto TLPp = new AbstractBlock( LPBlock );
    TLPp->set_name( "LP-TB_" + std::to_string( p ) );
 
-   // construct the (dual) variables ys and yd
+   // construct the (dual) variables ys, yd and w
    auto ys = new std::vector< ColVariable >( nvar );
    auto yd = new std::vector< ColVariable >( nvar );
+   auto w = new std::list< ColVariable >;
 
    // construct and initialise the (potential) constraints
    auto pc = new boost::multi_array< FRowConstraint , 2 >(
 					    boost::extents[ nvar ][ nvar ] );
 
    // ... that link with the variables in the root LPBlock
-   auto xLP = LPBlock->get_static_variable_v< ColVariable >( 0 );
+   auto xLP = LPBlock->get_static_variable_v< ColVariable >( "x" );
 
    for( Index i = 0 ; i < nvar ; ++i )
     for( Index j = 0 ; j < nvar ; ++j ) {
-     // construct constraint ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
+     (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : - INF , eNoMod );
+     (*pc)[ i ][ j ].set_rhs( convex ? INF : C[ i ][ j ] , eNoMod );
 
-     (*pc)[ i ][ j ].set_lhs( C[ i ][ j ] );
-     (*pc)[ i ][ j ].set_rhs( INF );
+     v_coeff_pair cf;
+     //!!if( ( i == j ) || ( dis( rg ) <= 0.3 ) ) {
+     if( ( i == j ) || ( dis( rg ) <= 3 ) ) {
+      // no bound ==> ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
+      cf.resize( 3 );
+      // ensure that f[ i ][ j ] >= 0 anyway
+      (*f)[ i ][ j ].set_type( ColVariable::kNonNegative , eNoMod );
+      }
+     else {
+      cf.resize( 4 );
+      // bound ==> ys[ i ] + yd[ j ] + w[ i ][ j ] - x[ j ] >= c[ i ][ j ]
+      w->resize( w->size() + 1 );    // create new w variable (>= 0)
+      w->back().set_type( ColVariable::kNonNegative , eNoMod );
+      bc->resize( bc->size() + 1 );  // create new BoxConstraint
+      bc->back().set_variable( & (*f)[ i ][ j ] , eNoMod );
+      bc->back().set_rhs( U[ i ][ j ] , eNoMod );
+      cf[ 3 ] = std::make_pair( & w->back() , convex ? 1 : -1 );
+      }
 
-     v_coeff_pair cf( 3 );
      cf[ 0 ] = std::make_pair( & (*ys)[ i ] , 1 );
      cf[ 1 ] = std::make_pair( & (*yd)[ j ] , 1 );
      cf[ 2 ] = std::make_pair( & (*xLP)[ j ] , -1 );
@@ -882,26 +1008,40 @@ int main( int argc , char **argv )
      }
 
    // construct the (dual) objective
-   v_coeff_pair docf( 2 * nvar );
+   v_coeff_pair docf( 2 * nvar + w->size() );
 
    for( Index i = 0 ; i < nvar ; ++i )
     docf[ i ] = std::make_pair( & (*ys)[ i ] , s[ i ] );
 
    for( Index j = 0 ; j < nvar ; ++j )
-    docf[ nvar + j ] = std::make_pair( & (*yd)[ j ] , d[ j ] );
+    docf[ nvar + j ] = std::make_pair( & (*yd)[ j ] , s[ j ] );
+
+   auto tw = w->begin();
+   auto tbc = bc->begin();
+   for( auto tdf = docf.begin() + 2 * nvar ; tdf != docf.end() ; )
+    *(tdf++) = std::make_pair( & *(tw++) , (tbc++)->get_rhs() );
 
    // pass the (dual) variables to the AbstractBlock
    TLPp->add_static_variable( *ys , "ys" );
    TLPp->add_static_variable( *yd , "yd" );
+   //!!
+   if( ! w->empty() )
+    TLPp->add_dynamic_variable( *w , "w" );
 
    // pass the (potential) constraints to the AbstractBlock
    TLPp->add_static_constraint( *pc , "pc" );
 
-   // pass the (dual) objective to the AbstractBlock
-   TLPp->set_objective( new FRealObjective( TLPp ,
-			new LinearFunction( std::move( docf ) ) ) , eNoMod );
+   // construct the (dual) objective
+   auto dobj = new FRealObjective( TLPp ,
+				   new LinearFunction( std::move( docf ) ) );
 
-   // finally, pass it to LPBlock
+   // set the right optimization sense (min if convex, max otherwise)
+   dobj->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
+   
+   // pass the (dual) objective to the AbstractBlock
+   TLPp->set_objective( dobj , eNoMod );
+
+   // finally, pass the AbstractBlock to LPBlock
    LPBlock->add_nested_Block( TLPp );
 
    // construct the AbstractBlock for NDO transportation- - - - - - - - - - -
@@ -915,18 +1055,12 @@ int main( int argc , char **argv )
    auto IBNDOp = new AbstractBlock();
    IBNDOp->set_name( "IB-NDO-TB_" + std::to_string( p ) );
 
-   // construct the flow variables
-   auto f = new boost::multi_array< ColVariable , 2 >(
-				            boost::extents[ nvar ][ nvar ] );
    // construct the source constraints
    auto sc = new std::vector< FRowConstraint >( nvar );
 
    // construct the destination constraints
    auto dc = new std::vector< FRowConstraint >( nvar );
-   
-   // construct the sign constraints
-   auto bc = new boost::multi_array< NNConstraint , 2 >(
-				            boost::extents[ nvar ][ nvar ] );
+
    // initialize the source constraints
    for( Index i = 0 ; i < nvar ; ++i ) {
     // construct constraint  \sum_{ j \in J } x[ i ][ j ] == s[ i ] 
@@ -944,9 +1078,9 @@ int main( int argc , char **argv )
 
    // initialize the destination constraints
    for( Index j = 0 ; j < nvar ; ++j ) {
-    // construct constraint \sum_{ i \in I } x[ i ][ j ] == d[ j ] 
+    // construct constraint \sum_{ i \in I } x[ i ][ j ] == d[ j ] == s[ j ]
 
-    (*dc)[ j ].set_both( d[ j ] );
+    (*dc)[ j ].set_both( s[ j ] );
 
     LinearFunction::v_coeff_pair cf( nvar );
     for( Index i = 0 ; i < nvar ; ++i )
@@ -954,11 +1088,6 @@ int main( int argc , char **argv )
 
     (*dc)[ j ].set_function( new LinearFunction( std::move( cf ) ) );
     }
-
-   // initialize the sign constraints
-   for( Index i = 0 ; i < nvar ; ++i )
-    for( Index j = 0 ; j < nvar ; ++j )
-     (*bc)[ i ][ j ].set_variable( & (*f)[ i ][ j ] , eNoMod );
 
    // construct the objective
    v_coeff_pair ocf( nzc );
@@ -982,13 +1111,17 @@ int main( int argc , char **argv )
    // pass the destination constraints to the inner Block
    IBNDOp->add_static_constraint( *dc , "dc" );
 
-   // pass the sign constraints to the inner Block
-   IBNDOp->add_static_constraint( *bc , "bc" );
+   // pass the box constraints to the inner Block
+   //!!
+   if( ! bc->empty() )
+    IBNDOp->add_dynamic_constraint( *bc , "bc" );
 
    // construct the objective of the inner Block
    auto ibo = new FRealObjective( IBNDOp ,
 				  new LinearFunction( std::move( ocf ) ) );
-   ibo->set_sense( Objective::eMax );  // ... to be *max*imized
+
+   // set the right optimization sense (max if convex, min otherwise)
+   ibo->set_sense( convex ? Objective::eMax : Objective::eMin , eNoMod );
 
    // pass the objective to the inner Block
    IBNDOp->set_objective( ibo , eNoMod );
@@ -1019,13 +1152,63 @@ int main( int argc , char **argv )
 
    // construct the objective to the transportation Block, passing it the
    // LagBFunction
-   TNDOp->set_objective( new FRealObjective( TNDOp , LBF ) , eNoMod );
+   auto tobj = new FRealObjective( TNDOp , LBF );
+
+   // set the right optimization sense (min if convex, max otherwise)
+   tobj->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
+
+   // pass the objective to the transportation Block
+   TNDOp->set_objective( tobj , eNoMod );
 
    // finally, pass the transportation Block to the NDOBlock
    NDOBlock->add_nested_Block( TNDOp );
 
    }  // end( for( p ) )
   }
+
+ // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
+
+ #if HAVE_CONSTRAINTS == 1
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    (*LPx)[ i ].is_positive( true , eNoMod );
+    (*NDOx)[ i ].is_positive( true , eNoMod );
+    }
+  }
+ #endif
+ #if HAVE_CONSTRAINTS == 2
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  auto LPbnd = new std::list< BoxConstraint >;
+  auto NDObnd = new std::list< BoxConstraint >;
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    LPbnd->resize( LPbnd->size() + 1 );
+    NDObnd->resize( NDObnd->size() + 1 );
+    LPbnd->back().set_variable( & (*LPx)[ i ] );
+    NDObnd->back().set_variable( & (*NDOx)[ i ] );
+    auto p = dis( rg );
+    auto lhs = p < 0.666 ? 0 : -INF;
+    auto rhs = p > 0.333 ? dis( rg ) : INF;
+    LPbnd->back().set_lhs( lhs , eNoMod );
+    NDObnd->back().set_lhs( lhs , eNoMod );
+    LPbnd->back().set_rhs( rhs , eNoMod );
+    NDObnd->back().set_rhs( rhs , eNoMod );
+    }
+   else
+    if( dis( rg ) < 0.5 ) {
+     (*LPx)[ i ].is_positive( true , eNoMod );
+     (*NDOx)[ i ].is_positive( true , eNoMod );
+     }
+
+  LPBlock->add_dynamic_constraint( *LPbnd );
+  NDOBlock->add_dynamic_constraint( *NDObnd );
+  }
+ #endif
 
  // final setup- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1081,7 +1264,7 @@ int main( int argc , char **argv )
      continue;
 
     bslvr->set_event_handler( ThinComputeInterface::eEverykIteration ,
-     // define the event via an appropriate Lambda
+     // define the event via an appropriate lambda
      [ & ] () {
       // print the current point
       auto l = bslvr->get_current_point();
@@ -1091,7 +1274,7 @@ int main( int argc , char **argv )
       cout << "]" << endl;
 
       return( ThinComputeInterface::eContinue );
-      }  // end of Lambda
+      }  // end of lambda
 			      );
     }
    #endif
@@ -1117,7 +1300,7 @@ int main( int argc , char **argv )
      continue;
 
     bslvr->set_event_handler( ThinComputeInterface::eEverykIteration ,
-     // define the event via an appropriate Lambda
+     // define the event via an appropriate lambda
      [ & ] () {
       // print the current point
       auto l = bslvr->get_current_point();
@@ -1140,7 +1323,7 @@ int main( int argc , char **argv )
        }
 
       return( ThinComputeInterface::eContinue );
-      }  // end of Lambda
+      }  // end of lambda
 			      );
     }
    #endif
@@ -1180,14 +1363,19 @@ int main( int argc , char **argv )
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // now, for n_repeat times, one inner Block is selected and:
+ //
  // - if it is a PolyhedralFunctionBlock
  //   = up to n_change rows are added
  //   = up to n_change rows are deleted
  //   = up to n_change rows are modified
  //   = up to n_change constants are modified
+ //
  // - if it is an AbstractBlock (transportation problem)
  //   = costs are modified
  //   = demands are modified
+ //
+ // - in all cases up to n_change coefficient of linear obj (if any) are
+ //   modified
  //
  // then the two problems are re-solved
  //
@@ -1342,9 +1530,9 @@ int main( int argc , char **argv )
   if( LPBr && ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
    LOG1( "modified bound - " );
 
-   GenerateLB();
+   GenerateBND();
 
-   LPBr->get_PolyhedralFunction().modify_bound( LB );
+   LPBr->get_PolyhedralFunction().modify_bound( rs( BND ) );
    }
 
   // change costs - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1401,16 +1589,21 @@ int main( int argc , char **argv )
      Index strt = dis( rg ) * ( cf.size() - tochange );
      Index stp = strt + tochange;
 
-     // in the dual transportation problem these are the RHS of the
+     // in the dual transportation problem these are the LHA/RHS of the
      // potential constraints: send all the corresponding Modification to
      // a new channel
      auto pc = LPTr->get_static_constraint< FRowConstraint , 2 >( "pc" );
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     for( Index h = strt ; h < stp ; ++h )
-      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-			      C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     if( convex )
+      for( Index h = strt ; h < stp ; ++h )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
+			    C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     else
+      for( Index h = strt ; h < stp ; ++h )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs(
+			    C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
 
      LPTr->close_channel( chnl );  // then close the chanel
 
@@ -1432,10 +1625,15 @@ int main( int argc , char **argv )
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     for( Index h : nms )
-      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-                             C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
-
+     if( convex )
+      for( Index h : nms )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
+                            C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     else
+      for( Index h : nms )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs(
+                            C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+ 
      LPTr->close_channel( chnl );  // then close the chanel
 
      // in the transportation problem inside the LagBFunction, just do it
@@ -1504,39 +1702,158 @@ int main( int argc , char **argv )
   // change demands - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPTr && ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
-   LOG1( "modified demands - " );
+   LOG1( "modified demands/supplies - " );
 
-   GenerateDemands();
+   GenerateSupplies();
    #if( LOG_LEVEL >= 5 )
-    cout << endl << "d = [ ";
-    for( auto el : d )
+    cout << endl << "s = [ ";
+    for( auto el : s )
      cout << el << " ";
     cout << " ]" << endl;
    #endif
 
    // in the transportation problem inside the LagBFunction these are the
-   // RHS of the demand constraints: send all the corresponding Modification
-   // to a new channel
-   auto dc = NDOTr->get_static_constraint_v< FRowConstraint >( "dc" );
-
+   // RHS of the demand and supply constraints: send all the corresponding
+   // Modification to a new channel
    Observer::ChnlName chnl = NDOTr->open_channel();
    const auto iAM = Observer::make_par( eModBlck , chnl );
+
+   auto dc = NDOTr->get_static_constraint_v< FRowConstraint >( "dc" );
    for( Index j = 0 ; j < nvar ; ++j )
-    (*dc)[ j ].set_both( d[ j ] , iAM );
+    (*dc)[ j ].set_both( s[ j ] , iAM );
+
+   dc = NDOTr->get_static_constraint_v< FRowConstraint >( "sc" );
+   for( Index j = 0 ; j < nvar ; ++j )
+    (*dc)[ j ].set_both( s[ j ] , iAM );
 
    NDOTr->close_channel( chnl );  // then close the chanel
 
    // in the dual transportation problem these are a slice of the coefficients
    // of the objective
-   auto lf = static_cast< LinearFunction * >(
+   s.resize( 2 * nvar );
+   std::copy( s.begin() , s.begin() + nvar , s.begin() + nvar );
+   
+   auto lf = static_cast< p_LF >(
 		  LPTr->get_objective< FRealObjective >()->get_function() );
-   lf->modify_coefficients( std::move( d ) , Range( nvar , 2 * nvar ) ); 
+   lf->modify_coefficients( std::move( s ) , Range( 0 , 2 * nvar ) ); 
    }
+
+  // change flow bounds - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  if( LPTr && ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
+   Index tochange = Index( dis( rg ) * nvar * nvar / 7 );
+   auto bc = NDOTr->get_dynamic_constraint< BoxConstraint >( "bc" );
+   if( tochange > bc->size() )
+    tochange = bc->size();
+
+   if( tochange ) {
+    LOG1( "changed " << tochange << " flow bounds" );
+
+    RealVector tmpU;
+    GenerateUi( tmpU , tochange );
+
+    auto bc = NDOTr->get_dynamic_constraint< BoxConstraint >( "bc" );
+    auto lf = static_cast< p_LF >(
+		  LPTr->get_objective< FRealObjective >()->get_function() );
+
+    // in the transportation problem inside the LagBFunctionì these are
+    // the RHS of the box constraints: send all the corresponding
+    // Modification to a new channel
+    Observer::ChnlName chnl = NDOTr->open_channel();
+    const auto iAM = Observer::make_par( eModBlck , chnl );
+
+    //!!if( dis( rg ) < 0.5 )
+    {  // in 50% of the cases, do a ranged change
+     LOG1( "(r) - " );
+     Index strt = dis( rg ) * ( bc->size() - tochange );
+     Index stp = strt + tochange;
+
+     auto bcit = std::next( bc->begin() , strt );
+     for( Index h = 0 ; h < tochange ; )
+      (bcit++)->set_rhs( tmpU[ h++ ] , iAM );
+
+     NDOTr->close_channel( chnl );  // then close the chanel
+
+     // in the transportation problem, just do it
+     lf->modify_coefficients( std::move( tmpU ) ,
+			      Range( 2 * nvar + strt , 2 * nvar + stp ) ); 
+     }
+    /*!!
+    else {                   // in 50% of the cases, do a subset change
+     LOG1( "(s) - " );
+     Subset nms = GenerateSubset( bc.size() , tochange );
+
+     auto nh = 0;
+     auto bcit = bc->begin();
+     for( Index h = 0 ; h < tochange ; ) {
+      auto nnh = nms[ h ];
+      std::advance( bcit , nnh - nh );
+      bcit->set_rhs( tmpU[ h++ ] , iAM );
+      nh = nnh;
+      }
+
+     NDOTr->close_channel( chnl );  // then close the chanel
+
+     // in the transportation problem, just do it
+     for( auto & el : nms )
+      el += 2 * nvar;
+     lf->modify_coefficients( std::move( tmpU ) , std::move( nms ) , true ); 
+     }
+     !!*/
+    }
+   }
+
+  // modify linear objective- - - - - - - - - - - - - - - - - - - - - - - - -
+  // ... if there is any, of course
+
+  if( ( nf < 0 ) && ( wchg & 256 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = Index( dis( rg ) * std::min( nvar , n_change ) ) ) {
+    LOG1( "changed " << tochange << " objective coeff." );
+
+    GenerateA( 1 , tochange );
+
+    auto LPLF = static_cast< p_LF >(
+	    ( LPBlock->get_objective< FRealObjective >() )->get_function() );
+    auto NDOLF = static_cast< p_LF >(
+	   ( NDOBlock->get_objective< FRealObjective >() )->get_function() );
+
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
+     Index strt = dis( rg ) * ( nvar - tochange );
+     Index stp = strt + tochange;
+
+     if( tochange == 1 ) {
+      LPLF->modify_coefficient( strt , A[ 0 ][ 0 ] );
+      NDOLF->modify_coefficient( strt , A[ 0 ][ 0 ] );
+      }
+     else {
+      LPLF->modify_coefficients( RealVector( A[ 0 ] ) , Range( strt , stp ) );
+      NDOLF->modify_coefficients( std::move( A[ 0 ] ) , Range( strt , stp ) );
+      }
+      
+     LOG1( "(r) - " );
+     }
+    else {  // in the other 50% of the cases, do a sparse change
+     Subset nms = GenerateSubset( nvar , tochange );
+
+     if( tochange == 1 ) {
+      LPLF->modify_coefficient( nms.front() , A[ 0 ][ 0 ] );
+      NDOLF->modify_coefficient( nms.front() , A[ 0 ][ 0 ] );
+      }
+     else {
+      LPLF->modify_coefficients( RealVector( A[ 0 ] ) , Subset( nms ) ,
+				 true );
+      NDOLF->modify_coefficients( std::move( A[ 0 ] ) , std::move( nms ) ,
+				  true );
+      }
+
+     LOG1( "(s) - " );
+     }
+    }
 
   // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   #if DYNAMIC_VARS > 0
-  if( ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
+  if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
     LOG1( "added " << tochange << " variables - " );
@@ -1584,7 +1901,7 @@ int main( int argc , char **argv )
 
   // remove variables - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+  if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = min( ndvar , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "removed " << tochange << " variables" );
@@ -1664,7 +1981,9 @@ int main( int argc , char **argv )
     if( bn < nf ) {
      cout << endl << "LPBlock-PF: ";
      auto PF = & LPBr->get_PolyhedralFunction();
-     printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
+     printAb( PF->get_A() , PF->get_b() , convex
+	      ? PF->get_global_lower_bound()
+	      : PF->get_global_upper_bound() );
      }
    #endif
   #endif

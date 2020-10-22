@@ -20,9 +20,9 @@
  * PolyhedralFunctionBlock to keep them in synch. Then both are solved and
  * the results compared.
  *
- * \version 0.30
+ * \version 1.00
  *
- * \date 16 - 10 - 2020
+ * \date 18 - 10 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -57,6 +57,17 @@
 
 /*--------------------------------------------------------------------------*/
 
+#define HAVE_CONSTRAINTS 1
+// if HAVE_CONSTRAINTS == 1, then about 50% of the variables will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
+// if HAVE_CONSTRAINTS == 2, then about 50% of the variables will have
+// bound constraints; of these, 33% will only have 0 lower bound, 33% will
+// only have random upper bound, and the rest will have both. of the
+// remaining 50% of the variables, another 50%  will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
+
+/*--------------------------------------------------------------------------*/
+
 #define DETACH_NDO 0
 // if nonzero, the Solver attched to the NDOBlock is detached and re-attached
 // to it at all iterations
@@ -67,7 +78,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -194,13 +205,6 @@ static double rs( double x ) { return( convex ? -x : x ); }
 
 /*--------------------------------------------------------------------------*/
 
-static p_PF get_PF( Block * block ) {
- return( static_cast< p_PF >(
-	        block->get_objective< FRealObjective >()->get_function() ) );
- }
-
-/*--------------------------------------------------------------------------*/
-
 template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
@@ -280,7 +284,7 @@ static void GenerateBND( void )
 
 /*--------------------------------------------------------------------------*/
 
-static Subset GenerateRand( Index m , Index k )
+static Subset GenerateSubset( Index m , Index k )
 {
  // generate a sorted random k-vector of unique integers in 0 ... m - 1
 
@@ -478,7 +482,7 @@ int main( int argc , char **argv )
  assert( SKIP_BEAT >= 0 );
 
  long int seed = 0;
- Index wchg = 159;
+ Index wchg = 319;
  double dens = 3;
  Index n_repeat = 40;
  Index n_change = 10;
@@ -497,7 +501,7 @@ int main( int argc , char **argv )
   default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar dens #nf #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [159]"
+           "       wchg: what to change, coded bit-wise [319]"
 		<< endl <<
            "             0 = add rows, 1 = delete rows "
 		<< endl <<
@@ -508,7 +512,7 @@ int main( int argc , char **argv )
            "             5 = change linear objective"
   #if DYNAMIC_VARS > 0  
 		<< endl <<
-           "             6 = add variables rows, 7 = delete variables"
+           "             6 = add variables, 7 = delete variables"
   #endif
 		<< endl <<
            "             8 (+256) = do \"abstract\" changes"
@@ -533,6 +537,11 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
+ if( ! nf ) {
+  cout << "error: no sub-Block";
+  exit( 1 );
+  }
+
  #if DYNAMIC_VARS > 0
   nsvar = nvar / 2;      // half of the variables are dynamic
   ndvar = nvar - nsvar;  // the other half are static
@@ -544,7 +553,7 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- // adjust lb depending on the number of components
+ // adjust the bound depending on the number of components
  bound *= std::max( 1 , std::abs( nf ) );
 
  rg.seed( seed );  // seed the pseudo-random number generator
@@ -586,7 +595,7 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable, Constraint and Objective in the AbstractBlock
-  LPBlock->add_static_variable( *xLP );
+   LPBlock->add_static_variable( *xLP , "x" );
   #if DYNAMIC_VARS > 0
    LPBlock->add_dynamic_variable( *xLPd );
   #endif
@@ -656,19 +665,9 @@ int main( int argc , char **argv )
    SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
    LPBlock->generate_abstract_variables( &cfg );
    }
-   
+
   LPBlock->generate_abstract_constraints();
   LPBlock->generate_objective();
-
-  // in the concave case, has to manually change the verse of all objs
-  if( ! convex ) {
-   if( nf )
-    for( Index i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i )
-     get_PF( LPBlock->get_nested_Block( i ) )->set_is_convex( false ,
-							      eNoMod );
-   else
-    get_PF( LPBlock )->set_is_convex( false , eNoMod );
-   }
   }
 
  // construct the "natural" representation- - - - - - - - - - - - - - - - - -
@@ -699,7 +698,7 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable, Constraint and Objective in the AbstractBlock
-  NDOBlock->add_static_variable( *xNDO );
+   NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
    NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
@@ -728,18 +727,53 @@ int main( int argc , char **argv )
   NDOBlock->generate_abstract_variables( &cfg );
   NDOBlock->generate_abstract_constraints();
   NDOBlock->generate_objective();
-
-  // in the concave case, has to manually change the verse of all objs
-  if( ! convex ) {
-   if( nf )
-    for( Index i = 0 ; i < NDOBlock->get_number_nested_Blocks() ; ++i )
-     get_PF( NDOBlock->get_nested_Block( i ) )->set_is_convex( false ,
-							      eNoMod );
-   else
-    get_PF( NDOBlock )->set_is_convex( false , eNoMod );
- }
   }
 
+ // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ #if HAVE_CONSTRAINTS == 1
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    (*LPx)[ i ].is_positive( true , eNoMod );
+    (*NDOx)[ i ].is_positive( true , eNoMod );
+    }
+  }
+ #endif
+ #if HAVE_CONSTRAINTS == 2
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  auto LPbnd = new std::list< BoxConstraint >;
+  auto NDObnd = new std::list< BoxConstraint >;
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    LPbnd->resize( LPbnd->size() + 1 );
+    NDObnd->resize( NDObnd->size() + 1 );
+    LPbnd->back().set_variable( & (*LPx)[ i ] );
+    NDObnd->back().set_variable( & (*NDOx)[ i ] );
+    auto p = dis( rg );
+    auto lhs = p < 0.666 ? 0 : -INF;
+    auto rhs = p > 0.333 ? dis( rg ) : INF;
+    LPbnd->back().set_lhs( lhs , eNoMod );
+    NDObnd->back().set_lhs( lhs , eNoMod );
+    LPbnd->back().set_rhs( rhs , eNoMod );
+    NDObnd->back().set_rhs( rhs , eNoMod );
+    }
+   else
+    if( dis( rg ) < 0.5 ) {
+     (*LPx)[ i ].is_positive( true , eNoMod );
+     (*NDOx)[ i ].is_positive( true , eNoMod );
+     }
+
+  LPBlock->add_dynamic_constraint( *LPbnd );
+  NDOBlock->add_dynamic_constraint( *NDObnd );
+  }
+ #endif
+ 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
@@ -807,7 +841,8 @@ int main( int argc , char **argv )
  // - up to n_change rows are added
  // - up to n_change rows are deleted
  // - up to n_change rows are modified
- // - up to n_change rows are modified
+ // - up to n_change constants are modified
+ // - up to n_change coefficient of linear obj (if any) are modified
  //
  // then the two problems are re-solved
  //
@@ -945,7 +980,7 @@ int main( int argc , char **argv )
       }
      }
     else {  // in the other 50% of the cases, do a sparse change
-     Subset nms = GenerateRand( m , tochange );
+     Subset nms = GenerateSubset( m , tochange );
 
      // remove them from the LP
      if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
@@ -1028,7 +1063,7 @@ int main( int argc , char **argv )
       }
      }
     else {  // in the other 50% of the cases, do a sparse change
-     Subset nms = GenerateRand( m , tochange );
+     Subset nms = GenerateSubset( m , tochange );
 
      if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
@@ -1119,7 +1154,7 @@ int main( int argc , char **argv )
       }
      }
     else {  // in the other 50% of the cases, do a sparse change
-     Subset nms = GenerateRand( m , tochange );
+     Subset nms = GenerateSubset( m , tochange );
 
      if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
@@ -1211,7 +1246,7 @@ int main( int argc , char **argv )
      LOG1( "(r) - " );
      }
     else {  // in the other 50% of the cases, do a sparse change
-     Subset nms = GenerateRand( nvar , tochange );
+     Subset nms = GenerateSubset( nvar , tochange );
 
      if( tochange == 1 ) {
       LPLF->modify_coefficient( nms.front() , A[ 0 ][ 0 ] );
@@ -1329,7 +1364,7 @@ int main( int argc , char **argv )
      }
     else {
      LOG1( "(s) - " );
-     Subset nms = GenerateRand( ndvar , tochange );
+     Subset nms = GenerateSubset( ndvar , tochange );
 
      // remove them from the LP, *copying* names
      auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
