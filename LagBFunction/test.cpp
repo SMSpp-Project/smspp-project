@@ -992,8 +992,10 @@ int main( int argc , char **argv )
    auto dc = new std::vector< FRowConstraint >( nvar );
    
    // construct the sign constraints
+   /*!!
    auto bc = new boost::multi_array< NNConstraint , 2 >(
 				            boost::extents[ nvar ][ nvar ] );
+					    !!*/
    // initialize the source constraints
    for( Index i = 0 ; i < nvar ; ++i ) {
     // construct constraint  \sum_{ j \in J } x[ i ][ j ] == s[ i ] 
@@ -1027,8 +1029,9 @@ int main( int argc , char **argv )
    // initialize the sign constraints
    for( Index i = 0 ; i < nvar ; ++i )
     for( Index j = 0 ; j < nvar ; ++j )
-     (*bc)[ i ][ j ].set_variable( & (*f)[ i ][ j ] , eNoMod );
-
+     //!!(*bc)[ i ][ j ].set_variable( & (*f)[ i ][ j ] , eNoMod );
+     (*f)[ i ][ j ].set_type( ColVariable::kNonNegative , eNoMod );
+ 
    // construct the objective
    v_coeff_pair ocf( nzc );
 
@@ -1052,7 +1055,7 @@ int main( int argc , char **argv )
    IBNDOp->add_static_constraint( *dc , "dc" );
 
    // pass the sign constraints to the inner Block
-   IBNDOp->add_static_constraint( *bc , "bc" );
+   //!!   IBNDOp->add_static_constraint( *bc , "bc" );
 
    // construct the objective of the inner Block
    auto ibo = new FRealObjective( IBNDOp ,
