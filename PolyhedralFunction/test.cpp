@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.10
+ * \version 1.20
  *
- * \date 14 - 10 - 2020
+ * \date 18 - 10 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -45,6 +45,17 @@
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
+
+/*--------------------------------------------------------------------------*/
+
+#define HAVE_CONSTRAINTS 2
+// if HAVE_CONSTRAINTS == 1, then about 50% of the variables will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
+// if HAVE_CONSTRAINTS == 2, then about 50% of the variables will have
+// bound constraints; of these, 33% will only have 0 lower bound, 33% will
+// only have random upper bound, and the rest will have both. of the
+// remaining 50% of the variables, another 50%  will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
 
 /*--------------------------------------------------------------------------*/
 
@@ -627,7 +638,7 @@ int main( int argc , char **argv )
   #if DYNAMIC_VARS > 0
    LPBlock->add_dynamic_variable( *xLPd );
   #endif
-  LPBlock->add_static_variable( *xLP );
+  LPBlock->add_static_variable( *xLP , "x" );
   LPBlock->add_dynamic_constraint( *ALP );
   LPBlock->add_static_constraint( *LBc );
   LPBlock->set_objective( objLP );
@@ -663,7 +674,7 @@ int main( int argc , char **argv )
   objNDO->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
 
   // now set the Variable and Objective in the AbstractBlock
-  NDOBlock->add_static_variable( *xNDO );
+  NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
    NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
@@ -672,6 +683,51 @@ int main( int argc , char **argv )
   SetGlobalBound();  // set lower bound, be it "hard" or "conditional"
   }
 
+ // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ #if HAVE_CONSTRAINTS == 1
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    (*LPx)[ i ].is_positive( true , eNoMod );
+    (*NDOx)[ i ].is_positive( true , eNoMod );
+    }
+  }
+ #endif
+ #if HAVE_CONSTRAINTS == 2
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  auto LPbnd = new std::list< BoxConstraint >;
+  auto NDObnd = new std::list< BoxConstraint >;
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    LPbnd->resize( LPbnd->size() + 1 );
+    NDObnd->resize( NDObnd->size() + 1 );
+    LPbnd->back().set_variable( & (*LPx)[ i ] );
+    NDObnd->back().set_variable( & (*NDOx)[ i ] );
+    auto p = dis( rg );
+    auto lhs = p < 0.666 ? 0 : -INF;
+    auto rhs = p > 0.333 ? dis( rg ) : INF;
+    LPbnd->back().set_lhs( lhs , eNoMod );
+    NDObnd->back().set_lhs( lhs , eNoMod );
+    LPbnd->back().set_rhs( rhs , eNoMod );
+    NDObnd->back().set_rhs( rhs , eNoMod );
+    }
+   else
+    if( dis( rg ) < 0.5 ) {
+     (*LPx)[ i ].is_positive( true , eNoMod );
+     (*NDOx)[ i ].is_positive( true , eNoMod );
+     }
+
+  LPBlock->add_dynamic_constraint( *LPbnd );
+  NDOBlock->add_dynamic_constraint( *NDObnd );
+  }
+ #endif
+ 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // for LPBlock, "manually" attach a CPXMILPSolver
