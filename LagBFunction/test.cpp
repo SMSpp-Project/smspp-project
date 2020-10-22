@@ -340,8 +340,7 @@ MultiVector A;             // rows
 RealVector b;              // constants
 
 MultiVector C;             // arc costs
-RealVector s;              // supplies
-RealVector d;              // demands
+RealVector s;              // supplies == demands
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -485,21 +484,6 @@ static void GenerateSupplies( void )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateDemands( void )
-{
- d.resize( nvar );
- for( auto & di : d )
-  di = 10 * dis( rg );
-
- auto tots = std::accumulate( s.begin() , s.end() , double( 0 ) );
- auto totd = std::accumulate( d.begin() , d.end() , double( 0 ) );
- auto r = tots / totd;
- for( auto & di : d )
-  di *= r;
- }
-
-/*--------------------------------------------------------------------------*/
-
 static Subset GenerateSubset( Index m , Index k )
 {
  // generate a sorted random k-vector of unique integers in 0 ... m - 1
@@ -555,11 +539,6 @@ static void printT( void )
  cout << "s = [ ";
  for( Index j = 0 ; j < nvar ; ++j )
   cout << s[ j ] << " ";
- cout << "]" << endl;
-
- cout << "d = [ ";
- for( Index j = 0 ; j < nvar ; ++j )
-  cout << d[ j ] << " ";
  cout << "]" << endl;
 
  printC();
@@ -926,8 +905,7 @@ int main( int argc , char **argv )
   for( Index p = 0 ; p < nt ; ++p ) {  // for all transportation sub-Block- -
                                        // - - - - - - - - - - - - - - - - - -
    Index nzc = GenerateCosts();        // generate random costs
-   GenerateSupplies();                 // generate random supplies
-   GenerateDemands();                  // generate random demands
+   GenerateSupplies();                 // generate random supplies == demands
 
    #if( LOG_LEVEL >= 4 )
     cout << "T[ " << p << " ] = " << endl;
@@ -971,7 +949,7 @@ int main( int argc , char **argv )
     docf[ i ] = std::make_pair( & (*ys)[ i ] , s[ i ] );
 
    for( Index j = 0 ; j < nvar ; ++j )
-    docf[ nvar + j ] = std::make_pair( & (*yd)[ j ] , d[ j ] );
+    docf[ nvar + j ] = std::make_pair( & (*yd)[ j ] , s[ j ] );
 
    // pass the (dual) variables to the AbstractBlock
    TLPp->add_static_variable( *ys , "ys" );
@@ -1033,13 +1011,15 @@ int main( int argc , char **argv )
 
    // initialize the destination constraints
    for( Index j = 0 ; j < nvar ; ++j ) {
-    // construct constraint \sum_{ i \in I } x[ i ][ j ] == d[ j ] 
+   // construct constraint \sum_{ i \in I } x[ i ][ j ] == d[ j ] == s[ j ]
 
-    (*dc)[ j ].set_both( d[ j ] , eNoMod );
+    (*dc)[ j ].set_both( s[ j ] , eNoMod );
 
     LinearFunction::v_coeff_pair cf( nvar );
-    for( Index i = 0 ; i < nvar ; ++i )
-     cf[ i ] = std::make_pair( & (*f)[ i ][ j ] , 1 );
+    for( Index i = 0 ; i < nvar ; ++i ) {
+     cf[ i ].first = & (*f)[ i ][ j ];
+     cf[ i ].second = 1;
+     }
 
     (*dc)[ j ].set_function( new LinearFunction( std::move( cf ) ) );
     }
@@ -1646,33 +1626,41 @@ int main( int argc , char **argv )
   // change demands - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPTr && ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
-   LOG1( "modified demands - " );
+   LOG1( "modified demands/supplies - " );
 
-   GenerateDemands();
+   GenerateSupplies();
    #if( LOG_LEVEL >= 5 )
-    cout << endl << "d = [ ";
-    for( auto el : d )
+    cout << endl << "s = [ ";
+    for( auto el : s )
      cout << el << " ";
     cout << " ]" << endl;
    #endif
 
    // in the transportation problem inside the LagBFunction these are the
-   // RHS of the demand constraints: send all the corresponding Modification
-   // to a new channel
-   auto dc = NDOTr->get_static_constraint_v< FRowConstraint >( "dc" );
-
+   // RHS of the demand and supply constraints: send all the corresponding
+   // Modification to a new channel
    Observer::ChnlName chnl = NDOTr->open_channel();
    const auto iAM = Observer::make_par( eModBlck , chnl );
+
+   auto dc = NDOTr->get_static_constraint_v< FRowConstraint >( "dc" );
+
    for( Index j = 0 ; j < nvar ; ++j )
-    (*dc)[ j ].set_both( d[ j ] , iAM );
+    (*dc)[ j ].set_both( s[ j ] , iAM );
+
+   dc = NDOTr->get_static_constraint_v< FRowConstraint >( "sc" );
+   for( Index j = 0 ; j < nvar ; ++j )
+    (*dc)[ j ].set_both( s[ j ] , iAM );
 
    NDOTr->close_channel( chnl );  // then close the chanel
 
    // in the dual transportation problem these are a slice of the coefficients
    // of the objective
-   auto lf = static_cast< LinearFunction * >(
+   s.resize( 2 * nvar );
+   std::copy( s.begin() , s.begin() + nvar , s.begin() + nvar );
+
+   auto lf = static_cast< p_LF >(
 		  LPTr->get_objective< FRealObjective >()->get_function() );
-   lf->modify_coefficients( std::move( d ) , Range( nvar , 2 * nvar ) ); 
+   lf->modify_coefficients( std::move( s ) , Range( 0 , 2 * nvar ) ); 
    }
 
   // modify linear objective- - - - - - - - - - - - - - - - - - - - - - - - -
