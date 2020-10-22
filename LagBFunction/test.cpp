@@ -160,9 +160,9 @@
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 1.00
+ * \version 0.90
  *
- * \date 21 - 10 - 2020
+ * \date 22 - 10 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -175,7 +175,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 5
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -188,7 +188,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 1
+  #define LOG_ON_COUT 0
   // if nonzero, the BundleSolver log is sent on cout rather than on a file
  #endif
 #else
@@ -205,7 +205,7 @@
 // remaining 50% of the variables, another 50% will have a non-negativity
 // constraint implemented via ColVariable::is_positive()
 
-#define HAVE_CONSTRAINTS 0
+#define HAVE_CONSTRAINTS 2
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attched to the NDOBlock is detached and re-attached
@@ -340,8 +340,8 @@ MultiVector A;             // rows
 RealVector b;              // constants
 
 MultiVector C;             // arc costs
-MultiVector U;             // arc capacities
-RealVector s;              // supplies == demands
+RealVector s;              // supplies
+RealVector d;              // demands
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -476,33 +476,26 @@ static Index GenerateCosts( void )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateUi( RealVector & Ui , Index numel )
-{
- // in 85% of the cases the capacity is random between 0 and 5 (to make it
- // hopefully "byte" over a demand between 0 and 10), in the remaining 15%
- // of the cases it is 0 (which "surely bytes")
- Ui.resize( numel );
- for( auto & uij : Ui )
-  uij = dis( rg ) < 0.15 ? 0 : 5 * dis( rg );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static void GenerateCapacities( void )
-{
- // note that all arc capacities are generated, even if only 70% will be used
- U.resize( nvar );
- for( auto & Ui : U )
-  GenerateUi( Ui , nvar );
- }
-
-/*--------------------------------------------------------------------------*/
-
 static void GenerateSupplies( void )
 {
  s.resize( nvar );
  for( auto & si : s )
   si = 10 * dis( rg );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void GenerateDemands( void )
+{
+ d.resize( nvar );
+ for( auto & di : d )
+  di = 10 * dis( rg );
+
+ auto tots = std::accumulate( s.begin() , s.end() , double( 0 ) );
+ auto totd = std::accumulate( d.begin() , d.end() , double( 0 ) );
+ auto r = tots / totd;
+ for( auto & di : d )
+  di *= r;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -562,6 +555,11 @@ static void printT( void )
  cout << "s = [ ";
  for( Index j = 0 ; j < nvar ; ++j )
   cout << s[ j ] << " ";
+ cout << "]" << endl;
+
+ cout << "d = [ ";
+ for( Index j = 0 ; j < nvar ; ++j )
+  cout << d[ j ] << " ";
  cout << "]" << endl;
 
  printC();
@@ -710,7 +708,7 @@ int main( int argc , char **argv )
  assert( SKIP_BEAT >= 0 );
 
  long int seed = 0;
- Index wchg = 511;
+ Index wchg = 159;
  int nf = 1;
  int nt = 1;
  double dens = 3;
@@ -732,7 +730,7 @@ int main( int argc , char **argv )
   default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar #nf #nt dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [511]"
+           "       wchg: what to change, coded bit-wise [159]"
 		<< endl <<
            "             0 = add rows, 1 = delete rows "
 		<< endl <<
@@ -742,12 +740,10 @@ int main( int argc , char **argv )
 		<< endl <<
            "             5 = modify costs, 6 = modify demands"
 		<< endl <<
-           "             7 = modify flow bounds"
-		<< endl <<
-           "             8 = change linear objective"
+           "             7 = change linear objective"
   #if DYNAMIC_VARS > 0  
 		<< endl <<
-           "             9 = add variables, 10 = delete variables"
+           "             7 = add variables rows, 8 = delete variables"
   #endif
 	        << endl <<
            "       nvar: number of variables [10]"
@@ -835,9 +831,9 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable in LPBlock
-  LPBlock->add_static_variable( *xLP , "x" );
+   LPBlock->add_static_variable( *xLP , "x" );
   #if DYNAMIC_VARS > 0
-   LPBlock->add_dynamic_variable( *xLPd , "x" );
+   LPBlock->add_dynamic_variable( *xLPd , "d" );
   #endif
 
    // construct the Variable in NDOBlock
@@ -853,7 +849,7 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable in NDOBlock
-  NDOBlock->add_static_variable( *xNDO , "x" );
+   NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
    NDOBlock->add_dynamic_variable( *xNDOd , "x" );
   #endif
@@ -886,7 +882,7 @@ int main( int argc , char **argv )
 
    // construct the m x nvar matrix A, the m-vector b, and the bound
    GenerateAb( m , nvar );
-   GenerateBND();
+    GenerateBND();
 
    #if( LOG_LEVEL >= 4 )
     cout << "PF[ " << k << " ] = " << endl;
@@ -898,7 +894,7 @@ int main( int argc , char **argv )
 							    std::move( b ) ,
 							    rs( BND ) ,
 							    convex );
-   // copy the PolyhedralFunctionBlock
+  // copy the PolyhedralFunctionBlock
    auto PFBNDOk = static_cast< p_PFB >(
 		      PFBLPk->get_R3_Block( nullptr , nullptr , NDOBlock ) );
    PFBNDOk->set_name( "NDO-PFB_" + std::to_string( k ) );
@@ -930,76 +926,37 @@ int main( int argc , char **argv )
   for( Index p = 0 ; p < nt ; ++p ) {  // for all transportation sub-Block- -
                                        // - - - - - - - - - - - - - - - - - -
    Index nzc = GenerateCosts();        // generate random costs
-   GenerateSupplies();                 // generate random supplies == demands
-   GenerateCapacities();               // generate random capacities
- 
+   GenerateSupplies();                 // generate random supplies
+   GenerateDemands();                  // generate random demands
+
    #if( LOG_LEVEL >= 4 )
     cout << "T[ " << p << " ] = " << endl;
     printT();
    #endif
 
    // construct the AbstractBlock for LP transportation - - - - - - - - - - -
-   // in fact, meanwhile also construct the bound constraints for the NDO
-   // transportation. the issue here is to keep track which w corresponds
-   // to each bound; not only here, but also when random changes are made.
-   // this is solved by ensuring that the list of w and that of bound
-   // constraints are parallel; also, it will be convenient that the
-   // coefficients in the objective of the LP transportation will have
-   // exactly the same order, which implies that we will have pairs with a
-   // 0 coefficient
-   //
-   // note: it is actually a gross mis-use of the concept of dynamic stuff
-   //       that w and bc are dynamic variable/constraint; this is only
-   //       done because one does not know how many of them will be there
-   //       from the beginning, but they will not be dynamically chaged.
-   //       yet, this is a good crash test for MILPSolver
-
-   // construct the bound constraints for NDO transportation
-   auto bc = new std::list< BoxConstraint >;
-
-   // ... which of course requires to construct the flow variables
-   auto f = new boost::multi_array< ColVariable , 2 >(
-				            boost::extents[ nvar ][ nvar ] );
-
    auto TLPp = new AbstractBlock( LPBlock );
    TLPp->set_name( "LP-TB_" + std::to_string( p ) );
 
-   // construct the (dual) variables ys, yd and w
+   // construct the (dual) variables ys and yd
    auto ys = new std::vector< ColVariable >( nvar );
    auto yd = new std::vector< ColVariable >( nvar );
-   auto w = new std::list< ColVariable >;
 
    // construct and initialise the (potential) constraints
    auto pc = new boost::multi_array< FRowConstraint , 2 >(
 					    boost::extents[ nvar ][ nvar ] );
 
    // ... that link with the variables in the root LPBlock
-   auto xLP = LPBlock->get_static_variable_v< ColVariable >( "x" );
+   auto xLP = LPBlock->get_static_variable_v< ColVariable >( 0 );
 
    for( Index i = 0 ; i < nvar ; ++i )
     for( Index j = 0 ; j < nvar ; ++j ) {
+     // construct constraint ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
+
      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : - INF , eNoMod );
      (*pc)[ i ][ j ].set_rhs( convex ? INF : C[ i ][ j ] , eNoMod );
 
-     v_coeff_pair cf;
-     //!!if( ( i == j ) || ( dis( rg ) <= 0.3 ) ) {
-     if( ( i == j ) || ( dis( rg ) <= 3 ) ) {
-      // no bound ==> ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
-      cf.resize( 3 );
-      // ensure that f[ i ][ j ] >= 0 anyway
-      (*f)[ i ][ j ].set_type( ColVariable::kNonNegative , eNoMod );
-      }
-     else {
-      cf.resize( 4 );
-      // bound ==> ys[ i ] + yd[ j ] + w[ i ][ j ] - x[ j ] >= c[ i ][ j ]
-      w->resize( w->size() + 1 );    // create new w variable (>= 0)
-      w->back().set_type( ColVariable::kNonNegative , eNoMod );
-      bc->resize( bc->size() + 1 );  // create new BoxConstraint
-      bc->back().set_variable( & (*f)[ i ][ j ] , eNoMod );
-      bc->back().set_rhs( U[ i ][ j ] , eNoMod );
-      cf[ 3 ] = std::make_pair( & w->back() , convex ? 1 : -1 );
-      }
-
+     v_coeff_pair cf( 3 );
      cf[ 0 ] = std::make_pair( & (*ys)[ i ] , 1 );
      cf[ 1 ] = std::make_pair( & (*yd)[ j ] , 1 );
      cf[ 2 ] = std::make_pair( & (*xLP)[ j ] , -1 );
@@ -1008,25 +965,17 @@ int main( int argc , char **argv )
      }
 
    // construct the (dual) objective
-   v_coeff_pair docf( 2 * nvar + w->size() );
+   v_coeff_pair docf( 2 * nvar );
 
    for( Index i = 0 ; i < nvar ; ++i )
     docf[ i ] = std::make_pair( & (*ys)[ i ] , s[ i ] );
 
    for( Index j = 0 ; j < nvar ; ++j )
-    docf[ nvar + j ] = std::make_pair( & (*yd)[ j ] , s[ j ] );
-
-   auto tw = w->begin();
-   auto tbc = bc->begin();
-   for( auto tdf = docf.begin() + 2 * nvar ; tdf != docf.end() ; )
-    *(tdf++) = std::make_pair( & *(tw++) , (tbc++)->get_rhs() );
+    docf[ nvar + j ] = std::make_pair( & (*yd)[ j ] , d[ j ] );
 
    // pass the (dual) variables to the AbstractBlock
    TLPp->add_static_variable( *ys , "ys" );
    TLPp->add_static_variable( *yd , "yd" );
-   //!!
-   if( ! w->empty() )
-    TLPp->add_dynamic_variable( *w , "w" );
 
    // pass the (potential) constraints to the AbstractBlock
    TLPp->add_static_constraint( *pc , "pc" );
@@ -1055,17 +1004,23 @@ int main( int argc , char **argv )
    auto IBNDOp = new AbstractBlock();
    IBNDOp->set_name( "IB-NDO-TB_" + std::to_string( p ) );
 
+   // construct the flow variables
+   auto f = new boost::multi_array< ColVariable , 2 >(
+				            boost::extents[ nvar ][ nvar ] );
    // construct the source constraints
    auto sc = new std::vector< FRowConstraint >( nvar );
 
    // construct the destination constraints
    auto dc = new std::vector< FRowConstraint >( nvar );
-
+   
+   // construct the sign constraints
+   auto bc = new boost::multi_array< NNConstraint , 2 >(
+				            boost::extents[ nvar ][ nvar ] );
    // initialize the source constraints
    for( Index i = 0 ; i < nvar ; ++i ) {
     // construct constraint  \sum_{ j \in J } x[ i ][ j ] == s[ i ] 
 
-    (*sc)[ i ].set_both( s[ i ] );
+    (*sc)[ i ].set_both( s[ i ] , eNoMod );
 
     v_coeff_pair cf( nvar );
     for( Index j = 0 ; j < nvar ; ++j ) {
@@ -1078,9 +1033,9 @@ int main( int argc , char **argv )
 
    // initialize the destination constraints
    for( Index j = 0 ; j < nvar ; ++j ) {
-    // construct constraint \sum_{ i \in I } x[ i ][ j ] == d[ j ] == s[ j ]
+    // construct constraint \sum_{ i \in I } x[ i ][ j ] == d[ j ] 
 
-    (*dc)[ j ].set_both( s[ j ] );
+    (*dc)[ j ].set_both( d[ j ] , eNoMod );
 
     LinearFunction::v_coeff_pair cf( nvar );
     for( Index i = 0 ; i < nvar ; ++i )
@@ -1088,6 +1043,11 @@ int main( int argc , char **argv )
 
     (*dc)[ j ].set_function( new LinearFunction( std::move( cf ) ) );
     }
+
+   // initialize the sign constraints
+   for( Index i = 0 ; i < nvar ; ++i )
+    for( Index j = 0 ; j < nvar ; ++j )
+     (*bc)[ i ][ j ].set_variable( & (*f)[ i ][ j ] , eNoMod );
 
    // construct the objective
    v_coeff_pair ocf( nzc );
@@ -1111,14 +1071,13 @@ int main( int argc , char **argv )
    // pass the destination constraints to the inner Block
    IBNDOp->add_static_constraint( *dc , "dc" );
 
-   // pass the box constraints to the inner Block
-   //!!
-   if( ! bc->empty() )
-    IBNDOp->add_dynamic_constraint( *bc , "bc" );
+   // pass the sign constraints to the inner Block
+   IBNDOp->add_static_constraint( *bc , "bc" );
 
    // construct the objective of the inner Block
    auto ibo = new FRealObjective( IBNDOp ,
 				  new LinearFunction( std::move( ocf ) ) );
+   ibo->set_sense( Objective::eMax );  // ... to be *max*imized
 
    // set the right optimization sense (max if convex, min otherwise)
    ibo->set_sense( convex ? Objective::eMax : Objective::eMin , eNoMod );
@@ -1363,19 +1322,14 @@ int main( int argc , char **argv )
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // now, for n_repeat times, one inner Block is selected and:
- //
  // - if it is a PolyhedralFunctionBlock
  //   = up to n_change rows are added
  //   = up to n_change rows are deleted
  //   = up to n_change rows are modified
  //   = up to n_change constants are modified
- //
  // - if it is an AbstractBlock (transportation problem)
  //   = costs are modified
  //   = demands are modified
- //
- // - in all cases up to n_change coefficient of linear obj (if any) are
- //   modified
  //
  // then the two problems are re-solved
  //
@@ -1589,21 +1543,16 @@ int main( int argc , char **argv )
      Index strt = dis( rg ) * ( cf.size() - tochange );
      Index stp = strt + tochange;
 
-     // in the dual transportation problem these are the LHA/RHS of the
+     // in the dual transportation problem these are the RHS of the
      // potential constraints: send all the corresponding Modification to
      // a new channel
      auto pc = LPTr->get_static_constraint< FRowConstraint , 2 >( "pc" );
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     if( convex )
-      for( Index h = strt ; h < stp ; ++h )
-       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-			    C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
-     else
-      for( Index h = strt ; h < stp ; ++h )
-       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs(
-			    C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     for( Index h = strt ; h < stp ; ++h )
+      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
+			      C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
 
      LPTr->close_channel( chnl );  // then close the chanel
 
@@ -1625,15 +1574,10 @@ int main( int argc , char **argv )
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     if( convex )
-      for( Index h : nms )
-       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-                            C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
-     else
-      for( Index h : nms )
-       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs(
-                            C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
- 
+     for( Index h : nms )
+      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
+                             C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+
      LPTr->close_channel( chnl );  // then close the chanel
 
      // in the transportation problem inside the LagBFunction, just do it
@@ -1702,111 +1646,39 @@ int main( int argc , char **argv )
   // change demands - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( LPTr && ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
-   LOG1( "modified demands/supplies - " );
+   LOG1( "modified demands - " );
 
-   GenerateSupplies();
+   GenerateDemands();
    #if( LOG_LEVEL >= 5 )
-    cout << endl << "s = [ ";
-    for( auto el : s )
+    cout << endl << "d = [ ";
+    for( auto el : d )
      cout << el << " ";
     cout << " ]" << endl;
    #endif
 
    // in the transportation problem inside the LagBFunction these are the
-   // RHS of the demand and supply constraints: send all the corresponding
-   // Modification to a new channel
+   // RHS of the demand constraints: send all the corresponding Modification
+   // to a new channel
+   auto dc = NDOTr->get_static_constraint_v< FRowConstraint >( "dc" );
+
    Observer::ChnlName chnl = NDOTr->open_channel();
    const auto iAM = Observer::make_par( eModBlck , chnl );
-
-   auto dc = NDOTr->get_static_constraint_v< FRowConstraint >( "dc" );
    for( Index j = 0 ; j < nvar ; ++j )
-    (*dc)[ j ].set_both( s[ j ] , iAM );
-
-   dc = NDOTr->get_static_constraint_v< FRowConstraint >( "sc" );
-   for( Index j = 0 ; j < nvar ; ++j )
-    (*dc)[ j ].set_both( s[ j ] , iAM );
+    (*dc)[ j ].set_both( d[ j ] , iAM );
 
    NDOTr->close_channel( chnl );  // then close the chanel
 
    // in the dual transportation problem these are a slice of the coefficients
    // of the objective
-   s.resize( 2 * nvar );
-   std::copy( s.begin() , s.begin() + nvar , s.begin() + nvar );
-   
-   auto lf = static_cast< p_LF >(
+   auto lf = static_cast< LinearFunction * >(
 		  LPTr->get_objective< FRealObjective >()->get_function() );
-   lf->modify_coefficients( std::move( s ) , Range( 0 , 2 * nvar ) ); 
-   }
-
-  // change flow bounds - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  if( LPTr && ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = Index( dis( rg ) * nvar * nvar / 7 );
-   auto bc = NDOTr->get_dynamic_constraint< BoxConstraint >( "bc" );
-   if( tochange > bc->size() )
-    tochange = bc->size();
-
-   if( tochange ) {
-    LOG1( "changed " << tochange << " flow bounds" );
-
-    RealVector tmpU;
-    GenerateUi( tmpU , tochange );
-
-    auto bc = NDOTr->get_dynamic_constraint< BoxConstraint >( "bc" );
-    auto lf = static_cast< p_LF >(
-		  LPTr->get_objective< FRealObjective >()->get_function() );
-
-    // in the transportation problem inside the LagBFunctionì these are
-    // the RHS of the box constraints: send all the corresponding
-    // Modification to a new channel
-    Observer::ChnlName chnl = NDOTr->open_channel();
-    const auto iAM = Observer::make_par( eModBlck , chnl );
-
-    //!!if( dis( rg ) < 0.5 )
-    {  // in 50% of the cases, do a ranged change
-     LOG1( "(r) - " );
-     Index strt = dis( rg ) * ( bc->size() - tochange );
-     Index stp = strt + tochange;
-
-     auto bcit = std::next( bc->begin() , strt );
-     for( Index h = 0 ; h < tochange ; )
-      (bcit++)->set_rhs( tmpU[ h++ ] , iAM );
-
-     NDOTr->close_channel( chnl );  // then close the chanel
-
-     // in the transportation problem, just do it
-     lf->modify_coefficients( std::move( tmpU ) ,
-			      Range( 2 * nvar + strt , 2 * nvar + stp ) ); 
-     }
-    /*!!
-    else {                   // in 50% of the cases, do a subset change
-     LOG1( "(s) - " );
-     Subset nms = GenerateSubset( bc.size() , tochange );
-
-     auto nh = 0;
-     auto bcit = bc->begin();
-     for( Index h = 0 ; h < tochange ; ) {
-      auto nnh = nms[ h ];
-      std::advance( bcit , nnh - nh );
-      bcit->set_rhs( tmpU[ h++ ] , iAM );
-      nh = nnh;
-      }
-
-     NDOTr->close_channel( chnl );  // then close the chanel
-
-     // in the transportation problem, just do it
-     for( auto & el : nms )
-      el += 2 * nvar;
-     lf->modify_coefficients( std::move( tmpU ) , std::move( nms ) , true ); 
-     }
-     !!*/
-    }
+   lf->modify_coefficients( std::move( d ) , Range( nvar , 2 * nvar ) ); 
    }
 
   // modify linear objective- - - - - - - - - - - - - - - - - - - - - - - - -
   // ... if there is any, of course
 
-  if( ( nf < 0 ) && ( wchg & 256 ) && ( dis( rg ) <= p_change ) )
+  if( ( nf < 0 ) && ( wchg & 128 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = Index( dis( rg ) * std::min( nvar , n_change ) ) ) {
     LOG1( "changed " << tochange << " objective coeff." );
 
@@ -1853,7 +1725,7 @@ int main( int argc , char **argv )
   // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   #if DYNAMIC_VARS > 0
-  if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+  if( ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
     LOG1( "added " << tochange << " variables - " );
@@ -1901,7 +1773,7 @@ int main( int argc , char **argv )
 
   // remove variables - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
+  if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = min( ndvar , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "removed " << tochange << " variables" );
@@ -2010,7 +1882,6 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // unregister (and delete) all Solvers attached to the Blocks
- NDOBlock->unregister_Solvers();
  if( HasEasy )
   for( Index p = nf ; p < nf + nt ; ++p ) {
    auto FRO =
@@ -2018,6 +1889,11 @@ int main( int argc , char **argv )
    auto LBF = static_cast< LagBFunction * >( FRO->get_function() );
    LBF->get_nested_Block( 0 )->unregister_Solvers();
    }
+
+ NDOBlock->unregister_Solvers();
+
+ for( int i = 0 ; i < nf ; )
+  LPBlock->get_nested_Block( i++ )->unregister_Solvers();
 
  LPBlock->unregister_Solvers();
 
