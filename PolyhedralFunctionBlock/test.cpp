@@ -382,6 +382,10 @@ static bool SolveBoth( void )
    LPBlock->register_Solver( slvrLP , true );  // push it to the front
   #endif
   int rtrnLP = slvrLP->compute( false );
+  bool hsLP = ( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
+              || ( rtrnLP == Solver::kLowPrecision );
+  double foLP = hsLP ? ( convex ? slvrLP->get_ub() : slvrLP->get_lb() )
+                     : ( convex ? INF : -INF );
 
   // solve the NODBlock - - - - - - - - - - - - - - - - - - - - - - - - - - -
   Solver * slvrNDO = (NDOBlock->get_registered_solvers()).front();
@@ -390,27 +394,24 @@ static bool SolveBoth( void )
    NDOBlock->register_Solver( slvrNDO );
   #endif
   int rtrnNDO = slvrNDO->compute( false );
+  bool hsNDO = ( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
+              || ( rtrnNDO == Solver::kLowPrecision );
+  double foNDO = hsNDO ? ( convex ? slvrNDO->get_ub() : slvrNDO->get_lb() )
+                       : ( convex ? INF : -INF );
 
-  if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) &&
-      ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) ) {
-   auto foLP = convex ? slvrLP->get_ub() : slvrLP->get_lb();
-   auto foNDO = convex ? slvrNDO->get_ub() : slvrNDO->get_lb();
-   if( abs( foLP - foNDO )
-       <= 2e-7 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
-    LOG1( "OK(f)" << endl );
-    return( true );
-    }
+  if( hsLP && hsNDO && ( abs( foLP - foNDO ) <= 2e-7 *
+			 max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) ) {
+   LOG1( "OK(f)" << endl );
+   return( true );
    }
 
-  if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) &&
-      ( rtrnNDO == Solver::kUnbounded ) ) {
+  if( hsLP && ( rtrnNDO == Solver::kUnbounded ) ) {
    /* Weird case: the LP found an optimal solution but the NDO declared the
     * problem unbounded below. This may be because the tentative lb is too
     * high, check it this actually is the case and if so declare the
     * run a success (but also decrease the lb). */
-   auto foNDO = convex ? slvrNDO->get_ub() : slvrNDO->get_lb();
-   if( ( convex && ( slvrNDO->get_ub() <= bound * ( 1 + 1e-9 ) ) ) ||
-       ( ( ! convex ) && ( slvrNDO->get_lb() >= bound * ( 1 + 1e-9 ) ) ) ) {
+   if( ( convex && ( foNDO <= bound * ( 1 + 1e-9 ) ) ) ||
+       ( ( ! convex ) && ( foNDO >= bound * ( 1 + 1e-9 ) ) ) ) {
     LOG1( "OK(?bound?)" << endl );
     bound *= 2;
     if( convex )
@@ -429,14 +430,14 @@ static bool SolveBoth( void )
 
   if( ( rtrnLP == Solver::kUnbounded ) &&
       ( rtrnNDO == Solver::kUnbounded ) ) {
-    LOG1( "OK(u)" << endl );
-    return( true );
-    }
+   LOG1( "OK(u)" << endl );
+   return( true );
+   }
 
   #if( LOG_LEVEL >= 1 )
    cout << "LPBlock = ";
-   if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
-    cout << ( convex ? slvrLP->get_ub() : slvrLP->get_lb() );
+   if( hsLP )
+    cout << foLP;
    else
     if( rtrnLP == Solver::kInfeasible )
      cout << "    Unfeas(?)";
@@ -447,8 +448,8 @@ static bool SolveBoth( void )
       cout << "      Error!";
 
    cout << " ~ NDOBlock = ";
-   if( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
-    cout << ( convex ? slvrNDO->get_ub() : slvrNDO->get_lb() );
+   if( hsNDO )
+    cout << foNDO;
    else
     if( rtrnNDO == Solver::kInfeasible )
      cout << "    Unfeas(?)";
