@@ -184,7 +184,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 3
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -1443,6 +1443,9 @@ int main( int argc , char **argv )
  // - if it is an AbstractBlock (transportation problem)
  //   = costs are modified
  //   = demands are modified
+ //   = flow bounds are modified
+ // - in either case
+ //   the linear objective, if any, is modified
  //
  // then the two problems are re-solved
  //
@@ -1663,9 +1666,14 @@ int main( int argc , char **argv )
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     for( Index h = strt ; h < stp ; ++h )
-      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-			      C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     if( convex )
+      for( Index h = strt ; h < stp ; ++h )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
+			    C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     else
+      for( Index h = strt ; h < stp ; ++h )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs(
+			    C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
 
      LPTr->close_channel( chnl );  // then close the chanel
 
@@ -1687,9 +1695,14 @@ int main( int argc , char **argv )
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     for( Index h : nms )
-      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-                             C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     if( convex )
+      for( Index h : nms )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
+                            C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     else
+      for( Index h : nms )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs(
+                            C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
 
      LPTr->close_channel( chnl );  // then close the chanel
 
@@ -1723,8 +1736,12 @@ int main( int argc , char **argv )
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     for( Index h = strt ; h < stp ; ++h )
-      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs( 0 , iAM );
+     if( convex )
+      for( Index h = strt ; h < stp ; ++h )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs( 0 , iAM );
+     else
+      for( Index h = strt ; h < stp ; ++h )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs( 0 , iAM );
 
      LPTr->close_channel( chnl );  // then close the chanel
 
@@ -1743,9 +1760,12 @@ int main( int argc , char **argv )
 
      Observer::ChnlName chnl = LPTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
-     for( Index h : nms )
-      (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs(
-                             C[ dict[ h ].first ][ dict[ h ].second ] , iAM );
+     if( convex )
+      for( Index h : nms )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_lhs( 0 , iAM );
+     else
+      for( Index h : nms )
+       (*pc)[ dict[ h ].first ][ dict[ h ].second ].set_rhs( 0 , iAM );
 
      LPTr->close_channel( chnl );  // then close the chanel
 
