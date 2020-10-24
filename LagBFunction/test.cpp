@@ -147,7 +147,16 @@
  *   assuming u[ i ][ j ] is finite, else without the "- w[ i ][ j ]" term
  *   and the w[ i ][ j ] variable; note having put a "-" to keep w[ i ][ j ]
  *   non-negative, since the natural sign of the dual variable of a <=
- *   constraint in a minimization LP is <= 0.
+ *   constraint in a minimization LP is <= 0. However, this means that the
+ *   corresponding term in the objective, that would ordinarily be
+ *
+ *       + u[ i ][ j ] * w[ i ][ j ]
+ *
+ *   must then become
+ *
+ *       - u[ i ][ j ] * w[ i ][ j ]
+ *
+ *   because w[ i ][ j ] has changed sign (w[ i ][ j ] ==> - w[ i ][ j ]).
  *
  * - The variables ys[ i ] and yd[ j ], the objective function and the
  *   constraints (linking them with x[]) are constructed manually into an
@@ -160,9 +169,9 @@
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 0.90
+ * \version 1.00
  *
- * \date 22 - 10 - 2020
+ * \date 24 - 10 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -514,8 +523,7 @@ static Index GenerateCapacities( void )
 
  for( Index i = 0 ; i < nvar ; ++i )
   for( Index j = 0 ; j < nvar ; ++j )
-   //!! if( ( i == j ) || ( dis( rg ) < 0.30 ) )
-   if( ( i == j ) || ( dis( rg ) < 3.0 ) )
+   if( ( i == j ) || ( dis( rg ) < 0.3 ) )
     U[ i ][ j ] = INF;
    else {
     U[ i ][ j ] = dis( rg ) < 0.15 ? 0 : 5 * dis( rg );
@@ -571,7 +579,22 @@ static void printC( void )
   cout << "C[ " << i << " ] = [ ";
   for( Index j = 0 ; j < nvar ; ++j )
    cout << C[ i ][ j ] << " ";
-   cout << "]" << endl;
+  cout << "]" << endl;
+  }
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void printU( void )
+{
+ for( Index i = 0 ; i < nvar ; ++i ) {
+  cout << "U[ " << i << " ] = [ ";
+  for( Index j = 0 ; j < nvar ; ++j )
+   if( U[ i ][ j ] == INF )
+    cout << "INF ";
+   else
+    cout << U[ i ][ j ] << " ";
+  cout << "]" << endl;
   }
  }
 
@@ -585,6 +608,7 @@ static void printT( void )
  cout << "]" << endl;
 
  printC();
+ printU();
  }
 
 /*--------------------------------------------------------------------------*/
@@ -994,7 +1018,7 @@ int main( int argc , char **argv )
      auto w = new std::vector< ColVariable >( nic );
     #endif
     auto wit = w->begin();
-    auto docfit = docf.begin();
+    auto docfit = docf.begin() + 2 * nvar;
 
     for( Index i = 0 ; i < nvar ; ++i )
      for( Index j = 0 ; j < nvar ; ++j ) {
@@ -1010,7 +1034,8 @@ int main( int argc , char **argv )
        // bound ==> ys[ i ] + yd[ j ] + w[ i ][ j ] - x[ j ] >= c[ i ][ j ]
        wit->set_type( ColVariable::kNonNegative , eNoMod );
        cf[ 3 ] = std::make_pair( & (*wit) , convex ? 1 : -1 );
-       *(docfit++) = std::make_pair( & (*(wit++)) , U[ i ][ j ] );
+       *(docfit++) = std::make_pair( & (*(wit++)) , convex ?   U[ i ][ j ]
+				                           : - U[ i ][ j ] );
        }
 
      cf[ 0 ] = std::make_pair( & (*ys)[ i ] , 1 );
@@ -1807,6 +1832,10 @@ int main( int argc , char **argv )
       NDOTr->close_channel( chnl );  // then close the chanel
 
       // in the transportation problem, just do it
+      if( ! convex )
+       for( auto & tUi : tmpU )
+	tUi = - tUi;
+
       lf->modify_coefficients( std::move( tmpU ) ,
 			      Range( 2 * nvar + strt , 2 * nvar + stp ) ); 
       }
@@ -1834,6 +1863,10 @@ int main( int argc , char **argv )
       // in the transportation problem, just do it
       for( auto & el : nms )
        el += 2 * nvar;
+      if( ! convex )
+       for( auto & tUi : tmpU )
+	tUi = - tUi;
+
       lf->modify_coefficients( std::move( tmpU ) , std::move( nms ) , true ); 
       }
      !!*/
