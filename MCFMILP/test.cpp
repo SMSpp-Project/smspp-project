@@ -150,6 +150,9 @@ class MCFMILPTest :
  MCFClass::FNumber u_min{};
  bool nz_deficits = false;
 
+ Solver * mcfsolver{};
+ Solver * milpsolver{};
+
  void SetUp() override {
   mcfb = dynamic_cast<MCFBlock *>( Block::new_Block( "MCFBlock" ));
   EXPECT_TRUE( mcfb != nullptr );
@@ -161,8 +164,8 @@ class MCFMILPTest :
   mcfb->generate_objective();
   compute_costs_deficits();
 
-  auto * mcfsolver = new MCFSolver< MCFC >();
-  auto * milpsolver = new CPXMILPSolver();
+  mcfsolver = new MCFSolver< MCFC >();
+  milpsolver = new CPXMILPSolver();
 
   mcfb->register_Solver( milpsolver );
   mcfsolver->set_par( Solver::dblAbsAcc, u_avg * 1e-8 );
@@ -173,26 +176,31 @@ class MCFMILPTest :
 
  void TearDown() override {
   delete mcfb;
+  delete mcfsolver;
+  delete milpsolver;
  }
 
  // Solves the problem using the two solvers and compares the results
  void solve() {
-  Solver * milpsolver = mcfb->get_registered_solvers().front();
-  Solver * mcfsolver = mcfb->get_registered_solvers().back();
+  Solver * s1 = mcfb->get_registered_solvers().front();
+  Solver * s2 = mcfb->get_registered_solvers().back();
 
-  auto t1 = milpsolver->compute_async( false );
-  auto t2 = mcfsolver->compute_async( false );
+  auto milp_status = s1->compute( false );
+  auto mcf_status = s2->compute( false );
+  //
+  // auto t1 = s1->compute_async( false );
+  // auto t2 = s2->compute_async( false );
+  //
+  // t1.wait();
+  // t2.wait();
 
-  t1.wait();
-  t2.wait();
-
-  auto milp_status = t1.get();
-  auto mcf_status = t2.get();
+  // auto milp_status = t1.get();
+  // auto mcf_status = t2.get();
 
   EXPECT_EQ( milp_status, mcf_status );
 
-  auto milp_ub = milpsolver->get_ub();
-  auto mcf_ub = mcfsolver->get_ub();
+  auto milp_ub = s1->get_ub();
+  auto mcf_ub = s2->get_ub();
 
   if( milp_ub == std::numeric_limits< double >::infinity() ) {
    EXPECT_EQ( milp_ub, mcf_ub );
