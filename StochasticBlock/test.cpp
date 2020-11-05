@@ -143,21 +143,21 @@ struct Iter<double> {
 };
 
 template<class S , class T>
-struct Function;
+struct FunctionType;
 
 template<class T>
-struct Function<Subset , T> {
+struct FunctionType<Subset , T> {
  using type = Block::FunctionType< typename Iter<T>::type , Subset && , bool >;
 };
 
 template<class T>
-struct Function<Range , T> {
+struct FunctionType<Range , T> {
  using type = Block::FunctionType< typename Iter<T>::type , Range >;
 };
 
 template<class S , class T>
 auto get_method() {
- return Block::get_method< typename Function<S , T>::type >
+ return Block::get_method< typename FunctionType<S , T>::type >
   ( "DummyBlock::set_data" );
 }
 
