@@ -184,7 +184,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 3
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -254,12 +254,12 @@
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, the w variables are dynamic
 
-#define DYNAMIC_w 0
+#define DYNAMIC_w 1
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, the bc constraints are dynamic
 
-#define DYNAMIC_bc 0
+#define DYNAMIC_bc 1
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, half of the variables are dynamic
@@ -1292,6 +1292,11 @@ int main( int argc , char **argv )
  NDOBlock->generate_abstract_constraints();
  NDOBlock->generate_objective();
 
+ // final checks- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ //!!
+ LPBlock->is_correct();
+ NDOBlock->is_correct();
+
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
@@ -1654,7 +1659,7 @@ int main( int argc , char **argv )
 
     LOG1( "modified " << tochange << " costs" );
 
-     if( dis( rg ) < 0.5 ) {  // in 25% of the cases, do a ranged change
+    if( dis( rg ) < 0.5 ) {  // in 25% of the cases, do a ranged change
      LOG1( "(r) - " );
      Index strt = dis( rg ) * ( cf.size() - tochange );
      Index stp = strt + tochange;

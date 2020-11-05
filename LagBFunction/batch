@@ -1,11 +1,11 @@
 #/bin/bash
 
-what=34
-#what=31
-#what=1
+#what=34
+what=511
+#what=2
 #iter=0
-nf=-2
-nt=-1
+nf=-11
+nt=3
 
 for size in 2 10 50 100
 do

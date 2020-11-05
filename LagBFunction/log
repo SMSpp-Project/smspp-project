@@ -1,0 +1,19 @@
+/usr/local/include/boost/log/attributes/attribute_value.hpp:200:29: runtime error: member call on address 0x7f9badd0f830 which does not point to an object of type 'boost::log::v2_mt_posix::attribute_value::impl'
+0x7f9badd0f830: note: object is of type 'boost::log::v2_mt_posix::sources::aux::severity_level<boost::log::v2_mt_posix::trivial::severity_level>::impl'
+ 00 00 f0 3f  70 f9 13 0e 01 00 00 00  03 00 00 00 00 00 00 00  20 ce d0 ad 9b 7f 00 00  20 d8 d0 ad
+              ^~~~~~~~~~~~~~~~~~~~~~~
+              vptr for 'boost::log::v2_mt_posix::sources::aux::severity_level<boost::log::v2_mt_posix::trivial::severity_level>::impl'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /usr/local/include/boost/log/attributes/attribute_value.hpp:200:29 in 
+UndefinedBehaviorSanitizer:DEADLYSIGNAL
+==73332==ERROR: UndefinedBehaviorSanitizer: SEGV on unknown address 0x7f9b3d39ed28 (pc 0x00010c0e416b bp 0x00000000000e sp 0x7ffee48337b0 T68105241)
+==73332==The signal is caused by a READ memory access.
+    #0 0x10c0e416b in _2a026c645565f0dd335215f471094a31+0xb8b (LagBFunction_test:x86_64+0x100d1d16b)
+
+==73332==Register values:
+rax = 0x00000000e38e393a  rbx = 0x0000000000000003  rcx = 0x0000000000000004  rdx = 0x00007f9baf0111f0  
+rdi = 0x00007f9baf011110  rsi = 0x00007f9baf808a10  rbp = 0x000000000000000e  rsp = 0x00007ffee48337b0  
+ r8 = 0x0000000000000001   r9 = 0x0000000000000003  r10 = 0x0000000000000001  r11 = 0x0000000000000000  
+r12 = 0x00007f9baf010840  r13 = 0x00007f9baf010a90  r14 = 0x00007f9baf809410  r15 = 0xffffffffe38e393a  
+UndefinedBehaviorSanitizer can not provide additional info.
+SUMMARY: UndefinedBehaviorSanitizer: SEGV (LagBFunction_test:x86_64+0x100d1d16b) in _2a026c645565f0dd335215f471094a31+0xb8b
+==73332==ABORTING
