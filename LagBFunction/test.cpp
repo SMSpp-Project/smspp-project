@@ -259,7 +259,7 @@
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, the bc constraints are dynamic
 
-#define DYNAMIC_bc 1
+#define DYNAMIC_bc 0
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, half of the variables are dynamic
@@ -1293,9 +1293,10 @@ int main( int argc , char **argv )
  NDOBlock->generate_objective();
 
  // final checks- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- //!!
+ /**!!
  LPBlock->is_correct();
  NDOBlock->is_correct();
+ !!*/
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1728,8 +1729,7 @@ int main( int argc , char **argv )
 
     LOG1( "deleted " << tochange << " costs" );
 
-    //!! if( dis( rg ) < 0.5 )
-    {  // in 25% of the cases, do a ranged removal
+    if( dis( rg ) < 0.5 ) {  // in 25% of the cases, do a ranged removal
      LOG1( "(r) - " );
      Index strt = dis( rg ) * ( cf.size() - tochange );
      Index stp = strt + tochange;
@@ -1753,7 +1753,6 @@ int main( int argc , char **argv )
      // in the transportation problem inside the LagBFunction, just do it
      lf->remove_variables( Range( strt , stp ) );
      }
-    /*!!
     else {                   // in 25% of the cases, do a subset removal
      LOG1( "(s) - " );
      Subset nms = GenerateSubset( cf.size() , tochange );
@@ -1777,7 +1776,6 @@ int main( int argc , char **argv )
      // in the transportation problem inside the LagBFunction, just do it
      lf->remove_variables( std::move( nms ) );
      }
-     !!*/
     }
    }
 
@@ -1844,8 +1842,7 @@ int main( int argc , char **argv )
      Observer::ChnlName chnl = NDOTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
 
-     //!!if( dis( rg ) < 0.5 )
-     {  // in 50% of the cases, do a ranged change
+     if( dis( rg ) < 0.5 ) {  // in 50% of the cases, do a ranged change
       LOG1( "(r) - " );
       Index strt = dis( rg ) * ( bc->size() - tochange );
       Index stp = strt + tochange;
@@ -1862,12 +1859,11 @@ int main( int argc , char **argv )
 	tUi = - tUi;
 
       lf->modify_coefficients( std::move( tmpU ) ,
-			      Range( 2 * nvar + strt , 2 * nvar + stp ) ); 
+			       Range( 2 * nvar + strt , 2 * nvar + stp ) ); 
       }
-     /*!!
      else {                   // in 50% of the cases, do a subset change
       LOG1( "(s) - " );
-      Subset nms = GenerateSubset( bc.size() , tochange );
+      Subset nms = GenerateSubset( bc->size() , tochange );
 
       #if DYNAMIC_bc
        auto nh = 0;
@@ -1879,8 +1875,8 @@ int main( int argc , char **argv )
         nh = nnh;
         }
       #else
-       for( Index h : nms -)
-        (*bc)[ h ].set_rhs( tmpU[ h ] , iAM );
+       for( Index h = 0 ; h < tochange ; ++h )
+        (*bc)[ nms[ h ] ].set_rhs( tmpU[ h ] , iAM );
       #endif
 
       NDOTr->close_channel( chnl );  // then close the chanel
@@ -1894,7 +1890,6 @@ int main( int argc , char **argv )
 
       lf->modify_coefficients( std::move( tmpU ) , std::move( nms ) , true ); 
       }
-     !!*/
      }
 
   // modify linear objective- - - - - - - - - - - - - - - - - - - - - - - - -

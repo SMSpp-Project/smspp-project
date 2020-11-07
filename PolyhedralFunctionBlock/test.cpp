@@ -774,7 +774,13 @@ int main( int argc , char **argv )
   NDOBlock->add_dynamic_constraint( *NDObnd );
   }
  #endif
- 
+
+ // final checks- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ /*!!
+ LPBlock->is_correct();
+ NDOBlock->is_correct();
+ !!*/
+
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
@@ -1310,20 +1316,6 @@ int main( int argc , char **argv )
 
     // update ndvar
     ndvar += tochange;
-
-    /*!!
-    // sanity checks
-    PANIC( ndvar == PF->get_num_active_var() );
-    for( auto & ai : *PF->get_A() )
-     PANIC( ndvar == ai.size() );
-    PANIC( ndvar ==
-	         LPBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
-    PANIC( ndvar ==
-	        NDOBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
-    for( auto & ci :
-	          *(LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )) )
-     PANIC( ndvar == ci.get_num_active_var() );
-     !!*/
     }
    }
 
@@ -1394,20 +1386,6 @@ int main( int argc , char **argv )
 
     // update ndvar
     ndvar -= tochange;
-
-    /*!!
-    // sanity checks
-    PANIC( ndvar == PF->get_num_active_var() );
-    for( auto & ai : *PF->get_A() )
-     PANIC( ndvar == ai.size() );
-    PANIC( ndvar ==
-	         LPBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
-    PANIC( ndvar ==
-	        NDOBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
-    for( auto & ci :
-	          *(LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )) )
-     PANIC( ndvar == ci.get_num_active_var() );
-     !!*/
     }
    }
 
