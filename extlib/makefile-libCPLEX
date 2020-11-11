@@ -27,7 +27,7 @@
 # Linux
 #libCPLEXEXTLIB = -lpthread
 # Mac OSX
-libCPLEXEXTLIB = -framework CoreFoundation -framework IOKit
+#libCPLEXEXTLIB = -framework CoreFoundation -framework IOKit
 
 # basic Cplex directory
 libCPLEXBSCDIR = /Users/frangio/Applications/CPLEX_Studio128/cplex/

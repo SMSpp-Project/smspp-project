@@ -1,0 +1,33 @@
+##############################################################################
+############################# makefile-libSCIP ###############################
+##############################################################################
+#                                                                            #
+#   makefile of libSCIP                                                      #
+#                                                                            #
+#   Input:  none, this is a pre-built library                                #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libSCIPLIB) = external libreries + -L<libdirs> for libSCIP     #
+#           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
+#                                 VERSION 1.00                               #
+#                                16 - 06 - 2020                              #
+#                                                                            #
+#                              Antonio Frangioni                             #
+#                           Operations Research Group                        #
+#                          Dipartimento di Informatica                       #
+#                              Universita' di Pisa                           #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic SCIP directory
+libSCIPBSCDIR = /Users/frangio/Applications/SCIP-7.0/
+
+# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libSCIPLIB = -L$(libSCIPBSCDIR)lib/ -lzimpl -lsoplex -lscip -ltbb
+libSCIPINC = -I$(libSCIPBSCDIR)include/
+
+############################# End of makefile ################################
