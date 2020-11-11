@@ -11,9 +11,9 @@
  * and the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.20
+ * \version 1.30
  *
- * \date 18 - 10 - 2020
+ * \date 10 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -118,7 +118,9 @@
 
 #include "BundleSolver.h"
 
-#include "CPXMILPSolver.h"
+#if( LOG_LEVEL >= 3 )
+ #include "CPXMILPSolver.h"
+#endif
 
 #include "PolyhedralFunction.h"
 
@@ -734,9 +736,23 @@ int main( int argc , char **argv )
  
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // for LPBlock, "manually" attach a CPXMILPSolver
 
- LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
+ {
+  // for LPBlock do this by reading an appropriate BlockSolverConfig from
+  // file and apply() it to the LPBlock
+  ifstream MILPParFile( "MILPPar.txt" );
+  if( ! MILPParFile.is_open() ) {
+   cerr << "Error: cannot open file MILPPar.txt" << endl;
+   return( 1 );
+   }
+
+  auto msc = new BlockSolverConfig;
+  MILPParFile >> *( msc );
+  MILPParFile.close();
+
+  msc->apply( LPBlock );
+  delete msc;
+  }
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from

@@ -25,7 +25,8 @@ BundleSolver # name of 1st Solver
 
 ComputeConfig     # exact type of the ComputeConfig object
 
-0  # f_diff == 0 ==> all non-provided parameters are set to the default value
+1  # f_diff == 0 ==> all non-provided parameters are set to the default value
+   # f_diff == 1 ==> all non-provided parameters are not changed
 
 21 # number of integer parameters
 

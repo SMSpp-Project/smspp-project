@@ -20,9 +20,9 @@
  * PolyhedralFunctionBlock to keep them in synch. Then both are solved and
  * the results compared.
  *
- * \version 1.00
+ * \version 1.10
  *
- * \date 18 - 10 - 2020
+ * \date 10 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -125,7 +125,9 @@
 
 #include "BundleSolver.h"
 
-#include "CPXMILPSolver.h"
+#if( LOG_LEVEL >= 3 )
+ #include "CPXMILPSolver.h"
+#endif
 
 #include "PolyhedralFunctionBlock.h"
 
@@ -783,18 +785,33 @@ int main( int argc , char **argv )
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
- // each PolyhedralFunctionBlock in LPBlock)
 
- LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
+ {
+  // for LPBlock do this by reading appropriate BlockSolverConfig from
+  // files and apply() it to the LPBlock; furthermore, "manually" attach an
+  // UpdateSolver to (each PolyhedralFunctionBlock in) LPBlock
+ 
+  ifstream MILPParFile( "MILPPar.txt" );
+  if( ! MILPParFile.is_open() ) {
+   cerr << "Error: cannot open file MILPPar.txt" << endl;
+   return( 1 );
+   }
 
- if( nf )
-  for( int i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i )
-   LPBlock->get_nested_Block( i )->register_Solver(
+  auto msc = new BlockSolverConfig;
+  MILPParFile >> *( msc );
+  MILPParFile.close();
+
+  msc->apply( LPBlock );
+  delete msc;
+ 
+  if( nf )
+   for( int i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i )
+    LPBlock->get_nested_Block( i )->register_Solver(
 		       new UpdateSolver( NDOBlock->get_nested_Block( i ) ) );
- else
-  LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
-
+  else
+   LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
+  }
+ 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
   // files and apply() it to the NDOBlock
