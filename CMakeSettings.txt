@@ -39,11 +39,14 @@ set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
 add_compile_options(
 #        "-Wall" "-Wpedantic" "-Wextra" "-fexceptions"
+#        "-fsanitize=address" "-fno-omit-frame-pointer"
         "$<$<CONFIG:DEBUG>:-fno-inline>"
 #        "$<$<CONFIG:MINSIZEREL>:>"
 #        "$<$<CONFIG:RELEASE>:>"
 #        "$<$<CONFIG:RELWITHDEBINFO>:>"
 )
+
+#add_link_options("-fsanitize=address")
 
 # Custom output directories
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
