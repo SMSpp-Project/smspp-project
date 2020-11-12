@@ -28,13 +28,14 @@ ComputeConfig     # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-21 # number of integer parameters
+22 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
 intEverykIt 1     # periodicity of eEverykIteration events
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
+intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
 intBPar2  400     # max bundle size per component
 intBPar3    1     # max n. of items to fetch from Fi() at each iteration

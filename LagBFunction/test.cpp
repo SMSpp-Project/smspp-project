@@ -281,7 +281,7 @@
 #include "BundleSolver.h"
 
 #if( LOG_LEVEL >= 3 )
- #include "CPXMILPSolver.h"
+ #include "MILPSolver.h"
 #endif
 
 #include "LagBFunction.h"
@@ -1412,7 +1412,7 @@ int main( int argc , char **argv )
        auto LBF = static_cast< p_LBF >( FRO->get_function() );
        auto slv =
 	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
-       slv->set_par( CPXMILPSolver::strOutputFile ,
+       slv->set_par( MILPSolver::strOutputFile ,
 		     "TB-" + std::to_string( p - nf ) + "-" +
 		     std::to_string( bslvr->n_calls() ) + "-" +
 		     std::to_string( bslvr->n_iter() ) + ".lp" );
@@ -1445,7 +1445,7 @@ int main( int argc , char **argv )
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
-	                       CPXMILPSolver::strOutputFile , "LPBlock.lp" );
+	                          MILPSolver::strOutputFile , "LPBlock.lp" );
   #endif
  #endif
 
@@ -2082,8 +2082,8 @@ int main( int argc , char **argv )
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
-		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
-		                  std::to_string( rep ) + ".lp" );
+		                     MILPSolver::strOutputFile , "LPBlock-" +
+		                     std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
     if( bn < nf ) {
      cout << endl << "LPBlock-PF: ";

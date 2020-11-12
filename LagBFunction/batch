@@ -1,5 +1,6 @@
 #/bin/bash
 
+#what=287
 what=511
 #what=0
 #iter=0
