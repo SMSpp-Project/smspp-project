@@ -50,3 +50,7 @@ add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
 add_subdirectory(StochasticBlock)
 add_subdirectory(TUBMILP)
+
+if (CMAKE_EXPORT_PACKAGE_REGISTRY)
+    # Just consuming CMAKE_EXPORT_PACKAGE_REGISTRY to avoid warnings
+endif()
