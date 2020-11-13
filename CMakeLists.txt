@@ -26,6 +26,7 @@ endif ()
 
 # ----- Fetch GoogleTest ---------------------------------------------------- #
 include(FetchContent)
+set(INSTALL_GTEST OFF)
 fetchcontent_declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
