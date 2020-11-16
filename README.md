@@ -178,20 +178,13 @@ is up-to-date (useful in case one is actually developing it). The simplest
 way to learn how to use it is to check the makefiles for testers, such as
 those in
 
-<<<<<<< Updated upstream
 ```sh
-LukFiBlock/test
 MCFBlock/test
+tests/LagBFunction 
 tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
-=======
-    MCFBlock/test
-	tests/LagBFunction 
-	tests/PolyhedralFunction
-	tests/PolyhedralFunctionBlock
 
->>>>>>> Stashed changes
 
 ## Contributing
 
