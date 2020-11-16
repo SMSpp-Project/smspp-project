@@ -81,13 +81,13 @@ on your system.
 
 - See each test for its requirements.
 
-- Some tests require [Google Test](https://github.com/google/googletest)
+- Some tests require [Google Test](https://github.com/google/googletest).
 
 > If you build the tests with CMake, Google Test will be fetched and built
 > automatically.
 
 
-### Build with Cmake
+### Build with CMake
 
 Configure and build all the tests using CMake:
 
@@ -101,7 +101,7 @@ make
 ### Build and install with makefiles
 
 Carefully hand-crafted makefiles have also been developed for those unwilling
-to use Cmake. General instructions are:
+to use CMake. General instructions are:
 
 - The arrangements of folders must be that envisioned by the
   [Umbrella SMS++ Project](https://gitlab.com/smspp/smspp-project)
