@@ -25,12 +25,7 @@
 
 # define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
 
-<<<<<<< Updated upstream
-libNtCDFINC = -I/usr/local/Cellar/netcdf/4.6.1_2/include/
-libNtCDFLIB = -L/usr/local/Cellar/netcdf/4.6.1_2/lib/ -lnetcdf -lnetcdf-cxx4
-=======
 libNtCDFINC = -I/usr/local/Cellar/netcdf/4.7.4_1/include/
 libNtCDFLIB = -L/usr/local/Cellar/netcdf/4.7.4_1/lib/ -lnetcdf -lnetcdf-cxx4
->>>>>>> Stashed changes
 
 ############################# End of makefile ################################
