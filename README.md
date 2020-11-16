@@ -87,7 +87,7 @@ on your system.
 > automatically.
 
 
-### Build and install with Cmake
+### Build with Cmake
 
 Configure and build all the tests using CMake:
 
