@@ -60,6 +60,9 @@ if (NOT googletest_POPULATED)
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 endif ()
 
+# This is so GoogleTest doesn't get installed alongside the library.
+set(INSTALL_GTEST OFF)
+
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(BendersBFunction)
 add_subdirectory(LagBFunction)
