@@ -13,8 +13,8 @@
 #           $(libBoostINC) = the -I$(include directories) for Boost          #
 #           $(libBoostLIB) = external libreries + -L<libdirs> for Boost      #
 #									     #
-#                                VERSION 2.00				     #
-#                	        06 - 09 - 2019				     #
+#                                VERSION 2.10				     #
+#                	        28 - 10 - 2020				     #
 #									     #
 #			      Antonio Frangioni				     #
 #   			   Operations Research Group			     #
@@ -25,7 +25,7 @@
 
 # define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
 
-libBoostINC = -I/Users/frangio/Codes/others/boost
-libBoostLIB = 
+libBoostINC = -I/usr/local/Cellar/boost/1.74.0/include/ -DBOOST_LOG_DYN_LINK
+libBoostLIB = -L/usr/local/Cellar/boost/1.74.0/lib -lboost_log-mt
 
 ############################# End of makefile ################################

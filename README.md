@@ -5,10 +5,12 @@ quick way to download and install all the projects related to the SMS++
 framework. It also allows to produce an unified documentation and to track
 issues that involve all the modules or the project in general.
 
+
 ## Documentation
 
 The documentation of all modules of the SMS++ Project is available
 at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project).
+
 
 ## Current projects
 
@@ -20,6 +22,9 @@ at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project
   function(s) based on the (generalized) "bundle method". It currently
   uses some modules from the [NDOSolver / FiOracle
   project](https://gitlab.com/frangio68/ndosolver_fioracle_project)
+
+- [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
+  "generic" Lagrangian-based Solver for Block with appropriate structure
 
 - [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple Block defining
   several test functions from the literature for NonDifferentiable
@@ -74,13 +79,16 @@ at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project
   different sub-projects so that they are better not included in any specific
   sub-project.
 
+
 ## Getting started
 
 These instructions will let you build the projects on your local machine.
 
+
 ### Requirements
 
 See the individual projects.
+
 
 ### Getting the code
 
@@ -131,10 +139,11 @@ Optionally install the libraries in the system with:
 sudo make install
 ```
 
+
 ### Build and install with makefiles
 
 Most modules, and in particular the "core" SMS++ classes, also come with
-hand-made makefiles. Using them requires to dabble with some make editing,
+carefully hand-crafted. Using them requires to dabble with some make editing,
 but is it independent on cmake.
 
 The main step is to edit the makefiles into extlib/. There is one for each
@@ -169,12 +178,20 @@ is up-to-date (useful in case one is actually developing it). The simplest
 way to learn how to use it is to check the makefiles for testers, such as
 those in
 
+<<<<<<< Updated upstream
 ```sh
 LukFiBlock/test
 MCFBlock/test
 tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
+=======
+    MCFBlock/test
+	tests/LagBFunction 
+	tests/PolyhedralFunction
+	tests/PolyhedralFunctionBlock
+
+>>>>>>> Stashed changes
 
 ## Contributing
 
@@ -182,8 +199,8 @@ This section is not ready yet.
 
 ## Authors
 
-These authors are for the umbrella project alone,
-check the individual projects for their respective authors.
+These authors are for the umbrella project alone, check the individual
+projects for their respective authors.
 
 - **Antonio Frangioni**  
   *Operations Research Group*  
