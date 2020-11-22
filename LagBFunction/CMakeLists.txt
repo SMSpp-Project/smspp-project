@@ -9,7 +9,7 @@ if (BundleSolver_FOUND AND MILPSolver_FOUND)
                           SMS++::BundleSolver
                           SMS++::MILPSolver)
 
-    add_test(NAME LagBFunction_test
-             COMMAND LagBFunction_test
-             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+#    add_test(NAME LagBFunction_test
+#             COMMAND LagBFunction_test
+#             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif ()

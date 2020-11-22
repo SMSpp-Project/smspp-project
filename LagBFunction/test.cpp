@@ -254,7 +254,7 @@
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, the w variables are dynamic
 
-#define DYNAMIC_w 1
+#define DYNAMIC_w 0
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 // if 1, the bc constraints are dynamic
@@ -280,7 +280,9 @@
 
 #include "BundleSolver.h"
 
-#include "CPXMILPSolver.h"
+#if( LOG_LEVEL >= 3 )
+ #include "MILPSolver.h"
+#endif
 
 #include "LagBFunction.h"
 
@@ -1303,11 +1305,27 @@ int main( int argc , char **argv )
  // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
  // each PolyhedralFunctionBlock in LPBlock)
 
- LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
+ {
+  // for LPBlock do this by reading an appropriate BlockSolverConfig from
+  // file and apply() it to the LPBlock; furthermore, "manually" attach an
+  // UpdateSolver to (each PolyhedralFunctionBlock in) LPBlock
+  ifstream MILPParFile( "MILPPar.txt" );
+  if( ! MILPParFile.is_open() ) {
+   cerr << "Error: cannot open file MILPPar.txt" << endl;
+   return( 1 );
+   }
 
- for( int i = 0 ; i < nf ; ++i )
-  LPBlock->get_nested_Block( i )->register_Solver(
+  auto msc = new BlockSolverConfig;
+  MILPParFile >> *( msc );
+  MILPParFile.close();
+
+  msc->apply( LPBlock );
+  delete msc;
+
+  for( int i = 0 ; i < nf ; ++i )
+   LPBlock->get_nested_Block( i )->register_Solver(
 		       new UpdateSolver( NDOBlock->get_nested_Block( i ) ) );
+  }
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
@@ -1324,8 +1342,8 @@ int main( int argc , char **argv )
   // ensure the "easy components" parameter is properly set
   for( int i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
    if( bsc->get_SolverName( i ) == "BundleSolver" )
-    bsc->get_SolverConfig( i )->set_par( "intNoEasy" ,
-					 HasEasy ? int( 0 ) : int( 1 ) );
+    bsc->get_SolverConfig( i )->set_par( "intDoEasy" ,
+					 HasEasy ? int( 15 ) : int( 0 ) );
  
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
   delete bsc;
@@ -1394,7 +1412,7 @@ int main( int argc , char **argv )
        auto LBF = static_cast< p_LBF >( FRO->get_function() );
        auto slv =
 	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
-       slv->set_par( CPXMILPSolver::strOutputFile ,
+       slv->set_par( MILPSolver::strOutputFile ,
 		     "TB-" + std::to_string( p - nf ) + "-" +
 		     std::to_string( bslvr->n_calls() ) + "-" +
 		     std::to_string( bslvr->n_iter() ) + ".lp" );
@@ -1427,7 +1445,7 @@ int main( int argc , char **argv )
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
-	                       CPXMILPSolver::strOutputFile , "LPBlock.lp" );
+	                          MILPSolver::strOutputFile , "LPBlock.lp" );
   #endif
  #endif
 
@@ -2064,8 +2082,8 @@ int main( int argc , char **argv )
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
-		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
-		                  std::to_string( rep ) + ".lp" );
+		                     MILPSolver::strOutputFile , "LPBlock-" +
+		                     std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
     if( bn < nf ) {
      cout << endl << "LPBlock-PF: ";

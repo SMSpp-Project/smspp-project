@@ -25,14 +25,16 @@ BundleSolver # name of 1st Solver
 
 ComputeConfig # exact type of the ComputeConfig object
 
-0  # f_diff == 0 ==> all non-provided parameters are set to the default value
+1  # f_diff == 0 ==> all non-provided parameters are set to the default value
+   # f_diff == 1 ==> all non-provided parameters are not changed
 
-20 # number of integer parameters
+21 # number of integer parameters
 
 # now all the integer parameters
-intMaxIter 1000   # MaxIter, max number of iterations for each call
+intMaxIter 100000   # MaxIter, max number of iterations for each call
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
+intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
 intBPar2  400     # max bundle size per component
 intBPar3    1     # max n. of items to fetch from Fi() at each iteration
@@ -66,7 +68,7 @@ intRstAlg   2     # parameter to handle the reset of the algorithm
 16 # number of double parameters
 
 # now all the double parameters
-dblRelAcc  5e-9   # relative accuracy required to solution
+dblRelAcc  1e-9   # relative accuracy required to solution
 dblNZEps   1e-8   # stopping parameter: threshold to declare 0 the || residual ||
 dbltStar   1e+4   # stopping parameter: multiplied to || residual || to estimate gap
 dblBPar5   4      # first parameter for dynamic max n. of items per iteration

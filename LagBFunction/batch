@@ -1,8 +1,8 @@
 #/bin/bash
 
-#what=34
+#what=287
 what=511
-#what=2
+#what=0
 #iter=0
 nf=-11
 nt=3
