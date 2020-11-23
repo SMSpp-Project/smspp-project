@@ -20,6 +20,11 @@ fi
 
 ./PolyhedralFunctionBlock_test $seed $what $size $dens $nf $iter
 
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
 done
 done
 done

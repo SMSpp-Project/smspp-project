@@ -1312,7 +1312,7 @@ int main( int argc , char **argv )
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- return( 0 );
+ return( AllPassed ? 0 : 1 );
 
  }  // end( main )
 
