@@ -923,7 +923,7 @@ int main( int argc , char **argv )
 
   // construct the PolyhedralFunctionBlocks (in both) - - - - - - - - - - - -
 
-  for( Index k = 0 ; k < nf ; ++k ) {
+  for( Index k = 0 ; k < Index( nf ) ; ++k ) {
    // construct the PolyhedralFunctionBlock
    auto PFBLPk = new PolyhedralFunctionBlock( LPBlock );
    PFBLPk->set_name( "LP-PFB_" + std::to_string( k ) );
@@ -977,8 +977,8 @@ int main( int argc , char **argv )
   for( auto & Ui : U )
    Ui.resize( nvar );
   
-  for( Index p = 0 ; p < nt ; ++p ) {  // for all transportation sub-Block- -
-                                       // - - - - - - - - - - - - - - - - - -
+  for( Index p = 0 ; p < Index( nt ) ; ++p ) {
+   // for all transportation sub-Block- - - - - - - - - - - - - - - - - - - -
    Index nzc = GenerateCosts();        // generate random costs
    GenerateSupplies();                 // generate random supplies == demands
    Index nic = GenerateCapacities();   // generate random capacities
@@ -1322,7 +1322,7 @@ int main( int argc , char **argv )
   msc->apply( LPBlock );
   delete msc;
 
-  for( int i = 0 ; i < nf ; ++i )
+  for( Index i = 0 ; i < Index( nf ) ; ++i )
    LPBlock->get_nested_Block( i )->register_Solver(
 		       new UpdateSolver( NDOBlock->get_nested_Block( i ) ) );
   }
@@ -1340,9 +1340,10 @@ int main( int argc , char **argv )
   BundleParFile.close();
 
   // ensure the "easy components" parameter is properly set
-  for( int i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
+  for( Index i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
    if( bsc->get_SolverName( i ) == "BundleSolver" )
     bsc->get_SolverConfig( i )->set_par( "intDoEasy" ,
+					 //!! HasEasy ? int( 15 ) : int( 0 ) );
 					 HasEasy ? int( 15 ) : int( 0 ) );
  
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
@@ -1354,30 +1355,28 @@ int main( int argc , char **argv )
     // current point every k iterations; k must be in the parameter
     // file via intEverykIt (0 by default == never)
 
-   for( auto slvr : NDOBlock->get_registered_solvers() ) {
-    auto bslvr = dynamic_cast< BundleSolver * >( slvr );
-    if( ! bslvr )
-     continue;
+    static_cast< BundleSolver * >(
+     NDOBlock->get_registered_solvers().front() )->set_event_handler(
+      ThinComputeInterface::eEverykIteration ,
+      [ & ] () {
+       // print the current point
+       auto bslvr = static_cast< BundleSolver * >(
+			        NDOBlock->get_registered_solvers().front() );
+       auto & l = bslvr->get_current_point();
+       cout << endl << "            CP = [ ";
+       for( auto el : l )
+        cout << el << " ";
+       cout << "]" << endl;
 
-    bslvr->set_event_handler( ThinComputeInterface::eEverykIteration ,
-     // define the event via an appropriate lambda
-     [ & ] () {
-      // print the current point
-      auto l = bslvr->get_current_point();
-      cout << endl << "            CP = [ ";
-      for( auto el : l )
-       cout << el << " ";
-      cout << "]" << endl;
+       return( ThinComputeInterface::eContinue );
+       }  // end of lambda
 
-      return( ThinComputeInterface::eContinue );
-      }  // end of lambda
-			      );
-    }
+								     );
    #endif
    }
   else {             // transportation problems are treated as "difficult"
    // also attach a proper Solver to each inner Block of LagBFunction
-   for( Index p = nf ; p < nf + nt ; ++p ) {
+   for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
     auto FRO =
          NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
     auto LBF = static_cast< p_LBF >( FRO->get_function() );
@@ -1390,38 +1389,35 @@ int main( int argc , char **argv )
     // in the LagBFunctions every k iterations; k must be in the parameter
     // file via intEverykIt (0 by default == never)
 
-   for( auto slvr : NDOBlock->get_registered_solvers() ) {
-    auto bslvr = dynamic_cast< BundleSolver * >( slvr );
-    if( ! bslvr )
-     continue;
+    static_cast< BundleSolver * >(
+     NDOBlock->get_registered_solvers().front() )->set_event_handler(
+      ThinComputeInterface::eEverykIteration ,
+      [ & ] () {
+       // print the current point
+       auto bslvr = static_cast< BundleSolver * >(
+			        NDOBlock->get_registered_solvers().front() );
+       auto & l = bslvr->get_current_point();
+       cout << endl << "            CP = [ ";
+       for( auto el : l )
+        cout << el << " ";
+       cout << "]" << endl;
 
-    bslvr->set_event_handler( ThinComputeInterface::eEverykIteration ,
-     // define the event via an appropriate lambda
-     [ & ] () {
-      // print the current point
-      auto l = bslvr->get_current_point();
-      cout << endl << "            CP = [ ";
-      for( auto el : l )
-       cout << el << " ";
-      cout << "]" << endl;
+       // have the inner CPXMILPSolver spit out the LP at this iteration
+       for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
+        auto FRO =
+	 NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
+        auto LBF = static_cast< p_LBF >( FRO->get_function() );
+        auto slv =
+	 LBF->get_nested_Block( 0 )->get_registered_solvers().front();
+        slv->set_par( MILPSolver::strOutputFile ,
+		      "TB-" + std::to_string( p - nf ) + "-" +
+		      std::to_string( bslvr->n_calls() ) + "-" +
+		      std::to_string( bslvr->n_iter() ) + ".lp" );
+        }
 
-      // have the inner CPXMILPSolver spit out the LP at this iteration
-      for( Index p = nf ; p < nf + nt ; ++p ) {
-       auto FRO =
-	NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
-       auto LBF = static_cast< p_LBF >( FRO->get_function() );
-       auto slv =
-	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
-       slv->set_par( MILPSolver::strOutputFile ,
-		     "TB-" + std::to_string( p - nf ) + "-" +
-		     std::to_string( bslvr->n_calls() ) + "-" +
-		     std::to_string( bslvr->n_iter() ) + ".lp" );
-       }
-
-      return( ThinComputeInterface::eContinue );
-      }  // end of lambda
-			      );
-    }
+       return( ThinComputeInterface::eContinue );
+       }  // end of lambda
+								     );
    #endif
    }
   }
@@ -1488,7 +1484,7 @@ int main( int argc , char **argv )
 
   Index bn = rep % ( nf + nt );  // which sub-Block to change
 
-  if( bn < nf ) {
+  if( bn < Index( nf ) ) {
    LPBr = static_cast< p_PFB >( LPBlock->get_nested_Block( bn ) );
    LOG1( rep << "[PFB " << bn << "]: ");
    }
@@ -2085,7 +2081,7 @@ int main( int argc , char **argv )
 		                     MILPSolver::strOutputFile , "LPBlock-" +
 		                     std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
-    if( bn < nf ) {
+    if( bn < Index( nf ) ) {
      cout << endl << "LPBlock-PF: ";
      auto PF = & LPBr->get_PolyhedralFunction();
      printAb( PF->get_A() , PF->get_b() , convex
@@ -2118,7 +2114,7 @@ int main( int argc , char **argv )
 
  // unregister (and delete) all Solvers attached to the Blocks
  if( HasEasy )
-  for( Index p = nf ; p < nf + nt ; ++p ) {
+  for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
    auto FRO =
         NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
    auto LBF = static_cast< LagBFunction * >( FRO->get_function() );
@@ -2127,7 +2123,7 @@ int main( int argc , char **argv )
 
  NDOBlock->unregister_Solvers();
 
- for( int i = 0 ; i < nf ; )
+ for( Index i = 0 ; i < Index( nf ) ; )
   LPBlock->get_nested_Block( i++ )->unregister_Solvers();
 
  LPBlock->unregister_Solvers();
@@ -2139,7 +2135,7 @@ int main( int argc , char **argv )
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- return( 0 );
+ return( AllPassed ? 0 : 1 );
 
  }  // end( main )
 

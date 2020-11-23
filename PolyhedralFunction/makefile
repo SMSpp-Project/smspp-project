@@ -2,7 +2,7 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for PolthedralFunction)                                #
+#   makefile of test (for PolyhedralFunction)                                #
 #                                                                            #
 #                                VERSION 1.10                                #
 #                               02 - 12 - 2019                               #
