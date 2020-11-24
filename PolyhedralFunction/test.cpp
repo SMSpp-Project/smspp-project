@@ -47,8 +47,6 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
-
-#define HAVE_CONSTRAINTS 2
 // if HAVE_CONSTRAINTS == 1, then about 50% of the variables will have a
 // non-negativity constraint implemented via ColVariable::is_positive()
 // if HAVE_CONSTRAINTS == 2, then about 50% of the variables will have
@@ -57,19 +55,20 @@
 // remaining 50% of the variables, another 50%  will have a
 // non-negativity constraint implemented via ColVariable::is_positive()
 
-/*--------------------------------------------------------------------------*/
+#define HAVE_CONSTRAINTS 2
 
-#define DETACH_NDO 0
+/*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attched to the NDOBlock is detached and re-attached
 // to it at all iterations
 
-#define DETACH_LP 0
+#define DETACH_NDO 0
+
 // if nonzero, the Solver attched to the LPBlock is detached and re-attached
 // to it at all iterations
 
-/*--------------------------------------------------------------------------*/
+#define DETACH_LP 0
 
-#define SKIP_BEAT 0
+/*--------------------------------------------------------------------------*/
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -79,6 +78,8 @@
 // note that the number of rounds of changes is them multiplied by
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
+
+#define SKIP_BEAT 0
 
 /*--------------------------------------------------------------------------*/
 
