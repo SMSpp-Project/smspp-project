@@ -35,8 +35,9 @@ set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 # Add compilation flags
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
 add_compile_options(
-#        "-Wall" "-Wpedantic" "-Wextra" "-fexceptions"
-#        "-fsanitize=address" "-fno-omit-frame-pointer"
+#        "-ferror-limit=1" "-fexceptions"
+#        "-Wall" "-Wpedantic" "-Wextra"
+#        "-fsanitize=undefined" "-fsanitize=address" "-fno-omit-frame-pointer"
         "$<$<CONFIG:DEBUG>:-fno-inline>"
 #        "$<$<CONFIG:MINSIZEREL>:>"
 #        "$<$<CONFIG:RELEASE>:>"
