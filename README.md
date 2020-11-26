@@ -121,9 +121,9 @@ Git to store the credentials temporarily:
 git config --global credential.helper cache
 ```
 
-### Build and install with Cmake
+### Build and install with CMake
 
-Using Cmake it is possible to configure and build all the projects at once
+Using CMake it is possible to configure and build all the projects at once
 with:
 
 ```sh
@@ -143,8 +143,8 @@ sudo make install
 ### Build and install with makefiles
 
 Most modules, and in particular the "core" SMS++ classes, also come with
-carefully hand-crafted. Using them requires to dabble with some make editing,
-but is it independent on cmake.
+carefully hand-crafted makefiles. Using them requires to dabble with some
+make editing, but it is independent on CMake.
 
 The main step is to edit the makefiles into extlib/. There is one for each
 of the external libraries that any module requires (starting with Boost,
