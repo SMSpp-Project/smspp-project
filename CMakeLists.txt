@@ -18,7 +18,11 @@
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
-project(SMS++_tests VERSION 0.3.2 LANGUAGES CXX)
+project(SMS++_tests
+        VERSION 0.3.2
+        DESCRIPTION "SMS++ tests"
+        HOMEPAGE_URL https://gitlab.com/smspp/tests
+        LANGUAGES C CXX)
 
 # ----- Settings ------------------------------------------------------------ #
 # This creates an ENABLE_TESTING option (default: ON) and enables the testing
@@ -74,6 +78,9 @@ add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
 add_subdirectory(TUBMILP)
 
+# --------------------------------------------------------------------------- #
+# Just consuming these to avoid warnings
 if (CMAKE_EXPORT_PACKAGE_REGISTRY)
-    # Just consuming CMAKE_EXPORT_PACKAGE_REGISTRY to avoid warnings
 endif ()
+
+# --------------------------------------------------------------------------- #

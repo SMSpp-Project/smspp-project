@@ -132,17 +132,16 @@ SW =
   building process; thus, editing the makefile and changig these may also be
   required.
 
-
-## Contributing
-
-This section is not ready yet.
-
-
 ## Usage
 
 Each tester has an executable built in the corresponding directory; run
 it for instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
+
+
+## Contributing
+
+This section is not ready yet.
 
 
 ## Authors
