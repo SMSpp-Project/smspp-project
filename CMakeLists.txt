@@ -53,15 +53,17 @@ fetchcontent_declare(
 # Fetch GoogleTest, if not already fetched
 fetchcontent_getproperties(googletest)
 if (NOT googletest_POPULATED)
+    # This is so GoogleTest doesn't get installed alongside the library.
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
+    # See: https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_RPATH.html
     if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(CMAKE_MACOSX_RPATH 1)
     endif ()
+
     fetchcontent_populate(googletest)
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 endif ()
-
-# This is so GoogleTest doesn't get installed alongside the library.
-set(INSTALL_GTEST OFF)
 
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(BendersBFunction)
