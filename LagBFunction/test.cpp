@@ -169,9 +169,9 @@
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 1.00
+ * \version 1.01
  *
- * \date 24 - 10 - 2020
+ * \date 27 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -189,8 +189,8 @@
 // 1 = result of each test
 // 2 = + solver log
 // 3 = + save LP file
-// 4 = + print data
-// 5 = + save every LP for every iteration
+// 4 = + save every LP for every iteration
+// 5 = + print data
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -913,7 +913,7 @@ int main( int argc , char **argv )
    ConstructObj( LPBlock );
    ConstructObj( NDOBlock );
 
-   #if( LOG_LEVEL >= 4 )
+   #if( LOG_LEVEL >= 5 )
     cout << "L = [ ";
     for( Index j = 0 ; j < nvar ; ++j )
      cout << A[ 0 ][ j ] << " ";
@@ -935,7 +935,7 @@ int main( int argc , char **argv )
    GenerateAb( m , nvar );
     GenerateBND();
 
-   #if( LOG_LEVEL >= 4 )
+   #if( LOG_LEVEL >= 5 )
     cout << "PF[ " << k << " ] = " << endl;
     printAb( A , b , rs( BND ) );
    #endif
@@ -983,7 +983,7 @@ int main( int argc , char **argv )
    GenerateSupplies();                 // generate random supplies == demands
    Index nic = GenerateCapacities();   // generate random capacities
 
-   #if( LOG_LEVEL >= 4 )
+   #if( LOG_LEVEL >= 5 )
     cout << "T[ " << p << " ] = " << endl;
     printT();
    #endif
@@ -1350,7 +1350,7 @@ int main( int argc , char **argv )
   delete bsc;
 
   if( HasEasy ) {    // transportation problems are treated as "easy"
-   #if( LOG_LEVEL >= 5 )
+   #if( LOG_LEVEL >= 4 )
     // in the extremely verbose mode, set an event that spits out the
     // current point every k iterations; k must be in the parameter
     // file via intEverykIt (0 by default == never)
@@ -1384,7 +1384,7 @@ int main( int argc , char **argv )
 				    Solver::new_Solver( "CPXMILPSolver" ) );
     }
 
-   #if( LOG_LEVEL >= 5 )
+   #if( LOG_LEVEL >= 4 )
     // in the extremely verbose mode, set an event that spits out the LPs
     // in the LagBFunctions every k iterations; k must be in the parameter
     // file via intEverykIt (0 by default == never)
@@ -2080,7 +2080,7 @@ int main( int argc , char **argv )
    ((LPBlock->get_registered_solvers()).front())->set_par(
 		                     MILPSolver::strOutputFile , "LPBlock-" +
 		                     std::to_string( rep ) + ".lp" );
-   #if( LOG_LEVEL >= 4 )
+   #if( LOG_LEVEL >= 5 )
     if( bn < Index( nf ) ) {
      cout << endl << "LPBlock-PF: ";
      auto PF = & LPBr->get_PolyhedralFunction();

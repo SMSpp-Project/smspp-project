@@ -1,11 +1,11 @@
 #/bin/bash
 
-#what=287
-what=319
-#what=64
+what=383
+#what=319
+#what=68
 #what=511
 #what=0
-#iter=0
+#iter=3
 
 #for nf in -2 -11
 for nf in -2
