@@ -1,10 +1,13 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - MILPPar.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - LPPar.txt - - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a Block having a single
-# MILPSolver (a CPXMILPSolver or a SCIPMILPSolver) attached, and no sub-Block
+# A txt description of a BlockSolverConfig for a Block containing the LP
+# reprsentation of the problem solved by the tester for
+# PolthedralFunctionBlock; this being a simple LP (albeit one with
+# sub-Block), a :MILPSolver (say, a CPXMILPSolver or a SCIPMILPSolver) is
+# perfectly adequate
 #
-#   version 1.0 , 10/11/2020
+#   version 1.0 , 28/11/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -52,5 +55,5 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 # end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - END MILPPar.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END LPPar.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

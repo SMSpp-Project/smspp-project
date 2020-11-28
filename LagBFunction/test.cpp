@@ -17,7 +17,10 @@
  *   ensure that they surely attain finite optimal solutions.
  *
  * - The above p AbstractBlock are inserted as inner Block, each inside a
- *   LagBFunction.
+ *   LagBFunction. If the command line parameter dictates that the
+ *   LagBFunction will actually be computed (the NDO Solver does not have
+ *   the "easy components" feature), an appropriate TP Solver (typically
+ *   an LP Solver) is registered to all the inner Block of the LagBFunction.
  *
  * - The above p LagBFunction are put each inside the FRealObjective of a
  *   new AbstractBlock, otherwise empty.
@@ -80,7 +83,10 @@
  *   never create a finite upper bound when an infinite one was (nor
  *   vice-versa, for that matter).
  *
- * - A BundleSolver is attached to NDOBlock
+ * - An appropriate NDO Solver is attached to NDOBlock; this can in general
+ *   be any Solver capable of solving it, but some specific provisions
+ *   are done for BundleSolver, in particular when very verbose log is
+ *   activated.
  *
  * Then, an LP equivalent of NDOBlock is constructed into a different
  * AbstractBlock (LPBlock) with the following steps:
@@ -162,16 +168,16 @@
  *   constraints (linking them with x[]) are constructed manually into an
  *   AbstractBlock for each p.
  *
- * - A MILPSolver is attached to this AbstractBlock
+ * - A LPSolver is attached to this AbstractBlock
  *
  * The PolyhedralFunction and/or the costs and demands (not supplies) of the
  * uncapacitated transportation problems are then repeatedly randomly
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 1.01
+ * \version 1.02
  *
- * \date 27 - 11 - 2020
+ * \date 28 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -198,7 +204,7 @@
 
  #if( LOG_LEVEL >= 2 )
   #define LOG_ON_COUT 0
-  // if nonzero, the BundleSolver log is sent on cout rather than on a file
+  // if nonzero, the NDO Solver log is sent on cout rather than on a file
  #endif
 #else
  #define LOG1( x )
@@ -278,10 +284,12 @@
 
 #include "BlockSolverConfig.h"
 
-#include "BundleSolver.h"
-
 #if( LOG_LEVEL >= 3 )
  #include "MILPSolver.h"
+
+ #if( LOG_LEVEL >= 4 )
+  #include "BundleSolver.h"
+ #endif
 #endif
 
 #include "LagBFunction.h"
@@ -1069,7 +1077,6 @@ int main( int argc , char **argv )
       (*pc)[ i ][ j ].set_function( new LinearFunction( std::move( cf ) ) );
       }
 
- 
    // pass the (dual) variables to the AbstractBlock
    TLPp->add_static_variable( *ys , "ys" );
    TLPp->add_static_variable( *yd , "yd" );
@@ -1302,26 +1309,25 @@ int main( int argc , char **argv )
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // for LPBlock, "manually" attach a CPXMILPSolver and an UpdateSolver (to
- // each PolyhedralFunctionBlock in LPBlock)
 
  {
   // for LPBlock do this by reading an appropriate BlockSolverConfig from
-  // file and apply() it to the LPBlock; furthermore, "manually" attach an
-  // UpdateSolver to (each PolyhedralFunctionBlock in) LPBlock
-  ifstream MILPParFile( "MILPPar.txt" );
-  if( ! MILPParFile.is_open() ) {
-   cerr << "Error: cannot open file MILPPar.txt" << endl;
+  // file and apply() it to the LPBlock; 
+  ifstream LPParFile( "LPPar.txt" );
+  if( ! LPParFile.is_open() ) {
+   cerr << "Error: cannot open file LPPar.txt" << endl;
    return( 1 );
    }
 
-  auto msc = new BlockSolverConfig;
-  MILPParFile >> *( msc );
-  MILPParFile.close();
+  auto lsc = new BlockSolverConfig;
+  LPParFile >> *( lsc );
+  LPParFile.close();
 
-  msc->apply( LPBlock );
-  delete msc;
+  lsc->apply( LPBlock );
+  delete lsc;
 
+  // furthermore, "manually" attach an UpdateSolver to (each
+  // PolyhedralFunctionBlock in) LPBlock
   for( Index i = 0 ; i < Index( nf ) ; ++i )
    LPBlock->get_nested_Block( i )->register_Solver(
 		       new UpdateSolver( NDOBlock->get_nested_Block( i ) ) );
@@ -1330,90 +1336,108 @@ int main( int argc , char **argv )
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
   // files and apply() it to the NDOBlock
-  ifstream BundleParFile( "BundlePar.txt" );
-  if( ! BundleParFile.is_open() ) {
-   cerr << "Error: cannot open file BundlePar.txt" << endl;
+  ifstream NDOParFile( "NDOPar.txt" );
+  if( ! NDOParFile.is_open() ) {
+   cerr << "Error: cannot open file NDOPar.txt" << endl;
    return( 1 );
    }
 
-  auto bsc = new BlockSolverConfig( BundleParFile );
-  BundleParFile.close();
+  auto bsc = new BlockSolverConfig( NDOParFile );
+  NDOParFile.close();
 
-  // ensure the "easy components" parameter is properly set
+  // specialised treatment for BundleSolver:  ensure the "easy components"
+  // parameter is properly set as HasEasy requires
   for( Index i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
    if( bsc->get_SolverName( i ) == "BundleSolver" )
     bsc->get_SolverConfig( i )->set_par( "intDoEasy" ,
-					 //!! HasEasy ? int( 15 ) : int( 0 ) );
 					 HasEasy ? int( 15 ) : int( 0 ) );
  
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
   delete bsc;
 
   if( HasEasy ) {    // transportation problems are treated as "easy"
-   #if( LOG_LEVEL >= 4 )
+   #if( LOG_LEVEL >= 5 )
     // in the extremely verbose mode, set an event that spits out the
     // current point every k iterations; k must be in the parameter
-    // file via intEverykIt (0 by default == never)
+    // file via intEverykIt (0 by default == never); this requires the
+    // the Solver to be a BundleSolver
 
-    static_cast< BundleSolver * >(
-     NDOBlock->get_registered_solvers().front() )->set_event_handler(
-      ThinComputeInterface::eEverykIteration ,
-      [ & ] () {
-       // print the current point
-       auto bslvr = static_cast< BundleSolver * >(
+    NDOBlock->get_registered_solvers().front() )->set_event_handler(
+     ThinComputeInterface::eEverykIteration ,
+     [ & ] () {
+      // print the current point
+      auto bslvr = static_cast< BundleSolver * >(
 			        NDOBlock->get_registered_solvers().front() );
-       auto & l = bslvr->get_current_point();
-       cout << endl << "            CP = [ ";
-       for( auto el : l )
-        cout << el << " ";
-       cout << "]" << endl;
+      auto & l = bslvr->get_current_point();
+      cout << endl << "            CP = [ ";
+      for( auto el : l )
+       cout << el << " ";
+      cout << "]" << endl;
 
-       return( ThinComputeInterface::eContinue );
-       }  // end of lambda
-
+      return( ThinComputeInterface::eContinue );
+      }  // end of lambda
 								     );
    #endif
    }
   else {             // transportation problems are treated as "difficult"
-   // also attach a proper Solver to each inner Block of LagBFunction
+   // also attach a proper Solver to each inner Block of LagBFunction; do
+   // this by reading appropriate BlockSolverConfig from file and apply()
+   // it to the inner Block (note that the same BlockSolverConfig is
+   // apply()-ed to all the inner Block, which implies that the "extra"
+   // Configuration of the ComputConfig is not required)
+
+   ifstream TPParFile( "TPPar.txt" );
+   if( ! TPParFile.is_open() ) {
+    cerr << "Error: cannot open file TPPar.txt" << endl;
+    return( 1 );
+    }
+
+   auto tsc = new BlockSolverConfig;
+   TPParFile >> *( tsc );
+   TPParFile.close();
+
    for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
     auto FRO =
          NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
     auto LBF = static_cast< p_LBF >( FRO->get_function() );
-    LBF->get_nested_Block( 0 )->register_Solver(
-				    Solver::new_Solver( "CPXMILPSolver" ) );
+    tsc->apply( LBF->get_nested_Block( 0 ) );
     }
+
+   delete tsc;
 
    #if( LOG_LEVEL >= 4 )
     // in the extremely verbose mode, set an event that spits out the LPs
     // in the LagBFunctions every k iterations; k must be in the parameter
-    // file via intEverykIt (0 by default == never)
+    // file via intEverykIt (0 by default == never); this requires the
+    // the Solver to be a BundleSolver
 
-    static_cast< BundleSolver * >(
-     NDOBlock->get_registered_solvers().front() )->set_event_handler(
-      ThinComputeInterface::eEverykIteration ,
-      [ & ] () {
+    NDOBlock->get_registered_solvers().front()->set_event_handler(
+     ThinComputeInterface::eEverykIteration ,
+     [ & ] () {
+      #if( LOG_LEVEL >= 4 )
        // print the current point
        auto bslvr = static_cast< BundleSolver * >(
 			        NDOBlock->get_registered_solvers().front() );
        auto & l = bslvr->get_current_point();
        cout << endl << "            CP = [ ";
        for( auto el : l )
-        cout << el << " ";
+	cout << el << " ";
        cout << "]" << endl;
+      #endif
 
-       // have the inner CPXMILPSolver spit out the LP at this iteration
-       for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
-        auto FRO =
+      // have the inner TP Solver spit out the LP at this iteration;
+      // this implies that a :MILPSolver is used
+      for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
+       auto FRO =
 	 NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
-        auto LBF = static_cast< p_LBF >( FRO->get_function() );
-        auto slv =
-	 LBF->get_nested_Block( 0 )->get_registered_solvers().front();
-        slv->set_par( MILPSolver::strOutputFile ,
-		      "TB-" + std::to_string( p - nf ) + "-" +
-		      std::to_string( bslvr->n_calls() ) + "-" +
-		      std::to_string( bslvr->n_iter() ) + ".lp" );
-        }
+       auto LBF = static_cast< p_LBF >( FRO->get_function() );
+       auto slv =
+	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
+       slv->set_par( MILPSolver::strOutputFile ,
+		     "TB-" + std::to_string( p - nf ) + "-" +
+		     std::to_string( bslvr->n_calls() ) + "-" +
+		     std::to_string( bslvr->n_iter() ) + ".lp" );
+       }
 
        return( ThinComputeInterface::eContinue );
        }  // end of lambda
@@ -1512,7 +1536,6 @@ int main( int argc , char **argv )
     else
      LPBr->get_PolyhedralFunction().add_rows( std::move( A ) , b );
     }
-
 
   // delete rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1856,14 +1879,30 @@ int main( int argc , char **argv )
      Observer::ChnlName chnl = NDOTr->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
 
+     // important note: due to a limitation in OSIMPSolver, the "finite
+     // nonzero" status of the bounds need be preserved: if the bound is
+     // finite and nonzero it must remain so and vice-versa, although
+     // a zero bound could in principle become +INF and vice-versa; yet,
+     // since we can only change finite bounds (for otherwise we'd need to
+     // create new dual variables in the dual), this basically means that
+     // if a bound is zero it must remain so, and if it is nonzero it must
+     // remain so
+
      if( dis( rg ) < 0.5 ) {  // in 50% of the cases, do a ranged change
       LOG1( "(r) - " );
       Index strt = dis( rg ) * ( bc->size() - tochange );
       Index stp = strt + tochange;
 
       auto bcit = std::next( bc->begin() , strt );
-      for( Index h = 0 ; h < tochange ; )
-       (bcit++)->set_rhs( tmpU[ h++ ] , iAM );
+      for( Index h = 0 ; h < tochange ; ++h , ++bcit ) {
+       if( bcit->get_rhs() != 0 ) {  // the bound was nonzero
+	while( tmpU[ h ] == 0 )      // if by chance a zero was there
+	 tmpU[ h ] = 5 * dis( rg );  // this must not be
+	bcit->set_rhs( tmpU[ h ] , iAM );
+        }
+       else                          // the bound was zero
+	tmpU[ h ] = 0;               // this must not change
+       }
 
       NDOTr->close_channel( chnl );  // then close the chanel
 
@@ -1880,17 +1919,31 @@ int main( int argc , char **argv )
       Subset nms = GenerateSubset( bc->size() , tochange );
 
       #if DYNAMIC_bc
-       auto nh = 0;
+       Index nh = 0;
        auto bcit = bc->begin();
-       for( Index h = 0 ; h < tochange ; ) {
+       for( Index h = 0 ; h < tochange ; ++h ) {
         auto nnh = nms[ h ];
         std::advance( bcit , nnh - nh );
-        bcit->set_rhs( tmpU[ h++ ] , iAM );
+	if( bcit->get_rhs() != 0 ) {  // the bound was nonzero
+	 while( tmpU[ h ] == 0 )      // if by chance a zero was there
+	  tmpU[ h ] = 5 * dis( rg );  // this must not be
+	 bcit->set_rhs( tmpU[ h ] , iAM );
+	 }
+	else                          // the bound was zero
+	 tmpU[ h ] = 0;               // this must not change
         nh = nnh;
         }
       #else
-       for( Index h = 0 ; h < tochange ; ++h )
-        (*bc)[ nms[ h ] ].set_rhs( tmpU[ h ] , iAM );
+       for( Index h = 0 ; h < tochange ; ++h ) {
+	const Index nh = nms[ h ];
+	if( (*bc)[ nh ].get_rhs() != 0 ) {  // the bound was nonzero
+	 while( tmpU[ h ] == 0 )            // if by chance a zero was there
+	  tmpU[ h ] = 5 * dis( rg );        // this must not be
+	 (*bc)[ nh ].set_rhs( tmpU[ h ] , iAM );
+	 }
+	else                                // the bound was zero
+	 tmpU[ h ] = 0;                     // this must not change
+        }
       #endif
 
       NDOTr->close_channel( chnl );  // then close the chanel

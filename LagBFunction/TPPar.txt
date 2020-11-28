@@ -1,10 +1,13 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - MILPPar.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - TPPar.txt - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a Block having a single
-# MILPSolver (a CPXMILPSolver or a SCIPMILPSolver) attached, and no sub-Block
+# A txt description of a BlockSolverConfig for a Block containng the
+# "transportation subproblem" in the inner Block of the tester for
+# LagBFunction; this being a simple one-level LP (without inner Block), a
+# :MILPSolver (say, a CPXMILPSolver or a SCIPMILPSolver) is perfectly
+# adequate
 #
-#   version 1.0 , 10/11/2020
+#   version 1.0 , 28/11/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -36,10 +39,11 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 
 # [none]
 
-0 # number of double parameters
-
+2 # number of double parameters
 # now all the double parameters
-# [none]
+# cranking to 11 Cplex LP (simplex) tolerance
+CPXPARAM_Simplex_Tolerances_Optimality	1e-9
+CPXPARAM_Simplex_Tolerances_Feasibility	1e-9
 
 0 # number of string parameters
 
@@ -52,5 +56,5 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 # end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - END MILPPar.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END TPPar.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -11,18 +11,18 @@
  * AbstractBlock. If nf < 0, the two AbstractBlock are also given two
  * identical linear Objective (a FRealObjective with a LinearFunction inside).
  * Then, the first is configured to use the "linearized" representation, and
- * has a MILPSolver registered; also, UpdateSolver are registered to all its
- * sons (PolyhedralFunctionBlock) that maps all the Modification to the
- * corresponding son of the second. The latter is configured to use the
- * "natural" representation and has a BundleSolver attached. At each round a
- * "linearized" PolyhedralFunctionBlock is randomly modified, with the
- * Modification automatically transmitted to the corresponding "natural"
- * PolyhedralFunctionBlock to keep them in synch. Then both are solved and
- * the results compared.
+ * has an appropriate LP Solver registered; also, UpdateSolver are registered
+ * to all its sons (PolyhedralFunctionBlock) that maps all the Modification
+ * to the corresponding son of the second. The latter is configured to use the
+ * "natural" representation and has an appropriate NDO Solver attached. At
+ * each round a "linearized" PolyhedralFunctionBlock is randomly modified,
+ * with the Modification automatically transmitted to the corresponding
+ * "natural" PolyhedralFunctionBlock to keep them in synch. Then both are
+ * solved and the results compared.
  *
- * \version 1.10
+ * \version 1.20
  *
- * \date 10 - 11 - 2020
+ * \date 28 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -123,8 +123,6 @@
 #include <random>
 
 #include "BlockSolverConfig.h"
-
-#include "BundleSolver.h"
 
 #if( LOG_LEVEL >= 3 )
  #include "MILPSolver.h"
@@ -792,15 +790,15 @@ int main( int argc , char **argv )
   // files and apply() it to the LPBlock; furthermore, "manually" attach an
   // UpdateSolver to (each PolyhedralFunctionBlock in) LPBlock
  
-  ifstream MILPParFile( "MILPPar.txt" );
-  if( ! MILPParFile.is_open() ) {
-   cerr << "Error: cannot open file MILPPar.txt" << endl;
+  ifstream LPParFile( "LPPar.txt" );
+  if( ! LPParFile.is_open() ) {
+   cerr << "Error: cannot open file LPPar.txt" << endl;
    return( 1 );
    }
 
   auto msc = new BlockSolverConfig;
-  MILPParFile >> *( msc );
-  MILPParFile.close();
+  LPParFile >> *( msc );
+  LPParFile.close();
 
   msc->apply( LPBlock );
   delete msc;
@@ -816,15 +814,15 @@ int main( int argc , char **argv )
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
   // files and apply() it to the NDOBlock
-  ifstream BundleParFile( "BundlePar.txt" );
-  if( ! BundleParFile.is_open() ) {
+  ifstream NDOParFile( "NDOPar.txt" );
+  if( ! NDOParFile.is_open() ) {
    cerr << "Error: cannot open file BundlePar.txt" << endl;
    return( 1 );
    }
 
   auto bsc = new BlockSolverConfig;
-  BundleParFile >> *( bsc );
-  BundleParFile.close();
+  NDOParFile >> *( bsc );
+  NDOParFile.close();
 
   bsc->apply( NDOBlock );
   delete bsc;

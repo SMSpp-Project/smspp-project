@@ -7,13 +7,13 @@
  * A "random" PolyhedralFunction is constructed and put as the only Objective
  * of an otherwise "empty" Block. The same PolyhedralFunction is represented
  * in terms of linear inequalities for another otherwise "empty" Block. The
- * two Block are solved by a BundleSolver and a MILPSolver, respectively,
- * and the results are compared. The two Block are then repeatedly randomly
+ * two Block are solved by a NDO Solver and a LP Solver, respectively, and
+ * the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.30
+ * \version 1.40
  *
- * \date 10 - 11 - 2020
+ * \date 28 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -39,7 +39,7 @@
 
  #if( LOG_LEVEL >= 2 )
   #define LOG_ON_COUT 1
-  // if nonzero, the BundleSolver log is sent on cout rather than on a file
+  // if nonzero, the NDO Solver log is sent on cout rather than on a file
  #endif
 #else
  #define LOG1( x )
@@ -117,11 +117,17 @@
 
 #include "BlockSolverConfig.h"
 
-#include "BundleSolver.h"
+#include "FRealObjective.h"
+
+#include "FRowConstraint.h"
 
 #if( LOG_LEVEL >= 3 )
  #include "MILPSolver.h"
 #endif
+
+#include "LinearFunction.h"
+
+#include "OneVarConstraint.h"
 
 #include "PolyhedralFunction.h"
 
@@ -741,15 +747,15 @@ int main( int argc , char **argv )
  {
   // for LPBlock do this by reading an appropriate BlockSolverConfig from
   // file and apply() it to the LPBlock
-  ifstream MILPParFile( "MILPPar.txt" );
-  if( ! MILPParFile.is_open() ) {
+  ifstream LPParFile( "LPPar.txt" );
+  if( ! LPParFile.is_open() ) {
    cerr << "Error: cannot open file MILPPar.txt" << endl;
    return( 1 );
    }
 
   auto msc = new BlockSolverConfig;
-  MILPParFile >> *( msc );
-  MILPParFile.close();
+  LPParFile >> *( msc );
+  LPParFile.close();
 
   msc->apply( LPBlock );
   delete msc;
@@ -758,15 +764,15 @@ int main( int argc , char **argv )
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
   // files and apply() it to the NDOBlock
-  ifstream BundleParFile( "BundlePar.txt" );
-  if( ! BundleParFile.is_open() ) {
-   cerr << "Error: cannot open file BundlePar.txt" << endl;
+  ifstream NDOParFile( "NDOPar.txt" );
+  if( ! NDOParFile.is_open() ) {
+   cerr << "Error: cannot open file NDOPar.txt" << endl;
    return( 1 );
    }
 
   auto bsc = new BlockSolverConfig;
-  BundleParFile >> *( bsc );
-  BundleParFile.close();
+  NDOParFile >> *( bsc );
+  NDOParFile.close();
 
   bsc->apply( NDOBlock );
   delete bsc;

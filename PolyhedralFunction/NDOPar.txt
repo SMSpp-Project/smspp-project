@@ -1,10 +1,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - BundlePar.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - NDOPar.txt- - - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a Block having a single
-# BundleSolver attached, and no sub-Block
+# A txt description of a BlockSolverConfig for the Block having a "C05
+# objective" and no sub-Block solved by the tester for PolyhedralFunction
 #
-#   version 2.0 , 12/09/2020
+#   version 1.0 , 28/11/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -23,16 +23,15 @@ BundleSolver # name of 1st Solver
 # now all the ComputeConfig
 # 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ComputeConfig     # exact type of the ComputeConfig object
+ComputeConfig # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-22 # number of integer parameters
+21 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
-intEverykIt 1     # periodicity of eEverykIteration events
 intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
@@ -48,7 +47,7 @@ inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intMPName  15      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
 # QPPenalty's parameters : - - - - - -
@@ -98,5 +97,5 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 # end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - END BundlePar.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END NDOPar.txt- - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
