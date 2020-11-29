@@ -1347,11 +1347,25 @@ int main( int argc , char **argv )
 
   // specialised treatment for BundleSolver:  ensure the "easy components"
   // parameter is properly set as HasEasy requires
+  //
+  // completely by chance ;-P, the bits 5, 6 and 7 of wchg correspond to the
+  // bits 1, 2 and 3 of intDoEasy in BundleSolver, in that if, say, bit 5 of
+  // wchg is 1 than bit 1 of intDoEasy must be 1 because the corresponding
+  // data structure needs be kept. however, if bit 6 of wchg is 1, then also
+  // bit 3 (in addition to bit 2) of intDoEasy must be 1. set intDoEasy to
+  // the "minimum" set of 1 bits required to support wchg
   for( Index i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
-   if( bsc->get_SolverName( i ) == "BundleSolver" )
-    bsc->get_SolverConfig( i )->set_par( "intDoEasy" ,
-					 HasEasy ? int( 15 ) : int( 0 ) );
- 
+   if( bsc->get_SolverName( i ) == "BundleSolver" ) {
+    int val = 0;
+    if( HasEasy ) {
+     val = 1 | ( ( wchg & 224 ) >> 4 );
+     if( wchg & 64 )
+      val |= 8;
+     }
+
+    bsc->get_SolverConfig( i )->set_par( "intDoEasy" , val );
+    }
+
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
   delete bsc;
 

@@ -1,7 +1,6 @@
 #/bin/bash
 
 what=511
-#what=383
 #what=0
 #iter=3
 
