@@ -13,6 +13,7 @@
 
 submodules=(
   "bundlesolver"
+  "lagrangiandualsolver"
   "lukfiblock"
   "mcfblock"
   "milpsolver"
