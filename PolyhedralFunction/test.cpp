@@ -749,7 +749,7 @@ int main( int argc , char **argv )
   // file and apply() it to the LPBlock
   ifstream LPParFile( "LPPar.txt" );
   if( ! LPParFile.is_open() ) {
-   cerr << "Error: cannot open file MILPPar.txt" << endl;
+   cerr << "Error: cannot open file LPPar.txt" << endl;
    return( 1 );
    }
 
