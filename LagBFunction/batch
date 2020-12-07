@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 what=511
 #what=0
