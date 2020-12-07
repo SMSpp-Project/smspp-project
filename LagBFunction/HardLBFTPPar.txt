@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - - TPPar.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - -HardLBFTPPar.txt - - - - - - - - - - - - - -
 #
 # A txt description of a ComputeConfig for a LagBFunction containing as inner
 # Block the "transportation subproblem" in the tester for LagBFunction, in
@@ -56,5 +56,5 @@ ComputeConfig     # exact type of the Configuration object
 # end of ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TPPar.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - END HardLBFTPPar.txt- - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
