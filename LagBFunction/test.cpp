@@ -1257,6 +1257,8 @@ int main( int argc , char **argv )
    NDOBlock->add_nested_Block( TNDOp );
 
    }  // end( for( p ) )
+
+  delete hLBFC;
   }
 
  // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
