@@ -31,7 +31,7 @@ add_subdirectory(LukFiBlock)
 add_subdirectory(BundleSolver)
 add_subdirectory(StochasticBlock)
 add_subdirectory(SDDPBlock)
-add_subdirectory(LagrangianDualSolver)
+#add_subdirectory(LagrangianDualSolver)
 #add_subdirectory(SubGradSolver)
 
 # ----- Tools --------------------------------------------------------------- #
