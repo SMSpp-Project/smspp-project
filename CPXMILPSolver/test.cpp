@@ -65,14 +65,14 @@ TEST_P( MILPSolverTest, SimpleSolve ) {
  const auto & opt_vars = std::get< 1 >( GetParam() );
  for( int i = 0; i < block->get_x().size(); ++i ) {
   auto x = block->get_x()[ i ].get_value();
-  ASSERT_EQ( x, opt_vars[ i ] );
+  ASSERT_NEAR( x, opt_vars[ i ], 1e-6 );
  }
 
  // Check the objective function value
  auto obj = dynamic_cast<FRealObjective *>(block->get_objective());
  obj->get_function()->compute();
  auto of = obj->get_function()->get_value();
- ASSERT_EQ( of, std::get< 2 >( GetParam() ) );
+ ASSERT_NEAR( of, std::get< 2 >( GetParam() ), 1e-6 );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -82,9 +82,12 @@ TEST_P( MILPSolverTest, SimpleSolve ) {
 INSTANTIATE_TEST_SUITE_P( CPXMILPSolverTests,
                           MILPSolverTest,
                           ::testing::Values(
-                           TestParameter( TestFile( "test.milp" ),
+                           TestParameter( TestFile( "test0.milp" ),
                                           OptVars{ 4, 1 },
-                                          OptSolution( -22 ) ) ) );
+                                          OptSolution( -22 ) ),
+                           TestParameter( TestFile( "test1.milp" ),
+                                          OptVars{ 0.333333, 0, 0.333333, 2 },
+                                          OptSolution( 3.33333333e+00 ) ) ) );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/
