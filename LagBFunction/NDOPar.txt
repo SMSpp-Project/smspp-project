@@ -5,7 +5,7 @@
 # "linear objective" and multiple sub-Block having a "C05 objective", some
 # of which being LagBFunction, solved by the tester for LagBFunction
 #
-#   version 1.0 , 28/11/2020
+#   version 2.0 , 06/12/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -34,7 +34,7 @@ ComputeConfig     # exact type of the ComputeConfig object
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
 intEverykIt 1     # periodicity of eEverykIteration events
-intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
+intLogVerb  4     # LogVerb, log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -87,16 +87,35 @@ dbltInit   1      # initial value for t
 dbltSPar2  0.001  # parameter for the long-term t-strategy
 
 dblCtOff   0.01   # cut-off factor for pricing in MinQuad
-        
+
+# note that we could eof() the file here since the rest is all empty
+
 0 # number of string parameters
 
 # now all the string parameters
 # [none]
 
-# pointer to the "extra" Configuration
+0 # number of vector-of-int parameters
+
+# now all the vector-of-int parameters
+# [none]
+
+0 # number of vector-of-double parameters
+
+# now all the vector-of-double parameters
+# [none]
+
+0 # number of vector-of-string parameters
+
+# now all the vector-of-string parameters
+# [none]
+
+# the "extra" Configuration
 * # [none]
 
-# end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - END NDOPar.txt- - - - - - - - - - - - - - - -

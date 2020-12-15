@@ -15,6 +15,8 @@
 # BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+BlockSolverConfig     # exact type of the Configuration object
+
 0  # the BlockSolverConfig is not a "differential" one: values are being set
 
 1  # number of (the names of) Solver in this BlockSolverConfig
@@ -45,15 +47,34 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 CPXPARAM_Simplex_Tolerances_Optimality	1e-9
 CPXPARAM_Simplex_Tolerances_Feasibility	1e-9
 
+# note that we could eof() the file here since the rest is all empty
+
 0 # number of string parameters
 
 # now all the string parameters
 # [none]
 
+0 # number of vector-of-int parameters
+
+# now all the vector-of-int parameters
+# [none]
+
+0 # number of vector-of-double parameters
+
+# now all the vector-of-double parameters
+# [none]
+
+0 # number of vector-of-string parameters
+
+# now all the vector-of-string parameters
+# [none]
+
 # pointer to the "extra" Configuration
 * # [none]
 
-# end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - END TPPar.txt - - - - - - - - - - - - - - -

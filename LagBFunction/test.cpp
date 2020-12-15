@@ -284,14 +284,6 @@
 
 #include "BlockSolverConfig.h"
 
-#if( LOG_LEVEL >= 3 )
- #include "MILPSolver.h"
-
- #if( LOG_LEVEL >= 4 )
-  #include "BundleSolver.h"
- #endif
-#endif
-
 #include "LagBFunction.h"
 
 #include "PolyhedralFunctionBlock.h"
@@ -984,7 +976,20 @@ int main( int argc , char **argv )
   U.resize( nvar );
   for( auto & Ui : U )
    Ui.resize( nvar );
-  
+
+  // if LagBFunctions are treated as not-easy, load once and for all the
+  // ComputeConfig containing the BlockSolverConfig that will be used to
+  // have the appropriate Solver attached to them
+  ComputeConfig * hLBFC = nullptr;
+  if( nt && ( ! HasEasy ) ) {
+   auto cfg = Configuration::deserialize( "HardLBFTPPar.txt" );
+   if( ! ( hLBFC = dynamic_cast< ComputeConfig * >( cfg ) ) ) {
+    cout << "error loading Configuration file for hard LagBFunction" << endl;
+    delete cfg;
+    exit( 1 );
+    }
+   }
+
   for( Index p = 0 ; p < Index( nt ) ; ++p ) {
    // for all transportation sub-Block- - - - - - - - - - - - - - - - - - - -
    Index nzc = GenerateCosts();        // generate random costs
@@ -1210,6 +1215,13 @@ int main( int argc , char **argv )
    // construct the LagBFunction, passing it the inner Block
    auto LBF = new LagBFunction( IBNDOp );
 
+   // if appropriate, Configure it; note that the ComputeConfig has "no
+   // movable parts", i.e., it is not affected by being set (as opposed
+   // to what would happen if it contained a :BlockConfig), and therefore
+   // it can be re-used for all the LagBFunctions without clone()-ing
+   if( hLBFC )
+    LBF->set_ComputeConfig( hLBFC );
+
    // construct the dual pairs
    LagBFunction::v_dual_pair lp( nvar );
 
@@ -1245,6 +1257,8 @@ int main( int argc , char **argv )
    NDOBlock->add_nested_Block( TNDOp );
 
    }  // end( for( p ) )
+
+  delete hLBFC;
   }
 
  // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1365,99 +1379,41 @@ int main( int argc , char **argv )
 
     bsc->get_SolverConfig( i )->set_par( "intDoEasy" , val );
     }
-
+  
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
   delete bsc;
 
-  if( HasEasy ) {    // transportation problems are treated as "easy"
-   #if( LOG_LEVEL >= 5 )
-    // in the extremely verbose mode, set an event that spits out the
-    // current point every k iterations; k must be in the parameter
-    // file via intEverykIt (0 by default == never); this requires the
-    // the Solver to be a BundleSolver
+  #if( LOG_LEVEL >= 4 )
+   // in the extremely verbose mode, set an event that spits out the LPs
+   // in the LagBFunctions every k iterations; k must be in the parameter
+   // file via intEverykIt (0 by default == never)
 
-    NDOBlock->get_registered_solvers().front() )->set_event_handler(
-     ThinComputeInterface::eEverykIteration ,
-     [ & ] () {
-      // print the current point
-      auto bslvr = static_cast< BundleSolver * >(
-			        NDOBlock->get_registered_solvers().front() );
-      auto & l = bslvr->get_current_point();
-      cout << endl << "            CP = [ ";
-      for( auto el : l )
-       cout << el << " ";
-      cout << "]" << endl;
-
-      return( ThinComputeInterface::eContinue );
-      }  // end of lambda
-								     );
-   #endif
-   }
-  else {             // transportation problems are treated as "difficult"
-   // also attach a proper Solver to each inner Block of LagBFunction; do
-   // this by reading appropriate BlockSolverConfig from file and apply()
-   // it to the inner Block (note that the same BlockSolverConfig is
-   // apply()-ed to all the inner Block, which implies that the "extra"
-   // Configuration of the ComputConfig is not required)
-
-   ifstream TPParFile( "TPPar.txt" );
-   if( ! TPParFile.is_open() ) {
-    cerr << "Error: cannot open file TPPar.txt" << endl;
-    return( 1 );
-    }
-
-   auto tsc = new BlockSolverConfig;
-   TPParFile >> *( tsc );
-   TPParFile.close();
-
-   for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
-    auto FRO =
-         NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
-    auto LBF = static_cast< p_LBF >( FRO->get_function() );
-    tsc->apply( LBF->get_nested_Block( 0 ) );
-    }
-
-   delete tsc;
-
-   #if( LOG_LEVEL >= 4 )
-    // in the extremely verbose mode, set an event that spits out the LPs
-    // in the LagBFunctions every k iterations; k must be in the parameter
-    // file via intEverykIt (0 by default == never); this requires the
-    // the Solver to be a BundleSolver
-
+   if( ! HasEasy ) {  // transportation problems are treated as "difficult"
     NDOBlock->get_registered_solvers().front()->set_event_handler(
      ThinComputeInterface::eEverykIteration ,
      [ & ] () {
-      #if( LOG_LEVEL >= 4 )
-       // print the current point
-       auto bslvr = static_cast< BundleSolver * >(
-			        NDOBlock->get_registered_solvers().front() );
-       auto & l = bslvr->get_current_point();
-       cout << endl << "            CP = [ ";
-       for( auto el : l )
-	cout << el << " ";
-       cout << "]" << endl;
-      #endif
-
       // have the inner TP Solver spit out the LP at this iteration;
-      // this implies that a :MILPSolver is used
+      // this implies that a :MILPSolver is used, otherwise the Solver
+      // will complain, but note that by the clever use of str_par_str2idx()
+      // one does not need to include MILPSolver.h
       for( Index p = nf ; p < Index( nf + nt ) ; ++p ) {
        auto FRO =
 	 NDOBlock->get_nested_Block( p )->get_objective< FRealObjective >();
        auto LBF = static_cast< p_LBF >( FRO->get_function() );
        auto slv =
 	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
-       slv->set_par( MILPSolver::strOutputFile ,
+       slv->set_par( slv->str_par_str2idx( "strOutputFile" ) ,
 		     "TB-" + std::to_string( p - nf ) + "-" +
-		     std::to_string( bslvr->n_calls() ) + "-" +
-		     std::to_string( bslvr->n_iter() ) + ".lp" );
+		     std::to_string( slvr->get_elapsed_calls() ) + "-" +
+		     std::to_string( slvr->get_elapsed_iterations() ) +
+		     ".lp" );
        }
 
-       return( ThinComputeInterface::eContinue );
-       }  // end of lambda
+      return( ThinComputeInterface::eContinue );
+      }  // end of lambda
 								     );
-   #endif
-   }
+    }
+  #endif
   }
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -

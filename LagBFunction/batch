@@ -13,6 +13,7 @@ else
 t=3
 fi
 
+# z = 1 is LagBFunction treated as non-easy, -1 is treated as easy
 for z in 1 -1
 do
 let nt=t*z
@@ -25,7 +26,11 @@ do
 for (( seed=0 ; seed<20 ; seed++ ))
 do
 
+if [ -z "$iter" ]; then
 printf "[$seed $what $size $nf $nt $dens]: "
+else
+printf "[$seed $what $size $nf $nt $dens $iter]: "
+fi
 
 ./LagBFunction_test $seed $what $size $nf $nt $dens $iter
 
