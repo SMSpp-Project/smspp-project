@@ -23,6 +23,7 @@ submodules=(
   "stochasticblock"
   "subgradsolver"
   "ucblock"
+  "dpsolver"
   "tests"
   "tools"
 )

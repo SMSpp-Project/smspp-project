@@ -17,6 +17,7 @@ submodules=(
   "StochasticBlock"
 #  "SubGradSolver"
   "UCBlock"
+  "DPSolver"
   "tests"
   "tools"
 )
