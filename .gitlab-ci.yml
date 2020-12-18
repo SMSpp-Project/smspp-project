@@ -5,7 +5,7 @@ before_script:
   # Create a list of all submodules
   - SUBM=`grep "smspp/" .gitmodules | awk -F '/' '{print $5}'`
   # Add "pages-job:$<module-name>_TOKEN" to .gitmodules URLs
-  - for i in ${SUBM}; do TOKEN_NAME="${i}_TOKEN"; sed -i "s/gitlab.com\/smspp\/$i/pages-job:\$$TOKEN_NAME@gitlab.com\/smspp\/$i/" .gitmodules; done
+  - for i in ${SUBM}; do eval "TOKEN=\$${i}_TOKEN"; sed -i "s/gitlab.com\/smspp\/$i/pages-job:$TOKEN@gitlab.com\/smspp\/$i/" .gitmodules; done
 
 pages:
   stage: deploy
