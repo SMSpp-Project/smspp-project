@@ -24,7 +24,7 @@ add_subdirectory(BundleSolver/NdoFiOracle)
 
 add_subdirectory(SMS++)
 add_subdirectory(MCFBlock)
-#add_subdirectory(SMILPBlock)
+add_subdirectory(SMILPBlock)
 add_subdirectory(MILPSolver)
 add_subdirectory(UCBlock)
 add_subdirectory(DPSolver)
