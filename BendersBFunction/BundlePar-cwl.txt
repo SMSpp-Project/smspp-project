@@ -90,6 +90,21 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 # now all the string parameters
 # [none]
 
+0 # number of vector-of-int parameters
+
+# now all the vector-of-int parameters
+# [none]
+
+0 # number of vector-of-double parameters
+
+# now all the vector-of-double parameters
+# [none]
+
+0 # number of vector-of-string parameters
+
+# now all the vector-of-string parameters
+# [none]
+
 # pointer to the "extra" Configuration
 * # [none]
 
