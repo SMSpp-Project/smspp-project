@@ -6,7 +6,7 @@
  *
  * \version 0.10
  *
- * \date 28 - 11 - 2019
+ * \date 22 - 11 - 2020
  *
  * \author Rafael Durbano Lobato \n
  *         Operations Research Group \n
@@ -29,6 +29,7 @@
 #include "cwl-mcf/cwl-mcf.h"
 
 #include <iostream>
+#include <iomanip>
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -51,9 +52,10 @@ BlockSolverConfig * build_config( const std::string & config_file_path ) {
 
  std::ifstream config_file( config_file_path );
  if( ! config_file.is_open() )
-  throw std::invalid_argument( "Error: cannot open file " + config_file_path );
+  throw std::invalid_argument( "BendersBFunction test: Error: cannot open "
+                               "configuration file " + config_file_path );
 
- auto bsc = new RBlockSolverConfig;
+ auto bsc = new BlockSolverConfig;
  config_file >> ( * bsc );
  config_file.close();
  return bsc;
@@ -61,9 +63,25 @@ BlockSolverConfig * build_config( const std::string & config_file_path ) {
 
 /*--------------------------------------------------------------------------*/
 
-double solve_with_BundleSolver( std::filesystem::path file_path ,
-                                bool continuous_relaxation ) {
+int solve_with_BundleSolver( std::filesystem::path file_path ,
+                             bool continuous_relaxation ,
+                             double * solution_value ) {
  auto inner_block_solver = new CPXMILPSolver();
+
+ inner_block_solver->set_par( CPXMILPSolver::strOutputFile , "lp.txt" );
+
+ inner_block_solver->set_par( inner_block_solver->int_par_str2idx
+  ( "CPXPARAM_Preprocessing_Presolve" ) , 0 );
+
+ inner_block_solver->set_par( inner_block_solver->int_par_str2idx
+  ( "CPXPARAM_LPMethod" ) , CPX_ALG_DUAL );
+
+ inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
+  ( "CPXPARAM_Simplex_Tolerances_Feasibility" ) , 1.0e-15 );
+
+ inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
+  ( "CPXPARAM_Simplex_Tolerances_Optimality" ) , 1.0e-15 );
+
  auto block = build_CWL_block_with_Benders_decomposition
    ( file_path , continuous_relaxation , inner_block_solver );
 
@@ -72,31 +90,33 @@ double solve_with_BundleSolver( std::filesystem::path file_path ,
  block_solver_config->clear();
 
  auto solver = block->get_registered_solvers().front();
+
+ //solver->set_log( &std::cout );
+
  auto status = solver->compute();
- if( status != ThinComputeInterface::kOK )
-  std::cout << "Problem not solved for instance " << file_path << std::endl;
- auto solution_value = solver->get_var_value();
- std::cout << solution_value << std::endl;
+
+ if( solver->has_var_solution() )
+  *solution_value = solver->get_var_value();
 
  block_solver_config->apply( block );
  delete block_solver_config;
  delete block;
- return solution_value;
+ return status;
 }
 
 /*--------------------------------------------------------------------------*/
 
-double solve_with_MILPSolver( std::filesystem::path file_path ,
-                              bool continuous_relaxation ) {
+int solve_with_MILPSolver( std::filesystem::path file_path ,
+                           bool continuous_relaxation ,
+                           double * solution_value ) {
  auto block = build_CWL_block( file_path , continuous_relaxation );
  auto solver = new CPXMILPSolver();
  block->register_Solver( solver );
  auto status = solver->compute();
- if( status != ThinComputeInterface::kOK )
-  std::cout << "Problem not solved for instance " << file_path << std::endl;
- auto solution_value = solver->get_var_value();
+ if( solver->has_var_solution() )
+  *solution_value = solver->get_var_value();
  delete block;
- return solution_value;
+ return status;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -109,6 +129,7 @@ void compare( std::string data_dir_path ,
 
  for( const auto & file :
        std::filesystem::directory_iterator( data_dir_path ) ) {
+
   auto file_path = file.path();
 
   if( file_path.filename() == "manual.txt" ||
@@ -116,24 +137,41 @@ void compare( std::string data_dir_path ,
    continue;
 
   double solution_value = 0;
+  int status;
+
+  std::cout << "Solving instance " << file_path.filename() << ": ";
+  std::flush( std::cout );
 
   if( solver_type == SolverType::MILPSolver )
-   solution_value = solve_with_MILPSolver( file_path , continuous_relaxation );
+   status = solve_with_MILPSolver( file_path , continuous_relaxation ,
+                                   & solution_value );
   else if( solver_type == SolverType::BundleSolver )
-   solution_value = solve_with_BundleSolver( file_path , continuous_relaxation );
+   status = solve_with_BundleSolver( file_path , continuous_relaxation ,
+                                     & solution_value );
   else {
-   std::cerr << "Unknown Solver type: " << solver_type << std::endl;
+   std::cerr << "\nUnknown Solver type: " << solver_type << std::endl;
    exit( 1 );
   }
 
-  auto cwl_mcf_value = cwl_mcf( file_path );
-  auto diff = std::abs( solution_value - cwl_mcf_value );
-  auto max_diff = std::max( epsilon , epsilon *
-                            std::min( abs( solution_value ),
-                                      abs( cwl_mcf_value ) ) );
-  if( diff > max_diff )
-   std::cout << "Solution value difference for instance " <<
-    file_path << ": "  << diff << std::endl;
+  if( status != ThinComputeInterface::kOK )
+   std::cout << "FAILED" << std::endl;
+  else {
+   auto cwl_mcf_value = cwl_mcf( file_path );
+   auto diff = std::abs( solution_value - cwl_mcf_value );
+   auto max_diff = std::max( epsilon , epsilon *
+                             std::min( abs( solution_value ),
+                                       abs( cwl_mcf_value ) ) );
+
+   if( diff > max_diff ) {
+    std::cout << "FAILED" << std::endl;
+    std::cout << "  Solution found:    " << std::setprecision( 20 )
+              << solution_value << std::endl;
+    std::cout << "  Expected solution: " << std::setprecision( 20 )
+              << cwl_mcf_value << std::endl;
+   }
+   else
+    std::cout << "OK" << std::endl;
+  }
  }
 }
 
@@ -150,7 +188,11 @@ int main( int argc, char ** argv ) {
 
  std::string path = argv[ 1 ];
 
+ std::cout << "***** LP formulation test *****" << std::endl;
  compare( path , SolverType::MILPSolver );
+
+ std::cout << "***** Benders decomposition test *****" << std::endl;
+ compare( path , SolverType::BundleSolver );
 
  return 0;
 }

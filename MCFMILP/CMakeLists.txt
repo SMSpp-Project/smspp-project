@@ -5,18 +5,14 @@ find_package(MILPSolver)
 # ----- Tests --------------------------------------------------------------- #
 if (MCFBlock_FOUND AND MILPSolver_FOUND)
 
-    # MCF_SOLVER should be read from MCFBlock configuration
-    if (MCF_SOLVER STREQUAL "relax")
-        message(STATUS "Using RelaxIV solver")
+    # MCFBlock_SOLVER should be read from MCFBlock configuration
+    if (MCFBlock_SOLVER STREQUAL "relax")
         add_compile_definitions(HAVE_RELAX)
-    elseif (MCF_SOLVER STREQUAL "cplex")
-        message(STATUS "Using CPLEX solver")
+    elseif (MCFBlock_SOLVER STREQUAL "cplex")
         add_compile_definitions(HAVE_CPLEX)
-    elseif (MCF_SOLVER STREQUAL "mfsmx")
-        message(STATUS "Using Simplex solver")
+    elseif (MCFBlock_SOLVER STREQUAL "mfsmx")
         add_compile_definitions(HAVE_MFSMX)
-    elseif (MCF_SOLVER STREQUAL "sptree")
-        message(STATUS "Using Shortest Path Tree solver")
+    elseif (MCFBlock_SOLVER STREQUAL "sptree")
         add_compile_definitions(HAVE_SPTRE)
     endif ()
 
@@ -32,8 +28,8 @@ if (MCFBlock_FOUND AND MILPSolver_FOUND)
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Old test
-    add_executable(MCFMILP_test_old test_old.cpp)
-    target_link_libraries(MCFMILP_test_old PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::MCFBlock)
+#    add_executable(MCFMILP_test_old test_old.cpp)
+#    target_link_libraries(MCFMILP_test_old PRIVATE
+#                          SMS++::MILPSolver
+#                          SMS++::MCFBlock)
 endif ()

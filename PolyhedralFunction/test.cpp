@@ -7,13 +7,13 @@
  * A "random" PolyhedralFunction is constructed and put as the only Objective
  * of an otherwise "empty" Block. The same PolyhedralFunction is represented
  * in terms of linear inequalities for another otherwise "empty" Block. The
- * two Block are solved by a BundleSolver and a MILPSolver, respectively,
- * and the results are compared. The two Block are then repeatedly randomly
+ * two Block are solved by a NDO Solver and a LP Solver, respectively, and
+ * the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.01
+ * \version 1.40
  *
- * \date 12 - 09 - 2020
+ * \date 28 - 11 - 2020
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -38,8 +38,8 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
-  // if nonzero, the BundleSolver log is sent on cout rather than on a file
+  #define LOG_ON_COUT 1
+  // if nonzero, the NDO Solver log is sent on cout rather than on a file
  #endif
 #else
  #define LOG1( x )
@@ -47,18 +47,28 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
+// if HAVE_CONSTRAINTS == 1, then about 50% of the variables will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
+// if HAVE_CONSTRAINTS == 2, then about 50% of the variables will have
+// bound constraints; of these, 33% will only have 0 lower bound, 33% will
+// only have random upper bound, and the rest will have both. of the
+// remaining 50% of the variables, another 50%  will have a
+// non-negativity constraint implemented via ColVariable::is_positive()
 
-#define DETACH_NDO 0
+#define HAVE_CONSTRAINTS 2
+
+/*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attched to the NDOBlock is detached and re-attached
 // to it at all iterations
 
-#define DETACH_LP 0
+#define DETACH_NDO 0
+
 // if nonzero, the Solver attched to the LPBlock is detached and re-attached
 // to it at all iterations
 
-/*--------------------------------------------------------------------------*/
+#define DETACH_LP 0
 
-#define SKIP_BEAT 0
+/*--------------------------------------------------------------------------*/
 // if nonzero, the two Block are not solved at every round of changes, but
 // only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
@@ -68,6 +78,8 @@
 // note that the number of rounds of changes is them multiplied by
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
+
+#define SKIP_BEAT 0
 
 /*--------------------------------------------------------------------------*/
 
@@ -105,9 +117,17 @@
 
 #include "BlockSolverConfig.h"
 
-#include "BundleSolver.h"
+#include "FRealObjective.h"
 
-#include "CPXMILPSolver.h"
+#include "FRowConstraint.h"
+
+#if( LOG_LEVEL >= 3 )
+ #include "MILPSolver.h"
+#endif
+
+#include "LinearFunction.h"
+
+#include "OneVarConstraint.h"
 
 #include "PolyhedralFunction.h"
 
@@ -154,9 +174,11 @@ AbstractBlock * LPBlock;   // the problem expressed as an LP
 
 AbstractBlock * NDOBlock;  // the problem expressed via PolyhedralFunction
 
-double lb = - 1000;        // a tentative LB to detect unbounded instances
+bool convex = true;        // true if the PolyhedralFunction is convex
 
-FunctionValue LB;          // the "true" LB in the PolyhedralFunction (if any)
+double bound = 1000;       // a tentative bound to detect unbounded instances
+
+FunctionValue BND;         // the bound in the PolyhedralFunction (if any)
 
 Index nvar = 10;           // number of variables
 #if DYNAMIC_VARS > 0
@@ -183,6 +205,12 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+// convex ==> minimize ==> negative numbers
+
+static double rs( double x ) { return( convex ? -x : x ); }
+
 /*--------------------------------------------------------------------------*/
 
 template<class T>
@@ -240,7 +268,7 @@ static void GenerateAb( Index nr , Index nc )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateLB( void )
+static void GenerateBND( void )
 {
  // rationale: we expect the solution x^* to have entries ~= 1 (in absolute
  // value, and the coefficients of A are <= scale (in absolute value), so
@@ -250,17 +278,17 @@ static void GenerateLB( void )
  // (tight) 33% of the time, a mean of 2 times that (loose) 33% of the time,
  // and -INF the rest
 
- if( dis( rg ) <= 0.333 ) {  // "tight" LB
-  LB = - dis( rg ) * 5 * scale * nvar / 4;
+ if( dis( rg ) <= 0.333 ) {   // "tight" bound
+  BND = rs( dis( rg ) * 5 * scale * nvar / 4 );
   return;
   }
 
- if( dis( rg ) <= 0.333 ) {  // "loose" LB
-  LB = - dis( rg ) * 5 * scale * nvar;
+ if( dis( rg ) <= 0.333 ) {  // "loose" bound
+  BND = rs( dis( rg ) * 5 * scale * nvar );
   return;
   }
 
- LB = - INF;
+ BND = INF;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -284,15 +312,28 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
 				   bool setblock = true )
 {
  // construct constraint ci out of A[ i ] and b[ i ]:
- // the constraint is b[ i ] <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= INF
+ //
+ // in the convex case, the constraint is
+ //
+ //          b[ i ] <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= INF
+ //
+ // in the concave case, the constraint is
+ //
+ //          - INF <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= b[ i ]
  //
  // note: constraints are constructed dense (elements == 0, which are
  //       anyway quite unlikely, are ignored) to make things simpler
  //
  // note: variable x[ i ] is given index i + 1, variable v has index 0
 
- ci.set_lhs( b[ i ] );
- ci.set_rhs( INF );
+ if( convex ) {
+  ci.set_lhs( b[ i ] );
+  ci.set_rhs( INF );
+  }
+ else {
+  ci.set_lhs( - INF );
+  ci.set_rhs( b[ i ] );
+  }
  LinearFunction::v_coeff_pair vars( nvar + 1 );
  Index j = 0;
 
@@ -319,8 +360,11 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
 
 static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 {
- // change the constant == LHS of the constraint
- ci.set_lhs( b[ i ] );
+ // change the constant == LHS or RHS of the constraint (depending on convex)
+ if( convex )
+  ci.set_lhs( b[ i ] , iAM );
+ else
+  ci.set_rhs( b[ i ] , iAM );
 
  // now change the coefficients, except that of v that is always 1
  LinearFunction::Vec_FunctionValue coeffs( nvar );
@@ -336,16 +380,22 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
 
 static void SetGlobalBound( void )
 {
- if( LB > - INF )
-  NDOBlock->set_valid_lower_bound( LB );
+ if( BND == INF )
+  if( convex )
+   NDOBlock->set_valid_lower_bound( -bound , true );
+  else
+   NDOBlock->set_valid_upper_bound( bound , true );
  else
-  NDOBlock->set_valid_lower_bound( lb , true );
+  if( convex )
+   NDOBlock->set_valid_lower_bound( -BND );
+  else
+   NDOBlock->set_valid_upper_bound( BND );
  }
 
 /*--------------------------------------------------------------------------*/
 
 static void printAb( const MultiVector & tA , const RealVector & tb ,
-		     double lb )
+		     double bound )
 {
  PANIC( ( tA.size() == tb.size() ) || ( tA.size() + 1 == tb.size() ) );
  PANIC( tA.size() == m );
@@ -353,10 +403,10 @@ static void printAb( const MultiVector & tA , const RealVector & tb ,
   PANIC( tai.size() == nvar );
 
  cout << "n = " << nvar << ", m = " << m;
- if( lb > - INF )
-  cout << ", LB = " << lb << endl;
+ if( std::abs( bound ) == INF )
+  cout << " (no bound)" << endl;
  else
-  cout << ", LB = - INF" << endl;
+  cout << ", bound = " << bound << endl;
 
  for( Index i = 0 ; i < m ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
@@ -375,9 +425,13 @@ static bool SolveBoth( void )
   Solver * slvrLP = (LPBlock->get_registered_solvers()).front();
   #if DETACH_LP
    LPBlock->unregister_Solver( slvrLP );
-   LPBlock->register_Solver( slvrLP );
+   LPBlock->register_Solver( slvrLP , true );  // push it to the front
   #endif
   int rtrnLP = slvrLP->compute( false );
+  bool hsLP = ( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
+              || ( rtrnLP == Solver::kLowPrecision );
+  double foLP = hsLP ? ( convex ? slvrLP->get_ub() : slvrLP->get_lb() )
+                     : ( convex ? INF : -INF );
 
   // solve the NODBlock - - - - - - - - - - - - - - - - - - - - - - - - - - -
   Solver * slvrNDO = (NDOBlock->get_registered_solvers()).front();
@@ -386,28 +440,30 @@ static bool SolveBoth( void )
    NDOBlock->register_Solver( slvrNDO );
   #endif
   int rtrnNDO = slvrNDO->compute( false );
+  bool hsNDO = ( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
+              || ( rtrnNDO == Solver::kLowPrecision );
+  double foNDO = hsNDO ? ( convex ? slvrNDO->get_ub() : slvrNDO->get_lb() )
+                       : ( convex ? INF : -INF );
 
-  if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) &&
-      ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) ) {
-   auto foLP = slvrLP->get_ub();
-   auto foNDO = slvrNDO->get_ub();
-   if( abs( foLP - foNDO )
-       <= 2e-7 * max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) {
-    LOG1( "OK(f)" << endl );
-    return( true );
-    }
+  if( hsLP && hsNDO && ( abs( foLP - foNDO ) <= 2e-7 *
+			 max( double( 1 ) , abs( max( foLP , foNDO ) ) ) ) ) {
+   LOG1( "OK(f)" << endl );
+   return( true );
    }
 
-  if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) &&
-      ( rtrnNDO == Solver::kUnbounded ) ) {
+  if( hsLP && ( rtrnNDO == Solver::kUnbounded ) ) {
    /* Weird case: the LP found an optimal solution but the NDO declared the
     * problem unbounded below. This may be because the tentative lb is too
     * high, check it this actually is the case and if so declare the
     * run a success (but also decrease the lb). */
-   if( slvrNDO->get_ub() <= lb * ( 1 + 1e-9 ) ) {
-    LOG1( "OK(?lb?)" << endl );
-    lb *= 2;
-    SetGlobalBound();
+   if( ( convex && ( foNDO <= bound * ( 1 + 1e-9 ) ) ) ||
+       ( ( ! convex ) && ( foNDO >= bound * ( 1 + 1e-9 ) ) ) ) {
+    LOG1( "OK(?bound?)" << endl );
+    bound *= 2;
+    if( convex )
+     NDOBlock->set_valid_lower_bound( -bound );
+    else
+     NDOBlock->set_valid_upper_bound( bound );
     return( true );
     }
    }
@@ -420,32 +476,32 @@ static bool SolveBoth( void )
 
   if( ( rtrnLP == Solver::kUnbounded ) &&
       ( rtrnNDO == Solver::kUnbounded ) ) {
-    LOG1( "OK(u)" << endl );
-    return( true );
-    }
+   LOG1( "OK(u)" << endl );
+   return( true );
+   }
 
   #if( LOG_LEVEL >= 1 )
    cout << "LPBlock = ";
-   if( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
-    cout << slvrLP->get_ub();
+   if( hsLP )
+    cout << foLP;
    else
     if( rtrnLP == Solver::kInfeasible )
-     cout << "    +INF(?)";
+     cout << "    Unfeas(?)";
     else
      if( rtrnLP == Solver::kUnbounded )
-      cout << "        -INF";
+      cout << "      Unbounded";
      else
       cout << "      Error!";
 
    cout << " ~ NDOBlock = ";
-   if( ( rtrnNDO >= Solver::kOK ) && ( rtrnNDO < Solver::kError ) )
-    cout << slvrNDO->get_ub();
+   if( hsNDO )
+    cout << foNDO;
    else
     if( rtrnNDO == Solver::kInfeasible )
-     cout << "    +INF(?)";
+     cout << "    Unfeas(?)";
     else
      if( rtrnNDO == Solver::kUnbounded )
-      cout << "        -INF";
+      cout << "      Unbounded";
      else
       cout << "      Error!";
    cout << endl;
@@ -498,8 +554,10 @@ int main( int argc , char **argv )
            "             2 = modify rows, 3 = modify constants"
 		<< endl <<
            "             4 = change global lower/upper bound"
+          #if DYNAMIC_VARS > 0
 		<< endl <<
-           "             5 = add variables rows, 6 = delete variables"
+           "             5 = add variables, 6 = delete variables"
+	  #endif
 	        << endl <<
            "       nvar: number of variables [10]"
 	        << endl <<
@@ -534,16 +592,19 @@ int main( int argc , char **argv )
 
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // choosing whether convex or concave: toss a(n unbiased, two-sided) coin
+ convex = ( dis( rg ) < 0.5 );
+
  // construct the matrix m x nvar matrix A and the m-vector b
- 
+
  GenerateAb( m , nvar );
- GenerateLB();
+ GenerateBND();
 
  cout.setf( ios::scientific, ios::floatfield );
  cout << setprecision( 10 );
 
  #if( LOG_LEVEL >= 4 )
-  printAb( A , b , LB );
+  printAb( A , b , BND );
  #endif
 
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
@@ -572,18 +633,25 @@ int main( int argc , char **argv )
    ConstructLPConstraint( i++ , *(ALPit++) );
 
   // construct the static lower bound Constraint
-  auto LBc = new BoxConstraint( LPBlock , vLP , LB );
+  auto LBc = new BoxConstraint( LPBlock , vLP , -INF , INF );
+  if( BND != INF ) {
+   if( convex )
+    LBc->set_lhs( -BND );
+   else
+    LBc->set_rhs( BND );
+   }
 
   // construct the Objective
   auto objLP = new FRealObjective();
   objLP->set_function( new LinearFunction( { std::make_pair( vLP , 1 ) } ) );
-
+  objLP->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
+  
   // now set the Variable, Constraint and Objective in the AbstractBlock
   LPBlock->add_static_variable( *vLP );
   #if DYNAMIC_VARS > 0
    LPBlock->add_dynamic_variable( *xLPd );
   #endif
-  LPBlock->add_static_variable( *xLP );
+  LPBlock->add_static_variable( *xLP , "x" );
   LPBlock->add_dynamic_constraint( *ALP );
   LPBlock->add_static_constraint( *LBc );
   LPBlock->set_objective( objLP );
@@ -609,13 +677,17 @@ int main( int argc , char **argv )
   #endif
 
   // construct the Objective
+  auto PF = new PolyhedralFunction( std::move( vars ) ,	std::move( A ) ,
+				    std::move( b ) );
+  if( BND != INF )
+   PF->modify_bound( rs( BND ) );
+  PF->set_is_convex( convex , eNoMod );
   auto objNDO = new FRealObjective();
-  objNDO->set_function( new PolyhedralFunction( std::move( vars ) ,
-						std::move( A ) ,
-						std::move( b ) , LB ) );
+  objNDO->set_function( PF );
+  objNDO->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
 
   // now set the Variable and Objective in the AbstractBlock
-  NDOBlock->add_static_variable( *xNDO );
+  NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
    NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
@@ -624,24 +696,83 @@ int main( int argc , char **argv )
   SetGlobalBound();  // set lower bound, be it "hard" or "conditional"
   }
 
+ // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ #if HAVE_CONSTRAINTS == 1
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    (*LPx)[ i ].is_positive( true , eNoMod );
+    (*NDOx)[ i ].is_positive( true , eNoMod );
+    }
+  }
+ #endif
+ #if HAVE_CONSTRAINTS == 2
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  auto LPbnd = new std::list< BoxConstraint >;
+  auto NDObnd = new std::list< BoxConstraint >;
+  for( Index i = 0 ; i < nvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    LPbnd->resize( LPbnd->size() + 1 );
+    NDObnd->resize( NDObnd->size() + 1 );
+    LPbnd->back().set_variable( & (*LPx)[ i ] );
+    NDObnd->back().set_variable( & (*NDOx)[ i ] );
+    auto p = dis( rg );
+    auto lhs = p < 0.666 ? 0 : -INF;
+    auto rhs = p > 0.333 ? dis( rg ) : INF;
+    LPbnd->back().set_lhs( lhs , eNoMod );
+    NDObnd->back().set_lhs( lhs , eNoMod );
+    LPbnd->back().set_rhs( rhs , eNoMod );
+    NDObnd->back().set_rhs( rhs , eNoMod );
+    }
+   else
+    if( dis( rg ) < 0.5 ) {
+     (*LPx)[ i ].is_positive( true , eNoMod );
+     (*NDOx)[ i ].is_positive( true , eNoMod );
+     }
+
+  LPBlock->add_dynamic_constraint( *LPbnd );
+  NDOBlock->add_dynamic_constraint( *NDObnd );
+  }
+ #endif
+ 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // for LPBlock, "manually" attach a CPXMILPSolver
 
- LPBlock->register_Solver( Solver::new_Solver( "CPXMILPSolver" ) );
+ {
+  // for LPBlock do this by reading an appropriate BlockSolverConfig from
+  // file and apply() it to the LPBlock
+  ifstream LPParFile( "LPPar.txt" );
+  if( ! LPParFile.is_open() ) {
+   cerr << "Error: cannot open file LPPar.txt" << endl;
+   return( 1 );
+   }
+
+  auto msc = new BlockSolverConfig;
+  LPParFile >> *( msc );
+  LPParFile.close();
+
+  msc->apply( LPBlock );
+  delete msc;
+  }
 
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
   // files and apply() it to the NDOBlock
-  ifstream BundleParFile( "BundlePar.txt" );
-  if( ! BundleParFile.is_open() ) {
-   cerr << "Error: cannot open file BundlePar.txt" << endl;
+  ifstream NDOParFile( "NDOPar.txt" );
+  if( ! NDOParFile.is_open() ) {
+   cerr << "Error: cannot open file NDOPar.txt" << endl;
    return( 1 );
    }
 
   auto bsc = new BlockSolverConfig;
-  BundleParFile >> *( bsc );
-  BundleParFile.close();
+  NDOParFile >> *( bsc );
+  NDOParFile.close();
 
   bsc->apply( NDOBlock );
   delete bsc;
@@ -666,7 +797,7 @@ int main( int argc , char **argv )
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
-	                      CPXMILPSolver::strOutputFile , "LPBlock.lp" );
+	                         MILPSolver::strOutputFile , "LPBlock.lp" );
   #endif
  #endif
 
@@ -688,15 +819,12 @@ int main( int argc , char **argv )
  // then the two problems are re-solved
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
-
   LOG1( rep << ": ");
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = Index( dis( rg ) * n_change );
-   if( tochange ) {
-
+  if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = Index( dis( rg ) * n_change ) ) {
     LOG1( "added " << tochange << " rows - " );
 
     GenerateAb( tochange , nvar );
@@ -732,16 +860,14 @@ int main( int argc , char **argv )
     PANIC( m == PF->get_A().size() );
     PANIC( m == cnst->size() );
     }
-   }
 
   // delete rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = min( m - 1 , Index( dis( rg ) * n_change ) );
-   auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
-   if( tochange ) {
+  if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( m - 1 , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "deleted " << tochange << " rows" );
 
+    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
     auto PF = dynamic_cast< PolyhedralFunction * >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
     PANIC( PF );
@@ -786,13 +912,11 @@ int main( int argc , char **argv )
     PANIC( m == PF->get_A().size() );
     PANIC( m == cnst->size() );
     }
-   }
 
   // modify rows- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = std::min( m , Index( dis( rg ) * n_change ) );
-   if( tochange ) {
+  if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = std::min( m , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "modified " << tochange << " rows" );
 
     auto PF = dynamic_cast< PolyhedralFunction * >(
@@ -864,13 +988,11 @@ int main( int argc , char **argv )
       PF->modify_rows( std::move( A ) , b , std::move( nms ) , true );
      }
     }
-   }
 
   // modify constants - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = std::min( m , Index( dis( rg ) * n_change ) );
-   if( tochange ) {
+  if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = std::min( m , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "modified " << tochange << " constants" );
 
     Generateb( tochange );
@@ -889,9 +1011,13 @@ int main( int argc , char **argv )
      auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
 
      auto cit = std::next( cnst->begin() , strt );
-     for( Index i = 0 ; i < tochange ; )
-      (*(cit++)).set_lhs( b[ i++ ] );
-
+     if( convex )
+      for( Index i = 0 ; i < tochange ; )
+       (*(cit++)).set_lhs( b[ i++ ] );
+     else
+      for( Index i = 0 ; i < tochange ; )
+       (*(cit++)).set_rhs( b[ i++ ] );
+ 
      // modify them in the NDO
      if( tochange == 1 )
       PF->modify_constant( strt , b[ 0 ] );
@@ -907,11 +1033,18 @@ int main( int argc , char **argv )
 
      Index prev = 0;
      auto cit = cnst->begin();
-     for( Index i = 0 ; i < tochange ; ) {
-      cit = std::next( cit , nms[ i ] - prev );
-      prev = nms[ i ];
-      (*cit).set_lhs( b[ i++ ] );
-      }
+     if( convex )
+      for( Index i = 0 ; i < tochange ; ) {
+       cit = std::next( cit , nms[ i ] - prev );
+       prev = nms[ i ];
+       (*cit).set_lhs( b[ i++ ] );
+       }
+     else
+      for( Index i = 0 ; i < tochange ; ) {
+       cit = std::next( cit , nms[ i ] - prev );
+       prev = nms[ i ];
+       (*cit).set_rhs( b[ i++ ] );
+       }
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -920,25 +1053,27 @@ int main( int argc , char **argv )
       PF->modify_constants( b , std::move( nms ) , true );
      }
     }
-   }
 
   // modify bound - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
    LOG1( "modified bound - " );
 
-   GenerateLB();
+   GenerateBND();
 
    // change it in the LP
    auto cnst = LPBlock->get_static_constraint< BoxConstraint >( 0 );
-   cnst->set_lhs( LB );
+   if( convex )
+    cnst->set_lhs( -BND );
+   else
+    cnst->set_rhs( BND );
 
    // modify it in the NDO
    auto PF = dynamic_cast< PolyhedralFunction * >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
    PANIC( PF );
 
-   PF->modify_bound( LB );
+   PF->modify_bound( rs( BND ) );
 
    SetGlobalBound();  // set lower bound, be it "hard" or "conditional"
    }
@@ -1140,13 +1275,15 @@ int main( int argc , char **argv )
 
   #if( LOG_LEVEL >= 3 )
    ((LPBlock->get_registered_solvers()).front())->set_par(
-		                  CPXMILPSolver::strOutputFile , "LPBlock-" +
-		                  std::to_string( rep ) + ".lp" );
+		                     MILPSolver::strOutputFile , "LPBlock-" +
+		                     std::to_string( rep ) + ".lp" );
    #if( LOG_LEVEL >= 4 )
     auto PF = dynamic_cast< PolyhedralFunction * >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
     PANIC( PF );
-    printAb( PF->get_A() , PF->get_b() , PF->get_global_lower_bound() );
+    printAb( PF->get_A() , PF->get_b() ,
+	     convex ? PF->get_global_lower_bound()
+	            : PF->get_global_upper_bound() );
    #endif
   #endif
 
@@ -1182,7 +1319,7 @@ int main( int argc , char **argv )
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- return( 0 );
+ return( AllPassed ? 0 : 1 );
 
  }  // end( main )
 

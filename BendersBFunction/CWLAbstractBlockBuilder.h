@@ -7,7 +7,7 @@
  *
  * \version 0.10
  *
- * \date 26 - 11 - 2019
+ * \date 22 - 11 - 2020
  *
  * \author Rafael Durbano Lobato \n
  *         Operations Research Group \n
@@ -389,6 +389,10 @@ BendersBFunction * build_Benders_function( const CWLInstance & instance ,
                                            std::vector< ColVariable * > && y ,
                                            Solver * solver ) {
 
+ const bool use_capacity_slack = false;
+ const double capacity_slack_cost = 1.0e+5;
+ ColVariable * capacity_slack;
+
  auto block = new AbstractBlock();
 
  // Variables
@@ -404,8 +408,13 @@ BendersBFunction * build_Benders_function( const CWLInstance & instance ,
 
  block->add_static_variable( * x );
 
- // Constraints
+ if( use_capacity_slack ) {
+  capacity_slack = new ColVariable();
+  capacity_slack->is_positive( true );
+  block->add_static_variable( * capacity_slack );
+ }
 
+ // Constraints
  {
   auto demand_fulfillment =
    new std::vector< FRowConstraint >( instance.num_customers );
@@ -428,6 +437,8 @@ BendersBFunction * build_Benders_function( const CWLInstance & instance ,
    for( int j = 0 ; j < instance.num_customers ; ++j ) {
     function->add_variable( & ( * x )[ i ][ j ] , instance.demand[ j ] );
    }
+   if( use_capacity_slack )
+    function->add_variable( capacity_slack , - 1.0 );
    ( * capacity_constraints )[ i ].set_function( function );
    ( * capacity_constraints )[ i ].set_lhs( -Inf<double>() );
    ( * capacity_constraints )[ i ].set_rhs( 0 );
@@ -439,6 +450,8 @@ BendersBFunction * build_Benders_function( const CWLInstance & instance ,
 
  {
   auto function = new LinearFunction();
+  if( use_capacity_slack )
+   function->add_variable( capacity_slack , capacity_slack_cost );
   for( int i = 0 ; i < instance.num_locations ; ++i )
    for( int j = 0 ; j < instance.num_customers ; ++j )
     function->add_variable( & ( * x )[ i ][ j ] , instance.cost[ i ][ j ] );

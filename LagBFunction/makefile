@@ -2,10 +2,10 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for PolyhedralFunction)                                #
+#   makefile of test (for LagBFunction)                                      #
 #                                                                            #
-#                                VERSION 1.10                                #
-#                               02 - 12 - 2019                               #
+#                                VERSION 1.00                                #
+#                               11 - 09 - 2020                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -17,7 +17,7 @@
 ##############################################################################
 
 # module name
-NAME = PolyhedralFunction_test
+NAME = LagBFunction_test
 
 # basic directory
 DIR = ./
@@ -26,6 +26,7 @@ DIR = ./
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
 # debug switches with address sanitizer and extra pedantic warning
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
@@ -54,6 +55,7 @@ clean::
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
+BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already
@@ -70,10 +72,6 @@ include $(BNDSLVSDR)makefile-c
 # MILPSolver
 #MILPSSDR = ../../../MILPSolver/
 #include $(MILPSSDR)makefile
-
-# define input macros for libSCIP library makefile, then include it
-#libSCIPDIR = ../../extlib/
-#include $(libSCIPDIR)makefile-libscip
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
