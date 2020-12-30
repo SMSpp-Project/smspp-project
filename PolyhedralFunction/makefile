@@ -97,6 +97,6 @@ MH =    $(BNDSLVH)
 # compile command
 
 $(DIR)test.o: $(DIR)test.cpp $(MH)
-	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
+	$(CC) -c $(DIR)test.cpp -o $^ $(MINC) $(SW)
 
 ############################ End of makefile #################################
