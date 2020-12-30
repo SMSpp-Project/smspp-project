@@ -72,8 +72,8 @@ int main( int argc , char **argv )
  BlockSolverConfig * bsc = new BlockSolverConfig;
  ProbFile >> *( bsc );
 
- // sMMCFblock->set_SolverConfig( bsc );
- // delete bsc;
+ sMMCFblock->set_SolverConfig( bsc );
+ delete bsc;
 
  Solver * slvr = (sMMCFblock->get_registered_solvers()).front();
 

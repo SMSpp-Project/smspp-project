@@ -1,10 +1,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - -  test.lukfi - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a Block having a single
-# BundleSolver attached, and no sub-Block
+# A txt description of a BlockSolverConfig for a MMCFBlock having a single
+# MILPSolver attached
 #
-#   version 1.0 , 23/11/2019
+#   version 1.0 , 30/12/2020
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
