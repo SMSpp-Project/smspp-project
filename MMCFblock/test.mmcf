@@ -1,0 +1,61 @@
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - -  test.lukfi - - - - - - - - - - - - - - - -
+#
+# A txt description of a BlockSolverConfig for a Block having a single
+# BundleSolver attached, and no sub-Block
+#
+#   version 1.0 , 23/11/2019
+#
+#   Enrico Gorgone, Antonio Frangioni
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# LukFiBlock parameters - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# ComputeConfig of LukFiBlock::LukFiFunction
+
+0  # f_diff, all the parameters that are *not* specified has to be set 
+   # to the default value
+
+
+* # pointer to the "extra" Configuration (none)
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+0  # the BlockSolverConfig is not a "differential" one: values are being set
+
+1  # number of (the names of) Solver in this BlockSolverConfig
+# now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
+MILPSolver # name of 1st Solver
+
+1  # number of ComputeConfig in this BlockSolverConfig
+
+# now all the ComputeConfig
+# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ComputeConfig # exact type of the ComputeConfig object
+
+0  # f_diff == 0 ==> all non-provided parameters are set to the default value
+
+0 # number of integer parameters
+        
+0 # number of string parameters
+
+# now all the string parameters
+# [none]
+
+# pointer to the "extra" Configuration
+* # [none]
+
+# end 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+0 # number of BlockSolverConfig for the sub-Block
+
+# now all BlockSolverConfig for the sub-Block
+# [none]
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END  test.mmcf  - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
