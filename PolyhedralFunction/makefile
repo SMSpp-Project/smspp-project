@@ -84,7 +84,7 @@ MOBJ =  $(BNDSLVOBJ)
 MLIB =  $(BNDSLVLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
-	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
+	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
@@ -97,6 +97,6 @@ MH =    $(BNDSLVH)
 # compile command
 
 $(DIR)test.o: $(DIR)test.cpp $(MH)
-	$(CC) -c $(DIR)test.cpp -o $^ $(MINC) $(SW)
+	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################
