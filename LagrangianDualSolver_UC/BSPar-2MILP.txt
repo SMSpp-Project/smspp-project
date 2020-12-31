@@ -1,0 +1,34 @@
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BSPar.txt - - - - - - - - - - - - - - - - -
+#
+# A txt description of a BlockSolverConfig for a UCBlock to be solved by two
+# different Solver: a *MILPSolver and a LagrangianDualSolver using a
+# BundleSolver as the inner Solver
+#
+#   version 1.0 , 30/12/2020
+#
+#   Enrico Gorgone, Antonio Frangioni
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+1  # the BlockSolverConfig is a "differential" one
+
+2  # number of (the names of) Solver in this BlockSolverConfig
+# now all the names of the Solver
+CPXMILPSolver           # name of 1st Solver
+CPXMILPSolver           # name of 2nd Solver
+
+2  # number of ComputeConfig in this BlockSolverConfig
+
+# now all the ComputeConfig
+# 1st ComputeConfig
+*LPCCfg.txt
+
+# 2nd ComputeConfig 
+*LPCCfg.txt
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BSPar.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

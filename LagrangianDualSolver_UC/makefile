@@ -52,15 +52,20 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# not necessary, BundleSolver does that already
 # MILPSolver
-MILPSSDR = ../../MILPSolver/
-include $(MILPSSDR)makefile-c
+#MILPSSDR = ../../MILPSolver/
+#include $(MILPSSDR)makefile-c
+
+# BundleSolver
+BNDSLVSDR = ../../BundleSolver/
+include $(BNDSLVSDR)makefile-c
 
 # LagrangianDualSolver
 LgDSLVSDR = ../../LagrangianDualSolver/
 include $(LgDSLVSDR)makefile
 
-# not necessary, MILPSolver does that already
+# not necessary, BundleSolver does that already
 # define input macros for SMS++ complete makefile, then include it
 #SMS++SDR = ../../../SMS++/
 #include $(SMS++SDR)lib/makefile-inc
@@ -74,10 +79,10 @@ include $(UCBckDIR)lib/makefile
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(MILPSOBJ) $(LgDSLVOBJ) $(UCBckOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(UCBckOBJ)
 
 # libreries
-MLIB =  $(MILPSLIB) $(LgDSLVLIB) $(UCBckLIB)
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(UCBckLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
@@ -85,10 +90,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(MILPSINC) $(LgDSLVINC) $(UCBckINC)
+MINC =  $(BNDSLVINC) $(LgDSLVINC) $(UCBckINC)
 
 # includes
-MH =    $(MILPSH) $(LgDSLVH) $(UCBckLIB)
+MH =    $(BNDSLVH) $(LgDSLVH) $(UCBckLIB)
 
 # compile command
 

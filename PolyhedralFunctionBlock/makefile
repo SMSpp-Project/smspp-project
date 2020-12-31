@@ -54,7 +54,6 @@ clean::
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already
