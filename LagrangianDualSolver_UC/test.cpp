@@ -326,7 +326,7 @@ int main( int argc , char **argv )
 
  // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- TestBlock = Block::deserialize( argv[ 0 ] );
+ TestBlock = Block::deserialize( argv[ 1 ] );
  if( ! TestBlock ) {
   cout << endl << "Block::deserialize() failed!" << endl;
   exit( 1 );

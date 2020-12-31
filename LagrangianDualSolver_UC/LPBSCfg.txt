@@ -1,0 +1,33 @@
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - LPBSCfg.txt - - - - - - - - - - - - - - - -
+#
+# A txt description of a BlockSolverConfig for any Block that is a simple LP
+# / QP (continuous, convex, separable) and can be solved by a :MILPSolver 
+# (say, a CPXMILPSolver or a SCIPMILPSolver)
+#
+#   version 1.0 , 31/12/2020
+#
+#   Enrico Gorgone, Antonio Frangioni
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+BlockSolverConfig     # exact type of the Configuration object
+
+0  # the BlockSolverConfig is not a "differential" one: values are being set
+
+1  # number of (the names of) Solver in this BlockSolverConfig
+# now all the names of the Solver
+CPXMILPSolver # name of 1st Solver
+#SCIPMILPSolver # name of 1st Solver
+
+1  # number of ComputeConfig in this BlockSolverConfig
+
+# now all the ComputeConfig
+# 1st ComputeConfig
+*LPCCfg.txt
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END LPBSCfg.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
