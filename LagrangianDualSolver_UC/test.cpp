@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 4
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -40,7 +40,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 1
+  #define LOG_ON_COUT 0
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif
@@ -195,7 +195,7 @@ static bool SolveBoth( void )
    }
 
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * Slvr1 = (TestBlock->get_registered_solvers()).front();
+  Solver * Slvr1 = TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
    TestBlock->unregister_Solver( Slvr1 );
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
@@ -206,19 +206,20 @@ static bool SolveBoth( void )
   double fo1st = hs1st ? Slvr1->get_lb() : -INF;
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * Slvr2 = (TestBlock->get_registered_solvers()).back();
+  Solver * Slvr2 = TestBlock->get_registered_solvers().back();
   #if DETACH_2ND
    TestBlock->unregister_Solver( Slvr2 );
    TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
   int rtrn2nd = Slvr2->compute( false );
+
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
                || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
-			  max( double( 1 ) , abs( max( fo1st , fo2nd ) ) ) )
-      ) {
+			  max( double( 1 ) , max( abs( fo1st ) ,
+						  abs( fo2nd ) ) ) ) ) {
    LOG1( "OK(f)" << endl );
    return( true );
    }
@@ -365,7 +366,7 @@ int main( int argc , char **argv )
    else {
     LOGFile.setf( ios::scientific, ios::floatfield );
     LOGFile << setprecision( 10 );
-    ((TestBlock->get_registered_solvers()).front())->set_log( &LOGFile );
+    ((TestBlock->get_registered_solvers()).back())->set_log( &LOGFile );
     }
   #endif
  #endif

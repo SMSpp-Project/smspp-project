@@ -51,7 +51,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # pointer to the "extra" Configuration
 # file redirection to a standard BlockSolverConfig
 # for simple LP / QP solved by a :MILPSolver
-*LPBSCfg
+*LPBSCfg.txt
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - END LBFPar.txt- - - - - - - - - - - - - - -

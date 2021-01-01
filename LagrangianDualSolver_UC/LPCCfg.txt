@@ -32,6 +32,7 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 0 # number of string parameters
 
 # now all the string parameters
+#strOutputFile	uc.lp
 # [none]
 
 0 # number of vector-of-int parameters
