@@ -136,7 +136,7 @@ using FunctionValue = Function::FunctionValue;
 /*--------------------------------------------------------------------------*/
 
 const double scale = 10;
-const char *const logF = "log.lds";
+const char *const logF = "log.txt";
 
 const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 
@@ -186,14 +186,25 @@ static Subset GenerateRand( Index m , Index k )
 
 /*--------------------------------------------------------------------------*/
 
+static void PrintResults( bool hs , int rtrn , double fo )
+{
+ if( hs )
+  cout << fo;
+ else
+  if( rtrn == Solver::kInfeasible )
+   cout << "    Unfeas";
+  else
+   if( rtrn == Solver::kUnbounded )
+    cout << "      Unbounded";
+   else
+    cout << "      Error!";
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static bool SolveBoth( void ) 
 {
  try {
-  if( TestBlock->get_registered_solvers().size() != 2 ) {
-   cout << endl << "wrong number of Solver registered to the Block!" << endl;
-   exit( 1 );
-   }
-
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   Solver * Slvr1 = TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
@@ -204,6 +215,15 @@ static bool SolveBoth( void )
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+
+  if( TestBlock->get_registered_solvers().size() == 1 ) {
+   #if( LOG_LEVEL >= 1 )
+    cout << "Solver = ";
+    PrintResults( hs1st , rtrn1st , fo1st );
+    cout << endl;
+   #endif
+   return( true );
+   }
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
@@ -238,28 +258,10 @@ static bool SolveBoth( void )
 
   #if( LOG_LEVEL >= 1 )
    cout << "Solver1 = ";
-   if( hs1st )
-    cout << fo1st;
-   else
-    if( rtrn1st == Solver::kInfeasible )
-     cout << "    Unfeas";
-    else
-     if( rtrn1st == Solver::kUnbounded )
-      cout << "      Unbounded";
-     else
-      cout << "      Error!";
+    PrintResults( hs1st , rtrn1st , fo1st );
 
    cout << " ~ Solver2 = ";
-   if( hs2nd )
-    cout << fo2nd;
-   else
-    if( rtrn2nd == Solver::kInfeasible )
-     cout << "    Unfeas";
-    else
-     if( rtrn2nd == Solver::kUnbounded )
-      cout << "      Unbounded";
-     else
-      cout << "      Error!";
+   PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif
 
@@ -302,10 +304,14 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
 	     !!*/
+  case( 3 ): break;
   case( 2 ): break;
-  default: cerr << "Usage: " << argv[ 0 ] << "UC filename" << endl;
-   /*!!
-	   " UC filename [seed wchg #rounds #chng %chng]"
+  default: cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
+		<< endl <<
+	   "       BSC-file: BlockSolverConfig description [BSPar.txt]"
+	        << endl;
+    /*!!
+	   " UC file [BSC file seed wchg #rounds #chng %chng]"
  		<< endl <<
 	   "       seed: random seed generator [0]"
  		<< endl <<
@@ -320,7 +326,6 @@ int main( int argc , char **argv )
            "       #chng: number changes [10]"
 	        << endl <<
            "       %chng: probability of changing [0.5]"
-	        << endl;
 		!!*/
 	   return( 1 );
   }
@@ -333,13 +338,13 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- // attach the Solvers to the Block - - - - - - - - - - - - - - - - - - - - -
+ // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // do this by reading an appropriate BlockSolverConfig from file and
  // apply() it to the TestBlock
 
  {
-  ifstream BSParFile( "BSPar.txt" );
+  ifstream BSParFile( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
   if( ! BSParFile.is_open() ) {
    cerr << "Error: cannot open file BSPar.txt" << endl;
    return( 1 );
@@ -351,6 +356,11 @@ int main( int argc , char **argv )
 
   msc->apply( TestBlock );
   delete msc;
+
+  if( TestBlock->get_registered_solvers().empty() ) {
+   cout << endl << "no Solver registered to the Block!" << endl;
+   exit( 1 );
+   }
   }
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -

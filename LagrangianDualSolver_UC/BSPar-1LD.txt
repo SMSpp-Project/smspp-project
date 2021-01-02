@@ -16,7 +16,7 @@
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-LagrangianDualSolver    # name of 2nd Solver
+LagrangianDualSolver
 
 1  # number of ComputeConfig in this BlockSolverConfig
 
@@ -25,7 +25,7 @@ LagrangianDualSolver    # name of 2nd Solver
 # ComputeConfig of the LagrangianDualSolver; it basically is the
 # ComputeConfig of the inner Solver, which is a BundleSolver
 
-ComputeConfig # exact type of the ComputeConfig object
+ComputeConfig     # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
@@ -35,7 +35,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # now all the integer parameters
 intDoEasy  0      # do not do easy components even for LagBFunction
 intMaxIter 100000 # MaxIter, max number of iterations for each call
-intLogVerb 3      # LogVerb, log verbosity of main Bundle algorithm
+intLogVerb 4      # LogVerb, log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
