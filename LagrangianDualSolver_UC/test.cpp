@@ -344,18 +344,16 @@ int main( int argc , char **argv )
  // apply() it to the TestBlock
 
  {
-  ifstream BSParFile( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
-  if( ! BSParFile.is_open() ) {
-   cerr << "Error: cannot open file BSPar.txt" << endl;
-   return( 1 );
+  auto c = Configuration::deserialize( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
+  auto bsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! bsc ) {
+   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
    }
 
-  auto msc = new BlockSolverConfig;
-  BSParFile >> *( msc );
-  BSParFile.close();
-
-  msc->apply( TestBlock );
-  delete msc;
+  bsc->apply( TestBlock );
+  delete bsc;
 
   if( TestBlock->get_registered_solvers().empty() ) {
    cout << endl << "no Solver registered to the Block!" << endl;
