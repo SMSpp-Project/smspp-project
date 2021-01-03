@@ -54,7 +54,6 @@ clean::
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already
@@ -94,6 +93,6 @@ MH =    $(BNDSLVH)
 # compile command
 
 $(DIR)test.o: $(DIR)test.cpp $(MH)
-	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
+	$(CC) -c $(DIR)test.cpp -o $^ $(MINC) $(SW)
 
 ############################ End of makefile #################################

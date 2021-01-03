@@ -10,6 +10,7 @@
 *.ko
 *.elf
 LagBFunction/LagBFunction_test
+LagrangianDualSolver_UC/LDS_UC_test
 MCFMILP/MCFMILP_test
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
