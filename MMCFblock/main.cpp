@@ -64,18 +64,16 @@ int main( int argc , char **argv )
   }
 
  Block *sblock = Block::new_Block( "MMCFBlock" );
-
- auto sMMCFblock = static_cast< MMCFBlock * >( sblock );
- sMMCFblock->load( argv[ 1 ] , type );
- cout << *sMMCFblock;
+ ProbFile >> *sblock;
+ cout << *sblock;
 
  BlockSolverConfig * bsc = new BlockSolverConfig;
  ProbFile >> *( bsc );
 
- sMMCFblock->set_SolverConfig( bsc );
+ bsc->apply( sblock );
  delete bsc;
 
- Solver * slvr = (sMMCFblock->get_registered_solvers()).front();
+ Solver * slvr = (sblock->get_registered_solvers()).front();
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -91,7 +89,15 @@ int main( int argc , char **argv )
  LOGFile << std::endl << std::endl << "f* = "
 		 << slvr->get_lb() << " (optimal value)" << std::endl;
 
- delete sMMCFblock;
+ // solve by MMCFSolver - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ auto sMMCFblock = static_cast< MMCFBlock * >( sblock );
+
+ char filetype = sMMCFblock->get_filetype();
+ string filename = sMMCFblock->get_filename();
+
+ delete sblock;
 
  return( 0 );
  }

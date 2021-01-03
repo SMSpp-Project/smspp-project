@@ -12,6 +12,9 @@
 # LukFiBlock parameters - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+s # instance type
+/Users/gorgone/Programming/TestProblems/Canad/small.std # <path>filename (input instance) 
+
 # ComputeConfig of LukFiBlock::LukFiFunction
 
 0  # f_diff, all the parameters that are *not* specified has to be set 

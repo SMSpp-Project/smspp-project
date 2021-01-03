@@ -645,3 +645,6 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+MMCFblock/MMCFtest
+MMCFblock/.project
+MMCFblock/MMCFtest
