@@ -43,3 +43,6 @@
 [submodule "tests"]
 	path = tests
 	url = https://gitlab.com/smspp/tests
+[submodule "MMCFBlock"]
+	path = MMCFBlock
+	url = ./MMCFBlock
