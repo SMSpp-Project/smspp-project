@@ -11,9 +11,6 @@ The following tests are provided:
 
 - [`BendersBFunction`](BendersBFunction)
 
-- [`CPXMILPSolver`](CPXMILPSolver) - solve a `SimpleMILPBlock` with a
-  `CPXMILPSolver`
-
 - [`LagBFunction`](LagBFunction) - constructs one `AbstractBlock` with two
   different kinds of sub-Block: some `PolyhedralFunctionBlock` (configured in
   the "natural" way where the `FRealObjective` has a `PolyhedralFunction`),
@@ -65,7 +62,6 @@ The following tests are provided:
   `MILPSolver` and its derived classes (`CPXMILPSolver` and `SCIPMILPSolver`),
   as well as for quite a lot of the mechanics of the "core" SMS++ library.
 
-- [`TUBMILP`](TUBMILP) - solve a `ThermalUnitBlock` with a `MILPSolver`
 
 The tests run as traditional command line executables.
 Some tests are provided also as [Google Test] suites.

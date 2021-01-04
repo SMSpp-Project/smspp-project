@@ -75,7 +75,9 @@ add_subdirectory(LagBFunction)
 add_subdirectory(MCFMILP)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
-add_subdirectory(TUBMILP)
+
+# Solve several UC problems with MILPSolver and compare against known results
+add_subdirectory(UCMILP)
 
 # --------------------------------------------------------------------------- #
 # Just consuming these to avoid warnings
