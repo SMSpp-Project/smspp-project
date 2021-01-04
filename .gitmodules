@@ -45,4 +45,4 @@
 	url = https://gitlab.com/smspp/tests
 [submodule "MMCFBlock"]
 	path = MMCFBlock
-	url = ./MMCFBlock
+	url = https://gitlab.com/smspp/mmcfblock
