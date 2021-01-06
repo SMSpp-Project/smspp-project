@@ -3151,16 +3151,54 @@ it is straightforward to construct a vector of \code{AbstractPath}s to those
 \RowConstraints. By concatenating the sequence of nodes of all
 \code{AbstractPath}s, we would have the following vectors of size $3R$:
 \begin{align*}
-\cstr{PathNodeTypes} = ( & \text{`B'}, \text{`B'}, \text{`C'}, \dots,
-\text{`B'}, \text{`B'}, \text{`C'})\\
-\cstr{PathGroupIndices} = ( & 0, 0, 0, \dots, 0, i, 0,
-                            \dots, 0, R-1, 0 )\\
+\cstr{PathNodeTypes} = ( & \text{`B'}, \text{`B'}, \text{`C'}, \ \dots, \
+\text{`B'}, \text{`B'}, \text{`C'})\hspace{8.2cm}\\
+%\cstr{PathGroupIndices} = ( & 0, 0, 0, \dots, 0, 0, 0, \quad 0, 1, 0, \dots, 0, 1, 0, \quad \dots, \quad
+%0, H-1, 0, \dots, 0, H-1, 0)\\
+%
 \cstr{PathElementIndices} = (
-& \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_0-1,\\
-& \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_1-1,\\
+& \code{inf}, \code{inf}, 0, \ \dots, \ \code{inf}, \code{inf}, r_0-1,\\
+& \code{inf}, \code{inf}, 0, \ \dots, \ \code{inf}, \code{inf}, r_1-1,\\
 & \dots,\\
-& \code{inf}, \code{inf}, 0, \dots, \code{inf}, \code{inf}, r_{H-1}-1 ).
+& \code{inf}, \code{inf}, 0, \ \dots, \ \code{inf}, \code{inf}, r_{H-1}-1 )
 \end{align*}
+\[
+\cstr{PathGroupIndices} = (
+\begin{tikzpicture}[
+    baseline,
+    anchor=base,
+    label distance=10pt,
+  ]
+\tikzset{
+  s/.style={
+    set fill color=blue!0,
+    set border color=blue!0,
+}}
+\matrix [matrix of math nodes, row sep=0.1cm, column sep=0.1cm, outer ysep=0mm, inner ysep=0mm,] (P) {
+  \tikzmarkin[s]{P0}0, 0, 0, \ \dots, \ 0, 0, 0, \tikzmarkend{P0} & &
+  \tikzmarkin[s]{Pk}0, 1, 0, \ \dots, \ 0, 1, 0, \tikzmarkend{Pk} & \dots, &
+  \tikzmarkin[s]{PH}0, H-1, 0, \ \dots, \ 0, H-1, 0 \tikzmarkend{PH}\\
+};
+\node[
+  fit=(P-1-1)(P-1-1),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:$r_0$ times
+] {};
+\node[
+  fit=(P-1-3)(P-1-3),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:$r_1$ times
+] {};
+\node[
+  fit=(P-1-5)(P-1-5),
+  inner xsep=0,
+  below delimiter=\},
+  label=below:$r_{H-1}$ times
+] {};
+\end{tikzpicture} ).
+\]
 Since each \code{AbstractPath} has three nodes and there are a total of $R$
 \code{AbstractPath}s, we would have
 \[
@@ -3329,13 +3367,13 @@ of this \code{NetworkBlock} would be $N+1$. Therefore, the path from the
 For the \code{HydroUnitBlock}, we would have $\{8,9\}$ as the \code{SetFrom}.
 Since the inflow of a \code{HydroUnitBlock} is associated with a
 two-dimensional data structure, the specification of the \code{SetTo} is a
-little bit more complicated (but not too much). This data structure, let us
-call it \code{inflow}, is such that \code{inflow[i][t]} gives the inflow at
+little bit more complicated (but not too much). This data structure -- let us
+call it \code{inflow} -- is such that \code{inflow[i][t]} gives the inflow at
 reservoir $i$ at the inner stage $t$. As you may notice, a single inflow is
 identified by two indices (the index of the reservoir and the inner stage)
 while \code{SetTo} is a set of simple indices. So, we must convert a pair of
 indices into a single index. The conversion is made considering that a
-multi-dimensional structure is vectorized by making its last dimension varying
+multi-dimensional structure is vectorized by making its last dimension vary
 faster. This means that for a two-dimensional matrix $A$ with $m$ rows $a_0,
 \dots, a_{m-1}$ and $n$ columns, its vectorized form is given by arranging its
 rows in sequence: $( a_0 , a_1 , \dots, a_{m-1} )$. Then, the element at
@@ -3348,16 +3386,16 @@ the inner stage 15). Since the fourth \code{HydroUnitBlock} has $r_3$
 reservoirs and the inner time horizon is $T^{\text{in}}$, the data structure
 representing the inflows is a $r_3 \times T^{\text{in}}$ two-dimensional
 array. Thus, the single indices associated with $(1,0)$ and $(4,15)$ are
-$T^{\text{in}}$ and $4T^{\text{in}} + 15$, respectively. Thus, we would
-have $\{T^{\text{in}}, 4T^{\text{in}} + 15\}$ as the \code{SetTo}
-set. The name of the function that updates the inflow is
-\code{HydroUnitBlock::set\_inflow} and the data is of type \code{double}
-(indicated by `D'). Finally, we need to provide the path from the
-\code{BendersBlock} to this \code{HydroUnitBlock}. We are assuming that the
-\code{HydroSystemUnitBlock} is the first \Block in the
-\code{UCBlock}. Therefore, since our \code{HydroUnitBlock} of interest has
-index 3 (it is the fourth \code{HydroUnitBlock} of the
-\code{HydroSystemUnitBlock}), the path would be given by
+$T^{\text{in}}$ and $4T^{\text{in}} + 15$, respectively. Thus, we would have
+$\{T^{\text{in}}, 4T^{\text{in}} + 15\}$ as the \code{SetTo} set. The name of
+the function that updates the inflow is \code{HydroUnitBlock::set\_inflow} and
+the data is of type \code{double} (indicated by `D'). Finally, we need to
+provide the path from the \code{BendersBlock} to this
+\code{HydroUnitBlock}. We are assuming that the \code{HydroSystemUnitBlock} is
+the first \Block in the \code{UCBlock}. Therefore, since our
+\code{HydroUnitBlock} of interest has index 3 (it is the fourth
+\code{HydroUnitBlock} of the \code{HydroSystemUnitBlock}), the path would be
+given by
 \[
   O \rightarrow B(0) \rightarrow B(0) \rightarrow B(3).
 \]
