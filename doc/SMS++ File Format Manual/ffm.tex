@@ -3202,11 +3202,10 @@ it is straightforward to construct a vector of \code{AbstractPath}s to those
 \end{tikzpicture} ).
 \]
 Notice how \cstr{PathGroupIndices} is constructed. It is formed by $H-1$
-sub-vectors -- the $i$-th one being associated with the $i$-th
-\code{HydroUnitBlock}. The sub-vector associated with the $i$-th
-\code{HydroUnitBlock} has size $3r_i$ and is formed by concatenating $(0,i,0)$
-$r_i$ times. Since each \code{AbstractPath} has three nodes and there are a
-total of $R$ \code{AbstractPath}s, we would have
+sub-vectors. The $i$-th sub-vector is associated with the $i$-th
+\code{HydroUnitBlock}, has size $3r_i$, and is formed by concatenating
+$(0,i,0)$ $r_i$ times. Since each \code{AbstractPath} has three nodes and
+there are a total of $R$ \code{AbstractPath}s, we would have
 \[
 \cstr{PathDim} = R, \quad \cstr{TotalLength} = 3R, \quad \text{ and } \quad
 \cstr{PathStart} = (0, 3, 6, \dots, 3(R - 1)).
