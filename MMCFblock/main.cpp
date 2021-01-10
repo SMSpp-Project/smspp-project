@@ -53,27 +53,31 @@ char type = 's';     // type of the input file
 int main( int argc , char **argv )
 {
  if( argc != 3 ) {
-  cerr << "Usage: " << argv[ 0 ] << " LukFi_file_name NC4_file_name [NC4_file_name_2]" << endl;
+  cerr << "Usage: " << argc << " -- " << argv[ 0 ] << " MMCF_file_name NC4_file_name [NC4_file_name_2]" << endl;
   return( 1 );
   }
 
- ifstream ProbFile( argv[ 3 ] );
+ ifstream ProbFile( argv[ 2 ] );
  if( ! ProbFile.is_open() ) {
   cerr << "Error: cannot open file " << argv[ 1 ] << endl;
   return( 1 );
   }
 
  Block *sblock = Block::new_Block( "MMCFBlock" );
- ProbFile >> *sblock;
- cout << *sblock;
+ auto sMMCFblock = static_cast< MMCFBlock * >( sblock );
+ ProbFile >> *sMMCFblock;
+
+ char filetype = sMMCFblock->get_filetype();
+ sMMCFblock->MakeMMCF( argv[ 1 ] , filetype );
+ cout << *sMMCFblock;
 
  BlockSolverConfig * bsc = new BlockSolverConfig;
  ProbFile >> *( bsc );
 
- bsc->apply( sblock );
+ bsc->apply( sMMCFblock );
  delete bsc;
 
- Solver * slvr = (sblock->get_registered_solvers()).front();
+ Solver * slvr = (sMMCFblock->get_registered_solvers()).front();
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -89,15 +93,7 @@ int main( int argc , char **argv )
  LOGFile << std::endl << std::endl << "f* = "
 		 << slvr->get_lb() << " (optimal value)" << std::endl;
 
- // solve by MMCFSolver - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- auto sMMCFblock = static_cast< MMCFBlock * >( sblock );
-
- char filetype = sMMCFblock->get_filetype();
- string filename = sMMCFblock->get_filename();
-
- delete sblock;
+ delete sMMCFblock;
 
  return( 0 );
  }
