@@ -46,10 +46,10 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 # now all the double parameters
 # [none]
 
-0 # number of string parameters
+1 # number of string parameters
 
 # now all the string parameters
-# [none]
+strOutputFile	mmcf.lp
 
 0 # number of vector-of-int parameters
 
