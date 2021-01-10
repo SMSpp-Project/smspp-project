@@ -50,7 +50,10 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 
 # now all the string parameters
 strOutputFile	mmcf.lp
+<<<<<<< HEAD
 
+=======
+>>>>>>> 077c63a4489382cfa4145a1ebc0e97a27decb1a3
 
 0 # number of vector-of-int parameters
 
