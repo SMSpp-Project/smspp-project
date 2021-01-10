@@ -9,9 +9,12 @@
 *.obj
 *.ko
 *.elf
+BoxSolver/BoxSolver_test
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_UC/LDS_UC_test
 MCFMILP/MCFMILP_test
+MMCFblock/MMCFBlock_test
+MMCFblock/MMCFtest
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 

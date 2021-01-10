@@ -23,7 +23,7 @@ NAME = MMCFtest
 DIR = ./
 
 # debug switches
-SW = -g3 -fno-inline -std=c++17 -ferror-limit=1 -lz -lbz2
+SW = -g3 -fno-inline -std=c++17 -ferror-limit=1
 
 # production switches
 #SW = -O3 -DNDEBUG -std=c++17  
