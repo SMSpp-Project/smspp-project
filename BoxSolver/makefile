@@ -2,10 +2,10 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for core SMS++)                                        #
+#   makefile of test (for BoxSolver)                                         #
 #                                                                            #
-#                                VERSION 2.00                                #
-#                               12 - 11 - 2018                               #
+#                                VERSION 1.00                                #
+#                               10 - 01 - 2021                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -17,24 +17,26 @@
 ##############################################################################
 
 # module name
-NAME = MMCFtest
+NAME = BoxSolver_test
 
 # basic directory
 DIR = ./
 
 # debug switches
-SW = -g3 -fno-inline -std=c++17 -ferror-limit=1
-
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+# debug switches with address sanitizer and extra pedantic warning
+SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
+# production switches with address sanitizer
+#SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-#SW = -O3 -DNDEBUG -std=c++17  
+#SW = -O3 -std=c++17 -DNDEBUG
 
 # compiler
-#CC = /usr/local/Cellar/gcc/8.3.0_2/bin/g++-8 
-CC = clang++ 
+CC = clang++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-all default: $(NAME)
+default: $(NAME)
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -50,17 +52,8 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
-# MMCF
-libMMCFSDR = $(DIR)/MMCFClass/
-include $(libMMCFSDR)lib/makefile-inc
-
-# OPT*** stuff
-OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
-	 $(libMMCFSDR)OPTUtils/OPTvect.h
-OPTUxINC = -I$(libMMCFSDR)OPTUtils
-
-
-# core SMS++
+# not necessary, MILPSolver does that already
+# define input macros for SMS++ complete makefile, then include it
 #SMS++SDR = ../../SMS++/
 #include $(SMS++SDR)lib/makefile-inc
 
@@ -68,47 +61,28 @@ OPTUxINC = -I$(libMMCFSDR)OPTUtils
 MILPSSDR = ../../MILPSolver/
 include $(MILPSSDR)makefile-c
 
-# MMCFBlock
-MMCFSDR = ../../mmcfblock/
-include $(MMCFSDR)makefile-c
-
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ = $(MMCFOBJ)\
-       $(SMS++OBJ)\
-       $(MILPSOBJ)\
-       $(libMMCFOBJ)
+MOBJ =  $(MILPSOBJ)
 
 # libreries
-MLIB = $(SMS++LIB)\
-       $(MILPSLIB)\
-       $(MMCFLIB)\
-       $(libMMCFLIB)
+MLIB =  $(MILPSLIB)
 
-$(NAME): $(MOBJ) $(DIR)main.o 
-	$(CC) -o $(NAME) $(DIR)main.o $(MOBJ) $(MLIB) $(SW)
+$(NAME): $(MOBJ) $(DIR)test.o
+	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC = $(libMMCFINC)\
-       $(SMS++INC)\
-       $(MILPSINC)\
-       $(MMCFINC)\
-       $(OPTUxINC)
+MINC =  $(MILPSINC)
 
 # includes
-MH = $(SMS++H)\
-     $(MILPSH)\
-     $(MMCFH)\
-     $(libMMCFH)\
-     $(OPTUxH)  
+MH =    $(MILPSH)
 
 # compile command
 
-$(DIR)main.o: $(DIR)main.cpp $(MH) 
-	$(CC) -c $*.cpp -o $@ $(MINC) $(SW)
+$(DIR)test.o: $(DIR)test.cpp $(MH)
+	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
 
-############################ End of makefile ################################
-
+############################ End of makefile #################################
