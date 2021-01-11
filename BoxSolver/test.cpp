@@ -25,11 +25,9 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
-// 2 = + save LP file
-// 3 = + print data
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -100,10 +98,6 @@
 #include "LinearFunction.h"
 
 #include "OneVarConstraint.h"
-
-#if( LOG_LEVEL >= 2 )
- #include "MILPSolver.h"
-#endif
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -224,7 +218,7 @@ static void set_bounds( BoxConstraint & b )
  // they are taken in [ - 0.2 , 2 ] and [ -2 , 0.2 ] so that they do have
  // a small chance to overlap, either betweeb themselves or against the
  // "inherent" sign constraints
- RHSValue le = isfeas ? 0 : - 0.2;
+ RHSValue le = isfeas ? 0 : 0.2;
  RHSValue re = isfeas ? 2 : 2.2;
  if( isbndd ) {  // boundedness is required 
   auto x = static_cast< ColVariable * >( b.get_active_var( 0 ) );
@@ -391,7 +385,7 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-	   " seed [wchg nvar dens #rounds #chng %chng]"
+	   " seed [wchg nvar #rounds #chng %chng]"
  		<< endl <<
            "       wchg: what to change, coded bit-wise [3]"
 		<< endl <<
@@ -431,6 +425,19 @@ int main( int argc , char **argv )
   // choosing whether always bounded: toss a(n unbiased, two-sided) coin
  isbndd = ( dis( rg ) < 0.5 );
 
+ #if( LOG_LEVEL >= 1 )
+  if( minobj ) cout << "min"; else cout << "max";
+  cout << " ~ ";
+  if( isquad ) cout << "quad"; else cout << "lin";
+  cout << " ~ ";
+  if( isfeas ) cout << "feas"; else cout << "unfeas";
+  cout << " ~ ";
+  if( isbndd ) cout << "bndd"; else cout << "unbndd";
+  cout << endl;
+ #endif
+
+
+ 
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
