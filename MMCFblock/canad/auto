@@ -1,0 +1,57 @@
+#/bin/bash -l
+nice
+
+# the BlockSolverConfig is not a "differential" one: values are being set
+echo 0 > test.mmcf
+# number of (the names of) Solver in this BlockSolverConfig
+echo 1 >> test.mmcf
+# name of 1st Solver
+echo CPXMILPSolver >> test.mmcf
+# number of ComputeConfig in this BlockSolverConfig
+echo 1 >> test.mmcf
+# exact type of the ComputeConfig object
+echo ComputeConfig >> test.mmcf
+echo 1 >> test.mmcf
+# number of integer parameters
+echo 1 >> test.mmcf
+echo intLogVerb  0  >> test.mmcf
+# number of double parameters
+echo 0 >> test.mmcf
+# number of string parameters
+echo 0 >> test.mmcf
+# number of vector-of-int parameters
+echo 0 >> test.mmcf
+# number of vector-of-double parameters
+echo 0 >> test.mmcf
+# number of vector-of-string parameters
+echo 0 >> test.mmcf
+# pointer to the "extra" Configuration
+echo '*' >> test.mmcf
+# level of verbosity of MIP
+echo 0 >> test.mmcf
+# relative tolerance 
+echo 1e-8 >> test.mmcf
+# number of threads
+echo 1 >> test.mmcf
+# options of algorithm: a = primal , b = dual , c = barrier ,
+echo G >> test.mmcf
+# true if Populate is adopted
+echo 0 >> test.mmcf
+# true if Lazy constraints are used
+echo 0 >> test.mmcf
+# time limit
+echo 1000 >> test.mmcf
+# CPX_PARAM_PREIND: 0 false, 1 (default) true 
+echo 1 >> test.mmcf
+# CPX_PARAM_REPEATPRESOLVE: -1 	Automatic (default), 0 turn off, 1 .. 3 
+echo -1 >> test.mmcf
+# CPX_PARAM_PRESLVND: -1 No node presolve, 0 Automatic (default), 1..3   
+echo 0 >> test.mmcf
+# CPX_PARAM_REDUCE: 0 No , 1 primal red, 2 dual red, 3 Both primal and dual red (default) 
+echo 3 >> test.mmcf
+
+./run.bat
+
+
+#- - - - - - - - - - - - - - - End metabatch - - - - - - - - - - - - - - - -
+

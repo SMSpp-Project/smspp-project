@@ -9,12 +9,6 @@
 #   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# MMCFBlock parameters - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-s # instance type
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 0  # the BlockSolverConfig is not a "differential" one: values are being set
@@ -46,14 +40,10 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 # now all the double parameters
 # [none]
 
-1 # number of string parameters
+0 # number of string parameters
 
 # now all the string parameters
-strOutputFile	mmcf.lp
-<<<<<<< HEAD
-
-=======
->>>>>>> 077c63a4489382cfa4145a1ebc0e97a27decb1a3
+# strOutputFile	mmcf1.lp
 
 0 # number of vector-of-int parameters
 
@@ -76,6 +66,37 @@ strOutputFile	mmcf.lp
 # end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# MMCFCplex parameters - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+2     # level of verbosity of MIP
+1e-4  # relative tolerance 
+1     # number of threads 
+
+#  MMCFCple  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#     options of algorithm: a = primal , b = dual , c = barrier ,
+#     d = barrier + crossover , e = primal network, f = dual network ,
+#     A = B&B (Primal Simplex) ,
+#     B = B&B (Dual Simplex) , C = B&B (Network Simplex) , 
+#     D = B&B (Barrier) , E = B&B (Sifting) ,
+#     F = B&B (Concurrent (Dual, Barrier, and Primal) ) ,
+#     G = B&B (Let CPLEX choose) )
+
+G     # algorithm used
+
+0     # true, if Populate is adopted
+0     # true, if Lazy constraints is adopted
+
+1000  # time limit
+
+1     # CPX_PARAM_PREIND: 0 false, 1 (default) true 
+-1    # CPX_PARAM_REPEATPRESOLVE: -1 	Automatic (default), 0 turn off, 1 .. 3 
+0     # CPX_PARAM_PRESLVND: -1 No node presolve, 0 Automatic (default), 1..3   
+3     # CPX_PARAM_REDUCE: 0 No , 1 primal red, 2 dual red, 3 Both primal and dual red (default)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - END  test.mmcf  - - - - - - - - - - - - - - -
