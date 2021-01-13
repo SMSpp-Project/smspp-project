@@ -522,17 +522,43 @@ int main( int argc , char **argv )
     auto x = son->get_static_variable_v< ColVariable >( "x" );
     Subset nms( GenerateRand( nvar , ps ) );
     for( auto nm : nms )
-     *(vpit++) = coeff_pair( & (*x)[ i ] , get_coeff() );
+     *(vpit++) = coeff_pair( & (*x)[ nm ] , get_coeff() );
     }
 
    (*link)[ i ].set_function( new LinearFunction( std::move( vp ) ) );
-   if( dis( rg ) <= 0.33 )   // in 33% of the cases a <= constraint
-    (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
-   else
-    if( dis( rg ) <= 0.33 )  // in other 33% of the cases a >= constraint
+
+   //!! only "naturally >=" dual variables
+   /*!!
+   if( minobj ) {
+    if( dis( rg ) <= 0.50 ) {   // in 50% of the cases a >= constraint
      (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
-    else                     // in all other cases a == 0 constraint
+     (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
+     }
+    else                        // in all other cases a == 0 constraint
      (*link)[ i ].set_both( 0 );
+    }
+   else
+    if( dis( rg ) <= 0.50 ) {   // in 50% of the cases a <= constraint
+     (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
+     (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
+     }
+    else                        // in all other cases a == 0 constraint
+    !!*/
+     (*link)[ i ].set_both( 0 );
+    
+   /*!!
+   if( dis( rg ) <= 0.33 ) {   // in 33% of the cases a <= constraint
+    (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
+    (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
+     }
+   else
+    if( dis( rg ) <= 0.33 ) {  // in other 33% of the cases a >= constraint
+     (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
+     (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
+     }
+    else                       // in all other cases a == 0 constraint
+     (*link)[ i ].set_both( 0 );
+     !!*/
    }
 
   // set the linking constraints in the TestBlock

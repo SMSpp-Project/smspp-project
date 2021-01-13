@@ -152,6 +152,7 @@ Index nvar = 10;           // number of variables
 #endif
 
 bool minobj;               // whether min or max
+bool isint;                // whether integer-constrained
 bool isquad;               // whether lin or quad
 bool isfeas;               // whether always feasible
 bool isbndd;               // whether always bounded
@@ -210,6 +211,8 @@ static void set_bounds( ColVariable & x )
   x.is_positive( true , eNoMod );
  if( dis( rg ) < 0.15 )  // in 15% of the cases it is negative
   x.is_negative( true , eNoMod );
+ if( isint && ( dis( rg ) < 0.50 ) )  // in 50% of the cases it is integer
+  x.is_integer( true , eNoMod );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -427,12 +430,25 @@ int main( int argc , char **argv )
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
  //!!isquad = ( dis( rg ) < 0.5 );
  isquad = false;
-
+ // choosing whether integer or not: toss a(n unbiased, two-sided) coin
+ //!!isint = ( dis( rg ) < 0.5 );
+ isint = false;
+ // choosing whether always feasible or not: toss a(...) coin
+ isfeas = ( dis( rg ) < 0.5 );
+ // choosing whether always bounded or not: toss a(...) coin
+ isbndd = ( dis( rg ) < 0.5 );
+ 
  #if( LOG_LEVEL >= 1 )
   if( minobj ) cout << "min"; else cout << "max";
   cout << " ~ ";
   if( isquad ) cout << "quad"; else cout << "lin";
   cout << " ~ ";
+  if( isint ) cout << "int"; else cout << "cont";
+  cout << " ~ ";
+  if( isfeas ) cout << "feas"; else cout << "unfeas";
+  cout << " ~ ";
+  if( isbndd ) cout << "bndd"; else cout << "unbndd";
+  cout << endl;
  #endif
  
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
