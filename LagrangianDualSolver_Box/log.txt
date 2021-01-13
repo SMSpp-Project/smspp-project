@@ -1,0 +1,26 @@
+
+{1-0-0} t = 1.00e-04 ~ D*_1( z* ) = 0.00e+00 ~ Sigma = 0.00e+00
+            Fi undefined
+            New subgradient for Fi[ 0 ] ~ Alfa1 = -1.08e+00 ~ gd = -0.00e+00 stored in 0 (0)
+            New subgradient for Fi[ 1 ] ~ Alfa1 = -2.09e-01 ~ gd = -0.00e+00 stored in 1 (0)
+            Fi1 = 1.2860009531e+00 ~ Alfa1 = -1.29e+00 ~ Gi1xd = -0.00e+00
+            Fi1 defined ==> SS 
+
+{1-1-2} t = 1.00e+00 ~ D*_1( z* ) = 1.00e+00 ~ Sigma = 0.00e+00
+            Fi = 1.2860009531e+00 ~ eU = 7.78e+03
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 0.00e+00 ~ gd = -4.76e-02 is copy of 1 (0)
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 7.87e-01 ~ gd = -2.08e+00 stored in 2 (1)
+            Fi1 = 2.6294112490e+00 ~ Alfa1 = 7.87e-01 ~ Gi1xd = -4.17e+00
+
+ NS[0]: DFi = 1.34e+00 ~ Lw1(2.6294112490e+00) >= LwTrgt(-6.9627232096e-01) ~ Ht = 1.52e+00
+
+{1-2-3} t = 1.00e+00 ~ D*_1( z* ) = 3.63e-02 ~ Sigma = 3.09e-01
+            Fi = 1.2860009531e+00 ~ eU = 2.83e+02
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 0.00e+00 ~ gd = 3.90e-01 is copy of 0 (0)
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 0.00e+00 ~ gd = -9.06e-03 is copy of 1 (0)
+            Fi1 = 9.0461040422e-01 ~ Alfa1 = 0.00e+00 ~ Gi1xd = 7.81e-01
+
+ SS[0]: DFi = -3.81e-01 ~ Up1(9.0461040422e-01) <= UpTrgt(1.2821870476e+00) ~ Ht = 1.00e-04
+
+{1-3-3} t = 1.50e+00 ~ D*_1( z* ) = 0.00e+00 ~ Sigma = 1.65e-16
+            Fi = 9.0461040422e-01 ~ eU = 1.65e-16 ~ stop (optimal)

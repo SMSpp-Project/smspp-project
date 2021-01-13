@@ -435,6 +435,7 @@ int main( int argc , char **argv )
   case( 4 ): Str2Sthg( argv[ 3 ] , nvar );
   case( 3 ): Str2Sthg( argv[ 2 ] , wchg );
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
+   break;
  default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar nson dens #rounds #chng %chng]"
  		<< endl <<
@@ -525,10 +526,25 @@ int main( int argc , char **argv )
     }
 
    (*link)[ i ].set_function( new LinearFunction( std::move( vp ) ) );
+   if( dis( rg ) <= 0.33 )   // in 33% of the cases a <= constraint
+    (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
+   else
+    if( dis( rg ) <= 0.33 )  // in other 33% of the cases a >= constraint
+     (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
+    else                     // in all other cases a == 0 constraint
+     (*link)[ i ].set_both( 0 );
    }
 
   // set the linking constraints in the TestBlock
   TestBlock->add_static_constraint( *link , "link" );
+
+  //!! add an empty Objective; this should not be necessary, but
+  //!! MILPSolver currently fails to properly set the sense if the
+  //!! root Block does not have an Objective, even if empty
+  auto obj = new FRealObjective();
+  obj->set_function( new LinearFunction() );
+  obj->set_sense( minobj ? Objective::eMin : Objective::eMax , eNoMod );
+  TestBlock->set_objective( obj );
   }
 
  // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
@@ -539,7 +555,7 @@ int main( int argc , char **argv )
 
  BlockSolverConfig * bsc;
  {
-  auto c = Configuration::deserialize( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
+  auto c = Configuration::deserialize( "BSPar.txt" );
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
@@ -743,8 +759,8 @@ int main( int argc , char **argv )
 
  // this is not enough, though, because the BoxSolver have been registered
  // manually, so delete them manually now
- for( Index k = 0 ; k++ < nson ; )
-  TestBlock->get_nested_Block( k )->unregister_Solvers();
+ for( Index k = 0 ; k < nson ; )
+  TestBlock->get_nested_Block( k++ )->unregister_Solvers();
 
  // finally the AbstractBlock can be deleted
  delete TestBlock;
