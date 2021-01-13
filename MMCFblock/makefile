@@ -23,7 +23,7 @@ NAME = MMCFtest
 DIR = ./
 
 # debug switches
-SW = -g3 -fno-inline -std=c++17 -ferror-limit=1 -lz -lbz2
+SW = -g3 -fno-inline -std=c++17 -ferror-limit=1
 
 # production switches
 #SW = -O3 -DNDEBUG -std=c++17  
@@ -50,6 +50,16 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# MMCF
+libMMCFSDR = $(DIR)/MMCFClass/
+include $(libMMCFSDR)lib/makefile-inc
+
+# OPT*** stuff
+OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
+	 $(libMMCFSDR)OPTUtils/OPTvect.h
+OPTUxINC = -I$(libMMCFSDR)OPTUtils
+
+
 # core SMS++
 #SMS++SDR = ../../SMS++/
 #include $(SMS++SDR)lib/makefile-inc
@@ -65,10 +75,16 @@ include $(MMCFSDR)makefile-c
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ = $(MMCFOBJ) $(SMS++OBJ) $(MILPSOBJ)
+MOBJ = $(MMCFOBJ)\
+       $(SMS++OBJ)\
+       $(MILPSOBJ)\
+       $(libMMCFOBJ)
 
 # libreries
-MLIB = $(SMS++LIB) $(MILPSLIB) $(MMCFLIB)
+MLIB = $(SMS++LIB)\
+       $(MILPSLIB)\
+       $(MMCFLIB)\
+       $(libMMCFLIB)
 
 $(NAME): $(MOBJ) $(DIR)main.o 
 	$(CC) -o $(NAME) $(DIR)main.o $(MOBJ) $(MLIB) $(SW)
@@ -76,10 +92,18 @@ $(NAME): $(MOBJ) $(DIR)main.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC = $(SMS++INC) $(MILPSINC) $(MMCFINC)
+MINC = $(libMMCFINC)\
+       $(SMS++INC)\
+       $(MILPSINC)\
+       $(MMCFINC)\
+       $(OPTUxINC)
 
 # includes
-MH = $(SMS++H) $(MILPSH) $(MMCFH) 
+MH = $(SMS++H)\
+     $(MILPSH)\
+     $(MMCFH)\
+     $(libMMCFH)\
+     $(OPTUxH)  
 
 # compile command
 
