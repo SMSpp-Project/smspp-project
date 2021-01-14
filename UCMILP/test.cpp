@@ -184,7 +184,7 @@ TEST_P ( UCMILPTest, Solve ) {
  int status = solver->compute();
  ASSERT_EQ( status, Solver::kOK );
 
- auto error = 1e-8;
+ auto error = 1e-4;
  const auto ub = GetParam().ub;
  EXPECT_NEAR( ub, solver->get_ub(), error );
 }
@@ -205,9 +205,57 @@ TEST_P ( UCMILPTest, Solve ) {
 INSTANTIATE_TEST_SUITE_P( UCMILPTests,
                           UCMILPTest,
                           ::testing::Values(  // file, ub
-                           TestParameter{ "data/InputData_TestCase1.nc", 27862915 },
-                           TestParameter{ "data/nowind.nc4", 29197370 },
-                           TestParameter{ "data/TestCase1RES.nc4", 2913975 }
+                          TestParameter{ "data/bus/InputData_TestCase1.nc", 29197370 },
+                           TestParameter{ "data/bus/nowind.nc4", 2913975.2703765822 },
+                           TestParameter{ "data/bus/TestCase1RES.nc4", 27862915 },
+                           TestParameter{ "data/bus/20090907_noHydro_none.nc4", 16496061.862973599 },
+                           TestParameter{ "data/bus/20090907_noHydro_prim.nc4", 16515189.748169417 },
+                           TestParameter{ "data/bus/20090907_noHydro_PplusS.nc4", 16524705.871391438 },
+                           TestParameter{ "data/bus/20091005_noHydro_none.nc4", 16813204.66119789 },
+                           TestParameter{ "data/bus/20091005_noHydro_prim.nc4", 16833330.135148738 },
+                           TestParameter{ "data/bus/20091005_noHydro_PplusS.nc4", 16839922.353689693 },
+                           TestParameter{ "data/bus/20100311_noHydro_none.nc4", 28100596.369223103 },
+                           TestParameter{ "data/bus/20100311_noHydro_prim.nc4", 28279997.217679787 },
+                           TestParameter{ "data/bus/20100311_noHydro_PplusS.nc4", 28387334.970608912 },
+                           TestParameter{ "data/bus/20100323_noHydro_none.nc4", 22086483.002185054 },
+                           TestParameter{ "data/bus/20100323_noHydro_prim.nc4", 22194613.607022248 },
+                           TestParameter{ "data/bus/20100323_noHydro_PplusS.nc4", 22260871.451456014 },
+                           TestParameter{ "data/bus/20100623_noHydro_none.nc4", 16650367.054579698 },
+                           TestParameter{ "data/bus/20100623_noHydro_prim.nc4", 16667146.884921743 },
+                           TestParameter{ "data/bus/20100623_noHydro_PplusS.nc4", 16676595.032141121 },
+                           TestParameter{ "data/bus/20090907_pHydro_1_none.nc4", 16411264.127826694 },
+                           TestParameter{ "data/bus/20090907_pHydro_2_none.nc4", 16411264.127826694 },
+                           TestParameter{ "data/bus/20090907_pHydro_3_none.nc4", 16175748.923443241 },
+                           TestParameter{ "data/bus/20090907_pHydro_1A_none.nc4", 16463300.568516795 },
+                           TestParameter{ "data/bus/20090907_pHydro_2block_withP_none.nc4", 16441192.467556689 },
+                           TestParameter{ "data/bus/Input_simplified.nc4", 67462862.591071039 },
+                           TestParameter{ "data/bus/InputData_Sysflex.nc4", 52450805.457220048 },
+                           TestParameter{ "data/bus/InputData_Sysflex_V1.nc4", 138317912.23035586 },
+                           TestParameter{ "data/bus/InputData_Sysflex_V2.nc4", 76083387.511754155 },
+                         //TestParameter{ "data/bus/InputData_Sysflex_V3.nc4",  77789285.5},
+                           TestParameter{ "data/bus/InputData_Sysflex_V4.nc4", 140717780.21067753 },
+                           TestParameter{ "data/bus/PublicFrance1Day.nc4", 33252650.6 },
+                       //  TestParameter{ "data/bus/PublicFrance1DayWithPr-Sc-In.nc4", 162473734.59061778},
+                       //  TestParameter{ "data/bus/PublicFrance1DayWith5Pr-1Sc-1In.nc4", 162473734.5906 },
+                           TestParameter{ "data/bus/PublicFrance1DayWith5Pr-4Sc-2In.nc4", 162473734.59061778 },
+                           TestParameter{ "data/HVDC/PublicCountries1Day.nc4", 3478981001.3141098 },
+                           TestParameter{ "data/HVDC/PublicCountries1DayWithPr.nc4",  3478984002.981585},
+                           TestParameter{ "data/HVDC/PublicCountries1DayWith4Pr.nc4", 3502239238.8164968 },
+                           TestParameter{ "data/HVDC/PublicCountries1DayWithPr-Sc.nc4", 3479149264.2781839 },
+                           TestParameter{ "data/HVDC/PublicCountries1DayWithPr-Sc-In.nc4", 3479256187.856719 },
+                           TestParameter{ "data/HVDC/PublicCountries1DayWith4Pr-6Sc.nc4", 3581497827.0875959 },
+                           TestParameter{ "data/HVDC/PublicCountries1DayWith4Pr-6Sc-3In.nc4", 3549723954.2646852 },
+                           TestParameter{ "data/HVDC/test1.nc4", 373764825.4381 },
+                           TestParameter{ "data/HVDC/test2.nc4", 419791455.0002 },
+                           TestParameter{ "data/HVDC/test3.nc4", 664474090.5224 },
+                           TestParameter{ "data/HVDC/test4.nc4", -3179819037.1161385},
+                           TestParameter{ "data/HVDC/test5.nc4", -3180068243.1455112 },
+                           TestParameter{ "data/HVDC/test6.nc4", -3168655601.564 },
+                           TestParameter{ "data/HVDC/test7.nc4", -3166626247.773 },
+                           TestParameter{ "data/HVDC/test8.nc4",  -1128391550.157 }
+                          // TestParameter{ "data/HVDC/test_jdd0.nc4", -3183551850 },
+                          // TestParameter{ "data/HVDC/test_jdd1.nc4", -3170270040 },
+                          // TestParameter{ "data/HVDC/test_jdd2.nc4",  -1612786730}
                           ),
                           UCMILPTest::PrintToStringParamName() );
 
