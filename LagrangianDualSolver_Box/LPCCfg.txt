@@ -29,10 +29,10 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 # now all the double parameters
 # [none]
 
-1 # number of string parameters
+0 # number of string parameters
 
 # now all the string parameters
-strOutputFile	box.lp
+#strOutputFile	box.lp
 # [none]
 
 0 # number of vector-of-int parameters

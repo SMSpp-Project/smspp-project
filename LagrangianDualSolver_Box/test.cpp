@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 4
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -475,7 +475,8 @@ int main( int argc , char **argv )
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // choosing whether min or max: toss a(n unbiased, two-sided) coin
- minobj = ( dis( rg ) < 0.5 );
+ //!!minobj = ( dis( rg ) < 0.5 );
+ minobj = false;
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
  //!!isquad = ( dis( rg ) < 0.5 );
  isquad = false;
@@ -528,23 +529,14 @@ int main( int argc , char **argv )
    (*link)[ i ].set_function( new LinearFunction( std::move( vp ) ) );
 
    //!! only "naturally >=" dual variables
-   /*!!
    if( minobj ) {
-    if( dis( rg ) <= 0.50 ) {   // in 50% of the cases a >= constraint
-     (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
-     (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
-     }
-    else                        // in all other cases a == 0 constraint
-     (*link)[ i ].set_both( 0 );
+    (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
+    (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
     }
-   else
-    if( dis( rg ) <= 0.50 ) {   // in 50% of the cases a <= constraint
-     (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
-     (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
-     }
-    else                        // in all other cases a == 0 constraint
-    !!*/
-     (*link)[ i ].set_both( 0 );
+   else {   // in 50% of the cases a <= constraint
+    (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
+    (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
+    }
     
    /*!!
    if( dis( rg ) <= 0.33 ) {   // in 33% of the cases a <= constraint

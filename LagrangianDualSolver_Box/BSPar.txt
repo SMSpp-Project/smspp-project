@@ -39,12 +39,17 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-22 # number of integer parameters
+24 # number of integer parameters
 
 # now all the integer parameters
+# first those of LagrangianDualSolver proper
+int_LDSlv_iBCopy   0   # 1 if sub-Block must be R3B-copied
+int_LDSlv_NNMult   0   # 1 if Lagrangian multipliers must be >= 0
+
+# then those of BundleSolver as its inner Solver
 intDoEasy  0      # do not do easy components even for LagBFunction
-intMaxIter 100000 # MaxIter, max number of iterations for each call
-intLogVerb 4      # LogVerb, log verbosity of main Bundle algorithm
+intMaxIter 10000  # MaxIter, max number of iterations for each call
+intLogVerb 5      # LogVerb, log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -101,7 +106,11 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 1 # number of string parameters
 
 # now all the string parameters
+# first those of LagrangianDualSolver proper
 str_LDSlv_ISName	BundleSolver  # the inner Solver used by LagrangianDualSolver
+
+# then those of BundleSolver as its inner Solver
+# [none]
 
 # note that we could eof() the file here since the rest is all empty
 

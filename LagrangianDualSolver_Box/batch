@@ -3,11 +3,12 @@
 what=3
 iter=0
 
-for nvar in 2 10 50 100
+#for nvar in 2 10 50 100
+for nvar in 2 10 50
 do
-for nson in 2 5 10 20
+for nson in 2 9 20
 do
-for dens in 0.1 0.2 0.3
+for dens in 0.1 0.3
 do
 for (( seed=0 ; seed<20 ; seed++ ))
 do
