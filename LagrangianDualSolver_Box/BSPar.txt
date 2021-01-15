@@ -44,7 +44,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # now all the integer parameters
 # first those of LagrangianDualSolver proper
 int_LDSlv_iBCopy   0   # 1 if sub-Block must be R3B-copied
-int_LDSlv_NNMult   0   # 1 if Lagrangian multipliers must be >= 0
+int_LDSlv_NNMult   1   # 1 if Lagrangian multipliers must be >= 0
 
 # then those of BundleSolver as its inner Solver
 intDoEasy  0      # do not do easy components even for LagBFunction

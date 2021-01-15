@@ -419,7 +419,7 @@ int main( int argc , char **argv )
  assert( SKIP_BEAT >= 0 );
 
  long int seed = 0;
- Index wchg = 7;
+ Index wchg = 15;
  Index nson = 2;
  double dens = 0.1;
  double p_change = 0.5;
@@ -439,9 +439,11 @@ int main( int argc , char **argv )
  default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar nson dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [7]"
+           "       wchg: what to change, coded bit-wise [17]"
 		<< endl <<
-           "             0 = bounds, 1 = objective, 2 = linking const "
+           "             0 = bounds, 1 = objective"
+		<< endl <<
+           "             2 = linking coefficients, 3 = linking lhs/rhs"
 		<< endl <<
            "       nvar: number of variables [10]"
 		<< endl <<
@@ -528,17 +530,6 @@ int main( int argc , char **argv )
 
    (*link)[ i ].set_function( new LinearFunction( std::move( vp ) ) );
 
-   //!! only "naturally >=" dual variables
-   if( minobj ) {
-    (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
-    (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
-    }
-   else {   // in 50% of the cases a <= constraint
-    (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
-    (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
-    }
-    
-   /*!!
    if( dis( rg ) <= 0.33 ) {   // in 33% of the cases a <= constraint
     (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
     (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
@@ -550,7 +541,6 @@ int main( int argc , char **argv )
      }
     else                       // in all other cases a == 0 constraint
      (*link)[ i ].set_both( 0 );
-     !!*/
    }
 
   // set the linking constraints in the TestBlock
@@ -746,6 +736,34 @@ int main( int argc , char **argv )
      else
       lf->modify_coefficients( std::move( NC ) , std::move( nmsn ) );
      }
+    }
+   }
+
+  // change linking lhs/rhs - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " lhs/rhs" );
+
+    double prob = double( tochange ) / double( m );
+    auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link"
+								      );
+   for( auto & li : *link ) {
+    if( dis( rg ) > prob )
+     continue;
+
+    auto lhs = li.get_lhs();
+    auto rhs = li.get_lhs();
+    if( lhs == rhs )
+     continue;
+
+    if( lhs == -INF )
+     li.set_rhs( dis( rg ) );
+    else
+     li.set_lhs( - dis( rg ) );
+
+     if( ! --tochange )
+      break;
     }
    }
 
