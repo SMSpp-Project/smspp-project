@@ -2,17 +2,23 @@
 /*-------------------------- File test.cpp ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Main for testing BoxSolver
+ * Main for testing LagrangianDualSolver with BoxSolver
  *
- * A random "box-only" AbstractBlock with separable Objective (a
- * FRealObjective with either a LinearFunction or a DQuadFunction inside) is
- * constructed and solved with a BoxSolver and a :MILPSolver; the results
- * are compared. The Block is then repeatedly randomly modified and
- * re-solved several times.
+ * A "very simple structured" AbstractBlock is constructed, formed of k
+ * sub-AbstractBlock with n variables each, only box constraints and
+ * separable Objective (FRealObjective with a LinearFunction or DQuadFunction
+ * inside). m linking constraints are constructed in the father, which has no
+ * Variable an no Objective of its own. Two different Solver are registered
+ * to the AbstractBlock, the second of which is assumed to be a
+ * LagrangianDualSolver (which does not BlockSolverConfig the
+ * sub-AbstractBlock because the main directly registers BoxSolver to them).
+ * The AbstractBlock is solved by the Solver and the results are compared.
+ * The AbstractBlock is repeatedly randomly modified and re-solved several
+ * times.
  *
- * \version 1.00
+ * \version 0.10
  *
- * \date 10 - 01 - 2021
+ * \date 12 - 01 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -25,30 +31,41 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
+// 2 = + solver log
+// 3 = + save LP file
+// 4 = + print data
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
  #define CLOG1( y , x ) if( y ) cout << x
+
+ #if( LOG_LEVEL >= 2 )
+  #define LOG_ON_COUT 0
+  // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
+  // rather than on a file
+ #endif
 #else
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the BoxSolver is detached and re-attached at all iterations
+// if nonzero, the 1st Solver attched to the AbstractBlock is detached
+// and re-attached to it at all iterations
 
-#define DETACH_BOX 0
+#define DETACH_1ST 0
 
-// if nonzero, the MILPSolver is detached and re-attached at all iterations
+// if nonzero, the 2nd Solver attched to the AbstractBlock is detached and
+// re-attached to it at all iterations
 
-#define DETACH_LP 0
+#define DETACH_2ND 0
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Block is not solved at every round of changes, but only
-// every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
+// if nonzero, the AbstractBlock is not solved at every round of changes, but
+// only every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
 // therefore puts more pressure on the Modification handling of the Solver
 // (in case this tries to do "smart" things rather than dumbly processing
 // each one in turn)
@@ -70,11 +87,6 @@
  #define GREEN( x ) #x
 #endif
 
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-
-#define DYNAMIC_VARS 0
-// if 1, half of the variables are dynamic
-
 /*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -92,6 +104,8 @@
 #include "BoxSolver.h"
 
 #include "FRealObjective.h"
+
+#include "FRowConstraint.h"
 
 #include "DQuadFunction.h"
 
@@ -135,29 +149,21 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
+const char *const logF = "log.txt";
+
 static constexpr FunctionValue INF = Inf< RHSValue >();
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- GLOBALS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-AbstractBlock * BoxBlock;  // the "box" Block
+AbstractBlock * TestBlock;  // the AbstractBlock that is solved
+Index nvar = 10;            // number of variables
 
-Index nvar = 10;           // number of variables
-#if DYNAMIC_VARS > 0
- Index nsvar;              // number of static variables
- Index ndvar;              // number of dynamic variables
-#else
- #define nsvar nvar        // all variables are static
-#endif
+bool minobj;                // whether min or max
+bool isquad;                // whether lin or quad
 
-bool minobj;               // whether min or max
-bool isint;                // whether integer-constrained
-bool isquad;               // whether lin or quad
-bool isfeas;               // whether always feasible
-bool isbndd;               // whether always bounded
-
-std::mt19937 rg;           // base random generator
+std::mt19937 rg;            // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 
 /*--------------------------------------------------------------------------*/
@@ -203,52 +209,14 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
-static void set_bounds( ColVariable & x )
-{
- if( dis( rg ) < 0.25 )  // in 25% of the cases it is in [ -1 , 1 ]
-  x.is_unitary( true , eNoMod );
- if( dis( rg ) < 0.15 )  // in 15% of the cases it is positive
-  x.is_positive( true , eNoMod );
- if( dis( rg ) < 0.15 )  // in 15% of the cases it is negative
-  x.is_negative( true , eNoMod );
- if( isint && ( dis( rg ) < 0.50 ) )  // in 50% of the cases it is integer
-  x.is_integer( true , eNoMod );
- }
-
-/*--------------------------------------------------------------------------*/
-
 static void set_bounds( BoxConstraint & b )
 {
- RHSValue l = -INF;
- RHSValue u = INF;
- // if feasibility has to be guaranteed the upper bound is taken in
- // [ 0 , 2 ] and the lower bound in [ -2 , 0 ] so that they do not
- // contrast (and they are 50% of the times active against the "inherent"
- // upper and lower bound of 1 and -1, respectively, if any); otherwise
- // they are taken in [ - 0.2 , 2 ] and [ -2 , 0.2 ] so that they do have
- // a small chance to overlap, either betweeb themselves or against the
- // "inherent" sign constraints
- RHSValue le = isfeas ? 0 : 0.2;
- RHSValue re = isfeas ? 2 : 2.2;
- if( isbndd ) {  // boundedness is required 
-  auto x = static_cast< ColVariable * >( b.get_active_var( 0 ) );
-  // if there is no "inherent" lower bound, and anyway in 60% of the cases
-  if( ( x->get_lb() == -INF ) || ( dis( rg ) < 0.60 ) )
-   l = - re * dis( rg ) + le;  // generate a LB
-  // if there is no "inherent" upper bound, and anyway in 60% of the cases
-  if( ( x->get_ub() == INF ) || ( dis( rg ) < 0.60 ) )
-   u = re * dis( rg ) - le;    // generate an UB
-  }
- else {
-  if( dis( rg ) < 0.60 )       // in 60% of the cases,
-   l = - re * dis( rg ) + le;  // generate a LB
-  if( dis( rg ) < 0.60 )       // in 60% of the cases,
-   u = re * dis( rg ) - le;    // generate an UB
-  }
- if( l > -INF )                // if a LB is generated
-  b.set_lhs( l );              // set it
- if( u < INF )                 // if an UB is generated
-  b.set_rhs( u );              // set it
+ // the upper bound is taken in [ 0 , 2 ] and the lower bound in [ -2 , 0 ]
+ // so that they do not contrast, 0 is always feasible and it never is
+ // unbounded
+
+ b.set_lhs( - 2 * dis( rg ) );
+ b.set_rhs( 2 * dis( rg ) );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -284,7 +252,7 @@ static void set_quad_c( FunctionValue & a )
    a = -a;
   }
  }
- 
+
 /*--------------------------------------------------------------------------*/
 
 static void set_quad( ColVariable & x , coeff_triple & t )
@@ -304,25 +272,96 @@ static void set_lin( ColVariable & x , coeff_pair & p )
 
 /*--------------------------------------------------------------------------*/
 
+static AbstractBlock * construct_son( void )
+{
+ auto BoxBlock = new AbstractBlock();
+
+ // construct the Variable
+ auto x = new std::vector< ColVariable >( nvar );
+
+ // set the Variable in the BoxBlock
+ BoxBlock->add_static_variable( *x , "x" );
+
+ // construct the OneVarConstraint
+ auto box = new std::vector< BoxConstraint >( nvar );
+
+ auto boxit = box->begin();
+ for( auto & xi : *x )
+  set_bounds( xi , *(boxit++) );
+
+ // set the OneVarConstraint in the BoxBlock
+ BoxBlock->add_static_constraint( *box , "box" );
+
+ // construct the Objective
+ auto obj = new FRealObjective();
+ Function *f;
+ if( isquad ) {  // quadratic objective
+  v_coeff_triple vt( nvar );
+  auto vit = vt.begin();
+  for( auto & xi : *x )
+   set_quad( xi , *(vit++) );
+
+  f = new DQuadFunction( std::move( vt ) );
+  }
+ else {          // linear objective
+  v_coeff_pair vp( nvar );
+  auto vit = vp.begin();
+  for( auto & xi : *x )
+   set_lin( xi , *(vit++) );
+
+  f = new LinearFunction( std::move( vp ) );
+  }
+
+ obj->set_function( f );
+ obj->set_sense( minobj ? Objective::eMin : Objective::eMax , eNoMod );
+  
+ // set the Objective in the AbstractBlock
+ BoxBlock->set_objective( obj );
+
+ //!! check the AbstractBlock
+ BoxBlock->is_correct();
+
+ return( BoxBlock );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static FunctionValue get_coeff( void )
+{
+ // linking constraints coefficients are random in [ -1 , 1 ]
+ return( 2 * dis( rg ) - 1 );
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static bool SolveBoth( void ) 
 {
  try {
-  // solve with the :MILP Solver- - - - - - - - - - - - - - - - - - - - - - -
-  Solver * Slvr1 = BoxBlock->get_registered_solvers().front();
-  #if DETACH_MILP
-   BoxBlock->unregister_Solver( Slvr1 );
-   BoxBlock->register_Solver( Slvr1 , true );  // push it to the front
+  // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
+  Solver * Slvr1 = TestBlock->get_registered_solvers().front();
+  #if DETACH_1ST
+   TestBlock->unregister_Solver( Slvr1 );
+   TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_lb() : -INF;
 
-  // solve with the Box Solver- - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * Slvr2 = BoxBlock->get_registered_solvers().back();
-  #if DETACH_BOX
-   BoxBlock->unregister_Solver( Slvr2 );
-   BoxBlock->register_Solver( Slvr2 );  // push it to the back
+  if( TestBlock->get_registered_solvers().size() == 1 ) {
+   #if( LOG_LEVEL >= 1 )
+    cout << "Solver = ";
+    PrintResults( hs1st , rtrn1st , fo1st );
+    cout << endl;
+   #endif
+   return( true );
+   }
+
+  // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
+  Solver * Slvr2 = TestBlock->get_registered_solvers().back();
+  #if DETACH_2ND
+   TestBlock->unregister_Solver( Slvr2 );
+   TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
   int rtrn2nd = Slvr2->compute( false );
 
@@ -350,10 +389,10 @@ static bool SolveBoth( void )
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "MILP = ";
+   cout << "Solver1 = ";
     PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ BOX = ";
+   cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif
@@ -380,33 +419,43 @@ int main( int argc , char **argv )
  assert( SKIP_BEAT >= 0 );
 
  long int seed = 0;
- Index wchg = 3;
- double p_change = 0.6;
+ Index wchg = 15;
+ Index nson = 2;
+ double dens = 0.1;
+ double p_change = 0.5;
  Index n_change = 10;
- Index n_repeat = 100;
+ Index n_repeat = 40;
 
  switch( argc ) {
-  case( 7 ): Str2Sthg( argv[ 6 ] , p_change );
-  case( 6 ): Str2Sthg( argv[ 5 ] , n_change );
-  case( 5 ): Str2Sthg( argv[ 4 ] , n_repeat );
+  case( 9 ): Str2Sthg( argv[ 8 ] , p_change );
+  case( 8 ): Str2Sthg( argv[ 7 ] , n_change );
+  case( 7 ): Str2Sthg( argv[ 6 ] , n_repeat );
+  case( 6 ): Str2Sthg( argv[ 5 ] , dens );
+  case( 5 ): Str2Sthg( argv[ 4 ] , nson );
   case( 4 ): Str2Sthg( argv[ 3 ] , nvar );
   case( 3 ): Str2Sthg( argv[ 2 ] , wchg );
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
-             break;
-  default: cerr << "Usage: " << argv[ 0 ] <<
-	   " seed [wchg nvar #rounds #chng %chng]"
+   break;
+ default: cerr << "Usage: " << argv[ 0 ] <<
+	   " seed [wchg nvar nson dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [3]"
+           "       wchg: what to change, coded bit-wise [17]"
 		<< endl <<
-           "             0 = bounds, 1 = objective "
+           "             0 = bounds, 1 = objective"
+		<< endl <<
+           "             2 = linking coefficients, 3 = linking lhs/rhs"
 		<< endl <<
            "       nvar: number of variables [10]"
+		<< endl <<
+           "       nson: number of sub-Block [2]"
+		<< endl <<
+           "       dens: number of constraints, fraction of nvar * nson [0.1]"
 	        << endl <<
-           "       #rounds: how many iterations [100]"
+           "       #rounds: how many iterations [40]"
 	        << endl <<
            "       #chng: number changes [10]"
 	        << endl <<
-           "       %chng: probability of changing [0.6]"
+           "       %chng: probability of changing [0.5]"
 	        << endl;
 	   return( 1 );
   }
@@ -416,39 +465,29 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- #if DYNAMIC_VARS > 0
-  nsvar = nvar / 2;      // half of the variables are dynamic
-  ndvar = nvar - nsvar;  // the other half are static
- #endif
+ if( nson < 1 ) {
+  cout << "error: nson too small";
+  exit( 1 );
+  }
+
+ Index m = std::max( Index( ( nvar * nson ) * dens ) , Index( 1 ) );
 
  rg.seed( seed );  // seed the pseudo-random number generator
 
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // choosing whether min or max: toss a(n unbiased, two-sided) coin
- minobj = ( dis( rg ) < 0.5 );
+ //!!minobj = ( dis( rg ) < 0.5 );
+ minobj = false;
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
  //!!isquad = ( dis( rg ) < 0.5 );
  isquad = false;
- // choosing whether integer or not: toss a(n unbiased, two-sided) coin
- //!!isint = ( dis( rg ) < 0.5 );
- isint = false;
- // choosing whether always feasible or not: toss a(...) coin
- isfeas = ( dis( rg ) < 0.5 );
- // choosing whether always bounded or not: toss a(...) coin
- isbndd = ( dis( rg ) < 0.5 );
- 
+
  #if( LOG_LEVEL >= 1 )
   if( minobj ) cout << "min"; else cout << "max";
   cout << " ~ ";
   if( isquad ) cout << "quad"; else cout << "lin";
   cout << " ~ ";
-  if( isint ) cout << "int"; else cout << "cont";
-  cout << " ~ ";
-  if( isfeas ) cout << "feas"; else cout << "unfeas";
-  cout << " ~ ";
-  if( isbndd ) cout << "bndd"; else cout << "unbndd";
-  cout << endl;
  #endif
  
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
@@ -458,111 +497,106 @@ int main( int argc , char **argv )
   // ensure all original pointers go out of scope immediately after that
   // the construction has finished
 
-  BoxBlock = new AbstractBlock();
+  TestBlock = new AbstractBlock();
 
-  // construct the Variable
-  auto x = new std::vector< ColVariable >( nsvar );
-  #if DYNAMIC_VARS > 0
-   auto xd = new std::list< ColVariable >( ndvar );
-  #endif
-
-  // set the "inherent" bounds on the Variable
-  for( auto & xi : *x )
-   set_bounds( xi );
-	   
-  #if DYNAMIC_VARS > 0
-   for( auto & xi : *xd )
-    set_bounds( xi );
-  #endif
-
-  // set the Variable in the BoxBlock
-  BoxBlock->add_static_variable( *x , "x" );
-  #if DYNAMIC_VARS > 0
-   BoxBlock->add_dynamic_variable( *xd , "xd" );
-  #endif
-
-   // construct the OneVarConstraint
-  auto box = new std::vector< BoxConstraint >( nsvar );
-  #if DYNAMIC_VARS > 0
-   auto boxd = new std::list< BoxConstraint >( ndvar );
-  #endif
-
-  auto boxit = box->begin();
-  for( auto & xi : *x )
-   set_bounds( xi , *(boxit++) );
-
-  #if DYNAMIC_VARS > 0
-   auto boxdit = boxd->begin();
-   for( auto & xi : *xd )
-    set_bounds( xi , *(boxdit++) );
-  #endif
-
-  // set the OneVarConstraint in the BoxBlock
-  BoxBlock->add_static_constraint( *box , "box" );
-  #if DYNAMIC_VARS > 0
-   BoxBlock->add_dynamic_constraint( *boxd , "boxd" );
-  #endif
-
-  // construct the Objective
-  auto obj = new FRealObjective();
-  Function *f;
-  if( isquad ) {  // quadratic objective
-   v_coeff_triple vt( nvar );
-   auto vit = vt.begin();
-   for( auto & xi : *x )
-    set_quad( xi , *(vit++) );
-   #if DYNAMIC_VARS > 0
-    for( auto & xi : *xd )
-     set_quad( xi , *(vit++) );
-   #endif
-
-   f = new DQuadFunction( std::move( vt ) );
-   }
-  else {          // linear objective
-   v_coeff_pair vp( nvar );
-   auto vit = vp.begin();
-   for( auto & xi : *x )
-    set_lin( xi , *(vit++) );
-   #if DYNAMIC_VARS > 0
-    for( auto & xi : *xd )
-     set_lin( xi , *(vit++) );
-   #endif
-
-   f = new LinearFunction( std::move( vp ) );
+  // create the sub-Block and add them;
+  // meanwhile, register a BoxSolver to each
+  for( Index k = 0 ; k++ < nson ; ) {
+   auto son = construct_son();
+   auto bs = new BoxSolver;
+   bs->set_sol( 1 );  // primal solutions need be computed
+   son->register_Solver( bs );
+   TestBlock->add_nested_Block( son );
    }
 
-  obj->set_function( f );
-  obj->set_sense( minobj ? Objective::eMin : Objective::eMax , eNoMod );
+  // create m the linking constraints
+  auto link = new std::vector< FRowConstraint >( m );
+
+   // each constraint will have at least one and at most 25% of the
+   // ColVariable in each son
+  Index ps = std::max( Index( 1 ) , nvar / 4 );
   
-  // set the Objective in the AbstractBlock
-  BoxBlock->set_objective( obj );
+  for( Index i = 0 ; i < m ; ++i ) {
+   LinearFunction::v_coeff_pair vp( ps * nson );
+   auto vpit = vp.begin();
 
-  //!! check the AbstractBlock
-  BoxBlock->is_correct();
-  }
+   for( Index k = 0 ; k < nson ; ++k ) {
+    auto son = TestBlock->get_nested_Block( k );
+    auto x = son->get_static_variable_v< ColVariable >( "x" );
+    Subset nms( GenerateRand( nvar , ps ) );
+    for( auto nm : nms )
+     *(vpit++) = coeff_pair( & (*x)[ nm ] , get_coeff() );
+    }
 
- // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   (*link)[ i ].set_function( new LinearFunction( std::move( vp ) ) );
 
- {
-  // for the:MILPSolver do this by reading an appropriate BlockSolverConfig
-  // from file and apply() it to the LPBlock
-  ifstream LPParFile( "LPPar.txt" );
-  if( ! LPParFile.is_open() ) {
-   cerr << "Error: cannot open file LPPar.txt" << endl;
-   return( 1 );
+   if( dis( rg ) <= 0.33 ) {   // in 33% of the cases a <= constraint
+    (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
+    (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
+     }
+   else
+    if( dis( rg ) <= 0.33 ) {  // in other 33% of the cases a >= constraint
+     (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
+     (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
+     }
+    else                       // in all other cases a == 0 constraint
+     (*link)[ i ].set_both( 0 );
    }
 
-  auto msc = new BlockSolverConfig;
-  LPParFile >> *( msc );
-  LPParFile.close();
+  // set the linking constraints in the TestBlock
+  TestBlock->add_static_constraint( *link , "link" );
 
-  msc->apply( BoxBlock );
-  delete msc;
+  //!! add an empty Objective; this should not be necessary, but
+  //!! MILPSolver currently fails to properly set the sense if the
+  //!! root Block does not have an Objective, even if empty
+  auto obj = new FRealObjective();
+  obj->set_function( new LinearFunction() );
+  obj->set_sense( minobj ? Objective::eMin : Objective::eMax , eNoMod );
+  TestBlock->set_objective( obj );
   }
 
- auto bs = new BoxSolver;
- BoxBlock->register_Solver( bs );
+ // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // do this by reading an appropriate BlockSolverConfig from file and
+ // apply() it to the TestBlock; note that the BlockSolverConfig is
+ // clear()-ed and kept to do the cleanup at the end
+
+ BlockSolverConfig * bsc;
+ {
+  auto c = Configuration::deserialize( "BSPar.txt" );
+  bsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! bsc ) {
+   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
+   }
+
+  bsc->apply( TestBlock );
+  bsc->clear();
+
+  if( TestBlock->get_registered_solvers().empty() ) {
+   cout << endl << "no Solver registered to the Block!" << endl;
+   exit( 1 );
+   }
+  }
+
+ // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
+ //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ #if( LOG_LEVEL >= 2 )
+  #if( LOG_ON_COUT )
+   ((TestBlock->get_registered_solvers()).back())->set_log( &cout );
+  #else
+   ofstream LOGFile( logF , ofstream::out );
+   if( ! LOGFile.is_open() )
+    cerr << "Warning: cannot open log file """ << logF << """" << endl;
+   else {
+    LOGFile.setf( ios::scientific, ios::floatfield );
+    LOGFile << setprecision( 10 );
+    ((TestBlock->get_registered_solvers()).back())->set_log( &LOGFile );
+    }
+  #endif
+ #endif
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -576,11 +610,14 @@ int main( int argc , char **argv )
  // now, for n_repeat times:
  // - up to n_change bounds are changed
  // - up to n_change objective coefficients are changed
+ // - up to n_change linking constraint are changed
  //
  // then the two Solver are called to re-solve the BoxBlock
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
-  LOG1( rep << ": ");
+  // select the specific sub-Block to change
+  auto BoxBlock = TestBlock->get_nested_Block( rep % nson );
+  LOG1( rep << " - BB[" << rep % nson << "]: " );
 
   // change bounds- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -598,27 +635,13 @@ int main( int argc , char **argv )
       if( ! --tochange )
        break;
       }
-
-    #if DYNAMIC_VARS > 0
-     if( tochange ) {
-      auto boxd = BoxBlock->get_dynamic_constraint< BoxConstraint >( "boxd" );
-      assert( boxd );
-
-      for( auto & bi : *boxd )
-       if( dis( rg ) <= prob ) {
-        set_bounds( bi );
-        if( ! --tochange )
-	 break;
-        }
-      }
-    #endif    
     }
 
   // change coefficients- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " obj coeffs" );
+    LOG1( "changed " << tochange << " obj coeffs - " );
 
     Vec_FunctionValue NC( tochange );
     for( auto & nc : NC )
@@ -680,6 +703,70 @@ int main( int argc , char **argv )
      }
     }
 
+  // change linking constraints - - - - - - - - - - - - - - - - - - - - - - -
+
+  if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " constraints" );
+
+   auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link" );
+   Subset nms( GenerateRand( m , tochange ) );
+   for( auto nm : nms ) {
+    auto lf = static_cast< LinearFunction * >( (*link)[ nm ].get_function() );
+    Index av = lf->get_num_active_var();
+    Index tcn = std::max( Index( 1 ) , Index( dis( rg ) * av ) );
+    Vec_FunctionValue NC( tcn );
+    for( auto & nc : NC )
+     nc = get_coeff();
+
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
+     Index strt = dis( rg ) * ( av - tcn );
+     Index stp = strt + tcn;
+
+     if( tcn == 1 )
+       lf->modify_coefficient( strt , NC.front() );
+      else
+       lf->modify_coefficients( std::move( NC ) , Range( strt , stp ) );
+     }
+    else {  // in the other 50% of the cases, do a sparse change
+     Subset nmsn( GenerateRand( av , tcn ) );
+
+     if( tcn == 1 )
+      lf->modify_coefficient( nmsn.front() , NC.front() );
+     else
+      lf->modify_coefficients( std::move( NC ) , std::move( nmsn ) );
+     }
+    }
+   }
+
+  // change linking lhs/rhs - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " lhs/rhs" );
+
+    double prob = double( tochange ) / double( m );
+    auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link"
+								      );
+   for( auto & li : *link ) {
+    if( dis( rg ) > prob )
+     continue;
+
+    auto lhs = li.get_lhs();
+    auto rhs = li.get_lhs();
+    if( lhs == rhs )
+     continue;
+
+    if( lhs == -INF )
+     li.set_rhs( dis( rg ) );
+    else
+     li.set_lhs( - dis( rg ) );
+
+     if( ! --tochange )
+      break;
+    }
+   }
+
   // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
   // ... every SKIP_BEAT + 1 rounds
 
@@ -692,20 +779,27 @@ int main( int argc , char **argv )
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
  if( AllPassed )
   cout << GREEN( All tests passed!! ) << endl;
  else
   cout << RED( Shit happened!! ) << endl;
  
- // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
+ // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- // unregister (and delete) all Solvers attached to the Block
- BoxBlock->unregister_Solvers();
+ // apply() the clear()-ed BlockSolverConfig to cleanup Solver
+ bsc->apply( TestBlock );
 
- // delete the Block
- delete BoxBlock;
+ // then delete the BlockSolverConfig
+ delete bsc;
+
+ // this is not enough, though, because the BoxSolver have been registered
+ // manually, so delete them manually now
+ for( Index k = 0 ; k < nson ; )
+  TestBlock->get_nested_Block( k++ )->unregister_Solvers();
+
+ // finally the AbstractBlock can be deleted
+ delete TestBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

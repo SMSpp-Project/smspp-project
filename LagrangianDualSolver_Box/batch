@@ -1,0 +1,32 @@
+#!/usr/local/bin/bash
+
+what=3
+iter=0
+
+#for nvar in 2 10 50 100
+for nvar in 2 10 50
+do
+for nson in 2 9 20
+do
+for dens in 0.1 0.3
+do
+for (( seed=0 ; seed<20 ; seed++ ))
+do
+
+if [ -z "$iter" ]; then
+printf "[$seed $what $nvar $nson $dens]: "
+else
+printf "[$seed $what $nvar $nson $dens $iter]: "
+fi
+
+./LDS_Box_test $seed $what $nvar $nson $dens $iter
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+done
+done
+done

@@ -341,11 +341,13 @@ int main( int argc , char **argv )
  // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // do this by reading an appropriate BlockSolverConfig from file and
- // apply() it to the TestBlock
+ // apply() it to the TestBlock; note that the BlockSolverConfig is
+ // clear()-ed and kept to do the cleanup at the end
 
+ BlockSolverConfig * bsc;
  {
   auto c = Configuration::deserialize( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
-  auto bsc = dynamic_cast< BlockSolverConfig * >( c );
+  bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
    delete c;
@@ -460,6 +462,13 @@ int main( int argc , char **argv )
  // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ // apply() the clear()-ed BlockSolverConfig to cleanup Solver
+ bsc->apply( TestBlock );
+
+ // then delete the BlockSolverConfig
+ delete bsc;
+
+ // finally the AbstractBlock can be deleted
  delete TestBlock;
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -2,10 +2,10 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for LagBFunction)                                      #
+#   makefile of test (for LagrangianDualSolver_Box)                          #
 #                                                                            #
 #                                VERSION 1.00                                #
-#                               11 - 09 - 2020                               #
+#                               12 - 01 - 2021                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -17,7 +17,7 @@
 ##############################################################################
 
 # module name
-NAME = LagBFunction_test
+NAME = LDS_Box_test
 
 # basic directory
 DIR = ./
@@ -26,7 +26,6 @@ DIR = ./
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
 # debug switches with address sanitizer and extra pedantic warning
 SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
@@ -53,33 +52,31 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# not necessary, BundleSolver does that already
+# MILPSolver
+#MILPSSDR = ../../MILPSolver/
+#include $(MILPSSDR)makefile-c
+
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
+
+# LagrangianDualSolver
+LgDSLVSDR = ../../LagrangianDualSolver/
+include $(LgDSLVSDR)makefile
 
 # not necessary, BundleSolver does that already
 # define input macros for SMS++ complete makefile, then include it
 #SMS++SDR = ../../../SMS++/
 #include $(SMS++SDR)lib/makefile-inc
 
-# not necessary, BundleSolver does that already
-# define input macros for libCPLEX complete makefile, then include it
-#libCPLEXDIR = ../../../extlib/
-#include $(libCPLEXDIR)makefile-libCPLEX
-
-# not necessary, BundleSolver does that already
-# MILPSolver
-#MILPSSDR = ../../../MILPSolver/
-#include $(MILPSSDR)makefile
-
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ)
 
 # libreries
-MLIB =  $(BNDSLVLIB)
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
@@ -87,10 +84,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC)
+MINC =  $(BNDSLVINC) $(LgDSLVINC)
 
 # includes
-MH =    $(BNDSLVH)
+MH =    $(BNDSLVH) $(LgDSLVH)
 
 # compile command
 
