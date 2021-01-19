@@ -16,7 +16,6 @@
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
 CPXMILPSolver # name of 1st Solver
-#SCIPMILPSolver # name of 1st Solver
 
 1  # number of ComputeConfig in this BlockSolverConfig
 

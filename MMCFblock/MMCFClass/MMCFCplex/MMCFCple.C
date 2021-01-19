@@ -564,7 +564,7 @@ MMCFClass::MMCFStatus MMCFCplex::SolveMMCF( void )
  int status = CPXgetprobtype( env , lp );     // get the current problem type
 
  #if LOG_MMCF
-  int status1 = CPXwriteprob( env , lp , "MMCF2.lp" , 0 );
+  int status1 = CPXwriteprob( env , lp , "MMCF.lp" , 0 );
   assert( ! status1 );
  #endif
 

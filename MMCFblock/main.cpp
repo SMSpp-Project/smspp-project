@@ -165,7 +165,9 @@ int main( int argc , char **argv )
  char filetype;
  str2val( argv[ 3 ] , filetype );
 
- sMMCFblock->MakeMMCF( argv[ 2 ] , filetype );
+ sMMCFblock->Load( argv[ 2 ] , filetype );
+ sMMCFblock->PreProcess();
+ sMMCFblock->MakeMMCF();
  // cout << *sMMCFblock;
 
  bsc->apply( sMMCFblock );
@@ -210,7 +212,6 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  Graph *Gh = new Graph( argv[ 2 ] , filetype );
-
  Gh->PreProcess();
 
  // allocate the solver - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -268,7 +269,7 @@ int main( int argc , char **argv )
   case( MMCFClass::kOK ) :
    LOGFile.precision( 8 );
    LOGFile << "Status: OK, Value: ( " << OV1 << " , "<< OV2 << " ) " << endl;
-   if( abs( lb_value - OV1 ) <= 1e-8 )
+   if( abs( lb_value - OV1 ) <= 1e-7 )
 	cout << GREEN( Test passed!! ) << endl;
    else
 	cout << RED( Shit happened!! ) << endl;
