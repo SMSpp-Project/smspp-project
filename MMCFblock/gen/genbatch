@@ -1,0 +1,26 @@
+#/bin/tcsh -l
+
+rm -rf ../data/Mnetgen
+
+cd Mnetgen
+make clean -f makefile
+make -f makefile
+./batch
+
+cd ../
+
+#curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz
+#curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz
+mv JLF.tgz ../data/JLF.tgz
+
+cd ../data
+
+tar -zxvf  JLF.tgz 
+
+mkdir Canad
+
+tar -xvf Canad.tar.gz -C ./
+
+rm JLF.tgz 
+
+

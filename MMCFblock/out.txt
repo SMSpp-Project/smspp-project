@@ -1,4 +1,0 @@
-
-
-f* = 243019 (optimal value)
-Time:0.066108	Status: OK, Value: ( 243019 , 243019 ) 

@@ -1,5 +1,4 @@
-#/bin/bash -l
-nice
+#/bin/tcsh -l
 
 # the BlockSolverConfig is not a "differential" one: values are being set
 echo 0 > test.mmcf
