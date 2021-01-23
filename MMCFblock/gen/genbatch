@@ -9,8 +9,8 @@ make -f makefile
 
 cd ../
 
-#curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz
-#curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz
+curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz
+curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz
 mv JLF.tgz ../data/JLF.tgz
 
 cd ../data
