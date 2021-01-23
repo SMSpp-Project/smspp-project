@@ -188,6 +188,7 @@ int main( int argc , char **argv )
  else
   slvr->set_log( &LOGFile );
 
+ LOGFile.precision( 8 );
  LOGFile << std::endl << std::endl << "f* = "
 		 << lb_value << " (optimal value)" << std::endl;
 
@@ -267,9 +268,8 @@ int main( int argc , char **argv )
 
  switch( Status ) {
   case( MMCFClass::kOK ) :
-   LOGFile.precision( 8 );
    LOGFile << "Status: OK, Value: ( " << OV1 << " , "<< OV2 << " ) " << endl;
-   if( abs( lb_value - OV1 ) <= 1e-6 )
+   if( abs( lb_value - OV1 ) / abs( lb_value ) <= 1e-8 )
 	cout << GREEN( Test passed!! ) << endl;
    else
 	cout << RED( Shit happened!! ) << endl;
