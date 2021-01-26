@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -74,7 +74,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 2
 
 /*--------------------------------------------------------------------------*/
 
@@ -641,7 +641,7 @@ int main( int argc , char **argv )
 
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " obj coeffs - " );
+    LOG1( "changed " << tochange << " obj coeffs" );
 
     Vec_FunctionValue NC( tochange );
     for( auto & nc : NC )
@@ -707,7 +707,7 @@ int main( int argc , char **argv )
 
   if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " constraints" );
+    LOG1( "changed " << tochange << " constraints - " );
 
    auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link" );
    Subset nms( GenerateRand( m , tochange ) );
@@ -743,7 +743,7 @@ int main( int argc , char **argv )
 
   if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " lhs/rhs" );
+    LOG1( "changed " << tochange << " lhs/rhs - " );
 
     double prob = double( tochange ) / double( m );
     auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link"

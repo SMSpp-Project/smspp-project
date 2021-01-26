@@ -1,2 +1,585 @@
 
 {1-0-0} t = 1.00e-04 ~ D*_1( z* ) = 5.69e+07 ~ Sigma = 0.00e+00
+            Fi undefined
+    Lambda1 = [ -1.94e-01 -1.79e-01 -1.70e-01 -1.67e-01 -1.70e-01 -1.84e-01 -2.05e-01 -2.27e-01 -2.29e-01 -2.36e-01 -2.45e-01 -2.40e-01 -2.38e-01 -2.17e-01 -2.08e-01 -2.09e-01 -2.02e-01 -2.27e-01 -2.61e-01 -2.61e-01 -2.49e-01 -2.29e-01 -2.27e-01 -2.14e-01 ]
+            Component 0 evaluated: UB = 5.7614391333e-10, LB = 5.7614391333e-10
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 5.78e-10 ~ gd = -1.43e-12 stored in 0 (0)
+            Component 1 evaluated: UB = 5.7614391333e-10, LB = 5.7614391333e-10
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 5.78e-10 ~ gd = -1.43e-12 stored in 1 (0)
+            Component 2 evaluated: UB = 2.8481227826e-09, LB = 2.8481227826e-09
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 2.85e-09 ~ gd = -5.03e-12 stored in 2 (0)
+            Component 3 evaluated: UB = 2.8481227826e-09, LB = 2.8481227826e-09
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 2.85e-09 ~ gd = -5.03e-12 stored in 3 (0)
+            Component 4 evaluated: UB = 2.8481227826e-09, LB = 2.8481227826e-09
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 2.85e-09 ~ gd = -5.03e-12 stored in 4 (0)
+            Component 5 evaluated: UB = 2.8481227826e-09, LB = 2.8481227826e-09
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 2.85e-09 ~ gd = -5.03e-12 stored in 5 (0)
+            Component 6 evaluated: UB = -3.1870530728e-11, LB = -3.1870530728e-11
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -3.21e-11 ~ gd = 1.85e-13 stored in 6 (0)
+            Component 7 evaluated: UB = -3.1870530728e-11, LB = -3.1870530728e-11
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -3.21e-11 ~ gd = 1.85e-13 stored in 7 (0)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 stored in 8 (0)
+            Fi1 = 1.1384069700e+04 ~ Alfa1 = 1.25e-08 ~ Gi1xd = 2.28e+04
+            Fi1 defined ==> SS 
+
+{1-1-9} t = 1.00e+00 ~ D*_1( z* ) = 5.69e+07 ~ Sigma = 1.49e-24
+            Fi = 1.1384069700e+04 ~ eU = 5.00e+07
+    Lambda1 = [ -1.94e+03 -1.79e+03 -1.70e+03 -1.67e+03 -1.70e+03 -1.84e+03 -2.05e+03 -2.27e+03 -2.29e+03 -2.36e+03 -2.45e+03 -2.40e+03 -2.38e+03 -2.17e+03 -2.08e+03 -2.09e+03 -2.02e+03 -2.27e+03 -2.61e+03 -2.61e+03 -2.49e+03 -2.29e+03 -2.27e+03 -2.14e+03 ]
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = -1.5185455641e+07, LB = -1.5185455641e+07
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 3.70e+05 ~ gd = -1.56e+07 stored in 9 (1)
+            Fi1 =  + INF
+
+ NS[0]: Up1(9.8666625429e+07) <= UpTrgt(1.1271367410e+08) ~ Ht = 0.00e+00
+
+{1-2-10} t = 1.00e+00 ~ D*_1( z* ) = 4.24e+07 ~ Sigma = 3.70e+05
+            Fi = 1.1384069700e+04 ~ eU = 3.73e+07
+    Lambda1 = [ -1.64e+03 -1.49e+03 -1.40e+03 -1.37e+03 -1.40e+03 -1.54e+03 -1.75e+03 -1.97e+03 -1.99e+03 -2.06e+03 -2.15e+03 -2.10e+03 -2.08e+03 -1.87e+03 -1.78e+03 -1.79e+03 -1.72e+03 -1.97e+03 -2.31e+03 -2.31e+03 -2.19e+03 -1.99e+03 -1.97e+03 -1.84e+03 ]
+            Component 1 evaluated: UB = -1.3025455640e+07, LB = -1.3025455640e+07
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 3.70e+05 ~ gd = -1.34e+07 stored in 10 (1)
+            Fi1 =  + INF
+
+ NS[1]: Up1(7.2245269750e+07) <= UpTrgt(8.4418131977e+07) ~ Ht = 0.00e+00
+
+{1-3-11} t = 1.00e-01 ~ D*_1( z* ) = 3.01e+07 ~ Sigma = 7.41e+05
+            Fi = 1.1384069700e+04 ~ eU = 2.65e+07
+    Lambda1 = [ -1.34e+02 -1.19e+02 -1.10e+02 -1.08e+02 -1.10e+02 -1.24e+02 -1.45e+02 -1.67e+02 -1.70e+02 -1.76e+02 -1.85e+02 -1.80e+02 -1.79e+02 -1.57e+02 -1.48e+02 -1.50e+02 -1.42e+02 -1.67e+02 -2.01e+02 -2.01e+02 -1.89e+02 -1.69e+02 -1.67e+02 -1.54e+02 ]
+            Component 2 evaluated: UB = -1.8304852949e+05, LB = -1.8304852949e+05
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 1.91e+05 ~ gd = -3.75e+05 stored in 11 (1)
+            Fi1 =  + INF
+
+ NS[0]: Up1(6.5949340478e+06) <= UpTrgt(6.7103165922e+06) ~ Ht = 0.00e+00
+
+{1-4-12} t = 1.00e-01 ~ D*_1( z* ) = 2.65e+07 ~ Sigma = 9.32e+05
+            Fi = 1.1384069700e+04 ~ eU = 2.33e+07
+    Lambda1 = [ -1.24e+02 -1.09e+02 -9.99e+01 -9.76e+01 -1.00e+02 -1.14e+02 -1.35e+02 -1.57e+02 -1.60e+02 -1.66e+02 -1.75e+02 -1.70e+02 -1.69e+02 -1.47e+02 -1.38e+02 -1.40e+02 -1.32e+02 -1.57e+02 -1.91e+02 -1.91e+02 -1.79e+02 -1.59e+02 -1.57e+02 -1.44e+02 ]
+            Component 3 evaluated: UB = -1.5904853317e+05, LB = -1.5904853317e+05
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 1.91e+05 ~ gd = -3.51e+05 stored in 12 (1)
+            Fi1 =  + INF
+
+ NS[1]: Up1(6.0853555150e+06) <= UpTrgt(6.1820738484e+06) ~ Ht = 0.00e+00
+
+{1-5-13} t = 1.00e-02 ~ D*_1( z* ) = 5.69e+07 ~ Sigma = 1.49e-24
+            Fi = 1.1384069700e+04 ~ eU = 5.00e+07
+    Lambda1 = [ -1.96e+01 -1.80e+01 -1.71e+01 -1.69e+01 -1.71e+01 -1.85e+01 -2.07e+01 -2.29e+01 -2.32e+01 -2.39e+01 -2.47e+01 -2.42e+01 -2.41e+01 -2.19e+01 -2.10e+01 -2.11e+01 -2.04e+01 -2.29e+01 -2.63e+01 -2.63e+01 -2.51e+01 -2.31e+01 -2.29e+01 -2.16e+01 ]
+            Component 4 evaluated: UB = 1.7842070137e-12, LB = 1.7842070137e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = -2.85e-09 ~ gd = -4.26e-13 stored in 13 (1)
+            Component 5 evaluated: UB = 1.7842070137e-12, LB = 1.7842070137e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = -2.85e-09 ~ gd = -4.26e-13 stored in 14 (1)
+            Component 6 evaluated: UB = -9.2094605100e-12, LB = -9.2094605100e-12
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 1.20e-11 ~ gd = 1.07e-11 stored in 15 (1)
+            Component 7 evaluated: UB = -9.2094605100e-12, LB = -9.2094605100e-12
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 1.20e-11 ~ gd = 1.07e-11 stored in 16 (1)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 8.0369142664e-10, LB = 8.0369142664e-10
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 5.75e-10 ~ gd = -3.48e-10 stored in 17 (2)
+            Component 1 evaluated: UB = 8.0369142664e-10, LB = 8.0369142664e-10
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 5.75e-10 ~ gd = -3.48e-10 stored in 18 (2)
+            Component 2 evaluated: UB = 1.7842070137e-12, LB = 1.7842070137e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = -2.85e-09 ~ gd = -4.26e-13 stored in 19 (2)
+            Component 3 evaluated: UB = 1.7842070137e-12, LB = 1.7842070137e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = -2.85e-09 ~ gd = -4.26e-13 stored in 20 (2)
+            Fi1 = 1.1497910397e+06 ~ Alfa1 = -1.02e-08 ~ Gi1xd = 2.28e+06
+
+ SS[0]: DFi = 1.14e+06 ~ Lw1(1.1497910397e+06) >= LwTrgt(2.2768139400e+04) ~ Ht = 1.00e-04
+
+{1-6-21} t = 1.50e-02 ~ D*_1( z* ) = 4.84e+07 ~ Sigma = 1.22e+05
+            Fi = 1.1497910397e+06 ~ eU = 4.21e+05
+    Lambda1 = [ -4.61e+01 -4.23e+01 -4.00e+01 -3.95e+01 -4.01e+01 -4.35e+01 -4.88e+01 -5.43e+01 -5.50e+01 -5.67e+01 -5.89e+01 -5.76e+01 -5.73e+01 -5.18e+01 -4.96e+01 -5.00e+01 -4.81e+01 -5.45e+01 -6.29e+01 -6.29e+01 -5.99e+01 -5.49e+01 -5.44e+01 -5.12e+01 ]
+            Component 3 evaluated: UB = 3.4400165377e-11, LB = 3.4400165377e-11
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 5.56e-11 ~ gd = -2.30e-11 stored in 21 (3)
+            Component 4 evaluated: UB = 3.4400165377e-11, LB = 3.4400165377e-11
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 5.56e-11 ~ gd = -2.30e-11 stored in 22 (2)
+            Component 5 evaluated: UB = 3.4400165377e-11, LB = 3.4400165377e-11
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 5.56e-11 ~ gd = -2.30e-11 stored in 23 (2)
+            Component 6 evaluated: UB = -3.1920000333e+05, LB = -3.1920000333e+05
+
+            New eps-subgradient with eps = 4.66e-10 for Fi[ 6 ] ~ Alfa1 = 3.25e+05 ~ gd = -6.45e+05 stored in 24 (2)
+            Fi1 =  + INF
+
+ NS[0]: Up1(2.4053059333e+06) <= UpTrgt(2.7087587876e+06) ~ Ht = 0.00e+00
+
+{1-7-25} t = 1.50e-02 ~ D*_1( z* ) = 2.00e+07 ~ Sigma = 3.25e+05
+            Fi = 1.1497910397e+06 ~ eU = 1.74e+05
+    Lambda1 = [ -3.52e+01 -3.13e+01 -2.91e+01 -2.85e+01 -2.91e+01 -3.26e+01 -3.79e+01 -4.34e+01 -4.41e+01 -4.58e+01 -4.79e+01 -4.67e+01 -4.63e+01 -4.08e+01 -3.87e+01 -3.90e+01 -3.71e+01 -4.35e+01 -5.19e+01 -5.20e+01 -4.90e+01 -4.40e+01 -4.34e+01 -4.03e+01 ]
+            Component 7 evaluated: UB = -9.5137220006e+04, LB = -9.5137220006e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 2.82e+05 ~ gd = -3.77e+05 stored in 25 (2)
+            Fi1 =  + INF
+
+ NS[1]: Up1(1.9792895047e+06) <= UpTrgt(2.0651803678e+06) ~ Ht = 0.00e+00
+
+{1-8-26} t = 1.50e-03 ~ D*_1( z* ) = 5.69e+07 ~ Sigma = -7.50e-10
+            Fi = 1.1497910397e+06 ~ eU = 4.95e+05
+    Lambda1 = [ -2.25e+01 -2.07e+01 -1.97e+01 -1.94e+01 -1.97e+01 -2.13e+01 -2.37e+01 -2.63e+01 -2.66e+01 -2.74e+01 -2.84e+01 -2.78e+01 -2.76e+01 -2.51e+01 -2.41e+01 -2.43e+01 -2.34e+01 -2.64e+01 -3.02e+01 -3.03e+01 -2.89e+01 -2.66e+01 -2.63e+01 -2.48e+01 ]
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 7.9029247558e-10, LB = 7.9029247558e-10
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 4.35e-11 ~ gd = -5.69e-11 stored in 26 (3)
+            Component 1 evaluated: UB = 7.9029247558e-10, LB = 7.9029247558e-10
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 4.35e-11 ~ gd = -5.69e-11 stored in 27 (3)
+            Component 2 evaluated: UB = 2.3851051964e-12, LB = 2.3851051964e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 6.91e-13 ~ gd = -9.03e-14 stored in 28 (3)
+            Component 3 evaluated: UB = 2.3851051964e-12, LB = 2.3851051964e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 6.91e-13 ~ gd = -9.03e-14 stored in 29 (4)
+            Component 4 evaluated: UB = 2.3851051964e-12, LB = 2.3851051964e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 6.91e-13 ~ gd = -9.03e-14 stored in 30 (3)
+            Component 5 evaluated: UB = 2.3851051964e-12, LB = 2.3851051964e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 6.91e-13 ~ gd = -9.03e-14 stored in 31 (3)
+            Component 6 evaluated: UB = -1.0622330117e-11, LB = -1.0622330117e-11
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -3.49e-12 ~ gd = 2.08e-12 stored in 32 (3)
+            Component 7 evaluated: UB = -1.0622330117e-11, LB = -1.0622330117e-11
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -3.49e-12 ~ gd = 2.08e-12 stored in 33 (3)
+            Fi1 = 1.3205520852e+06 ~ Alfa1 = 8.27e-11 ~ Gi1xd = 3.42e+05
+
+ SS[0]: DFi = 1.71e+05 ~ Lw1(1.3205520852e+06) >= LwTrgt(1.1514986502e+06) ~ Ht = -1.55e+12
+
+{1-9-34} t = 2.25e-03 ~ D*_1( z* ) = 5.69e+07 ~ Sigma = -7.60e-10
+            Fi = 1.3205520852e+06 ~ eU = 4.31e+05
+    Lambda1 = [ -2.69e+01 -2.47e+01 -2.35e+01 -2.32e+01 -2.35e+01 -2.54e+01 -2.84e+01 -3.14e+01 -3.18e+01 -3.27e+01 -3.39e+01 -3.32e+01 -3.30e+01 -3.00e+01 -2.88e+01 -2.90e+01 -2.79e+01 -3.15e+01 -3.61e+01 -3.61e+01 -3.45e+01 -3.17e+01 -3.14e+01 -2.97e+01 ]
+            Component 7 evaluated: UB = -4.8026175829e-11, LB = -4.8026175829e-11
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -4.49e-11 ~ gd = 7.54e-12 stored in 34 (4)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.0505155681e-09, LB = 1.0505155681e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 3.95e-10 ~ gd = -1.34e-10 stored in 35 (4)
+            Component 1 evaluated: UB = 1.0505155681e-09, LB = 1.0505155681e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 3.95e-10 ~ gd = -1.34e-10 stored in 36 (4)
+            Component 2 evaluated: UB = 3.5495395617e-12, LB = 3.5495395617e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 1.39e-12 ~ gd = -2.21e-13 stored in 37 (4)
+            Component 3 evaluated: UB = 3.5495395617e-12, LB = 3.5495395617e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 1.39e-12 ~ gd = -2.21e-13 stored in 38 (5)
+            Component 4 evaluated: UB = 3.5495395617e-12, LB = 3.5495395617e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 1.39e-12 ~ gd = -2.21e-13 stored in 39 (4)
+            Component 5 evaluated: UB = 3.5495395617e-12, LB = 3.5495395617e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 1.39e-12 ~ gd = -2.21e-13 stored in 40 (4)
+            Component 6 evaluated: UB = -4.8026175829e-11, LB = -4.8026175829e-11
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -4.49e-11 ~ gd = 7.54e-12 stored in 41 (4)
+            Fi1 = 1.5766936535e+06 ~ Alfa1 = 7.05e-10 ~ Gi1xd = 5.12e+05
+
+ SS[0]: DFi = 2.56e+05 ~ Lw1(1.5766936535e+06) >= LwTrgt(1.3231135009e+06) ~ Ht = -4.09e+11
+
+{1-10-42} t = 3.38e-03 ~ D*_1( z* ) = 4.27e+07 ~ Sigma = 4.44e+04
+            Fi = 1.5766936535e+06 ~ eU = 2.71e+05
+    Lambda1 = [ -3.23e+01 -3.03e+01 -2.87e+01 -2.83e+01 -2.88e+01 -3.11e+01 -3.42e+01 -3.79e+01 -3.84e+01 -3.96e+01 -4.11e+01 -4.02e+01 -4.00e+01 -3.62e+01 -3.47e+01 -3.50e+01 -3.36e+01 -3.80e+01 -4.38e+01 -4.38e+01 -4.18e+01 -3.83e+01 -3.80e+01 -3.58e+01 ]
+            Component 6 evaluated: UB = -3.5934596563e+03, LB = -3.5934596563e+03
+
+            New eps-subgradient with eps = 1.16e-10 for Fi[ 6 ] ~ Alfa1 = 9.96e+04 ~ gd = -1.03e+05 stored in 42 (5)
+            Fi1 =  + INF
+
+ NS[0]: Up1(1.9058151467e+06) <= UpTrgt(1.9060814569e+06) ~ Ht = 0.00e+00
+
+{1-11-43} t = 3.38e-03 ~ D*_1( z* ) = 4.14e+07 ~ Sigma = 4.76e+04
+            Fi = 1.5766936535e+06 ~ eU = 2.63e+05
+    Lambda1 = [ -3.28e+01 -3.01e+01 -2.86e+01 -2.82e+01 -2.86e+01 -3.10e+01 -3.46e+01 -3.76e+01 -3.81e+01 -3.92e+01 -4.07e+01 -3.98e+01 -3.96e+01 -3.58e+01 -3.51e+01 -3.54e+01 -3.41e+01 -3.77e+01 -4.35e+01 -4.35e+01 -4.14e+01 -3.80e+01 -3.76e+01 -3.69e+01 ]
+            Component 7 evaluated: UB = -2.8375152728e+02, LB = -2.8375152728e+02
+
+            New eps-subgradient with eps = 2.33e-10 for Fi[ 7 ] ~ Alfa1 = 1.12e+05 ~ gd = -1.12e+05 stored in 43 (5)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.3125114876e-09, LB = 1.3125114876e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 5.59e-10 ~ gd = -2.97e-10 stored in 44 (5)
+            Component 1 evaluated: UB = 1.3125114876e-09, LB = 1.3125114876e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 5.59e-10 ~ gd = -2.97e-10 stored in 45 (5)
+            Component 2 evaluated: UB = 7.0893559263e-12, LB = 7.0893559263e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 4.19e-12 ~ gd = -6.50e-13 stored in 46 (5)
+            Component 3 evaluated: UB = 7.0893559263e-12, LB = 7.0893559263e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 4.19e-12 ~ gd = -6.50e-13 stored in 47 (6)
+            Component 4 evaluated: UB = 7.0893559263e-12, LB = 7.0893559263e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 4.19e-12 ~ gd = -6.50e-13 stored in 48 (5)
+            Component 5 evaluated: UB = 7.0893559263e-12, LB = 7.0893559263e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 4.19e-12 ~ gd = -6.50e-13 stored in 49 (5)
+            Component 6 evaluated: UB = -2.8375152728e+02, LB = -2.8375152728e+02
+
+            New eps-subgradient with eps = 2.33e-10 for Fi[ 6 ] ~ Alfa1 = 1.12e+05 ~ gd = -1.12e+05 stored in 50 (6)
+            Fi1 = 1.9033752231e+06 ~ Alfa1 = 2.24e+05 ~ Gi1xd = 2.05e+05
+
+ SS[0]: DFi = 3.27e+05 ~ Lw1(1.9033752231e+06) >= LwTrgt(1.5799661442e+06) ~ Ht = -7.69e-04
+
+{1-12-51} t = 5.06e-03 ~ D*_1( z* ) = 4.95e+06 ~ Sigma = 3.62e+03
+            Fi = 1.9033752231e+06 ~ eU = 2.60e+04
+    Lambda1 = [ -3.57e+01 -3.48e+01 -3.28e+01 -3.23e+01 -3.29e+01 -3.59e+01 -3.81e+01 -3.99e+01 -4.06e+01 -4.21e+01 -4.40e+01 -4.29e+01 -4.25e+01 -3.77e+01 -3.66e+01 -3.69e+01 -3.74e+01 -4.01e+01 -4.75e+01 -4.76e+01 -4.49e+01 -4.05e+01 -4.00e+01 -3.86e+01 ]
+            Component 6 evaluated: UB = -5.4777163886e+04, LB = -5.4777163886e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 3.78e+03 ~ gd = -5.83e+04 stored in 51 (7)
+            Fi1 =  + INF
+
+ NS[0]: Up1(1.9535652625e+06) <= UpTrgt(1.9566118068e+06) ~ Ht = 0.00e+00
+
+{1-13-52} t = 5.06e-03 ~ D*_1( z* ) = 4.38e+06 ~ Sigma = 4.88e+03
+            Fi = 1.9033752231e+06 ~ eU = 2.30e+04
+    Lambda1 = [ -3.39e+01 -3.51e+01 -3.31e+01 -3.26e+01 -3.31e+01 -3.41e+01 -3.63e+01 -3.99e+01 -4.06e+01 -4.21e+01 -4.40e+01 -4.29e+01 -4.25e+01 -3.77e+01 -3.66e+01 -3.69e+01 -3.56e+01 -4.01e+01 -4.75e+01 -4.76e+01 -4.49e+01 -4.05e+01 -4.00e+01 -3.86e+01 ]
+            Component 7 evaluated: UB = -4.9825182204e+04, LB = -4.9825182204e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 3.08e+03 ~ gd = -5.26e+04 stored in 52 (6)
+            Fi1 =  + INF
+
+ NS[1]: Up1(1.9519885863e+06) <= UpTrgt(1.9520991317e+06) ~ Ht = 0.00e+00
+
+{1-14-53} t = 5.06e-04 ~ D*_1( z* ) = 6.76e+06 ~ Sigma = -1.49e-09
+            Fi = 1.9033752231e+06 ~ eU = 3.55e+04
+    Lambda1 = [ -3.33e+01 -3.06e+01 -2.90e+01 -2.86e+01 -2.91e+01 -3.15e+01 -3.52e+01 -3.78e+01 -3.83e+01 -3.95e+01 -4.10e+01 -4.01e+01 -3.99e+01 -3.60e+01 -3.53e+01 -3.56e+01 -3.47e+01 -3.79e+01 -4.39e+01 -4.39e+01 -4.18e+01 -3.82e+01 -3.79e+01 -3.71e+01 ]
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.4199258950e-09, LB = 1.4199258950e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 1.26e-10 ~ gd = -1.86e-11 stored in 53 (6)
+            Component 1 evaluated: UB = 1.4199258950e-09, LB = 1.4199258950e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 1.26e-10 ~ gd = -1.86e-11 stored in 54 (6)
+            Component 2 evaluated: UB = 7.5887598987e-12, LB = 7.5887598987e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 5.45e-13 ~ gd = -4.52e-14 stored in 55 (6)
+            Component 3 evaluated: UB = 7.5887598987e-12, LB = 7.5887598987e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 5.45e-13 ~ gd = -4.52e-14 stored in 56 (7)
+            Component 4 evaluated: UB = 7.5887598987e-12, LB = 7.5887598987e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 5.45e-13 ~ gd = -4.52e-14 stored in 57 (6)
+            Component 5 evaluated: UB = 7.5887598987e-12, LB = 7.5887598987e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 5.45e-13 ~ gd = -4.52e-14 stored in 58 (6)
+            Component 6 evaluated: UB = -5.8946197934e+03, LB = -5.8946197934e+03
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 1.93e+02 ~ gd = -5.80e+03 stored in 59 (8)
+            Fi1 =  + INF
+
+ NS[0]: Up1(1.9100958946e+06) <= UpTrgt(1.9101502241e+06) ~ Ht = 0.00e+00
+
+{1-15-60} t = 5.06e-04 ~ D*_1( z* ) = 6.27e+06 ~ Sigma = 1.87e+02
+            Fi = 1.9033752231e+06 ~ eU = 3.30e+04
+    Lambda1 = [ -3.33e+01 -3.06e+01 -2.90e+01 -2.86e+01 -2.91e+01 -3.15e+01 -3.50e+01 -3.78e+01 -3.83e+01 -3.95e+01 -4.10e+01 -4.01e+01 -3.99e+01 -3.60e+01 -3.53e+01 -3.56e+01 -3.47e+01 -3.79e+01 -4.39e+01 -4.39e+01 -4.18e+01 -3.82e+01 -3.79e+01 -3.71e+01 ]
+            Component 7 evaluated: UB = -5.6736447925e+03, LB = -5.6736447925e+03
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -2.01e-07 ~ gd = -5.39e+03 stored in 60 (7)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.4204177372e-09, LB = 1.4204177372e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 1.26e-10 ~ gd = -1.81e-11 stored in 61 (7)
+            Component 1 evaluated: UB = 1.4204177372e-09, LB = 1.4204177372e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 1.26e-10 ~ gd = -1.81e-11 stored in 62 (7)
+            Component 2 evaluated: UB = 7.5793188729e-12, LB = 7.5793188729e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 5.34e-13 ~ gd = -4.37e-14 stored in 63 (7)
+            Component 3 evaluated: UB = 7.5793188729e-12, LB = 7.5793188729e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 5.34e-13 ~ gd = -4.37e-14 stored in 64 (8)
+            Component 4 evaluated: UB = 7.5793188729e-12, LB = 7.5793188729e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 5.34e-13 ~ gd = -4.37e-14 stored in 65 (7)
+            Component 5 evaluated: UB = 7.5793188729e-12, LB = 7.5793188729e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 5.34e-13 ~ gd = -4.37e-14 stored in 66 (7)
+            Component 6 evaluated: UB = -5.6736447925e+03, LB = -5.6736447925e+03
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -2.01e-07 ~ gd = -5.39e+03 stored in 67 (9)
+            Fi1 = 1.9099124853e+06 ~ Alfa1 = -4.02e-07 ~ Gi1xd = 1.31e+04
+
+ SS[0]: DFi = 6.54e+03 ~ Lw1(1.9099124853e+06) >= LwTrgt(1.9034405957e+06) ~ Ht = 1.00e-04
+
+{1-16-68} t = 7.59e-04 ~ D*_1( z* ) = 5.76e+06 ~ Sigma = 3.44e+02
+            Fi = 1.9099124853e+06 ~ eU = 3.02e+04
+    Lambda1 = [ -3.41e+01 -3.14e+01 -2.97e+01 -2.93e+01 -2.97e+01 -3.23e+01 -3.54e+01 -3.82e+01 -3.87e+01 -3.99e+01 -4.15e+01 -4.06e+01 -4.03e+01 -3.63e+01 -3.55e+01 -3.58e+01 -3.55e+01 -3.83e+01 -4.45e+01 -4.45e+01 -4.23e+01 -3.86e+01 -3.82e+01 -3.73e+01 ]
+            Component 6 evaluated: UB = -1.4062739698e+04, LB = -1.4062739698e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 1.43e+02 ~ gd = -8.53e+03 stored in 68 (10)
+            Fi1 =  + INF
+
+ NS[0]: Up1(1.9187541803e+06) <= UpTrgt(1.9189153696e+06) ~ Ht = 0.00e+00
+
+{1-17-69} t = 7.59e-04 ~ D*_1( z* ) = 5.75e+06 ~ Sigma = 1.61e+02
+            Fi = 1.9099124853e+06 ~ eU = 3.01e+04
+    Lambda1 = [ -3.42e+01 -3.14e+01 -2.97e+01 -2.93e+01 -2.97e+01 -3.23e+01 -3.56e+01 -3.82e+01 -3.87e+01 -3.99e+01 -4.15e+01 -4.06e+01 -4.03e+01 -3.63e+01 -3.55e+01 -3.58e+01 -3.53e+01 -3.83e+01 -4.45e+01 -4.45e+01 -4.23e+01 -3.86e+01 -3.82e+01 -3.73e+01 ]
+            Component 7 evaluated: UB = -1.3999458448e+04, LB = -1.3999458448e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 1.43e+02 ~ gd = -8.47e+03 stored in 69 (8)
+            Fi1 =  + INF
+
+ NS[1]: Up1(1.9184056610e+06) <= UpTrgt(1.9187223975e+06) ~ Ht = 0.00e+00
+
+{1-18-70} t = 1.00e-04 ~ D*_1( z* ) = 6.26e+06 ~ Sigma = 1.15e-06
+            Fi = 1.9099124853e+06 ~ eU = 3.28e+04
+    Lambda1 = [ -3.34e+01 -3.07e+01 -2.91e+01 -2.87e+01 -2.91e+01 -3.16e+01 -3.51e+01 -3.78e+01 -3.84e+01 -3.96e+01 -4.11e+01 -4.02e+01 -3.99e+01 -3.61e+01 -3.53e+01 -3.56e+01 -3.48e+01 -3.80e+01 -4.39e+01 -4.40e+01 -4.18e+01 -3.83e+01 -3.79e+01 -3.71e+01 ]
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.4425437961e-09, LB = 1.4425437961e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 2.58e-11 ~ gd = -3.64e-12 stored in 70 (8)
+            Component 1 evaluated: UB = 1.4425437961e-09, LB = 1.4425437961e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 2.58e-11 ~ gd = -3.64e-12 stored in 71 (8)
+            Component 2 evaluated: UB = 7.6792164946e-12, LB = 7.6792164946e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 1.09e-13 ~ gd = -8.75e-15 stored in 72 (8)
+            Component 3 evaluated: UB = 7.6792164946e-12, LB = 7.6792164946e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 1.09e-13 ~ gd = -8.75e-15 stored in 73 (9)
+            Component 4 evaluated: UB = 7.6792164946e-12, LB = 7.6792164946e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 1.09e-13 ~ gd = -8.75e-15 stored in 74 (8)
+            Component 5 evaluated: UB = 7.6792164946e-12, LB = 7.6792164946e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 1.09e-13 ~ gd = -8.75e-15 stored in 75 (8)
+            Component 6 evaluated: UB = -6.7750647917e+03, LB = -6.7750647917e+03
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 8.29e-07 ~ gd = -1.10e+03 stored in 76 (11)
+            Component 7 evaluated: UB = -6.7750647917e+03, LB = -6.7750647917e+03
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 8.29e-07 ~ gd = -1.10e+03 stored in 77 (9)
+            Fi1 = 1.9111272250e+06 ~ Alfa1 = 1.66e-06 ~ Gi1xd = 2.43e+03
+
+ SS[0]: DFi = 1.21e+03 ~ Lw1(1.9111272250e+06) >= LwTrgt(1.9099250062e+06) ~ Ht = -3.66e+04
+
+{1-19-78} t = 1.50e-04 ~ D*_1( z* ) = 5.87e+06 ~ Sigma = 1.96e+01
+            Fi = 1.9111272250e+06 ~ eU = 3.07e+04
+    Lambda1 = [ -3.36e+01 -3.09e+01 -2.93e+01 -2.89e+01 -2.93e+01 -3.18e+01 -3.51e+01 -3.79e+01 -3.84e+01 -3.97e+01 -4.12e+01 -4.03e+01 -4.00e+01 -3.61e+01 -3.54e+01 -3.56e+01 -3.50e+01 -3.80e+01 -4.41e+01 -4.41e+01 -4.19e+01 -3.83e+01 -3.80e+01 -3.72e+01 ]
+            Component 7 evaluated: UB = -8.3525586810e+03, LB = -8.3525586810e+03
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 8.24e+01 ~ gd = -1.66e+03 stored in 78 (10)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.4763533570e-09, LB = 1.4763533570e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 3.92e-11 ~ gd = -5.42e-12 stored in 79 (9)
+            Component 1 evaluated: UB = 1.4763533570e-09, LB = 1.4763533570e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 3.92e-11 ~ gd = -5.42e-12 stored in 80 (9)
+            Component 2 evaluated: UB = 7.8284569200e-12, LB = 7.8284569200e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 1.62e-13 ~ gd = -1.29e-14 stored in 81 (9)
+            Component 3 evaluated: UB = 7.8284569200e-12, LB = 7.8284569200e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 1.62e-13 ~ gd = -1.29e-14 stored in 82 (10)
+            Component 4 evaluated: UB = 7.8284569200e-12, LB = 7.8284569200e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 1.62e-13 ~ gd = -1.29e-14 stored in 83 (9)
+            Component 5 evaluated: UB = 7.8284569200e-12, LB = 7.8284569200e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 1.62e-13 ~ gd = -1.29e-14 stored in 84 (9)
+            Component 6 evaluated: UB = -8.3525586810e+03, LB = -8.3525586810e+03
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 8.24e+01 ~ gd = -1.66e+03 stored in 85 (12)
+            Fi1 = 1.9129090980e+06 ~ Alfa1 = 1.65e+02 ~ Gi1xd = 3.23e+03
+
+ SS[0]: DFi = 1.78e+03 ~ Lw1(1.9129090980e+06) >= LwTrgt(1.9111450438e+06) ~ Ht = -7.36e-04
+
+{1-20-86} t = 2.25e-04 ~ D*_1( z* ) = 5.29e+06 ~ Sigma = -2.54e-09
+            Fi = 1.9129090980e+06 ~ eU = 2.77e+04
+    Lambda1 = [ -3.39e+01 -3.11e+01 -2.95e+01 -2.90e+01 -2.95e+01 -3.20e+01 -3.52e+01 -3.80e+01 -3.85e+01 -3.98e+01 -4.13e+01 -4.04e+01 -4.02e+01 -3.62e+01 -3.54e+01 -3.57e+01 -3.50e+01 -3.81e+01 -4.42e+01 -4.43e+01 -4.21e+01 -3.85e+01 -3.81e+01 -3.72e+01 ]
+            Component 6 evaluated: UB = -1.0663916181e+04, LB = -1.0663916181e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -2.05e-07 ~ gd = -2.31e+03 stored in 86 (13)
+            Component 7 evaluated: UB = -1.0663916181e+04, LB = -1.0663916181e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -2.05e-07 ~ gd = -2.31e+03 stored in 87 (11)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.5278766666e-09, LB = 1.5278766666e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 5.95e-11 ~ gd = -7.96e-12 stored in 88 (10)
+            Component 1 evaluated: UB = 1.5278766666e-09, LB = 1.5278766666e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 5.95e-11 ~ gd = -7.96e-12 stored in 89 (10)
+            Component 2 evaluated: UB = 8.0607111341e-12, LB = 8.0607111341e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 2.51e-13 ~ gd = -1.92e-14 stored in 90 (10)
+            Component 3 evaluated: UB = 8.0607111341e-12, LB = 8.0607111341e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 2.51e-13 ~ gd = -1.92e-14 stored in 91 (11)
+            Component 4 evaluated: UB = 8.0607111341e-12, LB = 8.0607111341e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 2.51e-13 ~ gd = -1.92e-14 stored in 92 (10)
+            Component 5 evaluated: UB = 8.0607111341e-12, LB = 8.0607111341e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 2.51e-13 ~ gd = -1.92e-14 stored in 93 (10)
+            Fi1 = 1.9152918248e+06 ~ Alfa1 = -4.11e-07 ~ Gi1xd = 4.77e+03
+
+ SS[0]: DFi = 2.38e+03 ~ Lw1(1.9152918248e+06) >= LwTrgt(1.9129329252e+06) ~ Ht = 1.00e-04
+
+{1-21-94} t = 3.38e-04 ~ D*_1( z* ) = 5.29e+06 ~ Sigma = -2.65e-09
+            Fi = 1.9152918248e+06 ~ eU = 2.76e+04
+    Lambda1 = [ -3.43e+01 -3.14e+01 -2.98e+01 -2.93e+01 -2.98e+01 -3.23e+01 -3.53e+01 -3.82e+01 -3.87e+01 -4.00e+01 -4.16e+01 -4.06e+01 -4.04e+01 -3.63e+01 -3.55e+01 -3.58e+01 -3.51e+01 -3.83e+01 -4.45e+01 -4.45e+01 -4.23e+01 -3.86e+01 -3.82e+01 -3.73e+01 ]
+            Component 5 evaluated: UB = 8.4193817231e-12, LB = 8.4193817231e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 3.89e-13 ~ gd = -3.03e-14 stored in 94 (11)
+            Component 6 evaluated: UB = -1.4130952431e+04, LB = -1.4130952431e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 1.80e-07 ~ gd = -3.47e+03 stored in 95 (14)
+            Component 7 evaluated: UB = -1.4130952431e+04, LB = -1.4130952431e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = 1.80e-07 ~ gd = -3.47e+03 stored in 96 (12)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.6136994250e-09, LB = 1.6136994250e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 9.86e-11 ~ gd = -1.28e-11 stored in 97 (11)
+            Component 1 evaluated: UB = 1.6136994250e-09, LB = 1.6136994250e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 9.86e-11 ~ gd = -1.28e-11 stored in 98 (11)
+            Component 2 evaluated: UB = 8.4193817231e-12, LB = 8.4193817231e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 3.89e-13 ~ gd = -3.03e-14 stored in 99 (11)
+            Component 3 evaluated: UB = 8.4193817231e-12, LB = 8.4193817231e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 3.89e-13 ~ gd = -3.03e-14 stored in 100 (12)
+            Component 4 evaluated: UB = 8.4193817231e-12, LB = 8.4193817231e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 3.89e-13 ~ gd = -3.03e-14 stored in 101 (11)
+            Fi1 = 1.9188659150e+06 ~ Alfa1 = 3.59e-07 ~ Gi1xd = 7.15e+03
+
+ SS[0]: DFi = 3.57e+03 ~ Lw1(1.9188659150e+06) >= LwTrgt(1.9153275657e+06) ~ Ht = -1.68e+06
+
+{1-22-102} t = 5.06e-04 ~ D*_1( z* ) = 5.29e+06 ~ Sigma = -6.73e-07
+            Fi = 1.9188659150e+06 ~ eU = 2.76e+04
+    Lambda1 = [ -3.48e+01 -3.19e+01 -3.02e+01 -2.98e+01 -3.02e+01 -3.29e+01 -3.54e+01 -3.84e+01 -3.90e+01 -4.03e+01 -4.19e+01 -4.09e+01 -4.07e+01 -3.65e+01 -3.57e+01 -3.59e+01 -3.52e+01 -3.85e+01 -4.49e+01 -4.49e+01 -4.27e+01 -3.89e+01 -3.85e+01 -3.75e+01 ]
+            Component 4 evaluated: UB = 8.9810251273e-12, LB = 8.9810251273e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 6.11e-13 ~ gd = -4.89e-14 stored in 102 (12)
+            Component 5 evaluated: UB = 8.9810251273e-12, LB = 8.9810251273e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 6.11e-13 ~ gd = -4.89e-14 stored in 103 (12)
+            Component 6 evaluated: UB = -1.9331506806e+04, LB = -1.9331506806e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -4.82e-07 ~ gd = -5.20e+03 stored in 104 (15)
+            Component 7 evaluated: UB = -1.9331506806e+04, LB = -1.9331506806e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -4.82e-07 ~ gd = -5.20e+03 stored in 105 (13)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.8241005650e-09, LB = 1.8241005650e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 2.32e-10 ~ gd = -2.21e-11 stored in 106 (12)
+            Component 1 evaluated: UB = 1.8241005650e-09, LB = 1.8241005650e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 2.32e-10 ~ gd = -2.21e-11 stored in 107 (12)
+            Component 2 evaluated: UB = 8.9810251273e-12, LB = 8.9810251273e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 6.11e-13 ~ gd = -4.89e-14 stored in 108 (12)
+            Component 3 evaluated: UB = 8.9810251273e-12, LB = 8.9810251273e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 6.11e-13 ~ gd = -4.89e-14 stored in 109 (13)
+            Fi1 = 1.9242270504e+06 ~ Alfa1 = -9.63e-07 ~ Gi1xd = 1.07e+04
+
+ SS[0]: DFi = 5.36e+03 ~ Lw1(1.9242270504e+06) >= LwTrgt(1.9189195264e+06) ~ Ht = 1.00e-04
+
+{1-23-110} t = 7.59e-04 ~ D*_1( z* ) = 4.85e+06 ~ Sigma = 8.37e+01
+            Fi = 1.9242270504e+06 ~ eU = 2.52e+04
+    Lambda1 = [ -3.53e+01 -3.27e+01 -3.09e+01 -3.04e+01 -3.09e+01 -3.37e+01 -3.56e+01 -3.88e+01 -3.93e+01 -4.07e+01 -4.24e+01 -4.14e+01 -4.11e+01 -3.68e+01 -3.59e+01 -3.62e+01 -3.54e+01 -3.89e+01 -4.55e+01 -4.56e+01 -4.32e+01 -3.92e+01 -3.88e+01 -3.78e+01 ]
+            Component 3 evaluated: UB = 9.6894569071e-12, LB = 9.6894569071e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 7.83e-13 ~ gd = -7.47e-14 stored in 110 (14)
+            Component 4 evaluated: UB = 9.6894569071e-12, LB = 9.6894569071e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 7.83e-13 ~ gd = -7.47e-14 stored in 111 (13)
+            Component 5 evaluated: UB = 9.6894569071e-12, LB = 9.6894569071e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 7.83e-13 ~ gd = -7.47e-14 stored in 112 (13)
+            Component 6 evaluated: UB = -2.7139388196e+04, LB = -2.7139388196e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = 8.37e+01 ~ gd = -7.89e+03 stored in 113 (16)
+            Fi1 =  + INF
+
+ NS[0]: Up1(1.9315184397e+06) <= UpTrgt(1.9316028614e+06) ~ Ht = 0.00e+00
+
+{1-24-114} t = 7.59e-04 ~ D*_1( z* ) = 4.67e+06 ~ Sigma = 1.54e+02
+            Fi = 1.9242270504e+06 ~ eU = 2.43e+04
+    Lambda1 = [ -3.50e+01 -3.27e+01 -3.09e+01 -3.04e+01 -3.09e+01 -3.37e+01 -3.56e+01 -3.88e+01 -3.93e+01 -4.07e+01 -4.24e+01 -4.14e+01 -4.11e+01 -3.68e+01 -3.59e+01 -3.62e+01 -3.54e+01 -3.89e+01 -4.55e+01 -4.56e+01 -4.32e+01 -3.92e+01 -3.88e+01 -3.78e+01 ]
+            Component 7 evaluated: UB = -2.6853323508e+04, LB = -2.6853323508e+04
+
+            New subgradient for Fi[ 7 ] ~ Alfa1 = -1.63e-07 ~ gd = -7.52e+03 stored in 114 (14)
+            Component 8 evaluated: UB = 0.0000000000e+00, LB = 0.0000000000e+00
+
+            New subgradient for Fi[ 8 ] ~ Alfa1 = 0.00e+00 ~ gd = -0.00e+00 is copy of 8 (0)
+            Component 0 evaluated: UB = 1.9541946894e-09, LB = 1.9541946894e-09
+
+            New subgradient for Fi[ 0 ] ~ Alfa1 = 1.63e-10 ~ gd = -3.25e-11 stored in 115 (13)
+            Component 1 evaluated: UB = 1.9541946894e-09, LB = 1.9541946894e-09
+
+            New subgradient for Fi[ 1 ] ~ Alfa1 = 1.63e-10 ~ gd = -3.25e-11 stored in 116 (13)
+            Component 2 evaluated: UB = 9.5338309686e-12, LB = 9.5338309686e-12
+
+            New subgradient for Fi[ 2 ] ~ Alfa1 = 6.22e-13 ~ gd = -6.90e-14 stored in 117 (13)
+            Component 3 evaluated: UB = 9.5338309686e-12, LB = 9.5338309686e-12
+
+            New subgradient for Fi[ 3 ] ~ Alfa1 = 6.22e-13 ~ gd = -6.90e-14 stored in 118 (15)
+            Component 4 evaluated: UB = 9.5338309686e-12, LB = 9.5338309686e-12
+
+            New subgradient for Fi[ 4 ] ~ Alfa1 = 6.22e-13 ~ gd = -6.90e-14 stored in 119 (14)
+            Component 5 evaluated: UB = 9.5338309686e-12, LB = 9.5338309686e-12
+
+            New subgradient for Fi[ 5 ] ~ Alfa1 = 6.22e-13 ~ gd = -6.90e-14 stored in 120 (14)
+            Component 6 evaluated: UB = -2.6853323508e+04, LB = -2.6853323508e+04
+
+            New subgradient for Fi[ 6 ] ~ Alfa1 = -1.63e-07 ~ gd = -7.52e+03 stored in 121 (17)
+            Fi1 = 1.9314742586e+06 ~ Alfa1 = -3.27e-07 ~ Gi1xd = 1.45e+04
+
+ SS[0]: DFi = 7.25e+03 ~ Lw1(1.9314742586e+06) >= LwTrgt(1.9242995225e+06) ~ Ht = 1.00e-04
+
+{1-25-122} t = 1.14e-03 ~ D*_1( z* ) = 4.66e+06 ~ Sigma = -8.30e-06
+            Fi = 1.9314742586e+06 ~ eU = 2.41e+04
+    Lambda1 = [ -3.52e+01 -3.38e+01 -3.19e+01 -3.14e+01 -3.19e+01 -3.48e+01 -3.58e+01 -3.93e+01 -3.99e+01 -4.13e+01 -4.31e+01 -4.21e+01 -4.18e+01 -3.72e+01 -3.62e+01 -3.65e+01 -3.56e+01 -3.94e+01 -4.65e+01 -4.65e+01 -4.40e+01 -3.98e+01 -3.94e+01 -3.82e+01 ]
+Item 10 removed
+Item 11 removed

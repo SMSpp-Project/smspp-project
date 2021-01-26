@@ -40,7 +40,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif
