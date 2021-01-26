@@ -11,56 +11,36 @@ The following tests are provided:
 
 - [`BendersBFunction`](BendersBFunction)
 
-- [`LagBFunction`](LagBFunction/README.md) - constructs one `AbstractBlock` with two
-  different kinds of sub-Block: some `PolyhedralFunctionBlock` (configured in
-  the "natural" way where the `FRealObjective` has a `PolyhedralFunction`),
-  and some with `FRealObjective` with a `LagBFunction` having as inner `Block`
-  a simple transportation problem. Then, another `AbstractBlock` is
-  constructed with the same inner `PolyhedralFunctionBlock` (but configured
-  in "linearized" way where the `FRealObjective` has a `LinearFunction` and
-  there are "linear" constraints) and some `AbstractBlock` sub-Block that
-  basically represent, in a dual way, the same problem that the `LagBFunction`
-  sub-Block do. The two `Block` are randomly changed in many different ways
-  (in exactly the same way for the `PolyhedralFunctionBlock`, in different but
-  mathematically equivalent ways for the others), then solved (the first
-  typically via a `BundleSolver` and the second via a `MILPSolver`) and the
-  results are checked for consistency. This is a very comprehensive test for
-  `LagBFunction`, `PolyhedralFunctionBlock`, `PolyhedralFunction`,
-  `BundleSolver`, `MILPSolver` and its derived classes (`CPXMILPSolver` and
-  `SCIPMILPSolver`), as well as for quite a lot of the mechanics of the "core"
-  SMS++ library.
+- [`LagBFunction`](LagBFunction/README.md), a tester which provides very
+  comprehensive tests for `LagBFunction`, `PolyhedralFunctionBlock`,
+  `PolyhedralFunction`, any `CDASolver` able to handle `C05Function` in the
+  objective (such as `BundleSolver`, for which some specific provisions are
+  made), any `CDASolver` able to handle Linear Programs (such as `MILPSolver`
+  and its derived classes `CPXMILPSolver` and `SCIPMILPSolver`), as well as
+  for quite a lot of the mechanics of the "core" SMS++ library.
 
-- [`MCFMILP`](MCFMILP) - solve a `MCFBlock` with both a `MILPSolver` and an
-  `MCFSolver` and compare the results, test the Modifications. This is a
-  test for `MCFBlock`, `MCFSolver`,  `MILPSolver` and its derived classes
+- [`MCFMILP`](MCFMILP) - solve a `MCFBlock` with both a `MILPSolver` and a
+  `MCFSolver` and compare the results, test the `Modifications`. This is a
+  test for `MCFBlock`, `MCFSolver`, `MILPSolver` and its derived classes
   (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
   mechanics of the "core" SMS++ library.
 
-- [`PolyhedralFunction`](PolyhedralFunction) - constructs an `AbstractBlock`
-  with a single `PolyhedralFunction` as objective (inside a `FRealObjective`)
-  and another `AbstractBlock` with a representation of the same function via
-  "linear constraints". The function is randomly changed in many different
-  ways, the two `Block` are solved (the first typically via a `BundleSolver`
-  and the second via a `MILPSolver`) and the results are checked for
-  consistency. This is a very comprehensive test for `PolyhedralFunction`
-  and tests some features of `BundleSolver` and `MILPSolver` and its derived
-  classes (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for quite some
-  mechanics of the "core" SMS++ library.
+- [`PolyhedralFunction`](PolyhedralFunction/README.md), a tester which
+  provides very comprehensive tests for `PolyhedralFunction` and some tests
+  for any `CDASolver` able to handle `C05Function` in the objective (such as
+  `BundleSolver`) and any `CDASolver` able to handle Linear Programs (such
+  as `MILPSolver` and its derived classes `CPXMILPSolver` and
+  `SCIPMILPSolver`), as well as for some of the mechanics of the "core"
+  SMS++ library.
 
-- [`PolyhedralFunctionBlock`](PolyhedralFunctionBlock) - constructs one
-  `AbstractBlock` with one or more `PolyhedralFunctionBlock` and (possibly a
-  `LinearFunction` as objective) and copies it; one copy is configured in
-  the "natural" way (the `FRealObjective` has a `PolyhedralFunction`) and the
-  other copy in the "linearized" way (the `FRealObjective` has a
-  `LinearFunction` and there are "linear" constraints). The `AbstractBlock` is
-  randomly changed in many different ways (and the changes are moved to the
-  copy by means of `UpdateSolver` and `map\_forward\_Modification()`), the
-  two `Block` are solved (the first typically via a `BundleSolver` and the
-  second via a `MILPSolver`) and the results are checked for consistency.
-  This is a very comprehensive test for `PolyhedralFunctionBlock` and
-  `PolyhedralFunction` and tests several features of `BundleSolver`,
-  `MILPSolver` and its derived classes (`CPXMILPSolver` and `SCIPMILPSolver`),
-  as well as for quite a lot of the mechanics of the "core" SMS++ library.
+- [`PolyhedralFunctionBlock`](PolyhedralFunctionBlock/README.md)), a tester
+  which provides very comprehensive tests for `PolyhedralFunction` and
+  especially `PolyhedralFunctionBlock`, plus quited some tests for any
+  `CDASolver` able to handle multiple `C05Function` in the objective (such
+  as `BundleSolver`) and any `CDASolver` able to handle Linear Programs
+  (such as `MILPSolver` and its derived classes `CPXMILPSolver` and
+` SCIPMILPSolver`), as well as for some of the mechanics of the "core"
+  SMS++ library.
 
 
 The tests run as traditional command line executables.

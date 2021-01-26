@@ -187,7 +187,7 @@ value, if applicable) are compared.
 The PolyhedralFunction and/or the costs and demands (not supplies) of the
 uncapacitated transportation problems are then repeatedly randomly
 modified "in the same way", and re-solved several times; each time the
-results of the two solvers are compared.
+results of the two `Solver` are compared.
 
 The usage of the executable is the following:
 
@@ -215,11 +215,6 @@ have been done for the tested modules.
 A makefile is also provided that builds the executable inluding the
 BundleSOlver module and all its dependencies, in particular MILPSolver
 (and, obviously, the core SMS++ library).
-
-
-## Contributing
-
-This section is not ready yet.
 
 
 ## Authors
