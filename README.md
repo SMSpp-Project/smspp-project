@@ -11,7 +11,7 @@ The following tests are provided:
 
 - [`BendersBFunction`](BendersBFunction)
 
-- [`LagBFunction/README.md`](LagBFunction) - constructs one `AbstractBlock` with two
+- [`LagBFunction`](LagBFunction/README.md) - constructs one `AbstractBlock` with two
   different kinds of sub-Block: some `PolyhedralFunctionBlock` (configured in
   the "natural" way where the `FRealObjective` has a `PolyhedralFunction`),
   and some with `FRealObjective` with a `LagBFunction` having as inner `Block`
