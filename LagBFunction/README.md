@@ -41,32 +41,32 @@ The NDOBlock is constructed as follows:
    `AbstractBlock` NDOBlock, possibly with a linear function, to represent
    a problem of the form (for k = 1 and p = 2)
 
-     min { l x + f(x) + max { ( B x + c_1 ) z_1 : E z_1 = b_1 , 0 <= z_1 }
-                      + max { ( B x + c_2 ) z_2 : E z_2 = b_2 , 0 <= z_2 } }
+       min { l x + f(x) + max { ( B x + c_1 ) z_1 : E z_1 = b_1 , 0 <= z_1 }
+                        + max { ( B x + c_2 ) z_2 : E z_2 = b_2 , 0 <= z_2 } }
  
    Assuming that arcs are ordered lexicographically (first all the ones
    outgoing node 0, ordered by tail node, then all the ones outgoing node
    1, ...), the matrix E has the form (ignoring bound constraints)
 
-             n^2
-      | e^T  0  ...  0  |
-   n  |  0  e^T ...  0  |
-      |  :  :        :  |
-      |  0  0   ... e^T |
-      +-----------------+
-   n  |  I  I   ...  I  |
+                 n^2
+          | e^T  0  ...  0  |
+       n  |  0  e^T ...  0  |
+          |  :  :        :  |
+          |  0  0   ... e^T |
+          +-----------------+
+       n  |  I  I   ...  I  |
 
    corresponding to constraints (with I = J =  { 0 ... n - 1 })
 
-      \sum_{ j \in J } z[ i ][ j ] == s[ i ]   i \in I
+       \sum_{ j \in J } z[ i ][ j ] == s[ i ]   i \in I
 
-      \sum_{ i \in I } z[ i ][ j ] == d[ j ]   j \in J
+       \sum_{ i \in I } z[ i ][ j ] == d[ j ]   j \in J
 
    with s[] and d[] being the vectors of supplies and demand. The matrix
    B has the form
 
              n^2
-   n  |  I  I   ...  I  |
+       n  |  I  I   ...  I  |
 
    corresponding to the fact that the cost of arc ( i , j ) is
 
@@ -107,58 +107,58 @@ The NDOBlock is constructed as follows:
  - For the p `LagBFunction`, an LP equivalent is constructed by the
    following derivation:
 
-   min { l x + f(x) + max { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
-                    + max { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 }
-         } =
-
-   min { l x + f(x) + min { y_1 b_1 : y_1 E >= B x + c_1 }
-                    + min { y_2 b_2 : y_2 E >= B x + c_2 } } =
-
-   min { l x + f(x) + y_1 b_1 + y_2 b_2 :
-         y_1 E >= B x + c_1 , y_2 E >= B x + c_2 }
+       min { l x + f(x) + max { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
+                        + max { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 }
+            } =
+       
+       min { l x + f(x) + min { y_1 b_1 : y_1 E >= B x + c_1 }
+                        + min { y_2 b_2 : y_2 E >= B x + c_2 } } =
+       
+       min { l x + f(x) + y_1 b_1 + y_2 b_2 :
+             y_1 E >= B x + c_1 , y_2 E >= B x + c_2 }
 
    Since the transpose of E has the form
 
-              n        n
-         | e 0 ... 0 | I |
-   n^2   | 0 e ... 0 | I |
-         | : :     : | : |
-         | 0 0 ... e | I |
+                  n        n
+             | e 0 ... 0 | I |
+       n^2   | 0 e ... 0 | I |
+             | : :     : | : |
+             | 0 0 ... e | I |
 
    this corresponds to variables yo[ i ] and yd[ j ] for each origin and
    destination, with costs s[ i ] and d[ j ] respectively, as well as
    constraints
 
-      ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
+       ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
 
    for all i \in I and j \in J. This works if the variable z[ i ][ j ] has
    *no* finite bound; if, instead, the constraint
 
-      z[ i ][ j ] <= u[ i ][ j ]
+       z[ i ][ j ] <= u[ i ][ j ]
 
    is present (with u[ i ][ j ] = 0 possible), then it has a dual variable
    w[ i ][ j ]; this means that a term u[ i ][ j ] * w[ i ][ j ] is added
    to the objective function, and that the constraint becomes
 
-      ys[ i ] + yd[ j ] + w[ i ][ j ] - x[ j ] >= c[ i ][ j ]
+       ys[ i ] + yd[ j ] + w[ i ][ j ] - x[ j ] >= c[ i ][ j ]
 
-      w[ i ][ j ] >= 0
+       w[ i ][ j ] >= 0
 
    All this, however, is only correct for the convex case; in the concave
    one, the problem is rather
 
-   max { l x + f(x) + min { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
-                    + min { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 } }
+       max { l x + f(x) + min { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
+                        + min { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 } }
    yelding
 
-   max { l x + f(x) + y_1 b_1 + y_2 b_2 :
-         y_1 E <= B x + c_1 , y_2 E <= B x + c_2 }
+       max { l x + f(x) + y_1 b_1 + y_2 b_2 :
+             y_1 E <= B x + c_1 , y_2 E <= B x + c_2 }
 
    and therefore the constraints are
 
-      ys[ i ] + yd[ j ] - w[ i ][ j ] - x[ j ] <= c[ i ][ j ]
+       ys[ i ] + yd[ j ] - w[ i ][ j ] - x[ j ] <= c[ i ][ j ]
 
-      w[ i ][ j ] >= 0
+       w[ i ][ j ] >= 0
 
    assuming u[ i ][ j ] is finite, else without the "- w[ i ][ j ]" term
    and the w[ i ][ j ] variable; note having put a "-" to keep w[ i ][ j ]
