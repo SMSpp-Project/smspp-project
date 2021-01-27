@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -477,11 +477,10 @@ int main( int argc , char **argv )
  // constructing the data of the problem- - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // choosing whether min or max: toss a(n unbiased, two-sided) coin
- //!!minobj = ( dis( rg ) < 0.5 );
- minobj = false;
+ minobj = ( dis( rg ) < 0.5 );
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
- //!!isquad = ( dis( rg ) < 0.5 );
- isquad = false;
+ isquad = ( dis( rg ) < 0.5 );
+ //!!isquad = false;
 
  #if( LOG_LEVEL >= 1 )
   if( minobj ) cout << "min"; else cout << "max";

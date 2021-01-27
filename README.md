@@ -33,7 +33,7 @@ The following tests are provided:
   `SCIPMILPSolver`), as well as for some of the mechanics of the "core"
   SMS++ library.
 
-- [`PolyhedralFunctionBlock`](PolyhedralFunctionBlock/README.md)), a tester
+- [`PolyhedralFunctionBlock`](PolyhedralFunctionBlock/README.md), a tester
   which provides very comprehensive tests for `PolyhedralFunction` and
   especially `PolyhedralFunctionBlock`, plus quited some tests for any
   `CDASolver` able to handle multiple `C05Function` in the objective (such

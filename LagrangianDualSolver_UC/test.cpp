@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 4
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -40,7 +40,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 1
+  #define LOG_ON_COUT 0
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif
@@ -355,7 +355,7 @@ int main( int argc , char **argv )
    }
 
   bsc->apply( TestBlock );
-  delete bsc;
+  bsc->clear();
 
   if( TestBlock->get_registered_solvers().empty() ) {
    cout << endl << "no Solver registered to the Block!" << endl;
