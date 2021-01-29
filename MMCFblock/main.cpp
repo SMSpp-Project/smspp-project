@@ -118,9 +118,9 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  auto MMCFb = new MMCFBlock;
- MMCFb->Load( argv[ 1 ] , filetype );
+ MMCFb->load( argv[ 1 ] , filetype );
  MMCFb->PreProcess();
- MMCFb->MakeMMCF();
+ MMCFb->generate_abstract_variables();
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
