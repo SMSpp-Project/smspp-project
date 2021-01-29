@@ -22,9 +22,9 @@ fi
 ./LDS_Box_test $seed $what $nvar $nson $dens $iter
 
 retVal=$?
-if [ $retVal -ne 0 ]; then
-    exit 1
-fi
+#if [ $retVal -ne 0 ]; then
+#    exit 1
+#fi
 
 done
 done

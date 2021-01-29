@@ -28,7 +28,7 @@ After all this is done, the NDOBlock and LPBlock are solved with the
 registered `Solver` and the results (termination statuts and objective
 value, if applicable) are compared.
 
-The PolyhedralFunction and the LP are then repeatedly randomly modified
+The `PolyhedralFunction` and the LP are then repeatedly randomly modified
 "in the same way", and re-solved several times; each time the results
 of the two `Solver` are compared.
 
@@ -51,8 +51,8 @@ good sign that no regressions have been done for the tested modules, and
 in particular for `PolyhedralFunction`.
 
 A makefile is also provided that builds the executable inluding the
-BundleSOlver module and all its dependencies, in particular MILPSolver
-(and, obviously, the core SMS++ library).
+`BundleSOlver` module and all its dependencies, in particular
+`MILPSolver` (and, obviously, the core SMS++ library).
 
 
 ## Authors

@@ -1,3 +1,5 @@
+#!/usr/local/bin/bash
+
 # Batch file for generating MMCF problems with the mnetgen random generator
 #
 # For each n in {64, 128, 256} generates 12 instances for each pair (n, k)
@@ -5,18 +7,17 @@
 # in pr{n}.{k}/{n}-{k}-{h}.inp for h in {1, ... , 12}. The instances
 # are left in the directory pr{n}.{k}
 #
-# At the end of the file, commented out, there are the instructions for
-# generating the groups with n = 512 and n = 768: in the latter case,
-# however, only 6 instances for each group are generated.
-#
-# In a Unix environment, simply type "source batch" or "csh < batch"
+# In a *nix environment, simply type "source batch" or "./batch"
 
-set MnetgenDir = '../../data/Mnetgen/'
+MnetgenDir=../../data/Mnetgen/
 mkdir $MnetgenDir
 
-foreach i ( 64 )
-foreach j ( 4 8 16 32 64 )
-foreach h ( 1 2 3 4 5 6 7 8 9 10 11 12 )
+for i in 64
+do
+for j in 4 8 16 32 64
+do
+for (( h=1 ; h<13 ; h++ ))
+do
 
 ./mnetgen pr$i.$j/$i-$j-$h.inp pr$i.$j/$i-$j-$h
 mv pr$i.$j/$i-$j-$h.arc $MnetgenDir/$i-$j-$h.arc
@@ -24,13 +25,16 @@ mv pr$i.$j/$i-$j-$h.mut $MnetgenDir/$i-$j-$h.mut
 mv pr$i.$j/$i-$j-$h.nod $MnetgenDir/$i-$j-$h.nod
 mv pr$i.$j/$i-$j-$h.sup $MnetgenDir/$i-$j-$h.sup
 
-end
-end
-end
+done
+done
+done
 
-foreach i ( 128 )
-foreach j ( 4 8 16 32 64 128 )
-foreach h ( 1 2 3 4 5 6 7 8 9 10 11 12 )
+for i in 128
+do
+for j in 4 8 16 32 64 128
+do
+for (( h=1 ; h<13 ; h++ ))
+do
 
 ./mnetgen pr$i.$j/$i-$j-$h.inp pr$i.$j/$i-$j-$h
 mv pr$i.$j/$i-$j-$h.arc $MnetgenDir/$i-$j-$h.arc
@@ -38,52 +42,25 @@ mv pr$i.$j/$i-$j-$h.mut $MnetgenDir/$i-$j-$h.mut
 mv pr$i.$j/$i-$j-$h.nod $MnetgenDir/$i-$j-$h.nod
 mv pr$i.$j/$i-$j-$h.sup $MnetgenDir/$i-$j-$h.sup
 
-end
-end
-end
+done
+done
+done
 
-foreach i ( 256 )
-foreach j ( 4 8 16 32 64 128 256 )
-foreach h ( 1 2 3 4 5 6 7 8 9 10 11 12 )
+for i in 256
+do
+for j in 4 8 16 32 64 128 256
+do
+for (( h=1 ; h<13 ; h++ ))
+do
 
-#./mnetgen pr$i.$j/$i-$j-$h.inp pr$i.$j/$i-$j-$h
-#mv pr$i.$j/$i-$j-$h.arc $MnetgenDir/$i-$j-$h.arc
-#mv pr$i.$j/$i-$j-$h.mut $MnetgenDir/$i-$j-$h.mut
-#mv pr$i.$j/$i-$j-$h.nod $MnetgenDir/$i-$j-$h.nod
-#mv pr$i.$j/$i-$j-$h.sup $MnetgenDir/$i-$j-$h.sup
+./mnetgen pr$i.$j/$i-$j-$h.inp pr$i.$j/$i-$j-$h
+mv pr$i.$j/$i-$j-$h.arc $MnetgenDir/$i-$j-$h.arc
+mv pr$i.$j/$i-$j-$h.mut $MnetgenDir/$i-$j-$h.mut
+mv pr$i.$j/$i-$j-$h.nod $MnetgenDir/$i-$j-$h.nod
+mv pr$i.$j/$i-$j-$h.sup $MnetgenDir/$i-$j-$h.sup
 
-end
-end
-end
-
-# -- note --
-
-# foreach i ( 512 )
-# foreach j ( 4 8 16 32 64 128 256 512 )
-# foreach h ( 1 2 3 4 5 6 7 8 9 10 11 12 )
-
-#./mnetgen pr$i.$j/$i-$j-$h.inp pr$i.$j/$i-$j-$h
-#mv pr$i.$j/$i-$j-$h.arc $MnetgenDir/$i-$j-$h.arc
-#mv pr$i.$j/$i-$j-$h.mut $MnetgenDir/$i-$j-$h.mut
-#mv pr$i.$j/$i-$j-$h.nod $MnetgenDir/$i-$j-$h.nod
-#mv pr$i.$j/$i-$j-$h.sup $MnetgenDir/$i-$j-$h.sup
-
-# end
-# end
-# end
-
-# foreach i ( 768 )
-# foreach j ( 4 8 16 32 64 128 256 512 768 )
-# foreach h ( 1 2 3 4 5 6 )
-
-# ./mnetgen pr$i.$j/$i-$j-$h.inp pr$i.$j/$i-$j-$h
-#mv pr$i.$j/$i-$j-$h.arc $MnetgenDir/$i-$j-$h.arc
-#mv pr$i.$j/$i-$j-$h.mut $MnetgenDir/$i-$j-$h.mut
-#mv pr$i.$j/$i-$j-$h.nod $MnetgenDir/$i-$j-$h.nod
-#mv pr$i.$j/$i-$j-$h.sup $MnetgenDir/$i-$j-$h.sup
-
-# end
-# end
-# end
+done
+done
+done
 
 # end of batch

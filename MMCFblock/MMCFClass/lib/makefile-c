@@ -2,21 +2,21 @@
 ################################ makefile-c ##################################
 ##############################################################################
 #									     #
-#   complete makefile of libMMCF                                              #
+#   complete makefile of libMMCF                                             #
 #									     #
 #   The makefile defines internally all external libraries required by       #
-#   the libMMCF library. Accordingly, all necessary OBJ, H, -I directives,    #
+#   the libMMCF library. Accordingly, all necessary OBJ, H, -I directives,   #
 #   and external libraries + -L<libdirs> are added to the corresponding      #
-#   libMMCF* macros.                                                          #
+#   libMMCF* macros.                                                         #
 #                                                                            #
 #   Input:  $(CC)       = compiler command                                   #
 #           $(SW)       = compiler options                                   #
-#           $(libMMCFSDR) = the (base) directory where the libMMCF source is   #
+#           $(libMMCFSDR) = the (base) directory where the libMMCF source is #
 #                                                                            #
-#   Output: $(libMMCFOBJ) = the final objects                                 #
-#           $(libMMCFH)   = the .h files to include for libMMCF                #
-#           $(libMMCFINC) = all the -I$( include dirs ) of libMMCF             #
-#           $(libMMCFLIBMMCF) = the external libraries + -L<libdirs>              #
+#   Output: $(libMMCFOBJ) = the final objects                                #
+#           $(libMMCFH)   = the .h files to include for libMMCF              #
+#           $(libMMCFINC) = all the -I$( include dirs ) of libMMCF           #
+#           $(libMMCFLIBMMCF) = the external libraries + -L<libdirs>         #
 #                                                                            #
 #                                VERSION 2.00                                #
 #                               25 - 06 - 2018                               #
@@ -36,7 +36,7 @@
 # *LIB are the external libreries + -L<libdirs>
 
 # cplex external libreries: need be included MMCFCplex
-include $(libMMCFSDR)../../../extlib/makefile-libCPX
+include $(libMMCFSDR)../../../extlib/makefile-libCPLEX
 
 # OPT*** stuff
 OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
@@ -49,10 +49,10 @@ include $(libMMCFSDR)lib/makefile
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external -I directives for the core libMMCF
-libMMCFINC := $(libMMCFINC) $(OPTUxINC) $(libCPXINC)
+libMMCFINC := $(libMMCFINC) $(OPTUxINC) $(libCPLEXINC)
 
 # external libraries for the core libMMCF
-libMMCFLIB := $(libMMCFLIB) $(libCPXLIB)
+libMMCFLIB := $(libMMCFLIB) $(libCPLEXLIB)
 
 # external headers for libMMCF
 libMMCFH := $(libMMCFH) $(libNDOH) $(OPTUxH)

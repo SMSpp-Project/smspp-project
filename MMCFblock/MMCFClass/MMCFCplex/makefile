@@ -11,7 +11,7 @@
 #           $(MMFINC)    = the -I$(MMCFClass.h directory)		     #
 #           $(MMGH)      = the Graph.h file(s) to include                    #
 #           $(MMGINC)    = the -I$(Graph directory)			     #
-#           $(libCPXINC) = the -I$(include directories)	for libCPX	     #
+#           $(libCPLEXINC) = the -I$(include directories) for libCPLEX	     #
 #           $(MMXDIR)    = the directory where the source is                 #
 #									     #
 #   Output: $(MMXLIB)    = the final object file(s)			     #
@@ -43,6 +43,6 @@ MMXINC = -I$(MMXDIR)
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 $(MMXDIR)MMCFCple.o: $(MMXDIR)MMCFCple.C $(MMXH) $(MMGH) $(MMFH) $(OPTUxH)
-	$(CC) -c $*.C -o $@ $(SW) $(MMGINC) $(MMFINC) $(libCPXINC) $(OPTUxINC)
+	$(CC) -c $*.C -o $@ $(SW) $(MMGINC) $(MMFINC) $(libCPLEXINC) $(OPTUxINC)
 
 ############################ End of makefile #################################

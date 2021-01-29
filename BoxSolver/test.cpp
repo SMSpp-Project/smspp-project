@@ -505,10 +505,8 @@ int main( int argc , char **argv )
  minobj = ( dis( rg ) < 0.5 );
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
  isquad = ( dis( rg ) < 0.5 );
- //!! isquad = false;
  // choosing whether integer or not: toss a(n unbiased, two-sided) coin
- //!! isint = ( dis( rg ) < 0.5 );
- isint = false;
+ isint = ( dis( rg ) < 0.5 );
  // choosing whether always feasible or not: toss a(...) coin
  isfeas = ( dis( rg ) < 0.5 );
  // choosing whether always bounded or not: toss a(...) coin

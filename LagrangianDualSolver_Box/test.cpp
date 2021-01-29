@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -369,7 +369,7 @@ static bool SolveBoth( void )
                || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
    LOG1( "OK(f)" << endl );
@@ -479,8 +479,8 @@ int main( int argc , char **argv )
  // choosing whether min or max: toss a(n unbiased, two-sided) coin
  minobj = ( dis( rg ) < 0.5 );
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
- isquad = ( dis( rg ) < 0.5 );
  //!!isquad = false;
+ isquad = ( dis( rg ) < 0.5 );
 
  #if( LOG_LEVEL >= 1 )
   if( minobj ) cout << "min"; else cout << "max";
@@ -498,13 +498,27 @@ int main( int argc , char **argv )
 
   TestBlock = new AbstractBlock();
 
-  // create the sub-Block and add them;
-  // meanwhile, register a BoxSolver to each
   for( Index k = 0 ; k++ < nson ; ) {
+   // create the sub-Block and add them;
    auto son = construct_son();
+   // meanwhile, register a BoxSolver to each
    auto bs = new BoxSolver;
    bs->set_sol( 1 );  // primal solutions need be computed
    son->register_Solver( bs );
+   /*!!
+   //!! rather, use a MILPSolver
+   auto c = Configuration::deserialize( "LPBSCfg.txt" );
+   auto bsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! bsc ) {
+    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+    delete c;
+    exit( 1 );
+    }
+
+   bsc->apply( son );
+   delete bsc;
+   !!*/
+   
    TestBlock->add_nested_Block( son );
    }
 
@@ -657,6 +671,7 @@ int main( int argc , char **argv )
      if( isquad ) {  // quadratic objective
       auto qf = static_cast< DQuadFunction * >( obj->get_function() );
 
+      /*!!
       Vec_FunctionValue NQC( tochange );
       for( auto & nqc : NQC )
        set_quad_c( nqc );
@@ -665,6 +680,11 @@ int main( int argc , char **argv )
        qf->modify_term( strt , NQC.front() , NC.front() );
       else
        qf->modify_terms( NQC.begin() , NC.begin() , Range( strt , stp ) );
+       !!*/
+      if( tochange == 1 )
+       qf->modify_linear_coefficient( strt , NC.front() );
+      else
+       qf->modify_linear_coefficients( std::move( NC ) , Range( strt , stp ) );
       }
      else {          // linear objective
       auto lf = static_cast< LinearFunction * >( obj->get_function() );
@@ -682,6 +702,7 @@ int main( int argc , char **argv )
      if( isquad ) {  // quadratic objective
       auto qf = static_cast< DQuadFunction * >( obj->get_function() );
 
+      /*!!
       Vec_FunctionValue NQC( tochange );
       for( auto & nqc : NQC )
        set_quad_c( nqc );
@@ -690,6 +711,12 @@ int main( int argc , char **argv )
        qf->modify_term( nms.front() , NQC.front() , NC.front() );
       else
        qf->modify_terms( NQC.begin() , NC.begin() , std::move( nms ) );
+       !!*/
+
+      if( tochange == 1 )
+       qf->modify_linear_coefficient( nms.front() , NC.front() );
+      else
+       qf->modify_linear_coefficients( std::move( NC ) , std::move( nms ) );
       }
      else {          // linear objective
       auto lf = static_cast< LinearFunction * >( obj->get_function() );

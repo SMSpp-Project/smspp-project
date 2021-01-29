@@ -2,13 +2,16 @@
 /*----------------------------- File main.cpp ------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Small main() for testing MMCFBlock using MILPSolver.
- * It just creates one and loads it from a stream;
- * little more than a compilation check.
+ *
+ * Tester for MMCFBlock. It loads an MMCF instance from file, taking the
+ * filename and the type from the command line, into both a MMCFBlock with
+ * an approprate Solver (say, CPXMILPSolver) attached, and into a
+ * MMCFCplex object derived from MMCFClass. It solves the instance with
+ * both and compares the results.
  *
  * \version 0.10
  *
- * \date 30 - 12 - 2020
+ * \date 29 - 01 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -22,6 +25,14 @@
  * Copyright &copy by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
+/*-------------------------------- MACROS ----------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+#define LOG_LEVEL 0
+// 0 = only pass/fail
+// 1 = + solver log
+
+/*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
@@ -29,11 +40,10 @@
 #include <fstream>
 
 #include "MMCFBlock.h"
-#include "MILPSolver.h"
 #include "BlockSolverConfig.h"
 
-#include "MMCFCple.h"
 #include "Graph.h"
+#include "MMCFCple.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -47,86 +57,34 @@ using namespace MMCFClass_di_unipi_it;
 /*----------------------------- FUNCTIONS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template< typename T>
-static void read_T( istream & iStrm , T & t )
-{
- iStrm >> eatcomments;
-
- int c = iStrm.peek();
-
- switch( c ) {
-  case 'I' :
-  case 'i' : t = SMSpp_di_unipi_it::Inf<T>();
-             break;
-  case '-' : iStrm.get();
-             read_T( iStrm , t );
-             t = - t;
-             return;
-  case 'M' :
-  case 'm' : t = -SMSpp_di_unipi_it::Inf<T>();
-             break;
-  default :  iStrm >> t;
-             return;
-  }
-
- do { c = iStrm.get(); c = iStrm.peek();
-  } while( ( c != iStrm.widen( ' ' ) ) &&
-	   ( c != iStrm.widen( '\n' ) ) &&
-	   ( c != iStrm.widen( '\t' ) ) );
-
- }
-
-/*--------------------------------------------------------------------------*/
-
-static inline int read_int( istream & iStrm )
-{
- int d;
- read_T( iStrm , d );
- return( d );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static inline double read_dbl( istream & iStrm )
-{
- double d;
- read_T( iStrm , d );
- return( d );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static inline string read_string( istream & iStrm )
-{
- iStrm >> eatcomments;
- string s;
- int c = iStrm.peek();
- iStrm >> s;
- return( s );
- }
-
-/*--------------------------------------------------------------------------*/
-
-static inline char read_char( istream & iStrm )
-{
- char d;
- read_T( iStrm , d );
- return( d );
- }
-
-/*--------------------------------------------------------------------------*/
-
+/*!!
 template<class T>
 static inline void str2val( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
  }
+ !!*/
+
+/*--------------------------------------------------------------------------*/
+
+ static void PrintResults( int rtrn , double lb , double ub )
+{
+ cout << "MMCFB: ";
+ if( ( rtrn >= Solver::kOK ) && ( rtrn < Solver::kError ) )
+  cout << setprecision( 8 ) <<   lb << ", " << ub;
+ else
+  if( rtrn == Solver::kInfeasible )
+   cout << "Unfeas";
+  else
+   if( rtrn == Solver::kUnbounded )
+    cout << "Unbounded";
+   else
+    cout << "Error!";
+ }
 
 /*--------------------------------------------------------------------------*/
 /*----------------------------- CONSTANTS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
-
-const char *const logF = "out.txt";
 
 #define USECOLORS 1
 #if( USECOLORS )
@@ -141,98 +99,104 @@ const char *const logF = "out.txt";
 /*--------------------------------- Main -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-char type = 's';     // type of the input file
 int main( int argc , char **argv )
 {
- if( argc != 4 ) {
-  cerr << "Usage: " << argc << " -- " << argv[ 0 ] << " MMCF_file_name NC4_file_name [NC4_file_name_2]" << endl;
+ // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ if( argc < 2 ) {
+  cerr << "Usage: " << argv[ 0 ] << " file_name [typ]" << endl
+       << "        typ = s*, c, p, o, d, u, m (lower or uppercase)" << endl;
   return( 1 );
   }
 
- ifstream ProbFile( argv[ 1 ] );
- if( ! ProbFile.is_open() ) {
-  cerr << "Error: cannot open file " << argv[ 1 ] << endl;
-  return( 1 );
+ char filetype = 's';  // type of the input file;
+ if( argc > 2 )
+  filetype = argv[ 2 ][ 0 ];
+
+ // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ auto MMCFb = new MMCFBlock;
+ MMCFb->Load( argv[ 1 ] , filetype );
+ MMCFb->PreProcess();
+ MMCFb->MakeMMCF();
+
+ // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ BlockSolverConfig * bsc;
+ {
+  auto c = Configuration::deserialize( "BSPar.txt" );
+  bsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! bsc ) {
+   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
+   }
+
+  bsc->apply( MMCFb );
+  bsc->clear();
   }
 
- Block *sblock = Block::new_Block( "MMCFBlock" );
- auto sMMCFblock = static_cast< MMCFBlock * >( sblock );
- ProbFile >> *sMMCFblock;
+ if( MMCFb->get_registered_solvers().empty() ) {
+  cout << endl << "no Solver registered to the Block!" << endl;
+  exit( 1 );
+  }
 
- BlockSolverConfig * bsc = new BlockSolverConfig;
- ProbFile >> *( bsc );
-
- char filetype;
- str2val( argv[ 3 ] , filetype );
-
- sMMCFblock->Load( argv[ 2 ] , filetype );
- sMMCFblock->PreProcess();
- sMMCFblock->MakeMMCF();
- // cout << *sMMCFblock;
-
- bsc->apply( sMMCFblock );
- delete bsc;
-
- Solver * slvr = (sMMCFblock->get_registered_solvers()).front();
+ Solver * slvr = (MMCFb->get_registered_solvers()).front();
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ #if LOG_LEVEL > 0
+  ofstream LOGFile( "logMMCFB.txt" , ofstream::out );
+  if( ! LOGFile.is_open() )
+   cerr << "Warning: cannot open log file logMMCFB.txt" << endl;
+  else
+   slvr->set_log( &LOGFile );
+ #endif
+
+ std::clock_t c_start = std::clock();
  int rtrn = slvr->compute( false );
  double lb_value = slvr->get_lb();
  double ub_value = slvr->get_ub();
+ double time = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
 
- ofstream LOGFile( logF , ofstream::out );
- if( ! LOGFile.is_open() )
-  cerr << "Warning: cannot open log file """ << logF << """" << endl;
- else
-  slvr->set_log( &LOGFile );
-
- LOGFile.precision( 8 );
- LOGFile << std::endl << std::endl << "f* = "
-		 << lb_value << " (optimal value)" << std::endl;
-
- delete sMMCFblock;
-
-
- // set the Log of NDData  - - - - - - - - - - - - - - - - - - - - - - - - - -
- //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- ofstream LOGCPX( "log.cpx" , ofstream::out );
- if( ! LOGCPX.is_open() )
-  cerr << "Warning: cannot open log file log.cpx" << endl;
-
- // open parameters file - - - - - - - - - - - - - - - - - - - - - - - - - -
- //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int BBlvl = read_int( ProbFile );      // level of verbosity of MIP problem
- double epsilon = read_dbl( ProbFile ); // relative tolerance
- int threads1 = read_dbl( ProbFile );   // the number of threads
+ // cleanup MMCFBlock and its Solver
+ bsc->apply( MMCFb );
+ delete bsc;
+ delete MMCFb;
 
  // read and modify the problem - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- Graph *Gh = new Graph( argv[ 2 ] , filetype );
+ Graph *Gh = new Graph( argv[ 1 ] , filetype );
  Gh->PreProcess();
 
  // allocate the solver - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- MMCFCplex *mmcf = new MMCFCplex( Gh , &ProbFile );
- ProbFile.close();
+ MMCFCplex *mmcf = new MMCFCplex( Gh , nullptr );
 
  // set tolerance  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- mmcf->SetCplexParam( CPX_PARAM_EPOPT , epsilon );
- mmcf->SetCplexParam( CPX_PARAM_EPGAP , epsilon);
+ mmcf->SetCplexParam( CPX_PARAM_EPOPT , 1e-8 );
+ mmcf->SetCplexParam( CPX_PARAM_EPGAP , 1e-8 );
 
  // pass the number of threads - - - - - - - - - - - - - - - - - - - - - - -
 
- mmcf->SetCplexParam( CPX_PARAM_THREADS , threads1 );
+ mmcf->SetCplexParam( CPX_PARAM_THREADS , 1 );
 
  // pass Log- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- mmcf->SetMMCFLog( &LOGCPX , BBlvl );
+ #if LOG_LEVEL > 0
+  ofstream LOGCPX( "logMMCFC.txt" , ofstream::out );
+  if( ! LOGCPX.is_open() )
+   cerr << "Warning: cannot open log file logMMCFC.txt" << endl;
+  else
+   mmcf->SetMMCFLog( &LOGCPX , 2 );
+ #endif
 
  // free some memory- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -259,46 +223,53 @@ int main( int argc , char **argv )
  // clean up- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- delete mmcf ;
+ delete mmcf;
 
  // output the results- - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- LOGFile << "Time:" << tu + ts  << "\t"  ;
+ cout << time << " - " << tu + ts  << ": ";
 
  switch( Status ) {
-  case( MMCFClass::kOK ) :
-   LOGFile << "Status: OK, Value: ( " << OV1 << " , "<< OV2 << " ) " << endl;
-   if( abs( lb_value - OV1 ) / abs( lb_value ) <= 1e-8 )
-	cout << GREEN( Test passed!! ) << endl;
-   else
-	cout << RED( Shit happened!! ) << endl;
+  case( MMCFClass::kStopped ):
+  case( MMCFClass::kOK ):
+   if( ( ( rtrn >= Solver::kOK ) && ( rtrn < Solver::kError ) ) &&
+       ( abs( lb_value - OV1 ) <= 1e-8 *
+	 max( double( 1 ) , max( abs( lb_value ) , abs( OV1 ) ) ) ) &&
+       ( abs( ub_value - OV2 ) <= 1e-8 *
+	 max( double( 1 ) , max( abs( ub_value ) , abs( OV2 ) ) ) ) ) {
+    cout << "OK(f) - " << GREEN( Test passed!! ) << endl;
+    return( 0 );
+    }
+
+   PrintResults( rtrn , lb_value , ub_value );
+   cout << "- MMCFC: " << OV1 << ", "<< OV2 << " - ";
    break;
-  case( MMCFClass::kStopped ) :
-   LOGFile << "Status: Stopped: ( " << OV1 << " , "<< OV2 << " ) " << endl;
-   break;
-  case( MMCFClass::kUnfeasible ) :
-   LOGFile << "Status: Unfeas." << endl;
-   if( ub_value >= SMSpp_di_unipi_it::Inf<double>() )
-	cout << GREEN( Test passed!! ) << endl;
-   else
-	cout << RED( Shit happened!! ) << endl;
+  case( MMCFClass::kUnfeasible ):
+   if( rtrn == Solver::kInfeasible ) {
+    cout << "OK(e) - " << GREEN( Test passed!! ) << endl;
+    return( 0 );
+    }
+
+   PrintResults( rtrn , lb_value , ub_value );
+   cout << "- MMCFC: Unfeas - ";
    break;
   case( MMCFClass::kUnbounded ) :
-   LOGFile << "Status: Unbound." << endl;
-   if( lb_value <= -SMSpp_di_unipi_it::Inf<double>() )
- 	cout << GREEN( Test passed!! ) << endl;
-   else
- 	cout << RED( Shit happened!! ) << endl;
+   if( rtrn == Solver::kUnbounded ) {
+    cout << "OK(u) - " << GREEN( Test passed!! ) << endl;
+    return( 0 );
+    }
+
+   PrintResults( rtrn , lb_value , ub_value );
+   cout << "- MMCFC: Unbounded - ";
    break;
   default :
-   LOGFile << "Status: Error" << endl;
-   cout << RED( Shit happened!! ) << endl;
+   PrintResults( rtrn , lb_value , ub_value );
+   cout << "- MMCFC: Error! - ";
    }
 
- LOGCPX.close();
-
- return( 0 );
+ cout << RED( Shit happened!! ) << endl;
+ return( 1 );
  }
 
 /*--------------------------------------------------------------------------*/

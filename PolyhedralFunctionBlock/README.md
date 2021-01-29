@@ -66,7 +66,7 @@ modules, and in particular for `PolyhedralFunction` and
 `PolyhedralFunctionBlock`.
 
 A makefile is also provided that builds the executable inluding the
-BundleSOlver module and all its dependencies, in particular MILPSolver
+`BundleSOlver` module and all its dependencies, in particular `MILPSolver`
 (and, obviously, the core SMS++ library).
 
 
