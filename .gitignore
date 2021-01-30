@@ -13,6 +13,7 @@ BoxSolver/BoxSolver_test
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_Box/LDS_Box_test
 LagrangianDualSolver_UC/LDS_UC_test
+LagrangianDualSolver_MMCF/LDS_MMCF_test
 MCFMILP/MCFMILP_test
 MMCFBlock/MMCFBlock_test
 MMCFBlock/MMCFtest
@@ -21,6 +22,7 @@ PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 
 # large data test files
 MMCFBlock/data/*
+LagrangianDualSolver_MMCF/data/*
 
 # BundleSolver log files
 *.bn

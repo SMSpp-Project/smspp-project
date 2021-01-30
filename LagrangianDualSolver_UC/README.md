@@ -17,7 +17,7 @@ subproblems solved, i.e., basically the Linear Dual) with a
 
 The usage of the executable is the following:
 
-       ./LDS_UC_testUC-file [BSC-file]
+       ./LDS_UC_test UC-file [BSC-file]
        BSC-file: BlockSolverConfig description [BSPar.txt]
 
 A batch file is provided that runs the test on all the pure-thermal
@@ -35,7 +35,6 @@ A makefile is also provided that builds the executable inluding the
 `LagrangianDualSolver` module, the `BundleSOlver` module and all its
 dependencies, in particular `MILPSolver` together of course with the
 core SMS++ library, and the `UCBlock` module.
-
 
 ## Authors
 

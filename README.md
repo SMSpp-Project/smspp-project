@@ -37,6 +37,14 @@ The following tests are provided:
   `SCIPMILPSolver`), as well as for quite a lot of the mechanics of the
   "core" SMS++ library.
 
+- [`LagrangianDualSolver_MMCF`](LagrangianDualSolver_MMCF/README.md),
+  a tester which provides  initial tests for `LagrangianDualSolver`,
+  `LagBFunction`, any `CDASolver` able to handle `C05Function` in the
+  `Objective` (such as `BundleSolver`), any `CDASolver` able to handle
+  Linear Programs (such as `MILPSolver` and its derived classes
+  `CPXMILPSolver` and `SCIPMILPSolver`), `MMCFBlock` and `MCFBlock`,
+  as well as for quite a lot of the mechanics of the "core" SMS++ library.
+
 - [`LagrangianDualSolver_UC`](LagrangianDualSolver_UC/README.md), a tester
   which provides initial tests for `LagrangianDualSolver`, `LagBFunction`,
   any `CDASolver` able to handle `C05Function` in the `Objective` (such as
@@ -147,12 +155,6 @@ Each tester has an executable built in the corresponding directory; run
 it for instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
 
-
-## Contributing
-
-This section is not ready yet.
-
-
 ## Authors
 
 - **Antonio Frangioni**  
@@ -165,6 +167,10 @@ This section is not ready yet.
   Dipartimento di Informatica  
   Università di Pisa
 
+- **Enrico Gorgone**  
+  Dipartimento di Matematica ed Informatica  
+  Università di Cagliari
+
 - **Niccolò Iardella**  
   *Operations Research Group*  
   Dipartimento di Informatica  
@@ -174,7 +180,6 @@ This section is not ready yet.
   *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
-
 
 ## License
 
