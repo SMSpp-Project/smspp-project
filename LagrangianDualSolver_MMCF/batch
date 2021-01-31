@@ -1,33 +1,11 @@
 #!/usr/local/bin/bash
 
-# JLF - - - - - - - - - - - - - - - - - - - -
+# Canad - - - - - - - - - - - - - - - - - - - -
 
-#for i in HALF TWO
-#do
-#./LDS_MMCF_test data/JLF/ALK/alk.$i p
-#done
-
-#for i in 1.5k 1.6k 3.4k 3.7k
-#do
-#./LDS_MMCF_test data/JLF/Assad/assad$i p
-#done
-
-#for (( i=1 ; i<7 ; i++ ))
-#do
-#./LDS_MMCF_test data/JLF/Chen.DSP/chen$i p
-#done
-
-#for (( i=1 ; i<7 ; i++ ))
-#do
-#./LDS_MMCF_test data/JLF/Chen.PSP/psp$i p
-#done
-
-#for i in 10term 10term.0 10term.50 10term.100 15term 15term.0
-#do
-#./LDS_MMCF_test data/JLF/Farvolden/$i p
-#done
-
-#./LDS_MMCF_test data/JLF/Powell/veh8 p
+for f in data/Canad/*.dat
+do 
+./LDS_MMCF_test ${f} s
+done
 
 # Mnetgen - - - - - - - - - - - - - - - - - - - -
 
@@ -68,13 +46,6 @@ do
 
 done
 done
-done
-
-# Canad - - - - - - - - - - - - - - - - - - - -
-
-for f in data/Canad/*.dat
-do 
-./LDS_MMCF_test ${f} s
 done
 
 # end batch

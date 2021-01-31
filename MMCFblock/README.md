@@ -43,6 +43,11 @@ the tested modules, in particular for the used `CDASolver`.
   Dipartimento di Informatica  
   Università di Pisa
 
+- **Enrico Gorgone**  
+  Dipartimento di Matematica ed Informatica  
+  Università di Cagliari
+
+
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public

@@ -29,7 +29,7 @@ DIR = ./
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG
+SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX
 
 # compiler
 CC = clang++

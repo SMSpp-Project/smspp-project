@@ -1,11 +1,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - LPBSCfg.txt - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for any Block that is a simple LP
-# / QP (continuous, convex, separable) and can be solved by a :MILPSolver 
-# (say, a CPXMILPSolver or a SCIPMILPSolver)
+# A txt description of a BlockSolverConfig for a MCFBlock solved by a
+# MCFSolver.
 #
-#   version 1.0 , 31/12/2020
+#   version 1.0 , 30/01/2021
 #
 #   Enrico Gorgone, Antonio Frangioni
 #
@@ -19,13 +18,13 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver
-CPXMILPSolver
-#SCIPMILPSolver
+MCFSolver<MCFCplex>
 
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-*LPCCfg.txt
+#[none]
+*
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - END LPBSCfg.txt - - - - - - - - - - - - - -

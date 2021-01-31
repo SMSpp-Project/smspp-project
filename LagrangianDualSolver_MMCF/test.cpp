@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -217,24 +217,26 @@ static bool SolveBoth( void )
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+
   #if( LOG_LEVEL >= 1 )
-   double time1 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
+   cout.setf( ios::scientific, ios::floatfield );
+   cout << setprecision( 2 );
+   cout << double( std::clock() - c_start ) / double( CLOCKS_PER_SEC )
+        << " - " << flush;
   #endif
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
-    cout << "Solver1 (" << time1 << ") = ";
     PrintResults( hs1st , rtrn1st , fo1st );
     cout << endl;
    #endif
    return( true );
    }
 
+
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
    c_start = std::clock();
-   cout.setf( ios::scientific, ios::floatfield );
-   cout << setprecision( 2 );
   #endif
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
   #if DETACH_2ND
@@ -247,35 +249,31 @@ static bool SolveBoth( void )
                || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
   #if( LOG_LEVEL >= 1 )
-   double time2 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
+   cout << double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
   #endif
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(f)" << endl );
+   LOG1( " - OK(f)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(e)" << endl );
+   LOG1( " - OK(e)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(u)" << endl );
+   LOG1( " - OK(u)" << endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "Solver1 (" << time1 << ") = ";
    cout << setprecision( 7 );
    PrintResults( hs1st , rtrn1st , fo1st );
-
-   cout << " ~ Solver2 (" << setprecision( 2 ) << time2 << ") = ";
-   cout << setprecision( 7 );
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif
