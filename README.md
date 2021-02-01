@@ -155,6 +155,13 @@ Each tester has an executable built in the corresponding directory; run
 it for instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
 
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
+conduct, and the process for submitting merge requests to us.
+
+
 ## Authors
 
 - **Antonio Frangioni**  

@@ -75,6 +75,8 @@ add_subdirectory(LagBFunction)
 add_subdirectory(MCFMILP)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
+add_subdirectory(LagrangianDualSolver_UC)
+add_subdirectory(LagrangianDualSolver_Box)
 
 # Solve several UC problems with MILPSolver and compare against known results
 add_subdirectory(UCMILP)
