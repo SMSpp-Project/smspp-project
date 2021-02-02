@@ -24,7 +24,7 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic SCIP directory
-libSCIPBSCDIR = /Users/frangio/Applications/SCIP-7.0.1/
+libSCIPBSCDIR = /usr/local/
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
