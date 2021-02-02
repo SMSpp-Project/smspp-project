@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- significant improvements in LagBFunction testing
+
+- testers now better use BlockSolverConfigs to be more general
+
+- significant improvements in BendersBFunction testing
+
+- added MMCFBlock tester
+
+- added LagrangianDualSolver_UC tester
+
+- added BoxSolver tester
+
+- added LagrangianDualSolver_Box tester
+
+- added LagrangianDualSolver_MMCF tester
+
+- improved UCBlock tester
+
+- improve README.md with ones for individual testers
+
+### Fixed
+
+- too many individual fixes to list
+
 ## [0.3.2] - 2020-09-24
 
 ### Fixed
