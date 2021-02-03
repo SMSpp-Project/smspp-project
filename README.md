@@ -55,9 +55,10 @@ The following tests are provided:
 
 - [`MCF_MILP`](MCF_MILP) - solve a `MCFBlock` with both a
   `MILPSolver` and a `MCFSolver` and compare the results, test the `Modifications`.
-  This is a  test for `MCFBlock`, `MCFSolver`, `MILPSolver` and its derived classes
+  This is a test for `MCFBlock`, `MCFSolver`, `MILPSolver` and its derived classes
   (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
   mechanics of the SMS++ core library.
+  This test is a [Google Test](https://github.com/google/googletest) suite.
 
 - [`MMCFBlock`](MMCFBlock), a tester which provides initial tests
   for `MMCFBlock` (in particular, a way to retrieve/generate some sets of
@@ -87,11 +88,12 @@ The following tests are provided:
   This is a  test for `UCBlock`, `MILPSolver` and its derived classes
   (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
   mechanics of the SMS++ core library.
+  This test is a [Google Test](https://github.com/google/googletest) suite.
 
 
 The tests run as traditional command line executables.
-Some tests are provided also as 
-[Google Test](https://github.com/google/googletest) suites.
+Most of the tests can also run as a 
+[CTest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) suites.
 
 
 ## Getting started
