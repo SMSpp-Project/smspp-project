@@ -5,6 +5,9 @@ quick way to download and install all the projects related to the SMS++
 framework. It also allows to produce an unified documentation and to track
 issues that involve all the modules or the project in general.
 
+> **Note:** This is the repository of the *SMS++ Project*.
+> If you are looking for the *SMS++ core library*, you will find it
+> [here](https://gitlab.com/smspp/smspp).
 
 ## Documentation
 
