@@ -18,7 +18,9 @@ if (BundleSolver_FOUND AND MILPSolver_FOUND)
                               stdc++fs)
     endif ()
 
-#    add_test(NAME BendersBFunction_test
-#             COMMAND BendersBFunction_test
-#             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    add_test(NAME BendersBFunction_test
+             COMMAND BendersBFunction_test ./simple
+             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif ()
+
+# --------------------------------------------------------------------------- #
