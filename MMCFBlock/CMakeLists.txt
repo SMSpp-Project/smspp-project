@@ -8,11 +8,11 @@ if (BundleSolver_FOUND AND
     MILPSolver_FOUND AND
     MMCFBlock_FOUND)
 
+    add_subdirectory(gen/Mnetgen)
     add_subdirectory(MMCFClass)
     add_executable(MMCFBlock_test)
 
-    target_sources(MMCFBlock_test PRIVATE
-                   main.cpp)
+    target_sources(MMCFBlock_test PRIVATE main.cpp)
 
     target_link_libraries(MMCFBlock_test PRIVATE
                           SMS++::BundleSolver
