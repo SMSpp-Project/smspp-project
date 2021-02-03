@@ -64,7 +64,7 @@ static const double EpsXNum = 1e-8;
 static int CPXPUBLIC UserW( CPXCENVptr env, void *cbdata, int wherefrom,
                               void *cbhandle , int *useraction_p ) {
 
-    
+    return 0;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -749,11 +749,14 @@ MMCFClass::FONumber MMCFCplex::GetPVal( void )
 {
  double objval_p = Inf<FONumber>();
 
- if( PFeas )
-  if( CA == kMIP )
-   CPXgetsolnpoolobjval( env , lp , IDSol , &objval_p );
-  else
-   CPXgetobjval( env , lp , &objval_p );
+ if( PFeas ) {
+  if( CA == kMIP ) {
+   CPXgetsolnpoolobjval( env, lp, IDSol, &objval_p );
+   }
+  else {
+   CPXgetobjval( env, lp, &objval_p );
+   }
+  }
 
  return( objval_p );
 

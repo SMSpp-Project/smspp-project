@@ -223,13 +223,15 @@ Graph::Graph( const char *const FN , char FT )
  // format-dependent part - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- if( FourFiles )  // preparing to read the supply file
+ if( FourFiles ) { // preparing to read the supply file
   if( FT == 'u' ) {
-   strcpy( Name + l , ".od" );
+   strcpy( Name + l, ".od" );
    FT = 'd';
    }
-  else
-   strcpy( Name + l , ".sup" );
+  else {
+   strcpy( Name + l, ".sup" );
+   }
+  }
 
  // determining the actual number of commodities for (OSP) or (ODS)- - - - - -
  // formulations: in the first case, a commodity is a pair ( product , - - - -
@@ -1674,13 +1676,15 @@ void Graph::MakeSingleSourced( bool ToAll )
   CmmStts[ k ] = NNodes;
 
   for( Index i = NNodes ; i-- ; )
-   if( B[ k ][ i ] < 0 )
-    if( CmmStts[ k ] == NNodes )
+   if( B[ k ][ i ] < 0 ) {
+    if( CmmStts[ k ] == NNodes ) {
      CmmStts[ k ] = i;
+     }
     else {
-     CmmStts[ k ] = NNewArcs = Inf<Index>();
+     CmmStts[ k ] = NNewArcs = Inf< Index >();
      break;
      }
+    }
 
   if( CmmStts[ k ] != NNodes )  // not a circulation subproblem
    PT[ k ] = kSPT;
@@ -1792,7 +1796,7 @@ void Graph::MakeSingleSourced( bool ToAll )
    for( Index i = NNodes ; i-- ; ) {
     Index h = NewArcs[ i ];
 
-    if( h )
+    if( h ) {
      if( Bk[ i ] < 0 ) {
       Bk[ NNodes ] += Bk[ i ];
       Uk[ h ] = - Bk[ i ];
@@ -1803,6 +1807,7 @@ void Graph::MakeSingleSourced( bool ToAll )
       Uk[ h ] = 0;
       Ck[ h ] = C_INF;
       }
+     }
     }  // end for( i )
    }
   }  // end for( k )
@@ -1825,7 +1830,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
  if( ! DrctdPrb )
   throw( MMCFGException(
 	  "Graph::OutMPSFile: undirected graphs not supported yet" ) );
- 
+
  // opening file - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1892,7 +1897,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
      of << " obj     ";
      if( C[ k ][ i ] >= 0 )
       of << " ";
- 
+
      of.width( 9 );
      of << C[ k ][ i ] << "     f";
      of.width( 4 );
@@ -1948,11 +1953,14 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
 
   cIndex_Set tA = Active;
   for( Index i = 0 ; i < NArcs ; i++ ) {
-   if( tA )
-    if( *tA == i )
+   if( tA ) {
+    if( *tA == i ) {
      tA++;
-    else
+     }
+    else {
      continue;
+     }
+    }
 
    if( first )
     of << "    rhs ";
@@ -1963,7 +1971,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
     of << endl;
 
    first = first ? false : true;
-   }
+  }
 
   if( ! first )
    of << endl;
@@ -1975,11 +1983,14 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
   for( Index k = 0 ; k < NComm ; k++ ) {
    cIndex_Set tAK = ActiveK[ k ];
    for( Index i = 0 ; i < NArcs ; i++ ) {
-    if( tAK )
-     if( *tAK == i )
+    if( tAK ) {
+     if( *tAK == i ) {
       tAK++;
-     else
+      }
+     else {
       continue;
+      }
+     }
 
     if( C[ k ][ i ] == C_INF )
      continue;
@@ -1989,9 +2000,9 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
     of << k << "_" << i << " ";
     of.width( 9 );
     of << U[ k ][ i ] << endl;
-    }
    }
   }
+ }
  else  // "modern" format, non-fixed-columns- - - - - - - - - - - - - - - - -
  {     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2000,19 +2011,19 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
    for( Index i = 0 ; i < NArcs ; i++ ) {
     if( C[ k ][ i ] < C_INF ) {
      of << " x" << k << "_" << i << "\tobj\t" << C[ k ][ i ] << "\tf" << k
-	<< "_" << Startn[ i ] << "\t-1" << endl << " x" << k << "_" << i
-	<< "\tf" << k << "_" << Endn[ i ] << "\t1";
+        << "_" << Startn[ i ] << "\t-1" << endl << " x" << k << "_" << i
+        << "\tf" << k << "_" << Endn[ i ] << "\t1";
 
      if( ( ! tA ) || ( *tA == i ) )
       of << "\tm" << i << "\t1";
 
      of << endl;
-     }
+    }
 
     if( tA && ( *tA == i ) )
      tA++;
-    }
    }
+  }
 
   // writing RHS section: flow balance constraints - - - - - - - - - - - - -
 
@@ -2031,7 +2042,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
       of << endl;
 
      first = first ? false : true;
-     }
+    }
 
   // writing RHS section: mutual capacity constraints - - - - - - - - - - -
 
@@ -2047,8 +2058,8 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
      of << endl;
 
     first = first ? false : true;
-    }
    }
+  }
   else
    for( Index i = 0 ; i < NArcs ; i++ ) {
     if( first )
@@ -2060,7 +2071,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
      of << endl;
 
     first = first ? false : true;
-    }
+   }
 
   if( ! first )
    of << endl;
@@ -2075,21 +2086,21 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
     for( Index i ; ( i = *(tAK++) ) < Inf<Index>() ; )
      if( C[ k ][ i ] < C_INF )
       of << " UP bound\tx" << k << "_" << i << "\t" << U[ k ][ i ] << endl;
-     }
+   }
    else
     for( Index i = 0 ; i < NArcs ; i++ )
      if( C[ k ][ i ] < C_INF )
       of << " UP bound\tx" << k << "_" << i << "\t" << U[ k ][ i ] << endl;
 
-  }  // end else( FxdClmns )- - - - - - - - - - - - - - - - - - - - - - - - -
-     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ }  // end else( FxdClmns )- - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  of << "ENDATA" << endl << endl;
 
- }  // end( OutMPSFile )
+}  // end( OutMPSFile )
 
 /*--------------------------------------------------------------------------*/
 
@@ -2117,7 +2128,7 @@ Graph::FONumber Graph::UpperBound( void )
    if( Ck[ i ] > 0 )
     UB += Ck[ i ] * min( Fk , min( dfcts[ i ] , Uk[ i ] ) );
 
-  }  // end for( k )
+ }  // end for( k )
 
  if( NXtrV ) {  // add the contribution of the "extra" variables - - - - - -
   cCRow Ce = C[ NComm ];
@@ -2129,12 +2140,12 @@ Graph::FONumber Graph::UpperBound( void )
     UB += Cei * (*UBe);
    else
     UB += Cei * (*LBe);
-   }
   }
+ }
 
  return( UB );
 
- }  // end( UpperBound )
+}  // end( UpperBound )
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ DESTRUCTOR --------------------------------*/
@@ -2170,7 +2181,7 @@ Graph::~Graph()
     delete[] B[ k ];
 
   delete[] BIsCpy;
-  }
+ }
  else
   for( Index k = NComm ; k-- ; )
    delete[] B[ k ];
@@ -2189,7 +2200,7 @@ Graph::~Graph()
     delete[] U[ k ];
 
   delete[] UIsCpy;
-  }
+ }
  else
   for( Index k = NComm ; k-- ; )
    delete[] U[ k ];
@@ -2206,7 +2217,7 @@ Graph::~Graph()
     delete[] C[ k ];
 
   delete[] CIsCpy;
-  }
+ }
  else
   for( Index k = NComm ; k-- ; )
    delete[] C[ k ];
@@ -2215,7 +2226,7 @@ Graph::~Graph()
 
  delete[] PT;
 
- }  // end( ~Graph )
+}  // end( ~Graph )
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------- PROTECTED METHODS -----------------------------*/
@@ -2268,13 +2279,13 @@ inline void Graph::CmnIntlz( void )
      *(tAKk++) = i;
 
    *tAKk = Inf<Index>();
-   }
+  }
   else
    ActiveK[ k ] = 0;
 
-  }  // end( for( k ) )
+ }  // end( for( k ) )
 
- }  // end( CmnIntlz )
+}  // end( CmnIntlz )
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------- End File Graph.C ------------------------------*/

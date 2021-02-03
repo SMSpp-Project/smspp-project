@@ -125,16 +125,16 @@ struct TestParameters {
  * This fixture is parameterized, it will be instantiated with different input
  * parameters using the INSTANTIATE_TEST_SUITE_P() macro.
  */
-class MCFMILPTest :
+class MCF_MILP_Test :
  public ::testing::TestWithParam< TestParameters > {
  protected:
- MCFMILPTest() {
+ MCF_MILP_Test() {
   seed = GetParam().seed;
   num_repeats = GetParam().num_repeats;
   max_changes = GetParam().max_changes;
  }
 
- ~MCFMILPTest() override = default;
+ ~MCF_MILP_Test() override = default;
 
  long int seed;
  unsigned int max_changes;
@@ -297,13 +297,13 @@ class MCFMILPTest :
  * being tested. The syntax is: TEST_P(TestFixtureName, TestName)
  */
 
-TEST_P ( MCFMILPTest, SimpleSolve ) {
+TEST_P ( MCF_MILP_Test, SimpleSolve ) {
  solve();
 }
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeOneCostAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeOneCostAbstract ) {
 
  while( num_repeats-- ) {
   auto newcst = c_min + MCFBlock::CNumber( drand48() * ( c_max - c_min ) );
@@ -320,7 +320,7 @@ TEST_P ( MCFMILPTest, ChangeOneCostAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeOneCostPhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeOneCostPhysical ) {
 
  while( num_repeats-- ) {
   auto newcst = c_min + MCFBlock::CNumber( drand48() * ( c_max - c_min ) );
@@ -333,7 +333,7 @@ TEST_P ( MCFMILPTest, ChangeOneCostPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCostsRangedAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeCostsRangedAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -356,7 +356,7 @@ TEST_P ( MCFMILPTest, ChangeCostsRangedAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCostsRangedPhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeCostsRangedPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -376,7 +376,7 @@ TEST_P ( MCFMILPTest, ChangeCostsRangedPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCostsSparseAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeCostsSparseAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -408,7 +408,7 @@ TEST_P ( MCFMILPTest, ChangeCostsSparseAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCostsSparsePhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeCostsSparsePhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -435,7 +435,7 @@ TEST_P ( MCFMILPTest, ChangeCostsSparsePhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeOneCapacityAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeOneCapacityAbstract ) {
 
  while( num_repeats-- ) {
   auto arc = MCFBlock::Index( drand48() * ( m - 1 ) );
@@ -449,7 +449,7 @@ TEST_P ( MCFMILPTest, ChangeOneCapacityAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeOneCapacityPhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeOneCapacityPhysical ) {
 
  while( num_repeats-- ) {
   auto arc = MCFBlock::Index( drand48() * ( m - 1 ) );
@@ -463,7 +463,7 @@ TEST_P ( MCFMILPTest, ChangeOneCapacityPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCapacitiesRangedAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeCapacitiesRangedAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -483,7 +483,7 @@ TEST_P ( MCFMILPTest, ChangeCapacitiesRangedAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCapacitiesRangedPhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeCapacitiesRangedPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -502,7 +502,7 @@ TEST_P ( MCFMILPTest, ChangeCapacitiesRangedPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCapacitiesSparseAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeCapacitiesSparseAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -529,7 +529,7 @@ TEST_P ( MCFMILPTest, ChangeCapacitiesSparseAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeCapacitiesSparsePhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeCapacitiesSparsePhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index tochange = max( double( 1 ), drand48() * max_changes );
@@ -555,7 +555,7 @@ TEST_P ( MCFMILPTest, ChangeCapacitiesSparsePhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeDeficitsAbstract ) {
+TEST_P ( MCF_MILP_Test, ChangeDeficitsAbstract ) {
 
  while( num_repeats-- ) {
   MCFClass::Index posn = 0;
@@ -600,7 +600,7 @@ TEST_P ( MCFMILPTest, ChangeDeficitsAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, ChangeDeficitsPhysical ) {
+TEST_P ( MCF_MILP_Test, ChangeDeficitsPhysical ) {
 
  while( num_repeats-- ) {
   MCFClass::Index posn = 0;
@@ -645,7 +645,7 @@ TEST_P ( MCFMILPTest, ChangeDeficitsPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, CloseOpenArcsAbstract ) {
+TEST_P ( MCF_MILP_Test, CloseOpenArcsAbstract ) {
 
  while( num_repeats-- ) {
   MCFBlock::Subset nms( max_changes );
@@ -691,7 +691,7 @@ TEST_P ( MCFMILPTest, CloseOpenArcsAbstract ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, CloseOpenArcsPhysical ) {
+TEST_P ( MCF_MILP_Test, CloseOpenArcsPhysical ) {
 
  while( num_repeats-- ) {
   MCFBlock::Subset nms1( max_changes );
@@ -736,7 +736,7 @@ TEST_P ( MCFMILPTest, CloseOpenArcsPhysical ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, DeleteArcs ) {
+TEST_P ( MCF_MILP_Test, DeleteArcs ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index changed = 0;
@@ -777,7 +777,7 @@ TEST_P ( MCFMILPTest, DeleteArcs ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( MCFMILPTest, AddNewArcs ) {
+TEST_P ( MCF_MILP_Test, AddNewArcs ) {
 
  while( num_repeats-- ) {
   MCFBlock::Index changed = 0;
@@ -826,8 +826,8 @@ TEST_P ( MCFMILPTest, AddNewArcs ) {
  *                          testing::Values("meeny", "miny", "moe"));
  */
 
-INSTANTIATE_TEST_SUITE_P( MCFMILPTests,
-                          MCFMILPTest,
+INSTANTIATE_TEST_SUITE_P( MCF_MILP_Tests,
+                          MCF_MILP_Test,
                           ::testing::Values(  // file, seed, changes, repeats
                            TestParameters{ "data/N3-0-0-0-0.nc4", 0, 10, 10 },
                            TestParameters{ "data/N3-0-0-0-1.nc4", 0, 10, 10 },
@@ -844,7 +844,7 @@ INSTANTIATE_TEST_SUITE_P( MCFMILPTests,
                            TestParameters{ "data/N3-5-5-1-1.nc4", 0, 10, 10 },
                            TestParameters{ "data/N3-5-5-2-2.nc4", 0, 10, 10 }
                           ),
-                          MCFMILPTest::PrintToStringParamName() );
+                          MCF_MILP_Test::PrintToStringParamName() );
 
 /*--------------------------------------------------------------------------*/
 /*---------------------------------- MAIN ----------------------------------*/

@@ -38,6 +38,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include "MMCFBlock.h"
 #include "BlockSolverConfig.h"
@@ -71,7 +72,7 @@ static inline void str2val( const char* const str , T &sthg )
 {
  cout << "MMCFB: ";
  if( ( rtrn >= Solver::kOK ) && ( rtrn < Solver::kError ) )
-  cout << setprecision( 8 ) <<   lb << ", " << ub;
+  cout << std::setprecision( 8 ) <<   lb << ", " << ub;
  else
   if( rtrn == Solver::kInfeasible )
    cout << "Unfeas";

@@ -17,7 +17,7 @@
 ##############################################################################
 
 # module name
-NAME = MCFMILP_test
+NAME = MCF_MILP_test
 
 # basic directory
 DIR = ./
