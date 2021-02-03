@@ -1,8 +1,24 @@
 /*--------------------------------------------------------------------------*/
-/*-------------------- File tests_BendersBFunction.cpp ---------------------*/
+/*----------------------------- File test.cpp ------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Main for testing BendersBFunction
+ * This file contains the implementation of a test for the
+ * BendersBFunction. The test consists in solving relaxations of the
+ * Capacitated Warehouse Location (CWL) problem by Benders
+ * decomposition. BundleSolver is used to solve the master problem and
+ * CPXMILPSolver is used to solve the inner problem. The program requires as
+ * argument the path to a directory containing instances of the CWL
+ * problem. Each file in that directory is assumed to contain an instance of
+ * the CWL problem, except if they are named manual.txt or readme.txt. A file
+ * containing an instance of the CWL problem must have the following
+ * format. The first line must contain the number of locations (L) and the
+ * number of customers (C) (in that order). Each of the next L lines is
+ * associated with one location and must contain the capacity of that location
+ * and the fixed cost of opening a warehouse at that location. Next, there
+ * must be C blocks of lines, each of them associated with a customer and
+ * containing L+1 lines. The i-th of these blocks must contain the demand of
+ * the i-th customer followed by L lines, the j-th one containing the unit
+ * cost of serving customer j by the warehouse at location i.
  *
  * \version 0.10
  *
@@ -48,7 +64,8 @@ enum SolverType { MILPSolver , BundleSolver };
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-BlockSolverConfig * build_config( const std::string & config_file_path ) {
+BlockSolverConfig * build_solver_config
+( const std::string & config_file_path ) {
 
  std::ifstream config_file( config_file_path );
  if( ! config_file.is_open() )
@@ -82,16 +99,26 @@ int solve_with_BundleSolver( std::filesystem::path file_path ,
  inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
   ( "CPXPARAM_Simplex_Tolerances_Optimality" ) , 1.0e-15 );
 
+ inner_block_solver->set_par( inner_block_solver->int_par_str2idx
+  ( "CPXPARAM_ScreenOutput" ) , 0 );
+
+ inner_block_solver->set_par( inner_block_solver->int_par_str2idx
+  ( "intLogVerb" ) , 0 );
+
  auto block = build_CWL_block_with_Benders_decomposition
    ( file_path , continuous_relaxation , inner_block_solver );
 
- auto block_solver_config = build_config( "BundlePar-cwl.txt" );
+ // Configuring the CWL Block to produce RowConstraintSolution
+ BlockConfig block_config;
+ block_config.f_solution_Configuration = new SimpleConfiguration< int >( 1 );
+ block_config.apply( block );
+
+ // Solver configuration
+ auto block_solver_config = build_solver_config( "BundlePar-cwl.txt" );
  block_solver_config->apply( block );
  block_solver_config->clear();
 
  auto solver = block->get_registered_solvers().front();
-
- //solver->set_log( &std::cout );
 
  auto status = solver->compute();
 
@@ -198,5 +225,5 @@ int main( int argc, char ** argv ) {
 }
 
 /*--------------------------------------------------------------------------*/
-/*------------------ End File tests_BendersBFunction.cpp -------------------*/
+/*--------------------------- End File test.cpp ----------------------------*/
 /*--------------------------------------------------------------------------*/
