@@ -1,5 +1,6 @@
 #!/usr/local/bin/bash
 
+mkdir ../data
 mv Canad.tgz ../data
 
 cd Mnetgen
@@ -7,9 +8,7 @@ make clean
 make
 ./batch
 
-cd ../..
-mkdir data
-cd data
+cd ../../data
 
 curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz
 curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz
