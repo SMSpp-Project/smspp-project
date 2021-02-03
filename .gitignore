@@ -16,7 +16,7 @@ LagrangianDualSolver_UC/LDS_UC_test
 LagrangianDualSolver_MMCF/LDS_MMCF_test
 MCFMILP/MCFMILP_test
 MMCFBlock/MMCFBlock_test
-MMCFBlock/MMCFtest
+MMCFBlock/Mnetgen/mnetgen
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 
