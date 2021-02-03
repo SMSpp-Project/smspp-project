@@ -1064,6 +1064,7 @@ bool MMCFCplex::GetDSol( void )
 MMCFClass::FONumber MMCFCplex::CostOf( void )
 {
  assert( false );  // not implemented yet
+ return 0; // just to avoid a -Wreturn-type warning
  }
 
 /*---------------------------------------------------------------------------*/
@@ -1335,7 +1336,7 @@ void MMCFCplex::ChgXtrBnds( cRow XLr , cRow XUr , cIndex_Set nms ,
  // some exceptions- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- if( XUr && XLr || ( !XUr && !XLr ) )
+ if( ( XUr && XLr ) || ( !XUr && !XLr ) )
   throw( MMCFException(
     "MMCFCplex::ChgXtrBnds(): this should not happen" ) );
 
