@@ -1,21 +1,16 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
-mkdir ../data
-mv Canad.tgz ../data
+mkdir -p ../data
 
-cd Mnetgen
+# Fetch and extract Canad and JLF problems
+# http://groups.di.unipi.it/optimize/Data/MMCF.html#Canad
+#
+tar -zxvf Canad.tgz -C ../data
+curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz | tar -xvC ../data/Canad
+curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz | tar -xvC ../data
+
+# Use Mnetgen to generate other MMCF problems
+cd Mnetgen || exit
 make clean
 make
 ./batch
-
-cd ../../data
-
-curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz
-curl -O  http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz
-
-tar -zxvf JLF.tgz
-tar -zxvf Canad.tgz
-tar -zxvf CanadN.tgz -C ./Canad
-
-rm -f *.tgz
-
