@@ -1,11 +1,23 @@
 # The SMS++ Project
 
-Splash page of the SMS++ Project, an "umbrella project" meant to provide a
-quick way to download and install all the projects related to the SMS++
-framework. It also allows to produce an unified documentation and to track
+![To boldly model (and solve) what no one has modeled (and solved) before](doxygen/SMSpp_logo_mid_noback.png)
+
+This is the splash page of the SMS++ Project, an "umbrella project" meant
+to provide a quick way to download and install all the projects related to the
+SMS++ framework.
+It also allows to produce an unified documentation and to track
 issues that involve all the modules or the project in general.
 
-> **Note:** This is the repository of the *SMS++ Project*.
+SMS++ is a set of C++ classes intended to provide a system for modeling complex,
+block-structured mathematical models (in particular, but not exclusively,
+single-real-objective optimization problems), and solving them via
+sophisticated, structure-exploiting algorithms (in particular, but not
+exclusively, decomposition approaches and structured Interior-Point methods).
+
+At any given time, this project will point to the latest releases of all the
+submodules.
+
+> **Note:**
 > If you are looking for the *SMS++ core library*, you will find it
 > [here](https://gitlab.com/smspp/smspp).
 
@@ -43,7 +55,7 @@ at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project
   abstract representation encodes for a Mixed-Integer Linear Program
   (ColVariable, FRowConstraint and FrealObjective with LinearFunction inside,
   OneVarConstraint), together with derived MILPSolver classes that actually
-  interface with existing MILP solvers. Currently available derived classes are
+  interface with existing MILP solvers. Currently available derived classes are:
 
   - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
     Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio)
@@ -95,33 +107,19 @@ See the individual projects.
 
 ### Getting the code
 
-Getting the whole umbrella project and all the sub-projects can be done with
-just
+Getting the whole umbrella project and all the sub-projects can be done with:
 
 ```sh
-git clone --recursive https://gitlab.com/smspp/smspp-project
+git clone --recurse-submodules https://gitlab.com/smspp/smspp-project
 ```
 
-Otherwise, it is possible to fetch only the umbrella project with
+#### Getting the develop branches
+
+If you feel frisky, you can try the latest, unreleased code by checking out
+the develop branches:
 
 ```sh
-git clone https://gitlab.com/smspp/smspp-project
-```
-
-and then use the [`get_all.sh`](get_all.sh) script to fetch all the submodules:
-
-```sh
-cd sms_plus_plus_project
-./get_all.sh
-```
-
-This allows to edit the script and comment away/delete unwanted ones. This is
-useful in particular if you don't have the permissions to fetch some of them.
-You will be asked for your credentials multiple times, to avoid that configure
-Git to store the credentials temporarily:
-
-```sh
-git config --global credential.helper cache
+git submodule foreach --recursive "git checkout develop || git checkout master"
 ```
 
 ### Build and install with CMake
@@ -132,7 +130,7 @@ with:
 ```sh
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
