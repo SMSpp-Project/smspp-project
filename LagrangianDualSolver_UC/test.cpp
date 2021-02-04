@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 4
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -206,6 +206,9 @@ static bool SolveBoth( void )
 {
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
+  #if( LOG_LEVEL >= 1 )
+   std::clock_t c_start = std::clock();
+  #endif
   Solver * Slvr1 = TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
    TestBlock->unregister_Solver( Slvr1 );
@@ -215,10 +218,13 @@ static bool SolveBoth( void )
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+  #if( LOG_LEVEL >= 1 )
+   double time1 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
+  #endif
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
-    cout << "Solver = ";
+    cout << "Solver1 (" << time1 << ") = ";
     PrintResults( hs1st , rtrn1st , fo1st );
     cout << endl;
    #endif
@@ -226,6 +232,11 @@ static bool SolveBoth( void )
    }
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
+  #if( LOG_LEVEL >= 1 )
+   c_start = std::clock();
+   cout.setf( ios::scientific, ios::floatfield );
+   cout << setprecision( 2 );
+  #endif
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
   #if DETACH_2ND
    TestBlock->unregister_Solver( Slvr2 );
@@ -236,31 +247,36 @@ static bool SolveBoth( void )
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
                || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
+  #if( LOG_LEVEL >= 1 )
+   double time2 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
+  #endif
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( "OK(f)" << endl );
+   LOG1( time1 << " - " << time2 << " - OK(f)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-    LOG1( "OK(e)" << endl );
-    return( true );
-    }
+   LOG1( time1 << " - " << time2 << " - OK(e)" << endl );
+   return( true );
+   }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( "OK(u)" << endl );
+   LOG1( time1 << " - " << time2 << " - OK(u)" << endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "Solver1 = ";
-    PrintResults( hs1st , rtrn1st , fo1st );
+   cout << "Solver1 (" << time1 << ") = ";
+   cout << setprecision( 7 );
+   PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ Solver2 = ";
+   cout << " ~ Solver2 (" << setprecision( 2 ) << time2 << ") = ";
+   cout << setprecision( 7 );
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif
@@ -332,6 +348,7 @@ int main( int argc , char **argv )
 
  // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
  TestBlock = Block::deserialize( argv[ 1 ] );
  if( ! TestBlock ) {
   cout << endl << "Block::deserialize() failed!" << endl;
@@ -355,7 +372,7 @@ int main( int argc , char **argv )
    }
 
   bsc->apply( TestBlock );
-  delete bsc;
+  bsc->clear();
 
   if( TestBlock->get_registered_solvers().empty() ) {
    cout << endl << "no Solver registered to the Block!" << endl;

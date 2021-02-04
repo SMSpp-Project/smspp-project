@@ -6,9 +6,12 @@
  *
  * A random "box-only" AbstractBlock with separable Objective (a
  * FRealObjective with either a LinearFunction or a DQuadFunction inside) is
- * constructed and solved with a BoxSolver and a :MILPSolver; the results
- * are compared. The Block is then repeatedly randomly modified and
- * re-solved several times.
+ * constructed and solved with a BoxSolver. According to the value of the
+ * macro DIRECTION_TEST, we either compare the get_opposite_value() with the
+ * get_var_value() obtained by reversing the sign of the Objective (that must
+ * be equal), or we compare with the results of an appropriate Solver (e.g.,
+ * a :MILPSolver). The Block is then repeatedly randomly modified and
+ * re-solved several times, the results are compared. 
  *
  * \version 1.00
  *
@@ -25,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 
@@ -36,6 +39,11 @@
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
+
+/*--------------------------------------------------------------------------*/
+// if nonzero, we compare the get_opposite_value() with the get_var_value()
+
+#define DIRECTION_TEST 0
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the BoxSolver is detached and re-attached at all iterations
@@ -280,8 +288,14 @@ static void set_quad_c( FunctionValue & a )
  a = 0;
  if( dis( rg ) < 0.60 ) {
   a = dis( rg ) * 0.1875 + 0.0625;
-  if( ! minobj )
-   a = -a;
+  #if ! DIRECTION_TEST
+   // don't want to give any problem to a Solver, hence ensure that the
+   // problem is concave if you are maximising; this is not an issue if
+   // BoxSolver only is used since even the min-concave and max-convex
+   // cases are easy
+   if( ! minobj )
+    a = -a;
+  #endif
   }
  }
  
@@ -307,7 +321,7 @@ static void set_lin( ColVariable & x , coeff_pair & p )
 static bool SolveBoth( void ) 
 {
  try {
-  // solve with the :MILP Solver- - - - - - - - - - - - - - - - - - - - - - -
+  // solve with the Box Solver- - - - - - - - - - - - - - - - - - - - - - - -
   Solver * Slvr1 = BoxBlock->get_registered_solvers().front();
   #if DETACH_MILP
    BoxBlock->unregister_Solver( Slvr1 );
@@ -316,46 +330,108 @@ static bool SolveBoth( void )
   int rtrn1st = Slvr1->compute( false );
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
-  double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+  double fo1st = Slvr1->get_var_value();
 
-  // solve with the Box Solver- - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * Slvr2 = BoxBlock->get_registered_solvers().back();
-  #if DETACH_BOX
-   BoxBlock->unregister_Solver( Slvr2 );
-   BoxBlock->register_Solver( Slvr2 );  // push it to the back
-  #endif
-  int rtrn2nd = Slvr2->compute( false );
+  #if DIRECTION_TEST
+   double oppfo = static_cast< BoxSolver * >( Slvr1 )->get_opposite_value();
+   // invert the verse of the Objective
+   BoxBlock->get_objective()->set_sense( minobj ? Objective::eMax
+					        : Objective::eMin );
+   int invrtrn = Slvr1->compute( false );
+   double invfo = Slvr1->get_var_value();
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
-  double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
+   // restore the verse of the Objective
+   BoxBlock->get_objective()->set_sense( minobj ? Objective::eMin
+					        : Objective::eMax );
+   if( minobj ) {
+    if( ( oppfo == -INF ) && ( invfo == -INF ) ) {
+     LOG1( "OK(u)" << endl );
+     return( true );
+     }
+    if( ( oppfo == INF ) && ( invfo == INF ) ) {
+     LOG1( "OK(e)" << endl );
+     return( true );
+     }
+    }
+   else {
+    if( ( oppfo == INF ) && ( invfo == INF ) ) {
+     LOG1( "OK(u)" << endl );
+     return( true );
+     }
+    if( ( oppfo == -INF ) && ( invfo == -INF ) ) {
+     LOG1( "OK(e)" << endl );
+     return( true );
+     }
+    }
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
-			  max( double( 1 ) , max( abs( fo1st ) ,
-						  abs( fo2nd ) ) ) ) ) {
-   LOG1( "OK(f)" << endl );
-   return( true );
-   }
+   if( ( oppfo > -INF ) && ( oppfo < INF ) &&
+       ( invfo > -INF ) && ( invfo < INF ) && 
+       ( abs( oppfo - invfo ) <= 2e-7 *
+	 max( double( 1 ) , max( abs( oppfo ) , abs( invfo ) ) ) ) ) {
+    LOG1( "OK(f)" << endl );
+    return( true );
+    }
 
-  if( ( rtrn1st == Solver::kInfeasible ) &&
-      ( rtrn2nd == Solver::kInfeasible ) ) {
+   #if( LOG_LEVEL >= 1 )
+    cout << "opp = ";
+    if( oppfo == -INF )
+     cout << "-INF";
+    else
+     if( oppfo == INF )
+      cout << "INF";
+     else
+      cout << oppfo;
+
+    cout << " - inv = ";
+    if( invfo == -INF )
+     cout << "-INF";
+    else
+     if( invfo == INF )
+      cout << "INF";
+     else
+      cout << invfo;
+    cout << endl;
+   #endif
+  #else
+   // solve with the :MILP Solver- - - - - - - - - - - - - - - - - - - - - - -
+   Solver * Slvr2 = BoxBlock->get_registered_solvers().back();
+   #if DETACH_BOX
+    BoxBlock->unregister_Solver( Slvr2 );
+    BoxBlock->register_Solver( Slvr2 );  // push it to the back
+   #endif
+   int rtrn2nd = Slvr2->compute( false );
+
+   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
+                  || ( rtrn2nd == Solver::kLowPrecision );
+   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+
+   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
+			   max( double( 1 ) , max( abs( fo1st ) ,
+						   abs( fo2nd ) ) ) ) ) {
+    LOG1( "OK(f)" << endl );
+    return( true );
+    }
+
+   if( ( rtrn1st == Solver::kInfeasible ) &&
+       ( rtrn2nd == Solver::kInfeasible ) ) {
     LOG1( "OK(e)" << endl );
     return( true );
     }
 
-  if( ( rtrn1st == Solver::kUnbounded ) &&
-      ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( "OK(u)" << endl );
-   return( true );
-   }
+   if( ( rtrn1st == Solver::kUnbounded ) &&
+       ( rtrn2nd == Solver::kUnbounded ) ) {
+    LOG1( "OK(u)" << endl );
+    return( true );
+    }
 
-  #if( LOG_LEVEL >= 1 )
-   cout << "MILP = ";
+   #if( LOG_LEVEL >= 1 )
+    cout << "BOX = ";
     PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ BOX = ";
-   PrintResults( hs2nd , rtrn2nd , fo2nd );
-   cout << endl;
+    cout << " ~ MILP = ";
+    PrintResults( hs2nd , rtrn2nd , fo2nd );
+    cout << endl;
+   #endif
   #endif
 
   return( false );
@@ -428,11 +504,9 @@ int main( int argc , char **argv )
  // choosing whether min or max: toss a(n unbiased, two-sided) coin
  minobj = ( dis( rg ) < 0.5 );
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
- //!!isquad = ( dis( rg ) < 0.5 );
- isquad = false;
+ isquad = ( dis( rg ) < 0.5 );
  // choosing whether integer or not: toss a(n unbiased, two-sided) coin
- //!!isint = ( dis( rg ) < 0.5 );
- isint = false;
+ isint = ( dis( rg ) < 0.5 );
  // choosing whether always feasible or not: toss a(...) coin
  isfeas = ( dis( rg ) < 0.5 );
  // choosing whether always bounded or not: toss a(...) coin
@@ -544,9 +618,12 @@ int main( int argc , char **argv )
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ // for the BoxSolver, do that manually
+ BoxBlock->register_Solver( new BoxSolver );
+
  {
-  // for the:MILPSolver do this by reading an appropriate BlockSolverConfig
-  // from file and apply() it to the LPBlock
+  // for the :MILPSolver (or whatever) do this by reading an appropriate
+  // BlockSolverConfig from file and apply() it to the LPBlock
   ifstream LPParFile( "LPPar.txt" );
   if( ! LPParFile.is_open() ) {
    cerr << "Error: cannot open file LPPar.txt" << endl;
@@ -558,11 +635,12 @@ int main( int argc , char **argv )
   LPParFile.close();
 
   msc->apply( BoxBlock );
+  // ordinarily one should keep the clean()-ed BSC and use it at the end
+  // to cleanup the Block, but BoxBlock has no sons, so the :MILPSolver
+  // (or whatever) cannot be "complicated" and we just unregister_Solvers()
+  // at the end
   delete msc;
   }
-
- auto bs = new BoxSolver;
- BoxBlock->register_Solver( bs );
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

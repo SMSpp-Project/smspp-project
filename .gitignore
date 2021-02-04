@@ -13,11 +13,16 @@ BoxSolver/BoxSolver_test
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_Box/LDS_Box_test
 LagrangianDualSolver_UC/LDS_UC_test
+LagrangianDualSolver_MMCF/LDS_MMCF_test
 MCFMILP/MCFMILP_test
-MMCFblock/MMCFBlock_test
-MMCFblock/MMCFtest
+MMCFBlock/MMCFBlock_test
+MMCFBlock/Mnetgen/mnetgen
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
+
+# large data test files
+MMCFBlock/data/*
+LagrangianDualSolver_MMCF/data/*
 
 # BundleSolver log files
 *.bn
@@ -650,9 +655,3 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
-MMCFblock/MMCFtest
-MMCFblock/.project
-MMCFblock/MMCFtest
-MMCFblock/MMCFtest
-MMCFblock/MMCFtest
-MMCFblock/MMCFpool.sol

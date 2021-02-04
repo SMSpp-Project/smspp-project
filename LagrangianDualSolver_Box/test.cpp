@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 4
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -74,7 +74,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 2
 
 /*--------------------------------------------------------------------------*/
 
@@ -369,7 +369,7 @@ static bool SolveBoth( void )
                || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
    LOG1( "OK(f)" << endl );
@@ -419,7 +419,7 @@ int main( int argc , char **argv )
  assert( SKIP_BEAT >= 0 );
 
  long int seed = 0;
- Index wchg = 7;
+ Index wchg = 15;
  Index nson = 2;
  double dens = 0.1;
  double p_change = 0.5;
@@ -439,9 +439,11 @@ int main( int argc , char **argv )
  default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar nson dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [7]"
+           "       wchg: what to change, coded bit-wise [17]"
 		<< endl <<
-           "             0 = bounds, 1 = objective, 2 = linking const "
+           "             0 = bounds, 1 = objective"
+		<< endl <<
+           "             2 = linking coefficients, 3 = linking lhs/rhs"
 		<< endl <<
            "       nvar: number of variables [10]"
 		<< endl <<
@@ -477,8 +479,8 @@ int main( int argc , char **argv )
  // choosing whether min or max: toss a(n unbiased, two-sided) coin
  minobj = ( dis( rg ) < 0.5 );
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
- //!!isquad = ( dis( rg ) < 0.5 );
- isquad = false;
+ //!!isquad = false;
+ isquad = ( dis( rg ) < 0.5 );
 
  #if( LOG_LEVEL >= 1 )
   if( minobj ) cout << "min"; else cout << "max";
@@ -496,13 +498,27 @@ int main( int argc , char **argv )
 
   TestBlock = new AbstractBlock();
 
-  // create the sub-Block and add them;
-  // meanwhile, register a BoxSolver to each
   for( Index k = 0 ; k++ < nson ; ) {
+   // create the sub-Block and add them;
    auto son = construct_son();
+   // meanwhile, register a BoxSolver to each
    auto bs = new BoxSolver;
    bs->set_sol( 1 );  // primal solutions need be computed
    son->register_Solver( bs );
+   /*!!
+   //!! rather, use a MILPSolver
+   auto c = Configuration::deserialize( "LPBSCfg.txt" );
+   auto bsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! bsc ) {
+    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+    delete c;
+    exit( 1 );
+    }
+
+   bsc->apply( son );
+   delete bsc;
+   !!*/
+   
    TestBlock->add_nested_Block( son );
    }
 
@@ -527,26 +543,6 @@ int main( int argc , char **argv )
 
    (*link)[ i ].set_function( new LinearFunction( std::move( vp ) ) );
 
-   //!! only "naturally >=" dual variables
-   /*!!
-   if( minobj ) {
-    if( dis( rg ) <= 0.50 ) {   // in 50% of the cases a >= constraint
-     (*link)[ i ].set_lhs( - dis( rg ) );  // ... with lhs in [ -1 , 0 ]
-     (*link)[ i ].set_rhs( INF );          // ... and rhs = INF
-     }
-    else                        // in all other cases a == 0 constraint
-     (*link)[ i ].set_both( 0 );
-    }
-   else
-    if( dis( rg ) <= 0.50 ) {   // in 50% of the cases a <= constraint
-     (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
-     (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
-     }
-    else                        // in all other cases a == 0 constraint
-    !!*/
-     (*link)[ i ].set_both( 0 );
-    
-   /*!!
    if( dis( rg ) <= 0.33 ) {   // in 33% of the cases a <= constraint
     (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
     (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
@@ -558,7 +554,6 @@ int main( int argc , char **argv )
      }
     else                       // in all other cases a == 0 constraint
      (*link)[ i ].set_both( 0 );
-     !!*/
    }
 
   // set the linking constraints in the TestBlock
@@ -659,7 +654,7 @@ int main( int argc , char **argv )
 
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " obj coeffs - " );
+    LOG1( "changed " << tochange << " obj coeffs" );
 
     Vec_FunctionValue NC( tochange );
     for( auto & nc : NC )
@@ -676,6 +671,7 @@ int main( int argc , char **argv )
      if( isquad ) {  // quadratic objective
       auto qf = static_cast< DQuadFunction * >( obj->get_function() );
 
+      /*!!
       Vec_FunctionValue NQC( tochange );
       for( auto & nqc : NQC )
        set_quad_c( nqc );
@@ -684,6 +680,11 @@ int main( int argc , char **argv )
        qf->modify_term( strt , NQC.front() , NC.front() );
       else
        qf->modify_terms( NQC.begin() , NC.begin() , Range( strt , stp ) );
+       !!*/
+      if( tochange == 1 )
+       qf->modify_linear_coefficient( strt , NC.front() );
+      else
+       qf->modify_linear_coefficients( std::move( NC ) , Range( strt , stp ) );
       }
      else {          // linear objective
       auto lf = static_cast< LinearFunction * >( obj->get_function() );
@@ -701,6 +702,7 @@ int main( int argc , char **argv )
      if( isquad ) {  // quadratic objective
       auto qf = static_cast< DQuadFunction * >( obj->get_function() );
 
+      /*!!
       Vec_FunctionValue NQC( tochange );
       for( auto & nqc : NQC )
        set_quad_c( nqc );
@@ -709,6 +711,12 @@ int main( int argc , char **argv )
        qf->modify_term( nms.front() , NQC.front() , NC.front() );
       else
        qf->modify_terms( NQC.begin() , NC.begin() , std::move( nms ) );
+       !!*/
+
+      if( tochange == 1 )
+       qf->modify_linear_coefficient( nms.front() , NC.front() );
+      else
+       qf->modify_linear_coefficients( std::move( NC ) , std::move( nms ) );
       }
      else {          // linear objective
       auto lf = static_cast< LinearFunction * >( obj->get_function() );
@@ -725,7 +733,7 @@ int main( int argc , char **argv )
 
   if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " constraints" );
+    LOG1( "changed " << tochange << " constraints - " );
 
    auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link" );
    Subset nms( GenerateRand( m , tochange ) );
@@ -754,6 +762,34 @@ int main( int argc , char **argv )
      else
       lf->modify_coefficients( std::move( NC ) , std::move( nmsn ) );
      }
+    }
+   }
+
+  // change linking lhs/rhs - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( m , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " lhs/rhs - " );
+
+    double prob = double( tochange ) / double( m );
+    auto link = TestBlock->get_static_constraint_v< FRowConstraint >( "link"
+								      );
+   for( auto & li : *link ) {
+    if( dis( rg ) > prob )
+     continue;
+
+    auto lhs = li.get_lhs();
+    auto rhs = li.get_lhs();
+    if( lhs == rhs )
+     continue;
+
+    if( lhs == -INF )
+     li.set_rhs( dis( rg ) );
+    else
+     li.set_lhs( - dis( rg ) );
+
+     if( ! --tochange )
+      break;
     }
    }
 

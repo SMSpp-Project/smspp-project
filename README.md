@@ -1,6 +1,6 @@
 # SMS++ System Tests
 
-A set of system tests for the the SMS++ "core" library and several other
+A set of system tests for the the SMS++ core library and several other
 modules.
 
 Since most of the tests we devised for the SMS++ project require multiple
@@ -11,60 +11,89 @@ The following tests are provided:
 
 - [`BendersBFunction`](BendersBFunction)
 
-- [`LagBFunction`](LagBFunction) - constructs one `AbstractBlock` with two
-  different kinds of sub-Block: some `PolyhedralFunctionBlock` (configured in
-  the "natural" way where the `FRealObjective` has a `PolyhedralFunction`),
-  and some with `FRealObjective` with a `LagBFunction` having as inner `Block`
-  a simple transportation problem. Then, another `AbstractBlock` is
-  constructed with the same inner `PolyhedralFunctionBlock` (but configured
-  in "linearized" way where the `FRealObjective` has a `LinearFunction` and
-  there are "linear" constraints) and some `AbstractBlock` sub-Block that
-  basically represent, in a dual way, the same problem that the `LagBFunction`
-  sub-Block do. The two `Block` are randomly changed in many different ways
-  (in exactly the same way for the `PolyhedralFunctionBlock`, in different but
-  mathematically equivalent ways for the others), then solved (the first
-  typically via a `BundleSolver` and the second via a `MILPSolver`) and the
-  results are checked for consistency. This is a very comprehensive test for
-  `LagBFunction`, `PolyhedralFunctionBlock`, `PolyhedralFunction`,
-  `BundleSolver`, `MILPSolver` and its derived classes (`CPXMILPSolver` and
-  `SCIPMILPSolver`), as well as for quite a lot of the mechanics of the "core"
-  SMS++ library.
+- [`BoxSolver`](BoxSolver), a tester which provides very
+  comprehensive tests for `BoxSolver` (a very simple `CDASolver` for
+  extremely simple problems where each `ColVariable` can
+  be dealt with separately subject only to bound and integrality
+  constraints and a linear or quadratic `Objective`, ignoring any other
+  kind of `Constraint` if they are there) as well as to any `CDASolver`
+  able to handle Linear Programs (such as `MILPSolver` and its derived
+  classes `CPXMILPSolver` and `SCIPMILPSolver`), and for some of the
+  mechanics of the SMS++ core library.
 
-- [`MCFMILP`](MCFMILP) - solve a `MCFBlock` with both a `MILPSolver` and an
-  `MCFSolver` and compare the results, test the Modifications. This is a
-  test for `MCFBlock`, `MCFSolver`,  `MILPSolver` and its derived classes
+- [`LagBFunction`](LagBFunction), a tester which provides very
+  comprehensive tests for `LagBFunction`, `PolyhedralFunctionBlock`,
+  `PolyhedralFunction`, any `CDASolver` able to handle `C05Function` in the
+  objective (such as `BundleSolver`, for which some specific provisions are
+  made), any `CDASolver` able to handle Linear Programs (such as `MILPSolver`
+  and its derived classes `CPXMILPSolver` and `SCIPMILPSolver`), as well as
+  for quite a lot of the mechanics of the SMS++ core library.
+
+- [`LagrangianDualSolver_Box`](LagrangianDualSolver_Box), a tester
+  which provides very comprehensive tests for `LagrangianDualSolver`,
+  `LagBFunction`, `BoxSolver`, any `CDASolver` able to handle `C05Function`
+  in the `Objective`, any `CDASolver` able to handle Linear Programs (such
+  as `MILPSolver` and its derived classes `CPXMILPSolver` and
+  `SCIPMILPSolver`), as well as for quite a lot of the mechanics of the
+  SMS++ core library.
+
+- [`LagrangianDualSolver_MMCF`](LagrangianDualSolver_MMCF),
+  a tester which provides  initial tests for `LagrangianDualSolver`,
+  `LagBFunction`, any `CDASolver` able to handle `C05Function` in the
+  `Objective` (such as `BundleSolver`), any `CDASolver` able to handle
+  Linear Programs (such as `MILPSolver` and its derived classes
+  `CPXMILPSolver` and `SCIPMILPSolver`), `MMCFBlock` and `MCFBlock`,
+  as well as for quite a lot of the mechanics of the SMS++ core library.
+
+- [`LagrangianDualSolver_UC`](LagrangianDualSolver_UC), a tester
+  which provides initial tests for `LagrangianDualSolver`, `LagBFunction`,
+  any `CDASolver` able to handle `C05Function` in the `Objective` (such as
+  `BundleSolver`), any `CDASolver` able to handle Linear Programs (such as
+  `CPXMILPSolver` and `SCIPMILPSolver`), the `UCBlock` set of `Block`for
+  Unit-Commitment problems, as well as for quite a lot of the mechanics
+  of the SMS++ core library.
+
+- [`MCF_MILP`](MCF_MILP) - solve a `MCFBlock` with both a
+  `MILPSolver` and a `MCFSolver` and compare the results, test the `Modifications`.
+  This is a test for `MCFBlock`, `MCFSolver`, `MILPSolver` and its derived classes
   (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
-  mechanics of the "core" SMS++ library.
+  mechanics of the SMS++ core library.
+  This test is a [Google Test](https://github.com/google/googletest) suite.
 
-- [`PolyhedralFunction`](PolyhedralFunction) - constructs an `AbstractBlock`
-  with a single `PolyhedralFunction` as objective (inside a `FRealObjective`)
-  and another `AbstractBlock` with a representation of the same function via
-  "linear constraints". The function is randomly changed in many different
-  ways, the two `Block` are solved (the first typically via a `BundleSolver`
-  and the second via a `MILPSolver`) and the results are checked for
-  consistency. This is a very comprehensive test for `PolyhedralFunction`
-  and tests some features of `BundleSolver` and `MILPSolver` and its derived
-  classes (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for quite some
-  mechanics of the "core" SMS++ library.
+- [`MMCFBlock`](MMCFBlock), a tester which provides initial tests
+  for `MMCFBlock` (in particular, a way to retrieve/generate some sets of
+  Multicommodity Min-Cost Flow instances) and any `Solver` able to handle
+  Linear Programs (such as `MILPSolver` and its derived classes
+  `CPXMILPSolver` and `SCIPMILPSolver`), as well as for a few of the
+  mechanics of the SMS++ core library.
 
-- [`PolyhedralFunctionBlock`](PolyhedralFunctionBlock) - constructs one
-  `AbstractBlock` with one or more `PolyhedralFunctionBlock` and (possibly a
-  `LinearFunction` as objective) and copies it; one copy is configured in
-  the "natural" way (the `FRealObjective` has a `PolyhedralFunction`) and the
-  other copy in the "linearized" way (the `FRealObjective` has a
-  `LinearFunction` and there are "linear" constraints). The `AbstractBlock` is
-  randomly changed in many different ways (and the changes are moved to the
-  copy by means of `UpdateSolver` and `map\_forward\_Modification()`), the
-  two `Block` are solved (the first typically via a `BundleSolver` and the
-  second via a `MILPSolver`) and the results are checked for consistency.
-  This is a very comprehensive test for `PolyhedralFunctionBlock` and
-  `PolyhedralFunction` and tests several features of `BundleSolver`,
-  `MILPSolver` and its derived classes (`CPXMILPSolver` and `SCIPMILPSolver`),
-  as well as for quite a lot of the mechanics of the "core" SMS++ library.
+- [`PolyhedralFunction`](PolyhedralFunction), a tester which
+  provides very comprehensive tests for `PolyhedralFunction` and some tests
+  for any `CDASolver` able to handle `C05Function` in the objective (such as
+  `BundleSolver`) and any `CDASolver` able to handle Linear Programs (such
+  as `MILPSolver` and its derived classes `CPXMILPSolver` and
+  `SCIPMILPSolver`), as well as for some of the mechanics of the SMS++
+  core library.
+
+- [`PolyhedralFunctionBlock`](PolyhedralFunctionBlock), a tester
+  which provides very comprehensive tests for `PolyhedralFunction` and
+  especially `PolyhedralFunctionBlock`, plus quited some tests for any
+  `CDASolver` able to handle multiple `C05Function` in the objective (such
+  as `BundleSolver`) and any `CDASolver` able to handle Linear Programs
+  (such as `MILPSolver` and its derived classes `CPXMILPSolver` and
+  `SCIPMILPSolver`), as well as for some of the mechanics of the SMS++
+  core library.
+
+- [`UC_MILP`](UC_MILP) - solve several UC problems with a `MILPSolver`.
+  This is a  test for `UCBlock`, `MILPSolver` and its derived classes
+  (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
+  mechanics of the SMS++ core library.
+  This test is a [Google Test](https://github.com/google/googletest) suite.
 
 
 The tests run as traditional command line executables.
-Some tests are provided also as [Google Test] suites.
+Most of the tests can also run as a 
+[CTest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) suites.
 
 
 ## Getting started
@@ -137,7 +166,8 @@ a default sequence of tests (this may take a while).
 
 ## Contributing
 
-This section is not ready yet.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
+conduct, and the process for submitting merge requests to us.
 
 
 ## Authors
@@ -152,6 +182,10 @@ This section is not ready yet.
   Dipartimento di Informatica  
   Università di Pisa
 
+- **Enrico Gorgone**  
+  Dipartimento di Matematica ed Informatica  
+  Università di Cagliari
+
 - **Niccolò Iardella**  
   *Operations Research Group*  
   Dipartimento di Informatica  
@@ -162,9 +196,18 @@ This section is not ready yet.
   Dipartimento di Informatica  
   Università di Pisa
 
-
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public
 License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
 see the [LICENSE](LICENSE) file for details.
+
+## Disclaimer
+
+The code is currently provided free of charge under an open-source license.
+As such, it is provided "*as is*", without any explicit or implicit warranty
+that it will properly behave or it will suit your needs. The Authors of
+the code cannot be considered liable, either directly or indirectly, for
+any damage or loss that anybody could suffer for having used it. More
+details about the non-warranty attached to this code are available in the
+license description file.

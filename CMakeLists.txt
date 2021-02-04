@@ -71,13 +71,16 @@ endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(BendersBFunction)
+add_subdirectory(BoxSolver)
 add_subdirectory(LagBFunction)
-add_subdirectory(MCFMILP)
+add_subdirectory(LagrangianDualSolver_Box)
+add_subdirectory(LagrangianDualSolver_MMCF)
+add_subdirectory(LagrangianDualSolver_UC)
+add_subdirectory(MCF_MILP)
+add_subdirectory(MMCFBlock)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
-
-# Solve several UC problems with MILPSolver and compare against known results
-add_subdirectory(UCMILP)
+add_subdirectory(UC_MILP)
 
 # --------------------------------------------------------------------------- #
 # Just consuming these to avoid warnings

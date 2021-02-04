@@ -14,27 +14,33 @@
 # BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-0  # the BlockSolverConfig is not a "differential" one: values are being set
+1  # the BlockSolverConfig is a "differential" one
 
-1  # number of (the names of) Solver in this BlockSolverConfig
+2  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-CPXMILPSolver # name of 1st Solver
-#SCIPMILPSolver # name of 1st Solver
+*              # name of 1st Solver: empty, is the manually set BlockSolver
+CPXMILPSolver # name of 2nd Solver
+#SCIPMILPSolver # name of 2nd Solver
 
-1  # number of ComputeConfig in this BlockSolverConfig
+2  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
 # 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# this is the ComputeConfig of BoxSolver, which does not need one
+*
+
+# 2nd ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ComputeConfig # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-1 # number of integer parameters
+2 # number of integer parameters
 
 # now all the integer parameters
 intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
+CPXPARAM_QPMethod	1
 
 # note that we could eof() the file here since the rest is all empty
 
@@ -43,10 +49,10 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 # now all the double parameters
 # [none]
 
-0 # number of string parameters
+1 # number of string parameters
 
 # now all the string parameters
-# [none]
+strOutputFile	box.lp
 
 0 # number of vector-of-int parameters
 
