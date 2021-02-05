@@ -10,9 +10,6 @@
 [submodule "MCFBlock"]
 	path = MCFBlock
 	url = https://gitlab.com/smspp/mcfblock
-[submodule "UCBlock"]
-	path = UCBlock
-	url = https://gitlab.com/smspp/ucblock
 [submodule "DPSolver"]
 	path = DPSolver
 	url = https://gitlab.com/smspp/dpsolver
