@@ -45,4 +45,4 @@
 	url = https://gitlab.com/smspp/mmcfblock
 [submodule "UCBlock"]
 	path = UCBlock
-	url = https://gitlab.com/smspp/ucblock.git
+	url = https://gitlab.com/smspp/ucblock
