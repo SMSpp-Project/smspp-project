@@ -24,7 +24,11 @@ DIR = ./
 
 # debug switches
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
-# production switches
+# debug switches with address sanitizer and extra pedantic warning
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
+# production switches with checks
+#SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
+# production switches with checks
 SW = -O3 -std=c++17 -DNDEBUG
 
 # compiler
@@ -50,7 +54,6 @@ clean::
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-BNDSLVODR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
 # not necessary, BundleSolver does that already
@@ -77,7 +80,7 @@ MOBJ =  $(BNDSLVOBJ)
 MLIB =  $(BNDSLVLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
-	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
+	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 

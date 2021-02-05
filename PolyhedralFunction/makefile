@@ -2,7 +2,7 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for PolthedralFunction)                                #
+#   makefile of test (for PolyhedralFunction)                                #
 #                                                                            #
 #                                VERSION 1.10                                #
 #                               02 - 12 - 2019                               #
@@ -23,9 +23,13 @@ NAME = PolyhedralFunction_test
 DIR = ./
 
 # debug switches
-SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+# debug switches with address sanitizer and extra pedantic warning
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
+# production switches with address sanitizer
+#SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-#SW = -O3 -std=c++17 -DNDEBUG
+SW = -O3 -std=c++17 -DNDEBUG
 
 # compiler
 CC = clang++
@@ -80,7 +84,7 @@ MOBJ =  $(BNDSLVOBJ)
 MLIB =  $(BNDSLVLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
-	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
+	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
