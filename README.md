@@ -30,25 +30,28 @@ at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project
 ## Current projects
 
 - [SMS++ core library](https://gitlab.com/smspp/smspp), the repository
-  defining the general SMS++ framework features
+  defining the general SMS++ framework features.
 
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a Solver for
   optimization problems involving (several) nondifferentiable objective
   function(s) based on the (generalized) "bundle method". It currently
   uses some modules from the [NDOSolver / FiOracle
-  project](https://gitlab.com/frangio68/ndosolver_fioracle_project)
+  project](https://gitlab.com/frangio68/ndosolver_fioracle_project).
+  
+- [DPSolver](https://gitlab.com/smspp/dpsolver), a Dynamic Programming Solver
+  for single Unit Commitment problems.
 
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
-  "generic" Lagrangian-based Solver for Block with appropriate structure
+  "generic" Lagrangian-based Solver for Block with appropriate structure.
 
 - [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple Block defining
   several test functions from the literature for NonDifferentiable
-  Optimization solvers (such as BundleSolver)
+  Optimization solvers (such as BundleSolver).
 
 - [MCFBlock / MCFSolver](https://gitlab.com/smspp/mcfblock), defining the
   MCFBlock class for the (continuous, linear) Min-Cost Flow problem and
   its associated MCFSolver, basically a wrapper for solvers from the
-  [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class)
+  [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general MILPSolver Solver that aims at being able to solve any Block whose
@@ -58,35 +61,34 @@ at [https://smspp.gitlab.io/smspp-project](https://smspp.gitlab.io/smspp-project
   interface with existing MILP solvers. Currently available derived classes are:
 
   - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
-    Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio)
+    Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
 
   - SCIPMILPSolver, interfacing with the open-source, state-of-the-art
-    [SCIP solver](https://scip.zib.de/)
+    [SCIP solver](https://scip.zib.de/).
+
+- [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the MMCFBlock
+  Block for representing Multicommodity Min-Cost Flow problems (MMCF).
 
 - [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the SDDPBlock for
   multi-stage stochastic optimization problems solvable by the Stochastic
   Dual Dynamic Programming approach, and the SDDPSolver that interfaces with
-  the SDDP solver in the [StOpt
-  project](https://gitlab.com/stochastic-control/StOpt)
-
-- [S[imple/tructured]MILPBlock](https://gitlab.com/smspp/smilpblock), two
-  very basic Block defining "a leaf MILP formulation" (without any inner
-  Block) and "a structured MILP formulation with inner Block"
+  the SDDP solver in the
+  [StOpt project](https://gitlab.com/stochastic-control/StOpt).
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   StochasticBlock "meta-Block" that takes *any* "deterministic" Block and
   "makes it stochastic" by allowing to changing some of its data in a very
-  general and abstract way (using the SMS++ "methods factory")
+  general and abstract way (using the SMS++ "methods factory").
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
   Unit Commitment problems (the general UCBlock "root" class, several Block
   for specific generating units, with some spacialized Solver, and some
-  Block for specific network constraints)
+  Block for specific network constraints).
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (Block and/or
   Solver) from different sub-projects and that therefore are better not
-  included in any specific sub-project
+  included in any specific sub-project.
 
 - [tools](https://gitlab.com/smspp/tools), defining some tools that can be
   useful for users (such as "main files" that take instances of problems
