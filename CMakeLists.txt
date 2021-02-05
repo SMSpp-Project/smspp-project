@@ -21,22 +21,29 @@ add_subdirectory(BundleSolver/NdoFiOracle)
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
+# Some modules have requirements, so they should be loaded after those.
 
+# Core library (required by all the others)
 add_subdirectory(SMS++)
-add_subdirectory(MCFBlock)
-add_subdirectory(SMILPBlock)
-add_subdirectory(MILPSolver)
+
+# Blocks
 add_subdirectory(UCBlock)
-add_subdirectory(DPSolver)
+add_subdirectory(MCFBlock)
+add_subdirectory(MMCFBlock)    # Requires MCFBlock
 add_subdirectory(LukFiBlock)
-add_subdirectory(BundleSolver)
 add_subdirectory(StochasticBlock)
-add_subdirectory(SDDPBlock)
-#add_subdirectory(LagrangianDualSolver)
-#add_subdirectory(SubGradSolver)
+add_subdirectory(SDDPBlock)    # Requires StochasticBlock
+
+# Solvers
+add_subdirectory(MILPSolver)
+add_subdirectory(BundleSolver) # Requires MILPSolver
+add_subdirectory(DPSolver)     # Requires UCBlock
+add_subdirectory(LagrangianDualSolver)
 
 # ----- Tools --------------------------------------------------------------- #
 add_subdirectory(tools)
 
 # ----- System tests -------------------------------------------------------- #
 add_subdirectory(tests)
+
+# --------------------------------------------------------------------------- #
