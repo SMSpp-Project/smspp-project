@@ -186,6 +186,12 @@ tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
 
+## Getting help
+
+If you need support, you want to submit bugs or propose a new feature for a
+individual module, see the *Getting help* section for that module.
+If you need support on the project installation or want propose a new module,
+you can [open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
 ## Contributing
 
