@@ -7,31 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2021-02-05
+
 ### Added
 
-- significant improvements in LagBFunction testing
+- Significant improvements in LagBFunction testing.
 
-- testers now better use BlockSolverConfigs to be more general
+- Testers now better use BlockSolverConfigs to be more general.
 
-- significant improvements in BendersBFunction testing
+- Significant improvements in BendersBFunction testing.
 
-- added MMCFBlock tester
+- Added MMCFBlock tester.
 
-- added LagrangianDualSolver_UC tester
+- Added LagrangianDualSolver_UC tester.
 
-- added BoxSolver tester
+- Added BoxSolver tester.
 
-- added LagrangianDualSolver_Box tester
+- Added LagrangianDualSolver_Box tester.
 
-- added LagrangianDualSolver_MMCF tester
+- Added LagrangianDualSolver_MMCF tester.
 
-- improved UCBlock tester
+- Improved UCBlock tester.
 
-- improve README.md with ones for individual testers
+- Improve README.md with ones for individual testers.
 
 ### Fixed
 
-- too many individual fixes to list
+- Too many individual fixes to list.
 
 ## [0.3.2] - 2020-09-24
 
@@ -72,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First test release.
 
-[Unreleased]: https://gitlab.com/smspp/tests/-/compare/0.3.2...develop
+[Unreleased]: https://gitlab.com/smspp/tests/-/compare/0.4.0...develop
+[0.4.0]: https://gitlab.com/smspp/tests/-/compare/0.3.2...0.4.0
 [0.3.2]: https://gitlab.com/smspp/tests/-/compare/0.3.1...0.3.2
 [0.3.1]: https://gitlab.com/smspp/tests/-/compare/0.3.0...0.3.1
 [0.3.0]: https://gitlab.com/smspp/tests/-/compare/0.2.0...0.3.0
