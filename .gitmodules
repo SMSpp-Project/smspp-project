@@ -1,27 +1,18 @@
-[submodule "SMS++"]
-	path = SMS++
-	url = https://gitlab.com/smspp/smspp
-[submodule "SMILPBlock"]
-	path = SMILPBlock
-	url = https://gitlab.com/smspp/smilpblock
 [submodule "MCFClass"]
 	path = MCFClass
 	url = https://github.com/frangio68/Min-Cost-Flow-Class
+[submodule "SMS++"]
+	path = SMS++
+	url = https://gitlab.com/smspp/smspp
+[submodule "UCBlock"]
+	path = UCBlock
+	url = https://gitlab.com/smspp/ucblock
 [submodule "MCFBlock"]
 	path = MCFBlock
 	url = https://gitlab.com/smspp/mcfblock
-[submodule "DPSolver"]
-	path = DPSolver
-	url = https://gitlab.com/smspp/dpsolver
-[submodule "MILPSolver"]
-	path = MILPSolver
-	url = https://gitlab.com/smspp/milpsolver
-[submodule "BundleSolver"]
-	path = BundleSolver
-	url = https://gitlab.com/smspp/bundlesolver
-[submodule "SubGradSolver"]
-	path = SubGradSolver
-	url = https://gitlab.com/smspp/subgradsolver
+[submodule "MMCFBlock"]
+	path = MMCFBlock
+	url = https://gitlab.com/smspp/mmcfblock
 [submodule "LukFiBlock"]
 	path = LukFiBlock
 	url = https://gitlab.com/smspp/lukfiblock
@@ -31,6 +22,15 @@
 [submodule "SDDPBlock"]
 	path = SDDPBlock
 	url = https://gitlab.com/smspp/sddpblock
+[submodule "MILPSolver"]
+	path = MILPSolver
+	url = https://gitlab.com/smspp/milpsolver
+[submodule "BundleSolver"]
+	path = BundleSolver
+	url = https://gitlab.com/smspp/bundlesolver
+[submodule "DPSolver"]
+	path = DPSolver
+	url = https://gitlab.com/smspp/dpsolver
 [submodule "LagrangianDualSolver"]
 	path = LagrangianDualSolver
 	url = https://gitlab.com/smspp/lagrangiandualsolver
@@ -40,9 +40,3 @@
 [submodule "tests"]
 	path = tests
 	url = https://gitlab.com/smspp/tests
-[submodule "MMCFBlock"]
-	path = MMCFBlock
-	url = https://gitlab.com/smspp/mmcfblock
-[submodule "UCBlock"]
-	path = UCBlock
-	url = https://gitlab.com/smspp/ucblock
