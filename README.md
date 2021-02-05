@@ -163,6 +163,10 @@ Each tester has an executable built in the corresponding directory; run
 it for instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
 
+## Getting help
+
+If you need support, you want to submit bugs or propose a new feature, you can
+[open a new issue](https://gitlab.com/smspp/tests/-/issues/new).
 
 ## Contributing
 
