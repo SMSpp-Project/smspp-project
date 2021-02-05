@@ -19,7 +19,7 @@
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
 project(SMS++_tests
-        VERSION 0.3.2
+        VERSION 0.4.0
         DESCRIPTION "SMS++ tests"
         HOMEPAGE_URL https://gitlab.com/smspp/tests
         LANGUAGES C CXX)
