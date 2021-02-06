@@ -313,7 +313,7 @@ OPTIMIZE_OUTPUT_SLICE  = NO
 # Note that for custom extensions you also need to set FILE_PATTERNS otherwise
 # the files are not read by doxygen.
 
-EXTENSION_MAPPING      =
+EXTENSION_MAPPING      = no_extension=md
 
 # If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable
@@ -820,6 +820,8 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = ./README.md \
+                         ./CONTRIBUTING.md \
+                         ./LICENSE \
                          SMS++/doxygen/mainpage.md \
                          BundleSolver \
                          BundleSolver/NDOFiOracle/Bundle/MPSolver.h \
@@ -827,21 +829,15 @@ INPUT                  = ./README.md \
                          BundleSolver/NDOFiOracle/NDOSlver \
                          BundleSolver/NDOFiOracle/OSIMPSolver \
                          BundleSolver/NDOFiOracle/QPPnltMP \
-			 LukFiBlock \
+                         DPSolver/include \
+                         LagrangianDualSolver \
+                         LukFiBlock \
                          MCFBlock/include \
-                         MCFClass/doxygen/Manual.h \
-                         MCFClass/OPTUtils \
-                         MCFClass/MCFClass \
-                         MCFClass/MCFCplex \
-                         MCFClass/MCFClone \
-                         MCFClass/RelaxIV \
-                         MCFClass/MCFSimplex \
-                         MCFClass/SPTree \
                          MILPSolver/include \
+                         MMCFBlock \
                          SDDPBlock/include \
-                         SMILPBlock/include \
                          SMS++/include \
-			 StochasticBlock/include \
+                         StochasticBlock/include \
                          UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files
@@ -867,7 +863,7 @@ INPUT_ENCODING         = UTF-8
 # *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f95, *.f03, *.f08,
 # *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf, *.qsf and *.ice.
 
-FILE_PATTERNS          = *.h *.md
+FILE_PATTERNS          = *.h
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
