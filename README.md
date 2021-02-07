@@ -26,11 +26,9 @@ submodules.
 - The [main documentation](https://smspp.gitlab.io/smspp-project)
   includes the API reference for all the SMS++ modules.
 - The [SMS++ Project Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
-  contains additional information for developers and maintainers.
-- The [SMS++ library Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
-    contains a more detailed description of SMS++ core concepts and features.
-
-
+  contains a more detailed description of SMS++ core concepts and features,
+  as well as troubleshooting information and additional guides for
+  developers and maintainers.
 
 ## Current projects
 
