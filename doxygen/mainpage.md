@@ -1,4 +1,4 @@
-# SMS++ library API reference
+# SMS++ API reference
 
 ![To boldly model (and solve) what no one has modeled (and solved) before](doxygen/SMSpp_logo_mid_noback.png)
 
@@ -11,10 +11,10 @@ exclusively, decomposition approaches and structured Interior-Point methods).
 ## Getting started
 
 - The [SMS++ Project repository](https://gitlab.com/smspp/smspp-project)
-  contains all the information on how to get and build SMS++.
+  contains all the information on how to build and install the SMS++ Project.
+
 - The [SMS++ Project Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
-  contains a more detailed description of SMS++ core concepts and features,
-  as well as troubleshooting information and additional guides for
+  contains troubleshooting information and additional guides for
   developers and maintainers.
 
 ## A general description of SMS++
