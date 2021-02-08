@@ -1,11 +1,7 @@
 image: alpine:3.11
 
 before_script:
-  - apk add --no-cache doxygen git bash
-  # Create a list of all submodules
-  - SUBM=`grep "smspp/" .gitmodules | awk -F '/' '{print $5}'`
-  # Add "pages-job:$<module-name>_TOKEN" to .gitmodules URLs
-  - for i in ${SUBM}; do eval "TOKEN=\$${i}_TOKEN"; sed -i "s/gitlab.com\/smspp\/$i/pages-job:$TOKEN@gitlab.com\/smspp\/$i/" .gitmodules; done
+  - apk add --no-cache doxygen git
 
 pages:
   stage: deploy
