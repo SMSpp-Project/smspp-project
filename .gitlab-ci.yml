@@ -14,7 +14,6 @@ pages:
     - git submodule update --init --recursive
     - doxygen doxygen/Doxyfile
     - mv doc/html/ public/
-    - mkdir -p public/doxygen && mv doxygen/SMSpp_logo_mid_noback.png public/doxygen
   artifacts:
     paths:
       - public
