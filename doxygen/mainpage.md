@@ -26,8 +26,7 @@ opposite approaches:
   [AMPL](https://ampl.com) and [GAMS](https://www.gams.co/), or open-source
   ones like [Coliop](http://www.coliop.org) and [ZIMPL](http://zimpl.zib.de).
   These try to abstract away as much as possible the mathematical model from
-  the underlying solver, thereby
-  taking away from the user all the effort
+  the underlying solver, thereby taking away from the user all the effort
   from interfacing with specific solvers tackling their idiosyncrasies.
   However, in order to do to they typically "flatten" all the structure
   available in the model, making it almost unreachable from the underlying
@@ -35,7 +34,8 @@ opposite approaches:
   mainly the block one, e.g. in the [Structured Modeling Language
   (SML)](https://www.maths.ed.ac.uk/ERGO/sml). An alternative approach has
   been to re-construct the structure backwards from the "flat" model, as
-  [Generic Column Generation (GCG)](http://www.or.rwth-aachen.de/gcg) does.
+  [Generic Column Generation (GCG)](http://www.or.rwth-aachen.de/gcg) does,
+  possibly taking hints from the user about how to do that.
 
 - The alternative has typically been to *directly interface to a specific
   solver via its APIs*; all modern general-purpose (and specialized)
@@ -60,19 +60,25 @@ opposite approaches:
   specialized solution method, and thereby implement sophisticated
   structure-exploiting algorithms. However, at their hearth these systems
   typically still construct "flat" models, and have little explicit support
-  for managing the structure in the model.
+  for managing the structure in the model. Some exception to this rule are
+  [StructJuMP](https://github.com/StructJuMP/StructJuMP.jl), an extension
+  of JuMP tailored to two-stage stochastic optimization problems, and
+  [BlockDecomposition](https://github.com/atoptima/BlockDecomposition.jl),
+  yet another JuMP extension developed to work with the
+  [Coluna](https://github.com/atoptima/Coluna.jl) package, perhaps the
+  closest in spirit to SMS++.
 
 ### Enter SMS++
 
-SMS++ tries a different approach, somehow extending the latter one but even
-more deeply rooted in programming languages (after all, mathematical
-optimization used to be known as "mathematical programming" for a good
-reason). It is a modeling system based on a set of C++ classes, where a
-model is represented as a "block", containing some collections of
-"variables" and "constraints", plus one "objective function", possibly
-organized (recursively) into sub-blocks. The current distribution provides
-the corresponding *abstract* `Block`, `Variable`, `Constraint` and `Objective`
-classes, that try to establish the minimal possible interface of such a
+SMS++ mostly belongs to the latter group, but pushes a number of features
+further by trying to bring closer the model and the solution algorithms
+(after all, mathematical optimization used to be known as "mathematical
+programming" for a good reason). It is a modeling system based on a set
+of C++ classes, where a model is represented as a "block", containing some
+collections of "variables" and "constraints", plus one "objective function",
+possibly organized (recursively) into sub-blocks. This starts with
+*abstract* `Block`, `Variable`, `Constraint` and `Objective` classes, that
+try to establish the minimal possible interface of such a
 modeling system. In particular, `Variable`, `Constraint` and `Objective` make as
 little assumptions as possible on the actual form of the corresponding
 mathematical objects. However, a `RealObjective` class is already derived
