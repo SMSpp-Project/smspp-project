@@ -59,7 +59,7 @@ submodules.
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general MILPSolver Solver that aims at being able to solve any Block whose
   abstract representation encodes for a Mixed-Integer Linear Program
-  (ColVariable, FRowConstraint and FrealObjective with LinearFunction inside,
+  (ColVariable, FRowConstraint and FRealObjective with LinearFunction inside,
   OneVarConstraint), together with derived MILPSolver classes that actually
   interface with existing MILP solvers. Currently available derived classes are:
 
@@ -85,7 +85,7 @@ submodules.
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
   Unit Commitment problems (the general UCBlock "root" class, several Block
-  for specific generating units, with some spacialized Solver, and some
+  for specific generating units, with some specialized Solver, and some
   Block for specific network constraints).
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
@@ -254,7 +254,7 @@ To contribute to the individual projects, see the Contribute section for those.
 
 ## Authors
 
-These authors are for the umbrella project alone, check the individual
+These authors are for the umbrella project alone. Check the individual
 projects for their respective authors.
 
 - **Antonio Frangioni**  
@@ -263,6 +263,11 @@ projects for their respective authors.
   Università di Pisa
 
 - **Niccolò Iardella**  
+  *Operations Research Group*  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+- **Rafael Durbano Lobato**  
   *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa

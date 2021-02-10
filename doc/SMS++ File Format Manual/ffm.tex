@@ -116,8 +116,16 @@
 \def\dSolver{\code{:Solver}\xspace}
 \def\BlockConfig{\code{BlockConfig}\xspace}
 \def\dBlockConfig{\code{:BlockConfig}\xspace}
+\def\RBlockConfig{\code{RBlockConfig}\xspace}
+\def\OBlockConfig{\code{OBlockConfig}\xspace}
+\def\CBlockConfig{\code{CBlockConfig}\xspace}
+\def\CRBlockConfig{\code{CRBlockConfig}\xspace}
+\def\OCBlockConfig{\code{OCBlockConfig}\xspace}
+\def\ORBlockConfig{\code{ORBlockConfig}\xspace}
+\def\OCRBlockConfig{\code{OCRBlockConfig}\xspace}
 \def\BlockSolverConfig{\code{BlockSolverConfig}\xspace}
 \def\dBlockSolverConfig{\code{:BlockSolverConfig}\xspace}
+\def\RBlockSolverConfig{\code{RBlockSolverConfig}\xspace}
 \def\ComputeConfig{\code{ComputeConfig}\xspace}
 \def\Constraint{\code{Constraint}\xspace}
 \def\Constraints{\code{Constraint}s\xspace}
@@ -221,7 +229,7 @@
 {\Large Version: 0.50}
 
 \vspace*{0.5cm}
-{\Large Date: 12/04/2020}
+{\Large Date: 08/02/2021}
 
 \definecolor{p4r_blue}{rgb}{0.851,0.886,0.953}
 
@@ -405,56 +413,309 @@ The only content that any \netCDF \group describing a \dConfiguration must neces
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\BlockConfig description}\label{sec:BlockConfig}
 
-Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \netCDF \group for a \BlockConfig can contain the following:
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \BlockConfig can contain the following:
 %
 \begin{itemize}
- \item the \group \cstr{static\_constraints} containing a \Configuration object for the static constraints of the \Block;
+\item the \attribute \cstr{diff} of \code{netCDF::NcInt} type telling if the
+  information in it has to be taken as ``the configuration to be set''
+  ($\cstr{diff} \le 0$) or as ``the changes to be made from the current
+  configuration'' ($\cstr{diff} > 0$); this attribute is optional: if it is
+  not provided, then $\cstr{diff} = 1$ is assumed;
+
+\item the \group \cstr{static\_constraints} containing a \Configuration object
+  for the static constraints of the \Block;
  %
- \item the \group \cstr{dynamic\_constraints } containing a \Configuration object for the dynamic constraints of the \Block;
+\item the \group \cstr{dynamic\_constraints} containing a \Configuration
+  object for the dynamic constraints of the \Block;
  %
- \item the \group \cstr{static\_variables} containing a \Configuration object for the static variables of the \Block;
+\item the \group \cstr{static\_variables} containing a \Configuration object
+  for the static variables of the \Block;
  %
- \item the \group \cstr{dynamic\_variables} containing a \Configuration object for the dynamic variables of the \Block;
+\item the \group \cstr{dynamic\_variables} containing a \Configuration object
+  for the dynamic variables of the \Block;
  %
- \item the \group \cstr{objective} containing a \Configuration object for the objective of the \Block;
+\item the \group \cstr{objective} containing a \Configuration object for the
+  objective of the \Block;
  %
- \item the \group \cstr{is\_feasible} containing a \Configuration object for the \code{is\_feasible()} method of the \Block;
+\item the \group \cstr{is\_feasible} containing a \Configuration object for
+  the \code{is\_feasible()} method of the \Block;
  %
- \item the \group \cstr{is\_optimal} containing a \Configuration object for the \code{is\_optimal()} method of the \Block;
+\item the \group \cstr{is\_optimal} containing a \Configuration object for the
+  \code{is\_optimal()} method of the \Block;
  %
- \item the \group \cstr{solution} containing a \Configuration object for the methods of the \Block dealing with solutions (\code{get\_Solution()} and \code{map\_[back/forward]\_solution()});
+\item the \group \cstr{solution} containing a \Configuration object for the
+  methods of the \Block dealing with solutions (\code{get\_Solution()} and
+  \code{map\_[back/forward]\_solution()});
  %
- \item the \group \cstr{extra} containing a \Configuration object, which has no direct use in the base \Block class, but is added so that derived classes can put there any configuration information without having to define further derived classes form \BlockConfig (which, however, they can still do if they want);
- %
- \item the \dimension \cstr{n\_sub\_Block} containing the number of \BlockConfig descriptions for the sub-\Block of the current \dBlock;
- %
- \item with $n$ being the size of \code{n\_sub\_Block}, $n$ \groups, with name \cstr{sub-BlockConfig\_$i$} for all $i = 0, \ldots, n - 1$, containing each the description of a \BlockConfig for one of the sub-\Block of the current \dBlock.
+\item the \group \cstr{extra} containing a \Configuration object, which has no
+  direct use in the base \Block class, but is added so that derived classes
+  can put there any configuration information without having to define further
+  derived classes form \BlockConfig (which, however, they can still do if they
+  want).
 \end{itemize}
-%
-Of all these, only the \cstr{name} \attribute and the \cstr{n\_sub\_Block} \dimension are mandatory (they must exist, although they may be empty/zero). All other groups may not exist, in which case the corresponding field of the class is filled with a \code{nullptr}, indicating that the ``default'' configuration (whatever that may mean for the \dBlock in question) have to be used. Note that that the matching between the sub-\BlockConfig and the sub-\Block is positional: the \BlockConfig found in the group ``{\tt sub-BlockConfig\_}$i$'' is that for the $i$-th sub-\Block. Note that the vector of sub-\BlockConfig is allowed to be of different size than the number of sub-\Block; if it is larger any extra \BlockConfig is simply ignored, if it is shorter then all missing sub-\BlockConfig are treated as \code{nullptr} (default configuration).
+
+All these \groups are optional. If a \group is not provided, the corresponding
+field of the class is filled with a \code{nullptr}, indicating that the
+``default'' configuration (whatever that may mean for the \dBlock in question)
+has to be used.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{\BlockSolverConfig description}
+\subsubsubsection{\RBlockConfig description}\label{sec:RBlockConfig}
 
-Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \netCDF \group for a \BlockSolverConfig can contain the following:
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \RBlockConfig should also contain the following:
 %
 \begin{itemize}
- \item the \dimension \cstr{n\_SolverConfig} containing the number of \Solver that are to be attached to this \Block, and therefore the (expected) number of their \dConfiguration objects;
- %
- \item the \variable \cstr{SolverNames}, of type string and indexed over the \dimension \cstr{n\_SolverConfig}; the $i$-th entry of the variable is assumed to contain the classname of a \dSolver object to be attached to the \Block (this must be exact, e.g., as returned by the protected virtual method \code{name()}, since it is used in the \emph{factory} when creating the object);
- %
- \item with $n$ being the size of \code{n\_SolverConfig}, $n$ \groups, with name \cstr{SolverConfig\_$i$} for all $i = 0, \ldots, n - 1$, containing each the description of a \dConfiguration object for the $i$-th \dSolver;
- %
- \item the \dimension \cstr{n\_BlockSolverConfig} containing containing the number of \BlockSolverConfig descriptions for the sub-\Block of the current \dBlock;
- %
- \item with $m$ being the size of \code{n\_BlockSolverConfig}, $m$ \groups, with name \cstr{BlockSolverConfig\_$i$} for all $i = 0, \ldots, m - 1$, containing each the description of a \BlockSolverConfig for one of the sub-\Block of the current \dBlock.
+\item all that is needed to describe a \BlockConfig (see~\ref{sec:BlockConfig}):
+
+\item the \dimension \cstr{n\_sub\_Block} containing the number of
+  \BlockConfig descriptions for the sub-\Block of the current \Block; this
+  \dimension is optional; if it is not provided, then $\cstr{n\_sub\_Block} =
+  0$ is assumed.
+
+\item With $n$ being the size of \cstr{n\_sub\_Block}, $n$ \groups, with name
+  \cstr{sub-BlockConfig\_$i$} for all $i = 0, \ldots, n - 1$, containing each
+  the description of a \BlockConfig for one of the sub-\Block of the current
+  \dBlock. Each of these \groups is optional. If a \group is absent then the
+  pointer to the \BlockConfig for the corresponding sub-\Block is considered
+  to be a \code{nullptr} (default configuration).
+
+\item With $n$ being the size of \code{n\_sub\_Block}, a one-dimensional
+  \variable with name \cstr{sub-Block-id}, of size $n$ and type
+  \code{netCDF::NcString}, containing the identification of the sub-\Block
+  such that \code{sub-BlockConfig\_$i$} contains the \BlockConfig for the
+  sub-\Block whose identification is \code{sub-Block-id[ $i$ ]} for all $i =
+  0, \ldots, n - 1$. The identification of the sub-\Block can be either its
+  name (see \code{Block::name()}) or its index in the list of sub-\Block of
+  its father \Block. This \variable is optional. If it is not provided, then
+  the $i$-th \BlockConfig is associated with the $i$-th sub-\Block of the
+  \Block for all $i = 0, \ldots, n - 1$ (i.e., $i$ is taken as the index of
+  the sub-\Block and \cstr{sub-Block-id[ $i$ ]} is assumed to be $i$).
+
+  \note{If the name of the \Block is used as its identification, then
+      the first character of this name cannot be a digit.}
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\CBlockConfig description}\label{sec:CBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \CBlockConfig should also contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig (see~\ref{sec:BlockConfig}):
+
+\item the \dimension \cstr{n\_Config\_Constraint} containing the number of
+  \ComputeConfig descriptions associated with the \Constraint of the current
+  \Block; this \dimension is optional; if it is not provided, then
+  $\cstr{n\_Config\_Constraint} = 0$ is assumed.
+
+\item with $p$ being the size of \cstr{n\_Config\_Constraint}, a
+  one-dimensional \variable called \cstr{Constraint\_group\_id}, of size $p$
+  and type \code{netCDF::NcString}, containing the identification of the group
+  of \Constraints that require a \ComputeConfig. The $i$-th element of this
+  vector, \code{Constraint\_group\_id[ $i$ ]}, is the identification of the
+  group to which the $i$-th \Constraint belongs. For each $i = 0, \ldots, p -
+  1$, \code{Constraint\_group\_id[ $i$ ]} can be indicated in two ways: it is
+  either (i) the name of the group of \Constraint (see
+  \code{Block::get\_s\_const\_name()} and \code{Block::get\_d\_const\_name()})
+  or the index of the group as defined in \code{Block::ConstraintID}.
+
+  \note{If a \Constraint group is being identified using the name of the group
+    (rather than the index of the group), then
+    \begin{itemize}
+    \item the first character of this name cannot be a digit;
+    \item the static group has priority over the dynamic group of \Constraint:
+      if there is a group of static \Constraint with the given name, then this
+      group is considered. Otherwise, the group of dynamic \Constraint with
+      that name is considered.
+  \end{itemize}}
+
+  This \variable is mandatory if $\cstr{n\_Config\_Constraint} > 0$.
+
+\item with $p$ being the size of \cstr{n\_Config\_Constraint}, a
+  one-dimensional \variable called \cstr{Constraint\_index}, of size $p$ and
+  type \code{netCDF::NcUint}, containing the index of the \Constraint that
+  require a \ComputeConfig. The $i$-th element of this vector,
+  \code{Constraint\_index[ $i$ ]}, is the index of the $i$-th \Constraint
+  (which belongs to the group indicated by \code{Constraint\_group\_id[ $i$
+  ]}). See \code{Block::ConstraintID} for the definition of the index of a
+  \Constraint in a group. This \variable is optional. If it is not provided,
+  then $\code{Constraint\_index[ $i$ ]} = i$ for all $i = 0, \ldots, p - 1$ is
+  assumed.
+
+\item $p$ \groups, with name \code{Config\_Constraint\_$i$} for all $i = 0,
+  \ldots, p - 1$, containing each the description of a \ComputeConfig
+  associated with the $i$-th \Constraint indicated by the pair (
+  \code{Constraint\_group\_id[ $i$ ]}, \code{Constraint\_index[ $i$ ]} );
+  these \groups are optional; if \code{Config\_Constraint\_$i$} is not
+  provided, then \code{nullptr} (default configuration) is assumed for the
+  $i$-th \Constraint.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\OBlockConfig description}\label{sec:OBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \OBlockConfig should also contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig (see~\ref{sec:BlockConfig}):
+
+\item a \group with name \cstr{Config\_Objective}, containing the description
+  of a \ComputeConfig associated with the \Objective of the current \Block;
+  this \group is optional; if it is not provided, then \code{nullptr} (default
+  configuration) is assumed.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\OCBlockConfig description}\label{sec:OCBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \OCBlockConfig should also contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig
+  (see~\ref{sec:BlockConfig}):
+\item all that is needed to describe a \OBlockConfig
+  (see~\ref{sec:OBlockConfig}):
+\item all that is needed to describe a \CBlockConfig
+  (see~\ref{sec:CBlockConfig}).
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\ORBlockConfig description}\label{sec:ORBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \ORBlockConfig should also contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig
+  (see~\ref{sec:BlockConfig}):
+\item all that is needed to describe a \OBlockConfig
+  (see~\ref{sec:OBlockConfig}):
+\item all that is needed to describe a \RBlockConfig
+  (see~\ref{sec:RBlockConfig}).
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\CRBlockConfig description}\label{sec:CRBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \CRBlockConfig should also contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig
+  (see~\ref{sec:BlockConfig}):
+\item all that is needed to describe a \CBlockConfig
+  (see~\ref{sec:CBlockConfig}):
+\item all that is needed to describe a \RBlockConfig
+  (see~\ref{sec:RBlockConfig}).
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\OCRBlockConfig description}\label{sec:OCRBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \OCRBlockConfig should also contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig
+  (see~\ref{sec:BlockConfig});
+
+\item all that is needed to describe a \OBlockConfig
+  (see~\ref{sec:OBlockConfig});
+
+\item all that is needed to describe a \CBlockConfig
+  (see~\ref{sec:CBlockConfig}):
+
+\item all that is needed to describe a \RBlockConfig
+  (see~\ref{sec:RBlockConfig}).
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{\BlockSolverConfig description}\label{sec:BlockSolverConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \BlockSolverConfig can contain the following:
+%
+\begin{itemize}
+
+\item the \attribute \cstr{diff} of \code{netCDF::NcInt} type telling if the
+  information in it has to be taken as ``the configuration to be set''
+  ($\cstr{diff} \le 0$) or as ``the changes to be made from the current
+  configuration'' ($\cstr{diff} > 0$); this attribute is optional, if it is
+  not provided, then $\cstr{diff} = 0$ is assumed;
+%
+\item the \dimension \cstr{n\_SolverConfig} containing the number of \Solver
+  that are to be attached to the \Block, and therefore the number of their
+  \code{SolverConfig} objects; this dimension is optional, if it is not
+  provided, then $\cstr{n\_SolverConfig} = 0$ is considered;
+%
+\item the \variable \cstr{SolverNames}, of type \code{netCDF::NcString} and
+  indexed over the \dimension \cstr{n\_SolverConfig}; the $i$-th entry of the
+  variable is assumed to contain the classname of a \dSolver object to be
+  attached to the \Block (this must be exact, i.e., exactly as returned by the
+  protected virtual method \code{Solver::classname()}, since it is used in the
+  \emph{factory} when creating the object; this variable is mandatory if
+  $\cstr{n\_SolverConfig} > 0$;
+%
+\item with $n$ being the size of \code{n\_SolverConfig}, $n$ \groups, with
+  name \cstr{SolverConfig\_$i$} for all $i = 0, \ldots, n - 1$, containing
+  each the description of a \ComputeConfig object for the $i$-th \dSolver;
+  these groups are optional; if \cstr{SolverConfig\_$i$} is not provided, then
+  \code{nullptr} is considered for the $i$-th \ComputeConfig.
 \end{itemize}
 %
-Of all these, only the \cstr{n\_SolverConfig} and \cstr{n\_BlockSolverConfig} \dimensions and the \cstr{SolverNames} \variable are mandatory; the individual \groups may not exist if the corresponding \dimension is $0$. Note that that the matching between the sub-\BlockSolverConfig and the sub-\Block is positional: the \BlockSolverConfig found in the group ``{\tt BlockSolverConfig\_}$i$'' is that for the $i$-th sub-\Block. Note that the vector of sub-\BlockSolverConfig is allowed to be of different size than the number of sub-\Block; if it is larger any extra \BlockSolverConfig is simply ignored, if it is shorter then all missing sub-\BlockConfig are treated as \code{nullptr} (default configuration).
 
 \medskip
 \noindent
-Note that the \dConfiguration objects to be found in the \groups \cstr{SolverConfig\_$i$} are not ``any'' \dConfiguration; rather, they are assumed to be of the specific type \ComputeConfig, whose format is described in the next subsection.
+Note that the \dConfiguration objects to be found in the \groups
+\cstr{SolverConfig\_$i$} are assumed to be of the specific type
+\ComputeConfig, whose format is described in~\ref{sec:ComputeConfig}.
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\RBlockSolverConfig description}\label{sec:RBlockSolverConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, and the
+\dimensions, \variables, and \groups of a \BlockSolverConfig, a \SMSpp \netCDF
+\group for a \RBlockSolverConfig can contain the following:
+%
+\begin{itemize}
+\item the \dimension \cstr{n\_BlockSolverConfig} containing the number of
+  \BlockSolverConfig descriptions for the sub-\Block of the current \Block; it
+  is optional; if it is not provided, then we assume
+  $\cstr{n\_BlockSolverConfig} = 0$.
+
+\item with $m$ being the size of \cstr{n\_BlockSolverConfig}, $m$ \groups,
+  with name \cstr{BlockSolverConfig\_$i$} for all $i = 0, \ldots, m - 1$,
+  containing each the description of a \BlockSolverConfig for one of the
+  sub-\Block of the current \Block. If some group
+  \cstr{BlockSolverConfig\_$i$} does not exist, \code{nullptr} is used;
+
+\item With $n$ being the size of \cstr{n\_BlockSolverConfig}, a
+  one-dimensional \variable with name \cstr{sub-Block-id}, of size $n$ and
+  type \code{netCDF::NcString}, containing the identification of the
+  sub-\Block such that \code{BlockSolverConfig\_$i$} contains the
+  \BlockSolverConfig for the sub-\Block whose identification is
+  \code{sub-Block-id[ $i$ ]} for all $i = 0, \ldots, n - 1$. The
+  identification of the sub-\Block can be either its name (see
+  \code{Block::name()}) or its index in the list of sub-\Block of its father
+  \Block. This \variable is optional. If it is not provided, then the $i$-th
+  \BlockSolverConfig is associated with the $i$-th sub-\Block of the \Block
+  for all $i = 0, \ldots, n - 1$ (i.e., $i$ is taken as the index of the
+  sub-\Block and \code{sub-Block-id[ $i$ ]} is assumed to be $i$).
+
+  \note{If the name of the \Block is used as its identification, then
+    the first character of this name cannot be a digit.}
+
+  The individual \groups \cstr{BlockSolverConfig\_$i$} are optional. If
+  \cstr{BlockSolverConfig\_$i$} is not provided, then \code{nullptr} is
+  considered. Note that the size of the vector of sub-\BlockSolverConfig is
+  allowed to be different than the number of sub-\Block.
+\end{itemize}
+
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\ComputeConfig description}\label{sec:ComputeConfig}
