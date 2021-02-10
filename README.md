@@ -213,29 +213,25 @@ Other settings may be needed.
 Although sadly a proper User Manual is still missing, the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
 first look at possible ways of using SMS++. In particular the three three
-tests
-[LagrangianDualSolver_Box](https://gitlab.com/smspp/tests/LagrangianDualSolver_Box),
-[LagrangianDualSolver_MMCF](https://gitlab.com/smspp/tests/LagrangianDualSolver_MMCF), and
-[LagrangianDualSolver_UC](https://gitlab.com/smspp/tests/LagrangianDualSolver_UC),
-all build, or load from file, a `:Block` amenable to Lagrangian relaxation,
-register two `Solver` (a `:MILPSolver` and a `LagrangianDualSolver`) to them,
-properly configure them if needed (mostly, but not exclusively, using
-`Configuration` files) and run the two `Solver` to verify they give the same
-answer. The `LagrangianDualSolver_Box` case is also useful to show how you can
-use SMS++ to build "normal" models a-la algebraic modelling language, as
-opposed to programming a whole `Block` from scratch, using `AbstractBlock`,
-more of which can be found in `tests/LagBFunction` and
-`tests/PolyhedralFunction`. The test also provides an example on how to
-(randomly) modify the `:Block` and re-solve it many times (still checking
-that the results agree), showcasing the crucial `Modification` SMS++ concept
-whereby changes in the `:Block` are automatically forwarded to all concerned
-`Solver`. Other similar examples can be found in basically all the other
-tests.
+tests `LagrangianDualSolver_Box`, `LagrangianDualSolver_MMCF` and
+`LagrangianDualSolver_UC` all build, or load from file, a `:Block` amenable
+to Lagrangian relaxation, register two `Solver` (a `:MILPSolver` and a
+`LagrangianDualSolver`) to it, properly configure them if needed (mostly,
+but not exclusively, using `Configuration` files) and run the two `Solver`
+to verify that they give the same answer. The `LagrangianDualSolver_Box`
+test also shows how one can use SMS++ to build "normal" models a-la
+algebraic modelling language using `AbstractBlock`, as opposed to
+programming a whole `Block` from scratch, more of which can be found, e.g.,
+in `tests/LagBFunction` and `tests/PolyhedralFunction`. Furthermore,
+provides an example on how to (randomly) modify the `:Block` and re-solve
+it many times (still checking that the results agree), showcasing the
+crucial `Modification` SMS++ concept whereby changes in the `:Block` are
+automatically forwarded to all concerned `Solver`. Other similar examples
+can be found in basically all the other tests.
 
 The `LagrangianDualSolver_MMCF` and `LagrangianDualSolver_UC` versions rather
 provides examples about using full-featured "pre-built" `:Block`, that can be
-found in the
-[MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
+found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
 [MCFBlock](https://gitlab.com/smspp/mcfblock) repos and in the
 [UCBlock](https://gitlab.com/smspp/ucblock) repo, respectively.
 
