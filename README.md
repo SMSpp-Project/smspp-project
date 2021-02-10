@@ -187,9 +187,57 @@ those in
 ```sh
 MCFBlock/test
 tests/LagBFunction 
+tests/LagrangianDualSolver_MMCF
+tests/LagrangianDualSolver_UC
 tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
+
+Note that the makefile-lib and makefile-inc "listen" to the general macros
+CC and SW controlling the c++ compiler and its main options; these can
+therefore be set in the "main" makefile and will be used throughout the
+whole compilation. This may be useful to set system-specific values.
+
+An example of this is the macro
+
+```sh
+CLANG_1200_0_32_27_PATCH
+```
+
+which activates a patch for a weird glitch of clang++ (from 1200.0.32.27
+to at least 1200.0.32.29) that cause some boost::any magic to stop working.
+Other settings may be needed.
+
+## First steps
+
+Although sadly a proper User Manual is still missing, the
+[tests](https://gitlab.com/smspp/tests) repository can be useful to get a
+first look at possible ways of using SMS++. In particular the three three
+tests
+[LagrangianDualSolver_Box](https://gitlab.com/smspp/tests/LagrangianDualSolver_Box),
+[LagrangianDualSolver_MMCF](https://gitlab.com/smspp/tests/LagrangianDualSolver_MMCF), and
+[LagrangianDualSolver_UC](https://gitlab.com/smspp/tests/LagrangianDualSolver_UC),
+all build, or load from file, a `:Block` amenable to Lagrangian relaxation,
+register two `Solver` (a `:MILPSolver` and a `LagrangianDualSolver`) to them,
+properly configure them if needed (mostly, but not exclusively, using
+`Configuration` files) and run the two `Solver` to verify they give the same
+answer. The `LagrangianDualSolver_Box` case is also useful to show how you can
+use SMS++ to build "normal" models a-la algebraic modelling language, as
+opposed to programming a whole `Block` from scratch, using `AbstractBlock`,
+more of which can be found in `tests/LagBFunction` and
+`tests/PolyhedralFunction`. The test also provides an example on how to
+(randomly) modify the `:Block` and re-solve it many times (still checking
+that the results agree), showcasing the crucial `Modification` SMS++ concept
+whereby changes in the `:Block` are automatically forwarded to all concerned
+`Solver`. Other similar examples can be found in basically all the other
+tests.
+
+The `LagrangianDualSolver_MMCF` and `LagrangianDualSolver_UC` versions rather
+provides examples about using full-featured "pre-built" `:Block`, that can be
+found in the
+[MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
+[MCFBlock](https://gitlab.com/smspp/mcfblock) repos and in the
+[UCBlock](https://gitlab.com/smspp/ucblock) repo, respectively.
 
 ## Getting help
 
@@ -234,3 +282,25 @@ the code cannot be considered liable, either directly or indirectly, for
 any damage or loss that anybody could suffer for having used it. More
 details about the non-warranty attached to this code are available in the
 license description file.
+
+## Acknowledgements
+
+The development of SMS++ has greatly benefited from the contributions
+of the following projects:
+
+- "Consistent Dual Signals and Optimal Primal Solutions", funded by the
+  [Gaspard Monge program for Optimization and Operations Research]
+  (http://www.fondation-hadamard.fr/fr/PGMO)
+
+- [plan4res](https://www.plan4res.eu), grant agreement No 773897 within
+  European Union's Horizon 2020 research and innovation programme
+
+- "Multilevel Heterogeneous Distributed Decomposition for Energy Planning
+  with SMS++", funded by the
+  [Gaspard Monge program for Optimization and Operations Research]
+  (http://www.fondation-hadamard.fr/fr/PGMO)
+
+- "Optimization under Uncertainty with SMS++", funded by the
+  [Gaspard Monge program for Optimization and Operations Research]
+  (http://www.fondation-hadamard.fr/fr/PGMO)
+
