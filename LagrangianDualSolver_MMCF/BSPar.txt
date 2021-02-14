@@ -1,8 +1,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - BSPar.txt - - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a UCBlock to be solved by two
-# different Solver: a *MILPSolver and a LagrangianDualSolver using a
+# A txt description of a BlockSolverConfig for a MMCFBlock to be solved by
+# two different Solver: a *MILPSolver and a LagrangianDualSolver using a
 # BundleSolver as the inner Solver
 #
 #   version 1.0 , 30/12/2020
@@ -43,7 +43,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 # now all the integer parameters
 intDoEasy  0      # do not do easy components even for LagBFunction
-intMaxIter 100000 # MaxIter, max number of iterations for each call
+intMaxIter 10000  # MaxIter, max number of iterations for each call
 intLogVerb 2      # LogVerb, log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
@@ -55,7 +55,7 @@ intBPar6    0     # second parameter for dynamic max n. of items per iteration
 intBPar7   11     # how to deal with the global pools
 intMnSSC    0     # min number of consecutive SS with the same t for a t increase
 intMnNSC    1     # min number of consecutive NS with the same t for a t decrease
-inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
+inttSPar1  12     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
@@ -84,15 +84,15 @@ dblRelAcc  1e-7   # relative accuracy required to solution
 dblNZEps   1e-8   # stopping parameter: threshold to declare 0 the || residual ||
 dbltStar   1e+1   # stopping parameter: multiplied to || residual || to estimate gap
 dblBPar5   4      # first parameter for dynamic max n. of items per iteration
-dblm1      -0.01  # a NS is possible if (~) Fi( Lambda1 ) >= Fi( Lambda ) + | m1 | v*
-dblm2      0.99   # a SS is possible if Fi( Lambda1 ) <= Fi( Lambda ) + ( 1 - m2 ) v*
+dblm1      -0.30  # a NS is possible if (~) Fi( Lambda1 ) >= Fi( Lambda ) + | m1 | v*
+dblm2      0.90   # a SS is possible if Fi( Lambda1 ) <= Fi( Lambda ) + ( 1 - m2 ) v*
 dblm3      0.99   # a NR is computed if \sigma^* < - t * m3 * || z* ||
 dblmxIncr  10     # max increase of t
 dblmnIncr  1.5    # min increase of t (each time it is increased)
 dblmxDecr  0.1    # max decrease of t
 dblmnDecr  0.66   # min decrease of t (each time it is decreased)
 dbltMaior  1e+6   # maximum value for t
-dbltMinor  1e-4   # minimum value for t
+dbltMinor  1e-6   # minimum value for t
 dbltInit   1e+1   # initial value for t
 dbltSPar2  1e-4   # parameter for the long-term t-strategy
 

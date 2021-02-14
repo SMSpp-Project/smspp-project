@@ -9,13 +9,16 @@
  * LagrangianDualSolver, the UCBlock is solved by the Solver and the results
  * are compared.
  *
+ * Although the testerdoes not even include BundleSolver, some
+ * BundleSolver-specific steps are 
+ *
  * The tester has some parts for the future extension when the UCBlock is
  * repeatedly randomly modified and re-solved several times, but this is not
  * done yet.
  *
- * \version 0.10
+ * \version 0.20
  *
- * \date 30 - 12 - 2020
+ * \date 13 - 02 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -28,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -49,6 +52,15 @@
  #define CLOG1( y , x )
 #endif
 
+/*--------------------------------------------------------------------------*/
+// if nonzero, the 2nd Solver attched to the UCBlock is assumed to be a
+// LagrangianDualSolver using the BundleSolver as the "inner" solver;
+// parameters from the BlockSolverConfig are read and set so that, if
+// "easy components" are used, all UnitBlock that are ThermalUnitBlock or
+// HydroSystemUnitBlock are attached an appropriate Solver, whereas all
+// other inner Block are treated as "easy components"
+
+#define USE_BundleSolver 1
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the 1st Solver attched to the UCBlock is detached
@@ -97,7 +109,15 @@
 
 #include "BlockSolverConfig.h"
 
+#include "PolyhedralFunctionBlock.h"
+
 #include "UCBlock.h"
+
+#if USE_BundleSolver
+ #include "ThermalUnitBlock.h"
+ #include "HydroSystemUnitBlock.h"
+#endif
+
 
 /*!!
 #include "FRealObjective.h"
@@ -157,6 +177,23 @@ template<class T>
 static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void Configure_HSUB( HydroSystemUnitBlock * hsub )
+{
+ // ensure that the PolyhedralFunctionBlock in the HydroSystemUnitBlock is
+ // Configured to use the "linearised" representation of the Objective
+
+ for( auto sb : hsub->get_nested_Blocks() )
+  if( auto pfb = dynamic_cast< PolyhedralFunctionBlock * >( sb ) ) {
+   auto sci = new SimpleConfiguration< int >;
+   sci->f_value = 1;
+   auto bc = new BlockConfig;
+   bc->f_static_variables_Configuration = sci;
+   pfb->set_BlockConfig( bc );
+   }
  }
 
 /*--------------------------------------------------------------------------*/
@@ -235,7 +272,7 @@ static bool SolveBoth( void )
   #if( LOG_LEVEL >= 1 )
    c_start = std::clock();
    cout.setf( ios::scientific, ios::floatfield );
-   cout << setprecision( 2 );
+   cout << setprecision( 2 ) << flush;
   #endif
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
   #if DETACH_2ND
@@ -371,6 +408,106 @@ int main( int argc , char **argv )
    exit( 1 );
    }
 
+  #if USE_BundleSolver
+   auto nbsc = bsc->num_ComputeConfig();
+   if( ! nbsc ) {
+    cerr << "Error: no ComputeConfig in the BlockSolverConfig" << endl;
+    delete c;
+    exit( 1 );
+    }
+
+   // if there are (at least) two Solver get the ComputeConfig of the 2nd,
+   // otherwise that of the 1st (and only)
+   auto cc = bsc->get_SolverConfig( nbsc > 1 ? 1 : 0 );
+   if( ! cc ) {
+    cerr << "Error: empty ComputeConfig in the BlockSolverConfig" << endl;
+    delete c;
+    exit( 1 );
+    }
+
+   // find if the ComputeConfig contains "intDoEasy", if so read it,
+   // otherwise assume it is true (default)
+   bool DoEasy = true;
+   auto it = std::find_if( cc->int_pars.begin() , cc->int_pars.end() ,
+			   []( auto & pair ) {
+			    return( pair.first == "intDoEasy" );
+			    } );
+   if( it != cc->int_pars.end() )
+    DoEasy = ( it->second & 1 ) > 0;
+
+   // if easy components are used
+   if( DoEasy ) {
+    // define the vector of components to be excluded from being "easy",
+    // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
+    std::vector< int > NoEasy;
+
+    // load the BlockSolverConfig for ThermalUnitBlock
+    auto ct = Configuration::deserialize( "TUBSCfg.txt" );
+    auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
+    if( ! tbsc ) {
+     cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
+     delete c;
+     delete ct;
+     exit( 1 );
+     }
+
+    // load the BlockSolverConfig for HydroSystemUnitBlock; note that
+    // this can be "empty", in which case the HydroSystemUnitBlock will
+    // be treated as "easy"
+    auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
+    auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
+    if( ! hbsc ) {
+     cerr << "Error: HSUBSCfg.txt does not contain a BlockSolverConfig" << endl;
+     delete c;
+     delete ct;
+     delete ch;
+     exit( 1 );
+     }
+
+    if( ! hbsc->num_ComputeConfig() ) {
+     delete hbsc;
+     hbsc = nullptr;
+     }
+
+    auto sb = TestBlock->get_nested_Blocks();
+    for( int i = 0 ; i < sb.size() ; ++i ) {
+     // deal with ThermalUnitBlock
+     if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
+      tbsc->apply( tub );
+      continue;
+      }
+
+     // deal with HydroSystemUnitBlock
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
+      // surely Configure it to use the "linearised" representation
+      Configure_HSUB( hub );
+      // if appropriate, also BlockSOlverConfig-ure it 
+      if( hbsc )
+       hbsc->apply( hub );
+      continue;
+      }
+
+     // if all the above has failed, treat this as an "easy component"
+     NoEasy.push_back( i );
+     }
+
+    // now add the vintNoEasy parameter to the ComputeConfig
+    // we are assuming it's not there already: if it is, the new copy is
+    // seen after the old one and therefore overrides it
+    cc->vint_pars.push_back( std::make_pair( "vintNoEasy" ,
+					     std::move( NoEasy ) ) );
+    // cleanup
+    delete hbsc;
+    delete tbsc;
+
+    }  // end( if( DoEasy ) )
+   else
+    // Configure all HydroSystemUnitBlock to use the "linearised" representation
+    for(  auto sb : TestBlock->get_nested_Blocks() )
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) )
+      Configure_HSUB( hub );
+  #endif
+
   bsc->apply( TestBlock );
   bsc->clear();
 
@@ -484,6 +621,13 @@ int main( int argc , char **argv )
 
  // then delete the BlockSolverConfig
  delete bsc;
+
+ #if USE_BundleSolver
+  // since some Solver have been attached "by hand" to some sub-Block,
+  // unregister "by hand" any remaning Solver attached to them
+  for( auto sb : TestBlock->get_nested_Blocks() )
+   sb->unregister_Solvers();
+ #endif
 
  // finally the AbstractBlock can be deleted
  delete TestBlock;
