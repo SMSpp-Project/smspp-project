@@ -18,7 +18,7 @@ div.contents {
     padding: .7rem 1.5rem;
 }
 
-.fragment {
+.fragment, pre.fragment, div.fragment {
     color: #fff;
     padding: 1.25rem 1.5rem;
     margin: 1.25rem 1.5rem;
