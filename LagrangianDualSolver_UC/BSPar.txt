@@ -45,10 +45,10 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 # now all the double parameters
 # [none]
 
-1 # number of string parameters
+0 # number of string parameters
 
 # now all the string parameters
-strOutputFile	uc.lp
+#strOutputFile	uc.lp
 # [none]
 
 0 # number of vector-of-int parameters
@@ -84,8 +84,8 @@ ComputeConfig # exact type of the ComputeConfig object
 
 # now all the integer parameters
 intDoEasy  1      # do easy components for (some) LagBFunction
-intMaxIter 10000  # MaxIter, max number of iterations for each call
-intLogVerb 5      # LogVerb, log verbosity of main Bundle algorithm
+intMaxIter 10000  # max number of iterations for each call
+intLogVerb 2      # log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -96,7 +96,7 @@ intBPar6    0     # second parameter for dynamic max n. of items per iteration
 intBPar7   11     # how to deal with the global pools
 intMnSSC    0     # min number of consecutive SS with the same t for a t increase
 intMnNSC    1     # min number of consecutive NS with the same t for a t decrease
-inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
+inttSPar1  12     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
@@ -123,7 +123,7 @@ intRstAlg   2     # parameter to handle the reset of the algorithm
 # now all the double parameters
 dblRelAcc  1e-7   # relative accuracy required to solution
 dblNZEps   1e-8   # stopping parameter: threshold to declare 0 the || residual ||
-dbltStar   1e+1   # stopping parameter: multiplied to || residual || to estimate gap
+dbltStar   1e+0   # stopping parameter: multiplied to || residual || to estimate gap
 dblBPar5   4      # first parameter for dynamic max n. of items per iteration
 dblm1      -0.30  # a NS is possible if (~) Fi( Lambda1 ) >= Fi( Lambda ) + | m1 | v*
 dblm2      0.90   # a SS is possible if Fi( Lambda1 ) <= Fi( Lambda ) + ( 1 - m2 ) v*
@@ -135,7 +135,7 @@ dblmnDecr  0.66   # min decrease of t (each time it is decreased)
 dbltMaior  1e+6   # maximum value for t
 dbltMinor  1e-8   # minimum value for t
 dbltInit   1e-3   # initial value for t
-dbltSPar2  0.001  # parameter for the long-term t-strategy
+dbltSPar2  0.01   # parameter for the long-term t-strategy
 
 dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 

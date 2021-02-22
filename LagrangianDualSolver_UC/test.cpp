@@ -115,9 +115,9 @@
 
 #if USE_BundleSolver
  #include "ThermalUnitBlock.h"
- #include "HydroSystemUnitBlock.h"
 #endif
 
+#include "HydroSystemUnitBlock.h"
 
 /*!!
 #include "FRealObjective.h"
@@ -181,8 +181,6 @@ static void Str2Sthg( const char* const str , T &sthg )
 
 /*--------------------------------------------------------------------------*/
 
-#if USE_BundleSolver
-
 static void Configure_HSUB( HydroSystemUnitBlock * hsub )
 {
  // ensure that the PolyhedralFunctionBlock in the HydroSystemUnitBlock is
@@ -197,8 +195,6 @@ static void Configure_HSUB( HydroSystemUnitBlock * hsub )
    pfb->set_BlockConfig( bc );
    }
  }
-
-#endif
 
 /*--------------------------------------------------------------------------*/
 
@@ -473,7 +469,7 @@ int main( int argc , char **argv )
      }
 
     if( ! hbsc->num_ComputeConfig() ) {
-     delete hbsc;
+     delete ch;
      hbsc = nullptr;
      }
 
@@ -512,11 +508,11 @@ int main( int argc , char **argv )
 
     }  // end( if( DoEasy ) )
    else
+  #endif
     // Configure all HydroSystemUnitBlock to use the "linearised" representation
     for(  auto sb : TestBlock->get_nested_Blocks() )
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) )
       Configure_HSUB( hub );
-  #endif
 
   bsc->apply( TestBlock );
   bsc->clear();
