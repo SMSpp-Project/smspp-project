@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -214,9 +214,11 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
+  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+		 && ( rtrn1st != Solver::kUnbounded )
+		 && ( rtrn1st != Solver::kInfeasible ) )
                || ( rtrn1st == Solver::kLowPrecision );
-  double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   #if( LOG_LEVEL >= 1 )
    cout.setf( ios::scientific, ios::floatfield );
@@ -245,9 +247,11 @@ static bool SolveBoth( void )
   #endif
   int rtrn2nd = Slvr2->compute( false );
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
+  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+		 && ( rtrn2nd != Solver::kUnbounded )
+		 && ( rtrn2nd != Solver::kInfeasible ) )
                || ( rtrn2nd == Solver::kLowPrecision );
-  double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
+  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
   #if( LOG_LEVEL >= 1 )
    cout << double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
   #endif
@@ -272,8 +276,9 @@ static bool SolveBoth( void )
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << setprecision( 7 );
+   cout << " - " << setprecision( 7 );
    PrintResults( hs1st , rtrn1st , fo1st );
+   cout << " - ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif

@@ -115,9 +115,9 @@
 
 #if USE_BundleSolver
  #include "ThermalUnitBlock.h"
- #include "HydroSystemUnitBlock.h"
 #endif
 
+#include "HydroSystemUnitBlock.h"
 
 /*!!
 #include "FRealObjective.h"
@@ -252,9 +252,11 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
+  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+		 && ( rtrn1st != Solver::kUnbounded )
+		 && ( rtrn1st != Solver::kInfeasible ) )
                || ( rtrn1st == Solver::kLowPrecision );
-  double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
   #if( LOG_LEVEL >= 1 )
    double time1 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
   #endif
@@ -281,9 +283,11 @@ static bool SolveBoth( void )
   #endif
   int rtrn2nd = Slvr2->compute( false );
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
+  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+		 && ( rtrn2nd != Solver::kUnbounded )
+		 && ( rtrn2nd != Solver::kInfeasible ) )
                || ( rtrn2nd == Solver::kLowPrecision );
-  double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
+  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
   #if( LOG_LEVEL >= 1 )
    double time2 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
   #endif
@@ -465,7 +469,7 @@ int main( int argc , char **argv )
      }
 
     if( ! hbsc->num_ComputeConfig() ) {
-     delete hbsc;
+     delete ch;
      hbsc = nullptr;
      }
 
@@ -473,6 +477,7 @@ int main( int argc , char **argv )
     for( int i = 0 ; i < sb.size() ; ++i ) {
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
+      NoEasy.push_back( i );
       tbsc->apply( tub );
       continue;
       }
@@ -481,14 +486,15 @@ int main( int argc , char **argv )
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
       // surely Configure it to use the "linearised" representation
       Configure_HSUB( hub );
-      // if appropriate, also BlockSOlverConfig-ure it 
-      if( hbsc )
+      // if not considered an easy component, also BlockSolverConfig-ure it 
+      if( hbsc ) {
+       NoEasy.push_back( i );
        hbsc->apply( hub );
+       }
       continue;
       }
 
-     // if all the above has failed, treat this as an "easy component"
-     NoEasy.push_back( i );
+     // all the rest will be treated as an "easy component"
      }
 
     // now add the vintNoEasy parameter to the ComputeConfig
@@ -502,11 +508,11 @@ int main( int argc , char **argv )
 
     }  // end( if( DoEasy ) )
    else
+  #endif
     // Configure all HydroSystemUnitBlock to use the "linearised" representation
     for(  auto sb : TestBlock->get_nested_Blocks() )
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) )
       Configure_HSUB( hub );
-  #endif
 
   bsc->apply( TestBlock );
   bsc->clear();
