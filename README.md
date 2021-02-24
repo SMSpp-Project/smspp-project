@@ -127,6 +127,13 @@ the develop branches:
 git submodule foreach --recursive "git checkout develop || git checkout master"
 ```
 
+### Excluding modules
+
+If you are not interested in building all the modules you have two choices:
+
+1. Download, build and install the modules individually (follow their own READMEs).
+2. Comment away the modules you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
+
 ### Build and install with CMake
 
 Using CMake it is possible to configure and build all the projects at once

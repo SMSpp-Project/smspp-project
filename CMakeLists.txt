@@ -16,8 +16,8 @@ project(SMS++_project)
 include(CMakeSettings.txt OPTIONAL)
 
 # ----- Dependencies -------------------------------------------------------- #
-add_subdirectory(MCFClass)
-add_subdirectory(BundleSolver/NdoFiOracle)
+add_subdirectory(MCFClass)                 # Required by MCFBlock
+add_subdirectory(BundleSolver/NdoFiOracle) # Required by BundleSolver
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
