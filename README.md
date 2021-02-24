@@ -146,6 +146,9 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
+Some configuration options are available (i.e. for customizing the paths where
+required libraries can be found) see
+[here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration).
 Optionally install the libraries in the system with:
 
 ```sh
