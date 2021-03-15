@@ -27,8 +27,8 @@ submodules.
   contains the documentation for the classes and methods of the SMS++ core library and all its modules.
 
 - The [SMS++ Project Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
-  contains troubleshooting information and additional guides for
-  developers and maintainers.
+  contains detailed installation instructions, troubleshooting information
+  and additional guides for developers and maintainers.
 
 ## Current projects
 
@@ -104,35 +104,35 @@ submodules.
 
 These instructions will let you build the projects on your local machine.
 
+If you need more detailed instructions on how to install the project and
+its requirements, please refer to the
+[installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
 
 ### Requirements
 
-See the individual projects.
+See the individual projects for their requirements, or see the *Requirements*
+section in the [installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
 
+The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
+on requirements and dependencies between modules.
 
 ### Getting the code
 
 Getting the whole umbrella project and all the sub-projects can be done with:
 
 ```sh
-git clone --recurse-submodules https://gitlab.com/smspp/smspp-project
-```
-
-#### Getting the develop branches
-
-If you feel frisky, you can try the latest, unreleased code by checking out
-the develop branches:
-
-```sh
-git submodule foreach --recursive "git checkout develop || git checkout master"
+git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
 ```
 
 ### Excluding modules
 
-If you are not interested in building all the modules you have two choices:
+If you are not interested in building all the modules you can comment away
+the ones you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
 
-1. Download, build and install the modules individually (follow their own READMEs).
-2. Comment away the modules you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
+In alternative, you can avoid using this project altogether and
+fetch, build and install the modules individually (follow their own READMEs).
+In that case, you should start from
+the [SMS++ core library](https://gitlab.com/smspp/smspp).
 
 ### Build and install with CMake
 
@@ -249,7 +249,13 @@ found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
 
 If you need support, you want to submit bugs or propose a new feature for a
 individual module, see the *Getting help* section for that module.
-If you need support on the project installation or want propose a new module,
+
+If you need support on the project installation you can check out the
+[installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
+or the [trobleshooting page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
+in our Wiki.
+
+If your issue is not covered by our guides, or you want propose a new module,
 you can [open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
 ## Contributing

@@ -13,31 +13,42 @@
 cmake_minimum_required(VERSION 3.11)
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project)
+
+# This file can contain custom settings.
+# Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
 # ----- Dependencies -------------------------------------------------------- #
-add_subdirectory(MCFClass)                 # Required by MCFBlock
-add_subdirectory(BundleSolver/NdoFiOracle) # Required by BundleSolver
+# Comment out the ones you do not need.
+
+# MCFClass library, required by MCFBlock.
+# Requires CPLEX.
+add_subdirectory(MCFClass)
+
+# NDOSolver/FiOracle library, required by BundleSolver.
+# Requires CoinUtils, Osi and CPLEX.
+add_subdirectory(BundleSolver/NdoFiOracle)
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
 # Some modules have requirements, so they should be loaded after those.
 
-# Core library (required by all the others)
+# The core library, required by all other SMS++ modules.
+# Requires Boost (headers only), netCDF-C++ and Eigen3.
 add_subdirectory(SMS++)
 
 # Blocks
 add_subdirectory(UCBlock)
-add_subdirectory(MCFBlock)
-add_subdirectory(MMCFBlock)    # Requires MCFBlock
+add_subdirectory(MCFBlock)        # Requires MCFClass
+add_subdirectory(MMCFBlock)       # Requires MCFBlock
 add_subdirectory(LukFiBlock)
 add_subdirectory(StochasticBlock)
-add_subdirectory(SDDPBlock)    # Requires StochasticBlock
+add_subdirectory(SDDPBlock)       # Requires StochasticBlock, StOpt
 
 # Solvers
-add_subdirectory(MILPSolver)
-add_subdirectory(BundleSolver) # Requires MILPSolver
-add_subdirectory(DPSolver)     # Requires UCBlock
+add_subdirectory(MILPSolver)      # Requires CPLEX and/or SCIP
+add_subdirectory(BundleSolver)    # Requires MILPSolver
+add_subdirectory(DPSolver)        # Requires UCBlock
 add_subdirectory(LagrangianDualSolver)
 
 # ----- Tools --------------------------------------------------------------- #
