@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -42,7 +42,7 @@
  #if( LOG_LEVEL >= 2 )
   #define LOG_ON_COUT 0
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
-  // rather than on a file
+  // rather than on a file( bsc->get_SolverName( i ) == "BundleSolver" )
  #endif
 #else
  #define LOG1( x )

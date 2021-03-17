@@ -771,8 +771,8 @@ int main( int argc , char **argv )
      (*NDOx)[ i ].is_positive( true , eNoMod );
      }
 
-  LPBlock->add_dynamic_constraint( *LPbnd );
-  NDOBlock->add_dynamic_constraint( *NDObnd );
+  LPBlock->add_dynamic_constraint( *LPbnd , "box" );
+  NDOBlock->add_dynamic_constraint( *NDObnd , "box" );
   }
  #endif
 

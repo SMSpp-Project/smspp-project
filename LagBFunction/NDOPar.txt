@@ -18,6 +18,7 @@
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
 BundleSolver  # name of 1st Solver
+#ParallelBundleSolver # name of 1st Solver
 
 1  # number of ComputeConfig in this BlockSolverConfig
 
@@ -29,12 +30,13 @@ ComputeConfig     # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-22 # number of integer parameters
+23 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
+intMaxThread 0	   # MaxThread, max number of new tasks to spawn
 intEverykIt 1     # periodicity of eEverykIteration events
-intLogVerb  4     # LogVerb, log verbosity of main Bundle algorithm
+intLogVerb  7     # LogVerb, log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations

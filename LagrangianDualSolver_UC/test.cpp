@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -244,7 +244,7 @@ static bool SolveBoth( void )
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
-   std::clock_t c_start = std::clock();
+    auto start = std::chrono::system_clock::now();
   #endif
   Solver * Slvr1 = TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
@@ -252,14 +252,16 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
+  #if( LOG_LEVEL >= 1 )
+   auto end = std::chrono::system_clock::now();
+   std::chrono::duration< double > elapsed = end - start;
+   auto time1 = elapsed.count();
+  #endif
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
 		 && ( rtrn1st != Solver::kUnbounded )
 		 && ( rtrn1st != Solver::kInfeasible ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
-  #if( LOG_LEVEL >= 1 )
-   double time1 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
-  #endif
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
@@ -272,9 +274,7 @@ static bool SolveBoth( void )
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
-   c_start = std::clock();
-   cout.setf( ios::scientific, ios::floatfield );
-   cout << setprecision( 2 ) << flush;
+   start = std::chrono::system_clock::now();
   #endif
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
   #if DETACH_2ND
@@ -282,42 +282,45 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
   int rtrn2nd = Slvr2->compute( false );
+  #if( LOG_LEVEL >= 1 )
+   end = std::chrono::system_clock::now();
+   elapsed = end - start;
+   auto time2 = elapsed.count();
+   cout.setf( ios::scientific, ios::floatfield );
+   cout << setprecision( 2 ) << time1 << " - " << time2 << " - ";
+  #endif
 
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
 		 && ( rtrn2nd != Solver::kUnbounded )
 		 && ( rtrn2nd != Solver::kInfeasible ) )
                || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
-  #if( LOG_LEVEL >= 1 )
-   double time2 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
-  #endif
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(f)" << endl );
+   LOG1( "OK(f)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(e)" << endl );
+   LOG1( "OK(e)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(u)" << endl );
+   LOG1( "OK(u)" << endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "Solver1 (" << time1 << ") = ";
+   cout << "Solver1 = ";
    cout << setprecision( 7 );
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ Solver2 (" << setprecision( 2 ) << time2 << ") = ";
-   cout << setprecision( 7 );
+   cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif
@@ -420,24 +423,45 @@ int main( int argc , char **argv )
     exit( 1 );
     }
 
-   // if there are (at least) two Solver get the ComputeConfig of the 2nd,
-   // otherwise that of the 1st (and only)
-   auto cc = bsc->get_SolverConfig( nbsc > 1 ? 1 : 0 );
-   if( ! cc ) {
-    cerr << "Error: empty ComputeConfig in the BlockSolverConfig" << endl;
-    delete c;
-    exit( 1 );
-    }
+   // check if any of the Solver is a LagrangianDualSolver
+   bool DoEasy = false;
+   ComputeConfig * cc = nullptr;
+   for( Block::Index h = 0 ; h < nbsc ; ++h ) {
+    if( bsc->get_SolverName( h ) != "LagrangianDualSolver" )  // if not
+     continue;                                                // do nothing
 
-   // find if the ComputeConfig contains "intDoEasy", if so read it,
-   // otherwise assume it is true (default)
-   bool DoEasy = true;
-   auto it = std::find_if( cc->int_pars.begin() , cc->int_pars.end() ,
-			   []( auto & pair ) {
-			    return( pair.first == "intDoEasy" );
-			    } );
-   if( it != cc->int_pars.end() )
-    DoEasy = ( it->second & 1 ) > 0;
+    cc = bsc->get_SolverConfig( h );
+    if( ! cc ) {
+     cerr << "Error: empty ComputeConfig in the BlockSolverConfig" << endl;
+     delete c;
+     exit( 1 );
+     }
+
+    // find the inner Solver
+    auto sit = std::find_if( cc->str_pars.begin() , cc->str_pars.end() ,
+			     []( auto & pair ) {
+			      return( pair.first == "str_LDSlv_ISName" );
+			      } );
+    if( sit == cc->str_pars.end() )  // if it's not there
+     continue;                       // do nothing
+
+    // check if it is a BundleSolver
+    if( sit->second.find( "BundleSolver" ) == string::npos )  // if not
+     continue;                                                // do nothing
+
+    // check if the BundleSolver uses easy components
+    // find if the ComputeConfig contains "intDoEasy"
+    auto it = std::find_if( cc->int_pars.begin() , cc->int_pars.end() ,
+			    []( auto & pair ) {
+			     return( pair.first == "intDoEasy" );
+			     } );
+    if( it != cc->int_pars.end() )     // if so
+     DoEasy = ( it->second & 1 ) > 0;  // read it
+    else                               // otherwise
+     DoEasy = true;                    // assume it is true (default)
+
+    break;  // note that we assume this happens *at most* once
+    }
 
    // if easy components are used
    if( DoEasy ) {
@@ -497,7 +521,7 @@ int main( int argc , char **argv )
      // all the rest will be treated as an "easy component"
      }
 
-    // now add the vintNoEasy parameter to the ComputeConfig
+    // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
     // we are assuming it's not there already: if it is, the new copy is
     // seen after the old one and therefore overrides it
     cc->vint_pars.push_back( std::make_pair( "vintNoEasy" ,
