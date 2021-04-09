@@ -4,9 +4,9 @@
 [submodule "SMS++"]
 	path = SMS++
 	url = https://gitlab.com/smspp/smspp
-[submodule "UCBlock"]
-	path = UCBlock
-	url = https://gitlab.com/smspp/ucblock
+; [submodule "UCBlock"]
+; 	path = UCBlock
+; 	url = https://gitlab.com/smspp/ucblock
 [submodule "MCFBlock"]
 	path = MCFBlock
 	url = https://gitlab.com/smspp/mcfblock
