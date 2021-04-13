@@ -1,6 +1,12 @@
 # ----- Requirements -------------------------------------------------------- #
 find_package(MILPSolver)
 
+# Introduced in 3.19 to handle arbitrary characters in test names
+# See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
+if (POLICY CMP0110)
+    cmake_policy(SET CMP0110 NEW)
+endif()
+
 # ----- Test ---------------------------------------------------------------- #
 if (MILPSolver_FOUND)
     add_executable(BoxSolver_test test.cpp)

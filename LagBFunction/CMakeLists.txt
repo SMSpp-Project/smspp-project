@@ -2,6 +2,12 @@
 find_package(BundleSolver)
 find_package(MILPSolver)
 
+# Introduced in 3.19 to handle arbitrary characters in test names
+# See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
+if (POLICY CMP0110)
+    cmake_policy(SET CMP0110 NEW)
+endif()
+
 # ----- Tests --------------------------------------------------------------- #
 if (BundleSolver_FOUND AND MILPSolver_FOUND)
     add_executable(LagBFunction_test test.cpp)
