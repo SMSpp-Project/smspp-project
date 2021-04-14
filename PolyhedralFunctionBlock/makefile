@@ -25,9 +25,9 @@ DIR = ./
 # debug switches
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -DCLANG_1200_0_32_27_PATCH
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -DCLANG_1200_0_32_27_PATCH
+SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -DCLANG_1200_0_32_27_PATCH
 # production switches with checks
-SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
+#SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
 
 # compiler
 CC = clang++

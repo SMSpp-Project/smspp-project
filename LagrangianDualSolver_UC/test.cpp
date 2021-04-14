@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 3
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -43,7 +43,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif

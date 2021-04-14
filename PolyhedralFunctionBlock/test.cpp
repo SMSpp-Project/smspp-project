@@ -20,9 +20,9 @@
  * "natural" PolyhedralFunctionBlock to keep them in synch. Then both are
  * solved and the results compared.
  *
- * \version 1.20
+ * \version 1.30
  *
- * \date 28 - 11 - 2020
+ * \date 04 - 04 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -35,7 +35,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -88,7 +88,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 3
+#define SKIP_BEAT 0
 
 /*--------------------------------------------------------------------------*/
 
@@ -178,7 +178,7 @@ AbstractBlock * NDOBlock;  // the "natural" representation
 
 bool convex = true;        // true if the PolyhedralFunction is convex
 
-double bound = 1000;       // a tentative bound to detect unbounded instances
+double bound = 1000;       // the global bound 
 
 FunctionValue BND;         // the bound in the PolyhedralFunction (if any)
 
@@ -281,6 +281,46 @@ static void GenerateBND( void )
   }
 
  BND = INF;
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void set_global_bound( void )
+{
+ auto bnd = std::abs( nf ) * rs( dis( rg ) * 5 * scale * nvar / 4 );
+ /* auto bnd = INF;
+    if( dis( rg ) <= 0.333 )   // "tight" bound
+     bnd = rs( dis( rg ) * 5 * scale * nvar / 4 );
+    else
+     if( dis( rg ) <= 0.333 )  // "loose" bound
+      bnd = rs( dis( rg ) * 5 * scale * nvar );
+ */
+
+ // set it in LPBlock
+ auto lbc = LPBlock->get_static_constraint< FRowConstraint >(
+							    "globalbound" );
+ if( ! lbc ) {
+  cout << "something very bad happened!" << endl;
+  exit( 1 );
+  }
+
+ if( convex )
+  lbc->set_lhs( - bnd );
+ else
+  lbc->set_rhs( bnd );
+
+ // set it in NDOBlock
+ /* if( bnd == INF )
+     if( convex )
+      NDOBlock->set_valid_lower_bound( -bound );
+     else
+      NDOBlock->set_valid_upper_bound( bound );
+    else
+ */
+   if( convex )
+    NDOBlock->set_valid_lower_bound( -bnd , false );
+   else
+    NDOBlock->set_valid_upper_bound( bnd , false );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -509,15 +549,17 @@ int main( int argc , char **argv )
 		<< endl <<
            "             2 = modify rows, 3 = modify constants"
 		<< endl <<
-           "             4 = change global lower/upper bound"
+           "             4 = change local lower/upper bound"
 		<< endl <<
            "             5 = change linear objective"
+		<< endl <<
+           "             6 = change global lower/upper bound"
   #if DYNAMIC_VARS > 0  
 		<< endl <<
-           "             6 = add variables, 7 = delete variables"
+           "             7 = add variables, 8 = delete variables"
   #endif
 		<< endl <<
-           "             8 (+256) = do \"abstract\" changes"
+           "             9 (+512) = do \"abstract\" changes"
 	        << endl <<
            "       nvar: number of variables [10]"
 	        << endl <<
@@ -597,7 +639,7 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable, Constraint and Objective in the AbstractBlock
-   LPBlock->add_static_variable( *xLP , "x" );
+  LPBlock->add_static_variable( *xLP , "x" );
   #if DYNAMIC_VARS > 0
    LPBlock->add_dynamic_variable( *xLPd );
   #endif
@@ -620,8 +662,8 @@ int main( int argc , char **argv )
     #endif
 
     // pass all the data of the PolyhedralFunction
-     pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) ,
-				rs( BND ) , convex );
+    pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) ,
+			       rs( BND ) , convex );
 
     // configure it to use the "linearised" representation
     auto bc = new BlockConfig();
@@ -644,6 +686,35 @@ int main( int argc , char **argv )
     }
 
    LPBlock->generate_abstract_variables();
+
+   if( wchg & 64 ) {
+    // if a finite global bound can be set, construct a static constraint
+    // group containing a single FRowConstraint "-INF <= objective <= INF"
+    // which can be used to set the global bound
+    auto lbc = new FRowConstraint();
+    lbc->set_lhs( -INF );
+    lbc->set_rhs( INF );
+    LinearFunction::v_coeff_pair vp;
+    if( nf < 0 ) {
+     auto obj = static_cast< p_LF >( static_cast< FRealObjective * >(
+				LPBlock->get_objective() )->get_function() );
+     vp = obj->get_v_var();
+     }
+    Index i = vp.size();
+    vp.resize( i + std::abs( nf ) );
+    for( Index h = 0 ; h < LPBlock->get_number_nested_Blocks() ; ++h ) {
+     auto vh = LPBlock->get_nested_Block( h
+		         )->get_static_variable< ColVariable >( "PolyF_v" );
+     if( ! vh ) {
+      cout << "something very bad happened!" << endl;
+      exit( 1 );
+      }
+     vp[ i ].first = vh;
+     vp[ i++ ].second = 1;
+     }
+    lbc->set_function( new LinearFunction( std::move( vp ) ) );
+    LPBlock->add_static_constraint( *lbc , "globalbound" );
+    }
    }
   else {
    auto & pf = static_cast< p_PFB >( LPBlock )->get_PolyhedralFunction();
@@ -700,7 +771,7 @@ int main( int argc , char **argv )
   #endif
 
   // now set the Variable, Constraint and Objective in the AbstractBlock
-   NDOBlock->add_static_variable( *xNDO , "x" );
+  NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
    NDOBlock->add_dynamic_variable( *xNDOd );
   #endif
@@ -730,6 +801,10 @@ int main( int argc , char **argv )
   NDOBlock->generate_abstract_constraints();
   NDOBlock->generate_objective();
   }
+
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ if( nf && ( wchg & 64 ) )  // if a finite global bound is set
+  set_global_bound();       // do it now on both :Block
 
  // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -903,7 +978,7 @@ int main( int argc , char **argv )
 
     auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
-    if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+    if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
      // in 50% of the cases do an "abstract" change
      LOG1( "(a)" );
 
@@ -985,7 +1060,7 @@ int main( int argc , char **argv )
      Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
-     if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+     if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
       LOG1( "(r,a) - " );
       if( tochange == 1 )
@@ -1006,7 +1081,7 @@ int main( int argc , char **argv )
      Subset nms = GenerateSubset( m , tochange );
 
      // remove them from the LP
-     if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+     if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
       LOG1( "(s,a) - " );
       if( tochange == 1 )
@@ -1044,7 +1119,7 @@ int main( int argc , char **argv )
      Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
-     if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+     if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
       LOG1( "(r,a) - " );
 
@@ -1088,7 +1163,7 @@ int main( int argc , char **argv )
     else {  // in the other 50% of the cases, do a sparse change
      Subset nms = GenerateSubset( m , tochange );
 
-     if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+     if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
       LOG1( "(s,a) - " );
 
@@ -1147,7 +1222,7 @@ int main( int argc , char **argv )
      Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
-     if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+     if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
       LOG1( "(r,a) - " );
 
@@ -1179,7 +1254,7 @@ int main( int argc , char **argv )
     else {  // in the other 50% of the cases, do a sparse change
      Subset nms = GenerateSubset( m , tochange );
 
-     if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+     if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
       // in 50% of the cases do an "abstract" change
       LOG1( "(s,a) - " );
 
@@ -1217,14 +1292,14 @@ int main( int argc , char **argv )
      }
     }
 
-  // modify bound - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // modify local bounds- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
    LOG1( "modified bound" );
 
    GenerateBND();
 
-   if( ( wchg & 256 ) && ( dis( rg ) <= p_change ) ) {
+   if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
     // in 50% of the cases do an "abstract" change
     LOG1( "(a)" );
 
@@ -1248,6 +1323,19 @@ int main( int argc , char **argv )
 
     GenerateA( 1 , tochange );
 
+    p_LF lf = nullptr;
+    if( wchg & 64 ) {
+     // if the constraint "-INF <= objective <= INF" is there, it must be
+     // changed accordingly, too
+     if( auto lbc = LPBlock->get_static_constraint< FRowConstraint >(
+							    "globalbound" ) )
+      lf = static_cast< p_LF >( lbc->get_function() );
+     else {
+      cout << "something very bad happened!" << endl;
+      exit( 1 );
+      }
+     }
+
     auto LPLF = static_cast< p_LF >(
 	    ( LPBlock->get_objective< FRealObjective >() )->get_function() );
     auto NDOLF = static_cast< p_LF >(
@@ -1258,10 +1346,14 @@ int main( int argc , char **argv )
      Index stp = strt + tochange;
 
      if( tochange == 1 ) {
+      if( lf )
+       lf->modify_coefficient( strt , A[ 0 ][ 0 ] );
       LPLF->modify_coefficient( strt , A[ 0 ][ 0 ] );
       NDOLF->modify_coefficient( strt , A[ 0 ][ 0 ] );
       }
      else {
+      if( lf )
+       lf->modify_coefficients( RealVector( A[ 0 ] ) , Range( strt , stp ) );
       LPLF->modify_coefficients( RealVector( A[ 0 ] ) , Range( strt , stp ) );
       NDOLF->modify_coefficients( std::move( A[ 0 ] ) , Range( strt , stp ) );
       }
@@ -1272,10 +1364,15 @@ int main( int argc , char **argv )
      Subset nms = GenerateSubset( nvar , tochange );
 
      if( tochange == 1 ) {
+      if( lf )
+       lf->modify_coefficient( nms.front() , A[ 0 ][ 0 ] );
       LPLF->modify_coefficient( nms.front() , A[ 0 ][ 0 ] );
       NDOLF->modify_coefficient( nms.front() , A[ 0 ][ 0 ] );
       }
      else {
+      if( lf )
+       lf->modify_coefficients( RealVector( A[ 0 ] ) , Subset( nms ) ,
+				true );
       LPLF->modify_coefficients( RealVector( A[ 0 ] ) , Subset( nms ) ,
 				 true );
       NDOLF->modify_coefficients( std::move( A[ 0 ] ) , std::move( nms ) ,
@@ -1285,11 +1382,19 @@ int main( int argc , char **argv )
      LOG1( "(s) - " );
      }
     }
+  
+  // modify global bound- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if( nf && ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
+   LOG1( "changed global bound - " );
+
+   set_global_bound();
+   }
+
+  // add variables- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   #if DYNAMIC_VARS > 0
-  if( ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
+  if( ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = Index( dis( rg ) * n_change );
    if( tochange ) {
     LOG1( "added " << tochange << " variables - " );
@@ -1337,7 +1442,7 @@ int main( int argc , char **argv )
 
   // remove variables - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 128 ) && ( dis( rg ) <= p_change ) ) {
+  if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
    Index tochange = min( ndvar , Index( dis( rg ) * n_change ) );
    if( tochange ) {
     LOG1( "removed " << tochange << " variables" );

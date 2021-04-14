@@ -58,7 +58,7 @@ include $(MILPSSDR)makefile-c
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
+include $(BNDSLVSDR)makefile
 
 # define input macros for libNDO library makefile, then include it
 libNDOSDR = $(BNDSLVSDR)NdoFiOracle/
