@@ -2,6 +2,7 @@
 find_package(LagrangianDualSolver)
 find_package(BundleSolver)
 find_package(UCBlock)
+find_package(DPSolver)
 
 # Introduced in 3.19 to handle arbitrary characters in test names
 # See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
@@ -10,13 +11,17 @@ if (POLICY CMP0110)
 endif()
 
 # ----- Test ---------------------------------------------------------------- #
-if (LagrangianDualSolver_FOUND AND BundleSolver_FOUND AND UCBlock_FOUND)
+if (LagrangianDualSolver_FOUND AND
+    BundleSolver_FOUND AND
+    UCBlock_FOUND AND
+    DPSolver_FOUND)
 
     add_executable(LDS_UC_test test.cpp)
     target_link_libraries(LDS_UC_test PRIVATE
                           SMS++::UCBlock
                           SMS++::LagrangianDualSolver
-                          SMS++::BundleSolver)
+                          SMS++::BundleSolver
+                          SMS++::DPSolver)
 
     # This version replicates the batch file in CMake.
     # This method was preferred because it allows to keep track
