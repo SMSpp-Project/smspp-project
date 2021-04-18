@@ -1,45 +1,42 @@
 [submodule "MCFClass"]
 	path = MCFClass
-	url = https://github.com/frangio68/Min-Cost-Flow-Class
+	url = https://github.com/frangio68/Min-Cost-Flow-Class.git
 [submodule "SMS++"]
 	path = SMS++
-	url = https://gitlab.com/smspp/smspp
-; [submodule "UCBlock"]
-; 	path = UCBlock
-; 	url = https://gitlab.com/smspp/ucblock
-[submodule "MCFBlock"]
-	path = MCFBlock
-	url = https://gitlab.com/smspp/mcfblock
-[submodule "MMCFBlock"]
-	path = MMCFBlock
-	url = https://gitlab.com/smspp/mmcfblock
-[submodule "LukFiBlock"]
-	path = LukFiBlock
-	url = https://gitlab.com/smspp/lukfiblock
-[submodule "StochasticBlock"]
-	path = StochasticBlock
-	url = https://gitlab.com/smspp/stochasticblock
-[submodule "SDDPBlock"]
-	path = SDDPBlock
-	url = https://gitlab.com/smspp/sddpblock
-[submodule "MILPSolver"]
-	path = MILPSolver
-	url = https://gitlab.com/smspp/milpsolver
-[submodule "BundleSolver"]
-	path = BundleSolver
-	url = https://gitlab.com/smspp/bundlesolver
-[submodule "DPSolver"]
-	path = DPSolver
-	url = https://gitlab.com/smspp/dpsolver
-[submodule "LagrangianDualSolver"]
-	path = LagrangianDualSolver
-	url = https://gitlab.com/smspp/lagrangiandualsolver
-[submodule "tools"]
-	path = tools
-	url = https://gitlab.com/smspp/tools
-[submodule "tests"]
-	path = tests
-	url = https://gitlab.com/smspp/tests
+	url = https://gitlab.com/smspp/smspp.git
 [submodule "UCBlock"]
 	path = UCBlock
 	url = https://gitlab.com/smspp/ucblock.git
+[submodule "MCFBlock"]
+	path = MCFBlock
+	url = https://gitlab.com/smspp/mcfblock.git
+[submodule "MMCFBlock"]
+	path = MMCFBlock
+	url = https://gitlab.com/smspp/mmcfblock.git
+[submodule "LukFiBlock"]
+	path = LukFiBlock
+	url = https://gitlab.com/smspp/lukfiblock.git
+[submodule "StochasticBlock"]
+	path = StochasticBlock
+	url = https://gitlab.com/smspp/stochasticblock.git
+[submodule "SDDPBlock"]
+	path = SDDPBlock
+	url = https://gitlab.com/smspp/sddpblock.git
+[submodule "MILPSolver"]
+	path = MILPSolver
+	url = https://gitlab.com/smspp/milpsolver.git
+[submodule "BundleSolver"]
+	path = BundleSolver
+	url = https://gitlab.com/smspp/bundlesolver.git
+[submodule "DPSolver"]
+	path = DPSolver
+	url = https://gitlab.com/smspp/dpsolver.git
+[submodule "LagrangianDualSolver"]
+	path = LagrangianDualSolver
+	url = https://gitlab.com/smspp/lagrangiandualsolver.git
+[submodule "tools"]
+	path = tools
+	url = https://gitlab.com/smspp/tools.git
+[submodule "tests"]
+	path = tests
+	url = https://gitlab.com/smspp/tests.git
