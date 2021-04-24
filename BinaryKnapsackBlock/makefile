@@ -18,9 +18,9 @@ NAME = test
 DIR = ./
 
 # debug switches
-SW = -g -glldb -fno-inline -std=c++17 -ferror-limit=1 
+SW = -g -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address 
 # production switches
-#SW = -O3 -std=c++17 -DNDEBUG 
+#SW = -O3 -std=c++17 -fsanitize=address -DNDEBUG
 
 # compiler
 CC = clang++
