@@ -1,10 +1,7 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(UCBlock)
-find_package(MILPSolver)
-find_package(DPSolver)
-
 # ----- Test ---------------------------------------------------------------- #
-if (UCBlock_FOUND AND MILPSolver_FOUND AND DPSolver_FOUND)
+if (TARGET UCBlock AND
+    TARGET DPSolver AND
+    TARGET MILPSolver)
 
     add_executable(TUB_Solver_test test.cpp)
     target_link_libraries(TUB_Solver_test PRIVATE
