@@ -27,7 +27,7 @@
 #set(BUILD_SHARED_LIBS ON)
 
 # Export packages from build tree (so they are found without installing them)
-set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
+#set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 
 # Enable verbose makefiles
 #set(CMAKE_VERBOSE_MAKEFILE ON)
