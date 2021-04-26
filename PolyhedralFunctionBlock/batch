@@ -1,12 +1,8 @@
 #/usr/bin/env bash
 
-what=80
-#what=575
-#what=639
-#what=592
-#iter=1
+what=639
+iter=10
 nf=-10
-#nf=-2
 
 #for size in 2 10 50 100
 for size in 2 10 50

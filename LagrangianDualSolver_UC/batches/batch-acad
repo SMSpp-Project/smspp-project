@@ -11,12 +11,12 @@ for (( seed=1 ; seed<6 ; seed++ ))
 do
 
 if [ -z "$par" ]; then
-printf "[${size}_0_${seed}]: "
+printf "[${size}_0_${seed}]: " >> log
 else
 printf "[${size}_0_${seed} $par]: "
 fi
 
-./LDS_UC_test $folder${size}_0_${seed}_w.nc4 $par
+./LDS_UC_test $folder${size}_0_${seed}_w.nc4 $par >> log
 
 retVal=$?
 if [ $retVal -ne 0 ]; then

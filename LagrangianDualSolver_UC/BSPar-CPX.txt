@@ -1,19 +1,15 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - LPBSCfg.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BSPar.txt - - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for the HydroSystemUnitBlock
+# A txt description of a BlockSolverConfig for a UCBlock to be solved by two
+# different Solver: a *MILPSolver and a LagrangianDualSolver using a
+# BundleSolver as the inner Solver
 #
-# Note: this is allowed to be empty, i.e., to be a BlockSolverConfig with
-#       0 Solver, in which case HydroSystemUnitBlock will be treated as
-#       "easy components" (this is a problem if the HydroSystemUnitBlock is
-#       modified by adding rows, but not for "one-shot" solutions)
-# 
-#   version 1.0 , 13/02/2021
+#   version 1.0 , 30/12/2020
 #
-#   Antonio Frangioni
+#   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 BlockSolverConfig     # exact type of the Configuration object
@@ -21,13 +17,15 @@ BlockSolverConfig     # exact type of the Configuration object
 1  # the BlockSolverConfig is a "differential" one
 
 1  # number of (the names of) Solver in this BlockSolverConfig
-# now all the names of the Solver
-CPXMILPSolver
-#SCIPMILPSolver
+# now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
+CPXMILPSolver           # name of 1st Solver
 
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
+# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ComputeConfig of the *MILPSolver
+
 ComputeConfig # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
@@ -38,6 +36,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # now all the integer parameters
 intLogVerb      0    # log verbosity of the MILPSolver
 intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
+#CPXPARAM_LPMethod	1  # LP method (4 = barrier)
 
 # note that we could eof() the file here since the rest is all empty
 
@@ -49,7 +48,7 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 0 # number of string parameters
 
 # now all the string parameters
-#strOutputFile	unit.lp
+#strOutputFile	uc.lp
 # [none]
 
 0 # number of vector-of-int parameters
@@ -70,6 +69,10 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 # pointer to the "extra" Configuration
 * # [none]
 
+# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END LPBSCfg.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BSPar.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

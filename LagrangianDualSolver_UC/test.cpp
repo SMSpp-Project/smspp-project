@@ -31,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 3
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -225,8 +225,10 @@ static Subset GenerateRand( Index m , Index k )
 
 static void PrintResults( bool hs , int rtrn , double fo )
 {
- if( hs )
-  cout << fo;
+ if( hs ) {
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 7 ) << fo;
+  }
  else
   if( rtrn == Solver::kInfeasible )
    cout << "    Unfeas";
@@ -445,9 +447,10 @@ int main( int argc , char **argv )
     if( sit == cc->str_pars.end() )  // if it's not there
      continue;                       // do nothing
 
-    // check if it is a BundleSolver
-    if( sit->second.find( "BundleSolver" ) == string::npos )  // if not
-     continue;                                                // do nothing
+    // check if it is a [Parallel]BundleSolver
+    if( ( sit->second.find( "BundleSolver" ) == string::npos ) &&
+	( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
+     continue;  // if not, do nothing
 
     // check if the BundleSolver uses easy components
     // find if the ComputeConfig contains "intDoEasy"
@@ -463,39 +466,31 @@ int main( int argc , char **argv )
     break;  // note that we assume this happens *at most* once
     }
 
-   // if easy components are used
+   // load the BlockSolverConfig for ThermalUnitBlock
+   auto ct = Configuration::deserialize( "TUBSCfg.txt" );
+   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
+   if( ! tbsc ) {
+    cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
+    delete c;
+    delete ct;
+    exit( 1 );
+    }
+
+   // load the BlockSolverConfig for HydroSystemUnitBlock; note that
+   // this can be "empty", and indeed even not there, in which case
+   // the HydroSystemUnitBlock will be treated as "easy"
+   auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
+   auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
+   if( ( ! hbsc ) || ( ! hbsc->num_ComputeConfig() ) ) {
+    delete ch;
+    hbsc = nullptr;
+    }
+
+    // if easy components are used
    if( DoEasy ) {
     // define the vector of components to be excluded from being "easy",
     // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
     std::vector< int > NoEasy;
-
-    // load the BlockSolverConfig for ThermalUnitBlock
-    auto ct = Configuration::deserialize( "TUBSCfg.txt" );
-    auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
-    if( ! tbsc ) {
-     cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
-     delete c;
-     delete ct;
-     exit( 1 );
-     }
-
-    // load the BlockSolverConfig for HydroSystemUnitBlock; note that
-    // this can be "empty", in which case the HydroSystemUnitBlock will
-    // be treated as "easy"
-    auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
-    auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
-    if( ! hbsc ) {
-     cerr << "Error: HSUBSCfg.txt does not contain a BlockSolverConfig" << endl;
-     delete c;
-     delete ct;
-     delete ch;
-     exit( 1 );
-     }
-
-    if( ! hbsc->num_ComputeConfig() ) {
-     delete ch;
-     hbsc = nullptr;
-     }
 
     auto sb = TestBlock->get_nested_Blocks();
     for( int i = 0 ; i < sb.size() ; ++i ) {
@@ -518,7 +513,7 @@ int main( int argc , char **argv )
       continue;
       }
 
-     // all the rest will be treated as an "easy component"
+     // all the other are treated as easy
      }
 
     // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
@@ -526,18 +521,47 @@ int main( int argc , char **argv )
     // seen after the old one and therefore overrides it
     cc->vint_pars.push_back( std::make_pair( "vintNoEasy" ,
 					     std::move( NoEasy ) ) );
-    // cleanup
-    delete hbsc;
-    delete tbsc;
-
     }  // end( if( DoEasy ) )
    else
   #endif
-    // Configure all HydroSystemUnitBlock to use the "linearised" representation
-    for(  auto sb : TestBlock->get_nested_Blocks() )
-     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) )
-      Configure_HSUB( hub );
+   {
+    // load the BlockSolverConfig for all the other :UnitBlock; note that
+    // this can be "empty", and indeed even not there
+    auto co = Configuration::deserialize( "OUBSCfg.txt" );
+    auto obsc = dynamic_cast< BlockSolverConfig * >( co );
+    if( ( ! obsc ) || ( ! obsc->num_ComputeConfig() ) ) {
+     delete co;
+     hbsc = nullptr;
+     }
 
+    for( auto sb : TestBlock->get_nested_Blocks() ) {
+     // deal with ThermalUnitBlock
+     if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb ) ) {
+      tbsc->apply( tub );
+      continue;
+      }
+
+     // deal with HydroSystemUnitBlock
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) ) {
+      Configure_HSUB( hub );
+      if( hbsc )
+       hbsc->apply( hub );
+      continue;
+      }
+
+     // deal with all other :UnitBlock
+     if( obsc )
+      obsc->apply( sb );
+     }
+
+    // cleanup
+    delete obsc;
+    }
+
+  // cleanup
+  delete hbsc;
+  delete tbsc;
+   
   bsc->apply( TestBlock );
   bsc->clear();
 
@@ -638,10 +662,12 @@ int main( int argc , char **argv )
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      !!*/
 
+ /*!!
  if( AllPassed )
   cout << GREEN( All tests passed!! ) << endl;
  else
   cout << RED( Shit happened!! ) << endl;
+  !!*/
  
  // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

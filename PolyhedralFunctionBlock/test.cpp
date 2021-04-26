@@ -35,7 +35,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -178,7 +178,9 @@ AbstractBlock * NDOBlock;  // the "natural" representation
 
 bool convex = true;        // true if the PolyhedralFunction is convex
 
-double bound = 1000;       // the global bound 
+double bound = 1000;       // the global *conditional* bound 
+
+double lbound = INF;       // the global lower bound bound
 
 FunctionValue BND;         // the bound in the PolyhedralFunction (if any)
 
@@ -287,15 +289,17 @@ static void GenerateBND( void )
 
 static void set_global_bound( void )
 {
- auto bnd = std::abs( nf ) * rs( dis( rg ) * 5 * scale * nvar / 4 );
- /* auto bnd = INF;
-    if( dis( rg ) <= 0.333 )   // "tight" bound
-     bnd = rs( dis( rg ) * 5 * scale * nvar / 4 );
-    else
-     if( dis( rg ) <= 0.333 )  // "loose" bound
-      bnd = rs( dis( rg ) * 5 * scale * nvar );
- */
+ //!! auto bnd = std::abs( nf ) * rs( dis( rg ) * 5 * scale * nvar / 4 );
+ auto bnd = INF;
+ if( dis( rg ) <= 0.333 )   // "tight" bound
+  bnd = rs( dis( rg ) * 5 * scale * nvar / 4 );
+ else
+  if( dis( rg ) <= 0.333 )  // "loose" bound
+   bnd = rs( dis( rg ) * 5 * scale * nvar );
 
+ if( bnd == lbound )
+  return;
+ 
  // set it in LPBlock
  auto lbc = LPBlock->get_static_constraint< FRowConstraint >(
 							    "globalbound" );
@@ -304,23 +308,30 @@ static void set_global_bound( void )
   exit( 1 );
   }
 
- if( convex )
-  lbc->set_lhs( - bnd );
- else
-  lbc->set_rhs( bnd );
+ if( lbound == -INF )   // a bound was not there
+  lbc->relax( false );  // un-relax the bound constraint
+
+ if( bnd == INF )       // the bound is no longer there
+  lbc->relax( false );  // relax the bound constraint
+ else                   // the bound is there
+  if( convex )
+   lbc->set_lhs( - bnd );
+  else
+   lbc->set_rhs( bnd );
+
+ lbound = bnd;
 
  // set it in NDOBlock
- /* if( bnd == INF )
-     if( convex )
-      NDOBlock->set_valid_lower_bound( -bound );
-     else
-      NDOBlock->set_valid_upper_bound( bound );
-    else
- */
-   if( convex )
-    NDOBlock->set_valid_lower_bound( -bnd , false );
-   else
-    NDOBlock->set_valid_upper_bound( bnd , false );
+ if( bnd == INF )
+  if( convex )
+   NDOBlock->set_valid_lower_bound( -bound );
+  else
+   NDOBlock->set_valid_upper_bound( bound );
+ else
+  if( convex )
+   NDOBlock->set_valid_lower_bound( -bnd , false );
+  else
+   NDOBlock->set_valid_upper_bound( bnd , false );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -714,6 +725,7 @@ int main( int argc , char **argv )
      }
     lbc->set_function( new LinearFunction( std::move( vp ) ) );
     LPBlock->add_static_constraint( *lbc , "globalbound" );
+    lbc->relax( true );  // the bound is INF, the constraint it not there
     }
    }
   else {

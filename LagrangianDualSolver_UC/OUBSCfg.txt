@@ -1,14 +1,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - LPBSCfg.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - OUBSCfg.txt - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for the HydroSystemUnitBlock
-#
-# Note: this is allowed to be empty, i.e., to be a BlockSolverConfig with
-#       0 Solver, in which case HydroSystemUnitBlock will be treated as
-#       "easy components" (this is a problem if the HydroSystemUnitBlock is
-#       modified by adding rows, but not for "one-shot" solutions)
+# A txt description of a BlockSolverConfig for the "other" :UnitBlock, which
+# is allowed to be empty if all the "other" :UnitBlock are treated as "easy"
 # 
-#   version 1.0 , 13/02/2021
+#   version 1.0 , 26/04/2021
 #
 #   Antonio Frangioni
 #
@@ -28,6 +24,7 @@ CPXMILPSolver
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
+
 ComputeConfig # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
@@ -71,5 +68,5 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END LPBSCfg.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END OUBSCfg.txt - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
