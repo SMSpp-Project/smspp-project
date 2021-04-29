@@ -24,6 +24,9 @@ project(SMS++_tests
         HOMEPAGE_URL https://gitlab.com/smspp/tests
         LANGUAGES C CXX)
 
+# Find out if it's being called by the umbrella.
+get_directory_property(hasParent PARENT_DIRECTORY)
+
 # ----- Settings ------------------------------------------------------------ #
 # This creates an ENABLE_TESTING option (default: ON) and enables the testing
 # using the ctest executable.
@@ -34,16 +37,37 @@ include(CTest)
 # may wrongly appear unused, and by default the linker does not include them,
 # so we have to force the linking.
 if (BUILD_SHARED_LIBS)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         add_link_options("-Wl,--no-as-needed")
     endif ()
 else ()
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         add_link_options("-Wl,-all_load")
     else ()
         add_link_options("-Wl,--whole-archive,--allow-multiple-definition")
     endif ()
 endif ()
+
+# ----- Policies ----------------------------------------------------------- #
+# Introduced in 3.19 to handle arbitrary characters in test names
+# See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
+if (POLICY CMP0110)
+    cmake_policy(SET CMP0110 NEW)
+endif()
+
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    find_package(MCFClass)
+    find_package(MCFBlock)
+    find_package(MMCFBlock)
+    find_package(UCBlock)
+    find_package(BundleSolver)
+    find_package(DPSolver)
+    find_package(LagrangianDualSolver)
+    find_package(MILPSolver)
+endif()
 
 # ----- GoogleTest framework ------------------------------------------------ #
 # Some system tests are built using the GoogleTest framework,

@@ -1,15 +1,6 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(LagrangianDualSolver)
-find_package(BundleSolver)
-
-# Introduced in 3.19 to handle arbitrary characters in test names
-# See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
-if (POLICY CMP0110)
-    cmake_policy(SET CMP0110 NEW)
-endif()
-
 # ----- Test ---------------------------------------------------------------- #
-if (LagrangianDualSolver_FOUND AND BundleSolver_FOUND)
+if (TARGET BundleSolver AND
+    TARGET LagrangianDualSolver)
 
     add_executable(LDS_Box_test test.cpp)
     target_link_libraries(LDS_Box_test PRIVATE

@@ -1,17 +1,9 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(BundleSolver)
-find_package(MILPSolver)
-find_package(LagrangianDualSolver)
-
-find_package(MMCFBlock)
-find_package(UCBlock)
-
 # ----- Test ---------------------------------------------------------------- #
-if (BundleSolver_FOUND AND
-    MILPSolver_FOUND AND
-    LagrangianDualSolver_FOUND AND
-    MMCFBlock_FOUND AND
-    UCBlock_FOUND)
+if (TARGET MMCFBlock AND
+    TARGET UCBlock AND
+    TARGET BundleSolver AND
+    TARGET LagrangianDualSolver AND
+    TARGET MILPSolver)
 
     add_executable(LDS_MMCF_test test.cpp)
     target_link_libraries(LDS_MMCF_test PRIVATE
