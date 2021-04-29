@@ -35,6 +35,9 @@ submodules.
 - [SMS++ core library](https://gitlab.com/smspp/smspp), the repository
   defining the general SMS++ framework features.
 
+- [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
+  a Block implementing the Binary Knapsack Problem and the corresponding Solver.
+  
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a Solver for
   optimization problems involving (several) nondifferentiable objective
   function(s) based on the (generalized) "bundle method". It currently
@@ -320,4 +323,3 @@ of the following projects:
 - "Optimization under Uncertainty with SMS++", funded by the
   [Gaspard Monge program for Optimization and Operations Research]
   (http://www.fondation-hadamard.fr/fr/PGMO)
-

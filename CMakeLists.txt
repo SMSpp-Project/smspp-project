@@ -38,6 +38,7 @@ add_subdirectory(BundleSolver/NdoFiOracle)
 add_subdirectory(SMS++)
 
 # Blocks
+add_subdirectory(BinaryKnapsackBlock)
 add_subdirectory(UCBlock)
 add_subdirectory(MCFBlock)        # Requires MCFClass
 add_subdirectory(MMCFBlock)       # Requires MCFBlock

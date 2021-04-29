@@ -4,6 +4,9 @@
 [submodule "SMS++"]
 	path = SMS++
 	url = https://gitlab.com/smspp/smspp.git
+[submodule "BinaryKnapsackBlock"]
+	path = BinaryKnapsackBlock
+	url = https://gitlab.com/smspp/binaryknapsackblock.git
 [submodule "UCBlock"]
 	path = UCBlock
 	url = https://gitlab.com/smspp/ucblock.git
