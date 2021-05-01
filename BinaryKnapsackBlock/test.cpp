@@ -103,7 +103,7 @@ Subset generateSubset( int m ){
  
  sample( idx.begin() , idx.end() , back_inserter( nms ) , m , rg );
  
-return move( nms );
+ return move( nms );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -116,9 +116,9 @@ bool SolveBoth(){
 
  // Solve with both Solvers - - - - - - - - - - - - - - - - - - - - - - - -
 
- auto status1 = Solver1->compute();
+ auto status1 = Solver1->compute();     
 
- auto status2 = Solver2->compute();
+ auto status2 = Solver2->compute();     
 
  // check status- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -130,7 +130,7 @@ bool SolveBoth(){
 
  // get optimal values- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- double Value1 = Solver1->get_var_value();
+ double Value1 = Solver1->get_var_value(); 
 
  double Value2 = Solver2->get_var_value();  
 
@@ -142,17 +142,23 @@ bool SolveBoth(){
  for( int i = 0 ; i < N ; i++ )
   checksol += BKB->get_x( i ) * BKB->get_Profit( i );
  
- if( abs( checksol - Value1 ) > 1e-06 )
+ if( abs( checksol - Value1 ) > 1e-06 ){
   cerr << "Error computing solution Solver1\n";  
-
+  return( false );
+ }
+ 
+ 
  Solver2->get_var_solution();
 
  checksol = 0;
  for( int i = 0 ; i < N ; i++ )
   checksol += BKB->get_x( i ) * BKB->get_Profit( i );
+
  
- if( abs( checksol - Value2 ) > 1e-06 )
-  cerr << "Error computing solution Solver2\n";  
+ if( abs( checksol - Value2 ) > 1e-06 ){
+  cerr << "Error computing solution Solver2\n\n";  
+  return( false );
+ }
 
  // compare optimal values- - - - - - - - - - - - - - - - - - - - - - - - - 
  
@@ -310,16 +316,16 @@ int main( int argc , char **argv ){
  // Attach Solvers to the BinaryKnapsackBlock - - - - - - - - - - - - - - - - 
 
  // Read a configuration file
- ifstream config_file( "BinaryKnapsackPar.txt" );
-
- if( ! config_file.is_open() ){
-  cerr << "Error: cannot open BlockSolverConfig file" << endl;
-  return( 1 );  
+ 
+ BlockSolverConfig * bsc;
+ 
+ auto c = Configuration::deserialize( "BinaryKnapsackPar.txt" );
+ bsc = dynamic_cast< BlockSolverConfig * >( c );
+ if( ! bsc ){
+  cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+  delete c;
+  exit( 1 );    
  }
-
- auto bsc = new BlockSolverConfig;
- config_file >> ( * bsc );
- config_file.close();
 
  bsc->apply( BKB );
 
@@ -332,13 +338,13 @@ int main( int argc , char **argv ){
  Solver2 = BKB->get_registered_solvers().back();
 
  // get Objective and Constraint- - - - - - - - - - - - - - - - - - - - - - -
-
- auto obj = BKB->get_objective< FRealObjective >(); 
+ 
+ auto obj = BKB->get_objective< FRealObjective >();
  
  auto cnst = BKB->get_static_constraint< FRowConstraint >( 0 );
 
  // get the linear functions 
-
+ 
  auto lfobj = dynamic_cast< LinearFunction * >( obj->get_function() );
  if( ! lfobj ){
   cerr << "Error: cannot get the objective linear function" << endl;
@@ -399,7 +405,7 @@ int main( int argc , char **argv ){
    cout << "2 ";
   #endif   
 
-   int m = int( dis( rg ) * ( N / 5 ) );     // number of items to modify
+   int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    vector< double > nP( m );                 // generate new profits
    for( auto & p : nP )  
@@ -433,9 +439,9 @@ int main( int argc , char **argv ){
    cout << "3 ";
   #endif  
     
-   int m = int( dis( rg ) * ( N / 5 ) );     // number of items to modify
+   int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
-   vector< double > nW( m );                 // generate new profits
+   vector< double > nW( m );                 // generate new weights
    for( auto & w : nW )  
     w = dist_W( rg );
 
@@ -470,7 +476,7 @@ int main( int argc , char **argv ){
    cout << "4 ";
   #endif  
     
-   int m = int( dis( rg ) * ( N / 5 ) );     // number of items to modify
+   int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    vector< bool > nX( m );
    for( int i = 0 ; i < m ; i++ )            // generate new x values
@@ -495,7 +501,7 @@ int main( int argc , char **argv ){
    cout << "5 ";
   #endif   
     
-   int m = int( dis( rg ) * ( N / 5 ) );     // number of items to modify
+   int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    if( dis( rg ) < 0.5 ){                    // ranged modification
     Range rng = generateRange( m );
