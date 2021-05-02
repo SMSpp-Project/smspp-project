@@ -33,8 +33,6 @@
 
 #include <ThermalUnitBlock.h>
 #include <CPXMILPSolver.h>
-#include <legacy_dpsolver/LegacyDPSolver.h>
-#include <kostas_dpsolver/AcadThermalUnitGraphSolver.h>
 #include <ThermalUnitBlockDPSolver.h>
 
 /*--------------------------------------------------------------------------*/
@@ -76,7 +74,7 @@ class TUB_Solver_Test :
  unsigned int num_repeats;
 
  ThermalUnitBlock * block{};
- LegacyDPSolver * tubgsolver{};
+ ThermalUnitBlockDPSolver * tubgsolver{};
  CPXMILPSolver * milpsolver{};
 
  int init_t{};
@@ -84,7 +82,7 @@ class TUB_Solver_Test :
 
  void SetUp() override {
   block = new ThermalUnitBlock();
-  tubgsolver = new LegacyDPSolver();
+  tubgsolver = new ThermalUnitBlockDPSolver();
   milpsolver = new CPXMILPSolver();
   EXPECT_TRUE( block != nullptr );
   EXPECT_TRUE( tubgsolver != nullptr );
@@ -123,7 +121,8 @@ class TUB_Solver_Test :
 
   auto milp_val = milpsolver->get_var_value();
   auto tubg_val = tubgsolver->get_var_value();
-  auto abs_error = 1e-5 * max( double( 1 ), abs( max( milp_val, tubg_val ) ) );
+  auto abs_error = 1e-5 * std::max( double( 1 ),
+                                    abs( std::max( milp_val, tubg_val ) ) );
   ASSERT_NEAR( milp_val, tubg_val, abs_error );
  }
 
@@ -197,7 +196,8 @@ TEST_P ( TUB_Solver_Test, CheckOFValue ) {
 
  std::cout << "DPSolver says " << tubg_val << std::endl;
  std::cout << "O.F. value is " << of_value << std::endl;
- auto abs_error = 1e-5 * max( double( 1 ), abs( max( of_value, tubg_val ) ) );
+ auto abs_error = 1e-5 * std::max( double( 1 ),
+                                   abs( std::max( of_value, tubg_val ) ) );
  ASSERT_NEAR( of_value, tubg_val, abs_error );
 }
 
@@ -210,7 +210,6 @@ TEST_P ( TUB_Solver_Test, SetStartUpCostsSparse) {
  while( num_repeats-- ) {
 
   auto values = block->get_start_up_cost();
-  // Block::Subset idx( 1, drand48() * (values.size() - init_t - 1) );
   Block::Subset idx( 1, drand48() * 5 );
   std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
 
@@ -279,20 +278,20 @@ TEST_P ( TUB_Solver_Test, SetLinearTermSparse) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( TUB_Solver_Test, SetQuadTermSparse) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
-
- while( num_repeats-- ) {
-
-  auto values = block->get_quad_term();
-  Block::Subset idx( 1, drand48() * values.size() );
-  std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
-
-  block->set_quad_term(new_value.begin(), std::move(idx));
-  solve();
- }
-}
+// TEST_P ( TUB_Solver_Test, SetQuadTermSparse) {
+//  block->register_Solver( milpsolver );
+//  block->register_Solver( tubgsolver );
+//
+//  while( num_repeats-- ) {
+//
+//   auto values = block->get_quad_term();
+//   Block::Subset idx( 1, drand48() * values.size() );
+//   std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
+//
+//   block->set_quad_term(new_value.begin(), std::move(idx));
+//   solve();
+//  }
+// }
 
 /*--------------------------------------------------------------------------*/
 
@@ -304,20 +303,20 @@ TEST_P ( TUB_Solver_Test, SetQuadTermSparse) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( TUB_Solver_Test, SetAvailabilitySparse ) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
-
- while( num_repeats-- ) {
-
-  auto values = block->get_availability();
-  Block::Subset idx( 1, drand48() * values.size() );
-  std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
-
-  block->set_availability(new_value.begin(), std::move(idx));
-  solve();
- }
-}
+// TEST_P ( TUB_Solver_Test, SetAvailabilitySparse ) {
+//  block->register_Solver( milpsolver );
+//  block->register_Solver( tubgsolver );
+//
+//  while( num_repeats-- ) {
+//
+//   auto values = block->get_availability();
+//   Block::Subset idx( 1, drand48() * values.size() );
+//   std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
+//
+//   block->set_availability(new_value.begin(), std::move(idx));
+//   solve();
+//  }
+// }
 
 /*--------------------------------------------------------------------------*/
 
@@ -329,14 +328,14 @@ TEST_P ( TUB_Solver_Test, SetAvailabilitySparse ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( TUB_Solver_Test, SetMaxPowerSparse ) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
-
- while( num_repeats-- ) {
-  solve();
- }
-}
+// TEST_P ( TUB_Solver_Test, SetMaxPowerSparse ) {
+//  block->register_Solver( milpsolver );
+//  block->register_Solver( tubgsolver );
+//
+//  while( num_repeats-- ) {
+//   solve();
+//  }
+// }
 
 /*--------------------------------------------------------------------------*/
 
@@ -348,19 +347,19 @@ TEST_P ( TUB_Solver_Test, SetMaxPowerSparse ) {
 
 /*--------------------------------------------------------------------------*/
 
-TEST_P ( TUB_Solver_Test, SetInitPower ) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
-
- while( num_repeats-- ) {
-  auto old_value = block->get_initial_power();
-  std::vector< double > new_value( 1, old_value * ( drand48() + 0.5 ) );
-  Block::Subset idx( 1, 0 );
-
-  block->set_initial_power(new_value.begin(), std::move(idx));
-  solve();
- }
-}
+// TEST_P ( TUB_Solver_Test, SetInitPower ) {
+//  block->register_Solver( milpsolver );
+//  block->register_Solver( tubgsolver );
+//
+//  while( num_repeats-- ) {
+//   auto old_value = block->get_initial_power();
+//   std::vector< double > new_value( 1, old_value * ( drand48() + 0.5 ) );
+//   Block::Subset idx( 1, 0 );
+//
+//   block->set_initial_power(new_value.begin(), std::move(idx));
+//   solve();
+//  }
+// }
 
 /*--------------------------------------------------------------------------*/
 
