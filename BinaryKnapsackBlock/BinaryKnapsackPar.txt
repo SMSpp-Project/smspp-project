@@ -12,7 +12,9 @@
 # BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-0  # the BlockSolverConfig is not a "differential" one: values are being set
+BlockSolverConfig     # exact type of the Configuration object
+
+1  # the BlockSolverConfig is a "differential" one: values are being set
 
 2  # number of (the names of) Solver in this BlockSolverConfig
 
@@ -28,7 +30,7 @@ CPXMILPSolver 			# name of 2nd Solver
 
 ComputeConfig # exact type of the ComputeConfig object
 
-0  # f_diff == 0 ==> all non-provided parameters are set to the default value
+1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
 0  # number of integer parameters
@@ -36,7 +38,7 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # number of double parameters
 
 # now all the double parameters
-dblReopt	1	# reoptimization parameter
+dblReopt	0.3	
 
 0  # number of string parameters
 
@@ -55,7 +57,7 @@ dblReopt	1	# reoptimization parameter
 
 ComputeConfig # exact type of the ComputeConfig object
 
-0  # f_diff == 0 ==> all non-provided parameters are set to the default value
+1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
 0  # number of integer parameters
