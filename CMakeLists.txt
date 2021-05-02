@@ -12,7 +12,7 @@
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
 # ----- Project definition and configuration -------------------------------- #
-project(SMS++_project)
+project("The SMS++ Project")
 
 # This file can contain custom settings.
 # Use it as an alternative to specify CMake variables manually with -D.
