@@ -31,9 +31,6 @@
 [submodule "BundleSolver"]
 	path = BundleSolver
 	url = https://gitlab.com/smspp/bundlesolver.git
-[submodule "DPSolver"]
-	path = DPSolver
-	url = https://gitlab.com/smspp/dpsolver.git
 [submodule "LagrangianDualSolver"]
 	path = LagrangianDualSolver
 	url = https://gitlab.com/smspp/lagrangiandualsolver.git
