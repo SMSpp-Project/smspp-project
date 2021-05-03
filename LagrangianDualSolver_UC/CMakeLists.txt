@@ -1,15 +1,13 @@
 # ----- Test ---------------------------------------------------------------- #
 if (TARGET UCBlock AND
     TARGET BundleSolver AND
-    TARGET DPSolver AND
     TARGET LagrangianDualSolver)
 
     add_executable(LDS_UC_test test.cpp)
     target_link_libraries(LDS_UC_test PRIVATE
                           SMS++::UCBlock
                           SMS++::LagrangianDualSolver
-                          SMS++::BundleSolver
-                          SMS++::DPSolver)
+                          SMS++::BundleSolver)
 
     # This version replicates the batch file in CMake.
     # This method was preferred because it allows to keep track

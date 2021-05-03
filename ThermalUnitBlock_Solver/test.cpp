@@ -1,7 +1,7 @@
 /**
  * @file
  * This file contains a (parametrized) test suite that solves a 1UC problem
- * described in a ThermalUnitBlock with both a ThermalUnitBlockDPSolver and a
+ * described in a ThermalUnitBlock with both a ThermalUnitDPSolver and a
  * MILPSolver and compares the results;
  * the tests explore all ThermalUnitBlock modifications.
  *
@@ -33,7 +33,7 @@
 
 #include <ThermalUnitBlock.h>
 #include <CPXMILPSolver.h>
-#include <ThermalUnitBlockDPSolver.h>
+#include <ThermalUnitDPSolver.h>
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -74,7 +74,7 @@ class TUB_Solver_Test :
  unsigned int num_repeats;
 
  ThermalUnitBlock * block{};
- ThermalUnitBlockDPSolver * tubgsolver{};
+ ThermalUnitDPSolver * tubgsolver{};
  CPXMILPSolver * milpsolver{};
 
  int init_t{};
@@ -82,7 +82,7 @@ class TUB_Solver_Test :
 
  void SetUp() override {
   block = new ThermalUnitBlock();
-  tubgsolver = new ThermalUnitBlockDPSolver();
+  tubgsolver = new ThermalUnitDPSolver();
   milpsolver = new CPXMILPSolver();
   EXPECT_TRUE( block != nullptr );
   EXPECT_TRUE( tubgsolver != nullptr );

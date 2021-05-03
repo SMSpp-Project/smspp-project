@@ -79,19 +79,13 @@ include $(LgDSLVSDR)makefile
 UCBckDIR = ../../UCBlock/
 include $(UCBckDIR)lib/makefile
 
-# define input macros for 1ThermalUnitDPSolver makefile, then include it
-# note that this is not the "complete" makefile: 1ThermalUnitDPSolver only
-# requires the core SMS++ and UCBlock, which are already included above
-OTUDSLSDR = ../../DPSOlver/
-include $(OTUDSLSDR)makefile
-
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(UCBckOBJ) $(OTUDSLOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(UCBckOBJ)
 
 # libreries
-MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(UCBckLIB) $(OTUDSLLIB)
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(UCBckLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
@@ -99,10 +93,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC) $(LgDSLVINC) $(UCBckINC) $(OTUDSLINC)
+MINC =  $(BNDSLVINC) $(LgDSLVINC) $(UCBckINC)
 
 # includes
-MH =    $(BNDSLVH) $(LgDSLVH) $(UCBckH) $(OTUDSLH)
+MH =    $(BNDSLVH) $(LgDSLVH) $(UCBckH)
 
 # compile command
 
