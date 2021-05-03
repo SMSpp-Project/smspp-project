@@ -49,7 +49,6 @@ add_subdirectory(SDDPBlock)       # Requires StochasticBlock, StOpt
 # Solvers
 add_subdirectory(MILPSolver)      # Requires CPLEX and/or SCIP
 add_subdirectory(BundleSolver)    # Requires MILPSolver
-add_subdirectory(DPSolver)        # Requires UCBlock
 add_subdirectory(LagrangianDualSolver)
 
 # ----- Tools --------------------------------------------------------------- #
