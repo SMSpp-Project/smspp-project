@@ -56,6 +56,10 @@ clean::
 BNDSLVSDR = ../../BundleSolver/
 include $(BNDSLVSDR)makefile-c
 
+# SubGradSolver
+SBGSLVSDR = ../../SubGradSolver/
+include $(SBGSLVSDR)makefile
+
 # not necessary, BundleSolver does that already
 # define input macros for SMS++ complete makefile, then include it
 #SMS++SDR = ../../../SMS++/
@@ -78,7 +82,7 @@ include $(BNDSLVSDR)makefile-c
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(SBGSLVOBJ)
 
 # libreries
 MLIB =  $(BNDSLVLIB)
@@ -89,10 +93,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC)
+MINC =  $(BNDSLVINC) $(SBGSLVINC)
 
 # includes
-MH =    $(BNDSLVH)
+MH =    $(BNDSLVH) $(SBGSLVH)
 
 # compile command
 
