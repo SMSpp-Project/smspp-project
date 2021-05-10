@@ -181,8 +181,8 @@ int main( int argc , char **argv ){
  N = 100;                               // number of items
  int n_repeat = 100;                    // number of repetitions
  double delta = 0.001;                  // capacity parameter
- double nW = 0.1;
- double nP = 0.1;
+ double nW = 0.1;						// percentage of negative weights
+ double nP = 0.1;						// percentage of positive weights
 
  switch( argc ) {
   case( 8 ): Str2Sthg( argv[ 7 ] , nP );
