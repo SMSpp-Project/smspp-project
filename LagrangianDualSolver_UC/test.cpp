@@ -531,7 +531,7 @@ int main( int argc , char **argv )
     auto obsc = dynamic_cast< BlockSolverConfig * >( co );
     if( ( ! obsc ) || ( ! obsc->num_ComputeConfig() ) ) {
      delete co;
-     hbsc = nullptr;
+     obsc = nullptr;
      }
 
     for( auto sb : TestBlock->get_nested_Blocks() ) {
