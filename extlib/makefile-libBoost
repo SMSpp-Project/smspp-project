@@ -25,7 +25,7 @@
 
 # define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
 
-libBoostINC = -I/usr/local/include/ -DBOOST_LOG_DYN_LINK
-libBoostLIB = -L/usr/local/lib -lboost_log-mt
+libBoostINC = -I/usr/local/include/
+libBoostLIB = -L/usr/local/lib
 
 ############################# End of makefile ################################

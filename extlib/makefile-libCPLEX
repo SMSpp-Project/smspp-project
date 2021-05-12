@@ -27,13 +27,14 @@
 # Linux
 #libCPLEXEXTLIB = -lpthread
 # macOS
-#libCPLEXEXTLIB = -framework CoreFoundation -framework IOKit
+libCPLEXEXTLIB = -framework CoreFoundation -framework IOKit
 
 # basic CPLEX directory
-libCPLEXBSCDIR = /opt/ibm/ILOG/CPLEX_Studio1210/cplex/
+#libCPLEXBSCDIR = /opt/ibm/ILOG/CPLEX_Studio1210/cplex/
+libCPLEXBSCDIR = /Applications/CPLEX_Studio1210/cplex/
 
 # lib Cplex directory
-#libCPLEXINCDIR = $(libCPLEXBSCDIR)lib/x86-64_sles10_4.1/static_pic/
+#libCPLEXINCDIR = $(libCPLEXBSCDIR)lib/x86-64_linux/static_pic/
 libCPLEXINCDIR = $(libCPLEXBSCDIR)lib/x86-64_osx/static_pic/
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
