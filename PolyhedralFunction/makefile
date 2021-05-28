@@ -87,7 +87,7 @@ MOBJ =  $(BNDSLVOBJ) $(SBGSLVOBJ)
 # libreries
 MLIB =  $(BNDSLVLIB)
 
-$(NAME): $(MOBJ) $(DIR)test.o
+$(NAME): $(DIR)test.o $(MOBJ)
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
