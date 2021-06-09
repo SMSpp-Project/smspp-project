@@ -64,7 +64,7 @@ intQPmp2   0      # MxRmv, how many variables can be removed from the base at ea
       	          # iteration in BMinQuad (0 = at will)
 
 # OSiMPSolver's parameters : - - - - - -
-intOSImp1  0      # CPLEX algorithm
+intOSImp1  1      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
 

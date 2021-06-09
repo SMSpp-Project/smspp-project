@@ -88,7 +88,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 
 /*--------------------------------------------------------------------------*/
 
@@ -289,7 +289,6 @@ static void GenerateBND( void )
 
 static void set_global_bound( void )
 {
- //!! auto bnd = std::abs( nf ) * rs( dis( rg ) * 5 * scale * nvar / 4 );
  auto bnd = INF;
  if( dis( rg ) <= 0.333 )   // "tight" bound
   bnd = rs( dis( rg ) * 5 * scale * nvar / 4 );
@@ -308,16 +307,17 @@ static void set_global_bound( void )
   exit( 1 );
   }
 
- if( lbound == -INF )   // a bound was not there
-  lbc->relax( false );  // un-relax the bound constraint
+ if( bnd == INF )        // the bound is no longer there
+  lbc->relax( true );    // relax the bound constraint
+ else {                  // the bound is there
+  if( lbound == INF )    // but it was not there before
+   lbc->relax( false );  // un-relax the bound constraint
 
- if( bnd == INF )       // the bound is no longer there
-  lbc->relax( false );  // relax the bound constraint
- else                   // the bound is there
   if( convex )
    lbc->set_lhs( - bnd );
   else
    lbc->set_rhs( bnd );
+  }
 
  lbound = bnd;
 
