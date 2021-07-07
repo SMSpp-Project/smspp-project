@@ -493,7 +493,7 @@ int main( int argc , char **argv )
     std::vector< int > NoEasy;
 
     auto sb = TestBlock->get_nested_Blocks();
-    for( int i = 0 ; i < sb.size() ; ++i ) {
+    for( unsigned long i = 0 ; i < sb.size() ; ++i ) {
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
       NoEasy.push_back( i );

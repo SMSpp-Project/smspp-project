@@ -41,6 +41,22 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
+/* if nonzero, quadratic terms are always >= 0 when minimizing and <= 0 when
+ * maximising, since many other Solver (but not BoxSolver) may not be able to
+ * solve the Block otherwise. */
+
+#define ENSURE_CONVEX 1
+
+/*--------------------------------------------------------------------------*/
+/* if nonzero, lower bounds on binary variables are guaranteed to be <= 0 and
+ * upper bound >= 1, i.e., compatible with the "binarity status" of the
+ * variable. This is because some other Solver (but not BoxSolver) may take
+ * issue with incompatible bounds rather than just doing the right thing and
+ * either fixing the variable or declaring the model empty outright. */
+
+#define ENSURE_BIN_FEASIBLE 0
+
+/*--------------------------------------------------------------------------*/
 // if nonzero, we compare the get_opposite_value() with the get_var_value()
 
 #define DIRECTION_TEST 0
@@ -97,7 +113,11 @@
 
 #include "BlockSolverConfig.h"
 
-#include "BoxSolver.h"
+// if SMSpp_ensure_load() need not be used, BoxSolver.h need not be included
+// unless DIRECTION_TEST > 0
+//#if DIRECTION_TEST
+ #include "BoxSolver.h"
+//#endif
 
 #include "FRealObjective.h"
 
@@ -142,6 +162,8 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
+
+SMSpp_ensure_load( BoxSolver );
 
 static constexpr FunctionValue INF = Inf< RHSValue >();
 
@@ -238,8 +260,8 @@ static void set_bounds( BoxConstraint & b )
  // "inherent" sign constraints
  RHSValue le = isfeas ? 0 : 0.2;
  RHSValue re = isfeas ? 2 : 2.2;
+ auto x = static_cast< ColVariable * >( b.get_active_var( 0 ) );
  if( isbndd ) {  // boundedness is required 
-  auto x = static_cast< ColVariable * >( b.get_active_var( 0 ) );
   // if there is no "inherent" lower bound, and anyway in 60% of the cases
   if( ( x->get_lb() == -INF ) || ( dis( rg ) < 0.60 ) )
    l = - re * dis( rg ) + le;  // generate a LB
@@ -253,6 +275,12 @@ static void set_bounds( BoxConstraint & b )
   if( dis( rg ) < 0.60 )       // in 60% of the cases,
    u = re * dis( rg ) - le;    // generate an UB
   }
+ #if ENSURE_BIN_FEASIBLE
+  if( x->is_unitary() && x->is_positive() && x->is_integer() ) {
+   if( l > 0 ) l = 0;
+   if( u < 1 ) u = 1;
+   }
+ #endif
  if( l > -INF )                // if a LB is generated
   b.set_lhs( l );              // set it
  if( u < INF )                 // if an UB is generated
@@ -284,18 +312,17 @@ static void set_quad_c( FunctionValue & a )
  // which means that the stationary point is surely outside of the
  // interval, thus a is taken between 1/4 and 1/16 (with the right sign,
  // and if nonzero which is 60% of the times)
-
+ // the sign is randomly chosen with equal probability, unless ENSURE_CONVEX
+ // in which case it is fixed according to the optimization sign
  a = 0;
  if( dis( rg ) < 0.60 ) {
   a = dis( rg ) * 0.1875 + 0.0625;
-  #if ! DIRECTION_TEST
-   // don't want to give any problem to a Solver, hence ensure that the
-   // problem is concave if you are maximising; this is not an issue if
-   // BoxSolver only is used since even the min-concave and max-convex
-   // cases are easy
+  #if ENSURE_CONVEX > 0
    if( ! minobj )
-    a = -a;
+  #else
+   if( dis( rg ) < 0.50 )
   #endif
+    a = -a;
   }
  }
  
@@ -333,7 +360,12 @@ static bool SolveBoth( void )
   double fo1st = Slvr1->get_var_value();
 
   #if DIRECTION_TEST
-   double oppfo = static_cast< BoxSolver * >( Slvr1 )->get_opposite_value();
+   auto BSlvr1 = dynamic_cast< BoxSolver * >( Slvr1 );
+   if( ! BSlvr1 ) {
+    cerr << "Error: Solver1 not a BoxSolver and DIRECTION_TEST" << endl;
+    exit( 1 );
+    }
+   double oppfo = BSlvr1->get_opposite_value();
    // invert the verse of the Objective
    BoxBlock->get_objective()->set_sense( minobj ? Objective::eMax
 					        : Objective::eMin );
@@ -412,8 +444,19 @@ static bool SolveBoth( void )
     return( true );
     }
 
+   // note: for a problem that is both potentially unbounded (say, it has
+   // at least one/ variable with positive linear cost, 0 quadratic cost,
+   // and +INF upper bound) and unfeasible (upper bound < lower bound),
+   // BoxSolver correctly returns kInfeasible. however, some :MILPSolver
+   // detects this in the preprocessor and may "get confused" returning
+   // and "unbounded OR unfeasible" return status that can be translated
+   // into kUnbounded. this is the reason of this apparently weird test
+   // where we consider kUnbounded and kInfeasible as "equivalent". while
+   // this may lead to bona fide errors to be ignored, it seems to be the
+   // only reasonable way out
    if( ( rtrn1st == Solver::kInfeasible ) &&
-       ( rtrn2nd == Solver::kInfeasible ) ) {
+       ( ( rtrn2nd == Solver::kInfeasible ) ||
+	 ( rtrn2nd == Solver::kUnbounded ) ) ) {
     LOG1( "OK(e)" << endl );
     return( true );
     }
@@ -615,31 +658,29 @@ int main( int argc , char **argv )
   BoxBlock->is_correct();
   }
 
- // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
+ // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // do this by reading an appropriate BlockSolverConfig from file and
+ // apply() it to the BoxBlock; note that the BlockSolverConfig is
+ // clear()-ed and kept to do the cleanup at the end
 
- // for the BoxSolver, do that manually
- BoxBlock->register_Solver( new BoxSolver );
-
+ BlockSolverConfig * bsc;
  {
-  // for the :MILPSolver (or whatever) do this by reading an appropriate
-  // BlockSolverConfig from file and apply() it to the LPBlock
-  ifstream LPParFile( "LPPar.txt" );
-  if( ! LPParFile.is_open() ) {
-   cerr << "Error: cannot open file LPPar.txt" << endl;
-   return( 1 );
+  auto c = Configuration::deserialize( "BSCfg.txt" );
+  bsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! bsc ) {
+   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
    }
 
-  auto msc = new BlockSolverConfig;
-  LPParFile >> *( msc );
-  LPParFile.close();
+  bsc->apply( BoxBlock );
+  bsc->clear();
 
-  msc->apply( BoxBlock );
-  // ordinarily one should keep the clean()-ed BSC and use it at the end
-  // to cleanup the Block, but BoxBlock has no sons, so the :MILPSolver
-  // (or whatever) cannot be "complicated" and we just unregister_Solvers()
-  // at the end
-  delete msc;
+  if( BoxBlock->get_registered_solvers().empty() ) {
+   cout << endl << "no Solver registered to the Block!" << endl;
+   exit( 1 );
+   }
   }
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -718,7 +759,7 @@ int main( int argc , char **argv )
        set_quad_c( nqc );
 
       if( tochange == 1 )
-       qf->modify_term( strt , NQC.front() , NC.front() );
+       qf->modify_term( strt , NC.front() , NQC.front() );
       else
        qf->modify_terms( NQC.begin() , NC.begin() , Range( strt , stp ) );
       }
@@ -743,7 +784,7 @@ int main( int argc , char **argv )
        set_quad_c( nqc );
 
       if( tochange == 1 )
-       qf->modify_term( nms.front() , NQC.front() , NC.front() );
+       qf->modify_term( nms.front() , NC.front() , NQC.front() );
       else
        qf->modify_terms( NQC.begin() , NC.begin() , std::move( nms ) );
       }
@@ -779,8 +820,11 @@ int main( int argc , char **argv )
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- // unregister (and delete) all Solvers attached to the Block
- BoxBlock->unregister_Solvers();
+ // apply() the clear()-ed BlockSolverConfig to cleanup Solver
+ bsc->apply( BoxBlock );
+
+ // then delete the BlockSolverConfig
+ delete bsc;
 
  // delete the Block
  delete BoxBlock;

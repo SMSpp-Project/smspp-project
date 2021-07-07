@@ -32,11 +32,11 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-1 # number of integer parameters
+2 # number of integer parameters
 
 # now all the integer parameters
 intLogVerb      0    # log verbosity of the MILPSolver
-#intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
+intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 #CPXPARAM_LPMethod	1  # LP method (4 = barrier)
 
 # note that we could eof() the file here since the rest is all empty
@@ -87,7 +87,7 @@ ComputeConfig # exact type of the ComputeConfig object
 intDoEasy  1      # do easy components for (some) LagBFunction
 intMaxIter 10000  # max number of iterations for each call
 intMaxThread 0	   # MaxThread, max number of new tasks to spawn
-intLogVerb 4      # log verbosity of main Bundle algorithm
+intLogVerb 0      # log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations

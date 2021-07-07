@@ -30,7 +30,7 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-22 # number of integer parameters
+23 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
@@ -49,6 +49,8 @@ intMnNSC    1     # min number of consecutive NS with the same t for a t decreas
 inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
+
+intFrcLstSS 0     # if all the components need be computed at the optimum
 
 intRstAlg   2     # parameter to handle the reset of the algorithm
 

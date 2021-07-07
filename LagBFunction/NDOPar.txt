@@ -30,7 +30,7 @@ ComputeConfig     # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-23 # number of integer parameters
+24 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
@@ -51,18 +51,24 @@ inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
+intFrcLstSS 1     # if all the components need be computed at the optimum
+
+# MPSolver parameters :- - - - - - - -
+
 intMPName  15      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
-# QPPenalty's parameters : - - - - - -
 intMPlvl   4      # log verbosity of Master Problem
-                  
+
+# QPPenalty's parameters : - - - - - -
+
 intQPmp1   0	  # MxAdd, how many variables can be added to the base at each
       	          # iteration in BMinQuad (0 = at will)
 intQPmp2   0      # MxRmv, how many variables can be removed from the base at each
       	          # iteration in BMinQuad (0 = at will)
 
 # OSiMPSolver's parameters : - - - - - -
+
 intOSImp1  1      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads

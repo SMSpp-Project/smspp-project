@@ -1,0 +1,32 @@
+#/usr/bin/env bash
+
+
+seed=912000
+wchg=63
+n_repeat=50
+
+for N in 100 500 3000  
+do
+
+for delta in 0.001 0.005 0.01 0.05 0.1
+do
+
+for nW in 0 0.2 0.7 1
+do
+
+for nP in 0 0.2 0.7 1
+do
+
+printf "[$seed $wchg $N $n_repeat $delta $nW $nP]: "
+
+./test $seed $wchg $N $n_repeat $delta $nW $nP
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+done
+done
+done

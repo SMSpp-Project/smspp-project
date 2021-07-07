@@ -3,7 +3,8 @@
 # correct value of tStar: 1e+0
 
 folder=./data/UC_Data/T-Ramp/
-#par=BSPar-1LD.txt
+par=BSPar-2S.txt
+#mlf=log.txt
 
 for size in 10 20 50 75 100 200
 do
@@ -11,12 +12,24 @@ for (( seed=1 ; seed<6 ; seed++ ))
 do
 
 if [ -z "$par" ]; then
-printf "[${size}_0_${seed}]: " >> log
+ if [ -z "$mlf" ]; then
+  printf "[${size}_0_${seed}]: "
+ else
+  printf "[${size}_0_${seed}]: " >> $mlf
+ fi
 else
-printf "[${size}_0_${seed} $par]: "
+ if [ -z "$mlf" ]; then
+  printf "[${size}_0_${seed} $par]: "
+ else
+  printf "[${size}_0_${seed} $par]: " >> $mlf
+ fi
 fi
 
-./LDS_UC_test $folder${size}_0_${seed}_w.nc4 $par >> log
+if [ -z "$mlf" ]; then
+ ./LDS_UC_test $folder${size}_0_${seed}_w.nc4 $par
+else
+ ./LDS_UC_test $folder${size}_0_${seed}_w.nc4 $par >> $mlf
+fi
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
