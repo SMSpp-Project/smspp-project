@@ -52,7 +52,7 @@ inttSPar1  12     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intFrcLstSS 0     # if all the components need be computed at the optimum
+intFrcLstSS 1     # if all the components need be computed at the optimum
 
 intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations

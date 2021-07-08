@@ -51,7 +51,7 @@ inttSPar1   0     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intFrcLstSS 1     # if all the components need be computed at the optimum
+intFrcLstSS 0     # if all the components need be computed at the optimum
 
 # MPSolver parameters :- - - - - - - -
 
