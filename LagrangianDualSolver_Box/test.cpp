@@ -99,7 +99,7 @@
 #include "BlockSolverConfig.h"
 
 // if SMSpp_ensure_load() need not be used, BoxSolver.h need not be included
-#include "BoxSolver.h"
+//#include "BoxSolver.h"
 
 #include "FRealObjective.h"
 
@@ -147,7 +147,7 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-SMSpp_ensure_load( BoxSolver );
+//SMSpp_ensure_load( BoxSolver );
 
 const char *const logF = "log.txt";
 

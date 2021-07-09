@@ -115,9 +115,9 @@
 
 // if SMSpp_ensure_load() need not be used, BoxSolver.h need not be included
 // unless DIRECTION_TEST > 0
-//#if DIRECTION_TEST
+#if DIRECTION_TEST
  #include "BoxSolver.h"
-//#endif
+#endif
 
 #include "FRealObjective.h"
 
@@ -163,7 +163,7 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-SMSpp_ensure_load( BoxSolver );
+//SMSpp_ensure_load( BoxSolver );
 
 static constexpr FunctionValue INF = Inf< RHSValue >();
 
