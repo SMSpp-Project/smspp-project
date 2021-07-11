@@ -4,8 +4,8 @@
 #                                                                            #
 #   makefile of test (for PolyhedralFunction)                                #
 #                                                                            #
-#                                VERSION 1.10                                #
-#                               02 - 12 - 2019                               #
+#                                VERSION 1.20                                #
+#                               11 - 07 - 2021                               #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -52,40 +52,30 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# define input macros for SMS++ complete makefile, then include it
+SMS++SDR = ../../SMS++/
+include $(SMS++SDR)lib/makefile-c
+
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
-
-# SubGradSolver
-SBGSLVSDR = ../../SubGradSolver/
-include $(SBGSLVSDR)makefile
-
-# not necessary, BundleSolver does that already
-# define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../../../SMS++/
-#include $(SMS++SDR)lib/makefile-inc
-
-# not necessary, BundleSolver does that already
-# define input macros for libCPLEX complete makefile, then include it
-#libCPLEXDIR = ../../../extlib/
-#include $(libCPLEXDIR)makefile-libCPLEX
+include $(BNDSLVSDR)makefile-s
 
 # not necessary, BundleSolver does that already
 # MILPSolver
 #MILPSSDR = ../../../MILPSolver/
 #include $(MILPSSDR)makefile
 
-# define input macros for libSCIP library makefile, then include it
-#libSCIPDIR = ../../extlib/
-#include $(libSCIPDIR)makefile-libscip
+# SubGradSolver
+SBGSLVSDR = ../../SubGradSolver/
+include $(SBGSLVSDR)makefile
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ) $(SBGSLVOBJ)
+MOBJ =  $(SMS++OBJ) $(BNDSLVOBJ) $(SBGSLVOBJ)
 
 # libreries
-MLIB =  $(BNDSLVLIB)
+MLIB =  $(SMS++LIB) $(BNDSLVLIB)
 
 $(NAME): $(DIR)test.o $(MOBJ)
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
@@ -93,10 +83,10 @@ $(NAME): $(DIR)test.o $(MOBJ)
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC) $(SBGSLVINC)
+MINC =  $(SMS++INC) $(BNDSLVINC) $(SBGSLVINC)
 
 # includes
-MH =    $(BNDSLVH) $(SBGSLVH)
+MH =    $(SMS++H) $(BNDSLVH) $(SBGSLVH)
 
 # compile command
 
