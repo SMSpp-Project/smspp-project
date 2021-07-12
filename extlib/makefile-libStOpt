@@ -1,18 +1,18 @@
 ##############################################################################
-############################# makefile-libSCIP ###############################
+############################# makefile-libStOpt ##############################
 ##############################################################################
 #                                                                            #
-#   makefile of libSCIP                                                      #
+#   makefile of libStOpt                                                     #
 #                                                                            #
 #   Input:  none, this is a pre-built library                                #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libSCIPLIB) = external libreries + -L<libdirs> for libSCIP     #
-#           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
+#           $(libStOptLIB) = external libreries + -L<libdirs> for libStOpt   #
+#           $(libStOptINC) = the -I$(include directories) for libStOpt       #
 #                                                                            #
 #                                 VERSION 1.00                               #
-#                                16 - 06 - 2020                              #
+#                                11 - 07 - 2021                              #
 #                                                                            #
 #                              Antonio Frangioni                             #
 #                           Operations Research Group                        #
@@ -23,12 +23,13 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# basic SCIP directory
-libSCIPBSCDIR = /Users/frangio/Applications/SCIP-7.0.1/
+# basic StOpt directory - not needed if StOpt is installed, say in /usr/local
+#libStOptBSCDIR = 
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libSCIPLIB = -L$(libSCIPBSCDIR)lib/ -lzimpl -lsoplex -lscip -ltbb
-libSCIPINC = -I$(libSCIPBSCDIR)include/
+libStOptLIB = -lStOpt -lgeners -lboost_timer-mt
+libStOptINC = 
+# not needed if StOpt is installed, say in /usr/local
 
 ############################# End of makefile ################################
