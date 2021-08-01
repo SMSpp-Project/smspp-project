@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for LagrangianDualSolver with MMCFBlock)               #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               30 - 01 - 2021                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -76,10 +73,10 @@ include $(MMCFSDR)makefile-s
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(SMS++OBJ) $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ) $(SMS++OBJ)
 
 # libreries
-MLIB =  $(SMS++LIB) $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB)
+MLIB =   $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB) $(SMS++LIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
