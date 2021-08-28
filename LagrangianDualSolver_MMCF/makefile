@@ -76,13 +76,14 @@ include $(MMCFSDR)makefile-s
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(SMS++OBJ) $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ) $(SMS++OBJ)
 
 # libreries
 MLIB =  $(SMS++LIB) $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
+#	$(CC) -o $(DIR)$(NAME) $+ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
