@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for LagrangianDualSolver_Box)                          #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               12 - 01 - 2021                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -52,28 +49,27 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# define input macros for SMS++ complete makefile, then include it
+SMS++SDR = ../../SMS++/
+include $(SMS++SDR)lib/makefile-inc
+
+# BundleSolver
+BNDSLVSDR = ../../BundleSolver/
+include $(BNDSLVSDR)makefile-s
+
 # not necessary, BundleSolver does that already
 # MILPSolver
 #MILPSSDR = ../../MILPSolver/
 #include $(MILPSSDR)makefile-c
 
-# BundleSolver
-BNDSLVSDR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
-
 # LagrangianDualSolver
 LgDSLVSDR = ../../LagrangianDualSolver/
 include $(LgDSLVSDR)makefile
 
-# not necessary, BundleSolver does that already
-# define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../../../SMS++/
-#include $(SMS++SDR)lib/makefile-inc
-
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(SMS++OBJ)
 
 # libreries
 # note the --force_link, that is used to ensure that BoxSolver (which is
@@ -93,7 +89,7 @@ MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ)
 # error, so a bit of experiment may be required. If this is too complicated
 # or does not work, uncomment SMSpp_ensure_load() and be sure that
 # BoxSolver.h is #include-d in test.cpp
-MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) \
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(SMS++LIB) \
 	--force-link=__ZTVN17SMSpp_di_unipi_it9BoxSolverE
 
 $(NAME): $(MOBJ) $(DIR)test.o
@@ -102,10 +98,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC) $(LgDSLVINC)
+MINC =  $(SMS++INC) $(BNDSLVINC) $(LgDSLVINC)
 
 # includes
-MH =    $(BNDSLVH) $(LgDSLVH)
+MH =    $(SMS++H) $(BNDSLVH) $(LgDSLVH)
 
 # compile command
 

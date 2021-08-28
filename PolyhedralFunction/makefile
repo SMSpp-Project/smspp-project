@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for PolyhedralFunction)                                #
 #                                                                            #
-#                                VERSION 1.20                                #
-#                               11 - 07 - 2021                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -29,7 +26,7 @@ DIR = ./
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -ferror-limit=1
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
 
 # compiler
 CC = clang++
@@ -66,16 +63,16 @@ include $(BNDSLVSDR)makefile-s
 #include $(MILPSSDR)makefile
 
 # SubGradSolver
-SBGSLVSDR = ../../SubGradSolver/
-include $(SBGSLVSDR)makefile
+#SBGSLVSDR = ../../SubGradSolver/
+#include $(SBGSLVSDR)makefile
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(SMS++OBJ) $(BNDSLVOBJ) $(SBGSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(SBGSLVOBJ) $(SMS++OBJ)
 
 # libreries
-MLIB =  $(SMS++LIB) $(BNDSLVLIB)
+MLIB =  $(BNDSLVLIB) $(SBGSLVOBJ) $(SMS++LIB)
 
 $(NAME): $(DIR)test.o $(MOBJ)
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)

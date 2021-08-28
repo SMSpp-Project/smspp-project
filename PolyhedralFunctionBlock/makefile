@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for PolthedralFunctionBlock)                           #
 #                                                                            #
-#                                VERSION 1.10                                #
-#                               02 - 12 - 2019                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -66,10 +63,10 @@ include $(BNDSLVSDR)makefile-s
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(SMS++OBJ) $(BNDSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(SMS++OBJ)
 
 # libreries
-MLIB =  $(SMS++LIB) $(BNDSLVLIB)
+MLIB =  $(BNDSLVLIB) $(SMS++LIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
