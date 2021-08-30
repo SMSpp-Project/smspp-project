@@ -181,8 +181,8 @@ int main( int argc , char **argv ){
  N = 100;                               // number of items
  int n_repeat = 100;                    // number of repetitions
  double delta = 0.001;                  // capacity parameter
- double nW = 0.1;						// percentage of negative weights
- double nP = 0.1;						// percentage of positive weights
+ double nW = 0.1;			     // percentage of negative weights
+ double nP = 0.1;			     // percentage of positive weights
 
  switch( argc ) {
   case( 8 ): Str2Sthg( argv[ 7 ] , nP );
@@ -194,7 +194,7 @@ int main( int argc , char **argv ){
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-     " seed [wchg N n_repeat nW nP]"
+     " seed [wchg N n_repeat delta nW nP]"
     << endl <<
            "       wchg: what to change, coded bit-wise [63]"
     << endl <<
@@ -316,7 +316,11 @@ int main( int argc , char **argv ){
 
  // load the Binary Knapsack instance- - - - - - - - - - - - - - - - - - - -
  
- BKB->load( N , C , move( W ) , move( P ), move( I ) ); 
+ if( dis( rg ) < 0.7 )
+  BKB->load( N , C , move( W ) , move( P ), move( I ) );
+ else
+  BKB->load( N , C , move( W ) , move( P ) ); 
+ 
 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // Attach Solvers to the BinaryKnapsackBlock - - - - - - - - - - - - - - - - 
@@ -538,7 +542,7 @@ int main( int argc , char **argv ){
 
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
-   vector< bool > nI( m );                 // generate new integrality vector
+   vector< bool > nI( m );                   // generate new integrality vector
    
    for( int i = 0 ; i < m ; i++ )
       nI[i] = (bool) dist_I( rg ); 
@@ -582,11 +586,3 @@ else
 /*--------------------------------------------------------------------------*/
 /*------------------------ End File test.cpp -------------------------------*/
 /*--------------------------------------------------------------------------*/
-
-
-
-
-
-
-
-

@@ -1,8 +1,8 @@
 #/usr/bin/env bash
 
 
-seed=912000
-wchg=63
+seed=23424
+wchg=127
 n_repeat=50
 
 for N in 100 500 3000  
