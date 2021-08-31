@@ -181,8 +181,8 @@ int main( int argc , char **argv ){
  N = 100;                               // number of items
  int n_repeat = 100;                    // number of repetitions
  double delta = 0.001;                  // capacity parameter
- double nW = 0.1;			     // percentage of negative weights
- double nP = 0.1;			     // percentage of positive weights
+ double nW = 0.1;                       // percentage of negative weights
+ double nP = 0.1;                       // percentage of positive weights
 
  switch( argc ) {
   case( 8 ): Str2Sthg( argv[ 7 ] , nP );
@@ -501,12 +501,40 @@ int main( int argc , char **argv ){
     nX[ i ] = ( dis( rg ) < 0.5 ) ? false : true;
 
    if( dis( rg ) < 0.5 ){                    // ranged modification
+    
     Range rng = generateRange( m );
-    BKB->fix_x( nX , rng ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR 
+     BKB->fix_x( nX , rng ); 
+    else{                                    // AR    
+     
+     auto nXit = nX.begin();
+     
+     for( int j = rng.first ; j < rng.second ; j++ ){
+       // get the variable
+       auto x = BKB->get_Var( j );
+       x->set_value( *nXit++ );
+       x->is_fixed( true );
+     }
+    }  
+     
    }
    else{                                     // or subset modification
+    
     Subset nms = generateSubset( m ); 
-    BKB->fix_x( nX , move( nms ) ); 
+
+    if( dis( rg ) < 0.5 )                   // PR
+     BKB->fix_x( nX , move( nms ) );        
+    else{                                   // AR
+     
+     auto nXit = nX.begin();
+     
+     for( auto j : nms ){
+      auto x = BKB->get_Var( j );
+      x->set_value( *nXit++ );
+      x->is_fixed( true );
+     }
+    } 
    }
 
   }       
@@ -522,12 +550,33 @@ int main( int argc , char **argv ){
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    if( dis( rg ) < 0.5 ){                    // ranged modification
+    
     Range rng = generateRange( m );
-    BKB->unfix_x( rng ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR
+     BKB->unfix_x( rng );
+    else{                                    // AR
+
+     for( int j = rng.first ; j < rng.second ; j++ ){
+       auto x = BKB->get_Var( j );
+       x->is_fixed( false );
+     }
+    } 
    }
    else{                                     // or subset modification
+    
     Subset nms = generateSubset( m ); 
-    BKB->unfix_x( move( nms ) ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR
+     BKB->unfix_x( move( nms ) );
+    else{                                    // AR
+
+     for( auto j : nms ){
+       auto x = BKB->get_Var( j );
+       x->is_fixed( false );
+     }  
+    }
+
    }
 
   }  
