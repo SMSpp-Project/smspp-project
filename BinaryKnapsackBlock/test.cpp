@@ -181,8 +181,8 @@ bool SolveBoth(){
  std::cout << "Value1 " << Value1 << std::endl;
  std::cout << "Value2 " << Value2 << std::endl;
 
- Sol1->print( cout );
- Sol2->print( cout );
+ //Sol1->print( cout );
+ //Sol2->print( cout );
 
  return( false );     
 } 
@@ -516,7 +516,7 @@ int main( int argc , char **argv ){
     if( dis( rg ) < 0.5 )                    // PR 
      BKB->fix_x( nX , rng ); 
     else{                                    // AR    
-     //cout << "fix AR\n";
+     
      auto nXit = nX.begin();
      
      for( int j = rng.first ; j < rng.second ; j++ ){
@@ -615,7 +615,7 @@ int main( int argc , char **argv ){
     
     Range rng = generateRange( m );
     
-    if( dis( rg ) < 1 )                    // PR
+    if( dis( rg ) < 0.5 )                    // PR
      BKB->chg_integrality( nI.begin() , rng );
     else{                                    // AR
      
@@ -635,7 +635,7 @@ int main( int argc , char **argv ){
     
     Subset nms = generateSubset( m ); 
     
-    if( dis( rg ) < 1 )                    // PR
+    if( dis( rg ) < 0.5 )                    // PR
      BKB->chg_integrality( nI.begin() , move( nms ) );
     else{                                    // AR
      
