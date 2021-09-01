@@ -61,10 +61,6 @@ BinaryKnapsackBlock * BKB;          // The Binary Knapsack Block
 Solver * Solver1;                   // Solver1
 
 Solver * Solver2;                   // Solver2
-
-BinaryKnapsackSolution * Sol1;      // Solution object for Solver1
-
-BinaryKnapsackSolution * Sol2;      // Solution object for Solver2
     
 std::mt19937 rg;                    // random generator
 
@@ -140,11 +136,7 @@ bool SolveBoth(){
 
  // get solutions - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- Sol1 = new BinaryKnapsackSolution();
- Sol2 = new BinaryKnapsackSolution();
-
  Solver1->get_var_solution();
- Sol1->read( BKB );
  
  double checksol = 0;
  for( int i = 0 ; i < N ; i++ )
@@ -159,7 +151,6 @@ bool SolveBoth(){
  
  
  Solver2->get_var_solution();
- Sol2->read( BKB );
 
  checksol = 0;
  for( int i = 0 ; i < N ; i++ )
@@ -181,8 +172,6 @@ bool SolveBoth(){
  std::cout << "Value1 " << Value1 << std::endl;
  std::cout << "Value2 " << Value2 << std::endl;
 
- //Sol1->print( cout );
- //Sol2->print( cout );
 
  return( false );     
 } 
