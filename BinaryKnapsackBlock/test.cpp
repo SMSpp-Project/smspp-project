@@ -202,7 +202,7 @@ int main( int argc , char **argv ){
     << endl <<
            "             2 = change profits, 3 = change weights"
     << endl <<
-           "             4 = fix x , 5 = unfix x"
+           "             4 = fix x , 5 = unfix x, 6= change integrality"
     << endl <<
 
            "       N: number of variables [100]"
@@ -268,6 +268,8 @@ int main( int argc , char **argv ){
   cout << " - Fix x\n";
  if( wchg & 32 )
   cout << " - Unfix x\n";
+ if( wchg & 64 )
+  cout << " - Integrality\n";
  cout << endl;  
  #endif
  
@@ -280,12 +282,16 @@ int main( int argc , char **argv ){
 
  // generate weights from a uniform int distribution
  uniform_int_distribution<> dist_W( minW , maxW );
+ 
+ // generate integrality from a uniform int distribution
+ uniform_int_distribution<> dist_I( 0 , 1 );
 
  // generate profits from a uniform real distribution
  uniform_real_distribution<> dist_P( minP , maxP );
 
  vector< double > W( N );             // vector of weights
  vector< double > P( N );             // vector of profits
+ vector< bool > I( N );                 // vector of integrality
  double C;                            // Capacity of the Knapsack
 
  int totWp = 0;                       // total sum of the positive weights
@@ -293,8 +299,8 @@ int main( int argc , char **argv ){
   
  for( int i = 0 ; i < N ; i++ ){
   W[ i ] = dist_W( rg );      
-  P[ i ] = dist_P( rg );   
-
+  P[ i ] = dist_P( rg );
+  I[ i ] = (bool) dist_I( rg );   
  if( W[ i ] > 0 )                     // update totWn and totWp
   totWp += W[ i ];      
  else
@@ -310,7 +316,7 @@ int main( int argc , char **argv ){
 
  // load the Binary Knapsack instance- - - - - - - - - - - - - - - - - - - -
  
- BKB->load( N , C , move( W ) , move( P ) ); 
+ BKB->load( N , C , move( W ) , move( P ), move( I ) ); 
 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // Attach Solvers to the BinaryKnapsackBlock - - - - - - - - - - - - - - - - 
@@ -343,6 +349,8 @@ int main( int argc , char **argv ){
  
  auto cnst = BKB->get_static_constraint< FRowConstraint >( 0 );
 
+ auto vars = BKB->get_static_variables();
+
  // get the linear functions 
  
  auto lfobj = dynamic_cast< LinearFunction * >( obj->get_function() );
@@ -356,6 +364,12 @@ int main( int argc , char **argv ){
   cerr << "Error: cannot get the constraint linear function" << endl;
   exit( 1 ); 
  }
+
+//auto lfvars = dynamic_cast< ColVariable * >( vars() );
+// if( ! lfvars ){
+//  cerr << "Error: cannot get the variables" << endl;
+//  exit( 1 ); 
+// }
 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -513,6 +527,35 @@ int main( int argc , char **argv ){
    }
 
   }  
+    
+  // Change Integrality (range or subset)- - - - - - - - - - - - - - - - - - - -
+   
+  if( wchg & 64 && dis( rg ) < 0.3 ){
+
+  #if( LOG_LEVEL > 0 )
+   cout << "6 ";
+  #endif   
+
+   int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
+
+   vector< bool > nI( m );                 // generate new integrality vector
+   
+   for( int i = 0 ; i < m ; i++ )
+      nI[i] = (bool) dist_I( rg ); 
+
+   if( dis( rg ) < 0.5 ){                    // ranged modification
+    
+    Range rng = generateRange( m );
+     BKB->chg_integrality( nI.begin() , rng );         
+   }
+   else{                                     // or subset modification
+    Subset nms = generateSubset( m ); 
+     BKB->chg_integrality( nI.begin() , move( nms ) );      
+   }
+
+  }                   
+
+    
     
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
