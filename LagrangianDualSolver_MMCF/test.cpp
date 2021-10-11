@@ -28,7 +28,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 3
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -96,7 +96,7 @@
 #include <random>
 
 #include "BlockSolverConfig.h"
-
+#include "CDASolver.h"
 #include "MMCFBlock.h"
 
 /*!!
@@ -137,13 +137,15 @@ using FunctionValue = Function::FunctionValue;
 
 const char *const logF = "log.txt";
 
+
 const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- GLOBALS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-Block * TestBlock;         // the [MMCF]Block that is solved
+MMCFBlock * TestBlock;         // the [MMCF]Block that is solved
+char **globalArgv;                // the main argv for a global use
 
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
@@ -198,6 +200,35 @@ static void PrintResults( bool hs , int rtrn , double fo )
    else
     cout << "      Error!";
  }
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+static void PrintReducedCosts(std::vector<std::vector<double>> z, string name, double time, int solver){ 
+  name = name.substr(name.find_last_of("/")+1,name.length());
+  name = name.substr(0,name.find("."));
+  
+  ofstream solutionsFile;
+  ofstream timeFile;
+  
+  string solutionPath = "./redCosts/"+name+"-redCosts-Sol"+std::to_string(solver)+".dat";
+  string timePath = "./times/"+name+"-time-Sol"+std::to_string(solver)+".dat";
+  
+  solutionsFile.open(solutionPath);
+  timeFile.open(timePath);
+  
+  for(int k=0; k< TestBlock->get_NComm(); k++){
+    for(int i=0; i< TestBlock->get_NNodes(); i++){
+      solutionsFile << z[k][i] << " ";
+    }
+    solutionsFile << "\n";
+  }
+  
+  timeFile << time;
+  timeFile << "\n";
+  
+  timeFile.close();
+  solutionsFile.close();
+} 
 
 /*--------------------------------------------------------------------------*/
 
@@ -207,8 +238,8 @@ static bool SolveBoth( void )
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
    std::clock_t c_start = std::clock();
-  #endif
-  Solver * Slvr1 = TestBlock->get_registered_solvers().front();
+  #endif 
+  CDASolver * Slvr1 = (CDASolver *) TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
    TestBlock->unregister_Solver( Slvr1 );
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
@@ -219,14 +250,37 @@ static bool SolveBoth( void )
 		 && ( rtrn1st != Solver::kInfeasible ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
-
+  
+  Subset Nodes( ((MMCFBlock*) TestBlock)->get_NNodes() );// nodes
+  
+  
+  
+  // extract the reduced costs for the flow constraints and write them in a file
+  
+  // start: reduced costs extraction
+  std::vector< std::vector< double > > z;
+  z.resize(TestBlock->get_NComm() , vector<double>( TestBlock->get_NNodes() ));
+  ((CDASolver *) Slvr1)->  get_dual_solution();
+  auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
+  
+  for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
+      for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
+          z[k][i] = flowC[0][k][i].get_dual();
+      }
+  // end: reduced costs extraction
+  
+  std::string name(globalArgv[1]);
+  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),1);
+  
+  
   #if( LOG_LEVEL >= 1 )
    cout.setf( ios::scientific, ios::floatfield );
    cout << setprecision( 2 );
    cout << double( std::clock() - c_start ) / double( CLOCKS_PER_SEC )
         << " - " << flush;
   #endif
-
+  
+  
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
     PrintResults( hs1st , rtrn1st , fo1st );
@@ -241,7 +295,7 @@ static bool SolveBoth( void )
    c_start = std::clock();
   #endif
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
-  #if DETACH_2ND
+   #if DETACH_2ND
    TestBlock->unregister_Solver( Slvr2 );
    TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
@@ -255,6 +309,19 @@ static bool SolveBoth( void )
   #if( LOG_LEVEL >= 1 )
    cout << double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
   #endif
+
+  
+  // start: reduced costs extraction
+  ((CDASolver *) Slvr2)->  get_dual_solution();
+  flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
+  
+  for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
+      for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
+          z[k][i] = flowC[0][k][i].get_dual();
+      }
+  // end: reduced costs extraction
+  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),2);
+  
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
@@ -274,7 +341,7 @@ static bool SolveBoth( void )
    LOG1( " - OK(u)" << endl );
    return( true );
    }
-
+    
   #if( LOG_LEVEL >= 1 )
    cout << " - " << setprecision( 7 );
    PrintResults( hs1st , rtrn1st , fo1st );
@@ -301,7 +368,8 @@ int main( int argc , char **argv )
 {
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+ 
+ globalArgv = argv;
  assert( SKIP_BEAT >= 0 );
 
  /*!!
@@ -356,6 +424,7 @@ int main( int argc , char **argv )
  TestBlock = MMCFb;
  TestBlock->generate_abstract_variables();
 
+
  // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // do this by reading an appropriate BlockSolverConfig from file and
@@ -364,21 +433,27 @@ int main( int argc , char **argv )
 
  BlockSolverConfig * bsc;
  {
+ 
   auto c = Configuration::deserialize( "BSPar.txt" );
+  
   bsc = dynamic_cast< BlockSolverConfig * >( c );
+  
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
    delete c;
    exit( 1 );
    }
-
+   
   bsc->apply( TestBlock );
+  
   bsc->clear();
 
   if( TestBlock->get_registered_solvers().empty() ) {
    cout << endl << "no Solver registered to the Block!" << endl;
    exit( 1 );
    }
+   
+ 
   }
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
