@@ -239,7 +239,11 @@ static bool SolveBoth( void )
   #if( LOG_LEVEL >= 1 )
    std::clock_t c_start = std::clock();
   #endif 
-  CDASolver * Slvr1 = (CDASolver *) TestBlock->get_registered_solvers().front();
+  auto Slvr1 = dynamic_cast<CDASolver *>( TestBlock->get_registered_solvers().front() );
+  if(!Slvr1){
+     cout << "Error! First solver registred to TestBlock not a CDASolver";
+     exit(1);
+  }
   #if DETACH_1ST
    TestBlock->unregister_Solver( Slvr1 );
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
@@ -259,13 +263,16 @@ static bool SolveBoth( void )
   
   // start: reduced costs extraction
   std::vector< std::vector< double > > z;
-  z.resize(TestBlock->get_NComm() , vector<double>( TestBlock->get_NNodes() ));
-  ((CDASolver *) Slvr1)->  get_dual_solution();
+  z.resize(TestBlock->get_NComm());
+  for( auto & zi: z)
+     zi.resize(TestBlock->get_NNodes());
+     
+  Slvr1->  get_dual_solution();
   auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
   
   for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
       for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
-          z[k][i] = flowC[0][k][i].get_dual();
+          z[k][i] = (*flowC)[k][i].get_dual();
       }
   // end: reduced costs extraction
   
