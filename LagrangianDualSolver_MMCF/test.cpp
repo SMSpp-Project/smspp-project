@@ -203,15 +203,15 @@ static void PrintResults( bool hs , int rtrn , double fo )
  
  /*-------------------------------------------------------------------------*/
  
-static void PrintReducedCosts(std::vector<std::vector<double>> z, string name, double time, int solver){ 
+static void PrintReducedCosts(std::vector<std::vector<double>> z, string name, double time,  double objFunc, int solver){ 
   name = name.substr(name.find_last_of("/")+1,name.length());
   name = name.substr(0,name.find("."));
   
   ofstream solutionsFile;
   ofstream timeFile;
-  
+
   string solutionPath = "./redCosts/"+name+"-redCosts-Sol"+std::to_string(solver)+".dat";
-  string timePath = "./times/"+name+"-time-Sol"+std::to_string(solver)+".dat";
+  string timePath = "./times/"+name+"-time-Sol-Int"+std::to_string(solver)+".dat";
   
   solutionsFile.open(solutionPath);
   timeFile.open(timePath);
@@ -225,6 +225,7 @@ static void PrintReducedCosts(std::vector<std::vector<double>> z, string name, d
   
   timeFile << time;
   timeFile << "\n";
+  timeFile << objFunc <<"\n";
   
   timeFile.close();
   solutionsFile.close();
@@ -254,11 +255,7 @@ static bool SolveBoth( void )
 		 && ( rtrn1st != Solver::kInfeasible ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
-  
-  Subset Nodes( ((MMCFBlock*) TestBlock)->get_NNodes() );// nodes
-  
-  
-  
+   
   // extract the reduced costs for the flow constraints and write them in a file
   
   // start: reduced costs extraction
@@ -267,7 +264,7 @@ static bool SolveBoth( void )
   for( auto & zi: z)
      zi.resize(TestBlock->get_NNodes());
      
-  Slvr1->  get_dual_solution();
+  Slvr1->get_dual_solution();
   auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
   
   for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
@@ -275,10 +272,45 @@ static bool SolveBoth( void )
           z[k][i] = (*flowC)[k][i].get_dual();
       }
   // end: reduced costs extraction
-  
   std::string name(globalArgv[1]);
-  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),1);
   
+  
+  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo1st,1);
+  
+  // primal solution extraction
+  Slvr1->get_var_solution();
+  TestBlock->rescale_flow();   
+//  std::vector< std::vector< double > > x;
+//  x.resize(TestBlock->get_NComm());
+//  for( auto & xi: x)
+//     xi.resize(TestBlock->get_NArcs());
+
+  
+  ofstream primalFile;
+  ofstream primalFile1;
+  
+  
+  std::string iname = name.substr(name.find_last_of("/")+1,name.length());
+  iname = iname.substr(0,iname.find("."));
+  string primalPath = "./primals/"+iname+"-Prim1"+".dat";
+  cout << primalPath<< endl;
+  primalFile1.open(primalPath);
+/*  {
+  int ij=0;
+  for(auto & bi:  TestBlock->get_nested_Blocks()){
+     for(Index k=0; k< TestBlock->get_NComm();k++)
+       x[k][ij] = ((BinaryKnapsackBlock *) bi)->get_x(k);
+     ij++;
+  }
+  }*/
+  for(Index k=0; k<= TestBlock->get_NComm();k++){
+     for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
+          primalFile1 << TestBlock->get_flow(k,ij) << " ";
+        }
+     primalFile1 << "\n";   
+  }
+  primalFile1.close();
+  //end primal extraction
   
   #if( LOG_LEVEL >= 1 )
    cout.setf( ios::scientific, ios::floatfield );
@@ -324,11 +356,29 @@ static bool SolveBoth( void )
   
   for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
       for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
-          z[k][i] = flowC[0][k][i].get_dual();
+          z[k][i] = (*flowC)[k][i].get_dual();
       }
   // end: reduced costs extraction
-  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),2);
+  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo2nd,2);
   
+  
+  // primal solution extraction
+  Slvr2->get_var_solution();
+  TestBlock->rescale_flow();   
+  primalPath = "./primals/"+iname+"-Prim2"+".dat";
+  
+  primalFile.open(primalPath);  
+  for(Index k=0; k<= TestBlock->get_NComm();k++){
+     for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
+
+          primalFile << TestBlock->get_flow(k,ij) << " ";
+        }
+     primalFile << "\n";   
+  }
+  primalFile.close();
+  //end primal extraction
+  
+       
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
