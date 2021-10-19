@@ -98,7 +98,7 @@
 #include "BlockSolverConfig.h"
 #include "CDASolver.h"
 #include "MMCFBlock.h"
-
+#include "MILPSolver.h"
 /*!!
 #include "FRealObjective.h"
 
@@ -249,6 +249,13 @@ static bool SolveBoth( void )
    TestBlock->unregister_Solver( Slvr1 );
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
+  
+  #if( LOG_LEVEL >= 3 )
+   (Slvr1->set_par( MILPSolver::strOutputFile , "LPBlock-CPXMILP.lp" );
+  #endif
+
+  
+  
   int rtrn1st = Slvr1->compute( false );
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
 		 && ( rtrn1st != Solver::kUnbounded )
@@ -338,6 +345,9 @@ static bool SolveBoth( void )
    TestBlock->unregister_Solver( Slvr2 );
    TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
+  
+  
+  
   int rtrn2nd = Slvr2->compute( false );
 
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
