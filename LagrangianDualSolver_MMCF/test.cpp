@@ -146,6 +146,7 @@ const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 
 MMCFBlock * TestBlock;         // the [MMCF]Block that is solved
 char **globalArgv;                // the main argv for a global use
+int wprnt = 0;
 
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
@@ -203,33 +204,28 @@ static void PrintResults( bool hs , int rtrn , double fo )
  
  /*-------------------------------------------------------------------------*/
  
-static void PrintReducedCosts(std::vector<std::vector<double>> z, string name, double time,  double objFunc, int solver){ 
-  name = name.substr(name.find_last_of("/")+1,name.length());
-  name = name.substr(0,name.find("."));
-  
-  ofstream solutionsFile;
-  ofstream timeFile;
-
-  string solutionPath = "./redCosts/"+name+"-redCosts-Sol"+std::to_string(solver)+".dat";
-  string timePath = "./times/"+name+"-time-Sol-Int"+std::to_string(solver)+".dat";
-  
-  solutionsFile.open(solutionPath);
-  timeFile.open(timePath);
-  
-  for(int k=0; k< TestBlock->get_NComm(); k++){
-    for(int i=0; i< TestBlock->get_NNodes(); i++){
-      solutionsFile << z[k][i] << " ";
+static void PrintReducedCosts(std::vector<std::vector<double>> z, string name){ 
+    ofstream solutionsFile;
+    solutionsFile.open("./redCosts/"+name+"Sol-redCosts.dat");
+    for(int k=0; k< TestBlock->get_NComm(); k++){
+      for(int i=0; i< TestBlock->get_NNodes(); i++){
+        solutionsFile << z[k][i] << " ";
+      }
+      solutionsFile << "\n";
     }
-    solutionsFile << "\n";
-  }
-  
+    solutionsFile.close();
+}
+
+static void PrintTimes( string name, double time,  double objFunc){ 
+  ofstream timeFile;
+  string timePath = "./times/"+name+"Sol-time.dat";
+  timeFile.open(timePath);
   timeFile << time;
   timeFile << "\n";
   timeFile << objFunc <<"\n";
-  
   timeFile.close();
-  solutionsFile.close();
-} 
+  
+}
 
 /*--------------------------------------------------------------------------*/
 
@@ -251,7 +247,7 @@ static bool SolveBoth( void )
   #endif
   
   #if( LOG_LEVEL >= 3 )
-   (Slvr1->set_par( MILPSolver::strOutputFile , "LPBlock-CPXMILP.lp" );
+    Slvr1->set_par( MILPSolver::strOutputFile , "LPBlock-CPXMILP.lp" );
   #endif
 
   
@@ -265,60 +261,45 @@ static bool SolveBoth( void )
    
   // extract the reduced costs for the flow constraints and write them in a file
   
-  // start: reduced costs extraction
-  std::vector< std::vector< double > > z;
-  z.resize(TestBlock->get_NComm());
-  for( auto & zi: z)
-     zi.resize(TestBlock->get_NNodes());
-     
-  Slvr1->get_dual_solution();
-  auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
-  
-  for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
-      for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
-          z[k][i] = (*flowC)[k][i].get_dual();
-      }
-  // end: reduced costs extraction
   std::string name(globalArgv[1]);
+  name = name.substr(name.find_last_of("/")+1,name.length());
+  name = name.substr(0,name.find("."));
+  // start: reduced costs extraction
+  if( wprnt & 1 ){
+     std::vector< std::vector< double > > z;
+     z.resize(TestBlock->get_NComm());
+     for( auto & zi: z)
+        zi.resize(TestBlock->get_NNodes());
+     
+     Slvr1->get_dual_solution();
+     auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
   
-  
-  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo1st,1);
-  
-  // primal solution extraction
-  Slvr1->get_var_solution();
-  TestBlock->rescale_flow();   
-//  std::vector< std::vector< double > > x;
-//  x.resize(TestBlock->get_NComm());
-//  for( auto & xi: x)
-//     xi.resize(TestBlock->get_NArcs());
-
-  
-  ofstream primalFile;
-  ofstream primalFile1;
-  
-  
-  std::string iname = name.substr(name.find_last_of("/")+1,name.length());
-  iname = iname.substr(0,iname.find("."));
-  string primalPath = "./primals/"+iname+"-Prim1"+".dat";
-  cout << primalPath<< endl;
-  primalFile1.open(primalPath);
-/*  {
-  int ij=0;
-  for(auto & bi:  TestBlock->get_nested_Blocks()){
-     for(Index k=0; k< TestBlock->get_NComm();k++)
-       x[k][ij] = ((BinaryKnapsackBlock *) bi)->get_x(k);
-     ij++;
-  }
-  }*/
-  for(Index k=0; k<= TestBlock->get_NComm();k++){
-     for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
-          primalFile1 << TestBlock->get_flow(k,ij) << " ";
+     for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
+        for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
+           z[k][i] = (*flowC)[k][i].get_dual();
         }
-     primalFile1 << "\n";   
-  }
-  primalFile1.close();
-  //end primal extraction
+  // end: reduced costs extraction
   
+  PrintReducedCosts(z, name+'1');
+  }
+  if(wprnt & 4 ){
+    PrintTimes( name+'1',  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo1st);
+  }
+  
+  // primal solution extraction 
+  if(wprnt & 2){
+     ofstream primalFile;
+     Slvr1->get_var_solution();
+     primalFile.open("./primals/"+name+"-Prim1"+".dat");
+     for(Index k=0; k<= TestBlock->get_NComm();k++){
+        for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
+             primalFile << TestBlock->get_flow(k,ij) << " ";
+           }
+        primalFile << "\n";   
+     }
+     primalFile.close();
+  }
+  //end primal extraction
   #if( LOG_LEVEL >= 1 )
    cout.setf( ios::scientific, ios::floatfield );
    cout << setprecision( 2 );
@@ -346,8 +327,6 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
   
-  
-  
   int rtrn2nd = Slvr2->compute( false );
 
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
@@ -359,33 +338,52 @@ static bool SolveBoth( void )
    cout << double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
   #endif
 
-  
   // start: reduced costs extraction
-  ((CDASolver *) Slvr2)->  get_dual_solution();
-  flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
-  
-  for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
-      for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
-          z[k][i] = (*flowC)[k][i].get_dual();
-      }
-  // end: reduced costs extraction
-  PrintReducedCosts(z, name,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo2nd,2);
-  
-  
+  if( wprnt & 1){
+     std::vector< std::vector< double > > z;
+     z.resize(TestBlock->get_NComm());
+     ((CDASolver *) Slvr2)->get_dual_solution();
+     auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );       
+     for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
+         z[k].resize(TestBlock->get_NNodes());
+         for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
+           z[k][i] = (*flowC)[k][i].get_dual();
+        }
+    // end: reduced costs extraction
+    PrintReducedCosts(z, name+'2'); 
+    }
+    
+  if(wprnt & 4){
+    PrintTimes( name+'2',  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ), fo2nd);
+  }
   // primal solution extraction
-  Slvr2->get_var_solution();
-  TestBlock->rescale_flow();   
-  primalPath = "./primals/"+iname+"-Prim2"+".dat";
-  
-  primalFile.open(primalPath);  
-  for(Index k=0; k<= TestBlock->get_NComm();k++){
-     for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
-
+  if( wprnt & 2 ){
+    ofstream primalFile;
+    Slvr2->get_var_solution();
+    
+          
+    primalFile.open("./primals/"+name+"-Prim2"+".dat");  
+    for(Index k=0; k<= TestBlock->get_NComm();k++){
+      for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
           primalFile << TestBlock->get_flow(k,ij) << " ";
         }
-     primalFile << "\n";   
+        primalFile << "\n";   
+    }
+    primalFile.close();
   }
-  primalFile.close();
+  // Equivalent primal extraction
+// std::vector< std::vector< double > > fx;
+//        fx.resize(TestBlock->get_NComm()+1);
+//        for(auto & xi: fx)
+//           xi.resize(TestBlock->get_NArcs());
+//     for(Index k=0; k<= TestBlock->get_NComm();k++){       
+//        TestBlock->get_flow(fx[k], k);ù
+//        for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
+//           primalFile << fx[k][ij] << " ";
+//        }   
+//        primalFile << "\n";   
+//     }     
+
   //end primal extraction
   
        
@@ -448,7 +446,7 @@ int main( int argc , char **argv )
  Index n_repeat = 40;
  !!*/
  char filetype = 's';  // type of the input file;
-
+ 
  switch( argc ) {
   /*!!
   case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
@@ -458,10 +456,19 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
 	     !!*/
+  case( 4 ): filetype = argv[ 2 ][ 0 ];
+             wprnt = argv[ 3 ][ 0 ];  
   case( 3 ): filetype = argv[ 2 ][ 0 ];
   case( 2 ): break;
-  default:  cerr << "Usage: " << argv[ 0 ] << " file_name [typ]" << endl
-		 << "        typ = s*, c, p, o, d, u, m (lower or uppercase)"
+  default:  cerr << "Usage: " << argv[ 0 ] << " file_name [typ] wprnt"                
+                 << endl
+                 << "        typ = s*, c, p, o, d, u, m (lower or uppercase)"    
+                 << endl 
+                 << "        wprnt: what print into a file, coded bit-wise [0]"
+                 << endl 
+		 << "         0 = nothing, 1 = duals,"
+		 << endl
+		 << "         2 = primal,  4 = time & objective value"
 		 << endl;
     /*!!
 	   "       seed: random seed generator [0]"
