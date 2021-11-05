@@ -62,10 +62,11 @@ ComputeConfig # exact type of the ComputeConfig object
 
 0  # number of integer parameters
 
-1  # number of double parameters
+2  # number of double parameters
 
 # now all the double parameters
-dblRAccSol		1e-08	
+dblRAccSol		1e-08
+CPXPARAM_MIP_Tolerances_Integrality	1e-07	
 
 0  # number of string parameters
 
