@@ -1,6 +1,6 @@
 # ----- Tests --------------------------------------------------------------- #
-if (TARGET MCFBlock AND
-    TARGET MILPSolver)
+if (TARGET SMS++::MCFBlock AND
+    TARGET SMS++::MILPSolver)
 
     # MCFBlock_SOLVER should be read from MCFBlock configuration
     if (MCFBlock_SOLVER STREQUAL "relax")

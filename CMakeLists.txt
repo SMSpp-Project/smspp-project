@@ -17,7 +17,8 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
+cmake_policy(VERSION 3.12)
 project(SMS++_tests
         VERSION 0.4.0
         DESCRIPTION "SMS++ tests"
@@ -53,7 +54,7 @@ endif ()
 # See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
 if (POLICY CMP0110)
     cmake_policy(SET CMP0110 NEW)
-endif()
+endif ()
 
 # ----- Requirements -------------------------------------------------------- #
 # If it's not being called by the umbrella, we need to
@@ -66,7 +67,8 @@ if (NOT hasParent)
     find_package(BundleSolver)
     find_package(LagrangianDualSolver)
     find_package(MILPSolver)
-endif()
+    find_package(SubGradSolver)
+endif ()
 
 # ----- GoogleTest framework ------------------------------------------------ #
 # Some system tests are built using the GoogleTest framework,
@@ -109,10 +111,5 @@ add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
 add_subdirectory(ThermalUnitBlock_Solver)
 add_subdirectory(UC_MILP)
-
-# --------------------------------------------------------------------------- #
-# Just consuming these to avoid warnings
-if (CMAKE_EXPORT_PACKAGE_REGISTRY)
-endif ()
 
 # --------------------------------------------------------------------------- #

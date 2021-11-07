@@ -1,6 +1,6 @@
 # ----- Test ---------------------------------------------------------------- #
-if (TARGET UCBlock AND
-    TARGET MILPSolver)
+if (TARGET SMS++::UCBlock AND
+    TARGET SMS++::MILPSolver)
 
     add_executable(UC_MILP_test test.cpp)
     target_link_libraries(UC_MILP_test PRIVATE
