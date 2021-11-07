@@ -50,6 +50,7 @@ add_subdirectory(SDDPBlock)       # Requires StochasticBlock, StOpt
 add_subdirectory(MILPSolver)      # Requires CPLEX and/or SCIP
 add_subdirectory(BundleSolver)    # Requires MILPSolver
 add_subdirectory(LagrangianDualSolver)
+#add_subdirectory(SubGradSolver)
 
 # ----- Tools --------------------------------------------------------------- #
 add_subdirectory(tools)

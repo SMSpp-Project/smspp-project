@@ -52,35 +52,14 @@ add_compile_options(
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # ----- Custom locations for dependencies ----------------------------------- #
-# Boost main directory
-#set(BOOST_ROOT "/usr/local/include/")
 
-# Eigen3 include directory
-#set(EIGEN3_INC "/usr/local/include/eigen3")
-
-# NetCDF headers and library directories
-#set(NETCDF_INC "/usr/local/include")
-#set(NETCDF_LIB "/usr/local/lib")
-
-# NetCDF headers and library directories
-#set(NETCDFCXX_INC "/usr/local/include")
-#set(NETCDFCXX_LIB "/usr/local/lib")
-
-# CPLEX Studio main directory
-#set(CPLEX_STUDIO_DIR "/Applications/CPLEX_Studio128")
-
-# Coin-OR CoinUtils headers and library directories
-#set(COIN_INC "/usr/local/include")
-#set(COIN_LIB "/usr/local/lib")
-
-# Coin-OR Osi headers and library directories
-#set(OSI_INC "/usr/local/include")
-#set(OSI_LIB "/usr/local/lib")
-
-# Coin-OR Clp headers and library directories
-#set(CLP_INC "/usr/local/include")
-#set(CLP_LIB "/usr/local/lib")
-
-# StOpt headers and library directories
-#set(STOPT_INC "/usr/local/include")
-#set(STOPT_LIB "/usr/local/lib")
+#set(BOOST_ROOT "/usr/local/")
+#set(Eigen3_ROOT "/usr/local/include/eigen3")
+#set(netCDF_ROOT "/usr/local/")
+#set(netCDFCxx_ROOT "/usr/local/")
+#set(CPLEX_STUDIO_DIR "/opt/ibm/ILOG/CPLEX_Studio1210")
+#set(SCIP_ROOT "/usr/local/")
+#set(CoinUtils_ROOT "/usr/local/")
+#set(Osi_ROOT "/usr/local/")
+#set(Clp_ROOT "/usr/local/")
+#set(StOpt_ROOT "/usr/local/")
