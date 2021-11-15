@@ -265,38 +265,47 @@ static bool SolveBoth( void )
   name = name.substr(name.find_last_of("/")+1,name.length());
   name = name.substr(0,name.find("."));
   // start: reduced costs extraction
-  if( wprnt & 1 ){
+  
+     std::string i1,i2;
+     i1="_1";
+     i2="_2";
+  if(( wprnt & 1 )&&(!TestBlock->useFlowRelaxation())){
+  
      std::vector< std::vector< double > > z;
      z.resize(TestBlock->get_NComm());
      for( auto & zi: z)
         zi.resize(TestBlock->get_NNodes());
      
-     Slvr1->get_dual_solution();
+/*     Slvr1->get_dual_solution();
      auto flowC = TestBlock->get_static_constraint< FRowConstraint,2 >( "Flow" );
-  
      for (int i = 0; i < TestBlock->get_NNodes() ; i++ )
         for( int k = 0 ; k < TestBlock->get_NComm() ; k++ ){
            z[k][i] = (*flowC)[k][i].get_dual();
         }
   // end: reduced costs extraction
   
-  PrintReducedCosts(z, name+'1');
+  
+   PrintReducedCosts(z, name+i1);
+  */
   }
   if(wprnt & 4 ){
-    PrintTimes( name+'1',  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo1st);
+    PrintTimes( name+i1,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ),fo1st);
   }
   
   // primal solution extraction 
   if(wprnt & 2){
      ofstream primalFile;
      Slvr1->get_var_solution();
-     primalFile.open("./primals/"+name+"-Prim1"+".dat");
-     for(Index k=0; k<= TestBlock->get_NComm();k++){
+     primalFile.open("./primals/"+name+"-Prim"+i1+".dat");
+     for(Index k=0; k< TestBlock->get_NComm();k++){
         for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
              primalFile << TestBlock->get_flow(k,ij) << " ";
            }
         primalFile << "\n";   
      }
+     if(!TestBlock->useFlowRelaxation())
+        for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ )
+             primalFile << TestBlock->get_flow(TestBlock->get_NComm(),ij) << " ";
      primalFile.close();
   }
   //end primal extraction
@@ -339,7 +348,7 @@ static bool SolveBoth( void )
   #endif
 
   // start: reduced costs extraction
-  if( wprnt & 1){
+  if( (wprnt & 1)&&(!TestBlock->useFlowRelaxation())){
      std::vector< std::vector< double > > z;
      z.resize(TestBlock->get_NComm());
      ((CDASolver *) Slvr2)->get_dual_solution();
@@ -350,11 +359,11 @@ static bool SolveBoth( void )
            z[k][i] = (*flowC)[k][i].get_dual();
         }
     // end: reduced costs extraction
-    PrintReducedCosts(z, name+'2'); 
+    PrintReducedCosts(z, name+i2); 
     }
     
   if(wprnt & 4){
-    PrintTimes( name+'2',  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ), fo2nd);
+    PrintTimes( name+i2,  double( std::clock() - c_start ) / double( CLOCKS_PER_SEC ), fo2nd);
   }
   // primal solution extraction
   if( wprnt & 2 ){
@@ -362,13 +371,16 @@ static bool SolveBoth( void )
     Slvr2->get_var_solution();
     
           
-    primalFile.open("./primals/"+name+"-Prim2"+".dat");  
-    for(Index k=0; k<= TestBlock->get_NComm();k++){
+    primalFile.open("./primals/"+name+"-Prim"+i2+".dat");  
+    for(Index k=0; k< TestBlock->get_NComm();k++){
       for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ ){
           primalFile << TestBlock->get_flow(k,ij) << " ";
-        }
+        }  
         primalFile << "\n";   
     }
+    if(!TestBlock->useFlowRelaxation())
+        for( Index ij=0; ij < TestBlock->get_NArcs(); ij++ )
+             primalFile << TestBlock->get_flow(TestBlock->get_NComm(),ij) << " ";
     primalFile.close();
   }
   // Equivalent primal extraction
@@ -391,6 +403,10 @@ static bool SolveBoth( void )
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
+   PrintResults( hs1st , rtrn1st , fo1st );
+   cout << " - ";
+   PrintResults( hs2nd , rtrn2nd , fo2nd );
+   cout << endl;
    LOG1( " - OK(f)" << endl );
    return( true );
    }
@@ -492,10 +508,17 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  auto MMCFb = new MMCFBlock;
+ 
  MMCFb->load( argv[ 1 ] , filetype );
  MMCFb->PreProcess();
 
  TestBlock = MMCFb;
+ 
+ auto hyperConf = Configuration::deserialize("BPar.txt");
+ BlockConfig * bc = dynamic_cast< BlockConfig * >( hyperConf );
+ bc->apply( TestBlock );
+ 
+ 
  TestBlock->generate_abstract_variables();
 
 
@@ -518,17 +541,18 @@ int main( int argc , char **argv )
    exit( 1 );
    }
    
-  bsc->apply( TestBlock );
+   cout<< "YEAH"<<endl;
+   bsc->apply( TestBlock );
   
+   cout<< "YEAH"<<endl;
   bsc->clear();
-
+  
   if( TestBlock->get_registered_solvers().empty() ) {
    cout << endl << "no Solver registered to the Block!" << endl;
    exit( 1 );
    }
-   
- 
   }
+   
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -553,6 +577,8 @@ int main( int argc , char **argv )
 
  LOG1( argv[ 1 ] );
  LOG1( ": " );
+
+   cout<< "YEAH"<<endl; 
 
  bool AllPassed = SolveBoth();
  
