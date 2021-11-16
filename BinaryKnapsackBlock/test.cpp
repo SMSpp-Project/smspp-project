@@ -142,7 +142,9 @@ bool SolveBoth(){
  for( int i = 0 ; i < N ; i++ )
   checksol += BKB->get_x( i ) * BKB->get_Profit( i );
  
- if( abs( checksol - Value1 ) > 1e-06 ){
+ 
+ if( abs( checksol - Value1 ) > 1e-06 ){      
+  cout << "\nchecksol " << checksol << " Value1 " << Value1 << endl;     
   cerr << "Error computing solution Solver1\n";  
   return( false );
  }
@@ -153,8 +155,8 @@ bool SolveBoth(){
  checksol = 0;
  for( int i = 0 ; i < N ; i++ )
   checksol += BKB->get_x( i ) * BKB->get_Profit( i );
-
  
+
  if( abs( checksol - Value2 ) > 1e-06 ){
   cerr << "Error computing solution Solver2\n\n";  
   return( false );
@@ -167,6 +169,10 @@ bool SolveBoth(){
  if( abs( gap ) < 2e-06 )
   return( true );
  
+ std::cout << "Value1 " << Value1 << std::endl;
+ std::cout << "Value2 " << Value2 << std::endl;
+
+
  return( false );     
 } 
 
@@ -177,12 +183,12 @@ int main( int argc , char **argv ){
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  long int seed = 123123;                // seed
- Index wchg = 63;                       // what to change, coded bit-wise
+ Index wchg = 127;                      // what to change, coded bit-wise
  N = 100;                               // number of items
  int n_repeat = 100;                    // number of repetitions
- double delta = 0.001;                  // capacity parameter
- double nW = 0.1;						// percentage of negative weights
- double nP = 0.1;						// percentage of positive weights
+ double delta = 0.01;                   // capacity parameter
+ double nW = 0.1;                       // percentage of negative weights
+ double nP = 0.1;                       // percentage of positive weights
 
  switch( argc ) {
   case( 8 ): Str2Sthg( argv[ 7 ] , nP );
@@ -194,22 +200,22 @@ int main( int argc , char **argv ){
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-     " seed [wchg N n_repeat nW nP]"
+     " seed [wchg N n_repeat delta nW nP]"
     << endl <<
-           "       wchg: what to change, coded bit-wise [63]"
+           "       wchg: what to change, coded bit-wise [127]"
     << endl <<
-           "             0 = change sense, 1 = change capacity "
+           "             1 = change sense, 2 = change capacity "
     << endl <<
-           "             2 = change profits, 3 = change weights"
+           "             3 = change profits, 4 = change weights"
     << endl <<
-           "             4 = fix x , 5 = unfix x"
+           "             5 = fix x , 6 = unfix x, 7 = change integrality"
     << endl <<
 
            "       N: number of variables [100]"
           << endl <<
            "       n_repeat: number of repetitions [100]"
           << endl <<
-           "       delta: Capacity parameter [0.001]"
+           "       delta: Capacity parameter [0.01]"
           << endl <<
            "       nW: percentage of negative weights [0.1]"
           << endl <<
@@ -268,6 +274,8 @@ int main( int argc , char **argv ){
   cout << " - Fix x\n";
  if( wchg & 32 )
   cout << " - Unfix x\n";
+ if( wchg & 64 )
+  cout << " - Integrality\n";
  cout << endl;  
  #endif
  
@@ -280,12 +288,16 @@ int main( int argc , char **argv ){
 
  // generate weights from a uniform int distribution
  uniform_int_distribution<> dist_W( minW , maxW );
+ 
+ // generate integrality from a uniform int distribution
+ uniform_int_distribution<> dist_I( 0 , 1 );
 
  // generate profits from a uniform real distribution
  uniform_real_distribution<> dist_P( minP , maxP );
 
  vector< double > W( N );             // vector of weights
  vector< double > P( N );             // vector of profits
+ vector< bool > I( N );                 // vector of integrality
  double C;                            // Capacity of the Knapsack
 
  int totWp = 0;                       // total sum of the positive weights
@@ -293,8 +305,8 @@ int main( int argc , char **argv ){
   
  for( int i = 0 ; i < N ; i++ ){
   W[ i ] = dist_W( rg );      
-  P[ i ] = dist_P( rg );   
-
+  P[ i ] = dist_P( rg );
+  I[ i ] = (bool) dist_I( rg );   
  if( W[ i ] > 0 )                     // update totWn and totWp
   totWp += W[ i ];      
  else
@@ -310,7 +322,11 @@ int main( int argc , char **argv ){
 
  // load the Binary Knapsack instance- - - - - - - - - - - - - - - - - - - -
  
- BKB->load( N , C , move( W ) , move( P ) ); 
+ if( dis( rg ) < 0.8 )
+  BKB->load( N , C , move( W ) , move( P ), move( I ) );
+ else
+  BKB->load( N , C , move( W ) , move( P ) ); 
+ 
 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // Attach Solvers to the BinaryKnapsackBlock - - - - - - - - - - - - - - - - 
@@ -371,7 +387,7 @@ int main( int argc , char **argv ){
   if( wchg & 1 &&  dis( rg ) < 0.3 ){                  
   
   #if( LOG_LEVEL > 0 )
-   cout << "0 ";
+   cout << "1 ";
   #endif  
 
    if( dis( rg ) < 0.5 )
@@ -385,7 +401,7 @@ int main( int argc , char **argv ){
   if( wchg & 2 && dis( rg ) < 0.3 ){
 
   #if( LOG_LEVEL > 0 )
-   cout << "1 ";
+   cout << "2 ";
   #endif   
    
    C = dist_C( rg );
@@ -402,7 +418,7 @@ int main( int argc , char **argv ){
   if( wchg & 4 && dis( rg ) < 0.3 ){
 
   #if( LOG_LEVEL > 0 )
-   cout << "2 ";
+   cout << "3 ";
   #endif   
 
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
@@ -436,7 +452,7 @@ int main( int argc , char **argv ){
   if( wchg & 8 && dis( rg ) < 0.3 ){
 
   #if( LOG_LEVEL > 0 )
-   cout << "3 ";
+   cout << "4 ";
   #endif  
     
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
@@ -473,7 +489,7 @@ int main( int argc , char **argv ){
   if( wchg & 16 && dis( rg ) < 0.3 ){
 
   #if( LOG_LEVEL > 0 )
-   cout << "4 ";
+   cout << "5 ";
   #endif  
     
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
@@ -483,12 +499,46 @@ int main( int argc , char **argv ){
     nX[ i ] = ( dis( rg ) < 0.5 ) ? false : true;
 
    if( dis( rg ) < 0.5 ){                    // ranged modification
+    
     Range rng = generateRange( m );
-    BKB->fix_x( nX , rng ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR 
+     BKB->fix_x( nX , rng ); 
+    else{                                    // AR    
+     
+     auto nXit = nX.begin();
+     
+     for( int j = rng.first ; j < rng.second ; j++ ){
+       // get the variable
+       auto x = BKB->get_Var( j );
+       
+       if( !x->is_fixed() ){
+        x->set_value( *nXit++ );
+        x->is_fixed( true );   
+       }
+       
+     }
+    }  
+     
    }
    else{                                     // or subset modification
+    
     Subset nms = generateSubset( m ); 
-    BKB->fix_x( nX , move( nms ) ); 
+
+    if( dis( rg ) < 0.5 )                   // PR
+     BKB->fix_x( nX , move( nms ) );        
+    else{                                   // AR
+     //cout << "fix AR\n";    
+     auto nXit = nX.begin();
+     
+     for( auto j : nms ){
+      auto x = BKB->get_Var( j );
+       if( !x->is_fixed() ){
+        x->set_value( *nXit++ );
+        x->is_fixed( true );   
+       }
+     }
+    } 
    }
 
   }       
@@ -498,21 +548,102 @@ int main( int argc , char **argv ){
   if( wchg & 32 && dis( rg ) < 0.3 ){
 
   #if( LOG_LEVEL > 0 )
-   cout << "5 ";
+   cout << "6 ";
   #endif   
     
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    if( dis( rg ) < 0.5 ){                    // ranged modification
+    
     Range rng = generateRange( m );
-    BKB->unfix_x( rng ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR
+     BKB->unfix_x( rng );
+    else{                                    // AR
+     //cout << "Unfix AR\n";
+     for( int j = rng.first ; j < rng.second ; j++ ){
+      auto x = BKB->get_Var( j );
+      x->is_fixed( false );
+     }
+    } 
    }
    else{                                     // or subset modification
+    
     Subset nms = generateSubset( m ); 
-    BKB->unfix_x( move( nms ) ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR
+     BKB->unfix_x( move( nms ) );
+    else{                                    // AR
+     //cout << "Unfix AR\n";
+     for( auto j : nms ){
+      auto x = BKB->get_Var( j );
+      x->is_fixed( false );
+     }  
+    }
+
    }
 
   }  
+    
+  // Change Integrality (range or subset)- - - - - - - - - - - - - - - - - - - -
+   
+  if( wchg & 64 && dis( rg ) < 0.3 ){
+
+  #if( LOG_LEVEL > 0 )
+   cout << "7 ";
+  #endif   
+
+   int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
+
+   vector< bool > nI( m );                   // generate new integrality vector
+   
+   for( int i = 0 ; i < m ; i++ )
+      nI[i] = (bool) dist_I( rg ); 
+
+   if( dis( rg ) < 0.5 ){                    // ranged modification
+    
+    Range rng = generateRange( m );
+    
+    if( dis( rg ) < 0.5 )                    // PR
+     BKB->chg_integrality( nI.begin() , rng );
+    else{                                    // AR
+     
+     auto nIit = nI.begin();
+     for( int j = rng.first ; j < rng.second ; j++ ){
+      auto x = BKB->get_Var( j );
+      if( *nIit )
+       x->set_type( ColVariable::kBinary );
+      else
+       x->set_type( ColVariable::kPosUnitary );
+      nIit++; 
+     }
+
+    }          
+   }
+   else{                                     // or subset modification
+    
+    Subset nms = generateSubset( m ); 
+    
+    if( dis( rg ) < 0.5 )                    // PR
+     BKB->chg_integrality( nI.begin() , move( nms ) );
+    else{                                    // AR
+     
+     auto nIit = nI.begin();
+     for( auto j : nms ){
+      auto x = BKB->get_Var( j );
+      if( *nIit )
+       x->set_type( ColVariable::kBinary );
+      else
+       x->set_type( ColVariable::kPosUnitary );
+      nIit++;          
+     }
+
+    }       
+   }
+
+  }                   
+
+    
     
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
@@ -539,11 +670,3 @@ else
 /*--------------------------------------------------------------------------*/
 /*------------------------ End File test.cpp -------------------------------*/
 /*--------------------------------------------------------------------------*/
-
-
-
-
-
-
-
-

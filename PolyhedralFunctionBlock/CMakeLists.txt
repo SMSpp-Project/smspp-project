@@ -1,6 +1,6 @@
 # ----- Tests --------------------------------------------------------------- #
-if (TARGET BundleSolver AND
-    TARGET MILPSolver)
+if (TARGET SMS++::BundleSolver AND
+    TARGET SMS++::MILPSolver)
 
     add_executable(PolyhedralFunctionBlock_test test.cpp)
     target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
