@@ -541,11 +541,9 @@ int main( int argc , char **argv )
    exit( 1 );
    }
    
-   cout<< "YEAH"<<endl;
    bsc->apply( TestBlock );
   
-   cout<< "YEAH"<<endl;
-  bsc->clear();
+   bsc->clear();
   
   if( TestBlock->get_registered_solvers().empty() ) {
    cout << endl << "no Solver registered to the Block!" << endl;
@@ -578,7 +576,6 @@ int main( int argc , char **argv )
  LOG1( argv[ 1 ] );
  LOG1( ": " );
 
-   cout<< "YEAH"<<endl; 
 
  bool AllPassed = SolveBoth();
  
