@@ -22,7 +22,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + print optimal solutions
@@ -293,15 +293,15 @@ static bool SolveBoth( void )
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = Slvr1->get_var_value();
-  #if( LOG_LEVEL >= 1 )
-  if( hs1st ) {
-   if( ! Slvr1->has_var_solution() ) {
-    cerr << "Error: Solver1 has not found any solution" << endl;
-    exit( 1 );
+  #if( LOG_LEVEL > 1 )
+   if( hs1st ) {
+    if( ! Slvr1->has_var_solution() ) {
+     cerr << "Error: Solver1 has not found any solution" << endl;
+     exit( 1 );
+     }
+    Slvr1->get_var_solution();
+    PrintSolution();
     }
-   Slvr1->get_var_solution();
-   PrintSolution();
-   }
   #endif
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
@@ -315,15 +315,15 @@ static bool SolveBoth( void )
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
                  || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
-  #if( LOG_LEVEL >= 1 )
-  if( hs2st ) {
-   if( ! Slvr2->has_var_solution() ) {
-    cerr << "Error: Solver2 has not found any solution" << endl;
-    exit( 1 );
+  #if( LOG_LEVEL > 1 )
+   if( hs2nd ) {
+    if( ! Slvr2->has_var_solution() ) {
+     cerr << "Error: Solver2 has not found any solution" << endl;
+     exit( 1 );
+     }
+    Slvr2->get_var_solution();
+    PrintSolution();
     }
-   Slvr2->get_var_solution();
-   PrintSolution();
-   }
   #endif
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
@@ -382,14 +382,14 @@ int main( int argc , char **argv )
  Index n_repeat = 100;
 
  switch( argc ) {
-  case( 6 ): Str2Sthg( argv[ 5 ] , p_change );
-  case( 5 ): Str2Sthg( argv[ 4 ] , n_change );
-  case( 4 ): Str2Sthg( argv[ 3 ] , n_repeat );
-  case( 3 ): Str2Sthg( argv[ 2 ] , wchg );
-  case( 2 ): Str2Sthg( argv[ 1 ] , seed );
-             break;
+  case( 7 ): Str2Sthg( argv[ 6 ] , p_change );
+  case( 6 ): Str2Sthg( argv[ 5 ] , n_change );
+  case( 5 ): Str2Sthg( argv[ 4 ] , n_repeat );
+  case( 4 ): Str2Sthg( argv[ 3 ] , wchg );
+  case( 3 ): Str2Sthg( argv[ 2 ] , seed );
+  case( 2 ): break;
   default: cerr << "Usage: " << argv[ 0 ] <<
-	   " seed [wchg nvar #rounds #chng %chng]"
+	   "file [seed wchg #rounds #chng %chng]"
  		<< endl <<
            "       wchg: what to change, coded bit-wise [135]"
 		<< endl <<
