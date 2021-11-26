@@ -113,16 +113,16 @@ using Subset = Block::Subset;
 using c_Subset = Block::c_Subset;
 
 using FunctionValue = Function::FunctionValue;
-using c_FunctionValue = Function::c_FunctionValue;
-using Vec_FunctionValue = LinearFunction::Vec_FunctionValue;
+// using c_FunctionValue = Function::c_FunctionValue;
+// using Vec_FunctionValue = LinearFunction::Vec_FunctionValue;
 
-using RHSValue = RowConstraint::RHSValue;
+// using RHSValue = RowConstraint::RHSValue;
 
 // using coeff_pair = LinearFunction::coeff_pair;
 // using v_coeff_pair = LinearFunction::v_coeff_pair;
 
-using coeff_triple = DQuadFunction::coeff_triple;
-using v_coeff_triple = DQuadFunction::v_coeff_triple;
+// using coeff_triple = DQuadFunction::coeff_triple;
+// using v_coeff_triple = DQuadFunction::v_coeff_triple;
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
@@ -130,7 +130,7 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 
 //SMSpp_ensure_load( ThermalUnitDPSolver );
 
-static constexpr FunctionValue INF = Inf< RHSValue >();
+static constexpr auto INF = Inf< FunctionValue >();
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- GLOBALS ----------------------------------*/
@@ -144,7 +144,7 @@ std::vector< double > a;     // the quadratic cost coefficients
 std::vector< double > b;     // the linear cost coefficients
 std::vector< double > c;     // the fixed cost coefficients
 //std::vector< double > l;     // the lower bounds on power production
-std::vector< double > l;     // the upper bounds on power production
+std::vector< double > u;     // the upper bounds on power production
 
 std::mt19937 rg;             // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
@@ -425,7 +425,6 @@ int main( int argc , char **argv )
    }
   }
 
- TUBlock->generate_abstract_variable();
  TUBlock->generate_abstract_variables();
  
  // save some original data of the ThermalUnitBlock - - - - - - - - - - - - -
@@ -488,7 +487,7 @@ int main( int argc , char **argv )
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
   LOG1( rep << ": ");
 
-  DQuadFunction of;
+  DQuadFunction * of;
   {
    auto obj = TUBlock->get_objective();
    assert( obj );
@@ -522,8 +521,7 @@ int main( int argc , char **argv )
 
       Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
-       nms[ i ] = of->is_active( ( TUBlock->get_commitment( 0 )
-				   )[ strt + i ] );
+       nms[ i ] = of->is_active( TUBlock->get_commitment( 0 ) + ( strt + i ) );
      
       of->modify_linear_coefficients( std::move( newcsts ) ,
 				      std::move( nms ) , false );
@@ -544,7 +542,7 @@ int main( int argc , char **argv )
       LOG1( "(s,a) - " );
 
       for( Index i = 0 ; i < tochange ; ++i )
-       nms[ i ] = of->is_active( ( TUBlock->get_commitment( 0 ) )[ nms[ i ] ] );
+       nms[ i ] = of->is_active( TUBlock->get_commitment( 0 ) + nms[ i ] );
      
       of->modify_linear_coefficients( std::move( newcsts ) ,
 				      std::move( nms ) , false );
@@ -584,8 +582,8 @@ int main( int argc , char **argv )
 
       Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
-       nms[ i ] = of->is_active( ( TUBlock->get_active_power( 0 )
-				   )[ strt + i ] );
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 )
+				 + ( strt + i ) );
      
       of->modify_terms( newcsts.begin() , lincsts.begin() ,
 			std::move( nms ) , false );
@@ -607,11 +605,10 @@ int main( int argc , char **argv )
 
       std::vector< double > lincsts( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
-       lincsts[ i ] = TUBlock->get_linear_term( strt + i );
+       lincsts[ i ] = TUBlock->get_linear_term( nms[ i ] );
 
       for( Index i = 0 ; i < tochange ; ++i )
-       nms[ i ] = of->is_active( ( TUBlock->get_active_power( 0 )
-				   )[ nms[ i ] ] );
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 ) + nms[ i ] );
 
       of->modify_terms( newcsts.begin() , lincsts.begin() ,
 			std::move( nms ) , false );
@@ -647,8 +644,8 @@ int main( int argc , char **argv )
 
       Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
-       nms[ i ] = of->is_active( ( TUBlock->get_active_power( 0 )
-				   )[ strt + i ] );
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 )
+				 + ( strt + i ) );
      
       of->modify_linear_coefficients( std::move( newcsts ) ,
 				      std::move( nms ) , true );
@@ -670,8 +667,7 @@ int main( int argc , char **argv )
 
       Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
-       nms[ i ] = of->is_active( ( TUBlock->get_active_power( 0 )
-				   )[ nms[ i ] ] );
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 ) + nms[ i ] );
      
       of->modify_linear_coefficients( std::move( newcsts ) ,
 				      std::move( nms ) , true );
@@ -705,7 +701,7 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // apply() the clear()-ed BlockSolverConfig to cleanup Solver
- bsc->apply( BoxBlock );
+ bsc->apply( TUBlock );
 
  // then delete the BlockSolverConfig
  delete bsc;
