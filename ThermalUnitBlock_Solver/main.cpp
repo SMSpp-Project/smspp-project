@@ -22,10 +22,16 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + print optimal solutions
+
+#define CHECK_SOLUTIONS 0
+// coded bit-wise:
+// bit 0: 1 = check feasibiliy of optimal solutions of Solver1
+// bit 1: 1 = check feasibiliy of optimal solutions of Solver2
+// bit 2: 1 = check that optimal solutions agree (dangerous, they may not)
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -87,10 +93,6 @@
 #include "FRealObjective.h"
 
 #include "DQuadFunction.h"
-
-// #include "LinearFunction.h"
-
-// #include "OneVarConstraint.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -194,8 +196,9 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 static void PrintSolution( void )
 {
- cout.setf( std::ios::scientific , std::ios::floatfield );
- cout << setprecision( 4 );
+ cout.setf( std::ios::fixed );
+ // cout.setf( std::ios::scientific , std::ios::floatfield );
+ // cout << setprecision( 4 );
 
  auto p = TUBlock->get_active_power( 0 );
  cout << endl << "p = [ ";
@@ -211,7 +214,7 @@ static void PrintSolution( void )
  auto u = TUBlock->get_commitment( 0 );
  cout << endl << "u = [ ";
  for( Index i = 0 ; ; ++u ) {
-  cout << u->get_value();
+  cout << int( u->get_value() );
   if( ++i >= time_horizon )
    break;
   else
@@ -219,6 +222,26 @@ static void PrintSolution( void )
   }
  cout << " ]";
  }
+
+/*--------------------------------------------------------------------------*/
+
+#if( CHECK_SOLUTIONS & 4 )
+
+static void GetP( std::vector< double > & P )
+{
+ auto p = TUBlock->get_active_power( 0 );
+ for( auto & pi : P )
+  pi = (p++)->get_value();
+ }
+
+static void GetU( std::vector< bool > & U )
+{
+ auto u = TUBlock->get_commitment( 0 );
+ for( auto & ui : U )
+  ui = (u++)->get_value();
+ }
+
+#endif
 
 /*--------------------------------------------------------------------------*/
 
@@ -254,19 +277,27 @@ static double linear_cost( Index i )
   * so that also power production is convenient (least the unit is started
   * but always kept at the minimum).
   *
-  * Since a > 0, the largest possible quadratic cost is a u^2. To ensure
+  * Since a > 0, the largest possible quadratic cost ist a u^2. To ensure
   * that producing energy is always more convenient than not producing
   * anything (p == 0 ==> cost == 0) one must have
   *
   *   a u^2 + b u < 0    ==>   b < - a u
   *
+  * Notice that this just gives b < 0 if a == 0.
+  *
   * The random value of b is therefore set as follows:
   *
   * - in 10% of the cases is equal to the original linear cost multiplied
-  *    by a factor "uniformly distributed" in [ 0.1 , 10 ] (hence positive)
+  *   by a factor "uniformly distributed" in [ 0.1 , 10 ] (hence positive
+  *   iff the original one was)
   *
-  * - in all the remaining cases is - a u  multiplied by a factor
-  *   "uniformly distributed" in [ 4 , 1 / 4 ] (hence negative)
+  * - in all the remaining cases:
+  *
+  *   = if a ~= 0, then it is - | b | multiplied by a factor "uniformly
+  *     distributed" in [ 0.1 , 10 ] (hence negative no matter what)
+  *
+  *   = else is is - a u is multiplied by a factor "uniformly distributed"
+  *     in [ 4 , 1 / 4 ] (hence negative no matter what)
   *
   * Note, however, that a could have just changed prior to the call to
   * this function, so the current value in TUBlock is used rather than
@@ -274,14 +305,29 @@ static double linear_cost( Index i )
 
  auto ai = TUBlock->get_quad_term( i );
 
- return( dis( rg ) < 0.1 ? b[ i ] * pow( 10 , 2 * dis( rg ) - 1 )
-	                 : - ai * u[ i ] * pow( 2 , 4 * dis( rg ) - 2 ) );
+ return( dis( rg ) < 0.1
+	 ? b[ i ] * pow( 10 , 2 * dis( rg ) - 1 )
+   	 : ( abs( ai ) <= 1e-16
+	     ? - abs( b[ i ] ) * pow( 10 , 2 * dis( rg ) - 1 )
+	     : - ai * u[ i ] * 100 ) );
  }
 
 /*--------------------------------------------------------------------------*/
 
 static bool SolveBoth( void ) 
 {
+ #if( CHECK_SOLUTIONS & 4 )
+  std::vector< double > p1( time_horizon );
+  std::vector< bool > u1( time_horizon );
+  std::vector< double > p2( time_horizon );
+  std::vector< bool > u1( time_horizon );
+ #endif
+
+ #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )  
+  auto obj = ( static_cast< FRealObjective * >( TUBlock->get_objective() )
+	       )->get_function();
+ #endif
+
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   Solver * Slvr1 = TUBlock->get_registered_solvers().front();
@@ -293,14 +339,35 @@ static bool SolveBoth( void )
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
                || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = Slvr1->get_var_value();
-  #if( LOG_LEVEL > 1 )
+  #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs1st ) {
     if( ! Slvr1->has_var_solution() ) {
      cerr << "Error: Solver1 has not found any solution" << endl;
      exit( 1 );
      }
     Slvr1->get_var_solution();
-    PrintSolution();
+    #if( LOG_LEVEL > 1 )
+     PrintSolution();
+    #endif
+    #if( CHECK_SOLUTIONS & 1 )
+     if( ! TUBlock->is_feasible() ) {
+      cerr << "Error: Solver1 solution is not feasible" << endl;
+      exit( 1 );
+      }
+    #endif
+    obj->compute();
+    auto solval = obj->get_value();
+    if( abs( fo1st - solval ) > 1e-8 * max( abs( fo1st ) , double( 1 ) ) ) {
+     cerr.setf( std::ios::scientific , std::ios::floatfield );
+     cerr << setprecision( 9 );
+     cerr << "Error: Solver1 reports value " << fo1st
+	  << " but solution value is " << solval << endl;
+     exit( 1 );
+     }
+    #if( CHECK_SOLUTIONS & 4 )
+     GetP( p1 );
+     GetU( u1 );
+    #endif
     }
   #endif
 
@@ -315,21 +382,68 @@ static bool SolveBoth( void )
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
                  || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
-  #if( LOG_LEVEL > 1 )
+  #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs2nd ) {
     if( ! Slvr2->has_var_solution() ) {
      cerr << "Error: Solver2 has not found any solution" << endl;
      exit( 1 );
      }
     Slvr2->get_var_solution();
-    PrintSolution();
+    #if( LOG_LEVEL > 1 )
+     PrintSolution();
+    #endif
+    #if( CHECK_SOLUTIONS & 2 )
+     if( ! TUBlock->is_feasible() ) {
+      cerr << "Error: Solver2 solution is not feasible" << endl;
+      //exit( 1 );
+      }
+    #endif
+    obj->compute();
+    auto solval = obj->get_value();
+    if( abs( fo2nd - solval ) > 1e-8 * max( abs( fo2nd ) , double( 1 ) ) ) {
+     cerr.setf( std::ios::scientific , std::ios::floatfield );
+     cerr << setprecision( 9 );
+     cerr << "Error: Solver2 reports value " << fo2nd
+	  << " but solution value is " << solval << endl;
+     exit( 1 );
+     }
+    #if( CHECK_SOLUTIONS & 4 )
+     GetP( p2 );
+     GetU( u2 );
+    #endif
     }
   #endif
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
+  // this being a MIQP, the "abstract" Solver will have a limited
+  // precision. in particular, variable lower bound constraints like
+  // p >= l u can be slightly violated (with p ending up a bit lower
+  // than l) due to either u being, say, 0.999999 or the constraint
+  // being violated up to the accuracy tolerated by the solver,
+  // yieldng things like 127.999999 vs 128.000000 and thereby a final
+  // var_value() slighly lower than that of the ThermalUnitDPSolver.
+  // which is why the relatively loose tolerance of 2e-6 here
+  //!!  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
+  //!!  emergency version with 1e-4 to find big errors
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-4 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
    LOG1( "OK(f)" << endl );
+
+   #if( CHECK_SOLUTIONS & 4 )
+    for( Index i = 0 ; i < time_horizon ; ++i )
+     if( abs( p1[ i ] - p2[ i ] ) > 1e-6 * max( abs( p1[ i ] , 1 ) ) ) {
+      cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
+	   << " ] = " << p2[ i ] << endl;
+      return( false );
+      }
+
+    if( u1[ i ] ~= u2[ i ] ) {
+      cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
+	   << " ] = " << u2[ i ] << endl;
+      return( false );
+      }
+   #endif
+
    return( true );
    }
 
@@ -515,16 +629,22 @@ int main( int argc , char **argv )
      if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
       // change via abstract representation
       // note that while this is a range of fixed costs, but the
-      // corresponding variables are "scattered around" the objective
-      // and therefore it becomes a Subset
+      // corresponding variables may "scattered around" the objective and
+      // therefore it becomes a Subset; yet, we check that if Subset
+      // actually is a Range and in case convert it
       LOG1( "(r,a) - " );
 
       Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
        nms[ i ] = of->is_active( TUBlock->get_commitment( 0 ) + ( strt + i ) );
-     
-      of->modify_linear_coefficients( std::move( newcsts ) ,
-				      std::move( nms ) , false );
+
+      std::sort( nms.begin() , nms.end() );
+      if( nms.back() - nms.front() + 1 == nms.size() )
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       Range( nms.front() , nms.back() + 1 ) );
+      else
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       std::move( nms ) );
       }
      else {  // change via call to set_* method
       LOG1( "(r) - " );
@@ -572,8 +692,9 @@ int main( int argc , char **argv )
      if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
       // change via abstract representation
       // note that while this is a range of fixed costs, but the
-      // corresponding variables are "scattered around" the objective
-      // and therefore it becomes a Subset
+      // corresponding variables may "scattered around" the objective and
+      // therefore it becomes a Subset; yet, we check that if Subset
+      // actually is a Range and in case convert it
       LOG1( "(r,a) - " );
 
       std::vector< double > lincsts( tochange );
@@ -584,9 +705,14 @@ int main( int argc , char **argv )
       for( Index i = 0 ; i < tochange ; ++i )
        nms[ i ] = of->is_active( TUBlock->get_active_power( 0 )
 				 + ( strt + i ) );
-     
-      of->modify_terms( newcsts.begin() , lincsts.begin() ,
-			std::move( nms ) , false );
+
+      std::sort( nms.begin() , nms.end() );
+      if( nms.back() - nms.front() + 1 == nms.size() )
+       of->modify_terms( newcsts.begin() , lincsts.begin() ,
+			 Range( nms.front() , nms.back() + 1 ) );
+      else
+       of->modify_terms( newcsts.begin() , lincsts.begin() ,
+			 std::move( nms ) );
       }
      else {  // change via call to set_* method
       LOG1( "(r) - " );
@@ -638,17 +764,23 @@ int main( int argc , char **argv )
      if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
       // change via abstract representation
       // note that while this is a range of fixed costs, but the
-      // corresponding variables are "scattered around" the objective
-      // and therefore it becomes a Subset
+      // corresponding variables may "scattered around" the objective and
+      // therefore it becomes a Subset; yet, we check that if Subset
+      // actually is a Range and in case convert it
       LOG1( "(r,a) - " );
 
       Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
        nms[ i ] = of->is_active( TUBlock->get_active_power( 0 )
 				 + ( strt + i ) );
-     
-      of->modify_linear_coefficients( std::move( newcsts ) ,
-				      std::move( nms ) , true );
+
+      std::sort( nms.begin() , nms.end() );
+      if( nms.back() - nms.front() + 1 == nms.size() )
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       Range( nms.front() , nms.back() + 1 ) );
+      else
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       std::move( nms ) );
       }
      else {  // change via call to set_* method
       LOG1( "(r) - " );
@@ -665,12 +797,11 @@ int main( int argc , char **argv )
       // change via abstract representation
       LOG1( "(s,a) - " );
 
-      Subset nms( tochange );
       for( Index i = 0 ; i < tochange ; ++i )
        nms[ i ] = of->is_active( TUBlock->get_active_power( 0 ) + nms[ i ] );
      
       of->modify_linear_coefficients( std::move( newcsts ) ,
-				      std::move( nms ) , true );
+				      std::move( nms ) , false );
       }
      else {  // change via call to set_* method
       LOG1( "(s) - " );
@@ -682,8 +813,10 @@ int main( int argc , char **argv )
   // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
   // ... every SKIP_BEAT + 1 rounds
 
-  if( ! ( ++rep % ( SKIP_BEAT + 1 ) ) )
-   AllPassed &= SolveBoth();
+  if( ! ( ++rep % ( SKIP_BEAT + 1 ) ) ) {
+   if( ! SolveBoth() )
+    AllPassed = false;
+   }
   #if( LOG_LEVEL >= 1 )
   else
    cout << endl;
