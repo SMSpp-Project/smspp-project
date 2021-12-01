@@ -24,12 +24,13 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic StOpt directory - not needed if StOpt is installed, say in /usr/local
-#libStOptBSCDIR = 
+libStOptBSCDIR = /Users/frangio/Applications/StOpt/install/
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libStOptLIB = -lStOpt -lgeners -lboost_timer-mt
-libStOptINC = 
+libStOptLIB = -L/Users/frangio/Applications/StOpt/install/lib/ \
+	    -lStOpt -lgeners -lboost_timer-mt
+libStOptINC = -I/Users/frangio/Applications/StOpt/install/include/
 # not needed if StOpt is installed, say in /usr/local
 
 ############################# End of makefile ################################

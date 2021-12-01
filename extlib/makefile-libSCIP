@@ -24,7 +24,7 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic SCIP directory
-libSCIPBSCDIR = /Users/frangio/Applications/SCIP-7.0.1/
+libSCIPBSCDIR = /Users/frangio/Applications/SCIPOptSuite-7.0.3-Darwin/
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
