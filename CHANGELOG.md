@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- ThermalUnitBlock_Solver tester.
+- BinaryKnapsackBlock tester.
+
+### Changed
+
+- Completion of dynamic variables handling in test/PolyhedralFunction.
+
 ## [0.4.0] - 2021-02-05
 
 ### Added
