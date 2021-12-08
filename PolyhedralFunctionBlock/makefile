@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for PolthedralFunctionBlock)                           #
 #                                                                            #
-#                                VERSION 1.10                                #
-#                               02 - 12 - 2019                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -23,13 +20,11 @@ NAME = PolyhedralFunctionBlock_test
 DIR = ./
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -DCLANG_1200_0_32_27_PATCH
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -DCLANG_1200_0_32_27_PATCH
 # production switches with checks
-#SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
-# production switches with checks
-SW = -O3 -std=c++17 -DNDEBUG
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
 
 # compiler
 CC = clang++
@@ -52,19 +47,13 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# define input macros for SMS++ complete makefile, then include it
+SMS++SDR = ../../SMS++/
+include $(SMS++SDR)lib/makefile-c
+
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
-
-# not necessary, BundleSolver does that already
-# define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../../../SMS++/
-#include $(SMS++SDR)lib/makefile-inc
-
-# not necessary, BundleSolver does that already
-# define input macros for libCPLEX complete makefile, then include it
-#libCPLEXDIR = ../../../extlib/
-#include $(libCPLEXDIR)makefile-libCPLEX
+include $(BNDSLVSDR)makefile-s
 
 # not necessary, BundleSolver does that already
 # MILPSolver
@@ -74,10 +63,10 @@ include $(BNDSLVSDR)makefile-c
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(SMS++OBJ)
 
 # libreries
-MLIB =  $(BNDSLVLIB)
+MLIB =  $(BNDSLVLIB) $(SMS++LIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
@@ -85,10 +74,10 @@ $(NAME): $(MOBJ) $(DIR)test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC)
+MINC =  $(SMS++INC) $(BNDSLVINC)
 
 # includes
-MH =    $(BNDSLVH)
+MH =    $(SMS++H) $(BNDSLVH)
 
 # compile command
 

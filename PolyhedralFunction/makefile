@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for PolyhedralFunction)                                #
 #                                                                            #
-#                                VERSION 1.10                                #
-#                               02 - 12 - 2019                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -29,7 +26,7 @@ DIR = ./
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
 
 # compiler
 CC = clang++
@@ -52,47 +49,41 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
+# define input macros for SMS++ complete makefile, then include it
+SMS++SDR = ../../SMS++/
+include $(SMS++SDR)lib/makefile-c
+
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
-
-# not necessary, BundleSolver does that already
-# define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../../../SMS++/
-#include $(SMS++SDR)lib/makefile-inc
-
-# not necessary, BundleSolver does that already
-# define input macros for libCPLEX complete makefile, then include it
-#libCPLEXDIR = ../../../extlib/
-#include $(libCPLEXDIR)makefile-libCPLEX
+include $(BNDSLVSDR)makefile-s
 
 # not necessary, BundleSolver does that already
 # MILPSolver
 #MILPSSDR = ../../../MILPSolver/
 #include $(MILPSSDR)makefile
 
-# define input macros for libSCIP library makefile, then include it
-#libSCIPDIR = ../../extlib/
-#include $(libSCIPDIR)makefile-libscip
+# SubGradSolver
+#SBGSLVSDR = ../../SubGradSolver/
+#include $(SBGSLVSDR)makefile
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ)
+MOBJ =  $(BNDSLVOBJ) $(SBGSLVOBJ) $(SMS++OBJ)
 
 # libreries
-MLIB =  $(BNDSLVLIB)
+MLIB =  $(BNDSLVLIB) $(SBGSLVOBJ) $(SMS++LIB)
 
-$(NAME): $(MOBJ) $(DIR)test.o
+$(NAME): $(DIR)test.o $(MOBJ)
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(BNDSLVINC)
+MINC =  $(SMS++INC) $(BNDSLVINC) $(SBGSLVINC)
 
 # includes
-MH =    $(BNDSLVH)
+MH =    $(SMS++H) $(BNDSLVH) $(SBGSLVH)
 
 # compile command
 

@@ -25,11 +25,11 @@ DIR = ./
 # debug switches
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
 # debug switches with address sanitizer and extra pedantic warning
-SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-#SW = -O3 -std=c++17 -DNDEBUG
+SW = -O3 -std=c++17 -DNDEBUG
 
 # compiler
 CC = clang++ 
@@ -57,22 +57,21 @@ libMMCFSDR = $(DIR)/MMCFClass/
 include $(libMMCFSDR)lib/makefile-inc
 
 # OPT*** stuff
-OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
-	 $(libMMCFSDR)OPTUtils/OPTvect.h
-OPTUxINC = -I$(libMMCFSDR)OPTUtils
-
+#OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
+#	 $(libMMCFSDR)OPTUtils/OPTvect.h
+#OPTUxINC = -I$(libMMCFSDR)OPTUtils
 
 # core SMS++
-#SMS++SDR = ../../SMS++/
-#include $(SMS++SDR)lib/makefile-inc
+SMS++SDR = ../../SMS++/
+include $(SMS++SDR)lib/makefile-inc
 
 # MILPSolver
 MILPSSDR = ../../MILPSolver/
-include $(MILPSSDR)makefile-c
+include $(MILPSSDR)makefile-s
 
 # MMCFBlock
 MMCFSDR = ../../MMCFBlock/
-include $(MMCFSDR)makefile-c
+include $(MMCFSDR)makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 

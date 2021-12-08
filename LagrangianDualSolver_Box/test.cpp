@@ -8,17 +8,16 @@
  * sub-AbstractBlock with n variables each, only box constraints and
  * separable Objective (FRealObjective with a LinearFunction or DQuadFunction
  * inside). m linking constraints are constructed in the father, which has no
- * Variable an no Objective of its own. Two different Solver are registered
- * to the AbstractBlock, the second of which is assumed to be a
- * LagrangianDualSolver (which does not BlockSolverConfig the
- * sub-AbstractBlock because the main directly registers BoxSolver to them).
- * The AbstractBlock is solved by the Solver and the results are compared.
+ * Variable and no Objective of its own. Two different Solver are registered
+ * to the AbstractBlock via a BlockSolverConfig, one of which is assumed to be
+ * a LagrangianDualSolver using BoxSolver to solve the sub-AbstractBlock. The
+ * AbstractBlock is solved by the Solver(s) and the results are compared.
  * The AbstractBlock is repeatedly randomly modified and re-solved several
  * times.
  *
- * \version 0.10
+ * \version 0.20
  *
- * \date 12 - 01 - 2021
+ * \date 05 - 07 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -35,15 +34,13 @@
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
-// 3 = + save LP file
-// 4 = + print data
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif
@@ -74,7 +71,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 2
+#define SKIP_BEAT 0
 
 /*--------------------------------------------------------------------------*/
 
@@ -101,7 +98,8 @@
 
 #include "BlockSolverConfig.h"
 
-#include "BoxSolver.h"
+// if SMSpp_ensure_load() need not be used, BoxSolver.h need not be included
+//#include "BoxSolver.h"
 
 #include "FRealObjective.h"
 
@@ -148,6 +146,8 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
+
+//SMSpp_ensure_load( BoxSolver );
 
 const char *const logF = "log.txt";
 
@@ -344,9 +344,11 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
-               || ( rtrn1st == Solver::kLowPrecision );
-  double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+		 && ( rtrn1st != Solver::kUnbounded )
+		 && ( rtrn1st != Solver::kInfeasible ) )
+                || ( rtrn1st == Solver::kLowPrecision );
+  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
@@ -365,11 +367,13 @@ static bool SolveBoth( void )
   #endif
   int rtrn2nd = Slvr2->compute( false );
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
-  double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
+  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+		 && ( rtrn2nd != Solver::kUnbounded )
+		 && ( rtrn2nd != Solver::kInfeasible ) )
+                || ( rtrn2nd == Solver::kLowPrecision );
+  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-5 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
    LOG1( "OK(f)" << endl );
@@ -388,7 +392,7 @@ static bool SolveBoth( void )
    return( true );
    }
 
-  #if( LOG_LEVEL >= 1 )
+  #if( LOG_LEVEL >= 0 )
    cout << "Solver1 = ";
     PrintResults( hs1st , rtrn1st , fo1st );
 
@@ -439,7 +443,7 @@ int main( int argc , char **argv )
  default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar nson dens #rounds #chng %chng]"
  		<< endl <<
-           "       wchg: what to change, coded bit-wise [17]"
+           "       wchg: what to change, coded bit-wise [15]"
 		<< endl <<
            "             0 = bounds, 1 = objective"
 		<< endl <<
@@ -498,29 +502,9 @@ int main( int argc , char **argv )
 
   TestBlock = new AbstractBlock();
 
-  for( Index k = 0 ; k++ < nson ; ) {
-   // create the sub-Block and add them;
-   auto son = construct_son();
-   // meanwhile, register a BoxSolver to each
-   auto bs = new BoxSolver;
-   bs->set_sol( 1 );  // primal solutions need be computed
-   son->register_Solver( bs );
-   /*!!
-   //!! rather, use a MILPSolver
-   auto c = Configuration::deserialize( "LPBSCfg.txt" );
-   auto bsc = dynamic_cast< BlockSolverConfig * >( c );
-   if( ! bsc ) {
-    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
-    delete c;
-    exit( 1 );
-    }
-
-   bsc->apply( son );
-   delete bsc;
-   !!*/
-   
-   TestBlock->add_nested_Block( son );
-   }
+  // create the sub-Block and add them
+  for( Index k = 0 ; k++ < nson ; )
+   TestBlock->add_nested_Block( construct_son() );
 
   // create m the linking constraints
   auto link = new std::vector< FRowConstraint >( m );
@@ -818,11 +802,6 @@ int main( int argc , char **argv )
 
  // then delete the BlockSolverConfig
  delete bsc;
-
- // this is not enough, though, because the BoxSolver have been registered
- // manually, so delete them manually now
- for( Index k = 0 ; k < nson ; )
-  TestBlock->get_nested_Block( k++ )->unregister_Solvers();
 
  // finally the AbstractBlock can be deleted
  delete TestBlock;

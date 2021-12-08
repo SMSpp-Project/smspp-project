@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#/usr/bin/env bash
 
 # Canad - - - - - - - - - - - - - - - - - - - -
 
@@ -35,17 +35,17 @@ done
 done
 done
 
-for i in 256
-do
-for j in 4 8 16 32 64 128 256
-do
-for (( h=1 ; h<13 ; h++ ))
-do
+#for i in 256
+#do
+#for j in 4 8 16 32 64 128 256
+#do
+#for (( h=1 ; h<13 ; h++ ))
+#do
 
-./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+#./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
 
-done
-done
-done
+#done
+#done
+#done
 
 # end batch

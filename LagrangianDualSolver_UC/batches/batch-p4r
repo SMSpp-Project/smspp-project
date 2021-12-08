@@ -1,0 +1,17 @@
+#/usr/bin/env bash
+
+for f in ./data/plan4res/*.nc4
+do 
+
+printf "[${f}]: "
+
+./LDS_UC_test ${f} > log
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+
+# end batch

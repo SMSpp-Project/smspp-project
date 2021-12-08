@@ -1,12 +1,8 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(BundleSolver)
-find_package(MILPSolver)
-find_package(MMCFBlock)
-
 # ----- Test ---------------------------------------------------------------- #
-if (BundleSolver_FOUND AND
-    MILPSolver_FOUND AND
-    MMCFBlock_FOUND)
+if (TARGET MMCFClass AND
+    TARGET SMS++::MMCFBlock AND
+    TARGET SMS++::BundleSolver AND
+    TARGET SMS++::MILPSolver)
 
     add_subdirectory(MMCFClass)
     add_executable(MMCFBlock_test)

@@ -11,9 +11,9 @@
  * the results are compared. The two Block are then repeatedly randomly
  * modified "in the same way", and re-solved several times.
  *
- * \version 1.40
+ * \version 1.50
  *
- * \date 28 - 11 - 2020
+ * \date 28 - 05 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -32,6 +32,11 @@
 // 2 = + solver log
 // 3 = + save LP file
 // 4 = + print data
+//
+// note: to always save the LP file with the same name it would be enough to
+//       directly set strOutputFile in the configuration file, but the
+//       tester rather saves the LP file of each iteration i in a different
+//       LPBlock-<i>.lp file, which cannot be done with just the config file
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -157,6 +162,9 @@ using c_FunctionValue = Function::c_FunctionValue;
 using MultiVector = PolyhedralFunction::MultiVector;
 using RealVector = PolyhedralFunction::RealVector;
 
+using p_LF = LinearFunction *;
+using p_PF = PolyhedralFunction *;
+
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -201,6 +209,11 @@ ColVariable * vLP;                 // pointer to v LP variable
 std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
 #if DYNAMIC_VARS > 0
  std::list< ColVariable > * xLPd;  // pointer to (dynamic) x LP variables
+#endif
+
+#if HAVE_CONSTRAINTS == 2
+ std::list< BoxConstraint > * LPbnd;   // BoxConstraint for LPBlock
+ std::list< BoxConstraint > * NDObnd;  // BoxConstraint for NDOBlock
 #endif
 
 /*--------------------------------------------------------------------------*/
@@ -346,7 +359,7 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
 
  #if DYNAMIC_VARS > 0
   // finally, dynamic x
-  auto xLPdit = xLPd.begin();
+  auto xLPdit = xLPd->begin();
   for( ; j < nvar ; ++j , ++xLPdit )
    vars[ j + 1 ] = std::make_pair( &(*xLPdit) , - A[ i ][ j ] );
  #endif
@@ -372,7 +385,7 @@ static void ChangeLPConstraint( Index i , FRowConstraint & ci , ModParam iAM )
  for( Index j = 0 ; j < nvar ; ++j )
   coeffs[ j ] = - A[ i ][ j ];
 
- auto f = static_cast< LinearFunction * >( ci.get_function() );
+ auto f = static_cast< p_LF >( ci.get_function() );
  f->modify_coefficients( std::move( coeffs ) , Range( 1 , nvar + 1 ) , iAM );
  }
 
@@ -391,6 +404,128 @@ static void SetGlobalBound( void )
   else
    NDOBlock->set_valid_upper_bound( BND );
  }
+
+/*--------------------------------------------------------------------------*/
+
+#if HAVE_CONSTRAINTS > 0
+
+static inline void SetNN( ColVariable & LPxi , ColVariable & NDOxi )
+{
+ if( dis( rg ) < 0.5 ) {
+  LPxi.is_positive( true , eNoMod );
+  NDOxi.is_positive( true , eNoMod );
+  }
+ }
+
+/*--------------------------------------------------------------------------*/
+
+#if HAVE_CONSTRAINTS > 1
+
+static inline void SetBox( ColVariable & LPxi , ColVariable & NDOxi )
+{
+ if( dis( rg ) < 0.5 ) {
+  LPbnd->resize( LPbnd->size() + 1 );
+  NDObnd->resize( NDObnd->size() + 1 );
+  LPbnd->back().set_variable( & LPxi );
+  NDObnd->back().set_variable( & NDOxi );
+  auto p = dis( rg );
+  auto lhs = p < 0.666 ? 0 : -INF;
+  auto rhs = p > 0.333 ? dis( rg ) : INF;
+  LPbnd->back().set_lhs( lhs , eNoMod );
+  NDObnd->back().set_lhs( lhs , eNoMod );
+  LPbnd->back().set_rhs( rhs , eNoMod );
+  NDObnd->back().set_rhs( rhs , eNoMod );
+  }
+ else
+  SetNN( LPxi , NDOxi );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+#if DYNAMIC_VARS > 0
+
+static void RemoveBox( AbstractBlock & AB , Range rng )
+{
+ // the dynamic variable from the "xd" group in the Range are removed: if
+ // anything is "active" in those is a BoxConstraint from the "xbnd" group
+ // that has to be removed as well
+
+ auto xd = AB.get_dynamic_variable< ColVariable >( "xd" );
+ auto & box = *(AB.get_dynamic_constraint< BoxConstraint >( "xbnd" ));
+ std::vector< typename std::list< BoxConstraint >::iterator > rmvd;
+ auto it = std::next( xd->begin() , rng.first );
+ for( Index i = rng.first ; i < rng.second ; ++i , ++it ) {
+  if( ! it->get_num_active() )
+   continue;
+  if( it->get_num_active() != 1 ) {
+   cout << "Too much stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto bc = dynamic_cast< BoxConstraint * >( it->get_active( 0 ) );
+  if( ! bc ) {
+   cout << "Unexpected stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto it = std::find_if( box.begin() , box.end() ,
+			  [ bc ]( BoxConstraint & x ) {
+			   return( & x == bc );
+			   } );
+  if( it == box.end() ) {
+   cout << "BoxConstraint not found" << endl;
+   exit( 1 );
+   }
+  rmvd.push_back( it );
+  }
+
+ if( ! rmvd.empty() )
+  AB.remove_dynamic_constraints( box , rmvd ); 
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void RemoveBox( AbstractBlock & AB , const Subset & sbst )
+{
+ // the dynamic variable from the "xd" group in the (ordered) Subset are
+ // removed: if anything is "active" in those is a BoxConstraint from the
+ // "xbnd" group that has to be removed as well
+
+ auto xd = AB.get_dynamic_variable< ColVariable >( "xd" );
+ auto & box = *(AB.get_dynamic_constraint< BoxConstraint >( "xbnd" ));
+ std::vector< typename std::list< BoxConstraint >::iterator > rmvd;
+ Index prev = 0;
+ auto it = xd->begin();
+ for( auto ind : sbst ) {
+  it = std::next( it , ind - prev );
+  prev = ind;
+  if( ! it->get_num_active() )
+   continue;
+  if( it->get_num_active() != 1 ) {
+   cout << "Too much stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto bc = dynamic_cast< BoxConstraint * >( it->get_active( 0 ) );
+  if( ! bc ) {
+   cout << "Unexpected stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto it = std::find_if( box.begin() , box.end() ,
+			  [ bc ]( BoxConstraint & x ) {
+			   return( & x == bc );
+			   } );
+  if( it == box.end() ) {
+   cout << "BoxConstraint not found" << endl;
+   exit( 1 );
+   }
+  rmvd.push_back( it );
+  }
+
+ if( ! rmvd.empty() )
+  AB.remove_dynamic_constraints( box , rmvd ); 
+ }
+
+#endif
+#endif
+#endif
 
 /*--------------------------------------------------------------------------*/
 
@@ -647,13 +782,13 @@ int main( int argc , char **argv )
   objLP->set_sense( convex ? Objective::eMin : Objective::eMax , eNoMod );
   
   // now set the Variable, Constraint and Objective in the AbstractBlock
-  LPBlock->add_static_variable( *vLP );
-  #if DYNAMIC_VARS > 0
-   LPBlock->add_dynamic_variable( *xLPd );
-  #endif
+  LPBlock->add_static_variable( *vLP , "v" );
   LPBlock->add_static_variable( *xLP , "x" );
-  LPBlock->add_dynamic_constraint( *ALP );
-  LPBlock->add_static_constraint( *LBc );
+  #if DYNAMIC_VARS > 0
+   LPBlock->add_dynamic_variable( *xLPd , "xd" );
+  #endif
+  LPBlock->add_dynamic_constraint( *ALP , "cuts" );
+  LPBlock->add_static_constraint( *LBc , "vbnd" );
   LPBlock->set_objective( objLP );
   }
 
@@ -689,7 +824,7 @@ int main( int argc , char **argv )
   // now set the Variable and Objective in the AbstractBlock
   NDOBlock->add_static_variable( *xNDO , "x" );
   #if DYNAMIC_VARS > 0
-   NDOBlock->add_dynamic_variable( *xNDOd );
+   NDOBlock->add_dynamic_variable( *xNDOd , "xd" );
   #endif
   NDOBlock->set_objective( objNDO );
 
@@ -701,82 +836,74 @@ int main( int argc , char **argv )
 
  #if HAVE_CONSTRAINTS == 1
  {
-  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
-  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
-  for( Index i = 0 ; i < nvar ; ++i )
-   if( dis( rg ) < 0.5 ) {
-    (*LPx)[ i ].is_positive( true , eNoMod );
-    (*NDOx)[ i ].is_positive( true , eNoMod );
-    }
+  auto & LPx = *(LPBlock->get_static_variable_v< ColVariable >( "x" ));
+  auto & NDOx = *(NDOBlock->get_static_variable_v< ColVariable >( "x" ));
+  for( Index i = 0 ; i < nsvar ; ++i )
+   SetNN( LPx[ i ] , NDOx[ i ] );
+  #if DYNAMIC_VARS > 0
+   auto LPxd = LPBlock->get_dynamic_variable< ColVariable >( "xd" )->begin();
+   auto NDOxd = NDOBlock->get_dynamic_variable< ColVariable >( "xd"
+							       )->begin();
+   for( Index i = 0 ; i < ndvar ; ++i )
+    SetNN( *(LPxd++) , *(NDOxd++) );
+  #endif
   }
  #endif
  #if HAVE_CONSTRAINTS == 2
  {
-  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
-  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
-  auto LPbnd = new std::list< BoxConstraint >;
-  auto NDObnd = new std::list< BoxConstraint >;
-  for( Index i = 0 ; i < nvar ; ++i )
-   if( dis( rg ) < 0.5 ) {
-    LPbnd->resize( LPbnd->size() + 1 );
-    NDObnd->resize( NDObnd->size() + 1 );
-    LPbnd->back().set_variable( & (*LPx)[ i ] );
-    NDObnd->back().set_variable( & (*NDOx)[ i ] );
-    auto p = dis( rg );
-    auto lhs = p < 0.666 ? 0 : -INF;
-    auto rhs = p > 0.333 ? dis( rg ) : INF;
-    LPbnd->back().set_lhs( lhs , eNoMod );
-    NDObnd->back().set_lhs( lhs , eNoMod );
-    LPbnd->back().set_rhs( rhs , eNoMod );
-    NDObnd->back().set_rhs( rhs , eNoMod );
-    }
-   else
-    if( dis( rg ) < 0.5 ) {
-     (*LPx)[ i ].is_positive( true , eNoMod );
-     (*NDOx)[ i ].is_positive( true , eNoMod );
-     }
+  LPbnd = new std::list< BoxConstraint >;
+  NDObnd = new std::list< BoxConstraint >;
+  auto & LPx = *(LPBlock->get_static_variable_v< ColVariable >( "x" ));
+  auto & NDOx = *(NDOBlock->get_static_variable_v< ColVariable >( "x" ));
+  for( Index i = 0 ; i < nsvar ; ++i )
+   SetBox( LPx[ i ] , NDOx[ i ] );
+  #if DYNAMIC_VARS > 0
+   auto LPxd = LPBlock->get_dynamic_variable< ColVariable >( "xd" )->begin();
+   auto NDOxd = NDOBlock->get_dynamic_variable< ColVariable >( "xd"
+							       )->begin();
+   for( Index i = 0 ; i < ndvar ; ++i )
+    SetBox( *(LPxd++) , *(NDOxd++) );
+  #endif
 
-  LPBlock->add_dynamic_constraint( *LPbnd );
-  NDOBlock->add_dynamic_constraint( *NDObnd );
+  // note: the list may be empty, but it is intentionally added anyway
+  LPBlock->add_dynamic_constraint( *LPbnd , "xbnd" );
+  NDOBlock->add_dynamic_constraint( *NDObnd , "xbnd" );
   }
  #endif
  
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // for both Block do this by reading an appropriate BlockSolverConfig from
+ // file and apply() it to the Block; note that the BlockSolverConfig are
+ // clear()-ed and kept to do the cleanup at the end
 
+ BlockSolverConfig * lpbsc;
  {
-  // for LPBlock do this by reading an appropriate BlockSolverConfig from
-  // file and apply() it to the LPBlock
-  ifstream LPParFile( "LPPar.txt" );
-  if( ! LPParFile.is_open() ) {
-   cerr << "Error: cannot open file LPPar.txt" << endl;
-   return( 1 );
+  auto c = Configuration::deserialize( "LPPar.txt" );
+  lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! lpbsc ) {
+   cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
    }
-
-  auto msc = new BlockSolverConfig;
-  LPParFile >> *( msc );
-  LPParFile.close();
-
-  msc->apply( LPBlock );
-  delete msc;
   }
 
+ lpbsc->apply( LPBlock );
+ lpbsc->clear();
+
+ BlockSolverConfig * ndobsc;
  {
-  // for NDOBlock do this by reading appropriate BlockSolverConfig from
-  // files and apply() it to the NDOBlock
-  ifstream NDOParFile( "NDOPar.txt" );
-  if( ! NDOParFile.is_open() ) {
-   cerr << "Error: cannot open file NDOPar.txt" << endl;
-   return( 1 );
+  auto c = Configuration::deserialize( "NDOPar.txt" );
+  ndobsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! ndobsc ) {
+   cerr << "Error: NDOPar.txt does not contain a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
    }
-
-  auto bsc = new BlockSolverConfig;
-  NDOParFile >> *( bsc );
-  NDOParFile.close();
-
-  bsc->apply( NDOBlock );
-  delete bsc;
   }
+
+ ndobsc->apply( NDOBlock );
+ ndobsc->clear();
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -810,11 +937,14 @@ int main( int argc , char **argv )
  
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // now, for n_repeat times:
+ // now, for n_repeat times in p_change% of the cases
  // - up to n_change rows are added
  // - up to n_change rows are deleted
  // - up to n_change rows are modified
  // - up to n_change rows are modified
+ // - the bound is modified
+ // - min( 1 , rnd( nsvar / 4 ) ) variables are added
+ // - up to ndvar variables are removed
  //
  // then the two problems are re-solved
 
@@ -830,23 +960,22 @@ int main( int argc , char **argv )
     GenerateAb( tochange , nvar );
 
     // add them to the LP
-    vLP = LPBlock->get_static_variable< ColVariable >( 0 );
-    xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
+    vLP = LPBlock->get_static_variable< ColVariable >( "v" );
+    xLP = LPBlock->get_static_variable_v< ColVariable >( "x" );
     #if DYNAMIC_VARS > 0
-     xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+     xLPd = LPBlock->get_dynamic_variable< ColVariable >( "xd" );
     #endif
 
     std::list< FRowConstraint > nc( tochange );
     auto ncit = nc.begin();
     for( Index i = 0 ; i < tochange ; )
      ConstructLPConstraint( i++ , *(ncit++) );
-    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
+    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" );
     LPBlock->add_dynamic_constraints( *cnst , nc );
 
     // add them to the NDO
-    auto PF = dynamic_cast< PolyhedralFunction * >(
+    auto PF = static_cast< p_PF >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-    PANIC( PF );
      
     if( tochange == 1 )
      PF->add_row( std::move( A[ 0 ] ) , b[ 0 ] );
@@ -867,10 +996,9 @@ int main( int argc , char **argv )
    if( Index tochange = min( m - 1 , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "deleted " << tochange << " rows" );
 
-    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
-    auto PF = dynamic_cast< PolyhedralFunction * >(
+    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" );
+    auto PF = static_cast< p_PF >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-    PANIC( PF );
     
     if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
@@ -919,11 +1047,17 @@ int main( int argc , char **argv )
    if( Index tochange = std::min( m , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "modified " << tochange << " rows" );
 
-    auto PF = dynamic_cast< PolyhedralFunction * >(
+    auto PF = static_cast< p_PF >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-    PANIC( PF );
 
     GenerateAb( tochange , nvar );
+
+    vLP = LPBlock->get_static_variable< ColVariable >( "v" );
+    xLP = LPBlock->get_static_variable_v< ColVariable >( "x" );
+    #if DYNAMIC_VARS > 0
+     xLPd = LPBlock->get_dynamic_variable< ColVariable >( "xd" );
+    #endif
+    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" );
 
     if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
@@ -931,23 +1065,16 @@ int main( int argc , char **argv )
      Index strt = dis( rg ) * ( m - tochange );
      Index stp = strt + tochange;
 
-     // modify them in the LP
-     vLP = LPBlock->get_static_variable< ColVariable >( 0 );
-     xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
-     #if DYNAMIC_VARS > 0
-      xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
-     #endif
-     auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
-
      // send all the Modification to the same channel
      Observer::ChnlName chnl = LPBlock->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
 
+     // modify them in the LP
      auto cit = std::next( cnst->begin() , strt );
      for( Index i = 0 ; i < tochange ; ++i )
       ChangeLPConstraint( i , *(cit++) , iAM );
 
-     LPBlock->close_channel( chnl );
+     LPBlock->close_channel( chnl );  // close the channel
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -959,18 +1086,11 @@ int main( int argc , char **argv )
      LOG1( "(s) - " );
      Subset nms( GenerateRand( m , tochange ) );
 
-     // modify them in the LP
-     vLP = LPBlock->get_static_variable< ColVariable >( 0 );
-     xLP = LPBlock->get_static_variable_v< ColVariable >( 1 );
-     #if DYNAMIC_VARS > 0
-      xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
-     #endif
-     auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
-
      // send all the Modification to the same channel
      Observer::ChnlName chnl = LPBlock->open_channel();
      const auto iAM = Observer::make_par( eModBlck , chnl );
 
+     // modify them in the LP
      Index prev = 0;
      auto cit = cnst->begin();
      for( Index i = 0 ; i < tochange ; ++i ) {
@@ -979,7 +1099,7 @@ int main( int argc , char **argv )
       ChangeLPConstraint( i , *cit , iAM );
       }
 
-     LPBlock->close_channel( chnl );
+     LPBlock->close_channel( chnl );  // close the channel
 
      // modify them in the NDO
      if( tochange == 1 )
@@ -997,10 +1117,11 @@ int main( int argc , char **argv )
 
     Generateb( tochange );
 
-    auto PF = dynamic_cast< PolyhedralFunction * >(
+    auto PF = static_cast< p_PF >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-    PANIC( PF );
      
+    auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" );
+
     if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );
 
@@ -1008,8 +1129,6 @@ int main( int argc , char **argv )
      Index stp = strt + tochange;
 
      // change them in the LP
-     auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
-
      auto cit = std::next( cnst->begin() , strt );
      if( convex )
       for( Index i = 0 ; i < tochange ; )
@@ -1029,8 +1148,6 @@ int main( int argc , char **argv )
      Subset nms( GenerateRand( m , tochange ) );
 
      // change them in the LP
-     auto cnst = LPBlock->get_dynamic_constraint< FRowConstraint >( 0 );
-
      Index prev = 0;
      auto cit = cnst->begin();
      if( convex )
@@ -1062,16 +1179,15 @@ int main( int argc , char **argv )
    GenerateBND();
 
    // change it in the LP
-   auto cnst = LPBlock->get_static_constraint< BoxConstraint >( 0 );
+   auto cnst = LPBlock->get_static_constraint< BoxConstraint >( "vbnd" );
    if( convex )
     cnst->set_lhs( -BND );
    else
     cnst->set_rhs( BND );
 
    // modify it in the NDO
-   auto PF = dynamic_cast< PolyhedralFunction * >(
+   auto PF = static_cast< p_PF >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-   PANIC( PF );
 
    PF->modify_bound( rs( BND ) );
 
@@ -1082,123 +1198,155 @@ int main( int argc , char **argv )
 
   #if DYNAMIC_VARS > 0
   if( ( wchg & 32 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = Index( dis( rg ) * n_change );
-   if( tochange ) {
-    LOG1( "added " << tochange << " variables - " );
+   Index tochange = std::max( Index( 1 ) , Index( dis( rg ) * nsvar / 4 ) );
+   LOG1( "added " << tochange << " variables - " );
 
-    GenerateA( m , tochange );
+   GenerateA( m , tochange );
 
-    // add them in the LP
-    std::list< ColVariable > nxLPd( tochange );
-    std::vector< ColVariable * > nxp( tochange );
-    auto nxlpit = nxLPd.begin();
-    for( Index i = 0 ; i < tochange ; )
-     nxp[ i++ ] = &(*(nxlpit++));
+   // add them in the LP
+   std::list< ColVariable > nxLPd( tochange );
+   std::vector< ColVariable * > nxp( tochange );
+   auto nxlpit = nxLPd.begin();
+   for( Index i = 0 ; i < tochange ; )
+    nxp[ i++ ] = &(*(nxlpit++));
 
-    LPBlock->add_dynamic_variables(
-	      *(LPBlock->get_dynamic_variable< ColVariable >( 0 )) , nxLPd );
+   LPBlock->add_dynamic_variables(
+	   *(LPBlock->get_dynamic_variable< ColVariable >( "xd" )) , nxLPd );
 
-    auto cnst_it =
-             LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )->begin();
-    if( tochange == 1 )
-     for( Index i = 0 ; i < m ; ++i ) {
-      auto fi = dynamic_cast< LinearFunction * >(
-					       (cnst_it++)->get_function() );
-      PANIC( fi );
-      fi->add_variable( nxp[ 0 ] , - A[ i ][ 0 ] );
+   auto cnst_it =
+        LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" )->begin();
+   if( tochange == 1 )
+    for( Index i = 0 ; i < m ; ++i ) {
+     auto fi = static_cast< p_LF >( (cnst_it++)->get_function() );
+     fi->add_variable( nxp[ 0 ] , - A[ i ][ 0 ] );
+     }
+   else
+    for( Index i = 0 ; i < m ; ++i ) {
+     auto fi = static_cast< p_LF >( (cnst_it++)->get_function() );
+     LinearFunction::v_coeff_pair ncp( tochange );
+     for( Index j = 0 ; j < ncp.size() ; ++j ) {
+      ncp[ j ].first = nxp[ j ];
+      ncp[ j ].second = - A[ i ][ j ];
       }
-    else
-     for( Index i = 0 ; i < m ; ++i ) {
-      auto fi = dynamic_cast< LinearFunction * >(
-					       (cnst_it++)->get_function() );
-      PANIC( fi );
-      LinearFunction::v_coeff_pair ncp( tochange );
-      for( Index j = 0 ; j < ncp.size() ; ++j ) {
-       ncp[ j ].first = nxp[ j ];
-       ncp[ j ].second = - A[ i ][ j ];
-       }
-      fi->add_variables( std::move( ncp ) );
+     fi->add_variables( std::move( ncp ) );
+     }
+
+   // add them in the NDO
+   std::list< ColVariable > nxNDOd( tochange );
+   auto nxndit = nxNDOd.begin();
+   for( Index i = 0 ; i < tochange ; )
+    nxp[ i++ ] = &(*(nxndit++));
+
+   NDOBlock->add_dynamic_variables(
+	 *(NDOBlock->get_dynamic_variable< ColVariable >( "xd" )) , nxNDOd );
+
+   // generate bound constraints
+   #if HAVE_CONSTRAINTS > 0
+    auto & LPxd = *(LPBlock->get_dynamic_variable< ColVariable >( "xd" ));
+    auto LPxd_it = LPxd.begin();
+    auto NDOxd_it = NDOBlock->get_dynamic_variable< ColVariable >( "xd"
+								   )->begin();
+    std::next( LPxd_it , ndvar );
+    std::next( NDOxd_it , ndvar );
+
+    #if HAVE_CONSTRAINTS == 1
+     for( ; LPxd_it != LPxd.end() ; )
+      SetNN( *(LPxd_it++) , *(NDOxd_it++) );
+    #else
+     LPbnd = new std::list< BoxConstraint >;
+     NDObnd = new std::list< BoxConstraint >;
+
+     for( ; LPxd_it != LPxd.end() ; )
+      SetBox( *(LPxd_it++) , *(NDOxd_it++) );
+
+     if( ! LPbnd->empty() ) {
+      LPBlock->add_dynamic_constraints(
+	 *(LPBlock->get_dynamic_constraint< BoxConstraint >( "xbnd" )) ,
+	 *LPbnd );
+      NDOBlock->add_dynamic_constraints(
+	 *(NDOBlock->get_dynamic_constraint< BoxConstraint >( "xbnd" )) ,
+	 *NDObnd );
       }
+    #endif
+   #endif
 
-    // add them in the NDO
-    std::list< ColVariable > nxNDOd( tochange );
-    auto nxndit = nxNDOd.begin();
-    for( Index i = 0 ; i < tochange ; )
-     nxp[ i++ ] = &(*(nxndit++));
-
-    NDOBlock->add_dynamic_variables(
-	    *(NDOBlock->get_dynamic_variable< ColVariable >( 0 )) , nxNDOd );
-
-    auto PF = dynamic_cast< PolyhedralFunction * >(
+   auto PF = static_cast< p_PF >(
 	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-    PANIC( PF );
 
-    if( tochange == 1 )
-     PF->add_variable( nxp[ 0 ] , A[ 0 ] );
-    else
-     PF->add_variables( std::move( nxp ) , std::move( A ) );
+   if( tochange == 1 )
+    PF->add_variable( nxp[ 0 ] , A[ 0 ] );
+   else
+    PF->add_variables( std::move( nxp ) , std::move( A ) );
 
-    // update ndvar
-    ndvar += tochange;
+   // update nvar and ndvar
+   nvar += tochange;
+   ndvar += tochange;
 
-    // sanity checks
-    PANIC( ndvar == PF->get_num_active_var() );
-    for( auto & ai : *PF->get_A() )
-     PANIC( ndvar == ai.size() );
-    PANIC( ndvar ==
-	         LPBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
-    PANIC( ndvar ==
-	        NDOBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
-    for( auto & ci :
-	          *(LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )) )
-     PANIC( ndvar == ci.get_num_active_var() );
-    }
+   // sanity checks
+   PANIC( nvar == PF->get_num_active_var() );
+   for( auto & ai : PF->get_A() )
+    PANIC( nvar == ai.size() );
+   PANIC( ndvar ==
+	      LPBlock->get_dynamic_variable< ColVariable >( "xd" )->size() );
+   PANIC( ndvar ==
+	     NDOBlock->get_dynamic_variable< ColVariable >( "xd" )->size() );
+   for( auto & ci :
+ 	    *(LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" )) )
+    PANIC( nvar == ci.get_num_active_var() );
    }
 
   // remove variables - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  if( ( wchg & 64 ) && ( dis( rg ) <= p_change ) ) {
-   Index tochange = min( ndvar , Index( dis( rg ) * n_change ) );
-   if( tochange ) {
+  if( ( wchg & 64 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = Index( dis( rg ) * ndvar ) ) {
     LOG1( "removed " << tochange << " variables" );
 
-    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
+    auto PF = static_cast< p_PF >(
+	       NDOBlock->get_objective< FRealObjective >()->get_function() );
+
+    if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged removal
      LOG1( "(r) - " );
 
      Index strt = dis( rg ) * ( ndvar - tochange );
      Index stp = strt + tochange;
 
      // remove them from the LP
-     auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( 0 );
+     auto xLPd = LPBlock->get_dynamic_variable< ColVariable >( "xd" );
      auto cnst_it =
-             LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )->begin();
+      LPBlock->get_dynamic_constraint< FRowConstraint >( "cuts" )->begin();
      if( tochange == 1 )
       for( Index i = 0 ; i < m ; ++i ) {
-       auto fi = dynamic_cast< LinearFunction * >(
-					       (cnst_it++)->get_function() );
-       PANIC( fi );
+       auto fi = static_cast< p_LF >( (cnst_it++)->get_function() );
        fi->remove_variable( strt + 1 );
        }
      else
       for( Index i = 0 ; i < m ; ++i ) {
-       auto fi = dynamic_cast< LinearFunction * >(
-					       (cnst_it++)->get_function() );
-       PANIC( fi );
-       fi->remove_variables( Range( strt + 1 , stp + 1 ) ) , true );
+       auto fi = static_cast< p_LF >( (cnst_it++)->get_function() );
+       fi->remove_variables( Range( strt + 1 , stp + 1 ) , true );
        }
+    
+     #if HAVE_CONSTRAINTS > 1
+      // the variables can now only be active in the associated box
+      // constraint, if any: exploit this to identify the box constraint
+      // and remove it
+      RemoveBox( *LPBlock , Range( strt , stp ) );
+     #endif
 
-    LPBlock->remove_dynamic_variables( *xLPd , Range( strt , stp ) );
+     LPBlock->remove_dynamic_variables( *xLPd , Range( strt , stp ) );
 
      // remove them from the NDO
-     auto PF = dynamic_cast< PolyhedralFunction * >(
-	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-     PANIC( PF );
-
-     auto xNDOd = NDOBlock->get_dynamic_variable< ColVariable >( 0 );
+     auto xNDOd = NDOBlock->get_dynamic_variable< ColVariable >( "xd" );
      if( tochange == 1 )
       PF->remove_variable( strt );
      else
       PF->remove_variables( Range( strt , stp ) );
+
+     #if HAVE_CONSTRAINTS > 1
+      // the variables can now only be active in the associated box
+      // constraint, if any: exploit this to identify the box constraint
+      // and remove it
+      RemoveBox( *NDOBlock , Range( strt , stp ) );
+     #endif
 
      NDOBlock->remove_dynamic_variables( *xNDOd , Range( strt , stp ) );
      }
@@ -1212,43 +1360,64 @@ int main( int argc , char **argv )
              LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )->begin();
      if( tochange == 1 ) {
       for( Index i = 0 ; i < m ; ++i ) {
-       auto fi = dynamic_cast< LinearFunction * >(
-					       (cnst_it++)->get_function() );
-       PANIC( fi );
+       auto fi = static_cast< p_LF >( (cnst_it++)->get_function() );
        fi->remove_variable( nms[ 0 ] + 1 );
        }
 
-      auto vp = &(*std::next( xLPd->begin() , nms[ 0 ] ));
+      #if HAVE_CONSTRAINTS > 1
+       // the variables can now only be active in the associated box
+       // constraint, if any: exploit this to identify the box constraint
+       // and remove it
+       RemoveBox( *LPBlock , Range( nms[ 0 ] , nms[ 0 ] + 1 ) );
+      #endif
+
+      auto vp = std::next( xLPd->begin() , nms[ 0 ] );
       LPBlock->remove_dynamic_variable( *xLPd , vp );
       }
      else {
       for( Index i = 0 ; i < m ; ++i ) {
-       auto fi = dynamic_cast< LinearFunction * >(
-					       (cnst_it++)->get_function() );
-       PANIC( fi );
+       auto fi = static_cast< p_LF >( (cnst_it++)->get_function() );
        Subset nms1( nms );
        for( auto & n1i : nms1 )
 	++n1i;
        fi->remove_variables( std::move( nms1 ) , true );
        }
 
+      #if HAVE_CONSTRAINTS > 1
+       // the variables can now only be active in the associated box
+       // constraint, if any: exploit this to identify the box constraint
+       // and remove it
+       RemoveBox( *LPBlock , nms );
+      #endif
+
       LPBlock->remove_dynamic_variables( *xLPd , Subset( nms ) );
       }
 
      // remove them from the NDO
-     auto PF = dynamic_cast< PolyhedralFunction * >(
-	       NDOBlock->get_objective< FRealObjective >()->get_function() );
-     PANIC( PF );
-
      auto xNDOd = NDOBlock->get_dynamic_variable< ColVariable >( 0 );
      if( tochange == 1 ) {
       PF->remove_variable( nms[ 0 ] );
 
-      auto vp = &(*std::next( xNDOd->begin() , nms[ 0 ] ));
+      #if HAVE_CONSTRAINTS > 1
+       // the variables can now only be active in the associated box
+       // constraint, if any: exploit this to identify the box constraint
+       // and remove it
+       RemoveBox( *NDOBlock , Range( nms[ 0 ] , nms[ 0 ] + 1 ) );
+      #endif
+
+      auto vp = std::next( xNDOd->begin() , nms[ 0 ] );
       NDOBlock->remove_dynamic_variable( *xNDOd , vp );
       }
      else {
       PF->remove_variables( Subset( nms ) );
+
+      #if HAVE_CONSTRAINTS > 1
+       // the variables can now only be active in the associated box
+       // constraint, if any: exploit this to identify the box constraint
+       // and remove it
+       RemoveBox( *NDOBlock , nms );
+      #endif
+
       NDOBlock->remove_dynamic_variables( *xNDOd , std::move( nms ) );
       }
      }
@@ -1258,7 +1427,7 @@ int main( int argc , char **argv )
 
     // sanity checks
     PANIC( ndvar == PF->get_num_active_var() );
-    for( auto & ai : *PF->get_A() )
+    for( auto & ai : PF->get_A() )
      PANIC( ndvar == ai.size() );
     PANIC( ndvar ==
 	         LPBlock->get_dynamic_variable< ColVariable >( 0 )->size() );
@@ -1268,7 +1437,6 @@ int main( int argc , char **argv )
 	          *(LPBlock->get_dynamic_constraint< FRowConstraint >( 0 )) )
      PANIC( ndvar == ci.get_num_active_var() );
     }
-   }
   #endif
 
   // if verbose, print out stuff- - - - - - - - - - - - - - - - - - - - - - -
@@ -1305,12 +1473,16 @@ int main( int argc , char **argv )
  else
   cout << RED( Shit happened!! ) << endl;
  
- // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
+ // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- // unregister (and delete) all Solvers attached to the Blocks
- NDOBlock->unregister_Solvers();
- LPBlock->unregister_Solvers();
+ // apply() the clear()-ed BlockSolverConfig to cleanup Solver
+ ndobsc->apply( NDOBlock );
+ lpbsc->apply( LPBlock );
+
+ // then delete the BlockSolverConfig
+ delete ndobsc;
+ delete lpbsc;
 
  // delete the Blocks
  delete NDOBlock;

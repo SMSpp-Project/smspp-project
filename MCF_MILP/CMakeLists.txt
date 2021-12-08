@@ -1,9 +1,6 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(MCFBlock)
-find_package(MILPSolver)
-
 # ----- Tests --------------------------------------------------------------- #
-if (MCFBlock_FOUND AND MILPSolver_FOUND)
+if (TARGET SMS++::MCFBlock AND
+    TARGET SMS++::MILPSolver)
 
     # MCFBlock_SOLVER should be read from MCFBlock configuration
     if (MCFBlock_SOLVER STREQUAL "relax")
@@ -33,3 +30,5 @@ if (MCFBlock_FOUND AND MILPSolver_FOUND)
 #                          SMS++::MILPSolver
 #                          SMS++::MCFBlock)
 endif ()
+
+# --------------------------------------------------------------------------- #

@@ -9,13 +9,16 @@
  * LagrangianDualSolver, the UCBlock is solved by the Solver and the results
  * are compared.
  *
+ * Although the testerdoes not even include BundleSolver, some
+ * BundleSolver-specific steps are 
+ *
  * The tester has some parts for the future extension when the UCBlock is
  * repeatedly randomly modified and re-solved several times, but this is not
  * done yet.
  *
- * \version 0.10
+ * \version 0.20
  *
- * \date 30 - 12 - 2020
+ * \date 13 - 02 - 2021
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
@@ -28,7 +31,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -40,7 +43,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif
@@ -49,6 +52,15 @@
  #define CLOG1( y , x )
 #endif
 
+/*--------------------------------------------------------------------------*/
+// if nonzero, the 2nd Solver attched to the UCBlock is assumed to be a
+// LagrangianDualSolver using the BundleSolver as the "inner" solver;
+// parameters from the BlockSolverConfig are read and set so that, if
+// "easy components" are used, all UnitBlock that are ThermalUnitBlock or
+// HydroSystemUnitBlock are attached an appropriate Solver, whereas all
+// other inner Block are treated as "easy components"
+
+#define USE_BundleSolver 1
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the 1st Solver attched to the UCBlock is detached
@@ -97,7 +109,15 @@
 
 #include "BlockSolverConfig.h"
 
+#include "PolyhedralFunctionBlock.h"
+
 #include "UCBlock.h"
+
+#if USE_BundleSolver
+ #include "ThermalUnitBlock.h"
+#endif
+
+#include "HydroSystemUnitBlock.h"
 
 /*!!
 #include "FRealObjective.h"
@@ -161,6 +181,23 @@ static void Str2Sthg( const char* const str , T &sthg )
 
 /*--------------------------------------------------------------------------*/
 
+static void Configure_HSUB( HydroSystemUnitBlock * hsub )
+{
+ // ensure that the PolyhedralFunctionBlock in the HydroSystemUnitBlock is
+ // Configured to use the "linearised" representation of the Objective
+
+ for( auto sb : hsub->get_nested_Blocks() )
+  if( auto pfb = dynamic_cast< PolyhedralFunctionBlock * >( sb ) ) {
+   auto sci = new SimpleConfiguration< int >;
+   sci->f_value = 1;
+   auto bc = new BlockConfig;
+   bc->f_static_variables_Configuration = sci;
+   pfb->set_BlockConfig( bc );
+   }
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static double rndfctr( void )
 {
  // return a random number between 0.5 and 2, with 50% probability of being
@@ -188,8 +225,10 @@ static Subset GenerateRand( Index m , Index k )
 
 static void PrintResults( bool hs , int rtrn , double fo )
 {
- if( hs )
-  cout << fo;
+ if( hs ) {
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 7 ) << fo;
+  }
  else
   if( rtrn == Solver::kInfeasible )
    cout << "    Unfeas";
@@ -207,7 +246,7 @@ static bool SolveBoth( void )
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
-   std::clock_t c_start = std::clock();
+    auto start = std::chrono::system_clock::now();
   #endif
   Solver * Slvr1 = TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
@@ -215,12 +254,16 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
-               || ( rtrn1st == Solver::kLowPrecision );
-  double fo1st = hs1st ? Slvr1->get_lb() : -INF;
   #if( LOG_LEVEL >= 1 )
-   double time1 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
+   auto end = std::chrono::system_clock::now();
+   std::chrono::duration< double > elapsed = end - start;
+   auto time1 = elapsed.count();
   #endif
+  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+		 && ( rtrn1st != Solver::kUnbounded )
+		 && ( rtrn1st != Solver::kInfeasible ) )
+               || ( rtrn1st == Solver::kLowPrecision );
+  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
@@ -233,9 +276,7 @@ static bool SolveBoth( void )
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
-   c_start = std::clock();
-   cout.setf( ios::scientific, ios::floatfield );
-   cout << setprecision( 2 );
+   start = std::chrono::system_clock::now();
   #endif
   Solver * Slvr2 = TestBlock->get_registered_solvers().back();
   #if DETACH_2ND
@@ -243,40 +284,45 @@ static bool SolveBoth( void )
    TestBlock->register_Solver( Slvr2 );  // push it to the back
   #endif
   int rtrn2nd = Slvr2->compute( false );
-
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
-  double fo2nd = hs2nd ? Slvr2->get_lb() : -INF;
   #if( LOG_LEVEL >= 1 )
-   double time2 = double( std::clock() - c_start ) / double( CLOCKS_PER_SEC );
+   end = std::chrono::system_clock::now();
+   elapsed = end - start;
+   auto time2 = elapsed.count();
+   cout.setf( ios::scientific, ios::floatfield );
+   cout << setprecision( 2 ) << time1 << " - " << time2 << " - ";
   #endif
 
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
+  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+		 && ( rtrn2nd != Solver::kUnbounded )
+		 && ( rtrn2nd != Solver::kInfeasible ) )
+               || ( rtrn2nd == Solver::kLowPrecision );
+  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(f)" << endl );
+   LOG1( "OK(f)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(e)" << endl );
+   LOG1( "OK(e)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( time1 << " - " << time2 << " - OK(u)" << endl );
+   LOG1( "OK(u)" << endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "Solver1 (" << time1 << ") = ";
+   cout << "Solver1 = ";
    cout << setprecision( 7 );
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ Solver2 (" << setprecision( 2 ) << time2 << ") = ";
-   cout << setprecision( 7 );
+   cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    cout << endl;
   #endif
@@ -371,6 +417,151 @@ int main( int argc , char **argv )
    exit( 1 );
    }
 
+  #if USE_BundleSolver
+   auto nbsc = bsc->num_ComputeConfig();
+   if( ! nbsc ) {
+    cerr << "Error: no ComputeConfig in the BlockSolverConfig" << endl;
+    delete c;
+    exit( 1 );
+    }
+
+   // check if any of the Solver is a LagrangianDualSolver
+   bool DoEasy = false;
+   ComputeConfig * cc = nullptr;
+   for( Block::Index h = 0 ; h < nbsc ; ++h ) {
+    if( bsc->get_SolverName( h ) != "LagrangianDualSolver" )  // if not
+     continue;                                                // do nothing
+
+    cc = bsc->get_SolverConfig( h );
+    if( ! cc ) {
+     cerr << "Error: empty ComputeConfig in the BlockSolverConfig" << endl;
+     delete c;
+     exit( 1 );
+     }
+
+    // find the inner Solver
+    auto sit = std::find_if( cc->str_pars.begin() , cc->str_pars.end() ,
+			     []( auto & pair ) {
+			      return( pair.first == "str_LDSlv_ISName" );
+			      } );
+    if( sit == cc->str_pars.end() )  // if it's not there
+     continue;                       // do nothing
+
+    // check if it is a [Parallel]BundleSolver
+    if( ( sit->second.find( "BundleSolver" ) == string::npos ) &&
+	( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
+     continue;  // if not, do nothing
+
+    // check if the BundleSolver uses easy components
+    // find if the ComputeConfig contains "intDoEasy"
+    auto it = std::find_if( cc->int_pars.begin() , cc->int_pars.end() ,
+			    []( auto & pair ) {
+			     return( pair.first == "intDoEasy" );
+			     } );
+    if( it != cc->int_pars.end() )     // if so
+     DoEasy = ( it->second & 1 ) > 0;  // read it
+    else                               // otherwise
+     DoEasy = true;                    // assume it is true (default)
+
+    break;  // note that we assume this happens *at most* once
+    }
+
+   // load the BlockSolverConfig for ThermalUnitBlock
+   auto ct = Configuration::deserialize( "TUBSCfg.txt" );
+   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
+   if( ! tbsc ) {
+    cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
+    delete c;
+    delete ct;
+    exit( 1 );
+    }
+
+   // load the BlockSolverConfig for HydroSystemUnitBlock; note that
+   // this can be "empty", and indeed even not there, in which case
+   // the HydroSystemUnitBlock will be treated as "easy"
+   auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
+   auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
+   if( ( ! hbsc ) || ( ! hbsc->num_ComputeConfig() ) ) {
+    delete ch;
+    hbsc = nullptr;
+    }
+
+    // if easy components are used
+   if( DoEasy ) {
+    // define the vector of components to be excluded from being "easy",
+    // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
+    std::vector< int > NoEasy;
+
+    auto sb = TestBlock->get_nested_Blocks();
+    for( unsigned long i = 0 ; i < sb.size() ; ++i ) {
+     // deal with ThermalUnitBlock
+     if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
+      NoEasy.push_back( i );
+      tbsc->apply( tub );
+      continue;
+      }
+
+     // deal with HydroSystemUnitBlock
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
+      // surely Configure it to use the "linearised" representation
+      Configure_HSUB( hub );
+      // if not considered an easy component, also BlockSolverConfig-ure it 
+      if( hbsc ) {
+       NoEasy.push_back( i );
+       hbsc->apply( hub );
+       }
+      continue;
+      }
+
+     // all the other are treated as easy
+     }
+
+    // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
+    // we are assuming it's not there already: if it is, the new copy is
+    // seen after the old one and therefore overrides it
+    cc->vint_pars.push_back( std::make_pair( "vintNoEasy" ,
+					     std::move( NoEasy ) ) );
+    }  // end( if( DoEasy ) )
+   else
+  #endif
+   {
+    // load the BlockSolverConfig for all the other :UnitBlock; note that
+    // this can be "empty", and indeed even not there
+    auto co = Configuration::deserialize( "OUBSCfg.txt" );
+    auto obsc = dynamic_cast< BlockSolverConfig * >( co );
+    if( ( ! obsc ) || ( ! obsc->num_ComputeConfig() ) ) {
+     delete co;
+     obsc = nullptr;
+     }
+
+    for( auto sb : TestBlock->get_nested_Blocks() ) {
+     // deal with ThermalUnitBlock
+     if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb ) ) {
+      tbsc->apply( tub );
+      continue;
+      }
+
+     // deal with HydroSystemUnitBlock
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) ) {
+      Configure_HSUB( hub );
+      if( hbsc )
+       hbsc->apply( hub );
+      continue;
+      }
+
+     // deal with all other :UnitBlock
+     if( obsc )
+      obsc->apply( sb );
+     }
+
+    // cleanup
+    delete obsc;
+    }
+
+  // cleanup
+  delete hbsc;
+  delete tbsc;
+   
   bsc->apply( TestBlock );
   bsc->clear();
 
@@ -471,10 +662,12 @@ int main( int argc , char **argv )
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      !!*/
 
+ /*!!
  if( AllPassed )
   cout << GREEN( All tests passed!! ) << endl;
  else
   cout << RED( Shit happened!! ) << endl;
+  !!*/
  
  // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -484,6 +677,13 @@ int main( int argc , char **argv )
 
  // then delete the BlockSolverConfig
  delete bsc;
+
+ #if USE_BundleSolver
+  // since some Solver have been attached "by hand" to some sub-Block,
+  // unregister "by hand" any remaning Solver attached to them
+  for( auto sb : TestBlock->get_nested_Blocks() )
+   sb->unregister_Solvers();
+ #endif
 
  // finally the AbstractBlock can be deleted
  delete TestBlock;

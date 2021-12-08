@@ -1,9 +1,7 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(BundleSolver)
-find_package(MILPSolver)
-
 # ----- Tests --------------------------------------------------------------- #
-if (BundleSolver_FOUND AND MILPSolver_FOUND)
+if (TARGET SMS++::BundleSolver AND
+    TARGET SMS++::MILPSolver)
+
     add_executable(LagBFunction_test test.cpp)
     target_link_libraries(LagBFunction_test PRIVATE
                           SMS++::BundleSolver
@@ -45,4 +43,5 @@ if (BundleSolver_FOUND AND MILPSolver_FOUND)
         endforeach ()
     endforeach ()
 endif ()
+
 # --------------------------------------------------------------------------- #

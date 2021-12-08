@@ -1,8 +1,6 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(MILPSolver)
-
 # ----- Test ---------------------------------------------------------------- #
-if (MILPSolver_FOUND)
+if (TARGET SMS++::MILPSolver)
+
     add_executable(BoxSolver_test test.cpp)
     target_link_libraries(BoxSolver_test PRIVATE
                           SMS++::MILPSolver)

@@ -4,9 +4,6 @@
 #                                                                            #
 #   makefile of test (for LagrangianDualSolver with MMCFBlock)               #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               30 - 01 - 2021                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -29,7 +26,7 @@ DIR = ./
 # production switches with address sanitizer
 #SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX
+SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH
 
 # compiler
 CC = clang++
@@ -52,55 +49,46 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
-# MILPSolver
-MILPSSDR = ../../MILPSolver/
-include $(MILPSSDR)makefile-c
+# define input macros for SMS++ complete makefile, then include it
+SMS++SDR = ../../SMS++/
+include $(SMS++SDR)lib/makefile-inc
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
-include $(BNDSLVSDR)makefile-c
-
-# define input macros for libNDO library makefile, then include it
-libNDOSDR = $(BNDSLVSDR)NdoFiOracle/
-include $(libNDOSDR)lib/makefile-inc
+include $(BNDSLVSDR)makefile-s
 
 # LagrangianDualSolver
 LgDSLVSDR = ../../LagrangianDualSolver/
 include $(LgDSLVSDR)makefile
 
+# not necessary, BundleSolver does that already
+# MILPSolver
+#MILPSSDR = ../../MILPSolver/
+#include $(MILPSSDR)makefile-c
+
 # MMCFBlock
 MMCFSDR = ../../MMCFBlock/
-include $(MMCFSDR)makefile-c
-
-# not necessary, MMCFBlock does that already
-# define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../../../SMS++/
-#include $(SMS++SDR)lib/makefile-inc
-
-# define input macros for UCBlock makefile, then include it
-# note that this is not the "complete" makefile: UCBlock only requires
-# the core SMS++, that is already included above (by LagrangianDualSolver)
-UCBckDIR = ../../UCBlock/
-include $(UCBckDIR)lib/makefile
+include $(MMCFSDR)makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(MILPSOBJ) $(libNDOOBJ) $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ) $(SMS++OBJ)
 
 # libreries
-MLIB =  $(MILPSLIB) $(libNDOLIB) $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB)
+MLIB =   $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB) $(SMS++LIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
+#	$(CC) -o $(DIR)$(NAME) $+ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(MILPSINC) $(libNDOINC) $(BNDSLVINC) $(LgDSLVINC) $(MMCFINC)
+MINC =  $(SMS++INC) $(BNDSLVINC) $(LgDSLVINC) $(MMCFINC)
 
 # includes
-MH =    $(MILPSH) $(libNDOH) $(BNDSLVH) $(LgDSLVH) $(MMCFH)
+MH =    $(SMS++H) $(BNDSLVH) $(LgDSLVH) $(MMCFH)
 
 # compile command
 

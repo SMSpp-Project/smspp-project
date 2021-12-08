@@ -203,7 +203,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 0
+  #define LOG_ON_COUT 1
   // if nonzero, the NDO Solver log is sent on cout rather than on a file
  #endif
 #else
@@ -1369,7 +1369,8 @@ int main( int argc , char **argv )
   // bit 3 (in addition to bit 2) of intDoEasy must be 1. set intDoEasy to
   // the "minimum" set of 1 bits required to support wchg
   for( Index i = 0 ; i < bsc->num_ComputeConfig() ; ++i )
-   if( bsc->get_SolverName( i ) == "BundleSolver" ) {
+   if( ( bsc->get_SolverName( i ) == "BundleSolver" ) ||
+       ( bsc->get_SolverName( i ) == "ParallelBundleSolver" ) ) {
     int val = 0;
     if( HasEasy ) {
      val = 1 | ( ( wchg & 224 ) >> 4 );

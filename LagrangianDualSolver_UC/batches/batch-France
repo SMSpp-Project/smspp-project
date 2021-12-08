@@ -1,0 +1,18 @@
+#/usr/bin/env bash
+
+#for f in ./data/plan4res-data/France/WeekAgr/*.nc4
+for f in ./data/plan4res-data/France/WeekDesAgr/*.nc4
+do 
+
+printf "[${f}]: "
+
+./LDS_UC_test ${f}
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+
+# end batch

@@ -1,10 +1,8 @@
-# ----- Requirements -------------------------------------------------------- #
-find_package(BundleSolver)
-find_package(MCFClass)
-find_package(MILPSolver)
-
 # ----- BendersBFunction_test ----------------------------------------------- #
-if (BundleSolver_FOUND AND MILPSolver_FOUND AND MCFClass_FOUND)
+if (TARGET SMS++::BundleSolver AND
+    TARGET SMS++::MILPSolver AND
+    TARGET MCFClass::MCFClass)
+
     add_executable(BendersBFunction_test test.cpp
                    cwl-mcf/cwl-mcf.cpp)
     target_link_libraries(BendersBFunction_test PRIVATE
