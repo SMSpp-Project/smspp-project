@@ -93,14 +93,14 @@ submodules.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (Block and/or
-  Solver) from different sub-projects and that therefore are better not
-  included in any specific sub-project.
+  Solver) from different subprojects and that therefore are better not
+  included in any specific subproject.
 
 - [tools](https://gitlab.com/smspp/tools), defining some tools that can be
   useful for users (such as "main files" that take instances of problems
   and solve them) and that require elements (Block and/or Solver) from
-  different sub-projects so that they are better not included in any specific
-  sub-project.
+  different subprojects so that they are better not included in any specific
+  subproject.
 
 
 ## Getting started
@@ -121,7 +121,7 @@ on requirements and dependencies between modules.
 
 ### Getting the code
 
-Getting the whole umbrella project and all the sub-projects can be done with:
+Getting the whole umbrella project and all the subprojects can be done with:
 
 ```sh
 git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
@@ -309,14 +309,14 @@ The development of SMS++ has greatly benefited from the contributions
 of the following projects:
 
 - "Consistent Dual Signals and Optimal Primal Solutions", funded by the
-  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO).
 
 - [plan4res](https://www.plan4res.eu), grant agreement No 773897 within
-  European Union's Horizon 2020 research and innovation programme
+  European Union's Horizon 2020 research and innovation programme.
 
 - "Multilevel Heterogeneous Distributed Decomposition for Energy Planning
   with SMS++", funded by the
-  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO).
 
 - "Optimization under Uncertainty with SMS++", funded by the
-  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO).
