@@ -83,7 +83,7 @@ submodules.
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   StochasticBlock "meta-Block" that takes *any* "deterministic" Block and
-  "makes it stochastic" by allowing it to change some of its data in a very
+  "makes it stochastic" by allowing to change some of its data in a very
   general and abstract way (using the SMS++ "methods factory").
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
