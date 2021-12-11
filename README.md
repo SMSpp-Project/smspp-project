@@ -5,7 +5,7 @@
 This is the splash page of the SMS++ Project, an "umbrella project" meant
 to provide a quick way to download and install all the projects related to the
 SMS++ framework.
-It also allows to produce an unified documentation and to track
+It also allows to produce a unified documentation and to track
 issues that involve all the modules or the project in general.
 
 SMS++ is a set of C++ classes intended to provide a system for modeling complex,
@@ -64,7 +64,7 @@ submodules.
   abstract representation encodes for a Mixed-Integer Linear Program
   (ColVariable, FRowConstraint and FRealObjective with LinearFunction inside,
   OneVarConstraint), together with derived MILPSolver classes that actually
-  interface with existing MILP solvers. Currently available derived classes are:
+  interface with existing MILP solvers. Currently, available derived classes are:
 
   - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
     Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
@@ -83,7 +83,7 @@ submodules.
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   StochasticBlock "meta-Block" that takes *any* "deterministic" Block and
-  "makes it stochastic" by allowing to changing some of its data in a very
+  "makes it stochastic" by allowing it to change some of its data in a very
   general and abstract way (using the SMS++ "methods factory").
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
@@ -162,7 +162,7 @@ sudo make install
 ### Build and install with makefiles
 
 Most modules, and in particular the "core" SMS++ classes, also come with
-carefully hand-crafted makefiles. Using them requires to dabble with some
+carefully hand-crafted makefiles. Using them requires dabbling with some
 make editing, but it is independent on CMake.
 
 The main step is to edit the makefiles into extlib/. There is one for each
@@ -225,7 +225,7 @@ Other settings may be needed.
 
 Although sadly a proper User Manual is still missing, the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
-first look at possible ways of using SMS++. In particular the three three
+first look at possible ways of using SMS++. In particular the three
 tests `LagrangianDualSolver_Box`, `LagrangianDualSolver_MMCF` and
 `LagrangianDualSolver_UC` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register two `Solver` (a `:MILPSolver` and a
@@ -250,15 +250,15 @@ found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
 
 ## Getting help
 
-If you need support, you want to submit bugs or propose a new feature for a
+If you need support, you want to submit bugs or propose a new feature for an
 individual module, see the *Getting help* section for that module.
 
 If you need support on the project installation you can check out the
 [installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
-or the [trobleshooting page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
+or the [troubleshooting page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
 in our Wiki.
 
-If your issue is not covered by our guides, or you want propose a new module,
+If your issue is not covered by our guides, or you want to propose a new module,
 you can [open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
 ## Contributing
@@ -297,7 +297,7 @@ see the [LICENSE](LICENSE) file for details.
 
 The code is currently provided free of charge under an open-source license.
 As such, it is provided "*as is*", without any explicit or implicit warranty
-that it will properly behave or it will suit your needs. The Authors of
+that it will properly behave, or it will suit your needs. The Authors of
 the code cannot be considered liable, either directly or indirectly, for
 any damage or loss that anybody could suffer for having used it. More
 details about the non-warranty attached to this code are available in the
@@ -309,17 +309,14 @@ The development of SMS++ has greatly benefited from the contributions
 of the following projects:
 
 - "Consistent Dual Signals and Optimal Primal Solutions", funded by the
-  [Gaspard Monge program for Optimization and Operations Research]
-  (http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO)
 
 - [plan4res](https://www.plan4res.eu), grant agreement No 773897 within
   European Union's Horizon 2020 research and innovation programme
 
 - "Multilevel Heterogeneous Distributed Decomposition for Energy Planning
   with SMS++", funded by the
-  [Gaspard Monge program for Optimization and Operations Research]
-  (http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO)
 
 - "Optimization under Uncertainty with SMS++", funded by the
-  [Gaspard Monge program for Optimization and Operations Research]
-  (http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO)
