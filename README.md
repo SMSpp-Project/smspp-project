@@ -1,6 +1,6 @@
 # SMS++ System Tests
 
-A set of system tests for the the SMS++ core library and several other
+A set of system tests for the SMS++ core library and several other
 modules.
 
 Since most of the tests we devised for the SMS++ project require multiple

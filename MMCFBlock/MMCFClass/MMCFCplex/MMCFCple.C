@@ -403,7 +403,7 @@ MMCFCplex::MMCFCplex( Graph *Gh , istream *iStrm , CPXENVptr extenv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // for undirected problems: if the arc (i,j) is put in the column h, then
  // the arc (j,i) (that doubles (i,j)) is put in the column h + numcols / 2.
- // note that the the flow variable of (j,i) has the same objective function,
+ // note that the flow variable of (j,i) has the same objective function,
  // capacity and upper bound
 
  if( ! Drctd ) {
