@@ -1816,7 +1816,7 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  %
  \item The \variable \cstr{InitialVolumetric}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberReservoirs}. Each entry \code{InV[ r ]} indicates the volumes of water in reservoir $r$ at time instant $-1$.
  %
- \item The negative or positive scalar \variable \cstr{UphillFlow}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{UpF[ l ]} indicates the uphill flow delay for each unit (arc) $l$; the nontrivial concept is detailed below. This variable is optional, if it is not provided it is taken to be \code{UpF[ l ] == 0}.
+ \item The negative or positive scalar \variable \cstr{UphillFlow}, of type \code{netCDF::NcInt} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{UpF[ l ]} indicates the uphill flow delay for each unit (arc) $l$; the nontrivial concept is detailed below. This variable is optional, if it is not provided it is taken to be \code{UpF[ l ] == 0}.
  %
  \item The positive scalar \variable \cstr{DownhillFlow}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{DnF[ l ]} indicates the downhill flow delay for each arc (unit) $l$. This variable is optional, if it is not provided it is taken to be \code{DnF[ l ] == 0}.
 \end{itemize}
