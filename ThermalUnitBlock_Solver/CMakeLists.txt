@@ -18,9 +18,6 @@ if (TARGET SMS++::UCBlock AND
              COMMAND TUB_Solver_test
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-    add_test(NAME TUB_Solver_test
-             COMMAND TUB_Solver_test
-             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 endif ()
 
