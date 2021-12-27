@@ -10,7 +10,7 @@ if (TARGET SMS++::UCBlock AND
                           gtest)
 
     add_executable(TUDPS_test main.cpp)
-    target_link_libraries(TUB_Solver_test PRIVATE
+    target_link_libraries(TUDPS_test PRIVATE
                           SMS++::MILPSolver
                           SMS++::UCBlock)
 
