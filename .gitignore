@@ -21,6 +21,7 @@ MMCFBlock/MMCFBlock_test
 MMCFBlock/Mnetgen/mnetgen
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
+ThermalUnitBlock_Solver/TUDPS_test
 
 # large data test files
 MMCFBlock/data/*

@@ -1,0 +1,32 @@
+#/usr/bin/env bash
+
+export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIPOptSuite-7.0.3-Darwin/lib
+
+what=133
+#iter=0
+
+# simple thermals - - - - - - - - - - - - - - - - - - - - -
+
+for (( h=1 ; h<=98 ; h++ ))
+do
+for (( seed=0 ; seed<20 ; seed++ ))
+do
+#seed=0
+
+if [ -z "$iter" ]; then
+printf "[simple/ThermalUnitBlock-${h}.nc4 $seed $what]: "
+else
+printf "[simple/ThermalUnitBlock-${h}.nc4 $seed $what $iter]: "
+fi
+
+./TUDPS_test simple/ThermalUnitBlock-${h}.nc4 $seed $what $iter
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+done
+
+# end batch

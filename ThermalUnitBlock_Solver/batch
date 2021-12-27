@@ -1,0 +1,40 @@
+#/usr/bin/env bash
+
+export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIPOptSuite-7.0.3-Darwin/lib
+
+what=7
+iter=0
+
+# ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
+
+for i in 24 96
+do
+for j in 1 12 16 23 
+do
+for (( h=1 ; h<=100 ; h++ ))
+do
+#for (( seed=0 ; seed<20 ; seed++ ))
+#do
+seed=0
+
+./TUDPS_test data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter
+
+if [ -z "$iter" ]; then
+printf "[data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what]: "
+else
+printf "[data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter]: "
+fi
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+#done
+done
+done
+done
+
+
+
+# end batch
