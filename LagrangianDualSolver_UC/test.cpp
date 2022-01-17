@@ -496,6 +496,9 @@ int main( int argc , char **argv )
     for( unsigned long i = 0 ; i < sb.size() ; ++i ) {
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
+      auto config = new BlockConfig;
+      config->f_objective_Configuration = new SimpleConfiguration< int >( 3 );
+      sb[ i ]->set_BlockConfig( config );
       NoEasy.push_back( i );
       tbsc->apply( tub );
       continue;

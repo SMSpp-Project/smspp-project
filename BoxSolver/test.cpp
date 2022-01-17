@@ -13,12 +13,7 @@
  * a :MILPSolver). The Block is then repeatedly randomly modified and
  * re-solved several times, the results are compared. 
  *
- * \version 1.00
- *
- * \date 10 - 01 - 2021
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
@@ -39,6 +34,15 @@
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
+
+/*--------------------------------------------------------------------------*/
+/* the AbstractBlock for testing is made of NUMBER_LEVELS levels, and each
+ * Block save those in the last level (the leaves) has NUMBER_SONS sub-Block.
+ */
+
+#define NUMBER_LEVELS 2
+
+#define NUMBER_SONS 5
 
 /*--------------------------------------------------------------------------*/
 /* if nonzero, quadratic terms are always >= 0 when minimizing and <= 0 when
@@ -81,7 +85,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 
 /*--------------------------------------------------------------------------*/
 
@@ -96,7 +100,7 @@
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-#define DYNAMIC_VARS 0
+#define DYNAMIC_VARS 1
 // if 1, half of the variables are dynamic
 
 /*--------------------------------------------------------------------------*/
@@ -189,6 +193,7 @@ bool isbndd;               // whether always bounded
 
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
+std::uniform_int_distribution<> idis( 0 , NUMBER_SONS );
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -345,6 +350,127 @@ static void set_lin( ColVariable & x , coeff_pair & p )
 
 /*--------------------------------------------------------------------------*/
 
+static AbstractBlock * new_AB( Index lev = 0 )
+{
+ auto AB = new AbstractBlock();
+
+ // construct the Variable
+ auto x = new std::vector< ColVariable >( nsvar );
+ #if DYNAMIC_VARS > 0
+  auto xd = new std::list< ColVariable >( ndvar );
+ #endif
+
+ // set the "inherent" bounds on the Variable
+ for( auto & xi : *x )
+  set_bounds( xi );
+	   
+ #if DYNAMIC_VARS > 0
+  for( auto & xi : *xd )
+   set_bounds( xi );
+ #endif
+
+ // set the Variable in the BoxBlock
+ AB->add_static_variable( *x , "x" );
+ #if DYNAMIC_VARS > 0
+  AB->add_dynamic_variable( *xd , "xd" );
+ #endif
+
+ // construct the OneVarConstraint
+ auto box = new std::vector< BoxConstraint >( nsvar );
+ #if DYNAMIC_VARS > 0
+  auto boxd = new std::list< BoxConstraint >( ndvar );
+ #endif
+
+ auto boxit = box->begin();
+ for( auto & xi : *x )
+  set_bounds( xi , *(boxit++) );
+
+ #if DYNAMIC_VARS > 0
+  auto boxdit = boxd->begin();
+  for( auto & xi : *xd )
+   set_bounds( xi , *(boxdit++) );
+ #endif
+
+ // set the OneVarConstraint in the AbstractBlock
+ AB->add_static_constraint( *box , "box" );
+ #if DYNAMIC_VARS > 0
+  AB->add_dynamic_constraint( *boxd , "boxd" );
+ #endif
+
+ // construct the Objective
+ auto obj = new FRealObjective();
+ Function *f;
+ if( isquad ) {  // quadratic objective
+  v_coeff_triple vt( nvar );
+  auto vit = vt.begin();
+  for( auto & xi : *x )
+   set_quad( xi , *(vit++) );
+  #if DYNAMIC_VARS > 0
+   for( auto & xi : *xd )
+    set_quad( xi , *(vit++) );
+  #endif
+
+  f = new DQuadFunction( std::move( vt ) );
+  }
+ else {          // linear objective
+  v_coeff_pair vp( nvar );
+  auto vit = vp.begin();
+  for( auto & xi : *x )
+   set_lin( xi , *(vit++) );
+  #if DYNAMIC_VARS > 0
+   for( auto & xi : *xd )
+    set_lin( xi , *(vit++) );
+  #endif
+
+  f = new LinearFunction( std::move( vp ) );
+  }
+
+ obj->set_function( f );
+ obj->set_sense( minobj ? Objective::eMin : Objective::eMax , eNoMod );
+
+ // set the Objective in the AbstractBlock
+ AB->set_objective( obj );
+
+ // now iterate on the sub-Block
+ if( lev < NUMBER_LEVELS )
+ for( Index i = 0 ; i < NUMBER_SONS ; ++i )
+  AB->add_nested_Block( new_AB( lev + 1 ) );
+
+ return( AB );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static AbstractBlock * choose_Block( AbstractBlock * ab )
+{
+ if( ! ab->get_number_nested_Blocks() ) {
+  LOG1( "0 ]" );
+  return( ab );
+  }
+
+ if( auto wb = idis( rg ) ) {
+  --wb;
+  LOG1( wb << ", " );
+  return( choose_Block( static_cast< AbstractBlock * >(
+					    ab->get_nested_Block( wb ) ) ) );
+  }
+ else {
+  LOG1( "0 ]" );
+  return( ab );
+  }
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void set_sense( AbstractBlock * ab , int news )
+{
+ ab->get_objective()->set_sense( news );
+ for( auto bk : ab->get_nested_Blocks() )
+  set_sense( static_cast< AbstractBlock * >( bk ) , news );
+ }
+
+/*--------------------------------------------------------------------------*/
+
 static bool SolveBoth( void ) 
 {
  try {
@@ -367,14 +493,12 @@ static bool SolveBoth( void )
     }
    double oppfo = BSlvr1->get_opposite_value();
    // invert the verse of the Objective
-   BoxBlock->get_objective()->set_sense( minobj ? Objective::eMax
-					        : Objective::eMin );
+   set_sense( BoxBlock , minobj ? Objective::eMax : Objective::eMin );
    int invrtrn = Slvr1->compute( false );
    double invfo = Slvr1->get_var_value();
 
    // restore the verse of the Objective
-   BoxBlock->get_objective()->set_sense( minobj ? Objective::eMin
-					        : Objective::eMax );
+   set_sense( BoxBlock , minobj ? Objective::eMin : Objective::eMax );
    if( minobj ) {
     if( ( oppfo == -INF ) && ( invfo == -INF ) ) {
      LOG1( "OK(u)" << endl );
@@ -571,92 +695,10 @@ int main( int argc , char **argv )
  // construction and loading of the objects - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- {
-  // ensure all original pointers go out of scope immediately after that
-  // the construction has finished
+ BoxBlock = new_AB();
 
-  BoxBlock = new AbstractBlock();
-
-  // construct the Variable
-  auto x = new std::vector< ColVariable >( nsvar );
-  #if DYNAMIC_VARS > 0
-   auto xd = new std::list< ColVariable >( ndvar );
-  #endif
-
-  // set the "inherent" bounds on the Variable
-  for( auto & xi : *x )
-   set_bounds( xi );
-	   
-  #if DYNAMIC_VARS > 0
-   for( auto & xi : *xd )
-    set_bounds( xi );
-  #endif
-
-  // set the Variable in the BoxBlock
-  BoxBlock->add_static_variable( *x , "x" );
-  #if DYNAMIC_VARS > 0
-   BoxBlock->add_dynamic_variable( *xd , "xd" );
-  #endif
-
-   // construct the OneVarConstraint
-  auto box = new std::vector< BoxConstraint >( nsvar );
-  #if DYNAMIC_VARS > 0
-   auto boxd = new std::list< BoxConstraint >( ndvar );
-  #endif
-
-  auto boxit = box->begin();
-  for( auto & xi : *x )
-   set_bounds( xi , *(boxit++) );
-
-  #if DYNAMIC_VARS > 0
-   auto boxdit = boxd->begin();
-   for( auto & xi : *xd )
-    set_bounds( xi , *(boxdit++) );
-  #endif
-
-  // set the OneVarConstraint in the BoxBlock
-  BoxBlock->add_static_constraint( *box , "box" );
-  #if DYNAMIC_VARS > 0
-   BoxBlock->add_dynamic_constraint( *boxd , "boxd" );
-  #endif
-
-  // construct the Objective
-  auto obj = new FRealObjective();
-  Function *f;
-  if( isquad ) {  // quadratic objective
-   v_coeff_triple vt( nvar );
-   auto vit = vt.begin();
-   for( auto & xi : *x )
-    set_quad( xi , *(vit++) );
-   #if DYNAMIC_VARS > 0
-    for( auto & xi : *xd )
-     set_quad( xi , *(vit++) );
-   #endif
-
-   f = new DQuadFunction( std::move( vt ) );
-   }
-  else {          // linear objective
-   v_coeff_pair vp( nvar );
-   auto vit = vp.begin();
-   for( auto & xi : *x )
-    set_lin( xi , *(vit++) );
-   #if DYNAMIC_VARS > 0
-    for( auto & xi : *xd )
-     set_lin( xi , *(vit++) );
-   #endif
-
-   f = new LinearFunction( std::move( vp ) );
-   }
-
-  obj->set_function( f );
-  obj->set_sense( minobj ? Objective::eMin : Objective::eMax , eNoMod );
-  
-  // set the Objective in the AbstractBlock
-  BoxBlock->set_objective( obj );
-
-  //!! check the AbstractBlock
-  BoxBlock->is_correct();
-  }
+ //!! check the AbstractBlock
+ BoxBlock->is_correct();
 
  // attach the Solver(s) to the Block - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -705,9 +747,10 @@ int main( int argc , char **argv )
 
   if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " bounds - " );
-
-    auto box = BoxBlock->get_static_constraint_v< BoxConstraint >( "box" );
+    LOG1( "changed " << tochange << " bounds[ " );
+    auto bk = choose_Block( BoxBlock );
+    LOG1( " - " );
+    auto box = bk->get_static_constraint_v< BoxConstraint >( "box" );
     assert( box );
     const double prob = double( tochange ) / double( nvar );
 
@@ -720,7 +763,7 @@ int main( int argc , char **argv )
 
     #if DYNAMIC_VARS > 0
      if( tochange ) {
-      auto boxd = BoxBlock->get_dynamic_constraint< BoxConstraint >( "boxd" );
+      auto boxd = bk->get_dynamic_constraint< BoxConstraint >( "boxd" );
       assert( boxd );
 
       for( auto & bi : *boxd )
@@ -737,13 +780,14 @@ int main( int argc , char **argv )
 
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
-    LOG1( "changed " << tochange << " obj coeffs" );
+    LOG1( "changed " << tochange << " obj coeffs[ " );
+    auto bk = choose_Block( BoxBlock );
 
     Vec_FunctionValue NC( tochange );
     for( auto & nc : NC )
      set_lin_c( nc );
 
-    auto obj = static_cast< FRealObjective * >( BoxBlock->get_objective() );
+    auto obj = static_cast< FRealObjective * >( bk->get_objective() );
 
     if( dis( rg ) <= 0.5 ) {  // in 50% of the cases do a ranged change
      LOG1( "(r) - " );

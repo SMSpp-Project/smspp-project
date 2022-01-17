@@ -20,12 +20,7 @@
  * "natural" PolyhedralFunctionBlock to keep them in synch. Then both are
  * solved and the results compared.
  *
- * \version 1.30
- *
- * \date 04 - 04 - 2021
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

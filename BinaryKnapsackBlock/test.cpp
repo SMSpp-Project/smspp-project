@@ -3,8 +3,12 @@
 /*--------------------------------------------------------------------------*/
 /** @file
  * Main for testing BinaryKnapsackBlock, comparing the results of two 
- * different Solvers attached to it */
-
+ * different Solvers attached to it.
+ *
+ * \author Federica Di Pasquale \n
+ *         Dipartimento di Informatica \n
+ *         Universita' di Pisa \n
+ */
 /*--------------------------------------------------------------------------*/
 /*------------------------------ MACROS ------------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -15,7 +19,6 @@
 #define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = list of modifications
-
 
 /*--------------------------------------------------------------------------*/
 /*----------------------------- INCLUDES -----------------------------------*/
@@ -77,25 +80,27 @@ double rangeP = 100;                // range values of profits
 /*--------------------------------------------------------------------------*/
 
 template<class T>
-static void Str2Sthg( const char* const str , T &sthg ){
+static void Str2Sthg( const char* const str , T &sthg ) {
  istringstream( str ) >> sthg;
-}
+ }
 
 
 /*--------------------------------------------------------------------------*/
 // Generate a random Range of size m < N
 
-Range generateRange( int m ){
+Range generateRange( int m )
+{
  Range rng;
  rng.first = dis( rg ) * ( N - m );
  rng.second = rng.first + m;
- return rng;
-}
+ return( rng );
+ }
 
 /*--------------------------------------------------------------------------*/
 // Generate a random Subset of size m < N
 
-Subset generateSubset( int m ){
+Subset generateSubset( int m )
+{
  Subset nms;
  
  Subset idx( N );            
@@ -103,16 +108,16 @@ Subset generateSubset( int m ){
  
  sample( idx.begin() , idx.end() , back_inserter( nms ) , m , rg );
  
- return move( nms );
-}
+ return( nms );
+ }
 
 /*--------------------------------------------------------------------------*/
 
-bool SolveBoth(){ 
-
-  #if( LOG_LEVEL > 0 )
-   cout << endl;
-  #endif
+bool SolveBoth( void )
+{ 
+ #if( LOG_LEVEL > 0 )
+  cout << endl;
+ #endif
 
  // Solve with both Solvers - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -143,24 +148,22 @@ bool SolveBoth(){
   checksol += BKB->get_x( i ) * BKB->get_Profit( i );
  
  
- if( abs( checksol - Value1 ) > 1e-06 ){      
+ if( abs( checksol - Value1 ) > 1e-06 ) {
   cout << "\nchecksol " << checksol << " Value1 " << Value1 << endl;     
   cerr << "Error computing solution Solver1\n";  
   return( false );
- }
- 
- 
+  }
+
  Solver2->get_var_solution();
 
  checksol = 0;
  for( int i = 0 ; i < N ; i++ )
   checksol += BKB->get_x( i ) * BKB->get_Profit( i );
  
-
- if( abs( checksol - Value2 ) > 1e-06 ){
+ if( abs( checksol - Value2 ) > 1e-06 ) {
   cerr << "Error computing solution Solver2\n\n";  
   return( false );
- }
+  }
 
  // compare optimal values- - - - - - - - - - - - - - - - - - - - - - - - - 
  
@@ -172,13 +175,13 @@ bool SolveBoth(){
  std::cout << "Value1 " << Value1 << std::endl;
  std::cout << "Value2 " << Value2 << std::endl;
 
-
  return( false );     
-} 
+ } 
 
+/*--------------------------------------------------------------------------*/
 
-int main( int argc , char **argv ){ 
-
+int main( int argc , char **argv )
+{
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -226,20 +229,20 @@ int main( int argc , char **argv ){
 
  // check - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
- if( delta < 0 || delta > 1 ){
+ if( delta < 0 || delta > 1 ) {
   cerr << "error: delta must be in [ 0 , 1 ]" << endl;
   exit( 1 ); 
- }
+  }
 
- if( nW < 0 || nW > 1 ){
+ if( nW < 0 || nW > 1 ) {
   cerr << "error: nW must be in [ 0 , 1 ]" << endl;
   exit( 1 );
- }
+  }
 
- if( nP < 0 || nP > 1 ){
+ if( nP < 0 || nP > 1 ) {
   cerr << "error: nP must be in [ 0 , 1 ]" << endl;
   exit( 1 );
- }
+  }
 
  int minW =  - int( nW * rangeW );
  int maxW = minW + rangeW;
@@ -303,31 +306,28 @@ int main( int argc , char **argv ){
  int totWp = 0;                       // total sum of the positive weights
  int totWn = 0;                       // total sum of the negative weights
   
- for( int i = 0 ; i < N ; i++ ){
+ for( int i = 0 ; i < N ; i++ ) {
   W[ i ] = dist_W( rg );      
   P[ i ] = dist_P( rg );
   I[ i ] = (bool) dist_I( rg );   
- if( W[ i ] > 0 )                     // update totWn and totWp
-  totWp += W[ i ];      
- else
-  totWn += W[ i ];      
-
- }
+  if( W[ i ] > 0 )                     // update totWn and totWp
+   totWp += W[ i ];      
+  else
+   totWn += W[ i ];      
+  }
  
  // generate the Capacity from a uniform real distribution
  uniform_real_distribution<> dist_C( totWn , 
                                      totWn + delta * ( totWp - totWn ) );
-
  C = dist_C( rg );
 
  // load the Binary Knapsack instance- - - - - - - - - - - - - - - - - - - -
  
  if( dis( rg ) < 0.8 )
-  BKB->load( N , C , move( W ) , move( P ), move( I ) );
+  BKB->load( N , C , move( W ) , move( P ) , move( I ) );
  else
   BKB->load( N , C , move( W ) , move( P ) ); 
  
-
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // Attach Solvers to the BinaryKnapsackBlock - - - - - - - - - - - - - - - - 
 
@@ -337,11 +337,11 @@ int main( int argc , char **argv ){
  
  auto c = Configuration::deserialize( "BinaryKnapsackPar.txt" );
  bsc = dynamic_cast< BlockSolverConfig * >( c );
- if( ! bsc ){
+ if( ! bsc ) {
   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
   delete c;
   exit( 1 );    
- }
+  }
 
  bsc->apply( BKB );
 
@@ -362,16 +362,16 @@ int main( int argc , char **argv ){
  // get the linear functions 
  
  auto lfobj = dynamic_cast< LinearFunction * >( obj->get_function() );
- if( ! lfobj ){
+ if( ! lfobj ) {
   cerr << "Error: cannot get the objective linear function" << endl;
   exit( 1 ); 
- }
+  }
 
  auto lfcnst = dynamic_cast< LinearFunction * >( cnst->get_function() );
- if( ! lfcnst ){
+ if( ! lfcnst ) {
   cerr << "Error: cannot get the constraint linear function" << endl;
   exit( 1 ); 
- }
+  }
 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -380,46 +380,39 @@ int main( int argc , char **argv ){
  
  // modifications- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- for( int i = 0 ; i <= ( n_repeat - 1 ) * STEP ; i++ ){
+ for( int i = 0 ; i <= ( n_repeat - 1 ) * STEP ; i++ ) {
 
   // Change the sense of the objective - - - - - - - - - - - - - - - - - - -
-   
-  if( wchg & 1 &&  dis( rg ) < 0.3 ){                  
-  
-  #if( LOG_LEVEL > 0 )
-   cout << "1 ";
-  #endif  
+  if( wchg & 1 &&  dis( rg ) < 0.3 ) {
+   #if( LOG_LEVEL > 0 )
+    cout << "1 ";
+   #endif  
 
    if( dis( rg ) < 0.5 )
     BKB->set_objective_sense( 1 - BKB->get_objective_sense() );   // PR
    else
-    obj->set_sense( 1 - BKB->get_objective_sense() );             // AR  
-  
-  }
-  // Change the Capacity of the Knapsack - - - - - - - - - - - - - - - - - -
-   
-  if( wchg & 2 && dis( rg ) < 0.3 ){
+    obj->set_sense( 1 - BKB->get_objective_sense() );             // AR
+   }
 
-  #if( LOG_LEVEL > 0 )
-   cout << "2 ";
-  #endif   
-   
+  // Change the Capacity of the Knapsack - - - - - - - - - - - - - - - - - -
+  if( wchg & 2 && dis( rg ) < 0.3 ) {
+   #if( LOG_LEVEL > 0 )
+    cout << "2 ";
+   #endif   
+
    C = dist_C( rg );
    
    if( dis( rg ) < 0.5 )
     BKB->chg_capacity( C );     // PR
    else
-    cnst->set_rhs( C );         // AR    
-  
-  }                   
-  
-  // Change Profits (range or subset)- - - - - - - - - - - - - - - - - - - -
-   
-  if( wchg & 4 && dis( rg ) < 0.3 ){
+    cnst->set_rhs( C );         // AR  
+   }                   
 
-  #if( LOG_LEVEL > 0 )
-   cout << "3 ";
-  #endif   
+  // Change Profits (range or subset)- - - - - - - - - - - - - - - - - - - -
+  if( wchg & 4 && dis( rg ) < 0.3 ){
+   #if( LOG_LEVEL > 0 )
+    cout << "3 ";
+   #endif   
 
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
@@ -427,245 +420,206 @@ int main( int argc , char **argv ){
    for( auto & p : nP )  
     p = dist_P( rg ); 
 
-   if( dis( rg ) < 0.5 ){                    // ranged modification
-    
+   if( dis( rg ) < 0.5 ) {                   // ranged modification
     Range rng = generateRange( m );
-    
+
     if( dis( rg ) < 0.5 ) 
      BKB->chg_profits( nP.begin() , rng );              // PR
     else
-     lfobj->modify_coefficients( move( nP ) , rng );    // AR  
-   
-   }
-   else{                                     // or subset modification
+     lfobj->modify_coefficients( move( nP ) , rng );    // AR
+    }
+   else {                                    // or subset modification
     Subset nms = generateSubset( m ); 
     if( dis( rg ) < 0.5 )
      BKB->chg_profits( nP.begin() , move( nms ) );              // PR
     else
      lfobj->modify_coefficients( move( nP ) , move( nms ) );    // AR
-   }
-
+    }
   }                   
 
   // Change Weights (range or subset)- - - - - - - - - - - - - - - - - - - -
-   
-  if( wchg & 8 && dis( rg ) < 0.3 ){
-
-  #if( LOG_LEVEL > 0 )
-   cout << "4 ";
-  #endif  
-    
+  if( wchg & 8 && dis( rg ) < 0.3 ) {
+   #if( LOG_LEVEL > 0 )
+    cout << "4 ";
+   #endif  
+ 
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    vector< double > nW( m );                 // generate new weights
    for( auto & w : nW )  
     w = dist_W( rg );
 
-   if( dis( rg ) < 0.5 ){                    // ranged modification
-    
+   if( dis( rg ) < 0.5 ) {                   // ranged modification
     Range rng = generateRange( m );
     
     if( dis( rg ) < 0.5 )
      BKB->chg_weights( nW.begin() , rng );              // PR
     else
      lfcnst->modify_coefficients( move( nW ) , rng );   // AR
-
-   }
-   else{                                     // or subset modification
-    
+    }
+   else {                                    // or subset modification
     Subset nms = generateSubset( m ); 
     
     if( dis( rg ) < 0.5 )
      BKB->chg_weights( nW.begin() , move( nms ) );              // PR
     else
-    lfcnst->modify_coefficients( move( nW ) , move( nms ) );    // AR
-
-   }
-
-  }      
+     lfcnst->modify_coefficients( move( nW ) , move( nms ) );   // AR
+    }
+   }      
    
-  // Fix x (range or subset)- - - - - - - - - - - - - - - - - - - - - - - - 
-   
+  // Fix x (range or subset)- - - - - - - - - - - - - - - - - - - - - - - -
   if( wchg & 16 && dis( rg ) < 0.3 ){
+   #if( LOG_LEVEL > 0 )
+    cout << "5 ";
+   #endif
 
-  #if( LOG_LEVEL > 0 )
-   cout << "5 ";
-  #endif  
-    
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    vector< bool > nX( m );
    for( int i = 0 ; i < m ; i++ )            // generate new x values
     nX[ i ] = ( dis( rg ) < 0.5 ) ? false : true;
 
-   if( dis( rg ) < 0.5 ){                    // ranged modification
-    
+   if( dis( rg ) < 0.5 ) {                   // ranged modification
     Range rng = generateRange( m );
     
     if( dis( rg ) < 0.5 )                    // PR 
      BKB->fix_x( nX , rng ); 
-    else{                                    // AR    
-     
+    else {                                   // AR
      auto nXit = nX.begin();
      
-     for( int j = rng.first ; j < rng.second ; j++ ){
-       // get the variable
-       auto x = BKB->get_Var( j );
-       
-       if( !x->is_fixed() ){
-        x->set_value( *nXit++ );
-        x->is_fixed( true );   
+     for( int j = rng.first ; j < rng.second ; j++ ) {
+      // get the variable
+      auto x = BKB->get_Var( j );
+      if( ! x->is_fixed() ) {
+       x->set_value( *nXit++ );
+       x->is_fixed( true );   
        }
-       
+      }
      }
-    }  
-     
-   }
-   else{                                     // or subset modification
-    
+    }
+   else {                                    // or subset modification
     Subset nms = generateSubset( m ); 
 
     if( dis( rg ) < 0.5 )                   // PR
      BKB->fix_x( nX , move( nms ) );        
-    else{                                   // AR
+    else {                                  // AR
      //cout << "fix AR\n";    
      auto nXit = nX.begin();
-     
-     for( auto j : nms ){
+     for( auto j : nms ) {
       auto x = BKB->get_Var( j );
-       if( !x->is_fixed() ){
-        x->set_value( *nXit++ );
-        x->is_fixed( true );   
+      if( ! x->is_fixed() ) {
+       x->set_value( *nXit++ );
+       x->is_fixed( true );   
        }
+      }
      }
-    } 
-   }
+    }
+   }       
 
-  }       
-
-  // Unfix x (range or subset)- - - - - - - - - - - - - - - - - - - - - - - 
-   
-  if( wchg & 32 && dis( rg ) < 0.3 ){
-
-  #if( LOG_LEVEL > 0 )
-   cout << "6 ";
-  #endif   
-    
+  // Unfix x (range or subset)- - - - - - - - - - - - - - - - - - - - - - -   
+  if( wchg & 32 && dis( rg ) < 0.3 ) {
+   #if( LOG_LEVEL > 0 )
+    cout << "6 ";
+   #endif   
+ 
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
-   if( dis( rg ) < 0.5 ){                    // ranged modification
-    
+   if( dis( rg ) < 0.5 ) {                   // ranged modification
     Range rng = generateRange( m );
     
     if( dis( rg ) < 0.5 )                    // PR
      BKB->unfix_x( rng );
-    else{                                    // AR
+    else {                                   // AR
      //cout << "Unfix AR\n";
-     for( int j = rng.first ; j < rng.second ; j++ ){
+     for( int j = rng.first ; j < rng.second ; j++ ){ 
       auto x = BKB->get_Var( j );
       x->is_fixed( false );
-     }
-    } 
-   }
-   else{                                     // or subset modification
-    
+      }
+     } 
+    }
+   else {                                    // or subset modification    
     Subset nms = generateSubset( m ); 
-    
+
     if( dis( rg ) < 0.5 )                    // PR
      BKB->unfix_x( move( nms ) );
-    else{                                    // AR
+    else {                                   // AR
      //cout << "Unfix AR\n";
      for( auto j : nms ){
       auto x = BKB->get_Var( j );
       x->is_fixed( false );
-     }  
+      }
+     }
     }
-
-   }
-
-  }  
+   }  
     
   // Change Integrality (range or subset)- - - - - - - - - - - - - - - - - - - -
-   
-  if( wchg & 64 && dis( rg ) < 0.3 ){
-
-  #if( LOG_LEVEL > 0 )
-   cout << "7 ";
-  #endif   
+  if( wchg & 64 && dis( rg ) < 0.3 ) {
+   #if( LOG_LEVEL > 0 )
+    cout << "7 ";
+   #endif
 
    int m = int( dis( rg ) * ( N / 50 ) );    // number of items to modify
 
    vector< bool > nI( m );                   // generate new integrality vector
    
    for( int i = 0 ; i < m ; i++ )
-      nI[i] = (bool) dist_I( rg ); 
+    nI[ i ] = (bool) dist_I( rg ); 
 
-   if( dis( rg ) < 0.5 ){                    // ranged modification
-    
+   if( dis( rg ) < 0.5 ) {                   // ranged modification
     Range rng = generateRange( m );
     
     if( dis( rg ) < 0.5 )                    // PR
      BKB->chg_integrality( nI.begin() , rng );
-    else{                                    // AR
-     
+    else {                                   // AR
      auto nIit = nI.begin();
-     for( int j = rng.first ; j < rng.second ; j++ ){
+     for( int j = rng.first ; j < rng.second ; j++ ) {
       auto x = BKB->get_Var( j );
       if( *nIit )
        x->set_type( ColVariable::kBinary );
       else
        x->set_type( ColVariable::kPosUnitary );
       nIit++; 
-     }
-
-    }          
-   }
-   else{                                     // or subset modification
-    
+      }
+     }          
+    }
+   else {                                    // or subset modification
     Subset nms = generateSubset( m ); 
-    
+
     if( dis( rg ) < 0.5 )                    // PR
      BKB->chg_integrality( nI.begin() , move( nms ) );
-    else{                                    // AR
-     
+    else {                                   // AR
      auto nIit = nI.begin();
-     for( auto j : nms ){
+     for( auto j : nms ) {
       auto x = BKB->get_Var( j );
       if( *nIit )
        x->set_type( ColVariable::kBinary );
       else
        x->set_type( ColVariable::kPosUnitary );
-      nIit++;          
-     }
+      nIit++;
+      }
+     }       
+    }
+   }                   
 
-    }       
-   }
-
-  }                   
-
-    
-    
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
   if( i % STEP == 0 )
    AllPassed &= SolveBoth();
- 
- } 
+  } 
 
-if( AllPassed )
- cout << "All test passed" << endl;
-else
- cout << "Error" << endl;    
+ if( AllPassed )
+  cout << "All test passed" << endl;
+ else
+  cout << "Error" << endl;    
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
  BKB->unregister_Solvers();
 
  delete BKB;
 
  return( AllPassed ? 0 : 1 );
-
-}
+ }
 
 /*--------------------------------------------------------------------------*/
 /*------------------------ End File test.cpp -------------------------------*/

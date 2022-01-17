@@ -22,7 +22,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + print optimal solutions
@@ -540,6 +540,7 @@ int main( int argc , char **argv )
   }
 
  TUBlock->generate_abstract_variables();
+ TUBlock->generate_objective( nullptr );
  
  // save some original data of the ThermalUnitBlock - - - - - - - - - - - - -
 

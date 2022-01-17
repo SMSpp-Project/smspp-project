@@ -1,11 +1,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - LPBSCfg.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - LPBSCfg-K-DP.txt- - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for any Block that is a simple
-# MILP / MIQP (convex, separable) and can be solved by a :MILPSolver 
-# (say, a CPXMILPSolver or a SCIPMILPSolver)
+# A txt description of a BlockSolverConfig for a BinaryKnapsackBlock solved
+# by a DPBinaryKnapsackSolver.
 #
-#   Antonio Frangioni
+#   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -17,48 +16,37 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver
-CPXMILPSolver
-#SCIPMILPSolver
+DPBinaryKnapsackSolver
 
 1  # number of ComputeConfig in this BlockSolverConfig
-
-# now all the ComputeConfig
 
 ComputeConfig # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-2 # number of integer parameters
-
+0  # number of integer parameters
 # now all the integer parameters
-intLogVerb      0    # log verbosity of the MILPSolver
-intRelaxIntVars 0    # nonzero if the continuous relaxation is solved
-
-# note that we could eof() the file here since the rest is all empty
-
-0 # number of double parameters
-
-# now all the double parameters
 # [none]
 
-0 # number of string parameters
+1  # number of double parameters
 
+# now all the double parameters
+dblReopt	0.3	
+
+0  # number of string parameters
 # now all the string parameters
 # [none]
 
-0 # number of vector-of-int parameters
-
+0  # number of vector-of-int parameters
 # now all the vector-of-int parameters
 # [none]
 
-0 # number of vector-of-double parameters
-
+0  # number of vector-of-double parameters
 # now all the vector-of-double parameters
 # [none]
 
-0 # number of vector-of-string parameters
-
+0  # number of vector-of-string parameters
 # now all the vector-of-string parameters
 # [none]
 
@@ -66,5 +54,5 @@ intRelaxIntVars 0    # nonzero if the continuous relaxation is solved
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END LPBSCfg.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END LPBSCfg-K-DP.txt- - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
