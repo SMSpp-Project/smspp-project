@@ -9,19 +9,14 @@
  * LagrangianDualSolver, the UCBlock is solved by the Solver and the results
  * are compared.
  *
- * Although the testerdoes not even include BundleSolver, some
- * BundleSolver-specific steps are 
+ * Although the tester does not even include BundleSolver, some
+ * BundleSolver-specific steps are done if a macro is set.
  *
  * The tester has some parts for the future extension when the UCBlock is
  * repeatedly randomly modified and re-solved several times, but this is not
  * done yet.
  *
- * \version 0.20
- *
- * \date 13 - 02 - 2021
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
@@ -31,7 +26,8 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 1
+// -1 = no log at all, not even pass/fail
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -222,12 +218,30 @@ static Subset GenerateRand( Index m , Index k )
  }
 
 /*--------------------------------------------------------------------------*/
+// set precision for long floats (7 digits) in scientific notation
+
+static inline std::ostream & def( std::ostream & os ) {
+ os.setf( std::ios::scientific , std::ios::floatfield );
+ os << setprecision( 7 );
+ return( os );
+ }
+
+/*--------------------------------------------------------------------------*/
+// set precision for short floats (4 digits) in fixed notation
+
+static inline std::ostream & fixd( std::ostream & os ) {
+ os.setf( std::ios::fixed , std::ios::floatfield );
+ os << setprecision( 4 );
+ return( os );
+ }
+
+/*--------------------------------------------------------------------------*/
 
 static void PrintResults( bool hs , int rtrn , double fo )
 {
  if( hs ) {
   cout.setf( ios::scientific, ios::floatfield );
-  cout << setprecision( 7 ) << fo;
+  cout << def << fo;
   }
  else
   if( rtrn == Solver::kInfeasible )
@@ -267,7 +281,8 @@ static bool SolveBoth( void )
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
-    cout << "Solver1 (" << time1 << ") = ";
+    cout << "Solver1 (" << fixd << time1 << ", "
+	 << Slvr1->get_elapsed_iterations() << ") = ";
     PrintResults( hs1st , rtrn1st , fo1st );
     cout << endl;
    #endif
@@ -288,8 +303,7 @@ static bool SolveBoth( void )
    end = std::chrono::system_clock::now();
    elapsed = end - start;
    auto time2 = elapsed.count();
-   cout.setf( ios::scientific, ios::floatfield );
-   cout << setprecision( 2 ) << time1 << " - " << time2 << " - ";
+   cout << fixd << time1 << " - " << time2 << " - ";
   #endif
 
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
@@ -319,7 +333,6 @@ static bool SolveBoth( void )
 
   #if( LOG_LEVEL >= 1 )
    cout << "Solver1 = ";
-   cout << setprecision( 7 );
    PrintResults( hs1st , rtrn1st , fo1st );
 
    cout << " ~ Solver2 = ";
@@ -665,13 +678,16 @@ int main( int argc , char **argv )
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      !!*/
 
- /*!!
- if( AllPassed )
-  cout << GREEN( All tests passed!! ) << endl;
- else
-  cout << RED( Shit happened!! ) << endl;
-  !!*/
- 
+ #if( LOG_LEVEL >= 0 )
+  if( TestBlock->get_registered_solvers().size() > 1 ) {
+   // tests only make sense if more than one Solver is attached
+   if( AllPassed )
+    cout << GREEN( All tests passed!! ) << endl;
+   else
+    cout << RED( Shit happened!! ) << endl;
+   }
+ #endif
+
  // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

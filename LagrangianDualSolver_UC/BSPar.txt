@@ -4,8 +4,6 @@
 # A txt description of a BlockSolverConfig for a UCBlock to be solved by a
 # LagrangianDualSolver using a BundleSolver as the inner Solver
 #
-#   version 1.0 , 30/12/2020
-#
 #   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -37,7 +35,7 @@ ComputeConfig # exact type of the ComputeConfig object
 intDoEasy  1      # do easy components for (some) LagBFunction
 intMaxIter 10000  # max number of iterations for each call
 intMaxThread 16	   # MaxThread, max number of new tasks to spawn
-intLogVerb 4      # log verbosity of main Bundle algorithm
+intLogVerb 0      # log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -52,9 +50,9 @@ inttSPar1  12     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = bal
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration 
 
-intFrcLstSS 1     # if all the components need be computed at the optimum
+intFrcLstSS 0     # if all the components need be computed at the optimum
 
-intTrgtMng 16      # bit-wise encoding targets and accuracies management:
+intTrgtMng 0      # bit-wise encoding targets and accuracies management:
                   # bit 0: if lower/upper target is set to each convex/concave component
                   # bit 1: if upper/lower target is set to each convex/concave component
                   # bit 2-3: if accuracy is set (2 = upper - lower, 3 = using EpsU)
@@ -74,13 +72,13 @@ intQPmp2   0      # MxRmv, how many variables can be removed from the base at ea
       	          # iteration in BMinQuad (0 = at will)
 
 # OSiMPSolver's parameters : - - - - - -
-intOSImp1  0      # CPLEX algorithm
+intOSImp1  4      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
 
 intRstAlg   2     # parameter to handle the reset of the algorithm
 
-16 # number of double parameters
+17 # number of double parameters
 
 # now all the double parameters
 #dblRelAcc  1e-4   # relative accuracy required to solution
@@ -100,6 +98,7 @@ dbltMaior  1e+6   # maximum value for t
 dbltMinor  1e-2   # minimum value for t
 dbltInit   1e-1   # initial value for t
 dbltSPar2  1e-2   # parameter for the long-term t-strategy
+dbltSPar3  0      # parameter for small heuristic t adjustments
 
 dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 
@@ -108,8 +107,8 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 1 # number of string parameters
 
 # now all the string parameters
-str_LDSlv_ISName	ParallelBundleSolver  # the inner Solver used by LagrangianDualSolver
-#str_LDSlv_ISName	BundleSolver  # the inner Solver used by LagrangianDualSolver
+#str_LDSlv_ISName	ParallelBundleSolver  # the inner Solver used by LagrangianDualSolver
+str_LDSlv_ISName	BundleSolver  # the inner Solver used by LagrangianDualSolver
 #str_LagBF_BSCfg		LPBSCfg.txt   # BlockSolverConfig for the LagBFunctions
 # not needed if intDoEasy >= 1 && USE_BundleSolver > 0, this is done "by hand"
 

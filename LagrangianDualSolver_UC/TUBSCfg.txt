@@ -3,8 +3,6 @@
 #
 # A txt description of a BlockSolverConfig for the ThermalUnitBlock
 #
-#   version 1.1 , 21/02/2021
-#
 #   Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -18,7 +16,7 @@ BlockSolverConfig     # exact type of the Configuration object
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver
 ThermalUnitDPSolver
-CPXMILPSolver
+#CPXMILPSolver
 #SCIPMILPSolver
 
 1  # number of ComputeConfig in this BlockSolverConfig

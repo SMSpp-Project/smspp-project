@@ -50,7 +50,7 @@ clean::
 
 # define input macros for SMS++ complete makefile, then include it
 SMS++SDR = ../../SMS++/
-include $(SMS++SDR)lib/makefile-inc
+include $(SMS++SDR)lib/makefile-c
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/
