@@ -8,10 +8,10 @@ pages:
   script:
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    - git submodule foreach --recursive "git checkout develop || git checkout master" 
     - doxygen doxygen/Doxyfile
     - mv doc/html/ public/
   artifacts:
     paths:
       - public
-  only:
-    - master
+  when: manual
