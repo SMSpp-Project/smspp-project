@@ -4,11 +4,11 @@
 /** @file
  * Main for testing different formulations of some problem.
  *
- * This main loads a Block twice. Then it generate_abstract_variables() them
- * with two different Configuration, assumed to produce two different
- * formulations of the same problem. Then it attaches two identical Solver
- * to the two copies of the Block (by using the same BlockSolverConfig),
- * solve both and compare the results.
+ * This main loads a Block twice. Then it Block-Config-ure each copy with a
+ * different BlockConfig taken by two different files, assumed to produce
+ * two different formulations of the same problem. Then it attaches two
+ * identical Solver to the two copies of the Block (by using the same
+ * BlockSolverConfig), solve both and compare the results.
  *
  * \author Antonio Frangioni \n
  *         Dipartimento di Informatica \n
@@ -33,6 +33,8 @@
 /*----------------------------- INCLUDES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
+#include "RBlockConfig.h"
+
 #include "BlockSolverConfig.h"
 
 /*--------------------------------------------------------------------------*/
@@ -42,6 +44,8 @@
 using namespace SMSpp_di_unipi_it;
 
 using namespace std;
+
+SMSpp_ensure_load( RBlockConfig );
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- TYPES ------------------------------------*/
@@ -165,7 +169,7 @@ int main( int argc , char **argv )
  if( argc < 2 ) {
   cerr << "Usage: " << argv[ 0 ]
        << " block_filename [cfg_1_filename cfg_1_filename]" << endl
-       << "       default configurations Config1.txt and Config1.txt" << endl;
+       << "       default: RBlockConfig1.txt RBlockConfig1.txt" << endl;
   return( 1 );  
   }
 
@@ -180,26 +184,28 @@ int main( int argc , char **argv )
  Block2 = Block::deserialize( argv[ 1 ] );
  // this reasonably should not fail ...
 
- // load two Configuration from file- - - - - - - - - - - - - - - - - - - - -
+ // load two BlockConfig from file- - - - - - - - - - - - - - - - - - - - - -
 
- auto cfg1 = Configuration::deserialize( argc >= 3 ? argv[ 2 ]
-					           : "Config1.txt" );
+ auto cfg1 = dynamic_cast< BlockConfig * >(
+	     Configuration::deserialize( argc >= 3 ? argv[ 2 ]
+					           : "RBlockConfig1.txt" ) );
  if( ! cfg1 ) {
-  cerr << "error: cannot load Configuration1" << endl;
+  cerr << "error: cannot load BlockConfig 1" << endl;
   return( 1 );
   }
 
- Block1->generate_abstract_variables( cfg1 );
+ cfg1->apply( Block1 );
  delete cfg1;
  
- auto cfg2 = Configuration::deserialize( argc >= 4 ? argv[ 3 ]
-					           : "Config2.txt" );
+ auto cfg2 = dynamic_cast< BlockConfig * >(
+	     Configuration::deserialize( argc >= 4 ? argv[ 3 ]
+					           : "RBlockConfig2.txt" ) );
  if( ! cfg2 ) {
-  cerr << "error: cannot load Configuration2" << endl;
+  cerr << "error: cannot load BlockConfig 2" << endl;
   return( 1 );
   }
 
- Block2->generate_abstract_variables( cfg2 );
+ cfg2->apply( Block2 );
  delete cfg2;
 
  // attach two identical Solver to both Block - - - - - - - - - - - - - - - -
