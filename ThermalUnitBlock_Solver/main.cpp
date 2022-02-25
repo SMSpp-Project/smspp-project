@@ -22,7 +22,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + print optimal solutions
@@ -237,8 +237,11 @@ static void GetP( std::vector< double > & P )
 static void GetU( std::vector< bool > & U )
 {
  auto u = TUBlock->get_commitment( 0 );
- for( auto & ui : U )
-  ui = (u++)->get_value();
+ // apparently does not work for unfathomable reasons
+ // for( auto & ui : U )
+ // ui = (u++)->get_value();
+ for( Index i = 0 ; i < U.size() ; ++i )
+  U[ i ] = (u++)->get_value();
  }
 
 #endif
@@ -320,7 +323,7 @@ static bool SolveBoth( void )
   std::vector< double > p1( time_horizon );
   std::vector< bool > u1( time_horizon );
   std::vector< double > p2( time_horizon );
-  std::vector< bool > u1( time_horizon );
+  std::vector< bool > u2( time_horizon );
  #endif
 
  #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )  
@@ -430,18 +433,20 @@ static bool SolveBoth( void )
    LOG1( "OK(f)" << endl );
 
    #if( CHECK_SOLUTIONS & 4 )
-    for( Index i = 0 ; i < time_horizon ; ++i )
-     if( abs( p1[ i ] - p2[ i ] ) > 1e-6 * max( abs( p1[ i ] , 1 ) ) ) {
+    for( Index i = 0 ; i < time_horizon ; ++i ) {
+     if( abs( p1[ i ] - p2[ i ] ) > 1e-6 * max( abs( p1[ i ] ) ,
+						double( 1 ) ) ) {
       cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
 	   << " ] = " << p2[ i ] << endl;
       return( false );
       }
 
-    if( u1[ i ] ~= u2[ i ] ) {
+     if( u1[ i ] != u2[ i ] ) {
       cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
 	   << " ] = " << u2[ i ] << endl;
       return( false );
       }
+     }
    #endif
 
    return( true );
