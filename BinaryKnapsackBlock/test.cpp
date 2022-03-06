@@ -506,17 +506,16 @@ int main( int argc , char **argv )
     vector< bool > nX( m );
     for( Index i = 0 ; i < m ; i++ )          // generate new x values
      nX[ i ] = ( dis( rg ) < 0.5 ) ? false : true;
+    auto nXit = nX.begin();
 
     if( dis( rg ) < 0.5 ) {                   // ranged modification
      Range rng = generateRange( m );
 
      if( dis( rg ) < 0.5 ) {                  // PR 
-      BKB->fix_x( nX , rng ); 
+      BKB->fix_x( nXit , rng ); 
       LOG( "(R)" );
       }
      else {                                   // AR
-      auto nXit = nX.begin();
-
       for( Index j = rng.first ; j < rng.second ; j++ ) {
        auto x = BKB->get_Var( j );
        if( ! x->is_fixed() ) {
@@ -531,11 +530,10 @@ int main( int argc , char **argv )
      Subset nms = generateSubset( m ); 
 
      if( dis( rg ) < 0.5 ) {                 // PR
-      BKB->fix_x( nX , move( nms ) );        
+      BKB->fix_x( nXit , move( nms ) );        
       LOG( "(S)" );
       }
      else {                                  // AR
-      auto nXit = nX.begin();
       for( auto j : nms ) {
        auto x = BKB->get_Var( j );
        if( ! x->is_fixed() ) {
