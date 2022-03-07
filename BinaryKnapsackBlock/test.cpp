@@ -214,8 +214,13 @@ int main( int argc , char **argv )
  double nW = 0.1;                       // percentage of negative weights
  double nP = 0.1;                       // percentage of positive weights
  double nI = 0.5;                       // percentage of integer variables
+ double nM = 0.2;                       // max percentage of items to modify
+ // for small knapsacks nM * N may be too small (always 0 or 1 at most)
+ // minM defines the minimum absolute number of items that can be modified
+ int minM = 10;
 
  switch( argc ) {
+  case( 10 ): Str2Sthg( argv[ 9 ] , nM );
   case( 9 ): Str2Sthg( argv[ 8 ] , nI );
   case( 8 ): Str2Sthg( argv[ 7 ] , nP );
   case( 7 ): Str2Sthg( argv[ 6 ] , nW );
@@ -226,7 +231,7 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
   default: cerr << "Usage: " << argv[ 0 ]
-		<< " seed [wchg N n_repeat delta nW nP nI]"
+		<< " seed [wchg N n_repeat delta nW nP nI nM]"
         << endl << "       wchg: what to change, coded bit-wise [127]"
 	<< endl << "             1 = change sense, 2 = change capacity "
         << endl << "             3 = change profits, 4 = change weights"
@@ -236,7 +241,8 @@ int main( int argc , char **argv )
         << endl << "       delta: Capacity parameter [0.01]"
         << endl << "       nW: percentage of negative weights [0.1]"
         << endl << "       nP: percentage of negative profits [0.1]"
-        << endl << "       nI: percentage ofinteger variables [0.5]"
+        << endl << "       nI: percentage of integer variables [0.5]"
+        << endl << "       nM: max percentage of items to modify [0.2]"
         << endl; 
    return( 1 );
   }
@@ -259,6 +265,11 @@ int main( int argc , char **argv )
   }
 
  if( ( nI < 0 ) || ( nI > 1 ) ) {
+  cerr << "error: nI must be in [ 0 , 1 ]" << endl;
+  exit( 1 );
+  }
+
+ if( ( nM < 0 ) || ( nM > 1 ) ) {
   cerr << "error: nI must be in [ 0 , 1 ]" << endl;
   exit( 1 );
   }
@@ -428,8 +439,11 @@ int main( int argc , char **argv )
    }                   
 
   // change Profits (range or subset) - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 4 && dis( rg ) < 0.3 )
-   if( Index m = int( dis( rg ) * ( N / 50 ) ) ) {  // n. of items to modify
+  if( wchg & 4 && dis( rg ) < 0.3 ){
+
+   Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
+   m = min( m , N );
+   if( m ){
     LOG( "P" );
 
     vector< double > nP( m );                 // generate new profits
@@ -461,10 +475,13 @@ int main( int argc , char **argv )
      }
     LOG( " ~ " );
     }                   
- 
+  }
   // change Weights (range or subset) - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 8 && dis( rg ) < 0.3 )
-   if( Index m = int( dis( rg ) * ( N / 50 ) ) ) {  // n. of items to modify
+  if( wchg & 8 && dis( rg ) < 0.3 ){
+
+   Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
+   m = min( m , N );
+   if( m ){
     LOG( "W" );
 
     vector< double > nW( m );                 // generate new weights
@@ -497,10 +514,14 @@ int main( int argc , char **argv )
      }
     LOG( " ~ " );
     }
+   }
    
   // Fix (range or subset)- - - - - - - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 16 && dis( rg ) < 0.3 )
-   if( Index m = int( dis( rg ) * ( N / 50 ) ) ) {  // n. of items to modify
+  if( wchg & 16 && dis( rg ) < 0.3 ){
+
+   Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
+   m = min( m , N );
+   if( m ){
     LOG( "F" );
 
     vector< bool > nX( m );
@@ -546,10 +567,13 @@ int main( int argc , char **argv )
      }
     LOG( " ~ " );
     }
-
+   }
   // Unfix (range or subset)- - - - - - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 32 && dis( rg ) < 0.3 )
-   if( Index m = int( dis( rg ) * ( N / 50 ) ) ) {  // n. of items to modify
+  if( wchg & 32 && dis( rg ) < 0.3 ){
+
+   Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
+   m = min( m , N );
+   if( m ){
     LOG( "U" );
 
     if( dis( rg ) < 0.5 ) {                   // ranged modification
@@ -580,10 +604,13 @@ int main( int argc , char **argv )
      }
     LOG( " ~ " );
     }
-
+   }
   // change Integrality (range or subset) - - - - - - - - - - - - - - - - - -
-  if( wchg & 64 && dis( rg ) < 0.3 )
-   if( Index m = int( dis( rg ) * ( N / 50 ) ) ) {  // n. of items to modify
+  if( wchg & 64 && dis( rg ) < 0.3 ){
+
+   Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
+   m = min( m , N );
+   if( m ){
     LOG( "I" );
 
     vector< bool > nI( m );               // generate new integrality vector
@@ -622,7 +649,7 @@ int main( int argc , char **argv )
      }
     LOG( " ~ " );
     }
-
+   }
   // finally, re-solve - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
   if( ! ( i % STEP ) )
