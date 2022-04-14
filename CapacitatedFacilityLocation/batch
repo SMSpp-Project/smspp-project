@@ -1,0 +1,75 @@
+#/usr/bin/env bash
+
+export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIP-8.0.0/lib
+
+niter=0
+wchg=0
+rounds=0
+maxseed=0
+
+# ORLib - - - - - - - - - - - - - - - - - - - -
+
+for f in data/txt/ORLib/*.txt
+do
+for (( seed=0 ; seed<=maxseed ; seed++ ))
+do
+
+printf "[${f} c $niter $seed $wchg $rounds]: "
+
+./CFL_test ${f} c $niter $seed $wchg $rounds
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+done
+
+# TBED- - - - - - - - - - - - - - - - - - - - - -
+
+for i in 300 300_1500 500 700 1000
+do
+for (( h=1 ; h<=20 ; h++ ))
+do
+for (( seed=0 ; seed<=maxseed ; seed++ ))
+do
+
+printf "[data/txt/TBED/${i}/i${i}_${h}.txt f $niter $seed $wchg $rounds]: "
+
+./CFL_test data/txt/TBED/${i}/i${i}_${h}.txt f $niter $seed $wchg $rounds
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+done
+done
+
+# Yang- - - - - - - - - - - - - - - - - - - - - -
+
+for i in 30-200 60-200 60-300 80-400
+do
+for (( h=1 ; h<=5 ; h++ ))
+do
+for (( seed=0 ; seed<=maxseed ; seed++ ))
+do
+
+printf "[data/txt/Yang/${i}/${i}-${h}.txt l $niter $seed $wchg $rounds]: "
+
+./CFL_test data/txt/Yang/${i}/${i}-${h}.txt l $niter $seed $wchg $rounds
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+done
+done
+
+
+
+# end batch

@@ -11,6 +11,7 @@
 *.elf
 BoxSolver/BoxSolver_test
 BinaryKnapsackBlock/test
+CapacitatedFacilityLocation/CFL_test
 compare_formulations/test
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_Box/LDS_Box_test
