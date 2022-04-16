@@ -32,7 +32,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -691,7 +691,7 @@ int main( int argc , char **argv )
   // change facilities costs- - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "changed " << tochange << " f-costs" );
 
     if( tochange == 1 ) {     // change a single element
@@ -743,7 +743,7 @@ int main( int argc , char **argv )
   // change transportation costs- - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( n * m , n_change ) ) ) {
     LOG1( "changed " << tochange << " t-costs" );
 
     if( tochange == 1 ) {     // change a single element
@@ -798,7 +798,7 @@ int main( int argc , char **argv )
   // change facilities capacities - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "changed " << tochange << " capacities" );
 
     std::vector< FRowConstraint > * cap = nullptr;
@@ -864,7 +864,7 @@ int main( int argc , char **argv )
   //       not attempted here
 
   if( ( wchg & 8 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( n , n_change ) ) ) {
     LOG1( "changed " << tochange << " demands" );
 
     if( tochange == 1 ) {     // change a single element
@@ -892,7 +892,7 @@ int main( int argc , char **argv )
   // close facilities - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "closed " << tochange << " facilities" );
 
     std::vector< ColVariable > * y = nullptr;
@@ -960,7 +960,7 @@ int main( int argc , char **argv )
   // open facilities- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 32 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "opened " << tochange << " facilities" );
 
     std::vector< ColVariable > * y = nullptr;
@@ -1020,7 +1020,7 @@ int main( int argc , char **argv )
   // fix-open facilities- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 64 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = Index( dis( rg ) * n_change ) ) {
+   if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "fix-open " << tochange << " facilities" );
 
     std::vector< ColVariable > * y = nullptr;
