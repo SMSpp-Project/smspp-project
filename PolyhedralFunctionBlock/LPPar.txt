@@ -45,6 +45,7 @@ dblRelAcc  1e-8   # relative accuracy required to solution
 0 # number of string parameters
 
 # now all the string parameters
+#strOutputFile LP0.lp
 # [none]
 
 0 # number of vector-of-int parameters
