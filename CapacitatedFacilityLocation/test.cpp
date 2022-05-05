@@ -36,7 +36,6 @@
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
-// 3 = + save LP file
 
 #if( LOG_LEVEL >= 1 )
  #define LOG1( x ) cout << x
@@ -74,7 +73,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 
 /*--------------------------------------------------------------------------*/
 
@@ -138,8 +137,8 @@ static constexpr FunctionValue INF = Inf< FunctionValue >();
 CapacitatedFacilityLocationBlock * B1;  // the original Block
 Block * B2;                             // the R3Block
 
-Index m;  // record number of facilities
-Index n;  // record number of customers
+Index m;  // number of facilities
+Index n;  // number of customers
 
 Configuration * r3bc;  // the R3Block Configuration
 
@@ -162,11 +161,21 @@ static void Str2Sthg( const char* const str , T &sthg )
 
 static double rndfctr( void )
 {
- return( 2.5 * dis( rg ) - 0.5 );  // return a random number in [ 0.5 , 2 ]
+ return( 1.5 * dis( rg ) + 0.5 );  // return a random number in [ 0.5 , 2 ]
  }
 
 /*--------------------------------------------------------------------------*/
-// return vect[ rng ] scaled by random factors in [ 0.5 , 2 ]
+
+static double rndfctrn( void )
+{
+ return( 2.5 * dis( rg ) - 0.5 );  // return a random number in [ - 0.5 , 2 ]
+ }
+
+/*--------------------------------------------------------------------------*/
+// return vect[ rng ] scaled by random factors in [ 0.5 , 2 ]: this conserves
+// positivity (if vect[ rng ] >= 0 before, this is still true after), and
+// therefore is the "right" operation for demands and capacities that need
+// always be >= 0
 
 template< class T >
 static vector< T > rndscale( const T * vect , Range rng )
@@ -180,7 +189,10 @@ static vector< T > rndscale( const T * vect , Range rng )
  }
 
 /*--------------------------------------------------------------------------*/
-// return vect[ sbst ] scaled by random factors in [ 0.5 , 2 ]
+// return vect[ sbst ] scaled by random factors in [ 0.5 , 2 ]: this conserves
+// positivity (if vect[ sbst ] >= 0 before, this is still true after), and
+// therefore is the "right" operation for demands and capacities that need
+// always be >= 0
 
 template< class T >
 static vector< T > rndscale( const T * vect , c_Subset sbst )
@@ -189,6 +201,42 @@ static vector< T > rndscale( const T * vect , c_Subset sbst )
  auto vit = tmp.begin();
  for( auto i : sbst )
   *(vit++) = rndfctr() * vect[ i ];
+
+ return( tmp );
+ }
+
+/*--------------------------------------------------------------------------*/
+// return vect[ rng ] scaled by random factors in [ - 0.5 , 2 ]: this means
+// that there is some chance that some element of vect[ rng ] is < 0 after
+// the operation even vect[ rng ] was all >= 0 before, and therefore is the
+// "right" operation for costs (facility and transporation) since these may
+// end up being < 0, e.g., in a Lagrangian approach
+
+template< class T >
+static vector< T > rndscalen( const T * vect , Range rng )
+{
+ vector< T > tmp( rng.second - rng.first );
+ vect += rng.first;
+ for( auto & el : tmp )
+  el = rndfctrn() * (*(vect++));
+
+ return( tmp );
+ }
+
+/*--------------------------------------------------------------------------*/
+// return vect[ sbst ] scaled by random factors in [ - 0.5 , 2 ]: this means
+// that there is some chance that some element of vect[ sbst ] is < 0 after
+// the operation even vect[ sbst ] was all >= 0 before, and therefore is the
+// "right" operation for costs (facility and transporation) since these may
+// end up being < 0, e.g., in a Lagrangian approach
+
+template< class T >
+static vector< T > rndscalen( const T * vect , c_Subset sbst )
+{
+ vector< T > tmp( sbst.size() );
+ auto vit = tmp.begin();
+ for( auto i : sbst )
+  *(vit++) = rndfctrn() * vect[ i ];
 
  return( tmp );
  }
@@ -211,17 +259,22 @@ static LinearFunction * LF( Constraint * cnst )
 
 /*--------------------------------------------------------------------------*/
 
-static Subset GenerateRand( Index m , Index k )
+static Subset GenerateRand( Index m , Index k , bool ord = true )
 {
- // generate a sorted random k-vector of unique integers in 0 ... m - 1
+ // generate a (sorted) random k-vector of unique integers in 0 ... m - 1
+ if( k > m ) {
+  cerr << "error: GenerateRand( " << m << " , " << k << " )" << endl;
+  exit( 1 );
+  }
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
  std::shuffle( rnd.begin() , rnd.end() , rg );    
  rnd.resize( k );
- sort( rnd.begin() , rnd.end() );
+ if( ord )
+  sort( rnd.begin() , rnd.end() );
 
- return( std::move( rnd ) );
+ return( rnd );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -515,6 +568,8 @@ int main( int argc , char **argv )
              return( 1 );
   }
 
+ rg.seed( seed );  // seed the pseudo-random number generator     
+
  // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -583,7 +638,7 @@ int main( int argc , char **argv )
   bsc1 = dynamic_cast< BlockSolverConfig * >( c );
   
   if( ! bsc1 ) {
-   cerr << "Error: BSPar.txt does not contain a BlockSolverConfig" << endl;
+   cerr << "Error: BSPar1.txt does not contain a BlockSolverConfig" << endl;
    delete c;
    exit( 1 );
    }
@@ -688,6 +743,16 @@ int main( int argc , char **argv )
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
   LOG1( rep << ": ");
 
+  if( ! AllPassed ) {
+   std::ofstream f( "CFL1.txt" );
+   B1->print( f , 'C' );
+   f.close();
+   f.open( "CFL2.txt" );
+   B2->print( f , 'C' );
+   f.close();
+   break;
+   }
+
   // change facilities costs- - - - - - - - - - - - - - - - - - - - - - - - -
 
   if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
@@ -711,7 +776,7 @@ int main( int argc , char **argv )
       Range rng;
       rng.first = dis( rg ) * ( m - tochange );
       rng.second = rng.first  + tochange;
-      auto NC = rndscale( B1->get_Fixed_Costs().data() , rng );
+      auto NC = rndscalen( B1->get_Fixed_Costs().data() , rng );
 
       if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
        // change via abstract representation
@@ -722,19 +787,23 @@ int main( int argc , char **argv )
        B1->chg_facility_costs( NC.begin() , rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( m , tochange );
-      auto NC = rndscale( B1->get_Fixed_Costs().data() , sbst );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( m , tochange , ord );
+      auto NC = rndscalen( B1->get_Fixed_Costs().data() , sbst );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
 
       if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
        // change via abstract representation
-       LOG1( "(s,a)" );
+       LOG1( ",a" );
        LF( B1->get_objective() )->modify_coefficients( std::move( NC ) ,
-					      std::move( sbst ) , true );
+					      std::move( sbst ) , ord );
        }
-      else {  // change via call to chg_* method
-       LOG1( "(s)" );
-       B1->chg_facility_costs( NC.begin() , std::move( sbst ) , true );
-       }
+      else  // change via call to chg_* method
+       B1->chg_facility_costs( NC.begin() , std::move( sbst ) , ord );
+
+      LOG1( ")" );
       }
 
     LOG1( " - " );
@@ -763,7 +832,7 @@ int main( int argc , char **argv )
       Range rng;
       rng.first = dis( rg ) * ( n * m - tochange );
       rng.second = rng.first  + tochange;
-      auto NC = rndscale( B1->get_Transportation_Costs().data() , rng );
+      auto NC = rndscalen( B1->get_Transportation_Costs().data() , rng );
 
       if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
        // change via abstract representation
@@ -776,20 +845,24 @@ int main( int argc , char **argv )
        B1->chg_transportation_costs( NC.begin() , rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( n * m , tochange );
-      auto NC = rndscale( B1->get_Transportation_Costs().data() , sbst );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( n * m , tochange , ord );
+      auto NC = rndscalen( B1->get_Transportation_Costs().data() , sbst );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
 
       if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
        // change via abstract representation
-       LOG1( "(s,a)" );
+       LOG1( ",a" );
        SShift( sbst , m );
        LF( B1->get_objective() )->modify_coefficients( std::move( NC ) ,
-					      std::move( sbst ) , true );
+					      std::move( sbst ) , ord );
        }
-      else {  // change via call to chg_* method
-       LOG1( "(s)" );
-       B1->chg_transportation_costs( NC.begin() , std::move( sbst ) , true );
-       }
+      else  // change via call to chg_* method
+       B1->chg_transportation_costs( NC.begin() , std::move( sbst ) , ord );
+
+      LOG1( ")" );
       }
 
     LOG1( " - " );
@@ -837,19 +910,23 @@ int main( int argc , char **argv )
        B1->chg_facility_capacities( NC.begin() , rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( m , tochange );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( m , tochange , ord );
       auto NC = rndscale( B1->get_Capacities().data() , sbst );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
 
       if( cap ) {  // change via abstract representation
-       LOG1( "(s,a)" );
+       LOG1( ",a" );
        auto NCit = NC.begin();
        for( Index i : sbst )
 	LF( & (*cap)[ i ] )->modify_coefficient( n , - *(NCit++) , iM );
        }
-      else {       // change via call to chg_* method
-       LOG1( "(s)" );
-       B1->chg_facility_capacities( NC.begin() , std::move( sbst ) , true );
-       }
+      else       // change via call to chg_* method
+       B1->chg_facility_capacities( NC.begin() , std::move( sbst ) , ord );
+
+      LOG1( ")" );
       }
 
     if( auto chnl = Observer::par2chnl( iM ) )  // a channel had been opened
@@ -881,9 +958,15 @@ int main( int argc , char **argv )
       B1->chg_customer_demands( NC.begin() , rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( m , tochange );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( n , tochange , ord );
       auto NC = rndscale( B1->get_Demands().data() , sbst );
-      B1->chg_customer_demands( NC.begin() , std::move( sbst ) , true );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
+
+      B1->chg_customer_demands( NC.begin() , std::move( sbst ) , ord );
+      LOG1( ")" );
       }
 
     LOG1( " - " );
@@ -935,20 +1018,24 @@ int main( int argc , char **argv )
        B1->close_facilities( rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( m , tochange );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( m , tochange , ord );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
 
       if( y ) {  // change via abstract representation
-       LOG1( "(s,a)" );
+       LOG1( ",a" );
        for( Index i : sbst )
 	if( ! (*y)[ i ].is_fixed() ) {
 	 (*y)[ i ].set_value( 0 );
 	 (*y)[ i ].is_fixed( true , iM );
          }
        }
-      else {     // change via call to chg_* method
-       LOG1( "(s)" );
-       B1->close_facilities( std::move( sbst ) , true );
-       }
+      else     // change via call to chg_* method
+       B1->close_facilities( std::move( sbst ) , ord );
+
+      LOG1( ")" );
       }
 
     if( auto chnl = Observer::par2chnl( iM ) )  // a channel had been opened
@@ -997,18 +1084,22 @@ int main( int argc , char **argv )
        B1->open_facilities( rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( m , tochange );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( m , tochange , ord );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
 
       if( y ) {  // change via abstract representation
-       LOG1( "(s,a)" );
+       LOG1( ",a" );
        for( Index i : sbst )
 	if( ! (*y)[ i ].is_fixed() )
 	 (*y)[ i ].is_fixed( false , iM );
        }
-      else {     // change via call to chg_* method
-       LOG1( "(s)" );
-       B1->open_facilities( std::move( sbst ) , true );
-       }
+      else     // change via call to chg_* method
+       B1->open_facilities( std::move( sbst ) , ord );
+
+      LOG1( ")" );
       }
 
     if( auto chnl = Observer::par2chnl( iM ) )  // a channel had been opened
@@ -1063,20 +1154,24 @@ int main( int argc , char **argv )
        B1->fix_open_facilities( rng );
       }
      else {                    // in the others do a sparse change
-      auto sbst = GenerateRand( m , tochange );
+      bool ord = ( dis( rg ) < 0.5 );
+      auto sbst = GenerateRand( m , tochange , ord );
+      LOG1( "(s" );
+      if( ! ord )
+       LOG1( ",u" );
 
       if( y ) {  // change via abstract representation
-       LOG1( "(s,a)" );
+       LOG1( ",a" );
        for( Index i : sbst )
 	if( ! (*y)[ i ].is_fixed() ) {
 	 (*y)[ i ].set_value( 1 );
 	 (*y)[ i ].is_fixed( true , iM );
          }
        }
-      else {     // change via call to chg_* method
-       LOG1( "(s)" );
-       B1->fix_open_facilities( std::move( sbst ) , true );
-       }
+      else     // change via call to chg_* method
+       B1->fix_open_facilities( std::move( sbst ) , ord );
+
+      LOG1( ")" );
       }
 
     if( auto chnl = Observer::par2chnl( iM ) )  // a channel had been opened
