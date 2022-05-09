@@ -978,23 +978,23 @@ int main( int argc , char **argv )
    if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "closed " << tochange << " facilities" );
 
-    std::vector< ColVariable > * y = nullptr;
     ModParam iM = eModBlck;
-    if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
-     y = B1->get_static_variable_v< ColVariable >( "y" );
-     if( tochange > 1 )
-      iM = Observer::make_par( iM , B1->open_channel() );
+    bool abs = false;
+    if( ( wchg & 128 ) && ( tochange > 1 ) && ( dis( rg ) < 0.5 ) ) {
+     abs = true;
+     iM = Observer::make_par( iM , B1->open_channel() );
      }
 
     if( tochange == 1 ) {     // change a single element
      auto i = Index( dis( rg ) * ( m - 1 ) );
 
-     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+     if( abs ) {
       // change via abstract representation
       LOG1( "(a)" );
-      if( ! (*y)[ i ].is_fixed() ) {
-       (*y)[ i ].set_value( 0 );
-       (*y)[ i ].is_fixed( true );
+      auto yi = B1->get_y( i );
+      if( ! yi->is_fixed() ) {
+       yi->set_value( 0 );
+       yi->is_fixed( true );
        }
       }
      else  // change via call to method
@@ -1006,13 +1006,15 @@ int main( int argc , char **argv )
       rng.first = dis( rg ) * ( m - tochange );
       rng.second = rng.first  + tochange;
 
-      if( y ) {  // change via abstract representation
+      if( abs ) {  // change via abstract representation
        LOG1( "(a)" );
-       for( Index i = rng.first ; i < rng.second ; ++i )
-	if( ! (*y)[ i ].is_fixed() ) {
-	 (*y)[ i ].set_value( 0 );
-	 (*y)[ i ].is_fixed( true , iM );
+       for( Index i = rng.first ; i < rng.second ; ++i ) {
+	auto yi = B1->get_y( i );
+	if( ! yi->is_fixed() ) {
+	 yi->set_value( 0 );
+	 yi->is_fixed( true , iM );
          }
+        }
        }
       else       // change via call to method
        B1->close_facilities( rng );
@@ -1024,13 +1026,15 @@ int main( int argc , char **argv )
       if( ! ord )
        LOG1( ",u" );
 
-      if( y ) {  // change via abstract representation
+      if( abs ) {  // change via abstract representation
        LOG1( ",a" );
-       for( Index i : sbst )
-	if( ! (*y)[ i ].is_fixed() ) {
-	 (*y)[ i ].set_value( 0 );
-	 (*y)[ i ].is_fixed( true , iM );
+       for( Index i : sbst ) {
+	auto yi = B1->get_y( i );
+	if( ! yi->is_fixed() ) {
+	 yi->set_value( 0 );
+	 yi->is_fixed( true , iM );
          }
+        }
        }
       else     // change via call to chg_* method
        B1->close_facilities( std::move( sbst ) , ord );
@@ -1050,21 +1054,19 @@ int main( int argc , char **argv )
    if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "opened " << tochange << " facilities" );
 
-    std::vector< ColVariable > * y = nullptr;
     ModParam iM = eModBlck;
-    if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
-     y = B1->get_static_variable_v< ColVariable >( "y" );
-     if( tochange > 1 )
-      iM = Observer::make_par( iM , B1->open_channel() );
+    bool abs = false;
+    if( ( wchg & 128 ) && ( tochange > 1 ) && ( dis( rg ) < 0.5 ) ) {
+     abs = true;
+     iM = Observer::make_par( iM , B1->open_channel() );
      }
 
     if( tochange == 1 ) {     // change a single element
      auto i = Index( dis( rg ) * ( m - 1 ) );
 
-     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
-      // change via abstract representation
+     if( abs ) {  // change via abstract representation
       LOG1( "(a)" );
-      (*y)[ i ].is_fixed( false );
+      B1->get_y( i )->is_fixed( false );
       }
      else  // change via call to method
       B1->open_facility( i );
@@ -1075,10 +1077,10 @@ int main( int argc , char **argv )
       rng.first = dis( rg ) * ( m - tochange );
       rng.second = rng.first  + tochange;
 
-      if( y ) {  // change via abstract representation
+      if( abs ) {  // change via abstract representation
        LOG1( "(a)" );
        for( Index i = rng.first ; i < rng.second ; ++i )
-	(*y)[ i ].is_fixed( false , iM );
+	B1->get_y( i )->is_fixed( false , iM );
        }
       else       // change via call to method
        B1->open_facilities( rng );
@@ -1090,11 +1092,10 @@ int main( int argc , char **argv )
       if( ! ord )
        LOG1( ",u" );
 
-      if( y ) {  // change via abstract representation
+      if( abs ) {  // change via abstract representation
        LOG1( ",a" );
        for( Index i : sbst )
-	if( ! (*y)[ i ].is_fixed() )
-	 (*y)[ i ].is_fixed( false , iM );
+	B1->get_y( i )->is_fixed( false , iM );
        }
       else     // change via call to chg_* method
        B1->open_facilities( std::move( sbst ) , ord );
@@ -1114,23 +1115,22 @@ int main( int argc , char **argv )
    if( Index tochange = Index( dis( rg ) * min( m , n_change ) ) ) {
     LOG1( "fix-open " << tochange << " facilities" );
 
-    std::vector< ColVariable > * y = nullptr;
     ModParam iM = eModBlck;
-    if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
-     y = B1->get_static_variable_v< ColVariable >( "y" );
-     if( tochange > 1 )
-      iM = Observer::make_par( iM , B1->open_channel() );
+    bool abs = false;
+    if( ( wchg & 128 ) && ( tochange > 1 ) && ( dis( rg ) < 0.5 ) ) {
+     abs = true;
+     iM = Observer::make_par( iM , B1->open_channel() );
      }
 
     if( tochange == 1 ) {     // change a single element
      auto i = Index( dis( rg ) * ( m - 1 ) );
 
-     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
-      // change via abstract representation
+     if( abs ) {  // change via abstract representation
       LOG1( "(a)" );
-      if( ! (*y)[ i ].is_fixed() ) {
-       (*y)[ i ].set_value( 1 );
-       (*y)[ i ].is_fixed( true );
+      auto yi = B1->get_y( i );
+      if( ! yi->is_fixed() ) {
+       yi->set_value( 1 );
+       yi->is_fixed( true );
        }
       }
      else  // change via call to method
@@ -1142,13 +1142,15 @@ int main( int argc , char **argv )
       rng.first = dis( rg ) * ( m - tochange );
       rng.second = rng.first  + tochange;
 
-      if( y ) {  // change via abstract representation
+      if( abs ) {  // change via abstract representation
        LOG1( "(a)" );
-       for( Index i = rng.first ; i < rng.second ; ++i )
-	if( ! (*y)[ i ].is_fixed() ) {
-	 (*y)[ i ].set_value( 1 );
-	 (*y)[ i ].is_fixed( true , iM );
+       for( Index i = rng.first ; i < rng.second ; ++i ) {
+	auto yi = B1->get_y( i );
+	if( ! yi->is_fixed() ) {
+	 yi->set_value( 1 );
+	 yi->is_fixed( true , iM );
          }
+        }
        }
       else       // change via call to method
        B1->fix_open_facilities( rng );
@@ -1160,13 +1162,15 @@ int main( int argc , char **argv )
       if( ! ord )
        LOG1( ",u" );
 
-      if( y ) {  // change via abstract representation
+      if( abs ) {  // change via abstract representation
        LOG1( ",a" );
-       for( Index i : sbst )
-	if( ! (*y)[ i ].is_fixed() ) {
-	 (*y)[ i ].set_value( 1 );
-	 (*y)[ i ].is_fixed( true , iM );
+       for( Index i : sbst ) {
+	auto yi = B1->get_y( i );
+	if( ! yi->is_fixed() ) {
+	 yi->set_value( 1 );
+	 yi->is_fixed( true , iM );
          }
+        }
        }
       else     // change via call to chg_* method
        B1->fix_open_facilities( std::move( sbst ) , ord );
