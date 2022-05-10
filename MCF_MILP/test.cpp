@@ -202,7 +202,7 @@ class MCF_MILP_Test :
   auto milp_ub = s1->get_ub();
   auto mcf_ub = s2->get_ub();
 
-  if( milp_ub == std::numeric_limits< double >::infinity() ) {
+  if( milp_ub == SMSpp_di_unipi_it::Inf< double >() ) {
    EXPECT_EQ( milp_ub, mcf_ub );
   } else {
    auto abs_error = 1e-9 * max( double( 1 ), abs( max( milp_ub, mcf_ub ) ) );
