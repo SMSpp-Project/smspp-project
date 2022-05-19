@@ -205,7 +205,7 @@ TEST_P ( UCMILPTest, Solve ) {
 INSTANTIATE_TEST_SUITE_P( UCMILPTests,
                           UCMILPTest,
                           ::testing::Values(  // file, ub
-                          TestParameter{ "data/bus/L_B_N_2.nc", 29197370 },
+                          TestParameter{ "data/bus/L_B_N_2.nc4", 29197370 },
                            TestParameter{ "data/bus/L_B_N_3.nc4", 2913975.2703765822 },
                            TestParameter{ "data/bus/L_B_N_1.nc4", 27862915 },
                            TestParameter{ "data/bus/L_B_N_4.nc4", 16496061.862973599 },
@@ -232,11 +232,11 @@ INSTANTIATE_TEST_SUITE_P( UCMILPTests,
                            TestParameter{ "data/bus/L_B_C_25.nc4", 52450805.457220048 },
                            TestParameter{ "data/bus/L_B_C_26.nc4", 138317912.23035586 },
                            TestParameter{ "data/bus/L_B_C_27.nc4", 76083387.511754155 },
-                         //TestParameter{ "data/bus/L_B_C_28.nc4",  77789285.5},
+                           // TestParameter{ "data/bus/L_B_C_28.nc4", 77789285.5 },
                            TestParameter{ "data/bus/L_B_C_29.nc4", 140717780.21067753 },
                            TestParameter{ "data/bus/PublicFrance1Day.nc4", 33252650.6 },
-                       //  TestParameter{ "data/bus/L_B_C_30.nc4", 162473734.59061778},
-                       //  TestParameter{ "data/bus/L_B_C_31.nc4", 162473734.5906 },
+                           // TestParameter{ "data/bus/L_B_C_30.nc4", 162473734.59061778 },
+                           // TestParameter{ "data/bus/L_B_C_31.nc4", 162473734.5906 },
                            TestParameter{ "data/bus/L_B_C_32.nc4", 162473734.59061778 },
                            TestParameter{ "data/HVDC/L_H_C_33.nc4", 3478981001.3141098 },
                            TestParameter{ "data/HVDC/L_H_C_34.nc4",  3478984002.981585},
@@ -253,9 +253,9 @@ INSTANTIATE_TEST_SUITE_P( UCMILPTests,
                            TestParameter{ "data/HVDC/L_H_C_45.nc4", -3168655601.564 },
                            TestParameter{ "data/HVDC/L_H_C_46.nc4", -3166626247.773 },
                            TestParameter{ "data/HVDC/L_H_C_47.nc4",  -1128391550.157 }
-                          // TestParameter{ "data/HVDC/L_H_C_48.nc4", -3183551850 },
-                          // TestParameter{ "data/HVDC/L_H_C_49.nc4", -3170270040 },
-                          // TestParameter{ "data/HVDC/L_H_C_50.nc4",  -1612786730}
+                           // TestParameter{ "data/HVDC/L_H_C_48.nc4", -3183551850 },
+                           // TestParameter{ "data/HVDC/L_H_C_49.nc4", -3170270040 },
+                           // TestParameter{ "data/HVDC/L_H_C_50.nc4", -1612786730}
                           ),
                           UCMILPTest::PrintToStringParamName() );
 

@@ -27,14 +27,14 @@ http://groups.di.unipi.it/optimize/Data/MMCF.html
 
 These instances are supposed to be in the `data/` folder, the idea being
 that it is a symlink (or copy) of that of the
-[`MMCFBlock`](--//MMCFBlock/README.md) tester, as obtaned by
+[`MMCFBlock`](--//MMCFBlock/README.md) tester, as obtained by
 
     ln -s ../MMCFBlock/data 
 
 See the original repo for instructions about how to generate/download the
 instances.
 
-A makefile is also provided that builds the executable inluding the
+A makefile is also provided that builds the executable including the
 `LagrangianDualSolver` module, the `BundleSolver` module and all its
 dependencies, in particular `MILPSolver` together of course with the
 core SMS++ library, and the `MMCFBlock` module with its dependency,

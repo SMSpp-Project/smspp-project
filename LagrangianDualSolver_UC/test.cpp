@@ -59,12 +59,12 @@
 #define USE_BundleSolver 1
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the UCBlock is detached
+// if nonzero, the 1st Solver attached to the UCBlock is detached
 // and re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the UCBlock is detached and
+// if nonzero, the 2nd Solver attached to the UCBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0
@@ -699,7 +699,7 @@ int main( int argc , char **argv )
 
  #if USE_BundleSolver
   // since some Solver have been attached "by hand" to some sub-Block,
-  // unregister "by hand" any remaning Solver attached to them
+  // unregister "by hand" any remaining Solver attached to them
   for( auto sb : TestBlock->get_nested_Blocks() )
    sb->unregister_Solvers();
  #endif
