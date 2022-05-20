@@ -4,13 +4,9 @@
 #                                                                            #
 #   makefile of test (for MCFMILP)                                           #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               16 - 06 - 2020                               #
-#                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
@@ -22,21 +18,10 @@ NAME = MCF_MILP_test
 # basic directory
 DIR = ./
 
-# switch to select the :MCFClass solver, supported values are
-# -DHAVE_CSCL2      for the CS2 class
-# -DHAVE_CPLEX      for the MCFCplex class
-# -DHAVE_MFSMX      for the MCFSimplex class
-# -DHAVE_MFZIB      for the MCFZIB class
-# -DHAVE_RELAX      for the RelaxIV class
-# -DHAVE_CPLEX      for the MCFCplex class
-# -DHAVE_SPTRE      for the SPTree class; note that SPTree cannot solve
-#                   most MCF instances, except those with SPT structure
-MCFCS = -DHAVE_MFSMX
-
 # debug switches
-SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 $(MCFCS)
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
 # production switches
-#SW = -O3 -std=c++17 -DNDEBUG $(MCFCS)
+SW = -O3 -std=c++17 -DNDEBUG
 
 # compiler
 CC = clang++

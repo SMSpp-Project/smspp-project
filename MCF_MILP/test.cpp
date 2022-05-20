@@ -8,43 +8,35 @@
  * https://github.com/google/googletest
  *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
  * \author Niccolo' Iardella \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
  * Copyright &copy; by Antonio Frangioni, Niccolo' Iardella
  */
-
 /*--------------------------------------------------------------------------*/
 /*------------------------------ DEFINES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
-/* If any of the following macros is defined, then the corresponding
- * :MCFClass solver is included and the corresponding version of
- * MCFSolver<> can be tested.
+/* Defines which :MCFClass solver is included and the corresponding version
+ * of MCFSolver< :MCFClass > is tested:
  *
- * - HAVE_CSCL2      for the CS2 class
+ * - 0      for the CS2 class
  *
- * - HAVE_CPLEX      for the MCFCplex class
+ * - 1      for the MCFCplex class
  *
- * - HAVE_MFSMX      for the MCFSimplex class
+ * - 2      for the MCFSimplex class
  *
- * - HAVE_MFZIB      for the MCFZIB class
+ * - 3      for the MCFZIB class
  *
- * - HAVE_RELAX      for the RelaxIV class
+ * - 4      for the RelaxIV class
  *
- * - HAVE_CPLEX      for the MCFCplex class
- *
- * - HAVE_SPTRE      for the SPTree class; note that SPTree cannot solve
- *                   most MCF instances, except those with SPT structure
- *
- * Thus, the choice of the specific :MCFClass solver can be done in the
- * makefile with a simple -DHAVE_* argument to the compiler.
- */
+ * - 5      for the SPTree class; note that SPTree cannot solve
+ *          most MCF instances, except those with SPT structure */
+
+#define WHICH_MCF 2
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
@@ -54,37 +46,38 @@
 #include <iomanip>
 #include <netcdf>
 
-#ifdef HAVE_CSCL2
-#include "CS2.h"
-#define MCFC CS2
+#if WHICH_MCF == 0
+
+ #include "CS2.h"
+ #define MCFC CS2
+
+#elif WHICH_MCF == 1
+
+ #include "MCFCplex.h"
+ #define MCFC MCFCplex
+
+#elif WHICH_MCF == 2
+
+ #include "MCFSimplex.h"
+ #define MCFC MCFSimplex
+
+#elif WHICH_MCF == 3
+
+ #include "MCFZIB.h"
+ #define MCFC MCFZIB
+
+#elif WHICH_MCF == 4
+
+ #include "RelaxIV.h"
+ #define MCFC RelaxIV
+
+#elif WHICH_MCF == 5
+
+ #include "SPTree.h"
+ #define MCFC SPTree
+
 #endif
 
-#ifdef HAVE_CPLEX
-#include "MCFCplex.h"
-#define MCFC MCFCplex
-#endif
-
-#ifdef HAVE_MFSMX
-#include "MCFSimplex.h"
-#define MCFC MCFSimplex
-#endif
-
-#ifdef HAVE_MFZIB
-#include "MCFZIB.h"
-#define MCFC MCFZIB
-#endif
-
-#ifdef HAVE_RELAX
-#include "RelaxIV.h"
-#define MCFC RelaxIV
-#endif
-
-#ifdef HAVE_SPTRE
-#include "SPTree.h"
-#define MCFC SPTree
-#endif
-
-#include "MCFBlock.h"
 #include "MCFSolver.h"
 #include "CPXMILPSolver.h"
 
