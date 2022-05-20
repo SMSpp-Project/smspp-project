@@ -1876,6 +1876,12 @@ Note: the special case in which \code{EBR[ t ] == SBR[ t ] == 1} for all $t$, i.
  \item The \variable \cstr{Cost}, of type \code{netCDF::NcDouble} and either of size $1$ or indexed over the \dimension \cstr{NumberIntervals} (if \cstr{NumberIntervals} is not provided, then this \variable can also be indexed over \cstr{TimeHorizon}). This is meant to represent the vector \code{C[ t ]} that, for each time instant $t$, contains the monetary cost of storing one unit or energy into, or extracting it from, the battery (the cost is the same in both cases) at the corresponding time step. This variable is optional; if it is not provided then it's taken to be zero. If \cstr{Cost} has length $1$ then \code{C[ t ]} contains the same value for all $t$. Otherwise, \code{Cost[ i ]} is the fixed value of \code{C[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon}, then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
  \item The \variable \cstr{Demand}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{TimeHorizon}: the entry \code{Demand[ t ]} is assumed to contain the amount of energy that must be discharged from the battery and \cstr{sent away for some other purpose} (say, driving your e-car) at time t. This variable is optional; if it isn't defined, then \code{Demand[ t ] == 0}. Otherwise the \code{Demand[ t ]} contains the demand value for each time instant $t$.
+%
+\item The scalar \variable \cstr{Kappa}, of type \code{netCDF::NcDouble}. This
+  \variable contains the factor that multiplies the minimum and maximum active
+  power, maximum primary and secondary reserve, and the minimum and maximum
+  storage levels, at each time instant. This \variable is optional, if it is
+  not provided it is taken to be \code{Kappa == 1}.
 \end{itemize}
 
 \newpage
