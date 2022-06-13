@@ -28,25 +28,26 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-8  # number of integer parameters
+2  # number of integer parameters
 
 # now all the integer parameters
-intRelaxIntVars 0    # nonzero if the continuous relaxation is solved
-intCutSepPar    3    # separate user cuts at the root node & sub-nodes
-CPXPARAM_Threads 1   # avoid parallel
-CPXPARAM_MIP_Display 3  # more verbose log
-CPXPARAM_ScreenOutput   1       # output on screen
-CPXPARAM_MIP_Limits_Nodes   0   # only do root node
-CPXPARAM_MIP_Limits_EachCutLimit   0  # disable standard cuts
-CPXPARAM_MIP_Strategy_HeuristicFreq -1  # disable heuristic
+intLogVerb      0    # log verbosity of the MILPSolver
+intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
+#intCutSepPar    1    # separate user cuts at the root node & sub-nodes
+#CPXPARAM_Threads 1   # avoid parallel
+#CPXPARAM_MIP_Display 3  # more verbose log
+#CPXPARAM_ScreenOutput   1       # output on screen
+#CPXPARAM_MIP_Limits_Nodes   0   # only do root node
+#CPXPARAM_MIP_Limits_EachCutLimit   0  # disable standard cuts
+#CPXPARAM_MIP_Strategy_HeuristicFreq -1  # disable heuristic
 #CPXPARAM_LPMethod 3  # network algorithm
 
 # note that we could eof() the file here since the rest is all empty
 
-1 # number of double parameters
+0 # number of double parameters
 
 # now all the double parameters
-dblMaxTime 120   # max time: 1 minute
+#dblMaxTime 60   # max time: 1 minute
 
 0 # number of string parameters
 

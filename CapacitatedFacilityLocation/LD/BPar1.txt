@@ -13,19 +13,17 @@ BlockConfig # exact type of the ComputeConfig object
 1  # the BlockConfig is a "differential" one
 
 # static_constraints
-*    # [none]
-#SimpleConfiguration<int>
-#3    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
+SimpleConfiguration<int>
+3    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
 
 # dynamic_constraints
-*    # [none]
-#SimpleConfiguration<std::pair<int,double>>
-#375
-#1e-4
+SimpleConfiguration<std::pair<int,double>>
+375
+1e-4
 
 # static_variables
 SimpleConfiguration<int>
-2    # 0 = Natural, 1 = Knapsack, 2 = Flow (Formulation)
+0    # 0 = Natural, 1 = Knapsack, 2 = Flow (Formulation)
 
 # dynamic_variables
 *    # [none]

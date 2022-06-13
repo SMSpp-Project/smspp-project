@@ -1,17 +1,19 @@
 # ----- Test ---------------------------------------------------------------- #
-if (TARGET SMS++::MMCFBlock AND
-    TARGET SMS++::UCBlock AND
+if (TARGET SMS++::MCFBlock AND
+    TARGET SMS++::BinaryKnapsackBlock AND
     TARGET SMS++::BundleSolver AND
     TARGET SMS++::LagrangianDualSolver AND
+    TARGET SMS++::CapacitatedFacilityLocationBlock AND
     TARGET SMS++::MILPSolver)
 
-    add_executable(LDS_MMCF_test test.cpp)
-    target_link_libraries(LDS_MMCF_test PRIVATE
+    add_executable(CFL_test test.cpp)
+    target_link_libraries(CFL_test PRIVATE
                           SMS++::BundleSolver
-                          SMS++::MILPSolver
                           SMS++::LagrangianDualSolver
-                          SMS++::MMCFBlock
-                          SMS++::UCBlock)
+                          SMS++::MCFBlock
+                          SMS++::MILPSolver
+                          SMS++::BinaryKnapsackBlock
+                          SMS++::CapacitatedFacilityLocationBlock)
 endif ()
 
 # --------------------------------------------------------------------------- #

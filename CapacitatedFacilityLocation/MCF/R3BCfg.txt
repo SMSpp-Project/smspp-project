@@ -10,7 +10,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 SimpleConfiguration<int> # exact type of the Configuration object
-0  # 0 = copy, 1 or 2 = MCFBlock
+1  # 0 = copy, 1 or 2 = MCFBlock
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - END R3BCfg.txt- - - - - - - - - - - - - - -

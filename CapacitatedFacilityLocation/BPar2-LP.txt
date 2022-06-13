@@ -13,13 +13,15 @@ BlockConfig # exact type of the ComputeConfig object
 1  # the BlockConfig is a "differential" one
 
 # static_constraints
-SimpleConfiguration<int>
-7    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
+*    # [none]
+#SimpleConfiguration<int>
+#3    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
 
 # dynamic_constraints
-SimpleConfiguration<std::pair<int,double>>
-375
-1e-4
+*    # [none]
+#SimpleConfiguration<std::pair<int,double>>
+#375
+#1e-4
 
 # static_variables
 SimpleConfiguration<int>

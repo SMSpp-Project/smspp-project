@@ -19,11 +19,11 @@ NAME = CFL_test
 DIR = ./
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
+#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
 
 # compiler
 CC = clang++
