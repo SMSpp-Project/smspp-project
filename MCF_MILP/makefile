@@ -2,7 +2,7 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for MCFMILP)                                           #
+#   makefile of test (for MCF_MILP)                                          #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
@@ -19,9 +19,11 @@ NAME = MCF_MILP_test
 DIR = ./
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+# debug switches with address sanitizer and extra pedantic warning
+#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
 
 # compiler
 CC = clang++
@@ -73,7 +75,7 @@ include $(MILPSSDR)makefile-c
 MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
 
 # libreries
-MLIB =  $(MCFBkLIB) $(MILPSLIB) -lgtest
+MLIB =  $(MCFBkLIB) $(MILPSLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
