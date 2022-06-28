@@ -72,7 +72,7 @@
 // the data of the problem is read and used to find the proper scaling
 // factor needed to properly setting EpsFlw and EpsCst;
 
-#define SET_EPS 0
+#define SET_EPS 1
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, random facilities cost are chosen with some probability of
@@ -93,7 +93,7 @@
 // tests with ( wchg & 1 ) == true (changing facility costs) have a high
 // cance of producing negative facilities costs and then failing
 
-#define NEGATIVE_F_COSTS 1
+#define NEGATIVE_F_COSTS 0
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attched to the original
@@ -835,7 +835,7 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  bool AllPassed = SolveBoth();
- 
+
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // now, for n_repeat times:

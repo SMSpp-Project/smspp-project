@@ -1,8 +1,9 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSPar2.txt- - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - TUBSCfg.txt - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a
-# CapacitatedFacilityLocationBlock to be solved by a MCFSolver
+# A txt description of a BlockSolverConfig for the ThermalUnitBlock
+#
+#   version 1.1 , 21/02/2021
 #
 #   Antonio Frangioni
 #
@@ -16,33 +17,51 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver
-#MCFSolver<MCFSimplex>
-#MCFSolver<RelaxIV>
-MCFSolver<MCFCplex>
+ThermalUnitDPSolver
 
-1  # number of ComputeConfig in this BlockSolverConfig
+0  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# ComputeConfig of the MCFSolver<>
-
 ComputeConfig # exact type of the ComputeConfig object
 
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
+# note that we could eof() the file here since the rest is all empty
+
 0 # number of integer parameters
 
 # now all the integer parameters
-#kReopt      1    # whether or not to reoptimize
+# [none]
 
 0 # number of double parameters
 
 # now all the double parameters
 # [none]
 
-# we eof() the file here since the rest is all empty
+0 # number of string parameters
+
+# now all the string parameters
+# [none]
+
+0 # number of vector-of-int parameters
+
+# now all the vector-of-int parameters
+# [none]
+
+0 # number of vector-of-double parameters
+
+# now all the vector-of-double parameters
+# [none]
+
+0 # number of vector-of-string parameters
+
+# now all the vector-of-string parameters
+# [none]
+
+# pointer to the "extra" Configuration
+* # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSPar2.txt- - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END TUBSCfg.txt - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

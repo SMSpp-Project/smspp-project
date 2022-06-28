@@ -1,8 +1,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BPar2.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BPar1.txt - - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockConfig for a MCFBlock produced as the R£Block
-# of a CapacitatedFacilityLocationBlock
+# A txt description of a BlockConfig for CapacitatedFacilityLocationBlock
 #
 #   Antonio Frangioni
 #
@@ -14,13 +13,17 @@ BlockConfig # exact type of the ComputeConfig object
 1  # the BlockConfig is a "differential" one
 
 # static_constraints
-*    # [none]
+SimpleConfiguration<int>
+7    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
 
 # dynamic_constraints
-*    # [none]
+SimpleConfiguration<std::pair<int,double>>
+375
+1e-4
 
 # static_variables
-*    # [none]
+SimpleConfiguration<int>
+0    # 0 = Natural, 1 = Knapsack, 2 = Flow (Formulation)
 
 # dynamic_variables
 *    # [none]
@@ -41,5 +44,5 @@ BlockConfig # exact type of the ComputeConfig object
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BPar2.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BPar1.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

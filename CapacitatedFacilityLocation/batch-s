@@ -8,9 +8,12 @@ niter=0
 # everything, comprised abstract
 #wchg=511
 # everything, but not abstract
-wchg=255
+#wchg=255
 # everything but fix-open, comprised abstract
 #wchg=447
+# everything but fix-open and change type, comprised abstract
+#wchg=319
+wchg=63
 rounds=40
 maxseed=1
 
