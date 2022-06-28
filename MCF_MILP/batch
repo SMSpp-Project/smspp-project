@@ -1,7 +1,5 @@
 #/bin/tcsh
 
-export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIP-8.0.0/lib
-
 wchg=255
 #rounds=40
 
@@ -21,7 +19,7 @@ what=data/nc4/${type}${sz}_${h}.nc4
 if [ -z "$wchg" ]; then
    printf "[$what $seed]: "
 else
-   if [ -z "$wchg" ]; then
+   if [ -z "$rounds" ]; then
       printf "[$what $seed $wchg]: "
    else
       printf "[$what $seed $wchg $rounds]: "
