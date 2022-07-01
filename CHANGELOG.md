@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CapacitatedFacilityLocation tester.
+- Code to test different formulations of some problem.
+
+### Changed
+
+- Complete rehaul of MCF_MILP tester.
+
 ## [0.5.1] - 2021-12-08
 
 ### Added
