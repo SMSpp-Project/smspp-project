@@ -5,8 +5,6 @@
 # containing only box constraints, so that it can be solved by a BoxSolver
 # as well as a :MILPSolver (say, a CPXMILPSolver or a SCIPMILPSolver)
 #
-#   version 1.0 , 05/07/2021
-#
 #   Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -74,11 +72,12 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-1 # number of integer parameters
+2 # number of integer parameters
 
 # now all the integer parameters
 intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
-
+CPXPARAM_Threads        1
+#CPX_PARAM_NUMERICALEMPHASIS 1
 # note that we could eof() the file here since the rest is all empty
 
 0 # number of double parameters

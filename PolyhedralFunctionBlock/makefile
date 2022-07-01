@@ -7,7 +7,6 @@
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
@@ -20,11 +19,11 @@ NAME = PolyhedralFunctionBlock_test
 DIR = ./
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -DCLANG_1200_0_32_27_PATCH
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -DCLANG_1200_0_32_27_PATCH
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
 # production switches with checks
-SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
 
 # compiler
 CC = clang++

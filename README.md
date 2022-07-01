@@ -1,6 +1,6 @@
 # SMS++ System Tests
 
-A set of system tests for the the SMS++ core library and several other
+A set of system tests for the SMS++ core library and several other
 modules.
 
 Since most of the tests we devised for the SMS++ project require multiple
@@ -9,7 +9,13 @@ to that module. For this reason, we ship them in a separate repository.
 
 The following tests are provided:
 
-- [`BendersBFunction`](BendersBFunction)
+- [`BendersBFunction`](BendersBFunction): a test of the `BendersBFunction`
+  component on a "hand-made" `Block` for Capacitated Facility Location
+  (CFL) problems.
+
+- [`BinaryKnapsackBlock`](BinaryKnapsackBlock): a tester of the eponymous
+  `Block` for (mixed-integer) binary knapsack problems and their specialised
+  `Solver` (`DPBinaryKnapsackSolver`) against a standard `MILPSolver`.   
 
 - [`BoxSolver`](BoxSolver), a tester which provides very
   comprehensive tests for `BoxSolver` (a very simple `CDASolver` for
@@ -20,6 +26,15 @@ The following tests are provided:
   able to handle Linear Programs (such as `MILPSolver` and its derived
   classes `CPXMILPSolver` and `SCIPMILPSolver`), and for some of the
   mechanics of the SMS++ core library.
+
+- [`CapacitatedFacilityLocation`](CapacitatedFacilityLocation), a tester
+  that can be used to test several things together within a slope scaling
+  approach to the Capacitated Facility Location (CFL) problem where the
+  continuous relaxation can be solved with either standard LP tools (a
+  `MILPSolver`), or via a Minc-Cost Flow relaxation casted as a `MCFBlock`
+  and using custom `MCFSolver`, or, finally, via a Lagrange-friendly
+  reformulation as a bunch of `BinaryKnapsackBlock`, so that a
+  `LagrangianDualSolver` can be used to compute a stronger bound.
 
 - [`LagBFunction`](LagBFunction), a tester which provides very
   comprehensive tests for `LagBFunction`, `PolyhedralFunctionBlock`,
@@ -53,12 +68,12 @@ The following tests are provided:
   Unit-Commitment problems, as well as for quite a lot of the mechanics
   of the SMS++ core library.
 
-- [`MCF_MILP`](MCF_MILP) - solve a `MCFBlock` with both a
-  `MILPSolver` and a `MCFSolver` and compare the results, test the `Modifications`.
-  This is a test for `MCFBlock`, `MCFSolver`, `MILPSolver` and its derived classes
-  (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
-  mechanics of the SMS++ core library.
-  This test is a [Google Test](https://github.com/google/googletest) suite.
+- [`MCF_MILP`](MCF_MILP): solve a `MCFBlock` with both a `MILPSolver` and a
+  `MCFSolver` and compare the results. This is a test for `MCFBlock`,
+  `MCFSolver`, `MILPSolver` and its derived classes (`CPXMILPSolver` and
+  `SCIPMILPSolver`), as well as for some of the mechanics of the SMS++
+  core library. This test is a [Google
+  Test](https://github.com/google/googletest) suite.
 
 - [`MMCFBlock`](MMCFBlock), a tester which provides initial tests
   for `MMCFBlock` (in particular, a way to retrieve/generate some sets of
@@ -89,7 +104,6 @@ The following tests are provided:
   (`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
   mechanics of the SMS++ core library.
   This test is a [Google Test](https://github.com/google/googletest) suite.
-
 
 The tests run as traditional command line executables.
 Most of the tests can also run as a 
@@ -176,13 +190,15 @@ conduct, and the process for submitting merge requests to us.
 
 ## Authors
 
+- **Federica Di Pasquale**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 
 - **Ali Ghezelsoflu**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 
@@ -191,12 +207,10 @@ conduct, and the process for submitting merge requests to us.
   Università di Cagliari
 
 - **Niccolò Iardella**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 
 - **Rafael Durbano Lobato**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

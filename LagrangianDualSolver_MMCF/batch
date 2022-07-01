@@ -1,10 +1,21 @@
 #/usr/bin/env bash
 
+export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIP-8.0.0/lib
+
 # Canad - - - - - - - - - - - - - - - - - - - -
 
 for f in data/Canad/*.dat
-do 
+do
+
+printf "[${f} s]: "
+
 ./LDS_MMCF_test ${f} s
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
 done
 
 # Mnetgen - - - - - - - - - - - - - - - - - - - -
@@ -16,7 +27,14 @@ do
 for (( h=1 ; h<13 ; h++ ))
 do
 
+printf "[data/Mnetgen/$i-$j-$h m]: "
+
 ./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+
+#retVal=$?
+#if [ $retVal -ne 0 ]; then
+#    exit 1
+#fi
 
 done
 done
@@ -29,7 +47,14 @@ do
 for (( h=1 ; h<13 ; h++ ))
 do
 
+printf "[data/Mnetgen/$i-$j-$h m]: "
+
 ./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+
+#retVal=$?
+#if [ $retVal -ne 0 ]; then
+#    exit 1
+#fi
 
 done
 done
@@ -42,7 +67,14 @@ done
 #for (( h=1 ; h<13 ; h++ ))
 #do
 
+#printf "[data/Mnetgen/$i-$j-$h m]: "
+
 #./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+
+#retVal=$?
+#if [ $retVal -ne 0 ]; then
+#    exit 1
+#fi
 
 #done
 #done

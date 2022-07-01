@@ -11,11 +11,13 @@
 *.elf
 BoxSolver/BoxSolver_test
 BinaryKnapsackBlock/test
+CapacitatedFacilityLocation/CFL_test
+compare_formulations/test
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_Box/LDS_Box_test
 LagrangianDualSolver_UC/LDS_UC_test
 LagrangianDualSolver_MMCF/LDS_MMCF_test
-MCFMILP/MCFMILP_test
+MCF_MILP/MCF_MILP_test
 MMCFBlock/MMCFtest
 MMCFBlock/MMCFBlock_test
 MMCFBlock/Mnetgen/mnetgen

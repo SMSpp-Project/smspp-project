@@ -6,8 +6,6 @@
 # this being a simple one-level LP (with no sub-Block), a :MILPSolver (say, a 
 # CPXMILPSolver or a SCIPMILPSolver) is perfectly adequate
 #
-#   version 1.0 , 10/11/2020
-#
 #   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

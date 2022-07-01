@@ -25,14 +25,14 @@ A batch file is provided that runs the test on all the pure-thermal
 
 http://groups.di.unipi.it/optimize/Data/UC.html
 
-(translated in netCDF with the translator avaiable in the `UCBlock`
+(translated in netCDF with the translator available in the `UCBlock`
 repo). The batch assumes the instances are in the sub-folder "data",
 that can be symlinked from the `UCBlock` repo such as in
 
     ln -s ../../UCBlock/netCDF_files/UC_Data/T-Ramp data
 
-A makefile is also provided that builds the executable inluding the
-`LagrangianDualSolver` module, the `BundleSOlver` module and all its
+A makefile is also provided that builds the executable including the
+`LagrangianDualSolver` module, the `BundleSolver` module and all its
 dependencies, in particular `MILPSolver` together of course with the
 core SMS++ library, and the `UCBlock` module.
 

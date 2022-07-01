@@ -1,9 +1,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - GAVPar.txt- - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BPar.txt- - - - - - - - - - - - - - - - - -
 #
-# A txt description of a ComputeConfig for the metod generate_abstarct_variables of MMCFBlock
-#
-#   version 1.0 , 25/10/2021
+# A txt description of a BlockConfig for MMCFBlock
 #
 #   Francesco Demelas
 #
@@ -14,35 +12,35 @@ BlockConfig # exact type of the ComputeConfig object
 
 1  # the BlockConfig is a "differential" one
 
-# group static_constraints
+# static_constraints
 SimpleConfiguration<int>
-0             # parameter to decide if use [1] or not [0] the stronog forcing constraints
+0             # use [1] or not [0] the stronog forcing constraints
 
-# group dynamic_constraints
+# dynamic_constraints
 *    # [none]
 
-# group static_variables
+# static_variables
 SimpleConfiguration<int>
-0             # parameter to decide if use the knapsack relaxation [0] or the flow relaxation [1]
+1             # use the knapsack relaxation [0] or the flow relaxation [1]
 
-# group dynamic_variables
+# dynamic_variables
 *    # [none]
 
-# group objective
+# objective
 *    # [none]
 
-# group is_feasible
+# is_feasible
 *    # [none]
 
-# group is_optimal
+# is_optimal
 *    # [none]
 
-# group solution
+# solution
 *    # [none]
 
-# group extra
+# extra
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END GAVPar.txt- - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BPar.txt- - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

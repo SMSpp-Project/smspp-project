@@ -20,12 +20,7 @@
  * "natural" PolyhedralFunctionBlock to keep them in synch. Then both are
  * solved and the results compared.
  *
- * \version 1.30
- *
- * \date 04 - 04 - 2021
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
@@ -47,7 +42,7 @@
  #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
-  #define LOG_ON_COUT 1
+  #define LOG_ON_COUT 0
   // if nonzero, the BundleSolver log is sent on cout rather than on a file
  #endif
 #else
@@ -178,11 +173,9 @@ AbstractBlock * NDOBlock;  // the "natural" representation
 
 bool convex = true;        // true if the PolyhedralFunction is convex
 
-double bound = 1000;       // the global *conditional* bound 
+double bound = 3000;       // the global *conditional* bound 
 
-double lbound = INF;       // the global lower bound bound
-
-FunctionValue BND;         // the bound in the PolyhedralFunction (if any)
+double lbound = INF;       // the global lower bound
 
 int nf = 0;                // number of sub-Block
 Index nvar = 10;           // number of variables
@@ -262,7 +255,7 @@ static void GenerateAb( Index nr , Index nc )
 
 /*--------------------------------------------------------------------------*/
 
-static void GenerateBND( void )
+static double GenerateBND( void )
 {
  // rationale: we expect the solution x^* to have entries ~= 1 (in absolute
  // value, and the coefficients of A are <= scale (in absolute value), so
@@ -272,34 +265,29 @@ static void GenerateBND( void )
  // (tight) 33% of the time, a mean of 2 times that (loose) 33% of the time,
  // and -INF the rest
 
- if( dis( rg ) <= 0.333 ) {   // "tight" bound
-  BND = rs( dis( rg ) * 5 * scale * nvar / 4 );
-  return;
-  }
+ double BND = INF;          // no bound
+ if( dis( rg ) <= 0.333 )   // "tight" bound
+  BND = dis( rg ) * 5 * scale * nvar / 4;
+ else
+  if( dis( rg ) <= 0.333 )  // "loose" bound
+   BND = dis( rg ) * 5 * scale * nvar;
 
- if( dis( rg ) <= 0.333 ) {  // "loose" bound
-  BND = rs( dis( rg ) * 5 * scale * nvar );
-  return;
-  }
+ if( convex )
+  BND = - BND;
 
- BND = INF;
+ return( BND );
  }
 
 /*--------------------------------------------------------------------------*/
 
 static void set_global_bound( void )
 {
- auto bnd = INF;
- if( dis( rg ) <= 0.333 )   // "tight" bound
-  bnd = rs( dis( rg ) * 5 * scale * nvar / 4 );
- else
-  if( dis( rg ) <= 0.333 )  // "loose" bound
-   bnd = rs( dis( rg ) * 5 * scale * nvar );
-
+ auto bnd = GenerateBND();
  if( bnd == lbound )
   return;
  
- // set it in LPBlock
+ lbound = bnd;
+
  auto lbc = LPBlock->get_static_constraint< FRowConstraint >(
 							    "globalbound" );
  if( ! lbc ) {
@@ -307,31 +295,20 @@ static void set_global_bound( void )
   exit( 1 );
   }
 
- if( bnd == INF )        // the bound is no longer there
-  lbc->relax( true );    // relax the bound constraint
- else {                  // the bound is there
-  if( lbound == INF )    // but it was not there before
-   lbc->relax( false );  // un-relax the bound constraint
-
-  if( convex )
-   lbc->set_lhs( - bnd );
+ if( convex ) {
+  lbc->set_lhs( bnd );          // set it in LPBlock
+  if( std::abs( bnd ) == INF )  // set it in NDOBlock
+   NDOBlock->set_valid_lower_bound( - bound , true );
   else
-   lbc->set_rhs( bnd );
+   NDOBlock->set_valid_lower_bound( bnd , false );
   }
-
- lbound = bnd;
-
- // set it in NDOBlock
- if( bnd == INF )
-  if( convex )
-   NDOBlock->set_valid_lower_bound( -bound );
-  else
-   NDOBlock->set_valid_upper_bound( bound );
- else
-  if( convex )
-   NDOBlock->set_valid_lower_bound( -bnd , false );
+ else {
+  lbc->set_rhs( bnd );          // set it in LPBlock
+  if( std::abs( bnd ) == INF )  // set it in NDOBlock
+   NDOBlock->set_valid_upper_bound( bound , true );
   else
    NDOBlock->set_valid_upper_bound( bnd , false );
+  }
  }
 
 /*--------------------------------------------------------------------------*/
@@ -352,17 +329,17 @@ static Subset GenerateSubset( Index m , Index k )
 /*--------------------------------------------------------------------------*/
 
 static void printAb( const MultiVector & tA , const RealVector & tb ,
-		     double bound )
+		     double bnd )
 {
  PANIC( tA.size() == tb.size() )
  for( auto & tai : tA )
   PANIC( tai.size() == nvar );
 
  cout << "n = " << nvar << ", m = " << tA.size();
- if( std::abs( bound ) == INF )
+ if( std::abs( bnd ) == INF )
   cout << " (no bound)" << endl;
  else
-  cout << ", bound = " << bound << endl;
+  cout << ", bound = " << bnd << endl;
 
  for( Index i = 0 ; i < tA.size() ; ++i ) {
   cout << "A[ " << i << " ] = [ ";
@@ -462,14 +439,14 @@ static bool SolveBoth( void )
     * problem unbounded below. This may be because the tentative lb is too
     * high, check it this actually is the case and if so declare the
     * run a success (but also decrease the lb). */
-   if( ( convex && ( foNDO <= bound * ( 1 + 1e-9 ) ) ) ||
-       ( ( ! convex ) && ( foNDO >= bound * ( 1 + 1e-9 ) ) ) ) {
+   if( ( convex && ( foNDO <= - bound * ( 1 - 1e-9 ) ) ) ||
+       ( ( ! convex ) && ( foNDO >= bound * ( 1 - 1e-9 ) ) ) ) {
     LOG1( "OK(?bound?)" << endl );
     bound *= 2;
     if( convex )
-     NDOBlock->set_valid_lower_bound( -bound );
+     NDOBlock->set_valid_lower_bound( -bound , true );
     else
-     NDOBlock->set_valid_upper_bound( bound );
+     NDOBlock->set_valid_upper_bound( bound , true );
     return( true );
     }
    }
@@ -592,11 +569,6 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- if( ! nf ) {
-  cout << "error: no sub-Block";
-  exit( 1 );
-  }
-
  #if DYNAMIC_VARS > 0
   nsvar = nvar / 2;      // half of the variables are dynamic
   ndvar = nvar - nsvar;  // the other half are static
@@ -608,8 +580,13 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- // adjust the bound depending on the number of components
- bound *= std::max( 1 , std::abs( nf ) );
+ // adjust the bound depending on the number of components and variables
+ // for each component, (5/4) * scale * nvar should be a "natural" bound,
+ // so we use
+ //     < # components > * 10 * scale * nvar
+ // as the global conditional bound, hoping it will also account for the
+ // linear term, if any
+ bound = std::max( 1 , std::abs( nf ) ) * 10 * scale * nvar;
 
  rg.seed( seed );  // seed the pseudo-random number generator
 
@@ -665,7 +642,7 @@ int main( int argc , char **argv )
 
     // construct the m x nvar matrix A, the m-vector b, and the bound
     GenerateAb( m , nvar );
-    GenerateBND();
+    auto BND = GenerateBND();
 
     #if( LOG_LEVEL >= 4 )
      cout << "PF[ " << i << " ] = " << endl;
@@ -674,7 +651,7 @@ int main( int argc , char **argv )
 
     // pass all the data of the PolyhedralFunction
     pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) ,
-			       rs( BND ) , convex );
+			       BND , convex );
 
     // configure it to use the "linearised" representation
     auto bc = new BlockConfig();
@@ -700,11 +677,16 @@ int main( int argc , char **argv )
 
    if( wchg & 64 ) {
     // if a finite global bound can be set, construct a static constraint
-    // group containing a single FRowConstraint "-INF <= objective <= INF"
-    // which can be used to set the global bound
+    // group containing a single FRowConstraint that can be used to set
+    // the global bound. this is objective >= bound in the convex case
+    // and objective <= bound in the concave one. however, in some pesky
+    // MILPSolver this does not work with bound = +/-inf unless the other
+    // side of the constraint is (large, negative if necessary but) finite;
+    // that is, large_positive >= objective >= bound in the convex case
+    // and large_negative <= objective <= bound
     auto lbc = new FRowConstraint();
-    lbc->set_lhs( -INF );
-    lbc->set_rhs( INF );
+    lbc->set_lhs( convex ? -INF : - 10 * bound );
+    lbc->set_rhs( convex ? 10 * bound : INF );
     LinearFunction::v_coeff_pair vp;
     if( nf < 0 ) {
      auto obj = static_cast< p_LF >( static_cast< FRealObjective * >(
@@ -720,12 +702,10 @@ int main( int argc , char **argv )
       cout << "something very bad happened!" << endl;
       exit( 1 );
       }
-     vp[ i ].first = vh;
-     vp[ i++ ].second = 1;
+     vp[ i++ ] = std::make_pair( vh , 1 );
      }
     lbc->set_function( new LinearFunction( std::move( vp ) ) );
     LPBlock->add_static_constraint( *lbc , "globalbound" );
-    lbc->relax( true );  // the bound is INF, the constraint it not there
     }
    }
   else {
@@ -733,18 +713,18 @@ int main( int argc , char **argv )
 
    // pass the Variable to the PolyhedralFunction (move the vector)
    pf.set_variables( std::move( vars ) );
-   pf.set_is_convex( convex , eNoMod );
 
    // construct the m x nvar matrix A, the m-vector b, and the bound
    GenerateAb( m , nvar );
-   GenerateBND();
+   auto BND = GenerateBND();
 
    #if( LOG_LEVEL >= 4 )
     printAb( A , b , BND );
    #endif
 
    // pass all the data of the PolyhedralFunction
-   pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) , BND );
+   pf.set_PolyhedralFunction( std::move( A ) , std::move( b ) , BND ,
+			      convex );
 
    // generate the abstract representation
    SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
@@ -871,25 +851,25 @@ int main( int argc , char **argv )
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- {
-  // for LPBlock do this by reading appropriate BlockSolverConfig from
-  // files and apply() it to the LPBlock; furthermore, "manually" attach an
-  // UpdateSolver to (each PolyhedralFunctionBlock in) LPBlock
+ // do this by reading appropriate BlockSolverConfig from files and apply()
+ // them to the ::Block
  
+ auto msc = new BlockSolverConfig;
+ {
   ifstream LPParFile( "LPPar.txt" );
   if( ! LPParFile.is_open() ) {
    cerr << "Error: cannot open file LPPar.txt" << endl;
    return( 1 );
    }
 
-  auto msc = new BlockSolverConfig;
   LPParFile >> *( msc );
   LPParFile.close();
 
   msc->apply( LPBlock );
-  delete msc;
- 
+  msc->clear();
+
+  // for LPBlock, in addition  "manually" attach an UpdateSolver to (each
+  // PolyhedralFunctionBlock in) LPBlock
   if( nf )
    for( int i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i )
     LPBlock->get_nested_Block( i )->register_Solver(
@@ -898,6 +878,7 @@ int main( int argc , char **argv )
    LPBlock->register_Solver( new UpdateSolver( NDOBlock ) );
   }
  
+ auto bsc = new BlockSolverConfig;
  {
   // for NDOBlock do this by reading appropriate BlockSolverConfig from
   // files and apply() it to the NDOBlock
@@ -907,12 +888,11 @@ int main( int argc , char **argv )
    return( 1 );
    }
 
-  auto bsc = new BlockSolverConfig;
   NDOParFile >> *( bsc );
   NDOParFile.close();
 
   bsc->apply( NDOBlock );
-  delete bsc;
+  bsc->clear();
   }
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
@@ -1152,8 +1132,8 @@ int main( int argc , char **argv )
       auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBr->open_channel();
-      const auto iAM = Observer::make_par( eModBlck , chnl );
+      auto chnl = LPBr->open_channel();
+      auto iAM = Observer::make_par( eModBlck , chnl );
 
       auto cit = std::next( cnst->begin() , strt );
       for( Index i = 0 ; i < tochange ; ++i )
@@ -1196,8 +1176,8 @@ int main( int argc , char **argv )
       auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBr->open_channel();
-      const auto iAM = Observer::make_par( eModBlck , chnl );
+      auto chnl = LPBr->open_channel();
+      auto iAM = Observer::make_par( eModBlck , chnl );
 
       Index prev = 0;
       auto cit = cnst->begin();
@@ -1241,8 +1221,8 @@ int main( int argc , char **argv )
       auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBr->open_channel();
-      const auto iAM = Observer::make_par( eModBlck , chnl );
+      auto chnl = LPBr->open_channel();
+      auto iAM = Observer::make_par( eModBlck , chnl );
 
       auto cit = std::next( cnst->begin() , strt );
       if( convex )
@@ -1273,8 +1253,8 @@ int main( int argc , char **argv )
       auto cnst = LPBr->get_dynamic_constraint< FRowConstraint >( 0 );
 
       // send all the Modification to the same channel
-      Observer::ChnlName chnl = LPBr->open_channel();
-      const auto iAM = Observer::make_par( eModBlck , chnl );
+      auto chnl = LPBr->open_channel();
+      auto iAM = Observer::make_par( eModBlck , chnl );
 
       Index prev = 0;
       auto cit = cnst->begin();
@@ -1309,19 +1289,19 @@ int main( int argc , char **argv )
   if( ( wchg & 16 ) && ( dis( rg ) <= p_change ) ) {
    LOG1( "modified bound" );
 
-   GenerateBND();
+   auto BND = GenerateBND();
 
    if( ( wchg & 512 ) && ( dis( rg ) <= p_change ) ) {
     // in 50% of the cases do an "abstract" change
     LOG1( "(a)" );
 
     if( convex )
-     LPBr->get_static_constraint< BoxConstraint >( 0 )->set_lhs( -BND );
+     LPBr->get_static_constraint< BoxConstraint >( 0 )->set_lhs( BND );
     else
      LPBr->get_static_constraint< BoxConstraint >( 0 )->set_rhs( BND );
     }
    else  // directly change the PolyhedralFunction
-    LPBr->get_PolyhedralFunction().modify_bound( rs( BND ) );
+    LPBr->get_PolyhedralFunction().modify_bound( BND );
 
    LOG1( " - " );
    }
@@ -1568,12 +1548,26 @@ int main( int argc , char **argv )
  else
   cout << RED( Shit happened!! ) << endl;
  
- // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
+ // cleanup - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // unregister (and delete) all Solvers attached to the Blocks: do this by
+ // apply()-ing the clear()-ed BlockSolverConfig, then delete them
 
- // unregister (and delete) all Solvers attached to the Blocks
- NDOBlock->unregister_Solvers();
- LPBlock->unregister_Solvers();
+ bsc->apply( NDOBlock );
+ delete bsc;
+
+ // for LPBlock, before  "manually" un-register (and delete) the
+ // UpdateSolver from (each PolyhedralFunctionBlock in) LPBlock
+ if( nf )
+  for( int i = 0 ; i < LPBlock->get_number_nested_Blocks() ; ++i ) {
+   auto bi = LPBlock->get_nested_Block( i );
+   bi->unregister_Solver( bi->get_registered_solvers().back() , true );
+   }
+ else
+  LPBlock->unregister_Solver( LPBlock->get_registered_solvers().back() ,
+			      true );
+ msc->apply( LPBlock );
+ delete msc;
 
  // delete the Blocks
  delete NDOBlock;

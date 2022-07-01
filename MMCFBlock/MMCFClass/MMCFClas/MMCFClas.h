@@ -178,12 +178,12 @@ class MMCFClass
     - Number, the type an "extra" variable.
 
     By re-defining the types in this section, one MMCFSolver could be adapted
-    to work with "smaller" data types than the obvioous ones (double for all
+    to work with "smaller" data types than the obvious ones (double for all
     but the indices, int for the latter). This may be relevant e.g. for cases
     where flow types are integer but multicommodity flows are not. However,
     *it is the user's responsibility to ensure that these types are set to
     reasonable values*, since *not all solution algorithms will work with
-    "restricted" data*. Hence, only the the experienced user may want to
+    "restricted" data*. Hence, only the experienced user may want to
     experiment with changing this, and only if memory footprint and/or speed
     is really a primary concern and it is likely that changing these will
     improve.

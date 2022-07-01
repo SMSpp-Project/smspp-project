@@ -7,7 +7,6 @@
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
@@ -20,13 +19,13 @@ NAME = LDS_Box_test
 DIR = ./
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -Wno-enum-compare
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
+#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare
 # production switches with address sanitizer
-#SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
+#SW = -O3 -std=c++17 -DNDEBUG -ferror-limit=1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -Wno-enum-compare
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH
+SW = -O3 -std=c++17 -DNDEBUG -ferror-limit=1 -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
 
 # compiler
 CC = clang++
@@ -51,7 +50,7 @@ clean::
 
 # define input macros for SMS++ complete makefile, then include it
 SMS++SDR = ../../SMS++/
-include $(SMS++SDR)lib/makefile-inc
+include $(SMS++SDR)lib/makefile-c
 
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver/

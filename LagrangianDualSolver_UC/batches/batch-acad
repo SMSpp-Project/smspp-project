@@ -1,9 +1,11 @@
 #/usr/bin/env bash
 
+export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIP-8.0.0/lib
+
 # correct value of tStar: 1e+0
 
 folder=./data/UC_Data/T-Ramp/
-par=BSPar-2S.txt
+#par=BSPar-2S.txt
 #mlf=log.txt
 
 for size in 10 20 50 75 100 200
@@ -13,15 +15,15 @@ do
 
 if [ -z "$par" ]; then
  if [ -z "$mlf" ]; then
-  printf "[${size}_0_${seed}]: "
+  printf "[$folder${size}_0_${seed}_w.nc4]: "
  else
-  printf "[${size}_0_${seed}]: " >> $mlf
+  printf "[$folder${size}_0_${seed}_w.nc4]: " >> $mlf
  fi
 else
  if [ -z "$mlf" ]; then
-  printf "[${size}_0_${seed} $par]: "
+  printf "[$folder${size}_0_${seed}_w.nc4 $par]: "
  else
-  printf "[${size}_0_${seed} $par]: " >> $mlf
+  printf "[$folder${size}_0_${seed}_w.nc4 $par]: " >> $mlf
  fi
 fi
 
@@ -32,9 +34,9 @@ else
 fi
 
 retVal=$?
-if [ $retVal -ne 0 ]; then
-    exit 1
-fi
+#if [ $retVal -ne 0 ]; then
+#    exit 1
+#fi
 
 done
 done

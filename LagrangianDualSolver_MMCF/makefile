@@ -7,7 +7,6 @@
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
@@ -20,13 +19,11 @@ NAME = LDS_MMCF_test
 DIR = ./
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1
+#SW = -g3 -glldb -fno-inline -std=c++17 -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
-# production switches with address sanitizer
-#SW = -O3 -std=c++17 -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
+#SW = -g3 -glldb -fno-inline -std=c++17 -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH
+SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
 
 # compiler
 CC = clang++
@@ -80,7 +77,6 @@ MLIB =   $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB) $(SMS++LIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
-#	$(CC) -o $(DIR)$(NAME) $+ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 

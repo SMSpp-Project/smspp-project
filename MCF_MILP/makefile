@@ -2,15 +2,11 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for MCFMILP)                                           #
-#                                                                            #
-#                                VERSION 1.00                                #
-#                               16 - 06 - 2020                               #
+#   makefile of test (for MCF_MILP)                                          #
 #                                                                            #
 #                              Implementation by:                            #
 #                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
@@ -22,21 +18,12 @@ NAME = MCF_MILP_test
 # basic directory
 DIR = ./
 
-# switch to select the :MCFClass solver, supported values are
-# -DHAVE_CSCL2      for the CS2 class
-# -DHAVE_CPLEX      for the MCFCplex class
-# -DHAVE_MFSMX      for the MCFSimplex class
-# -DHAVE_MFZIB      for the MCFZIB class
-# -DHAVE_RELAX      for the RelaxIV class
-# -DHAVE_CPLEX      for the MCFCplex class
-# -DHAVE_SPTRE      for the SPTree class; note that SPTree cannot solve
-#                   most MCF instances, except those with SPT structure
-MCFCS = -DHAVE_MFSMX
-
 # debug switches
-SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 $(MCFCS)
+#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+# debug switches with address sanitizer and extra pedantic warning
+#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
 # production switches
-#SW = -O3 -std=c++17 -DNDEBUG $(MCFCS)
+SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
 
 # compiler
 CC = clang++
@@ -88,7 +75,7 @@ include $(MILPSSDR)makefile-c
 MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
 
 # libreries
-MLIB =  $(MCFBkLIB) $(MILPSLIB) -lgtest
+MLIB =  $(MCFBkLIB) $(MILPSLIB)
 
 $(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)

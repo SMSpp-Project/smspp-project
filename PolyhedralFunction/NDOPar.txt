@@ -4,8 +4,6 @@
 # A txt description of a BlockSolverConfig for the Block having a "C05
 # objective" and no sub-Block solved by the tester for PolyhedralFunction
 #
-#   version 2.0 , 06/12/2020
-#
 #   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,7 +27,7 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-22 # number of integer parameters
+23 # number of integer parameters
 
 # now all the integer parameters
 intMaxIter 100000   # MaxIter, max number of iterations for each call
@@ -50,6 +48,12 @@ intMaxNrEvls 2    # maximum number of function evaluations at each iteration
 
 intFrcLstSS 0     # if all the components need be computed at the optimum
 
+intTrgtMng 0      # bit-wise encoding targets and accuracies management:
+                  # bit 0: if lower/upper target is set to each convex/concave component
+                  # bit 1: if upper/lower target is set to each convex/concave component
+                  # bit 2-3: if accuracy is set (2 = upper - lower, 3 = using EpsU)
+                  # bit 4: if Lipschitz constant is used to compute the upper model
+
 intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
@@ -68,7 +72,7 @@ intOSImp3  1      # threads
 
 intRstAlg   2     # parameter to handle the reset of the algorithm
 
-16 # number of double parameters
+17 # number of double parameters
 
 # now all the double parameters
 dblRelAcc  1e-9   # relative accuracy required to solution
@@ -86,6 +90,7 @@ dbltMaior  1e+6   # maximum value for t
 dbltMinor  1e-4   # minimum value for t
 dbltInit   1      # initial value for t
 dbltSPar2  0.001  # parameter for the long-term t-strategy
+dbltSPar3  0      # parameter for small heuristic t adjustments
 
 dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 

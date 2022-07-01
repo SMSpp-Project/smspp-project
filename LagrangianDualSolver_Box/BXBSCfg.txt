@@ -4,8 +4,6 @@
 # A txt description of a BlockSolverConfig for any Block that can be solved
 # by a BoxSolver (with the quirks that this entails)
 #
-#   version 1.0 , 05/07/2021
-#
 #   Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

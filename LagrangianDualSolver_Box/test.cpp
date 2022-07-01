@@ -15,12 +15,7 @@
  * The AbstractBlock is repeatedly randomly modified and re-solved several
  * times.
  *
- * \version 0.20
- *
- * \date 05 - 07 - 2021
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
@@ -371,7 +366,14 @@ static bool SolveBoth( void )
 		 && ( rtrn2nd != Solver::kUnbounded )
 		 && ( rtrn2nd != Solver::kInfeasible ) )
                 || ( rtrn2nd == Solver::kLowPrecision );
-  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+  // double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+  // we assume the 2nd solver to be a Lagrangian-based one, which may have
+  // issues in producing accurate primal solutions but it should be able to
+  // produce accurate dual ones: hence, use the dual bound as the reference
+  // value (lower bound if you minimise, upper bound if you maximise)
+  double fo2nd = -INF;
+  if( hs2nd )
+   fo2nd = minobj ? Slvr2->get_lb() : Slvr2->get_ub();
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-5 *
 			  max( double( 1 ) , max( abs( fo1st ) ,

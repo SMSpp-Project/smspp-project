@@ -7,8 +7,6 @@
 # sub-Block), a :MILPSolver (say, a CPXMILPSolver or a SCIPMILPSolver) is
 # perfectly adequate
 #
-#   version 1.0 , 28/11/2020
-#
 #   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,14 +37,15 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 
 # note that we could eof() the file here since the rest is all empty
 
-0 # number of double parameters
+1 # number of double parameters
 
 # now all the double parameters
-# [none]
+dblRelAcc  1e-8   # relative accuracy required to solution
 
 0 # number of string parameters
 
 # now all the string parameters
+#strOutputFile LP0.lp
 # [none]
 
 0 # number of vector-of-int parameters
