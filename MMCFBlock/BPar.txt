@@ -3,7 +3,7 @@
 #
 # A txt description of a BlockConfig for MMCFBlock
 #
-#   Antonio Frangioni
+#   Francesco Demelas
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13,7 +13,8 @@ BlockConfig # exact type of the ComputeConfig object
 1  # the BlockConfig is a "differential" one
 
 # static_constraints
-*    # [none]
+SimpleConfiguration<int>
+0             # use [1] or not [0] the stronog forcing constraints
 
 # dynamic_constraints
 *    # [none]
