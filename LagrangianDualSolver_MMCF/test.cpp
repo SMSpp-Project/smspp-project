@@ -216,7 +216,7 @@ static void PrintSol( CDASolver * slvr , bool first ,
   ofstream solutionsFile( "./redCosts/" + name + "Sol-redCosts.dat" );
   for( Index k = 0 ; k < TestBlock->get_NComm() ; ++k ) {
    for( Index i = 0 ; i < TestBlock->get_NNodes() ; ++i )
-    solutionsFile << TestBlock->get_potential( k , i );
+    solutionsFile << TestBlock->get_potential( k , i ) << " ";
    solutionsFile << "\n";
    }
 
