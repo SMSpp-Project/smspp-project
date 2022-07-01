@@ -14,14 +14,14 @@ BlockConfig # exact type of the ComputeConfig object
 
 # static_constraints
 SimpleConfiguration<int>
-0             # use [1] or not [0] the stronog forcing constraints
+0             # use [1] or not [0] the strong forcing constraints
 
 # dynamic_constraints
 *    # [none]
 
 # static_variables
 SimpleConfiguration<int>
-1             # use the knapsack relaxation [0] or the flow relaxation [1]
+0             # use the flow relaxation [0] or the knapsack relaxation [1]
 
 # dynamic_variables
 *    # [none]
