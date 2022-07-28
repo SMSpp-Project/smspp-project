@@ -13,11 +13,7 @@
 #           $(libBoostINC) = the -I$(include directories) for Boost          #
 #           $(libBoostLIB) = external libreries + -L<libdirs> for Boost      #
 #                                                                            #
-#                                VERSION 2.10                                #
-#                               28 - 10 - 2020                               #
-#                                                                            #
 #                             Antonio Frangioni                              #
-#                         Operations Research Group                          #
 #                        Dipartimento di Informatica                         #
 #                            Universita' di Pisa                             #
 #                                                                            #

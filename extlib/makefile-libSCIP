@@ -11,11 +11,7 @@
 #           $(libSCIPLIB) = external libreries + -L<libdirs> for libSCIP     #
 #           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
 #                                                                            #
-#                                 VERSION 1.00                               #
-#                                16 - 06 - 2020                              #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
@@ -24,7 +20,7 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic SCIP directory
-libSCIPBSCDIR = /Users/frangio/Applications/SCIPOptSuite-7.0.3-Darwin/
+libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 

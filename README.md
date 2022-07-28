@@ -51,7 +51,8 @@ submodules.
   optimization problems involving (several) nondifferentiable objective
   function(s) based on the (generalized) "bundle method". It currently
   uses some modules from the [NDOSolver / FiOracle
-  project](https://gitlab.com/frangio68/ndosolver_fioracle_project).
+  project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
+  although the dependency will be hopefully removed in time.
 
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
   "generic" Lagrangian-based Solver for Block with appropriate structure.
@@ -70,7 +71,8 @@ submodules.
   abstract representation encodes for a Mixed-Integer Linear Program
   (ColVariable, FRowConstraint and FRealObjective with LinearFunction inside,
   OneVarConstraint), together with derived MILPSolver classes that actually
-  interface with existing MILP solvers. Currently, available derived classes are:
+  interface with existing MILP solvers. Currently, available derived classes
+  are:
 
   - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
     Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
