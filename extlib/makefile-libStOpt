@@ -11,11 +11,7 @@
 #           $(libStOptLIB) = external libreries + -L<libdirs> for libStOpt   #
 #           $(libStOptINC) = the -I$(include directories) for libStOpt       #
 #                                                                            #
-#                                 VERSION 1.00                               #
-#                                11 - 07 - 2021                              #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #

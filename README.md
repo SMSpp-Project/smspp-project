@@ -1,17 +1,17 @@
 # The SMS++ Project
 
-![To boldly model (and solve) what no one has modeled (and solved) before](doxygen/SMSpp_logo_mid_noback.png)
+![To boldly model (and solve) what no one has modeled (and solved)
+before](doxygen/SMSpp_logo_mid_noback.png)
 
-This is the splash page of the SMS++ Project, an "umbrella project" meant
-to provide a quick way to download and install all the projects related to the
-SMS++ framework.
-It also allows to produce an unified documentation and to track
-issues that involve all the modules or the project in general.
+This is the splash page of the SMS++ Project, an "umbrella project" meant to
+provide a quick way to download and install all the projects related to the
+SMS++ framework. It also allows to produce a unified documentation and to
+track issues that involve all the modules or the project in general.
 
-SMS++ is a set of C++ classes intended to provide a system for modeling complex,
-block-structured mathematical models (in particular, but not exclusively,
-single-real-objective optimization problems), and solving them via
-sophisticated, structure-exploiting algorithms (in particular, but not
+SMS++ is a set of C++ classes intended to provide a system for modeling
+complex, block-structured mathematical models (in particular, but not
+exclusively, single-real-objective optimization problems), and solving them
+via sophisticated, structure-exploiting algorithms (in particular, but not
 exclusively, decomposition approaches and structured Interior-Point methods).
 
 At any given time, this project will point to the latest releases of all the
@@ -24,9 +24,11 @@ submodules.
 ## Documentation
 
 - The [SMS++ API reference](https://smspp.gitlab.io/smspp-project)
-  contains the documentation for the classes and methods of the SMS++ core library and all its modules.
+  contains the documentation for the classes and methods of the SMS++ core
+  library and all its modules.
 
-- The [SMS++ Project Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
+- The [SMS++ Project
+  Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
   contains detailed installation instructions, troubleshooting information
   and additional guides for developers and maintainers.
 
@@ -36,16 +38,21 @@ submodules.
   defining the general SMS++ framework features.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
-  a Block implementing the Binary Knapsack Problem and the corresponding Solver.
-  
+  a Block implementing the Binary Knapsack Problem and the corresponding
+  Solver.
+
+- [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
+  an implementation of the Block concept for a "pretty basic version" the
+  Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
+  Warehouse Location (CWL) problem, primarily intended as a "didactic"
+  implementation for showing some of the features of SMS++.
+
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a Solver for
   optimization problems involving (several) nondifferentiable objective
   function(s) based on the (generalized) "bundle method". It currently
   uses some modules from the [NDOSolver / FiOracle
-  project](https://gitlab.com/frangio68/ndosolver_fioracle_project).
-  
-- [DPSolver](https://gitlab.com/smspp/dpsolver), a Dynamic Programming Solver
-  for single Unit Commitment problems.
+  project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
+  although the dependency will be hopefully removed in time.
 
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
   "generic" Lagrangian-based Solver for Block with appropriate structure.
@@ -64,7 +71,8 @@ submodules.
   abstract representation encodes for a Mixed-Integer Linear Program
   (ColVariable, FRowConstraint and FRealObjective with LinearFunction inside,
   OneVarConstraint), together with derived MILPSolver classes that actually
-  interface with existing MILP solvers. Currently available derived classes are:
+  interface with existing MILP solvers. Currently, available derived classes
+  are:
 
   - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
     Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
@@ -83,7 +91,7 @@ submodules.
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   StochasticBlock "meta-Block" that takes *any* "deterministic" Block and
-  "makes it stochastic" by allowing to changing some of its data in a very
+  "makes it stochastic" by allowing to change some of its data in a very
   general and abstract way (using the SMS++ "methods factory").
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
@@ -93,14 +101,14 @@ submodules.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (Block and/or
-  Solver) from different sub-projects and that therefore are better not
-  included in any specific sub-project.
+  Solver) from different subprojects and that therefore are better not
+  included in any specific subproject.
 
 - [tools](https://gitlab.com/smspp/tools), defining some tools that can be
   useful for users (such as "main files" that take instances of problems
   and solve them) and that require elements (Block and/or Solver) from
-  different sub-projects so that they are better not included in any specific
-  sub-project.
+  different subprojects so that they are better not included in any specific
+  subproject.
 
 
 ## Getting started
@@ -108,20 +116,21 @@ submodules.
 These instructions will let you build the projects on your local machine.
 
 If you need more detailed instructions on how to install the project and
-its requirements, please refer to the
-[installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
+its requirements, please refer to the [installation
+guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
 
 ### Requirements
 
 See the individual projects for their requirements, or see the *Requirements*
-section in the [installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
+section in the [installation
+guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
 
 The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
 on requirements and dependencies between modules.
 
 ### Getting the code
 
-Getting the whole umbrella project and all the sub-projects can be done with:
+Getting the whole umbrella project and all the subprojects can be done with:
 
 ```sh
 git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
@@ -134,8 +143,8 @@ the ones you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
 
 In alternative, you can avoid using this project altogether and
 fetch, build and install the modules individually (follow their own READMEs).
-In that case, you should start from
-the [SMS++ core library](https://gitlab.com/smspp/smspp).
+In that case, you should start from the [SMS++ core
+library](https://gitlab.com/smspp/smspp).
 
 ### Build and install with CMake
 
@@ -162,7 +171,7 @@ sudo make install
 ### Build and install with makefiles
 
 Most modules, and in particular the "core" SMS++ classes, also come with
-carefully hand-crafted makefiles. Using them requires to dabble with some
+carefully hand-crafted makefiles. Using them requires dabbling with some
 make editing, but it is independent on CMake.
 
 The main step is to edit the makefiles into extlib/. There is one for each
@@ -199,6 +208,7 @@ those in
 
 ```sh
 MCFBlock/test
+tests/CapacitatedFacilityLocationBlock 
 tests/LagBFunction 
 tests/LagrangianDualSolver_MMCF
 tests/LagrangianDualSolver_UC
@@ -225,7 +235,7 @@ Other settings may be needed.
 
 Although sadly a proper User Manual is still missing, the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
-first look at possible ways of using SMS++. In particular the three three
+first look at possible ways of using SMS++. In particular the three
 tests `LagrangianDualSolver_Box`, `LagrangianDualSolver_MMCF` and
 `LagrangianDualSolver_UC` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register two `Solver` (a `:MILPSolver` and a
@@ -250,22 +260,23 @@ found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
 
 ## Getting help
 
-If you need support, you want to submit bugs or propose a new feature for a
+If you need support, you want to submit bugs or propose a new feature for an
 individual module, see the *Getting help* section for that module.
 
 If you need support on the project installation you can check out the
 [installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
-or the [trobleshooting page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
+or the [troubleshooting page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
 in our Wiki.
 
-If your issue is not covered by our guides, or you want propose a new module,
-you can [open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
+If your issue is not covered by our guides, or you want to propose a new
+module, you can
+[open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
-conduct, and the process for submitting merge requests to us.
-To contribute to the individual projects, see the Contribute section for those.
+conduct, and the process for submitting merge requests to us. To contribute
+to the individual projects, see the Contribute section for those.
 
 ## Authors
 
@@ -273,17 +284,14 @@ These authors are for the umbrella project alone. Check the individual
 projects for their respective authors.
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 
 - **Niccolò Iardella**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 
 - **Rafael Durbano Lobato**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 
@@ -297,7 +305,7 @@ see the [LICENSE](LICENSE) file for details.
 
 The code is currently provided free of charge under an open-source license.
 As such, it is provided "*as is*", without any explicit or implicit warranty
-that it will properly behave or it will suit your needs. The Authors of
+that it will properly behave, or it will suit your needs. The Authors of
 the code cannot be considered liable, either directly or indirectly, for
 any damage or loss that anybody could suffer for having used it. More
 details about the non-warranty attached to this code are available in the
@@ -309,17 +317,14 @@ The development of SMS++ has greatly benefited from the contributions
 of the following projects:
 
 - "Consistent Dual Signals and Optimal Primal Solutions", funded by the
-  [Gaspard Monge program for Optimization and Operations Research]
-  (http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO).
 
 - [plan4res](https://www.plan4res.eu), grant agreement No 773897 within
-  European Union's Horizon 2020 research and innovation programme
+  European Union's Horizon 2020 research and innovation programme.
 
 - "Multilevel Heterogeneous Distributed Decomposition for Energy Planning
   with SMS++", funded by the
-  [Gaspard Monge program for Optimization and Operations Research]
-  (http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO).
 
 - "Optimization under Uncertainty with SMS++", funded by the
-  [Gaspard Monge program for Optimization and Operations Research]
-  (http://www.fondation-hadamard.fr/fr/PGMO)
+  [Gaspard Monge program for Optimization and Operations Research](http://www.fondation-hadamard.fr/fr/PGMO).

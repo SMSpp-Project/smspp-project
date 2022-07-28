@@ -13,11 +13,7 @@
 #           $(libEigenINC) = the -I$(include directories) for Eigen          #
 #           $(libEigenLIB) = external libreries + -L<libdirs> for Eigen      #
 #                                                                            #
-#                                VERSION 2.00                                #
-#                               06 - 09 - 2019                               #
-#                                                                            #
 #                             Antonio Frangioni                              #
-#                         Operations Research Group                          #
 #                        Dipartimento di Informatica                         #
 #                            Universita' di Pisa                             #
 #                                                                            #

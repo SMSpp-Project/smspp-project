@@ -8,10 +8,11 @@ pages:
   script:
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    - if [ "$CI_COMMIT_BRANCH" == “master" ]; then git submodule foreach --recursive "git checkout master"; fi
+    - if [ "$CI_COMMIT_BRANCH" == “develop" ]; then git submodule foreach --recursive "git checkout develop || git checkout master"; fi
     - doxygen doxygen/Doxyfile
     - mv doc/html/ public/
   artifacts:
     paths:
       - public
-  only:
-    - master
+  when: manual

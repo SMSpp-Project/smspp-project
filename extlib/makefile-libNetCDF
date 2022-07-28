@@ -13,11 +13,7 @@
 #           $(libNtCDFINC) = the -I$(include directories) for NetCDF	     #
 #           $(libNtCDFLIB) = external libreries + -L<libdirs> for NetCDF     #
 #                                                                            #
-#                                VERSION 2.00                                #
-#                               06 - 09 - 2019                               #
-#                                                                            #
 #                             Antonio Frangioni                              #
-#                         Operations Research Group                          #
 #                        Dipartimento di Informatica                         #
 #                            Universita' di Pisa                             #
 #                                                                            #
