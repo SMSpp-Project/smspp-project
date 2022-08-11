@@ -7,6 +7,9 @@
 [submodule "BinaryKnapsackBlock"]
 	path = BinaryKnapsackBlock
 	url = https://gitlab.com/smspp/binaryknapsackblock.git
+[submodule "CapacitatedFacilityLocationBlock"]
+	path = CapacitatedFacilityLocationBlock
+	url = https://gitlab.com/smspp/capacitatedfacilitylocationblock.git
 [submodule "UCBlock"]
 	path = UCBlock
 	url = https://gitlab.com/smspp/ucblock.git
