@@ -26,7 +26,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // -1 = no log at all, not even pass/fail
 // 0 = only pass/fail
 // 1 = result of each test
@@ -109,9 +109,7 @@
 
 #include "UCBlock.h"
 
-#if USE_BundleSolver
- #include "ThermalUnitBlock.h"
-#endif
+#include "ThermalUnitBlock.h"
 
 #include "HydroSystemUnitBlock.h"
 
@@ -430,6 +428,26 @@ int main( int argc , char **argv )
    exit( 1 );
    }
 
+  // load the BlockSolverConfig for ThermalUnitBlock
+  auto ct = Configuration::deserialize( "TUBSCfg.txt" );
+  auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
+  if( ! tbsc ) {
+   cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
+   delete c;
+   delete ct;
+   exit( 1 );
+   }
+
+  // load the BlockSolverConfig for HydroSystemUnitBlock; note that
+  // this can be "empty", and indeed even not there, in which case
+  // the HydroSystemUnitBlock will be treated as "easy"
+  auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
+  auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
+  if( ( ! hbsc ) || ( ! hbsc->num_ComputeConfig() ) ) {
+   delete ch;
+   hbsc = nullptr;
+   }
+  
   #if USE_BundleSolver
    auto nbsc = bsc->num_ComputeConfig();
    if( ! nbsc ) {
@@ -477,26 +495,6 @@ int main( int argc , char **argv )
      DoEasy = true;                    // assume it is true (default)
 
     break;  // note that we assume this happens *at most* once
-    }
-
-   // load the BlockSolverConfig for ThermalUnitBlock
-   auto ct = Configuration::deserialize( "TUBSCfg.txt" );
-   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
-   if( ! tbsc ) {
-    cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
-    delete c;
-    delete ct;
-    exit( 1 );
-    }
-
-   // load the BlockSolverConfig for HydroSystemUnitBlock; note that
-   // this can be "empty", and indeed even not there, in which case
-   // the HydroSystemUnitBlock will be treated as "easy"
-   auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
-   auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
-   if( ( ! hbsc ) || ( ! hbsc->num_ComputeConfig() ) ) {
-    delete ch;
-    hbsc = nullptr;
     }
 
     // if easy components are used
