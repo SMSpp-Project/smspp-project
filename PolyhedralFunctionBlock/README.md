@@ -34,7 +34,7 @@ use the "natural" representation and has an appropriate NDO `Solver`
 attached (say, `BundleSolver`).
 
 After all this is done, the NDOBlock and LPBlock are solved with the
-registered `Solver` and the results (termination statuts and objective
+registered `Solver` and the results (termination status and objective
 value, if applicable) are compared.
 
 Then, repeatedly a "linearized" `PolyhedralFunctionBlock` in LPBlock is
@@ -65,8 +65,8 @@ passing is a good sign that no regressions have been done for the tested
 modules, and in particular for `PolyhedralFunction` and
 `PolyhedralFunctionBlock`.
 
-A makefile is also provided that builds the executable inluding the
-`BundleSOlver` module and all its dependencies, in particular `MILPSolver`
+A makefile is also provided that builds the executable including the
+`BundleSolver` module and all its dependencies, in particular `MILPSolver`
 (and, obviously, the core SMS++ library).
 
 

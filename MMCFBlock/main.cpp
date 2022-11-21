@@ -5,7 +5,7 @@
  *
  * Tester for MMCFBlock. It loads an MMCF instance from file, taking the
  * filename and the type from the command line, into both a MMCFBlock with
- * an approprate Solver (say, CPXMILPSolver) attached, and into a
+ * an appropriate Solver (say, CPXMILPSolver) attached, and into a
  * MMCFCplex object derived from MMCFClass. It solves the instance with
  * both and compares the results.
  *

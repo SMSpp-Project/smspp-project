@@ -49,7 +49,7 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 2nd Solver attched to the UCBlock is assumed to be a
+// if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
 // LagrangianDualSolver using the BundleSolver as the "inner" solver;
 // parameters from the BlockSolverConfig are read and set so that, if
 // "easy components" are used, all UnitBlock that are ThermalUnitBlock or
@@ -97,7 +97,6 @@
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include <fstream>
 #include <sstream>
 #include <iomanip>
 

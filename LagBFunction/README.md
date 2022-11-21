@@ -30,7 +30,7 @@ The NDOBlock is constructed as follows:
    `LagBFunction`. If a command line parameter dictates that the
    `LagBFunction` will actually be computed (the `CDASolver` registered to
    NDOBlock does not have the "easy components" feature), an appropriate
-   `Solver` (capble of solving LPs) is registered to all the inner `Block`
+   `Solver` (capable of solving LPs) is registered to all the inner `Block`
    of the `LagBFunction`.
 
  - The above p `LagBFunction` are put each inside the `FRealObjective` of a
@@ -149,7 +149,7 @@ The NDOBlock is constructed as follows:
 
        max { l x + f(x) + min { ( B x + c_1 ) z_1 : E z_1 = b_1  , 0 <= z_1 }
                         + min { ( B x + c_2 ) z_2 : E z_2 = b_2  , 0 <= z_2 } }
-   yelding
+   yielding
 
        max { l x + f(x) + y_1 b_1 + y_2 b_2 :
              y_1 E <= B x + c_1 , y_2 E <= B x + c_2 }
@@ -181,7 +181,7 @@ The NDOBlock is constructed as follows:
  - An appropriate `CDASolver` is attached to LPBlock.
 
 After all this is done, the NDOBlock and LPBlock are solved with the
-registered `Solver` and the results (termination statuts and objective
+registered `Solver` and the results (termination status and objective
 value, if applicable) are compared.
 
 The PolyhedralFunction and/or the costs and demands (not supplies) of the
@@ -212,15 +212,14 @@ within half an hour) set of tests with different sizes and seeds of the
 random generator; all these passing is a good sign that no regressions
 have been done for the tested modules.
 
-A makefile is also provided that builds the executable inluding the
-BundleSOlver module and all its dependencies, in particular MILPSolver
+A makefile is also provided that builds the executable including the
+BundleSolver module and all its dependencies, in particular MILPSolver
 (and, obviously, the core SMS++ library).
 
 
 ## Authors
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

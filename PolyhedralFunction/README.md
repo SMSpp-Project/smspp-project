@@ -11,7 +11,7 @@ This executable, given the input parameter n, constructs a "random"
 `PolyhedralFunction` and put it as the only `Objective` of the
 `AbstractBlock` NDOBlock, otherwise "empty" save for the n `ColVariable`
 active in the `PolyhedralFunction`, that can have simple bound constraints
-imposed on them if the macro `HAVE_CONSTRAINTS` is properly set).
+imposed on them if the macro `HAVE_CONSTRAINTS` is properly set.
 
 The same `PolyhedralFunction` is represented as a Linear Program in
 another `AbstractBlock` (LPBlock) having the same number of `ColVariable`, a
@@ -25,7 +25,7 @@ can be any `Solver` capable of handling Linear Programs (say, some derived
 class of `MILPSolver` such as `CPXMILPSolver` or `SCIPMILPSolver`).
 
 After all this is done, the NDOBlock and LPBlock are solved with the
-registered `Solver` and the results (termination statuts and objective
+registered `Solver` and the results (termination status and objective
 value, if applicable) are compared.
 
 The `PolyhedralFunction` and the LP are then repeatedly randomly modified
@@ -50,8 +50,8 @@ different sizes and seeds of the random generator; all these passing is a
 good sign that no regressions have been done for the tested modules, and
 in particular for `PolyhedralFunction`.
 
-A makefile is also provided that builds the executable inluding the
-`BundleSOlver` module and all its dependencies, in particular
+A makefile is also provided that builds the executable including the
+`BundleSolver` module and all its dependencies, in particular
 `MILPSolver` (and, obviously, the core SMS++ library).
 
 

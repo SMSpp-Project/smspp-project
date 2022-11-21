@@ -10,7 +10,7 @@ Multicommodity Min-Cost Flow (MMCF) in one of the several supported file
 formats, reads the instance in a `MMCFBlock` and solves it with a
 `:MILPSolver` (or whatever appropriate solver the `BlockSolverConfig`
 described by `BSPar.txt` dictates). It then loads the same problem with
-the entrely different solver `MMCFCplex` and again solves it, comparing
+the entirely different solver `MMCFCplex` and again solves it, comparing
 the results (and printing the running time).
 
 The usage of the executable is the following:

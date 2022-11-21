@@ -10,9 +10,9 @@ SMS++ library.
 This executable, given three input parameters n, k and m, constructs a
 "very simple structured" `AbstractBlock` formed of k sub-`AbstractBlock`
 with n variables each, only box constraints and separable `Objective`
-(FRealObjective with a `LinearFunction` or `DQuadFunction`. m * n * k
+(FRealObjective with a `LinearFunction` or `DQuadFunction`). m * n * k
 linking constraints are constructed in the father, which has no `Variable`
-an no `Objective` of its own. Two different Solver are registered to the
+and no `Objective` of its own. Two different Solver are registered to the
 `AbstractBlock`, the second of which is assumed to be a
 `LagrangianDualSolver` (which does not `BlockSolverConfig`-ure the
 sub-`AbstractBlock` because the main directly registers `BoxSolver` to them),
@@ -21,7 +21,7 @@ whereas the second is any `CDASolver` able to handle Linear Programs. The
 
 The `AbstractBlock` is then repeatedly randomly modified and re-solved
 several times, the results are compared.
- 
+
 The usage of the executable is the following:
 
     ./LDS_Box_test seed [wchg nvar nson dens #rounds #chng %chng]
@@ -40,8 +40,8 @@ within half an hour) set of tests with different sizes and seeds of the
 random generator; all these passing is a good sign that no regressions
 have been done for the tested modules.
 
-A makefile is also provided that builds the executable inluding the
-`LagrangianDualSolver` module, the `BundleSOlver` module and all its
+A makefile is also provided that builds the executable including the
+`LagrangianDualSolver` module, the `BundleSolver` module and all its
 dependencies, in particular `MILPSolver`, together of course with the
 core SMS++ library.
 

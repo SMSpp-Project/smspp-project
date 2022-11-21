@@ -62,7 +62,7 @@ This anyway shows how these three completely different arrangements can be
 obtained with exactly the same executable by just changing the configuration
 files. In fact, the three folders [cuts](cuts), [MCF](MCF) and [LD](LD)
 contain configuration files primed for these three different settings, plus
-a symlink to the same exacutable.
+a symlink to the same executable.
 
 All this is possibly repeated a number of times in a loop where data of the
 CFLproblem (fixed and transportation costs, demands, capacities, facilities
@@ -112,7 +112,7 @@ and easy enough so that the test can be ran while solving the instances to
 integer optimality (required if, for instance, you want to test changing
 the problem type from splittable to unsplittable).
 
-A makefile is also provided that builds the executable inluding the
+A makefile is also provided that builds the executable including the
 `LagrangianDualSolver` module, the `BundleSolver` module, the `MILPSolver`
 module, the `MCFBlock` module, the `BinaryKnapsackBlock` module, together of
 course with the core SMS++ library.

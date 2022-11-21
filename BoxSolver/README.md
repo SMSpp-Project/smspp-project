@@ -22,7 +22,7 @@ each with fifty-fifty chances:
 - a min or max `Objective`;
 
 - a fully linear `Objective` or one with also quadratic coefficients,
-  in which case the `Objective` is not necessatily convex for a min
+  in which case the `Objective` is not necessarily convex for a min
   problem or concave for a max one, as `BoxSolver` can deal with it;
 
 - all continuous variables or some integer ones; however, when there
@@ -56,13 +56,13 @@ The usage of the executable is the following:
        #chng: number changes [10]
        %chng: probability of changing [0.6]
 
-A batch file is provided that runs alarge set of tests (which are anyway
+A batch file is provided that runs a large set of tests (which are anyway
 very quick, in particular if `DIRECTION_TEST > 0`)  with different sizes
 and seeds of the random generator; all these passing is a good sign that
 no regressions have been done for the tested modules, and in particular
 for `BoxSolver`.
 
-A makefile is also provided that builds the executable inluding the
+A makefile is also provided that builds the executable including the
 `MILPSolver` module and all its dependencies (hence, obviously, the core
 SMS++ library), although the latter could be switched away when testing
 with `DIRECTION_TEST > 0`.
