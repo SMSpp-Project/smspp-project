@@ -201,8 +201,7 @@ TEST_P ( UCMILPTest, Solve ) {
 INSTANTIATE_TEST_SUITE_P( UCMILPTests ,
                           UCMILPTest ,
                           ::testing::Values(  // file, ub
-                          // 3507796.2761932774
-                           TestParameter{ "data/EC_Test.nc4" , 3514201.686098018 } ,
+                           TestParameter{ "data/EC_Test.nc4" , 3507796.2761932774 } ,
                            TestParameter{ "data/bus/L_B_N_2.nc4" , 29197370 } ,
                            TestParameter{ "data/bus/L_B_N_3.nc4" , 2913975.2703765822 } ,
                            TestParameter{ "data/bus/L_B_N_1.nc4" , 27862915 } ,
