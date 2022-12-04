@@ -82,7 +82,8 @@ class UCMILPTest :
 
   std::string name;
   scf >> eatcomments >> name;
-  auto * s_config = dynamic_cast<BlockSolverConfig *> ( Configuration::new_Configuration( name ) );
+  auto * s_config = dynamic_cast< BlockSolverConfig * > (
+   Configuration::new_Configuration( name ) );
   ASSERT_TRUE( s_config );
   ASSERT_NO_THROW( scf >> *s_config );
   s_config->apply( block );
@@ -118,18 +119,18 @@ class UCMILPTest :
   auto b_config = new RBlockConfig;
 
   for( auto sb: uc_block->get_nested_Blocks() ) {
-   if( !dynamic_cast<UnitBlock *>( sb ) ) {
+   if( ! dynamic_cast< UnitBlock * >( sb ) ) {
     continue;
    }
 
    auto sbc = new RBlockConfig;
 
    // If HydroSystemUnitBlock, we configure its PolyhedralFunctionBlocks
-   if( auto hu_block = dynamic_cast<HydroSystemUnitBlock *>( sb ) ) {
+   if( auto hu_block = dynamic_cast< HydroSystemUnitBlock * >( sb ) ) {
 
     for( auto ssb: hu_block->get_nested_Blocks() ) {
 
-     if( auto pf_block = dynamic_cast<PolyhedralFunctionBlock *>( ssb ) ) {
+     if( auto pf_block = dynamic_cast< PolyhedralFunctionBlock * >( ssb ) ) {
       auto ssbc = new BlockConfig();
       ssbc->f_static_variables_Configuration =
        new SimpleConfiguration< int >( 1 );
