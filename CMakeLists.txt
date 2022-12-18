@@ -67,7 +67,8 @@ if (NOT hasParent)
     find_package(BundleSolver)
     find_package(LagrangianDualSolver)
     find_package(MILPSolver)
-    find_package(SubGradSolver)
+    find_package(BinaryKnapsackBlock)
+#    find_package(SubGradSolver)
 endif ()
 
 # ----- GoogleTest framework ------------------------------------------------ #
