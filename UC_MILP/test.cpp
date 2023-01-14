@@ -204,12 +204,12 @@ INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
  // Cooperative case without and with explicit ECNetworkBlock(s)
  TestParameter{ "data/EC_Test.nc4" , 3507796.2761932774 } ,
  TestParameter{ "data/EC_Test_NB.nc4" , 3507796.2761932774 } ,
- // Non-Cooperative case due to No Assets installed without
- // and with explicit NetworkBlock(s)
+ // Non-Cooperative case due to No Assets installed, without
+ // and with explicit NetworkBlock(s) respectively
  TestParameter{ "data/EC_NA_Test.nc4" , 4177364.156161939 } ,
  TestParameter{ "data/EC_NA_Test_NB.nc4" , 4177364.156161939 } ,
- // Non-Cooperative case due to no reward without and with
- // explicit NetworkBlock(s)
+ // Non-Cooperative case due to no reward, without and with
+ // explicit NetworkBlock(s) respectively
  TestParameter{ "data/EC_NC_Test.nc4" , 3734946.323015101 } ,
  TestParameter{ "data/EC_NC_Test_NB.nc4" , 3734946.323015101 } ,
  // ---------------------------------------------------------------------------
