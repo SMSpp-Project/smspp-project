@@ -84,10 +84,10 @@ ComputeConfig # exact type of the ComputeConfig object
 25 # number of integer parameters
 
 # now all the integer parameters
-intDoEasy  1      # do easy components for (some) LagBFunction
-intMaxIter 10000  # max number of iterations for each call
-intMaxThread 0	   # MaxThread, max number of new tasks to spawn
-intLogVerb 0      # log verbosity of main Bundle algorithm
+intDoEasy 	 0      # do easy components for (some) LagBFunction
+intMaxIter 	 10000  # max number of iterations for each call
+intMaxThread 8	   # MaxThread, max number of new tasks to spawn
+intLogVerb 	 4      # log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
@@ -110,7 +110,7 @@ intTrgtMng 0      # bit-wise encoding targets and accuracies management:
                   # bit 2-3: if accuracy is set (2 = upper - lower, 3 = using EpsU)
                   # bit 4: if Lipschitz constant is used to compute the upper model
 
-# MPSolver parameters :- - - - - - - -
+# MPSolver parameters : - - - - - -
 
 intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
@@ -118,7 +118,7 @@ intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
 # QPPenalty's parameters : - - - - - -
 
 intMPlvl   4      # log verbosity of Master Problem
-                  
+
 intQPmp1   0	  # MxAdd, how many variables can be added to the base at each
       	          # iteration in BMinQuad (0 = at will)
 intQPmp2   0      # MxRmv, how many variables can be removed from the base at each
