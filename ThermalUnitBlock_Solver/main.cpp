@@ -29,8 +29,8 @@
 
 #define CHECK_SOLUTIONS 0
 // coded bit-wise:
-// bit 0: 1 = check feasibiliy of optimal solutions of Solver1
-// bit 1: 1 = check feasibiliy of optimal solutions of Solver2
+// bit 0: 1 = check feasibility of optimal solutions of Solver1
+// bit 1: 1 = check feasibility of optimal solutions of Solver2
 // bit 2: 1 = check that optimal solutions agree (dangerous, they may not)
 
 #if( LOG_LEVEL >= 1 )
@@ -42,12 +42,12 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the UCBlock is detached
+// if nonzero, the 1st Solver attached to the UCBlock is detached
 // and re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the UCBlock is detached and
+// if nonzero, the 2nd Solver attached to the UCBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0
@@ -80,9 +80,7 @@
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include <fstream>
 #include <sstream>
-#include <iomanip>
 
 #include <random>
 
@@ -273,7 +271,7 @@ static double linear_cost( Index i )
  /* Randomly setting the linear cost is nontrivial, since 1UC problems have
   * an unfortunate tendency for producing "all 0" solutions with their
   * original costs. This is because a > 0, b > 0 and c > 0, so producing
-  * power has a positive cost and there is no gain counter-balanging it.
+  * power has a positive cost and there is no gain counter-balancing it.
   *
   * Random fixed costs can be negative (see fixed_cost()) so this provides
   * an incentive to the unit to produce, but typically one should set b < 0
@@ -299,7 +297,7 @@ static double linear_cost( Index i )
   *   = if a ~= 0, then it is - | b | multiplied by a factor "uniformly
   *     distributed" in [ 0.1 , 10 ] (hence negative no matter what)
   *
-  *   = else is is - a u is multiplied by a factor "uniformly distributed"
+  *   = else if is - a u is multiplied by a factor "uniformly distributed"
   *     in [ 4 , 1 / 4 ] (hence negative no matter what)
   *
   * Note, however, that a could have just changed prior to the call to

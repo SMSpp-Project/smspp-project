@@ -627,7 +627,7 @@ int main( int argc , char **argv )
  Arc.close();
  Mut.close();
 
- // is IS THE TOTAL NO OF ARCS WITH MUTUAL ARC CAPACITY
+ // IS THE TOTAL NO OF ARCS WITH MUTUAL ARC CAPACITY
 
  // OUTPUT (node) REQUIREMENTS
 
