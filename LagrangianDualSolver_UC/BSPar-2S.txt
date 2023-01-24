@@ -86,7 +86,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # now all the integer parameters
 intDoEasy 	 0      # do easy components for (some) LagBFunction
 intMaxIter 	 10000  # max number of iterations for each call
-intMaxThread 8	   # MaxThread, max number of new tasks to spawn
+intMaxThread 8	    # MaxThread, max number of new tasks to spawn
 intLogVerb 	 4      # log verbosity of main Bundle algorithm
 
 intWZNorm   2     # which norm to use in the norm-based stopping condition
