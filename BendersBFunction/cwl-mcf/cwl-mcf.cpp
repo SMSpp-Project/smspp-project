@@ -573,7 +573,7 @@ double cwl_mcf( std::string file_name )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // return( 0 );
- return LB;
+ return( LB );
 
  }  // end( main )
 

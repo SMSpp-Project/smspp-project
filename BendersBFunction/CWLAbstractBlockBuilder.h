@@ -109,7 +109,7 @@ CWLInstance read_cwl_instance( std::filesystem::path file_path ) {
   }
  }
 
- return instance;
+ return( instance );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -190,7 +190,7 @@ AbstractBlock * build_CWL_block( std::filesystem::path file_path ,
   block->set_objective( objective );
  }
 
- return block;
+ return( block );
 }
 
 
@@ -232,7 +232,7 @@ AbstractBlock * build_customer_Block( const CWLInstance & instance , int j ) {
   block->set_objective( objective );
  }
 
- return block;
+ return( block );
 
 }
 
@@ -285,7 +285,7 @@ BendersBFunction * build_decomposition_by_customer
   }
  }
 
- return benders_function;
+ return( benders_function );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -326,7 +326,7 @@ AbstractBlock * build_location_Block( const CWLInstance & instance , int i ) {
   block->set_objective( objective );
  }
 
- return block;
+ return( block );
 
 }
 
@@ -380,7 +380,7 @@ BendersBFunction * build_decomposition_by_location
   }
  }
 
- return benders_function;
+ return( benders_function );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -479,7 +479,7 @@ BendersBFunction * build_Benders_function( const CWLInstance & instance ,
   }
  }
 
- return benders_function;
+ return( benders_function );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -489,17 +489,17 @@ BendersBFunction * build_Benders_function
   Solver * solver , DecompositionType decomposition_type ) {
 
  if( decomposition_type == eNone ) {
-  return build_Benders_function( instance , std::move( y ) , solver );
+  return( build_Benders_function( instance , std::move( y ) , solver ) );
  }
  else if( decomposition_type == eCustomer ) {
-  return build_decomposition_by_customer( instance , std::move( y ) );
+  return( build_decomposition_by_customer( instance , std::move( y ) ) );
  }
  else if( decomposition_type == eLocation ) {
-  return build_decomposition_by_location( instance , std::move( y ) );
+  return( build_decomposition_by_location( instance , std::move( y ) ) );
  }
  else {
-  throw std::invalid_argument( "build_Benders_function: invalid decomposition "
-                               "type: " + std::to_string( decomposition_type ) );
+  throw( std::invalid_argument( "build_Benders_function: invalid decomposition "
+                                "type: " + std::to_string( decomposition_type) ) );
  }
 }
 
@@ -537,7 +537,7 @@ AbstractBlock * build_Benders_master_block
   block->set_objective( objective );
  }
 
- return block;
+ return( block );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -559,7 +559,7 @@ AbstractBlock * build_CWL_block_with_Benders_decomposition
  objective->set_sense( Objective::eMin );
  nested_blocks[ 0 ]->set_objective( objective );
 
- return master_block;
+ return( master_block );
 }
 
 } }   // end( namespace SMSpp_di_unipi_it )

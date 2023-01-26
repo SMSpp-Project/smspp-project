@@ -74,22 +74,22 @@ BlockSolverConfig * build_solver_config
  auto bsc = new BlockSolverConfig;
  config_file >> ( * bsc );
  config_file.close();
- return bsc;
+ return( bsc );
 }
 
 /*--------------------------------------------------------------------------*/
 
 bool is_identity( const matrix & A ) {
- if( A.empty() ) return false;
+ if( A.empty() ) return( false );
  for( Index i = 0 ; i < A.size() ; ++i ) {
   if( A[ i ].size() != A.size() )
-   return false;
-  if( A[ i ][ i ] != 1 ) return false;
+   return( false );
+  if( A[ i ][ i ] != 1 ) return( false );
   for( Index j = 0 ; j < A.size() ; ++j )
    if( i != j && A[ i ][ j ] != 0.0 )
-    return false;
+    return( false );
  }
- return true;
+ return( true );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -229,7 +229,7 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
  // M1 y + b1 <= Ex <= M2 y + b2
 
  auto num_lower_xy_constraints =
-  std::count_if( b1.begin() , b1.end() , [](double d) { return d > -inf; } );
+  std::count_if( b1.begin() , b1.end() , [](double d) { return( d > -inf ); } );
 
  if( num_lower_xy_constraints > 0 ) {
   auto lower_xy_constraints =
@@ -251,7 +251,7 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
  }
 
  auto num_upper_xy_constraints =
-  std::count_if( b2.begin() , b2.end() , [](double d) { return d < inf; } );
+  std::count_if( b2.begin() , b2.end() , [](double d) { return( d < inf ); } );
 
  if( num_upper_xy_constraints > 0 ) {
   auto upper_xy_constraints =
@@ -272,7 +272,7 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
   lp->add_static_constraint( *upper_xy_constraints , "xy-upper");
  }
 
- return lp;
+ return( lp );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -505,7 +505,7 @@ AbstractBlock * build_Benders_decomposition
 
  master->set_objective( new FRealObjective( master , benders_function ) );
 
- return master;
+ return( master );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -589,7 +589,7 @@ Solver * build_inner_block_solver() {
  inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
   ( "CPXPARAM_Simplex_Tolerances_Optimality" ) , 1.0e-15 );
 
- return inner_block_solver;
+ return( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1484,14 +1484,14 @@ int main( int argc, char ** argv ) {
    "BlockSolverConfig of the Solver for the master problem must be provided "
    "as argument." << std::endl;
   std::cerr << "Usage: " << argv[ 0 ] << " PATH" << std::endl;
-  return 1;
+  return( 1 );
  }
 
  solver_filename = argv[ 1 ];
 
  run( false );
  run( true );
- return 0;
+ return( 0 );
 }
 
 /*--------------------------------------------------------------------------*/

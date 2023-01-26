@@ -75,7 +75,7 @@ BlockSolverConfig * build_solver_config
  auto bsc = new BlockSolverConfig;
  config_file >> ( * bsc );
  config_file.close();
- return bsc;
+ return( bsc );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -128,7 +128,7 @@ int solve_with_BundleSolver( std::filesystem::path file_path ,
  block_solver_config->apply( block );
  delete block_solver_config;
  delete block;
- return status;
+ return( status );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -143,7 +143,7 @@ int solve_with_MILPSolver( std::filesystem::path file_path ,
  if( solver->has_var_solution() )
   *solution_value = solver->get_var_value();
  delete block;
- return status;
+ return( status );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -210,7 +210,7 @@ int main( int argc, char ** argv ) {
   std::cerr << "The path to the directory containing the instance files " <<
    "must be provided as argument." << std::endl;
   std::cerr << "Usage: " << argv[ 0 ] << " PATH" << std::endl;
-  return 1;
+  return( 1 );
  }
 
  std::string path = argv[ 1 ];
@@ -221,7 +221,7 @@ int main( int argc, char ** argv ) {
  std::cout << "***** Benders decomposition test *****" << std::endl;
  compare( path , SolverType::BundleSolver );
 
- return 0;
+ return( 0 );
 }
 
 /*--------------------------------------------------------------------------*/

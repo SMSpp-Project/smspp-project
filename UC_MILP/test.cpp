@@ -145,7 +145,7 @@ class UCMILPTest :
    b_config->add_sub_BlockConfig( sbc, idx );
   }
 
-  return b_config;
+  return( b_config );
  }
 
  public:
@@ -161,7 +161,7 @@ class UCMILPTest :
    std::replace( s.begin(), s.end(), '/', '_' );
    std::replace( s.begin(), s.end(), '.', '_' );
    std::replace( s.begin(), s.end(), '-', '_' );
-   return s;
+   return( s );
   }
  };
 };
@@ -272,5 +272,5 @@ INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
 /*--------------------------------------------------------------------------*/
 int main( int argc, char ** argv ) {
  ::testing::InitGoogleTest( &argc, argv );
- return RUN_ALL_TESTS();
+ return( RUN_ALL_TESTS() );
 }

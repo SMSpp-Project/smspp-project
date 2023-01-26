@@ -343,7 +343,7 @@ class OPTrand {
 
    gb_fptr = &A[ 54 ];
 
-   return A[ 55 ];
+   return( A[ 55 ] );
    }
  #elif( OPT_RANDOM == 1 )
   int myseed;

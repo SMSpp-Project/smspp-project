@@ -64,7 +64,7 @@ static const double EpsXNum = 1e-8;
 static int CPXPUBLIC UserW( CPXCENVptr env, void *cbdata, int wherefrom,
                               void *cbhandle , int *useraction_p ) {
 
-    return 0;
+    return( 0 );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -1064,7 +1064,7 @@ bool MMCFCplex::GetDSol( void )
 MMCFClass::FONumber MMCFCplex::CostOf( void )
 {
  assert( false );  // not implemented yet
- return 0; // just to avoid a -Wreturn-type warning
+ return( 0 ); // just to avoid a -Wreturn-type warning
  }
 
 /*---------------------------------------------------------------------------*/

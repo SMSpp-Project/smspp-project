@@ -920,7 +920,7 @@ class MMCFClass
    before the call to CostOf(): otherwise, the return value is undefined.
 
    This method (like all those "consuming" solutions) should do something
-   equivalent to setting FSol / XSol to 0 for avaiding them to be wrongly
+   equivalent to setting FSol / XSol to 0 for avoiding them to be wrongly
    used after the call: see the comments to Get***Sol(). */
 
 /*--------------------------------------------------------------------------*/

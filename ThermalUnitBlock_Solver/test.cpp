@@ -139,7 +139,7 @@ class TUB_Solver_Test :
    std::replace( s.begin(), s.end(), '/', '_' );
    std::replace( s.begin(), s.end(), '.', '_' );
    std::replace( s.begin(), s.end(), '-', '_' );
-   return s;
+   return( s );
   }
  };
 
@@ -808,5 +808,5 @@ INSTANTIATE_TEST_SUITE_P( TUB_Solver_Tests,
 /*--------------------------------------------------------------------------*/
 int main( int argc, char ** argv ) {
  ::testing::InitGoogleTest( &argc, argv );
- return RUN_ALL_TESTS();
+ return( RUN_ALL_TESTS() );
 }

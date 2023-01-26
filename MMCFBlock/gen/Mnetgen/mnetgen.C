@@ -140,7 +140,7 @@ inline long min( long x , long y )
 
 inline long max( long x , long y )
 {
- return ( x >= y ? x : y );
+ return( x >= y ? x : y );
  }
 
 /*--------------------------------------------------------------------------*/
