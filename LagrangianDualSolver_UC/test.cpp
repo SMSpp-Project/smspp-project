@@ -207,7 +207,7 @@ static Subset GenerateRand( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -252,7 +252,7 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
-static bool SolveBoth( void ) 
+static bool SolveBoth( void )
 {
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
@@ -446,7 +446,7 @@ int main( int argc , char **argv )
    delete ch;
    hbsc = nullptr;
    }
-  
+
   #if USE_BundleSolver
    auto nbsc = bsc->num_ComputeConfig();
    if( ! nbsc ) {
@@ -518,7 +518,7 @@ int main( int argc , char **argv )
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
       // surely Configure it to use the "linearised" representation
       Configure_HSUB( hub );
-      // if not considered an easy component, also BlockSolverConfig-ure it 
+      // if not considered an easy component, also BlockSolverConfig-ure it
       if( hbsc ) {
        NoEasy.push_back( i );
        hbsc->apply( hub );
@@ -574,7 +574,7 @@ int main( int argc , char **argv )
   // cleanup
   delete hbsc;
   delete tbsc;
-   
+
   bsc->apply( TestBlock );
   bsc->clear();
 
@@ -608,7 +608,7 @@ int main( int argc , char **argv )
  LOG1( "First call: " );
 
  bool AllPassed = SolveBoth();
- 
+
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // now, for n_repeat times:
