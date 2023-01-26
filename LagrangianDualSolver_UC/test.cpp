@@ -542,7 +542,7 @@ int main( int argc , char **argv )
      if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
       return( dynamic_cast< ECNetworkBlock * >( b ) );
      } ) ) {
-      // then indicate the first non-Network Block as "hard" component,
+      // then indicate the first non-ECNetworkBlock as "hard" component,
       // otherwise the BundleSolver will fail because all Block are easy
       auto it = std::find_if_not( sb.begin() , sb.end() , []( Block * b ) {
        return( dynamic_cast< ECNetworkBlock * >( b ) );
