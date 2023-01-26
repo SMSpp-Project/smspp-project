@@ -99,7 +99,6 @@
 
 #include <sstream>
 #include <iomanip>
-
 #include <random>
 
 #include "BlockSolverConfig.h"
@@ -111,6 +110,8 @@
 #include "ThermalUnitBlock.h"
 
 #include "HydroSystemUnitBlock.h"
+
+#include "ECNetworkBlock.h"
 
 /*!!
 #include "FRealObjective.h"
@@ -537,14 +538,14 @@ int main( int argc , char **argv )
     if( ( NoEasy.empty() ) && ( ( cc->vint_pars.empty() ) ||
                                 ( ( it_cc != cc->vint_pars.end() ) &&
                                   ( it_cc->second.empty() ) ) ) )
-     // ... but there is at least one NetworkBlock
+     // ... but there is at least one ECNetworkBlock
      if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
-      return( dynamic_cast< NetworkBlock * >( b ) );
+      return( dynamic_cast< ECNetworkBlock * >( b ) );
      } ) ) {
       // then indicate the first non-Network Block as "hard" component,
       // otherwise the BundleSolver will fail because all Block are easy
       auto it = std::find_if_not( sb.begin() , sb.end() , []( Block * b ) {
-       return( dynamic_cast< NetworkBlock * >( b ) );
+       return( dynamic_cast< ECNetworkBlock * >( b ) );
       } );
       if( it != sb.end() )
        NoEasy.push_back( std::distance( sb.begin() , it ) );
