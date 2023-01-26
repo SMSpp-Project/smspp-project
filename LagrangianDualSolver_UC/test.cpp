@@ -529,6 +529,27 @@ int main( int argc , char **argv )
      // all the other are treated as easy
      }
 
+    // if no "hard" components were given in Configuration or selected...
+    auto it_cc = std::find_if( cc->vint_pars.begin() , cc->vint_pars.end() ,
+                               []( const auto & pair ) {
+                                return( pair.first == "vintNoEasy" );
+                               } );
+    if( ( NoEasy.empty() ) && ( ( cc->vint_pars.empty() ) ||
+                                ( ( it_cc != cc->vint_pars.end() ) &&
+                                  ( it_cc->second.empty() ) ) ) )
+     // ... but there is at least one NetworkBlock
+     if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
+      return( dynamic_cast< NetworkBlock * >( b ) );
+     } ) ) {
+      // then indicate the first non-Network Block as "hard" component,
+      // otherwise the BundleSolver will fail because all Block are easy
+      auto it = std::find_if_not( sb.begin() , sb.end() , []( Block * b ) {
+       return( dynamic_cast< NetworkBlock * >( b ) );
+      } );
+      if( it != sb.end() )
+       NoEasy.push_back( std::distance( sb.begin() , it ) );
+     }
+
     // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
     // we are assuming it's not there already: if it is, the new copy is
     // seen after the old one and therefore overrides it
