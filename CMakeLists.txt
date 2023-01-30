@@ -101,6 +101,7 @@ endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(BendersBFunction)
+add_subdirectory(BinaryKnapsackBlock)
 add_subdirectory(BoxSolver)
 add_subdirectory(LagBFunction)
 add_subdirectory(LagrangianDualSolver_Box)
