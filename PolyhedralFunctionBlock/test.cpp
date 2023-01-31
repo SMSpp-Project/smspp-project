@@ -884,7 +884,7 @@ int main( int argc , char **argv )
   // files and apply() it to the NDOBlock
   ifstream NDOParFile( "NDOPar.txt" );
   if( ! NDOParFile.is_open() ) {
-   cerr << "Error: cannot open file BundlePar.txt" << endl;
+   cerr << "Error: cannot open file NDOPar.txt" << endl;
    return( 1 );
    }
 
@@ -946,6 +946,8 @@ int main( int argc , char **argv )
  // arbitrary number of them
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
+  if( ! AllPassed )
+   break;
 
   p_PFB LPBr;
   if( nf ) {

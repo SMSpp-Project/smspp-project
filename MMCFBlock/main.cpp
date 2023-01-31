@@ -121,6 +121,18 @@ int main( int argc , char **argv )
  auto MMCFb = new MMCFBlock;
  MMCFb->load( argv[ 1 ] , filetype );
  MMCFb->PreProcess();
+
+ {
+  auto cfg = Configuration::deserialize( "BPar.txt" );
+  if( BlockConfig * bc = dynamic_cast< BlockConfig * >( cfg ) )
+   bc->apply( MMCFb );
+  else {
+   cerr << "Error: BPar.txt does not contain a BlockConfig" << endl;
+   exit( 1 );
+   }
+  delete cfg;
+  }
+
  MMCFb->generate_abstract_variables();
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -

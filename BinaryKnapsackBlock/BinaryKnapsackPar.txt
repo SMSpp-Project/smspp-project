@@ -70,9 +70,9 @@ intLogVerb 0
 dblRelAcc		1e-08
 CPXPARAM_MIP_Tolerances_Integrality	1e-07	
 
-1  # number of string parameters
+0  # number of string parameters
 # now all the double parameters
-strOutputFile	bk.lp
+#strOutputFile	bk.lp
 # [none]
 
 0  # number of vector-of-int parameters

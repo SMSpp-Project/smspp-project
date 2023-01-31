@@ -79,7 +79,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 
 /*--------------------------------------------------------------------------*/
 
@@ -944,6 +944,9 @@ int main( int argc , char **argv )
  // then the two problems are re-solved
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
+  if( ! AllPassed )
+   break;
+
   LOG1( rep << ": ");
 
   // add rows - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
