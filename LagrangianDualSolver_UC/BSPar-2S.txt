@@ -126,11 +126,11 @@ intQPmp2   0      # MxRmv, how many variables can be removed from the base at ea
 
 # OSiMPSolver's parameters : - - - - - -
 
-intOSImp1  1      # CPLEX algorithm
+intOSImp1  0      # CPLEX algorithm
 intOSImp2  0      # pre-processing (reduction)
 intOSImp3  1      # threads
 
-intRstAlg   2     # parameter to handle the reset of the algorithm
+intRstAlg  2      # parameter to handle the reset of the algorithm
 
 17 # number of double parameters
 
@@ -158,8 +158,8 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 
 # now all the string parameters
 #str_LDSlv_ISName	ParallelBundleSolver  # the inner Solver used by LagrangianDualSolver
-str_LDSlv_ISName	BundleSolver  # the inner Solver used by LagrangianDualSolver
-str_LagBF_BSCfg		LPBSCfg.txt   # BlockSolverConfig for the LagBFunctions
+str_LDSlv_ISName	BundleSolver          # the inner Solver used by LagrangianDualSolver
+str_LagBF_BSCfg		LPBSCfg.txt           # BlockSolverConfig for the LagBFunctions
 # not needed if intDoEasy >= 1 && USE_BundleSolver > 0, this is done "by hand"
 
 # note that we could eof() the file here since the rest is all empty
