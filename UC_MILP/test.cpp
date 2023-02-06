@@ -210,8 +210,8 @@ INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
  TestParameter{ "data/EC_NA_Test_NB.nc4" , 4177364.156161939 } ,
  // Non-Cooperative case due to no energy sharing, i.e., no reward,
  // without and with explicit NetworkBlock(s) respectively
- TestParameter{ "data/EC_NC_Test.nc4" , 3734946.323015101 } ,
- TestParameter{ "data/EC_NC_Test_NB.nc4" , 3734946.323015101 } ,
+ TestParameter{ "data/EC_NC_Test.nc4" , 3734946.323015102 } ,
+ TestParameter{ "data/EC_NC_Test_NB.nc4" , 3734946.323015102 } ,
  // ---------------------------------------------------------------------------
  TestParameter{ "data/bus/L_B_N_1.nc4" , 27862915 } ,
  TestParameter{ "data/bus/L_B_N_2.nc4" , 29197370 } ,
