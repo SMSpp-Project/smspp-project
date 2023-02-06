@@ -549,6 +549,12 @@ int main( int argc , char **argv )
       } );
       if( it != sb.end() )
        NoEasy.push_back( std::distance( sb.begin() , it ) );
+      else
+       throw( std::logic_error(
+        "There is no non-ECNetworkBlock candidate block to set as a `hard` "
+        "component, so set intDoEasy == 0 in the Configuration file since "
+        "BundleSolver cannot deal with the problem if all its components are "
+        "`easy`." ) );
      }
 
     // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
