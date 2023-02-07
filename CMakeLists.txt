@@ -18,6 +18,21 @@ project("The SMS++ Project")
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
+# Some easier way to alleviate the cmake call and pick the directories from a ROOT
+if( COIN_ROOT_DIR )
+	set(Clp_ROOT ${COIN_ROOT_DIR})
+	set(Osi_ROOT ${COIN_ROOT_DIR})
+	set(CoinUtils_ROOT ${COIN_ROOT_DIR})
+endif()
+
+if ( StOpt_ROOT )
+	set( StOpt_geners_INCLUDE_DIR ${StOpt_ROOT}/StOpt/geners-1.11.0/ )
+	set( StOpt_INCLUDE_DIR ${StOpt_ROOT}/StOpt )
+	set( StOpt_LIBRARY ${StOpt_ROOT}/BUILD/lib )
+	set( StOpt_geners_LIBRARY ${StOpt_ROOT}/BUILD/lib )	
+endif()
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CXX_FLAGS}")
+
 # ----- Dependencies -------------------------------------------------------- #
 # Comment out the ones you do not need.
 
