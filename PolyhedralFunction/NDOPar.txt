@@ -58,7 +58,7 @@ intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
 # QPPenalty's parameters : - - - - - -
-intMPlvl   4      # log verbosity of Master Problem
+intMPlvl   0      # log verbosity of Master Problem
                   
 intQPmp1   0	  # MxAdd, how many variables can be added to the base at each
       	          # iteration in BMinQuad (0 = at will)

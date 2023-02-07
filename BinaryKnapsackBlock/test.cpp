@@ -134,9 +134,28 @@ bool SolveBoth( void )
 
  // solve with both Solvers - - - - - - - - - - - - - - - - - - - - - - - -
 
+ #if( LOG_LEVEL >= 1 )
+  auto start = std::chrono::system_clock::now();
+ #endif
+
  auto status1 = Solver1->compute();     
 
+ #if( LOG_LEVEL >= 1 )
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration< double > elapsed = end - start;
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 2 ) << elapsed.count();
+  start = std::chrono::system_clock::now();
+ #endif
+
  auto status2 = Solver2->compute();     
+
+ #if( LOG_LEVEL >= 1 )
+  end = std::chrono::system_clock::now();
+  elapsed = end - start;
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 2 ) << " - " << elapsed.count() << " - ";
+ #endif
 
  // check status- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
