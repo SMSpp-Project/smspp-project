@@ -183,7 +183,7 @@ void compare( std::string data_dir_path ,
   if( status != ThinComputeInterface::kOK )
    std::cout << "FAILED" << std::endl;
   else {
-   auto cwl_mcf_value = cwl_mcf( file_path );
+   auto cwl_mcf_value = cwl_mcf( file_path.string() );
    auto diff = std::abs( solution_value - cwl_mcf_value );
    auto max_diff = std::max( epsilon , epsilon *
                              std::min( abs( solution_value ),
