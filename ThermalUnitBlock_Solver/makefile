@@ -71,7 +71,7 @@ MOBJ =  $(MILPSOBJ) $(UCBckOBJ) $(SMS++OBJ)
 # libreries
 MLIB =  $(SMS++LIB) $(MILPSLIB) $(UCBckLIB)
 
-$(NAME): $(MOBJ) $(DIR)main.o
+$(NAME): $(MOBJ) $(DIR)test.o
 	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
@@ -84,7 +84,7 @@ MH =    $(SMS++H) $(MILPSH) $(UCBckH)
 
 # compile command
 
-$(DIR)main.o: $(DIR)main.cpp $(MH)
-	$(CC) -c $(DIR)main.cpp -o $@ $(MINC) $(SW)
+$(DIR)test.o: $(DIR)test.cpp $(MH)
+	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################
