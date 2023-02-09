@@ -1,812 +1,860 @@
-/**
- * @file
- * This file contains a (parametrized) test suite that solves a 1UC problem
- * described in a ThermalUnitBlock with both a ThermalUnitDPSolver and a
- * MILPSolver and compares the results;
- * the tests explore all ThermalUnitBlock modifications.
+/*--------------------------------------------------------------------------*/
+/*-------------------------- File test.cpp ---------------------------------*/
+/*--------------------------------------------------------------------------*/
+/** @file
+ * Main for testing ThermalUnitDPSolver
  *
- * The suite uses the Google Test framework, see:
- * https://github.com/google/googletest
+ * An ThermalUnitBlock instance is loaded from netCDF file, two different
+ * Solver are registered to the ThermalUnitBlock, the second of which is
+ * assumed to be a ThermalUnitDPSolver, the ThermalUnitBlock is solved by
+ * the Solver and the results are compared. The ThermalUnitBlock is then
+ * repeatedly randomly modified and re-solved several times, the results are
+ * compared. 
  *
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * \author Niccolo' Iardella \n
- *         Operations Research Group \n
- *         Dipartimento di Informatica \n
- *         Universita' di Pisa \n
- *
- * Copyright &copy; by Antonio Frangioni, Niccolo' Iardella
+ * Copyright &copy by Antonio Frangioni
  */
+/*--------------------------------------------------------------------------*/
+/*-------------------------------- MACROS ----------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+#define LOG_LEVEL 0
+// 0 = only pass/fail
+// 1 = result of each test
+// 2 = + print optimal solutions
+
+#define CHECK_SOLUTIONS 0
+// coded bit-wise:
+// bit 0: 1 = check feasibiliy of optimal solutions of Solver1
+// bit 1: 1 = check feasibiliy of optimal solutions of Solver2
+// bit 2: 1 = check that optimal solutions agree (dangerous, they may not)
+
+#if( LOG_LEVEL >= 1 )
+ #define LOG1( x ) cout << x
+ #define CLOG1( y , x ) if( y ) cout << x
+#else
+ #define LOG1( x )
+ #define CLOG1( y , x )
+#endif
+
+/*--------------------------------------------------------------------------*/
+// if nonzero, the 1st Solver attched to the UCBlock is detached
+// and re-attached to it at all iterations
+
+#define DETACH_1ST 0
+
+// if nonzero, the 2nd Solver attched to the UCBlock is detached and
+// re-attached to it at all iterations
+
+#define DETACH_2ND 0
+
+/*--------------------------------------------------------------------------*/
+// if nonzero, the Block is not solved at every round of changes, but only
+// every SKIP_BEAT + 1 rounds. this allows changes to accumulate, and
+// therefore puts more pressure on the Modification handling of the Solver
+// (in case this tries to do "smart" things rather than dumbly processing
+// each one in turn)
+//
+// note that the number of rounds of changes is them multiplied by
+// SKIP_BEAT + 1, so that the input parameter still dictates the number of
+// Block solutions
+
+#define SKIP_BEAT 0
+
+/*--------------------------------------------------------------------------*/
+
+#define USECOLORS 1
+#if( USECOLORS )
+ #define RED( x ) "\x1B[31m" #x "\033[0m"
+ #define GREEN( x ) "\x1B[32m" #x "\033[0m"
+#else
+ #define RED( x ) #x
+ #define GREEN( x ) #x
+#endif
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include <gtest/gtest.h>
+#include <fstream>
+#include <sstream>
 #include <iomanip>
-#include <netcdf>
 
-#include <FRealObjective.h>
+#include <random>
 
-#include <ThermalUnitBlock.h>
-#include <CPXMILPSolver.h>
-#include <ThermalUnitDPSolver.h>
+#include "ThermalUnitBlock.h"
+
+#include "BlockSolverConfig.h"
+
+#include "FRealObjective.h"
+
+#include "DQuadFunction.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
+using namespace std;
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
-/*----------------------- PARAMETERIZED TEST FIXTURE -----------------------*/
+/*-------------------------------- TYPES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-// Structure containing the input parameters, for convenience
-struct TestParameters {
- std::string test_file;
- long int seed;
- unsigned int max_changes;
- unsigned int num_repeats;
-};
+using Index = Block::Index;
+using c_Index = Block::c_Index;
 
-/*
- * Main test fixture
- *
- * A test fixture is a class used when multiple tests in a suite share code.
- * This fixture is parameterized, it will be instantiated with different input
- * parameters using the INSTANTIATE_TEST_SUITE_P() macro.
- */
-class TUB_Solver_Test :
- public ::testing::TestWithParam< TestParameters > {
- protected:
- TUB_Solver_Test() : seed( GetParam().seed ),
-                     num_repeats( GetParam().num_repeats ),
-                     max_changes( GetParam().max_changes ) {}
+using Range = Block::Range;
+using c_Range = Block::c_Range;
 
- ~TUB_Solver_Test() override = default;
+using Subset = Block::Subset;
+using c_Subset = Block::c_Subset;
 
- long int seed;
- unsigned int max_changes;
- unsigned int num_repeats;
+using FunctionValue = Function::FunctionValue;
+// using c_FunctionValue = Function::c_FunctionValue;
+// using Vec_FunctionValue = LinearFunction::Vec_FunctionValue;
 
- ThermalUnitBlock * block{};
- ThermalUnitDPSolver * tubgsolver{};
- CPXMILPSolver * milpsolver{};
+// using RHSValue = RowConstraint::RHSValue;
 
- int init_t{};
- unsigned int time_horizon{};
+// using coeff_pair = LinearFunction::coeff_pair;
+// using v_coeff_pair = LinearFunction::v_coeff_pair;
 
- void SetUp() override {
-  block = new ThermalUnitBlock();
-  tubgsolver = new ThermalUnitDPSolver();
-  milpsolver = new CPXMILPSolver();
-  EXPECT_TRUE( block != nullptr );
-  EXPECT_TRUE( tubgsolver != nullptr );
-  EXPECT_TRUE( milpsolver != nullptr );
+// using coeff_triple = DQuadFunction::coeff_triple;
+// using v_coeff_triple = DQuadFunction::v_coeff_triple;
 
-  std::string filename( GetParam().test_file );
-  load_nc4( filename );
+/*--------------------------------------------------------------------------*/
+/*------------------------------- CONSTANTS --------------------------------*/
+/*--------------------------------------------------------------------------*/
 
-  time_horizon = block->get_time_horizon();
+//SMSpp_ensure_load( ThermalUnitDPSolver );
 
-  // Generate init_t
-  auto init_up_down_time = block->get_init_up_down_time();
-  auto min_up_time = block->get_min_up_time();
-  auto min_down_time = block->get_min_down_time();
-  if( init_up_down_time > 0 ) {
-   init_t = init_up_down_time >= min_up_time ?
-            0 : ( int ) min_up_time - init_up_down_time;
-  } else {
-   init_t = -init_up_down_time >= min_down_time ?
-            0 : ( int ) min_down_time + init_up_down_time;
+static constexpr auto INF = Inf< FunctionValue >();
+
+/*--------------------------------------------------------------------------*/
+/*------------------------------- GLOBALS ----------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+ThermalUnitBlock * TUBlock;  // the ThermalUnitBlock
+
+Index time_horizon;          // the length of the time horizon
+
+std::vector< double > a;     // the quadratic cost coefficients
+std::vector< double > b;     // the linear cost coefficients
+std::vector< double > c;     // the fixed cost coefficients
+//std::vector< double > l;     // the lower bounds on power production
+std::vector< double > u;     // the upper bounds on power production
+
+std::mt19937 rg;             // base random generator
+std::uniform_real_distribution<> dis( 0.0 , 1.0 );
+
+/*--------------------------------------------------------------------------*/
+/*------------------------------ FUNCTIONS ---------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+template<class T>
+static void Str2Sthg( const char* const str , T &sthg )
+{
+ istringstream( str ) >> sthg;
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static Subset GenerateRand( Index m , Index k )
+{
+ // generate a sorted random k-vector of unique integers in 0 ... m - 1
+
+ Subset rnd( m );
+ std::iota( rnd.begin() , rnd.end() , 0 );
+ std::shuffle( rnd.begin() , rnd.end() , rg );    
+ rnd.resize( k );
+ sort( rnd.begin() , rnd.end() );
+
+ return( std::move( rnd ) );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void PrintResults( bool hs , int rtrn , double fo )
+{
+ if( hs )
+  cout << fo;
+ else
+  if( rtrn == Solver::kInfeasible )
+   cout << "    Unfeas";
+  else
+   if( rtrn == Solver::kUnbounded )
+    cout << "      Unbounded";
+   else
+    cout << "      Error!";
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void PrintSolution( void )
+{
+ cout.setf( std::ios::fixed );
+ // cout.setf( std::ios::scientific , std::ios::floatfield );
+ // cout << setprecision( 4 );
+
+ auto p = TUBlock->get_active_power( 0 );
+ cout << endl << "p = [ ";
+ for( Index i = 0 ; ; ++p ) {
+  cout << p->get_value();
+  if( ++i >= time_horizon )
+   break;
+  else
+   cout << ", ";
+  }
+ cout << " ]";
+
+ auto u = TUBlock->get_commitment( 0 );
+ cout << endl << "u = [ ";
+ for( Index i = 0 ; ; ++u ) {
+  cout << int( u->get_value() );
+  if( ++i >= time_horizon )
+   break;
+  else
+   cout << ", ";
+  }
+ cout << " ]";
+ }
+
+/*--------------------------------------------------------------------------*/
+
+#if( CHECK_SOLUTIONS & 4 )
+
+static void GetP( std::vector< double > & P )
+{
+ auto p = TUBlock->get_active_power( 0 );
+ for( auto & pi : P )
+  pi = (p++)->get_value();
+ }
+
+static void GetU( std::vector< bool > & U )
+{
+ auto u = TUBlock->get_commitment( 0 );
+ // apparently does not work for unfathomable reasons
+ // for( auto & ui : U )
+ // ui = (u++)->get_value();
+ for( Index i = 0 ; i < U.size() ; ++i )
+  U[ i ] = (u++)->get_value();
+ }
+
+#endif
+
+/*--------------------------------------------------------------------------*/
+
+static double fixed_cost( Index i )
+{
+ // returns the original fixed cost multiplied by a factor uniformly
+ // distributed in [ -4 , 4 ]
+
+ return( c[ i ] * ( 8 * dis( rg ) - 4 ) );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static double quadratic_cost( Index i )
+{
+ // returns the original quadratic cost multiplied by a factor "uniformly
+ // distributed" in [ 0.1 , 10 ]
+
+ return( a[ i ] * pow( 10 , 2 * dis( rg ) - 1 ) );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static double linear_cost( Index i )
+{
+ /* Randomly setting the linear cost is nontrivial, since 1UC problems have
+  * an unfortunate tendency for producing "all 0" solutions with their
+  * original costs. This is because a > 0, b > 0 and c > 0, so producing
+  * power has a positive cost and there is no gain counter-balanging it.
+  *
+  * Random fixed costs can be negative (see fixed_cost()) so this provides
+  * an incentive to the unit to produce, but typically one should set b < 0
+  * so that also power production is convenient (least the unit is started
+  * but always kept at the minimum).
+  *
+  * Since a > 0, the largest possible quadratic cost ist a u^2. To ensure
+  * that producing energy is always more convenient than not producing
+  * anything (p == 0 ==> cost == 0) one must have
+  *
+  *   a u^2 + b u < 0    ==>   b < - a u
+  *
+  * Notice that this just gives b < 0 if a == 0.
+  *
+  * The random value of b is therefore set as follows:
+  *
+  * - in 10% of the cases is equal to the original linear cost multiplied
+  *   by a factor "uniformly distributed" in [ 0.1 , 10 ] (hence positive
+  *   iff the original one was)
+  *
+  * - in all the remaining cases:
+  *
+  *   = if a ~= 0, then it is - | b | multiplied by a factor "uniformly
+  *     distributed" in [ 0.1 , 10 ] (hence negative no matter what)
+  *
+  *   = else is is - a u is multiplied by a factor "uniformly distributed"
+  *     in [ 4 , 1 / 4 ] (hence negative no matter what)
+  *
+  * Note, however, that a could have just changed prior to the call to
+  * this function, so the current value in TUBlock is used rather than
+  * the stored one. */
+
+ auto ai = TUBlock->get_quad_term( i );
+
+ return( dis( rg ) < 0.1
+	 ? b[ i ] * pow( 10 , 2 * dis( rg ) - 1 )
+   	 : ( abs( ai ) <= 1e-16
+	     ? - abs( b[ i ] ) * pow( 10 , 2 * dis( rg ) - 1 )
+	     : - ai * u[ i ] * 100 ) );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static bool SolveBoth( void ) 
+{
+ #if( CHECK_SOLUTIONS & 4 )
+  std::vector< double > p1( time_horizon );
+  std::vector< bool > u1( time_horizon );
+  std::vector< double > p2( time_horizon );
+  std::vector< bool > u2( time_horizon );
+ #endif
+
+ #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )  
+  auto obj = ( static_cast< FRealObjective * >( TUBlock->get_objective() )
+	       )->get_function();
+ #endif
+
+ try {
+  // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
+  Solver * Slvr1 = TUBlock->get_registered_solvers().front();
+  #if DETACH_1ST
+   TUBlock->unregister_Solver( Slvr1 );
+   TUBlock->register_Solver( Slvr1 , true );  // push it to the front
+  #endif
+  int rtrn1st = Slvr1->compute( false );
+  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
+               || ( rtrn1st == Solver::kLowPrecision );
+  double fo1st = Slvr1->get_var_value();
+  #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
+   if( hs1st ) {
+    if( ! Slvr1->has_var_solution() ) {
+     cerr << "Error: Solver1 has not found any solution" << endl;
+     exit( 1 );
+     }
+    Slvr1->get_var_solution();
+    #if( LOG_LEVEL > 1 )
+     PrintSolution();
+    #endif
+    #if( CHECK_SOLUTIONS & 1 )
+     if( ! TUBlock->is_feasible() ) {
+      cerr << "Error: Solver1 solution is not feasible" << endl;
+      exit( 1 );
+      }
+    #endif
+    obj->compute();
+    auto solval = obj->get_value();
+    if( abs( fo1st - solval ) > 1e-8 * max( abs( fo1st ) , double( 1 ) ) ) {
+     cerr.setf( std::ios::scientific , std::ios::floatfield );
+     cerr << setprecision( 9 );
+     cerr << "Error: Solver1 reports value " << fo1st
+	  << " but solution value is " << solval << endl;
+     exit( 1 );
+     }
+    #if( CHECK_SOLUTIONS & 4 )
+     GetP( p1 );
+     GetU( u1 );
+    #endif
+    }
+  #endif
+
+  // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
+  Solver * Slvr2 = TUBlock->get_registered_solvers().back();
+  #if DETACH_2ND
+   TUBlock->unregister_Solver( Slvr2 );
+   TUBlock->register_Solver( Slvr2 );  // push it to the back
+  #endif
+  int rtrn2nd = Slvr2->compute( false );
+
+  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
+                 || ( rtrn2nd == Solver::kLowPrecision );
+  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+  #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
+   if( hs2nd ) {
+    if( ! Slvr2->has_var_solution() ) {
+     cerr << "Error: Solver2 has not found any solution" << endl;
+     exit( 1 );
+     }
+    Slvr2->get_var_solution();
+    #if( LOG_LEVEL > 1 )
+     PrintSolution();
+    #endif
+    #if( CHECK_SOLUTIONS & 2 )
+     if( ! TUBlock->is_feasible() ) {
+      cerr << "Error: Solver2 solution is not feasible" << endl;
+      //exit( 1 );
+      }
+    #endif
+    obj->compute();
+    auto solval = obj->get_value();
+    if( abs( fo2nd - solval ) > 1e-8 * max( abs( fo2nd ) , double( 1 ) ) ) {
+     cerr.setf( std::ios::scientific , std::ios::floatfield );
+     cerr << setprecision( 9 );
+     cerr << "Error: Solver2 reports value " << fo2nd
+	  << " but solution value is " << solval << endl;
+     exit( 1 );
+     }
+    #if( CHECK_SOLUTIONS & 4 )
+     GetP( p2 );
+     GetU( u2 );
+    #endif
+    }
+  #endif
+
+  // this being a MIQP, the "abstract" Solver will have a limited
+  // precision. in particular, variable lower bound constraints like
+  // p >= l u can be slightly violated (with p ending up a bit lower
+  // than l) due to either u being, say, 0.999999 or the constraint
+  // being violated up to the accuracy tolerated by the solver,
+  // yieldng things like 127.999999 vs 128.000000 and thereby a final
+  // var_value() slighly lower than that of the ThermalUnitDPSolver.
+  // which is why the relatively loose tolerance of 2e-6 here
+  //!!  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
+  //!!  emergency version with 1e-4 to find big errors
+  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-4 *
+			  max( double( 1 ) , max( abs( fo1st ) ,
+						  abs( fo2nd ) ) ) ) ) {
+   LOG1( "OK(f)" << endl );
+
+   #if( CHECK_SOLUTIONS & 4 )
+    for( Index i = 0 ; i < time_horizon ; ++i ) {
+     if( abs( p1[ i ] - p2[ i ] ) > 1e-6 * max( abs( p1[ i ] ) ,
+						double( 1 ) ) ) {
+      cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
+	   << " ] = " << p2[ i ] << endl;
+      return( false );
+      }
+
+     if( u1[ i ] != u2[ i ] ) {
+      cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
+	   << " ] = " << u2[ i ] << endl;
+      return( false );
+      }
+     }
+   #endif
+
+   return( true );
+   }
+
+  if( ( rtrn1st == Solver::kInfeasible ) &&
+      ( rtrn2nd == Solver::kInfeasible ) ) {
+    LOG1( "OK(e)" << endl );
+    return( true );
+    }
+
+  if( ( rtrn1st == Solver::kUnbounded ) &&
+      ( rtrn2nd == Solver::kUnbounded ) ) {
+   LOG1( "OK(u)" << endl );
+   return( true );
+   }
+
+  #if( LOG_LEVEL >= 1 )
+   cout << "S1 = ";
+   PrintResults( hs1st , rtrn1st , fo1st );
+
+   cout << " ~ S2 = ";
+   PrintResults( hs2nd , rtrn2nd , fo2nd );
+   cout << endl;
+  #endif
+
+  return( false );
+  }
+ catch( exception &e ) {
+  cerr << e.what() << endl;
+  exit( 1 );
+  }
+ catch(...) {
+  cerr << "Error: unknown exception thrown" << endl;
+  exit( 1 );
+  }
+ }
+
+/*--------------------------------------------------------------------------*/
+
+int main( int argc , char **argv )
+{
+ // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ assert( SKIP_BEAT >= 0 );
+
+ long int seed = 0;
+ Index wchg = 135;
+ double p_change = 0.6;
+ Index n_change = 10;
+ Index n_repeat = 100;
+
+ switch( argc ) {
+  case( 7 ): Str2Sthg( argv[ 6 ] , p_change );
+  case( 6 ): Str2Sthg( argv[ 5 ] , n_change );
+  case( 5 ): Str2Sthg( argv[ 4 ] , n_repeat );
+  case( 4 ): Str2Sthg( argv[ 3 ] , wchg );
+  case( 3 ): Str2Sthg( argv[ 2 ] , seed );
+  case( 2 ): break;
+  default: cerr << "Usage: " << argv[ 0 ] <<
+	   "file [seed wchg #rounds #chng %chng]"
+ 		<< endl <<
+           "       wchg: what to change, coded bit-wise [135]"
+		<< endl <<
+           "             0 = fixed costs, 1 = linear costs "
+		<< endl <<
+           "             2 = quadratic costs "
+		<< endl <<
+ 	   "             +128 = also change abstract representation"
+	        << endl <<
+           "       #rounds: how many iterations [100]"
+	        << endl <<
+           "       #chng: number changes [10]"
+	        << endl <<
+           "       %chng: probability of changing [0.6]"
+	        << endl;
+	   return( 1 );
   }
 
-  srand48( seed );
- }
+ rg.seed( seed );  // seed the pseudo-random number generator
 
- void TearDown() override {
-  block->unregister_Solvers(true);
-  delete block;
- }
-
- // Solves the problem using the two solvers and compares the results
- void solve() {
-  auto milp_status = milpsolver->compute( false );
-  auto tubg_status = tubgsolver->compute( false );
-  ASSERT_EQ( milp_status, tubg_status );
-
-  auto milp_val = milpsolver->get_var_value();
-  auto tubg_val = tubgsolver->get_var_value();
-  auto abs_error = 1e-5 * std::max( double( 1 ),
-                                    abs( std::max( milp_val, tubg_val ) ) );
-  ASSERT_NEAR( milp_val, tubg_val, abs_error );
- }
-
- public:
-
- // Generates a meaningful test name for each instance
- struct PrintToStringParamName {
-  template< class ParamType >
-  std::string
-  operator()( const testing::TestParamInfo< ParamType > & info ) const {
-   auto s = static_cast<TestParameters>(info.param).test_file;
-   // Test names must be non-empty, unique, and may only contain ASCII
-   // alphanumeric characters or underscore.
-   std::replace( s.begin(), s.end(), '/', '_' );
-   std::replace( s.begin(), s.end(), '.', '_' );
-   std::replace( s.begin(), s.end(), '-', '_' );
-   return( s );
+ // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ {
+  auto b = Block::deserialize( argv[ 1 ] );
+  if( ! b ) {
+   cout << endl << "Block::deserialize() failed!" << endl;
+   exit( 1 );
+   }
+  TUBlock = dynamic_cast< ThermalUnitBlock * >( b );
+  if( ! TUBlock ) {
+   cout << endl << "The deserialized Block is not a ThermalUnitBlock" << endl;
+   exit( 1 );
+   }
   }
- };
 
- private:
+ TUBlock->generate_abstract_variables();
+ TUBlock->generate_objective( nullptr );
+ 
+ // save some original data of the ThermalUnitBlock - - - - - - - - - - - - -
 
- // Loads a nc4 file
- void load_nc4( std::string & filename ) {
-  netCDF::NcFile f( filename, netCDF::NcFile::read );
-  ASSERT_FALSE( f.isNull() );
+ time_horizon = TUBlock->get_time_horizon();
+ a.resize( time_horizon );
+ b.resize( time_horizon );
+ c.resize( time_horizon );
+ // l.resize( time_horizon );
+ u.resize( time_horizon );
+ for( Index i = 0 ; i < time_horizon ; ++i ) {
+  a[ i ] = TUBlock->get_quad_term( i );
+  b[ i ] = TUBlock->get_linear_term( i );
+  c[ i ] = TUBlock->get_const_term( i );
+  // l[ i ] = TUBlock->get_operational_min_power( i );
+  u[ i ] = TUBlock->get_operational_max_power( i );
+  }
+ 
+ // attach the Solver(s) to the ThermalUnitBlock- - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // do this by reading an appropriate BlockSolverConfig from file and
+ // apply() it to the BoxBlock; note that the BlockSolverConfig is
+ // clear()-ed and kept to do the cleanup at the end
 
-  netCDF::NcGroupAtt gtype = f.getAtt( "SMS++_file_type" );
-  ASSERT_FALSE( gtype.isNull() );
+ BlockSolverConfig * bsc;
+ {
+  auto c = Configuration::deserialize( "BSCfg.txt" );
+  bsc = dynamic_cast< BlockSolverConfig * >( c );
+  if( ! bsc ) {
+   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+   delete c;
+   exit( 1 );
+   }
 
-  int type = 0;
-  gtype.getValues( &type );
-  ASSERT_EQ( type, eBlockFile );
+  bsc->apply( TUBlock );
+  bsc->clear();
 
-  netCDF::NcGroup bg = f.getGroup( "Block_0" );
-  ASSERT_FALSE( bg.isNull() );
+  if( TUBlock->get_registered_solvers().size() < 2 ) {
+   cout << endl << "too few Solver registered to the Block" << endl;
+   exit( 1 );
+   }
+  }
 
-  block->deserialize( bg );
- }
-};
+ // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/*--------------------------------------------------------------------------*/
-/*--------------------------- PARAMETERIZED TESTS --------------------------*/
-/*--------------------------------------------------------------------------*/
+ LOG1( "First call: " );
 
-/*
- * Each test (case) should test a single functionality of the class/system
- * being tested. The syntax is: TEST_P(TestFixtureName, TestName)
- */
+ bool AllPassed = SolveBoth();
+ 
+ // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // now, for n_repeat times:
+ // - up to n_change constant terms are changed
+ // - up to n_change linear terms are changed
+ // - up to n_change quadratic terms are changed
+ //
+ // then the two Solver are called to re-solve the BoxBlock
 
-TEST_P ( TUB_Solver_Test, DPvsMILP ) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
- solve();
-}
+ for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
+  LOG1( rep << ": ");
 
-/*--------------------------------------------------------------------------*/
+  DQuadFunction * of;
+  {
+   auto obj = TUBlock->get_objective();
+   assert( obj );
+   auto fro = dynamic_cast< FRealObjective * >( obj );
+   assert( fro );
+   of = dynamic_cast< DQuadFunction * >( fro->get_function() );
+   assert( of );
+   }
 
-TEST_P ( TUB_Solver_Test, CheckOFValue ) {
+  // change fixed costs - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " fixed costs" );
 
- block->register_Solver( tubgsolver );
- auto tubg_status = tubgsolver->compute( false );
- auto tubg_val = tubgsolver->get_var_value();
+    std::vector< double >newcsts( tochange );
 
- // Check OF value
- tubgsolver->get_var_solution(nullptr);
+    // in 50% of the cases do a ranged change, in the others a sparse change
+    if( dis( rg ) <= 0.5 ) {
+     Index strt = dis( rg ) * ( time_horizon - tochange );
+     Index stp = strt + tochange;
 
- auto of = dynamic_cast<FRealObjective *>(block->get_objective());
- of->compute();
- auto of_value = of->value();
+     for( Index i = 0 ; i < tochange ; ++i )
+      newcsts[ i ] = fixed_cost( strt + i );
 
- std::cout << "DPSolver says " << tubg_val << std::endl;
- std::cout << "O.F. value is " << of_value << std::endl;
- auto abs_error = 1e-5 * std::max( double( 1 ),
-                                   abs( std::max( of_value, tubg_val ) ) );
- ASSERT_NEAR( of_value, tubg_val, abs_error );
-}
+     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+      // change via abstract representation
+      // note that while this is a range of fixed costs, but the
+      // corresponding variables may "scattered around" the objective and
+      // therefore it becomes a Subset; yet, we check that if Subset
+      // actually is a Range and in case convert it
+      LOG1( "(r,a) - " );
 
-/*--------------------------------------------------------------------------*/
+      Subset nms( tochange );
+      for( Index i = 0 ; i < tochange ; ++i )
+       nms[ i ] = of->is_active( TUBlock->get_commitment( 0 ) + ( strt + i ) );
 
-TEST_P ( TUB_Solver_Test, SetStartUpCostsSparse) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
+      std::sort( nms.begin() , nms.end() );
+      if( nms.back() - nms.front() + 1 == nms.size() )
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       Range( nms.front() , nms.back() + 1 ) );
+      else
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       std::move( nms ) );
+      }
+     else {  // change via call to set_* method
+      LOG1( "(r) - " );
+      TUBlock->set_const_term( newcsts.begin() , Range( strt , stp ) );
+      }
+     }
+    else {
+     Subset nms( GenerateRand( time_horizon , tochange ) );
 
- while( num_repeats-- ) {
+     for( Index i = 0 ; i < tochange ; ++i )
+      newcsts[ i ] = fixed_cost( nms[ i ] );
 
-  auto values = block->get_start_up_cost();
-  Block::Subset idx( 1, drand48() * 5 );
-  std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
+     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+      // change via abstract representation
+      LOG1( "(s,a) - " );
 
-  block->set_startup_costs(new_value.begin(), std::move(idx));
-  solve();
- }
-}
+      for( Index i = 0 ; i < tochange ; ++i )
+       nms[ i ] = of->is_active( TUBlock->get_commitment( 0 ) + nms[ i ] );
+     
+      of->modify_linear_coefficients( std::move( newcsts ) ,
+				      std::move( nms ) , false );
+      }
+     else {  // change via call to set_* method
+      LOG1( "(s) - " );
+      TUBlock->set_const_term( newcsts.begin() , std::move( nms ) , true );
+      }
+     }
+    }
 
-/*--------------------------------------------------------------------------*/
+  // change quadratic coefficients- - - - - - - - - - - - - - - - - - - - - -
+  if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " quadratic coeffs" );
 
-// TEST_P ( TUB_Solver_Test, SetStartUpCostsRanged ) {
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+    std::vector< double > newcsts( tochange );
 
-/*--------------------------------------------------------------------------*/
+    // in 50% of the cases do a ranged change, in the others a sparse change
+    if( dis( rg ) <= 0.5 ) {
+     Index strt = dis( rg ) * ( time_horizon - tochange );
+     Index stp = strt + tochange;
 
-TEST_P ( TUB_Solver_Test, SetConstTermSparse) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
+     for( Index i = 0 ; i < tochange ; ++i )
+      newcsts[ i ] = quadratic_cost( strt + i );
 
- while( num_repeats-- ) {
+     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+      // change via abstract representation
+      // note that while this is a range of fixed costs, but the
+      // corresponding variables may "scattered around" the objective and
+      // therefore it becomes a Subset; yet, we check that if Subset
+      // actually is a Range and in case convert it
+      LOG1( "(r,a) - " );
 
-  auto values = block->get_const_term();
-  Block::Subset idx( 1, drand48() * values.size() );
-  std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
+      std::vector< double > lincsts( tochange );
+      for( Index i = 0 ; i < tochange ; ++i )
+       lincsts[ i ] = TUBlock->get_linear_term( strt + i );
 
-  block->set_const_term(new_value.begin(), std::move(idx));
-  solve();
- }
-}
+      Subset nms( tochange );
+      for( Index i = 0 ; i < tochange ; ++i )
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 )
+				 + ( strt + i ) );
 
-/*--------------------------------------------------------------------------*/
+      std::sort( nms.begin() , nms.end() );
+      if( nms.back() - nms.front() + 1 == nms.size() )
+       of->modify_terms( newcsts.begin() , lincsts.begin() ,
+			 Range( nms.front() , nms.back() + 1 ) );
+      else
+       of->modify_terms( newcsts.begin() , lincsts.begin() ,
+			 std::move( nms ) );
+      }
+     else {  // change via call to set_* method
+      LOG1( "(r) - " );
+      TUBlock->set_quad_term( newcsts.begin() , Range( strt , stp ) );
+      }
+     }
+    else {
+     Subset nms( GenerateRand( time_horizon , tochange ) );
 
-// TEST_P ( TUB_Solver_Test, SetConstTermRanged ) {
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+     for( Index i = 0 ; i < tochange ; ++i )
+      newcsts[ i ] = linear_cost( nms[ i ] );
 
-/*--------------------------------------------------------------------------*/
+     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+      // change via abstract representation
+      LOG1( "(s,a) - " );
 
-TEST_P ( TUB_Solver_Test, SetLinearTermSparse) {
- block->register_Solver( milpsolver );
- block->register_Solver( tubgsolver );
+      std::vector< double > lincsts( tochange );
+      for( Index i = 0 ; i < tochange ; ++i )
+       lincsts[ i ] = TUBlock->get_linear_term( nms[ i ] );
 
- while( num_repeats-- ) {
+      for( Index i = 0 ; i < tochange ; ++i )
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 ) + nms[ i ] );
 
-  auto values = block->get_linear_term();
-  Block::Subset idx( 1, drand48() * values.size() );
-  std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
+      of->modify_terms( newcsts.begin() , lincsts.begin() ,
+			std::move( nms ) , false );
+      }
+     else {  // change via call to set_* method
+      LOG1( "(s) - " );
+      TUBlock->set_quad_term( newcsts.begin() , std::move( nms ) , false );
+      }
+     }
+    }
 
-  block->set_linear_term(new_value.begin(), std::move(idx));
-  solve();
- }
-}
+  // change linear coefficients - - - - - - - - - - - - - - - - - - - - - - -
+  if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
+   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+    LOG1( "changed " << tochange << " linear coeffs" );
 
-/*--------------------------------------------------------------------------*/
+    std::vector< double > newcsts( tochange );
 
-// TEST_P ( TUB_Solver_Test, SetLinearTermRanged ) {
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+    // in 50% of the cases do a ranged change, in the others a sparse change
+    if( dis( rg ) <= 0.5 ) {
+     Index strt = dis( rg ) * ( time_horizon - tochange );
+     Index stp = strt + tochange;
 
-/*--------------------------------------------------------------------------*/
+     for( Index i = 0 ; i < tochange ; ++i )
+      newcsts[ i ] = linear_cost( strt + i );
 
-// TEST_P ( TUB_Solver_Test, SetQuadTermSparse) {
-//  block->register_Solver( milpsolver );
-//  block->register_Solver( tubgsolver );
-//
-//  while( num_repeats-- ) {
-//
-//   auto values = block->get_quad_term();
-//   Block::Subset idx( 1, drand48() * values.size() );
-//   std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
-//
-//   block->set_quad_term(new_value.begin(), std::move(idx));
-//   solve();
-//  }
-// }
+     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+      // change via abstract representation
+      // note that while this is a range of fixed costs, but the
+      // corresponding variables may "scattered around" the objective and
+      // therefore it becomes a Subset; yet, we check that if Subset
+      // actually is a Range and in case convert it
+      LOG1( "(r,a) - " );
 
-/*--------------------------------------------------------------------------*/
+      Subset nms( tochange );
+      for( Index i = 0 ; i < tochange ; ++i )
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 )
+				 + ( strt + i ) );
 
-// TEST_P ( TUB_Solver_Test, SetQuadTermRanged ) {
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+      std::sort( nms.begin() , nms.end() );
+      if( nms.back() - nms.front() + 1 == nms.size() )
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       Range( nms.front() , nms.back() + 1 ) );
+      else
+       of->modify_linear_coefficients( std::move( newcsts ) ,
+				       std::move( nms ) );
+      }
+     else {  // change via call to set_* method
+      LOG1( "(r) - " );
+      TUBlock->set_linear_term( newcsts.begin() , Range( strt , stp ) );
+      }
+     }
+    else {
+     Subset nms( GenerateRand( time_horizon , tochange ) );
 
-/*--------------------------------------------------------------------------*/
+     for( Index i = 0 ; i < tochange ; ++i )
+      newcsts[ i ] = linear_cost( nms[ i ] );
 
-// TEST_P ( TUB_Solver_Test, SetAvailabilitySparse ) {
-//  block->register_Solver( milpsolver );
-//  block->register_Solver( tubgsolver );
-//
-//  while( num_repeats-- ) {
-//
-//   auto values = block->get_availability();
-//   Block::Subset idx( 1, drand48() * values.size() );
-//   std::vector< double > new_value( 1, values[idx[0]] * ( drand48() + 0.5 ) );
-//
-//   block->set_availability(new_value.begin(), std::move(idx));
-//   solve();
-//  }
-// }
+     if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
+      // change via abstract representation
+      LOG1( "(s,a) - " );
 
-/*--------------------------------------------------------------------------*/
+      for( Index i = 0 ; i < tochange ; ++i )
+       nms[ i ] = of->is_active( TUBlock->get_active_power( 0 ) + nms[ i ] );
+     
+      of->modify_linear_coefficients( std::move( newcsts ) ,
+				      std::move( nms ) , false );
+      }
+     else {  // change via call to set_* method
+      LOG1( "(s) - " );
+      TUBlock->set_linear_term( newcsts.begin() , std::move( nms ) , false );
+      }
+     }
+    }
 
-// TEST_P ( TUB_Solver_Test, SetAvailabilityRanged ) {
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+  // finally, re-solve the problems- - - - - - - - - - - - - - - - - - - - -
+  // ... every SKIP_BEAT + 1 rounds
 
-/*--------------------------------------------------------------------------*/
+  if( ! ( ++rep % ( SKIP_BEAT + 1 ) ) ) {
+   if( ! SolveBoth() )
+    AllPassed = false;
+   }
+  #if( LOG_LEVEL >= 1 )
+  else
+   cout << endl;
+  #endif
 
-// TEST_P ( TUB_Solver_Test, SetMaxPowerSparse ) {
-//  block->register_Solver( milpsolver );
-//  block->register_Solver( tubgsolver );
-//
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+  }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
+     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-/*--------------------------------------------------------------------------*/
+ if( AllPassed )
+  cout << GREEN( All tests passed!! ) << endl;
+ else
+  cout << RED( Shit happened!! ) << endl;
+ 
+ // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// TEST_P ( TUB_Solver_Test, SetMaxPowerRanged ) {
-//  while( num_repeats-- ) {
-//   solve();
-//  }
-// }
+ // apply() the clear()-ed BlockSolverConfig to cleanup Solver
+ bsc->apply( TUBlock );
 
-/*--------------------------------------------------------------------------*/
+ // then delete the BlockSolverConfig
+ delete bsc;
 
-// TEST_P ( TUB_Solver_Test, SetInitPower ) {
-//  block->register_Solver( milpsolver );
-//  block->register_Solver( tubgsolver );
-//
-//  while( num_repeats-- ) {
-//   auto old_value = block->get_initial_power();
-//   std::vector< double > new_value( 1, old_value * ( drand48() + 0.5 ) );
-//   Block::Subset idx( 1, 0 );
-//
-//   block->set_initial_power(new_value.begin(), std::move(idx));
-//   solve();
-//  }
-// }
+ // delete the Block
+ delete TUBlock;
 
-/*--------------------------------------------------------------------------*/
+ // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// TODO: ThermalUnitBlock::set_init_updown_time() not implemented
-// TEST_P ( TUB_Solver_Test, SetInitUpDownTime ) {
-//  block->register_Solver( tubgsolver );
-//
-//  while( num_repeats-- ) {
-//   int old_value = ( int ) block->get_init_up_down_time();
-//   std::vector< int > new_value( 1 );
-//   Block::Subset idx( 1, 0 );
-//
-//   double fctr = drand48() - 0.5;
-//   if( fctr < 0 ) {
-//    new_value[ 0 ] = old_value - 1;
-//   } else {
-//    new_value[ 0 ] = old_value + 1;
-//   }
-//
-//   block->set_init_updown_time( new_value.begin(), std::move( idx ) );
-//   solve();
-//  }
-// }
+ return( AllPassed ? 0 : 1 );
 
-/*--------------------------------------------------------------------------*/
-/*------------------------- TEST SUITE INSTANCES ---------------------------*/
-/*--------------------------------------------------------------------------*/
-
-/*
- * With INSTANTIATE_TEST_SUITE_P(), multiple test suites, each with different
- * input parameters are generated. The syntax is:
- *
- * INSTANTIATE_TEST_SUITE_P(InstantiationName,
- *                          TestFixtureName,
- *                          testing::Values("meeny", "miny", "moe"));
- */
-
-INSTANTIATE_TEST_SUITE_P( TUB_Solver_Tests,
-                          TUB_Solver_Test,
-                          ::testing::Values(  // file, seed, changes, repeats
-                           TestParameters{ "data/24/S1ramp1_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp2_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp3_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp4_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp5_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp6_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp7_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp8_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp9_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp10_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp11_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp12_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp13_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp14_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp15_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp16_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp17_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp18_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp19_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp20_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp21_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp22_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp23_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp24_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp25_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp26_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp27_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp28_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp29_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp30_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp31_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp32_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp33_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp34_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp35_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp36_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp37_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp38_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp39_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp40_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp41_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp42_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp43_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp44_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp45_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp46_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp47_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp48_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp49_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp50_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp51_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp52_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp53_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp54_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp55_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp56_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp57_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp58_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp59_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp60_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp61_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp62_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp63_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp64_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp65_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp66_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp67_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp68_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp69_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp70_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp71_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp72_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp73_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp74_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp75_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp76_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp77_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp78_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp79_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp80_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp81_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp82_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp83_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp84_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp85_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp86_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp87_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp88_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp89_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp90_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp91_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp92_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp93_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp94_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp95_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp96_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp97_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp98_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp99_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S1ramp100_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp1_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp2_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp3_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp4_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp5_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp6_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp7_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp8_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp9_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp10_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp11_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp12_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp13_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp14_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp15_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp16_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp17_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp18_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp19_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp20_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp21_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp22_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp23_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp24_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp25_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp26_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp27_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp28_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp29_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp30_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp31_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp32_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp33_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp34_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp35_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp36_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp37_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp38_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp39_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp40_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp41_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp42_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp43_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp44_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp45_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp46_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp47_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp48_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp49_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp50_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp51_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp52_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp53_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp54_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp55_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp56_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp57_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp58_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp59_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp60_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp61_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp62_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp63_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp64_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp65_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp66_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp67_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp68_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp69_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp70_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp71_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp72_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp73_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp74_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp75_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp76_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp77_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp78_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp79_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp80_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp81_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp82_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp83_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp84_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp85_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp86_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp87_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp88_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp89_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp90_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp91_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp92_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp93_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp94_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp95_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp96_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp97_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp98_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp99_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S12ramp100_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp1_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp2_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp3_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp4_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp5_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp6_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp7_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp8_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp9_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp10_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp11_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp12_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp13_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp14_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp15_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp16_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp17_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp18_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp19_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp20_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp21_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp22_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp23_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp24_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp25_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp26_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp27_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp28_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp29_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp30_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp31_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp32_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp33_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp34_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp35_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp36_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp37_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp38_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp39_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp40_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp41_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp42_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp43_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp44_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp45_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp46_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp47_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp48_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp49_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp50_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp51_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp52_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp53_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp54_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp55_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp56_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp57_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp58_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp59_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp60_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp61_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp62_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp63_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp64_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp65_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp66_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp67_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp68_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp69_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp70_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp71_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp72_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp73_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp74_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp75_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp76_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp77_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp78_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp79_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp80_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp81_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp82_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp83_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp84_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp85_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp86_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp87_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp88_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp89_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp90_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp91_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp92_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp93_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp94_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp95_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp96_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp97_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp98_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp99_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S16ramp100_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp1_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp2_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp3_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp4_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp5_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp6_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp7_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp8_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp9_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp10_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp11_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp12_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp13_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp14_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp15_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp16_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp17_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp18_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp19_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp20_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp21_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp22_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp23_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp24_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp25_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp26_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp27_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp28_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp29_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp30_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp31_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp32_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp33_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp34_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp35_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp36_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp37_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp38_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp39_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp40_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp41_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp42_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp43_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp44_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp45_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp46_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp47_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp48_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp49_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp50_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp51_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp52_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp53_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp54_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp55_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp56_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp57_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp58_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp59_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp60_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp61_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp62_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp63_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp64_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp65_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp66_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp67_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp68_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp69_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp70_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp71_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp72_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp73_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp74_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp75_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp76_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp77_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp78_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp79_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp80_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp81_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp82_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp83_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp84_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp85_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp86_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp87_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp88_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp89_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp90_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp91_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp92_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp93_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp94_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp95_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp96_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp97_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp98_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp99_24.nc4", 0, 5, 5 },
-                           TestParameters{ "data/24/S23ramp100_24.nc4", 0, 5, 5 }
-                          ),
-                          TUB_Solver_Test::PrintToStringParamName() );
+ }  // end( main )
 
 /*--------------------------------------------------------------------------*/
-/*---------------------------------- MAIN ----------------------------------*/
+/*------------------------ End File test.cpp -------------------------------*/
 /*--------------------------------------------------------------------------*/
-int main( int argc, char ** argv ) {
- ::testing::InitGoogleTest( &argc, argv );
- return( RUN_ALL_TESTS() );
-}
