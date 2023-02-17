@@ -23,7 +23,7 @@
 #                          Operations Research Group                         #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
-#									                                         #
+#                                                                            #
 ##############################################################################
 
 # include the libMMCF makefile internally defining all external modules - - - -
