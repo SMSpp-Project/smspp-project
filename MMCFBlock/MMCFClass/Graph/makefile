@@ -1,26 +1,26 @@
 ##############################################################################
 ################################# makefile ###################################
 ##############################################################################
-#                                                                            #
+#									                                         #
 #   makefile of Graph                                                        #
 #                                                                            #
-#   Input:  $(CC)     = compiler command				     #
+#   Input:  $(CC)     = compiler command				                     #
 #           $(SW)     = compiler options                                     #
 #           $(MMGDIR) = the directory where the source is                    #
-#									     #
-#   Output: $(MMGOBJ) = the final object(s) / library			     #
-#           $(MMGLIB) = external libreries + -L<libdirs>		     #
+#									                                         #
+#   Output: $(MMGOBJ) = the final object(s) / library			             #
+#           $(MMGLIB) = external libreries + -L<libdirs>		             #
 #           $(MMGH)   = the .h files to include	(apart from the OPT* ones)   #
-#           $(MMGINC) = the -I$(include directories)			     #
+#           $(MMGINC) = the -I$(include directories)			             #
 #                                                                            #
-#                                VERSION 3.00				     #
-#                	        07 - 05 - 2012				     #
-#									     #
-#			      Antonio Frangioni				     #
-#   			   Operations Research Group			     #
-#			  Dipartimento di Informatica			     #
-#   			     Universita' di Pisa			     #
-#									     #
+#                                VERSION 3.00                                #
+#                               07 - 05 - 2012                               #
+#                                                                            #
+#                              Antonio Frangioni                             #
+#                          Operations Research Group                         #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
 ##############################################################################
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

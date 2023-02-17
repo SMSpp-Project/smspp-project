@@ -2,16 +2,16 @@
 ############################### makefile-inc #################################
 ##############################################################################
 #                                                                            #
-#   makefile of libMMCF as a pre-built library                                #
+#   makefile of libMMCF as a pre-built library                               #
 #                                                                            #
-#   Input:  $(libMMCFSDR) = the directory where the core libMMCF source is     #
+#   Input:  $(libMMCFSDR) = the directory where the core libMMCF source is   #
 #                                                                            #
 #   Output: accordingly, there is no in output, since there is no need to    #
 #           check for changes in the .h and rebuild the .o / .a. Also, the   #
 #           *OBJ is just the library                                         #
-#           $(libMMCFINC) = the -I$(include directories) for libMMCF           #
-#           $(libMMCFLIB) = external libreries + -L<libdirs> for libMMCF       #
-#           $(libMMCFOBJ) = the liblibMMCF library itself                      #
+#           $(libMMCFINC) = the -I$(include directories) for libMMCF         #
+#           $(libMMCFLIB) = external libreries + -L<libdirs> for libMMCF     #
+#           $(libMMCFOBJ) = the liblibMMCF library itself                    #
 #                                                                            #
 #   Indeed, the makefile only calls makefile-c and strips away the *H and    #  
 #   *OBJ macros. This is not even necessary, it is only made for clarity.    #
@@ -23,7 +23,7 @@
 #                          Operations Research Group                         #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
-#									     #
+#									                                         #
 ##############################################################################
 
 # include the libMMCF makefile internally defining all external modules - - - -
