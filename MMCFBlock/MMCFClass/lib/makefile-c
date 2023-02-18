@@ -9,13 +9,13 @@
 #   and external libraries + -L<libdirs> are added to the corresponding      #
 #   libMMCF* macros.                                                         #
 #                                                                            #
-#   Input:  $(CC)       = compiler command                                   #
-#           $(SW)       = compiler options                                   #
+#   Input:  $(CC)         = compiler command                                 #
+#           $(SW)         = compiler options                                 #
 #           $(libMMCFSDR) = the (base) directory where the libMMCF source is #
 #                                                                            #
-#   Output: $(libMMCFOBJ) = the final objects                                #
-#           $(libMMCFH)   = the .h files to include for libMMCF              #
-#           $(libMMCFINC) = all the -I$( include dirs ) of libMMCF           #
+#   Output: $(libMMCFOBJ)     = the final objects                            #
+#           $(libMMCFH)       = the .h files to include for libMMCF          #
+#           $(libMMCFINC)     = all the -I$( include dirs ) of libMMCF       #
 #           $(libMMCFLIBMMCF) = the external libraries + -L<libdirs>         #
 #                                                                            #
 #                                VERSION 2.00                                #
