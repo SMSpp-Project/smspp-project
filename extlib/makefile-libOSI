@@ -9,7 +9,7 @@
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #           $(libOSILIB) = external libreries + -L<libdirs> for libOSI	     #
-#           $(libOSIINC) = the -I$(include directories) for libOSI	         #
+#           $(libOSIINC) = the -I$(include directories) for libOSI           #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
