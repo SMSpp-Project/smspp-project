@@ -15,7 +15,7 @@
  * \author Antonio Frangioni \n
  *         Operations Research Group \n
  *         Dipartimento di Informatica \n
- *         Università di Pisa \n
+ *         Universita' di Pisa \n
  *
  * Copyright &copy 2011 - 2016 by Antonio Frangioni.
  */
@@ -35,7 +35,7 @@
      +1    the Auction() initialization is used (if available)
 
      32    the MCFCplex solver
-     +k    a value of k betweek 1 and 3 set the pricing rule used by the
+     +k    a value of k between 1 and 3 set the pricing rule used by the
            network simplex; 0 means automatic (the default)
 
      48    the MCFZIB solver
