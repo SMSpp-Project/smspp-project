@@ -6,7 +6,7 @@ for f in ./data/EC_Test.nc4 ./data/EC_Test_NB.nc4 ./data/EC_NC_Test.nc4 ./data/E
 do
 
 if [ -z "$par" ]; then
-printf "[${f}]: " >> logh
+printf "[${f}]: "
 else
 printf "[${f} $par]: "
 fi
