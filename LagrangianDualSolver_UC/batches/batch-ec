@@ -1,0 +1,23 @@
+#/usr/bin/env bash
+
+par=BSPar-LD.txt
+
+for f in ./data/EC_Test.nc4 ./data/EC_Test_NB.nc4 ./data/EC_NC_Test.nc4 ./data/EC_NC_Test_NB.nc4
+do
+
+if [ -z "$par" ]; then
+printf "[${f}]: " >> logh
+else
+printf "[${f} $par]: "
+fi
+
+./LDS_UC_test ${f} $par
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+
+# end batch
