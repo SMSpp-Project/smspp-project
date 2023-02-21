@@ -202,8 +202,8 @@ TEST_P ( UCMILPTest, Solve ) {
 INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
  // file, ub
  // Cooperative case without and with explicit ECNetworkBlock(s)
- TestParameter{ "data/EC_Test.nc4" , 3507796.2761932584 } ,
- TestParameter{ "data/EC_Test_NB.nc4" , 3507796.2761932584 } ,
+ TestParameter{ "data/EC_CO_Test.nc4" , 3507796.2761932584 } ,
+ TestParameter{ "data/EC_CO_Test_NB.nc4" , 3507796.2761932584 } ,
  // Non-Cooperative case due to No Assets installed, without
  // and with explicit NetworkBlock(s) respectively
  TestParameter{ "data/EC_NA_Test.nc4" , 4177364.156161939 } ,
