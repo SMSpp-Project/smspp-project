@@ -201,18 +201,27 @@ TEST_P ( UCMILPTest, Solve ) {
 
 INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
  // file, ub
- // Cooperative case without and with explicit ECNetworkBlock(s)
- TestParameter{ "data/EC_CO_Test.nc4" , 3507796.2761932584 } ,
- TestParameter{ "data/EC_CO_Test_NB.nc4" , 3507796.2761932584 } ,
+ // --------------------------- ECNetworkBlock(s) ----------------------------
+ // Cooperative case without and with explicit ECNetworkBlock(s) respectively
+ TestParameter{ "data/EC_CO_Test.nc4" , 3507796.276193277 } ,
+ TestParameter{ "data/EC_CO_Test_NB.nc4" , 3507796.276193277 } ,
+ // Cooperative case with ThermalUnitBlock(s) without and with explicit
+ // ECNetworkBlock(s) respectively
+ TestParameter{ "data/EC_CO_Test_TUB.nc4" , 3415052.7214998575 } ,
+ TestParameter{ "data/EC_CO_Test_TUB_NB.nc4" , 3415052.7214998575 } ,
  // Non-Cooperative case due to No Assets installed, without
  // and with explicit NetworkBlock(s) respectively
- TestParameter{ "data/EC_NA_Test.nc4" , 4177364.156161939 } ,
- TestParameter{ "data/EC_NA_Test_NB.nc4" , 4177364.156161939 } ,
+ TestParameter{ "data/EC_NA_Test.nc4" , 4177364.1561619379 } ,
+ TestParameter{ "data/EC_NA_Test_NB.nc4" , 4177364.1561619379 } ,
  // Non-Cooperative case due to no energy sharing, i.e., no reward,
  // without and with explicit NetworkBlock(s) respectively
- TestParameter{ "data/EC_NC_Test.nc4" , 3734946.3230151017 } ,
- TestParameter{ "data/EC_NC_Test_NB.nc4" , 3734946.3230151017 } ,
- // ---------------------------------------------------------------------------
+ TestParameter{ "data/EC_NC_Test.nc4" , 3734946.3230151096 } ,
+ TestParameter{ "data/EC_NC_Test_NB.nc4" , 3734946.3230151096 } ,
+ // Non-Cooperative case due to no energy sharing, i.e., no reward, with
+ // ThermalUnitBlock(s) without and with explicit NetworkBlock(s) respectively
+ TestParameter{ "data/EC_NC_Test_TUB.nc4" , 3675008.6842449838 } ,
+ TestParameter{ "data/EC_NC_Test_TUB_NB.nc4" , 3675008.6842449838 } ,
+ // --------------------------- BusNetworkBlock(s) ---------------------------
  TestParameter{ "data/bus/L_B_N_1.nc4" , 27862915 } ,
  TestParameter{ "data/bus/L_B_N_2.nc4" , 29197370 } ,
  TestParameter{ "data/bus/L_B_N_3.nc4" , 2913975.2703765822 } ,
@@ -246,7 +255,7 @@ INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
  // TestParameter{ "data/bus/L_B_C_31.nc4" , 162473734.5906 } ,
  TestParameter{ "data/bus/L_B_C_32.nc4" , 162473734.59061778 } ,
  TestParameter{ "data/bus/PublicFrance1Day.nc4" , 33252650.6 } ,
- // ---------------------------------------------------------------------------
+ // --------------------------- DCNetworkBlock(s) ----------------------------
  TestParameter{ "data/HVDC/L_H_C_33.nc4" , 3478981001.3141098 } ,
  TestParameter{ "data/HVDC/L_H_C_34.nc4" , 3478984002.981585 } ,
  TestParameter{ "data/HVDC/L_H_C_35.nc4" , 3502239238.8164968 } ,
