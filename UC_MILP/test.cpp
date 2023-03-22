@@ -71,7 +71,7 @@ class UCMILPTest :
   load_nc4( filename );
 
   // Load block configuration
-  BlockConfig * b_config = default_configure_ucblock( block );
+  BlockConfig * b_config = default_configure_UCBlock( block );
   b_config->apply( block );
   delete b_config;
 
@@ -115,13 +115,13 @@ class UCMILPTest :
  }
 
  // Returns a default block configuration
- static BlockConfig * default_configure_ucblock( Block * uc_block ) {
+ static BlockConfig * default_configure_UCBlock( Block * uc_block ) {
+
   auto b_config = new RBlockConfig;
 
   for( auto sb: uc_block->get_nested_Blocks() ) {
-   if( ! dynamic_cast< UnitBlock * >( sb ) ) {
+   if( ! dynamic_cast< UnitBlock * >( sb ) )
     continue;
-   }
 
    auto sbc = new RBlockConfig;
 
