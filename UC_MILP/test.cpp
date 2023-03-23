@@ -202,23 +202,23 @@ TEST_P ( UCMILPTest, Solve ) {
 INSTANTIATE_TEST_SUITE_P( UCMILPTests , UCMILPTest , ::testing::Values(
  // file, ub
  // --------------------------- ECNetworkBlock(s) ----------------------------
- // Cooperative case without and with explicit ECNetworkBlock(s) respectively
+ // Cooperative case without and with physical ECNetworkBlock(s) respectively
  TestParameter{ "data/EC_CO_Test.nc4" , 3507796.276193277 } ,
  TestParameter{ "data/EC_CO_Test_NB.nc4" , 3507796.276193277 } ,
- // Cooperative case with ThermalUnitBlock(s) without and with explicit
+ // Cooperative case with ThermalUnitBlock(s) without and with physical
  // ECNetworkBlock(s) respectively
  TestParameter{ "data/EC_CO_Test_TUB.nc4" , 3415052.7214998575 } ,
  TestParameter{ "data/EC_CO_Test_TUB_NB.nc4" , 3415052.7214998575 } ,
  // Non-Cooperative case due to No Assets installed, without
- // and with explicit NetworkBlock(s) respectively
+ // and with physical NetworkBlock(s) respectively
  TestParameter{ "data/EC_NA_Test.nc4" , 4177364.1561619379 } ,
  TestParameter{ "data/EC_NA_Test_NB.nc4" , 4177364.1561619379 } ,
  // Non-Cooperative case due to no energy sharing, i.e., no reward,
- // without and with explicit NetworkBlock(s) respectively
+ // without and with physical NetworkBlock(s) respectively
  TestParameter{ "data/EC_NC_Test.nc4" , 3734946.3230151096 } ,
  TestParameter{ "data/EC_NC_Test_NB.nc4" , 3734946.3230151096 } ,
  // Non-Cooperative case due to no energy sharing, i.e., no reward, with
- // ThermalUnitBlock(s) without and with explicit NetworkBlock(s) respectively
+ // ThermalUnitBlock(s) without and with physical NetworkBlock(s) respectively
  TestParameter{ "data/EC_NC_Test_TUB.nc4" , 3675008.6842449838 } ,
  TestParameter{ "data/EC_NC_Test_TUB_NB.nc4" , 3675008.6842449838 } ,
  // --------------------------- BusNetworkBlock(s) ---------------------------
