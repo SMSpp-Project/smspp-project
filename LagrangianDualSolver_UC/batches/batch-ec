@@ -1,6 +1,6 @@
 #/usr/bin/env bash
 
-par=BSPar-LD.txt
+par=BSPar-2S.txt
 
 for f in ./data/EC_CO_Test.nc4 ./data/EC_CO_Test_NB.nc4 ./data/EC_CO_Test_TUB.nc4 ./data/EC_CO_Test_TUB_NB.nc4 ./data/EC_NC_Test.nc4 ./data/EC_NC_Test_NB.nc4 ./data/EC_NC_Test_TUB.nc4 ./data/EC_NC_Test_TUB_NB.nc4
 do
