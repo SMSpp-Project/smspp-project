@@ -154,15 +154,13 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 /*--------------------------------------------------------------------------*/
 
 template<class T>
-static void Str2Sthg( const char* const str , T &sthg )
-{
+static void Str2Sthg( const char* const str , T &sthg ) {
  istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
 
-static void Configure_HSUB( HydroSystemUnitBlock * hsub )
-{
+static void Configure_HSUB( HydroSystemUnitBlock * hsub ) {
  // ensure that the PolyhedralFunctionBlock in the HydroSystemUnitBlock is
  // Configured to use the "linearised" representation of the Objective
 
@@ -178,8 +176,7 @@ static void Configure_HSUB( HydroSystemUnitBlock * hsub )
 
 /*--------------------------------------------------------------------------*/
 
-static double rndfctr( void )
-{
+static double rndfctr( void ) {
  // return a random number between 0.5 and 2, with 50% probability of being
  // < 1
  double fctr = dis( rg ) - 0.5;
@@ -188,8 +185,7 @@ static double rndfctr( void )
 
 /*--------------------------------------------------------------------------*/
 
-static Subset GenerateRand( Index m , Index k )
-{
+static Subset GenerateRand( Index m , Index k ) {
  // generate a sorted random k-vector of unique integers in 0 ... m - 1
 
  Subset rnd( m );
@@ -221,8 +217,7 @@ static inline std::ostream & fixd( std::ostream & os ) {
 
 /*--------------------------------------------------------------------------*/
 
-static void PrintResults( bool hs , int rtrn , double fo )
-{
+static void PrintResults( bool hs , int rtrn , double fo ) {
  if( hs ) {
   cout.setf( ios::scientific, ios::floatfield );
   cout << def << fo;
@@ -239,8 +234,7 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
-static bool SolveBoth( void )
-{
+static bool SolveBoth( void ) {
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
@@ -334,8 +328,7 @@ static bool SolveBoth( void )
 
 /*--------------------------------------------------------------------------*/
 
-int main( int argc , char **argv )
-{
+int main( int argc , char **argv ) {
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -465,7 +458,7 @@ int main( int argc , char **argv )
         ( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
      continue;  // if not, do nothing
 
-    // check if the BundleSolver uses easy components
+    // check if the BundleSolver uses "easy" components
     // find if the ComputeConfig contains "intDoEasy"
     auto it = std::find_if( cc->int_pars.begin() , cc->int_pars.end() ,
 			    []( auto & pair ) {
@@ -479,7 +472,7 @@ int main( int argc , char **argv )
     break;  // note that we assume this happens *at most* once
     }
 
-   // if easy components are used
+   // if "easy" components are used
    if( DoEasy ) {
     // define the vector of components to be excluded from being "easy",
     // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
@@ -509,7 +502,7 @@ int main( int argc , char **argv )
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
       // surely Configure it to use the "linearised" representation
       Configure_HSUB( hub );
-      // if not considered an easy component, also BlockSolverConfigure it
+      // if not considered an "easy" component, also BlockSolverConfigure it
       if( hbsc ) {
        NoEasy.push_back( i );
        hbsc->apply( hub );
