@@ -102,26 +102,12 @@
 #include <random>
 
 #include "BlockSolverConfig.h"
-
 #include "PolyhedralFunctionBlock.h"
-
 #include "UCBlock.h"
-
 #include "ThermalUnitBlock.h"
-
 #include "HydroSystemUnitBlock.h"
-
 #include "ECNetworkBlock.h"
-
-/*!!
-#include "FRealObjective.h"
-
-#include "FRowConstraint.h"
-
-#include "LinearFunction.h"
-
-#include "OneVarConstraint.h"
-!!*/
+#include "BatteryUnitBlock.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -459,7 +445,7 @@ int main( int argc , char **argv )
    // check if any of the Solver is a LagrangianDualSolver
    bool DoEasy = false;
    ComputeConfig * cc = nullptr;
-   for( Block::Index h = 0 ; h < nbsc ; ++h ) {
+   for( auto h = 0 ; h < nbsc ; ++h ) {
     if( bsc->get_SolverName( h ) != "LagrangianDualSolver" )  // if not
      continue;                                                // do nothing
 
@@ -480,7 +466,7 @@ int main( int argc , char **argv )
 
     // check if it is a [Parallel]BundleSolver
     if( ( sit->second.find( "BundleSolver" ) == string::npos ) &&
-	( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
+        ( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
      continue;  // if not, do nothing
 
     // check if the BundleSolver uses easy components
@@ -497,14 +483,15 @@ int main( int argc , char **argv )
     break;  // note that we assume this happens *at most* once
     }
 
-    // if easy components are used
+   // if easy components are used
    if( DoEasy ) {
     // define the vector of components to be excluded from being "easy",
     // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
     std::vector< int > NoEasy;
 
     auto sb = TestBlock->get_nested_Blocks();
-    for( unsigned long i = 0 ; i < sb.size() ; ++i ) {
+    for( auto i = 0 ; i < sb.size() ; ++i ) {
+
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
       auto config = new BlockConfig;
@@ -515,11 +502,18 @@ int main( int argc , char **argv )
       continue;
       }
 
+     // deal with BatteryUnitBlock with binary variables
+     if( auto bub = dynamic_cast< BatteryUnitBlock * >( sb[ i ] ) ) {
+      if( ! bub->get_intake_outtake_binary_variables().empty() )
+       NoEasy.push_back( i );
+      continue;
+     }
+
      // deal with HydroSystemUnitBlock
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
       // surely Configure it to use the "linearised" representation
       Configure_HSUB( hub );
-      // if not considered an easy component, also BlockSolverConfig-ure it
+      // if not considered an easy component, also BlockSolverConfigure it
       if( hbsc ) {
        NoEasy.push_back( i );
        hbsc->apply( hub );
@@ -530,42 +524,73 @@ int main( int argc , char **argv )
      // all the other are treated as easy
      }
 
-    // if no "hard" components were given in Configuration or selected...
+    // if no "hard" components were given in Configuration file...
     auto it_cc = std::find_if( cc->vint_pars.begin() , cc->vint_pars.end() ,
                                []( const auto & pair ) {
                                 return( pair.first == "vintNoEasy" );
                                } );
-    if( ( NoEasy.empty() ) && ( ( cc->vint_pars.empty() ) ||
-                                ( ( it_cc != cc->vint_pars.end() ) &&
-                                  ( it_cc->second.empty() ) ) ) )
-     // ... but there is at least one ECNetworkBlock
-     if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
-      return( dynamic_cast< ECNetworkBlock * >( b ) );
-     } ) ) {
-      // then indicate the first non-ECNetworkBlock as "hard" component,
-      // otherwise the BundleSolver will fail because all Block are easy
-      auto it = std::find_if_not( sb.begin() , sb.end() , []( Block * b ) {
+    if( ( ( cc->vint_pars.empty() ) ||          // no pairs present
+          ( ( it_cc != cc->vint_pars.end() ) && // or vintNoEasy exists
+            ( it_cc->second.empty() ) ) ) ) {   // but is empty
+     // ... and no "hard" components were selected...
+     if( NoEasy.empty() ) {
+
+      // ... but there is at least one ECNetworkBlock
+      if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
        return( dynamic_cast< ECNetworkBlock * >( b ) );
-      } );
-      if( it != sb.end() )
-       NoEasy.push_back( std::distance( sb.begin() , it ) );
-      else
+      } ) ) {
+       // then indicate the first non-ECNetworkBlock as "hard" component,
+       // otherwise the BundleSolver will fail because all Block are easy
+       auto it = std::find_if_not( sb.begin() , sb.end() , []( Block * b ) {
+        return( dynamic_cast< ECNetworkBlock * >( b ) );
+       } );
+       if( it != sb.end() )
+        NoEasy.push_back( std::distance( sb.begin() , it ) );
+       else
+        throw( std::logic_error(
+         "There is no non-ECNetworkBlock candidate block to set as a `hard` "
+         "component, so set intDoEasy == 0 in the Configuration file since "
+         "BundleSolver cannot deal with the problem if all its components are "
+         "`easy`." ) );
+       }
+
+      }
+     } // ... else if "hard" components were given in the Configuration file...
+    else
+     for( auto i : it_cc->second )
+      // ... but some of there is an ECNetworkBlock...
+      if( dynamic_cast< ECNetworkBlock * >( sb[ i ] ) )
+       // ... then raise error since we cannot treat is as "hard" component
        throw( std::logic_error(
-        "There is no non-ECNetworkBlock candidate block to set as a `hard` "
-        "component, so set intDoEasy == 0 in the Configuration file since "
-        "BundleSolver cannot deal with the problem if all its components are "
-        "`easy`." ) );
-     }
+        "ECNetworkBlock cannot treat as `hard` component, so remove it "
+        "from `vintNoEasy` parameter." ) );
+      else if( ! ( std::find( NoEasy.begin() ,
+                              NoEasy.end() , i ) != NoEasy.end() ) )
+       // ... otherwise add it to NoEasy if it is not already contained
+       NoEasy.push_back( i );
 
     // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
     // we are assuming it's not there already: if it is, the new copy is
     // seen after the old one and therefore overrides it
+    std::sort( NoEasy.begin() , NoEasy.end() );
     cc->vint_pars.push_back( std::make_pair( "vintNoEasy" ,
-					     std::move( NoEasy ) ) );
+                                             std::move( NoEasy ) ) );
     }  // end( if( DoEasy ) )
    else
   #endif
    {
+    // if there is at least one ECNetworkBlock...
+    if( std::any_of( TestBlock->get_nested_Blocks().begin() ,
+                     TestBlock->get_nested_Blocks().end() , []( Block * b ) {
+     return( dynamic_cast< ECNetworkBlock * >( b ) );
+    } ) )
+     // ... then raise error since we cannot treat is as "hard" component
+     throw( std::logic_error(
+      "ECNetworkBlock(s) cannot treat as `hard` components, so set "
+      "intDoEasy == 0 in the Configuration file and, optionally, specify "
+      "which non-ECNetworkBlocks(s) to treat as `hard` components through "
+      "`vintNoEasy` parameter." ) );
+
     // load the BlockSolverConfig for all the other :UnitBlock; note that
     // this can be "empty", and indeed even not there
     auto co = Configuration::deserialize( "OUBSCfg.txt" );
