@@ -503,7 +503,7 @@ int main( int argc , char **argv )
       if( ! bub->get_intake_outtake_binary_variables().empty() )
        NoEasy.push_back( i );
       continue;
-     }
+      }
 
      // deal with HydroSystemUnitBlock
      if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
