@@ -258,9 +258,7 @@ static bool SolveBoth( void )
    auto time1 = elapsed.count();
   #endif
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-		 && ( rtrn1st != Solver::kUnbounded )
-		 && ( rtrn1st != Solver::kInfeasible ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
@@ -291,9 +289,7 @@ static bool SolveBoth( void )
   #endif
 
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-		 && ( rtrn2nd != Solver::kUnbounded )
-		 && ( rtrn2nd != Solver::kInfeasible ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
@@ -545,7 +541,7 @@ int main( int argc , char **argv )
         return( dynamic_cast< ECNetworkBlock * >( b ) );
        } );
        if( it != sb.end() )
-        NoEasy.push_back( std::distance( sb.begin() , it ) );
+        NoEasy.push_back( (int) std::distance( sb.begin() , it ) );
        else
         throw( std::logic_error(
          "There is no non-ECNetworkBlock candidate block to set as a `hard` "
