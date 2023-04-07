@@ -383,12 +383,12 @@ static AbstractBlock * new_AB( Index lev = 0 )
 
  auto boxit = box->begin();
  for( auto & xi : *x )
-  set_bounds( xi , *(boxit++) );
+  set_bounds( xi , *( boxit++ ) );
 
  #if DYNAMIC_VARS > 0
   auto boxdit = boxd->begin();
   for( auto & xi : *xd )
-   set_bounds( xi , *(boxdit++) );
+   set_bounds( xi , *( boxdit++ ) );
  #endif
 
  // set the OneVarConstraint in the AbstractBlock
@@ -404,10 +404,10 @@ static AbstractBlock * new_AB( Index lev = 0 )
   v_coeff_triple vt( nvar );
   auto vit = vt.begin();
   for( auto & xi : *x )
-   set_quad( xi , *(vit++) );
+   set_quad( xi , *( vit++ ) );
   #if DYNAMIC_VARS > 0
    for( auto & xi : *xd )
-    set_quad( xi , *(vit++) );
+    set_quad( xi , *( vit++ ) );
   #endif
 
   f = new DQuadFunction( std::move( vt ) );
