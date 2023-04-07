@@ -120,12 +120,6 @@ on your system.
 
 - See each test for its requirements.
 
-- Some tests require [Google Test](https://github.com/google/googletest).
-
-> If you build the tests with CMake, Google Test will be fetched and built
-> automatically.
-
-
 ### Build with CMake
 
 Configure and build all the tests using CMake:
