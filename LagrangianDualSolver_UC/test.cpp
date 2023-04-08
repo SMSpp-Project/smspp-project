@@ -505,13 +505,13 @@ int main( int argc , char **argv ) {
       }
 
      // deal with HydroSystemUnitBlock
-     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
+     if( auto hsub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
       // surely Configure it to use the "linearised" representation
-      Configure_HSUB( hub );
+      Configure_HSUB( hsub );
       // if not considered an "easy" component, also BlockSolverConfigure it
       if( hbsc ) {
        NoEasy.push_back( i );
-       hbsc->apply( hub );
+       hbsc->apply( hsub );
        }
       continue;
       }
