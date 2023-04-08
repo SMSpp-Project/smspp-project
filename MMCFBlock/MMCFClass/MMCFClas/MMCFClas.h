@@ -179,7 +179,7 @@ class MMCFClass
 
     By re-defining the types in this section, one MMCFSolver could be adapted
     to work with "smaller" data types than the obvious ones (double for all
-    but the indices, int for the latter). This may be relevant e.g. for cases
+    but the indices, int for the latter). This may be relevant e.g., for cases
     where flow types are integer but multicommodity flows are not. However,
     *it is the user's responsibility to ensure that these types are set to
     reasonable values*, since *not all solution algorithms will work with
@@ -478,7 +478,7 @@ class MMCFClass
                   this means for the solver;
 
     kStopped      if optimization have been stopped before that the stopping
-                  conditions of the solver applied, e.g. because of the
+                  conditions of the solver applied, e.g., because of the
 		  maximum allowed number of "iterations" have been reached;
 		  this is not necessarily an error, as it might just be
 		  required to re-call SolveMMCF() giving it more "resources"
@@ -626,7 +626,7 @@ class MMCFClass
    the two sets at a time.
 
    Passing 0 as the second argument means that the corresponding solution
-   is in "dense" format, i.e. the i-th variable must be found in the i-th
+   is in "dense" format, i.e., the i-th variable must be found in the i-th
    position of the vector. For flow variables, the format is commodity-wise
 
     first arc of the first commodity .. m-th arc of the first commodity ..
@@ -636,16 +636,16 @@ class MMCFClass
    while for extra variables it clearly depends on the application. If a
    non-0 is passed instead, it is taken as the pointer to a vector where
    the indices of the *nonzero* variables have to be: hence, the solution is
-   in a "sparse" format, with e.g. Flw[ i ] containing the (nonzero) flow of
+   in a "sparse" format, with e.g., Flw[ i ] containing the (nonzero) flow of
    the variable Bse[ i ]. Bse must be ordered in increasing sense, without
-   duplications and Inf<Index>()-terminated, i.e. an Inf<Index>() must be
+   duplications and Inf<Index>()-terminated, i.e., an Inf<Index>() must be
    placed right after the last significative entry.
 
    For Set[M]FlwSol(), wf means that what is required is
 
    - only the flow of the wf-th commodity if 0 <= wf < K;
 
-   - the *aggregate* flow (i.e. the *sum* of the flows for *all* the
+   - the *aggregate* flow (i.e., the *sum* of the flows for *all* the
      commodities) if wf == K;
 
    - the *disaggregate* flow of *all* the commodities if wf > K.
@@ -662,13 +662,13 @@ class MMCFClass
 
    The two similar methods concerning flow solutions, SetFlwSol() and
    SetMFlwSol(), are provided as alternatives in order to take into account
-   one (unpleasant) carachteristic of Multicommodity flows, i.e. that the
+   one (unpleasant) carachteristic of Multicommodity flows, i.e., that the
    optimal Multicommodity flow solution of a problem with all-integer
    capacities and deficits may *not* be integral. Thus, the type `MFNumber'
    is explicitly defined as to be distinct from `FNumber', as the former
    typically has to be a float type, while the latter is often an integer
    type. However, there are cases where the solution found by SolveMMCF()
-   is of the `FNumber' type: think e.g. to the Flow Relaxation or to the
+   is of the `FNumber' type: think e.g., to the Flow Relaxation or to the
    Integer MMCF problem. Thus, the interface provides support for both
    cases - see also **SolIsFNumber() and Get**Sol() below. */
 
@@ -779,15 +779,15 @@ class MMCFClass
 /**< SetNPot(), SetRCst(), SetMCCst(), SetXtrRC() and SetXtrDV() are meant to
    pass to the object pointers to the memory where, respectively,
 
-   - the Node Potentials, i.e. the dual costs of the Flow Conservation
+   - the Node Potentials, i.e., the dual costs of the Flow Conservation
      constraints (1.k),
 
-   - the Reduced Costs of the flow variables, i.e. essentially the dual
+   - the Reduced Costs of the flow variables, i.e., essentially the dual
      costs of the Upper Bound constraints (2.k),
 
    - the dual costs of Mutual Capacity constraints (3),
 
-   - the Reduced Costs of the "extra" (non-flow) variables, i.e. essentially
+   - the Reduced Costs of the "extra" (non-flow) variables, i.e., essentially
      the dual costs of the range constraints (5),
 
    - and the dual costs of the "extra" constraints (4)
@@ -817,7 +817,7 @@ class MMCFClass
      wd >= K.
 
    If wd >= K, the solution is in "dense" format: for Node Potentials and
-   flow Reduced Costs the format is commodity-wise, i.e. respectively
+   flow Reduced Costs the format is commodity-wise, i.e., respectively
 
     first node of the first commodity .. n-th node of the first commodity ..
       :                                    : 
@@ -898,7 +898,7 @@ class MMCFClass
 
    These methods (like all those "consuming" solutions) should do something
    equivalent to setting NPot / RCst / MCst / XtRC / XtDV to 0 for avoiding
-   them to be wrongly used (e.g. as "input" parameters) after the call: see
+   them to be wrongly used (e.g., as "input" parameters) after the call: see
    the comments to Get[P/UB]Sol(). */
 
 /*--------------------------------------------------------------------------*/
@@ -1194,7 +1194,7 @@ class MMCFClass
    (non-flow) variables; of course, in this case the indices must be in the
    range [0, NrXtrVrs() ).
 
-   ChgIntVar( k , ... ) with k > K (e.g. k == Inf<Index>()) applies the
+   ChgIntVar( k , ... ) with k > K (e.g., k == Inf<Index>()) applies the
    change to all flow variables, irrespective of the commodity to which they
    belong; in this case, the indices in nms[], strt and stp must be in the
    [ 0 , m * K ) range. */

@@ -109,7 +109,7 @@
   also offers some nice pre-processing features, intended to make the  
   instance more easily solvable.                                       
                                                                       
-  The base class Graph deals with "generic" MMCF problems, i.e. where  
+  The base class Graph deals with "generic" MMCF problems, i.e., where
   there are only constrains (1.k), (2.k) and (3); extra constraints    
   and variables can be added, but there is limited support for them.   
   However, all the methods for handling extra constrains and variables 
@@ -471,7 +471,7 @@ class Graph
 
    If k == NrComm(), the costs of "extra" (non-flow) variables are returned;
    it is illegal to call these methods with k == NrComm() if there are no
-   extra variables, i.e. NrExtraVars() == 0. */
+   extra variables, i.e., NrExtraVars() == 0. */
 
 /*--------------------------------------------------------------------------*/
 
@@ -502,12 +502,12 @@ class Graph
 
    NActivesK( k ) returns the number of such individual capacity constraints
    for commodity k: ActivesK( k ) == 0 => NActivesK( k ) == NrArcs().
-   NActivesK( NComm ) returns the total number of such constraints, i.e. the
+   NActivesK( NComm ) returns the total number of such constraints, i.e., the
    sum over all k of NActivesK( k ).
 
    This information is computed in PreProcess() [see below], and therefore
    Actives( k ) will always return 0 if called before PreProcess(). Note
-   that ProProcess() finds a finite value for mutual capacities, i.e. after
+   that ProProcess() finds a finite value for mutual capacities, i.e., after
    ProProcess() CapacityKJ( k , j ) returns something < Inf<FNumber>() even
    if the index j is not contained in the vector returned by Actives( k ). */
 
@@ -640,7 +640,7 @@ class Graph
    virtual void UpDtTotCapJ( cIndex j , cFNumber NewUj = Inf<FNumber>() );
 
 /**< Updates the total upper capacities, either all of them or just the j-th,
-   i.e. the one corresponding to the j-th arc. 0 means "all Inf<FNumber>()". */
+   i.e., the one corresponding to the j-th arc. 0 means "all Inf<FNumber>()". */
 
 /*--------------------------------------------------------------------------*/
 
@@ -653,7 +653,7 @@ class Graph
 
    For k == NrComm(), the costs of the "extra" (non-flow) variables are
    changed: it is illegal to call these methods with k >= NrComm() if there
-   are no extra variables, i.e. NrExtraVars() == 0. */
+   are no extra variables, i.e., NrExtraVars() == 0. */
 
 /*--------------------------------------------------------------------------*/
 
@@ -773,7 +773,7 @@ class Graph
    Note that no check is done in SetExtraConstr() about the validity of the
    data contained in the provided vectors (the indices being within the
    ranges and properly ordered). However, PreProcess() may use the extra
-   constraints for its purposes, and/or modify them (e.g. by removing
+   constraints for its purposes, and/or modify them (e.g., by removing
    all references to variables that are declared non-existent). */
 
 /*--------------------------------------------------------------------------*/
@@ -876,7 +876,7 @@ class Graph
 
 /**< Calculates a (very coarse) Upper Bound to the value of the optimal
    solution of the MMCF currently represented in the Graph object. This is
-   useful e.g. to discover if the MMCF has no solutions when using a
+   useful e.g., to discover if the MMCF has no solutions when using a
    decomposition-based algorithm; in fact, in this case one should wait for
    the Lagrangean to go to +INF to declare the problem unfeasible, but any
    finite UB to the value of the optimal solution can be used as +INF. Note,
@@ -903,7 +903,7 @@ class Graph
 /*--------------------------------------------------------------------------*/
 /*--                                                                      --*/
 /*--  The standard user should not need to care about the following part: --*/
-/*--  programmers who need to extend the code (i.e. by deriving a new     --*/
+/*--  programmers who need to extend the code (i.e., by deriving a new     --*/
 /*--  class) may make use of the following methods and data structures.   --*/
 /*--                                                                      --*/
 /*--  IT IS OBVIOUSLY DANGEROUS TO MODIFY THE DATA STRUCTURES, while it   --*/

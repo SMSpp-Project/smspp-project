@@ -1473,7 +1473,7 @@ inline void VectScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 template<class T>
 inline void VectIScale( T *g , const T x , Index n )
 {
- // g := g / x, x a scalar; useful e.g. for *integer* types where
+ // g := g / x, x a scalar; useful e.g., for *integer* types where
  // VectScale( g , 1 / x , n ) would not work
 
  for( ; n-- ; )
@@ -2254,7 +2254,7 @@ inline Index BinSearch( const T *Set , Index Stop , const T What )
 {
  // perform a binary search on the ordered set of Stop elements (of type T and
  // without replications) contained in the array Set: Set must be "infinity-
- // terminated", i.e. Set[ Stop ] > What. Searches for the element What, that
+ // terminated", i.e., Set[ Stop ] > What. Searches for the element What, that
  // may or may not be in Set: if What is found, its position is reported,
  // otherwise the position of the smallest element > What in Set is reported.
  // If there are no elements > What in Set, then Stop is reported
@@ -2327,7 +2327,7 @@ template<class T>
 inline void HeapIns( T *H , const T x , Index n )
 {
  // H is a binary heap of elements of type T, ordered in increasing sense
- // (i.e. the root of the heap is the smallest element) and containing n
+ // (i.e., the root of the heap is the smallest element) and containing n
  // elements: the new element x is inserted in H
 
  for( H-- , n++ ;;) {
@@ -2350,7 +2350,7 @@ inline Index HeapDel( T *H , cIndex n )
 {
  // H is a binary heap of elements of type T, as above: returns the smallest
  // element (the root) deleting it from H. n is now intended to be the
- // position of the last element in H, i.e. | H | - 1, i.e. | H | *after*
+ // position of the last element in H, i.e., | H | - 1, i.e., | H | *after*
  // the deletion
 
  const T h = *H;

@@ -69,7 +69,7 @@ using namespace std;
 	   / 0 if the standard 3-files mnetgen output format is used
   FOUR_F = |
            | 1 if a fourth file *.nod is added with the same meaning of
-	   |   that in JL format, i.e. <commodities> , <nodes>, <arcs>
+	   |   that in JL format, i.e., <commodities> , <nodes>, <arcs>
 	   |   <capacitated arcs>: in this case, the informations about
 	   |   node supplies are contained in the file *.sup (as in the
 	   \   JL standard) rather than in the *.nod

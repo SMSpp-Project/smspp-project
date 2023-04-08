@@ -1478,7 +1478,7 @@ void Graph::PreProcess( cFNumber IncUk , cFNumber DecUk , cFNumber IncUjk ,
   else
    Ui = maxU;
 
-  // note: when e.g. the mutual capacity and the sum of all the individual
+  // note: when e.g., the mutual capacity and the sum of all the individual
   // capacities of an arc are identical, the arc is marked as "inactive"; this
   // is an arbitrary choice, since one could as well keep it and eliminate all
   // the individual capacities
