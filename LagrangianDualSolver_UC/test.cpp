@@ -637,7 +637,7 @@ int main( int argc , char **argv ) {
 
  #if( LOG_LEVEL >= 2 )
   #if( LOG_ON_COUT )
-   ((TestBlock->get_registered_solvers()).back())->set_log( &std::cout );
+   ((TestBlock->get_registered_solvers()).back())->set_log( &cout );
   #else
    std::ofstream LOGFile( logF , std::ofstream::out );
    if( ! LOGFile.is_open() )
