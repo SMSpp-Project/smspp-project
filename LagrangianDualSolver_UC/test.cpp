@@ -39,12 +39,12 @@
 // 4 = + print data
 
 #if( LOG_LEVEL >= 1 )
- #define LOG1( x ) std::cout << x
- #define CLOG1( y , x ) if( y ) std::cout << x
+ #define LOG1( x ) cout << x
+ #define CLOG1( y , x ) if( y ) cout << x
 
  #if( LOG_LEVEL >= 2 )
   #define LOG_ON_COUT 1
-  // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on std::cout
+  // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
   // rather than on a file
  #endif
 #else
@@ -117,6 +117,7 @@
 /*-------------------------------- USING -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
+using namespace std;
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -158,7 +159,7 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 
 template<class T>
 static void Str2Sthg( const char* const str , T &sthg ) {
- std::istringstream( str ) >> sthg;
+ istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -205,7 +206,7 @@ static Subset GenerateRand( Index m , Index k ) {
 
 static inline std::ostream & def( std::ostream & os ) {
  os.setf( std::ios::scientific , std::ios::floatfield );
- os << std::setprecision( 7 );
+ os << setprecision( 7 );
  return( os );
  }
 
@@ -214,7 +215,7 @@ static inline std::ostream & def( std::ostream & os ) {
 
 static inline std::ostream & fixd( std::ostream & os ) {
  os.setf( std::ios::fixed , std::ios::floatfield );
- os << std::setprecision( 4 );
+ os << setprecision( 4 );
  return( os );
  }
 
@@ -222,17 +223,17 @@ static inline std::ostream & fixd( std::ostream & os ) {
 
 static void PrintResults( bool hs , int rtrn , double fo ) {
  if( hs ) {
-  std::cout.setf( std::ios::scientific , std::ios::floatfield );
-  std::cout << def << fo;
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << def << fo;
   }
  else
   if( rtrn == Solver::kInfeasible )
-   std::cout << "    Unfeas";
+   cout << "    Unfeas";
   else
    if( rtrn == Solver::kUnbounded )
-    std::cout << "      Unbounded";
+    cout << "      Unbounded";
    else
-    std::cout << "      Error!";
+    cout << "      Error!";
  }
 
 /*--------------------------------------------------------------------------*/
@@ -260,10 +261,10 @@ static bool SolveBoth( void ) {
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
-    std::cout << "Solver1 (" << fixd << time1 << ", "
+    cout << "Solver1 (" << fixd << time1 << ", "
 	 << Slvr1->get_elapsed_iterations() << ") = ";
     PrintResults( hs1st , rtrn1st , fo1st );
-    std::cout << std::endl;
+    cout << endl;
    #endif
    return( true );
    }
@@ -282,7 +283,7 @@ static bool SolveBoth( void ) {
    end = std::chrono::system_clock::now();
    elapsed = end - start;
    auto time2 = elapsed.count();
-   std::cout << fixd << time1 << " - " << time2 << " - ";
+   cout << fixd << time1 << " - " << time2 << " - ";
   #endif
 
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
@@ -290,40 +291,41 @@ static bool SolveBoth( void ) {
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
-			  std::max( double( 1 ) , std::max( abs( fo1st ) , abs( fo2nd ) ) ) ) ) {
-   LOG1( "OK(f)" << std::endl );
+			  max( double( 1 ) , max( abs( fo1st ) ,
+						  abs( fo2nd ) ) ) ) ) {
+   LOG1( "OK(f)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   LOG1( "OK(e)" << std::endl );
+   LOG1( "OK(e)" << endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( "OK(u)" << std::endl );
+   LOG1( "OK(u)" << endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   std::cout << "Solver1 = ";
+   cout << "Solver1 = ";
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   std::cout << " ~ Solver2 = ";
+   cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
-   std::cout << std::endl;
+   cout << endl;
   #endif
 
   return( false );
   }
- catch( std::exception &e ) {
-  std::cerr << e.what() << std::endl;
+ catch( exception &e ) {
+  cerr << e.what() << endl;
   exit( 1 );
   }
  catch(...) {
-  std::cerr << "Error: unknown exception thrown" << std::endl;
+  cerr << "Error: unknown exception thrown" << endl;
   exit( 1 );
   }
  }
@@ -356,25 +358,25 @@ int main( int argc , char **argv ) {
 	     !!*/
   case( 3 ): break;
   case( 2 ): break;
-  default: std::cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
-		<< std::endl <<
+  default: cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
+		<< endl <<
 	   "       BSC-file: BlockSolverConfig description [BSPar.txt]"
-	        << std::endl;
+	        << endl;
     /*!!
 	   " UC file [BSC file seed wchg #rounds #chng %chng]"
- 		<< std::endl <<
+ 		<< endl <<
 	   "       seed: random seed generator [0]"
- 		<< std::endl <<
+ 		<< endl <<
            "       wchg: what to change, coded bit-wise [127]"
-		<< std::endl <<
+		<< endl <<
            "             0 = ..., 1 = ...s "
-		<< std::endl <<
+		<< endl <<
            "             2 = ..., 3 = ..."
-	        << std::endl <<
+	        << endl <<
            "       #rounds: how many iterations [40]"
-	        << std::endl <<
+	        << endl <<
            "       #chng: number changes [10]"
-	        << std::endl <<
+	        << endl <<
            "       %chng: probability of changing [0.5]"
 		!!*/
 	   return( 1 );
@@ -385,7 +387,7 @@ int main( int argc , char **argv ) {
 
  TestBlock = Block::deserialize( argv[ 1 ] );
  if( ! TestBlock ) {
-  std::cout << std::endl << "Block::deserialize() failed!" << std::endl;
+  cout << endl << "Block::deserialize() failed!" << endl;
   exit( 1 );
   }
 
@@ -400,8 +402,7 @@ int main( int argc , char **argv ) {
   auto c = Configuration::deserialize( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
-   std::cerr << "Error: configuration file not a BlockSolverConfig" <<
-             std::endl;
+   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
    delete c;
    exit( 1 );
    }
@@ -410,8 +411,7 @@ int main( int argc , char **argv ) {
   auto ct = Configuration::deserialize( "TUBSCfg.txt" );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
-   std::cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" <<
-             std::endl;
+   cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
    delete c;
    delete ct;
    exit( 1 );
@@ -430,8 +430,7 @@ int main( int argc , char **argv ) {
   #if USE_BundleSolver
    auto nbsc = bsc->num_ComputeConfig();
    if( ! nbsc ) {
-    std::cerr << "Error: no ComputeConfig in the BlockSolverConfig" <<
-              std::endl;
+    cerr << "Error: no ComputeConfig in the BlockSolverConfig" << endl;
     delete c;
     exit( 1 );
     }
@@ -445,8 +444,7 @@ int main( int argc , char **argv ) {
 
     cc = bsc->get_SolverConfig( h );
     if( ! cc ) {
-     std::cerr << "Error: empty ComputeConfig in the BlockSolverConfig" <<
-               std::endl;
+     cerr << "Error: empty ComputeConfig in the BlockSolverConfig" << endl;
      delete c;
      exit( 1 );
      }
@@ -460,8 +458,8 @@ int main( int argc , char **argv ) {
      continue;                       // do nothing
 
     // check if it is a [Parallel]BundleSolver
-    if( ( sit->second.find( "BundleSolver" ) == std::string::npos ) &&
-        ( sit->second.find( "ParallelBundleSolver" ) == std::string::npos ) )
+    if( ( sit->second.find( "BundleSolver" ) == string::npos ) &&
+        ( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
      continue;  // if not, do nothing
 
     // check if the BundleSolver uses "easy" components
@@ -627,7 +625,7 @@ int main( int argc , char **argv ) {
   bsc->clear();
 
   if( TestBlock->get_registered_solvers().empty() ) {
-   std::cout << std::endl << "no Solver registered to the Block!" << std::endl;
+   cout << endl << "no Solver registered to the Block!" << endl;
    exit( 1 );
    }
   }
@@ -639,13 +637,12 @@ int main( int argc , char **argv ) {
   #if( LOG_ON_COUT )
    ((TestBlock->get_registered_solvers()).back())->set_log( &cout );
   #else
-   std::ofstream LOGFile( logF , std::ofstream::out );
+   ofstream LOGFile( logF , ofstream::out );
    if( ! LOGFile.is_open() )
-    std::cerr << "Warning: cannot open log file """ << logF << """" <<
-    std::endl;
+    cerr << "Warning: cannot open log file """ << logF << """" << endl;
    else {
-    LOGFile.setf( std::ios::scientific , std::ios::floatfield );
-    LOGFile << std::setprecision( 10 );
+    LOGFile.setf( ios::scientific, ios::floatfield );
+    LOGFile << setprecision( 10 );
     ((TestBlock->get_registered_solvers()).back())->set_log( &LOGFile );
     }
   #endif
@@ -717,7 +714,7 @@ int main( int argc , char **argv ) {
    AllPassed &= SolveBoth();
   #if( LOG_LEVEL >= 1 )
   else
-   std::cout << std::endl;
+   cout << endl;
   #endif
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -728,9 +725,9 @@ int main( int argc , char **argv ) {
   if( TestBlock->get_registered_solvers().size() > 1 ) {
    // tests only make sense if more than one Solver is attached
    if( AllPassed )
-    std::cout << GREEN( All tests passed!! ) << std::endl;
+    cout << GREEN( All tests passed!! ) << endl;
    else
-    std::cout << RED( Shit happened!! ) << std::endl;
+    cout << RED( Shit happened!! ) << endl;
    }
  #endif
 

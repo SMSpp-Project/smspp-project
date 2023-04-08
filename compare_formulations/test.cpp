@@ -37,13 +37,13 @@
 
 #include "BlockSolverConfig.h"
 
-#include <iomanip>
-
 /*--------------------------------------------------------------------------*/
 /*------------------------------- USING ------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
 using namespace SMSpp_di_unipi_it;
+
+using namespace std;
 
 SMSpp_ensure_load( RBlockConfig );
 
@@ -71,15 +71,15 @@ Block * Block2;
 static void PrintResults( bool hs , int rtrn , double fo )
 {
  if( hs )
-  std::cout << fo;
+  cout << fo;
  else
   if( rtrn == Solver::kInfeasible )
-   std::cout << "    Unfeas";
+   cout << "    Unfeas";
   else
    if( rtrn == Solver::kUnbounded )
-    std::cout << "      Unbounded";
+    cout << "      Unbounded";
    else
-    std::cout << "      Error!";
+    cout << "      Error!";
  }
 
 /*--------------------------------------------------------------------------*/
@@ -94,14 +94,16 @@ static bool SolveBoth( void )
 
   int rtrn1st = Slvr1->compute( false );
   bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-                 || ( rtrn1st == Solver::kLowPrecision ) );
+		 && ( rtrn1st != Solver::kUnbounded )
+		 && ( rtrn1st != Solver::kInfeasible ) )
+               || ( rtrn1st == Solver::kLowPrecision );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   auto end = std::chrono::system_clock::now();
   std::chrono::duration< double > elapsed = end - start;
  
-  std::cout.setf( std::ios::scientific , std::ios::floatfield );
-  std::cout << std::setprecision( 2 ) << elapsed.count() << " - " << std::flush;
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 2 ) << elapsed.count() << " - " << flush;
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   auto Slvr2 = Block2->get_registered_solvers().front();
@@ -110,48 +112,50 @@ static bool SolveBoth( void )
 
   int rtrn2nd = Slvr2->compute( false );
   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-                 || ( rtrn2nd == Solver::kLowPrecision ) );
+		 && ( rtrn2nd != Solver::kUnbounded )
+		 && ( rtrn2nd != Solver::kInfeasible ) )
+               || ( rtrn2nd == Solver::kLowPrecision );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
   end = std::chrono::system_clock::now();
   elapsed = end - start;
 
-  std::cout.setf( std::ios::scientific , std::ios::floatfield );
-  std::cout << std::setprecision( 2 ) << elapsed.count();
+  cout.setf( ios::scientific, ios::floatfield );
+  cout << setprecision( 2 ) << elapsed.count();
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
-			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
+			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   std::cout << " - OK(f)" << std::endl;
+   cout << " - OK(f)" << endl;
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   std::cout << " - OK(e)" << std::endl;
+   cout << " - OK(e)" << endl;
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   std::cout << " - OK(u)" << std::endl;
+   cout << " - OK(u)" << endl;
    return( true );
    }
     
-  std::cout << " - " << std::setprecision( 7 );
+  cout << " - " << setprecision( 7 );
   PrintResults( hs1st , rtrn1st , fo1st );
-  std::cout << " - ";
+  cout << " - ";
   PrintResults( hs2nd , rtrn2nd , fo2nd );
-  std::cout << std::endl;
+  cout << endl;
 
   return( false );
   }
- catch( std::exception &e ) {
-  std::cerr << e.what() << std::endl;
+ catch( exception &e ) {
+  cerr << e.what() << endl;
   exit( 1 );
   }
  catch(...) {
-  std::cerr << "error: unknown exception thrown" << std::endl;
+  cerr << "error: unknown exception thrown" << endl;
   exit( 1 );
   }
  }
@@ -163,10 +167,9 @@ int main( int argc , char **argv )
  // read command line parameters- - - - - - - - - - - - - - - - - - - - - - -
 
  if( argc < 2 ) {
-  std::cerr << "Usage: " << argv[ 0 ]
-            << " block_filename [cfg_1_filename cfg_1_filename]" << std::endl
-            << "       default: RBlockConfig1.txt RBlockConfig1.txt"
-            << std::endl;
+  cerr << "Usage: " << argv[ 0 ]
+       << " block_filename [cfg_1_filename cfg_1_filename]" << endl
+       << "       default: RBlockConfig1.txt RBlockConfig1.txt" << endl;
   return( 1 );  
   }
 
@@ -174,7 +177,7 @@ int main( int argc , char **argv )
 
  Block1 = Block::deserialize( argv[ 1 ] );
  if( ! Block1 ) {
-  std::cerr << "error: cannot load Block from " << argv[ 1 ] << std::endl;
+  cerr << "error: cannot load Block from " << argv[ 1 ] << endl;
   return( 1 );
   }
 
@@ -187,7 +190,7 @@ int main( int argc , char **argv )
 	     Configuration::deserialize( argc >= 3 ? argv[ 2 ]
 					           : "RBlockConfig1.txt" ) );
  if( ! cfg1 ) {
-  std::cerr << "error: cannot load BlockConfig 1" << std::endl;
+  cerr << "error: cannot load BlockConfig 1" << endl;
   return( 1 );
   }
 
@@ -198,7 +201,7 @@ int main( int argc , char **argv )
 	     Configuration::deserialize( argc >= 4 ? argv[ 3 ]
 					           : "RBlockConfig2.txt" ) );
  if( ! cfg2 ) {
-  std::cerr << "error: cannot load BlockConfig 2" << std::endl;
+  cerr << "error: cannot load BlockConfig 2" << endl;
   return( 1 );
   }
 
@@ -211,15 +214,14 @@ int main( int argc , char **argv )
  auto c = Configuration::deserialize( "BSCfg.txt" );
  auto bsc = dynamic_cast< BlockSolverConfig * >( c );
  if( ! bsc ) {
-  std::cerr << "error: BSCfg.txt does not contain a BlockSolverConfig" <<
-            std::endl;
+  cerr << "error: BSCfg.txt does not contain a BlockSolverConfig" << endl;
   exit( 1 );
   }
 
  bsc->apply( Block1 );
 
  if( Block1->get_registered_solvers().empty() ) {
-  std::cerr << "Error: no Solver registered to Block1" << std::endl;
+  cerr << "Error: no Solver registered to Block1" << endl;
   exit( 1 );
   }
 
@@ -232,9 +234,9 @@ int main( int argc , char **argv )
 
  auto ok = SolveBoth();
  if( ok )
-  std::cout << GREEN( Test passed!! ) << std::endl;
+  cout << GREEN( Test passed!! ) << endl;
  else
-  std::cout << RED( Shit happened!! ) << std::endl;
+  cout << RED( Shit happened!! ) << endl;
 
  // clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
