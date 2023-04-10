@@ -295,6 +295,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -1844,7 +1845,7 @@ int main( int argc , char **argv )
      auto lf = static_cast< p_LF >(
 		  LPTr->get_objective< FRealObjective >()->get_function() );
 
-     // in the transportation problem inside the LagBFunctionì these are
+     // in the transportation problem inside the LagBFunctionï¿½ these are
      // the RHS of the box constraints: send all the corresponding
      // Modification to a new channel
      Observer::ChnlName chnl = NDOTr->open_channel();
