@@ -29,8 +29,8 @@
 
 #define CHECK_SOLUTIONS 0
 // coded bit-wise:
-// bit 0: 1 = check feasibiliy of optimal solutions of Solver1
-// bit 1: 1 = check feasibiliy of optimal solutions of Solver2
+// bit 0: 1 = check feasibility of optimal solutions of Solver1
+// bit 1: 1 = check feasibility of optimal solutions of Solver2
 // bit 2: 1 = check that optimal solutions agree (dangerous, they may not)
 
 #if( LOG_LEVEL >= 1 )
@@ -80,9 +80,7 @@
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include <fstream>
 #include <sstream>
-#include <iomanip>
 
 #include <random>
 
@@ -273,7 +271,7 @@ static double linear_cost( Index i )
  /* Randomly setting the linear cost is nontrivial, since 1UC problems have
   * an unfortunate tendency for producing "all 0" solutions with their
   * original costs. This is because a > 0, b > 0 and c > 0, so producing
-  * power has a positive cost and there is no gain counter-balanging it.
+  * power has a positive cost and there is no gain counter-balancing it.
   *
   * Random fixed costs can be negative (see fixed_cost()) so this provides
   * an incentive to the unit to produce, but typically one should set b < 0
