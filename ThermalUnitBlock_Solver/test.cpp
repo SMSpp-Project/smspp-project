@@ -22,7 +22,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 1
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + print optimal solutions
@@ -470,10 +470,10 @@ static bool SolveBoth( void )
    }
 
   #if( LOG_LEVEL >= 1 )
-   std::cout << "S1 = ";
+   std::cout << "Solver1 = ";
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   std::cout << " ~ S2 = ";
+   std::cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
    std::cout << std::endl;
   #endif
