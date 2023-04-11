@@ -54,7 +54,6 @@
 /*------------------------ NAMESPACE and USINGS ----------------------------*/
 /*--------------------------------------------------------------------------*/
 
-
 namespace MMCFClass_di_unipi_it
 {
 // using namespace MMCFGraph_di_unipi_it;

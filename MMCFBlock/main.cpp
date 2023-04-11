@@ -50,8 +50,6 @@
 /*-------------------------------- USING -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using namespace std;
-
 using namespace SMSpp_di_unipi_it;
 
 using namespace MMCFClass_di_unipi_it;
