@@ -325,7 +325,7 @@ static bool SolveBoth( void )
   std::vector< bool > u2( time_horizon );
  #endif
 
- #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )  
+ #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
   auto obj = ( static_cast< FRealObjective * >( TUBlock->get_objective() )
 	       )->get_function();
  #endif
@@ -338,8 +338,10 @@ static bool SolveBoth( void )
    TUBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = Slvr1->get_var_value();
   #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs1st ) {
@@ -381,8 +383,10 @@ static bool SolveBoth( void )
   #endif
   int rtrn2nd = Slvr2->compute( false );
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-                 || ( rtrn2nd == Solver::kLowPrecision );
+  bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
   #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs2nd ) {

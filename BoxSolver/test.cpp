@@ -482,8 +482,10 @@ static bool SolveBoth( void )
    BoxBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = Slvr1->get_var_value();
 
   #if DIRECTION_TEST
@@ -558,8 +560,10 @@ static bool SolveBoth( void )
    #endif
    int rtrn2nd = Slvr2->compute( false );
 
-   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-                  || ( rtrn2nd == Solver::kLowPrecision );
+   bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
    double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
    if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
