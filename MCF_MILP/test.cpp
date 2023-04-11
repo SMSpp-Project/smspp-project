@@ -38,12 +38,12 @@
 #define SET_EPS 0
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the MCFBlock is detached and
+// if nonzero, the 1st Solver attached to the MCFBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the MCFBlock is detached and
+// if nonzero, the 2nd Solver attached to the MCFBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0

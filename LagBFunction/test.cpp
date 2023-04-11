@@ -223,12 +223,12 @@
 #define HAVE_CONSTRAINTS 2
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Solver attched to the NDOBlock is detached and re-attached
+// if nonzero, the Solver attached to the NDOBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_NDO 0
 
-// if nonzero, the Solver attched to the LPBlock is detached and re-attached
+// if nonzero, the Solver attached to the LPBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_LP 0

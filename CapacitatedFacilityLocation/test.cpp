@@ -96,13 +96,13 @@
 #define NEGATIVE_F_COSTS 0
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Solver attched to the original
+// if nonzero, the Solver attached to the original
 // CapacitatedFacilityLocationBlock is detached and re-attached to it at all
 // iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the Solver attched to the R3Block is detached and re-attached
+// if nonzero, the Solver attached to the R3Block is detached and re-attached
 // to it at all iterations
 
 #define DETACH_2ND 0

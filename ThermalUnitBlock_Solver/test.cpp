@@ -22,7 +22,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + print optimal solutions
@@ -34,20 +34,20 @@
 // bit 2: 1 = check that optimal solutions agree (dangerous, they may not)
 
 #if( LOG_LEVEL >= 1 )
- #define LOG1( x ) cout << x
- #define CLOG1( y , x ) if( y ) cout << x
+ #define LOG1( x ) std::cout << x
+ #define CLOG1( y , x ) if( y ) std::cout << x
 #else
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the UCBlock is detached
+// if nonzero, the 1st Solver attached to the UCBlock is detached
 // and re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the UCBlock is detached and
+// if nonzero, the 2nd Solver attached to the UCBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0
@@ -82,6 +82,8 @@
 
 #include <sstream>
 
+#include <iomanip>
+
 #include <random>
 
 #include "ThermalUnitBlock.h"
@@ -95,8 +97,6 @@
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
 /*--------------------------------------------------------------------------*/
-
-using namespace std;
 
 using namespace SMSpp_di_unipi_it;
 
@@ -157,7 +157,7 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 template<class T>
 static void Str2Sthg( const char* const str , T &sthg )
 {
- istringstream( str ) >> sthg;
+ std::istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -180,46 +180,46 @@ static Subset GenerateRand( Index m , Index k )
 static void PrintResults( bool hs , int rtrn , double fo )
 {
  if( hs )
-  cout << fo;
+  std::cout << fo;
  else
   if( rtrn == Solver::kInfeasible )
-   cout << "    Unfeas";
+   std::cout << "    Unfeas";
   else
    if( rtrn == Solver::kUnbounded )
-    cout << "      Unbounded";
+    std::cout << "      Unbounded";
    else
-    cout << "      Error!";
+    std::cout << "      Error!";
  }
 
 /*--------------------------------------------------------------------------*/
 
 static void PrintSolution( void )
 {
- cout.setf( std::ios::fixed );
- // cout.setf( std::ios::scientific , std::ios::floatfield );
- // cout << setprecision( 4 );
+ std::cout.setf( std::ios::fixed );
+ // std::cout.setf( std::ios::scientific , std::ios::floatfield );
+ // std::cout << setprecision( 4 );
 
  auto p = TUBlock->get_active_power( 0 );
- cout << endl << "p = [ ";
+ std::cout << std::endl << "p = [ ";
  for( Index i = 0 ; ; ++p ) {
-  cout << p->get_value();
+  std::cout << p->get_value();
   if( ++i >= time_horizon )
    break;
   else
-   cout << ", ";
+   std::cout << ", ";
   }
- cout << " ]";
+ std::cout << " ]";
 
  auto u = TUBlock->get_commitment( 0 );
- cout << endl << "u = [ ";
+ std::cout << std::endl << "u = [ ";
  for( Index i = 0 ; ; ++u ) {
-  cout << int( u->get_value() );
+  std::cout << int( u->get_value() );
   if( ++i >= time_horizon )
    break;
   else
-   cout << ", ";
+   std::cout << ", ";
   }
- cout << " ]";
+ std::cout << " ]";
  }
 
 /*--------------------------------------------------------------------------*/
@@ -346,7 +346,7 @@ static bool SolveBoth( void )
   #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs1st ) {
     if( ! Slvr1->has_var_solution() ) {
-     cerr << "Error: Solver1 has not found any solution" << endl;
+     std::cerr << "Error: Solver1 has not found any solution" << std::endl;
      exit( 1 );
      }
     Slvr1->get_var_solution();
@@ -355,17 +355,18 @@ static bool SolveBoth( void )
     #endif
     #if( CHECK_SOLUTIONS & 1 )
      if( ! TUBlock->is_feasible() ) {
-      cerr << "Error: Solver1 solution is not feasible" << endl;
+      std::cerr << "Error: Solver1 solution is not feasible" << std::endl;
       exit( 1 );
       }
     #endif
     obj->compute();
     auto solval = obj->get_value();
-    if( abs( fo1st - solval ) > 1e-8 * max( abs( fo1st ) , double( 1 ) ) ) {
-     cerr.setf( std::ios::scientific , std::ios::floatfield );
-     cerr << setprecision( 9 );
-     cerr << "Error: Solver1 reports value " << fo1st
-	  << " but solution value is " << solval << endl;
+    if( abs( fo1st - solval ) > 1e-8 * std::max( abs( fo1st ) ,
+                                                 double( 1 ) ) ) {
+     std::cerr.setf( std::ios::scientific , std::ios::floatfield );
+     std::cerr << std::setprecision( 9 );
+     std::cerr << "Error: Solver1 reports value " << fo1st
+	  << " but solution value is " << solval << std::endl;
      exit( 1 );
      }
     #if( CHECK_SOLUTIONS & 4 )
@@ -391,7 +392,7 @@ static bool SolveBoth( void )
   #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs2nd ) {
     if( ! Slvr2->has_var_solution() ) {
-     cerr << "Error: Solver2 has not found any solution" << endl;
+     std::cerr << "Error: Solver2 has not found any solution" << std::endl;
      exit( 1 );
      }
     Slvr2->get_var_solution();
@@ -400,17 +401,18 @@ static bool SolveBoth( void )
     #endif
     #if( CHECK_SOLUTIONS & 2 )
      if( ! TUBlock->is_feasible() ) {
-      cerr << "Error: Solver2 solution is not feasible" << endl;
+      std::cerr << "Error: Solver2 solution is not feasible" << std::endl;
       //exit( 1 );
       }
     #endif
     obj->compute();
     auto solval = obj->get_value();
-    if( abs( fo2nd - solval ) > 1e-8 * max( abs( fo2nd ) , double( 1 ) ) ) {
-     cerr.setf( std::ios::scientific , std::ios::floatfield );
-     cerr << setprecision( 9 );
-     cerr << "Error: Solver2 reports value " << fo2nd
-	  << " but solution value is " << solval << endl;
+    if( abs( fo2nd - solval ) > 1e-8 * std::max( abs( fo2nd ) ,
+                                                 double( 1 ) ) ) {
+     std::cerr.setf( std::ios::scientific , std::ios::floatfield );
+     std::cerr << std::setprecision( 9 );
+     std::cerr << "Error: Solver2 reports value " << fo2nd
+	  << " but solution value is " << solval << std::endl;
      exit( 1 );
      }
     #if( CHECK_SOLUTIONS & 4 )
@@ -431,22 +433,22 @@ static bool SolveBoth( void )
   //!!  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
   //!!  emergency version with 1e-4 to find big errors
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-4 *
-			  max( double( 1 ) , max( abs( fo1st ) ,
+			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( "OK(f)" << endl );
+   LOG1( "OK(f)" << std::endl );
 
    #if( CHECK_SOLUTIONS & 4 )
     for( Index i = 0 ; i < time_horizon ; ++i ) {
      if( abs( p1[ i ] - p2[ i ] ) > 1e-6 * max( abs( p1[ i ] ) ,
 						double( 1 ) ) ) {
-      cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
-	   << " ] = " << p2[ i ] << endl;
+      std::cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
+	   << " ] = " << p2[ i ] << std::endl;
       return( false );
       }
 
      if( u1[ i ] != u2[ i ] ) {
-      cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
-	   << " ] = " << u2[ i ] << endl;
+      std::cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
+	   << " ] = " << u2[ i ] << std::endl;
       return( false );
       }
      }
@@ -457,33 +459,33 @@ static bool SolveBoth( void )
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-    LOG1( "OK(e)" << endl );
+    LOG1( "OK(e)" << std::endl );
     return( true );
     }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( "OK(u)" << endl );
+   LOG1( "OK(u)" << std::endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "S1 = ";
+   std::cout << "S1 = ";
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ S2 = ";
+   std::cout << " ~ S2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
-   cout << endl;
+   std::cout << std::endl;
   #endif
 
   return( false );
   }
- catch( exception &e ) {
-  cerr << e.what() << endl;
+ catch( std::exception &e ) {
+  std::cerr << e.what() << std::endl;
   exit( 1 );
   }
  catch(...) {
-  cerr << "Error: unknown exception thrown" << endl;
+  std::cerr << "Error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
  }
@@ -510,23 +512,23 @@ int main( int argc , char **argv )
   case( 4 ): Str2Sthg( argv[ 3 ] , wchg );
   case( 3 ): Str2Sthg( argv[ 2 ] , seed );
   case( 2 ): break;
-  default: cerr << "Usage: " << argv[ 0 ] <<
+  default: std::cerr << "Usage: " << argv[ 0 ] <<
 	   "file [seed wchg #rounds #chng %chng]"
- 		<< endl <<
+ 		<< std::endl <<
            "       wchg: what to change, coded bit-wise [135]"
-		<< endl <<
+		<< std::endl <<
            "             0 = fixed costs, 1 = linear costs "
-		<< endl <<
+		<< std::endl <<
            "             2 = quadratic costs "
-		<< endl <<
+		<< std::endl <<
  	   "             +128 = also change abstract representation"
-	        << endl <<
+	        << std::endl <<
            "       #rounds: how many iterations [100]"
-	        << endl <<
+	        << std::endl <<
            "       #chng: number changes [10]"
-	        << endl <<
+	        << std::endl <<
            "       %chng: probability of changing [0.6]"
-	        << endl;
+	        << std::endl;
 	   return( 1 );
   }
 
@@ -537,13 +539,14 @@ int main( int argc , char **argv )
 
  auto block = Block::deserialize( argv[ 1 ] );
  if( ! block ) {
-  cout << endl << "Block::deserialize() failed!" << endl;
+  std::cout << std::endl << "Block::deserialize() failed!" << std::endl;
   exit( 1 );
   }
 
  TUBlock = dynamic_cast< ThermalUnitBlock * >( block );
  if( ! TUBlock ) {
-  cout << endl << "The deserialized Block is not a ThermalUnitBlock" << endl;
+  std::cout << std::endl << "The deserialized Block is not a ThermalUnitBlock"
+            << std::endl;
   exit( 1 );
   }
 
@@ -577,7 +580,8 @@ int main( int argc , char **argv )
   auto c = Configuration::deserialize( "BSCfg.txt" );
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
-   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
+   std::cerr << "Error: configuration file not a BlockSolverConfig"
+             << std::endl;
    delete c;
    exit( 1 );
    }
@@ -586,7 +590,8 @@ int main( int argc , char **argv )
   bsc->clear();
 
   if( TUBlock->get_registered_solvers().size() < 2 ) {
-   cout << endl << "too few Solver registered to the Block" << endl;
+   std::cout << std::endl << "too few Solver registered to the Block"
+             << std::endl;
    exit( 1 );
    }
   }
@@ -622,7 +627,8 @@ int main( int argc , char **argv )
 
   // change fixed costs - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+   if( Index tochange = std::min( time_horizon ,
+                                  Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " fixed costs" );
 
     std::vector< double >newcsts( tochange );
@@ -685,7 +691,8 @@ int main( int argc , char **argv )
 
   // change quadratic coefficients- - - - - - - - - - - - - - - - - - - - - -
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+   if( Index tochange = std::min( time_horizon ,
+                                  Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " quadratic coeffs" );
 
     std::vector< double > newcsts( tochange );
@@ -757,7 +764,8 @@ int main( int argc , char **argv )
 
   // change linear coefficients - - - - - - - - - - - - - - - - - - - - - - -
   if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+   if( Index tochange = std::min( time_horizon ,
+                                  Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " linear coeffs" );
 
     std::vector< double > newcsts( tochange );
@@ -828,16 +836,16 @@ int main( int argc , char **argv )
    }
   #if( LOG_LEVEL >= 1 )
   else
-   cout << endl;
+   std::cout << std::endl;
   #endif
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  if( AllPassed )
-  cout << GREEN( All tests passed!! ) << endl;
+  std::cout << GREEN( All tests passed!! ) << std::endl;
  else
-  cout << RED( Shit happened!! ) << endl;
+  std::cout << RED( Shit happened!! ) << std::endl;
  
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

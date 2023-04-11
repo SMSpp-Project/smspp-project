@@ -102,15 +102,23 @@
 /*--------------------------------------------------------------------------*/
 
 #include <sstream>
+
 #include <iomanip>
+
 #include <random>
 
 #include "BlockSolverConfig.h"
+
 #include "PolyhedralFunctionBlock.h"
+
 #include "UCBlock.h"
+
 #include "ThermalUnitBlock.h"
+
 #include "HydroSystemUnitBlock.h"
+
 #include "ECNetworkBlock.h"
+
 #include "BatteryUnitBlock.h"
 
 /*--------------------------------------------------------------------------*/
