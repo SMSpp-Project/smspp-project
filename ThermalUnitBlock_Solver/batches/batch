@@ -9,7 +9,7 @@ iter=0
 
 for i in 24 96
 do
-for j in 1 12 16 23 
+for j in 1 12 16 23
 do
 for (( h=1 ; h<=100 ; h++ ))
 do
