@@ -534,17 +534,17 @@ int main( int argc , char **argv )
 
  // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- {
-  auto b = Block::deserialize( argv[ 1 ] );
-  if( ! b ) {
-   cout << endl << "Block::deserialize() failed!" << endl;
-   exit( 1 );
-   }
-  TUBlock = dynamic_cast< ThermalUnitBlock * >( b );
-  if( ! TUBlock ) {
-   cout << endl << "The deserialized Block is not a ThermalUnitBlock" << endl;
-   exit( 1 );
-   }
+
+ auto block = Block::deserialize( argv[ 1 ] );
+ if( ! block ) {
+  cout << endl << "Block::deserialize() failed!" << endl;
+  exit( 1 );
+  }
+
+ TUBlock = dynamic_cast< ThermalUnitBlock * >( block );
+ if( ! TUBlock ) {
+  cout << endl << "The deserialized Block is not a ThermalUnitBlock" << endl;
+  exit( 1 );
   }
 
  TUBlock->generate_abstract_variables();
