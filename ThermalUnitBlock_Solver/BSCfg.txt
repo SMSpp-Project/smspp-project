@@ -75,7 +75,7 @@ ComputeConfig # exact type of the ComputeConfig object
 2 # number of integer parameters
 
 # now all the integer parameters
-intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
+intLogVerb              0     # LogVerb, log verbosity of the MILPSolver
 CPXPARAM_Threads        1
 #CPX_PARAM_NUMERICALEMPHASIS 1
 # note that we could eof() the file here since the rest is all empty
