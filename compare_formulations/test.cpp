@@ -41,9 +41,9 @@
 /*------------------------------- USING ------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using namespace SMSpp_di_unipi_it;
-
 using namespace std;
+
+using namespace SMSpp_di_unipi_it;
 
 SMSpp_ensure_load( RBlockConfig );
 
@@ -103,7 +103,7 @@ static bool SolveBoth( void )
   std::chrono::duration< double > elapsed = end - start;
  
   cout.setf( ios::scientific, ios::floatfield );
-  cout << setprecision( 2 ) << elapsed.count() << " - " << flush;
+  cout << std::setprecision( 2 ) << elapsed.count() << " - " << flush;
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   auto Slvr2 = Block2->get_registered_solvers().front();
@@ -121,7 +121,7 @@ static bool SolveBoth( void )
   elapsed = end - start;
 
   cout.setf( ios::scientific, ios::floatfield );
-  cout << setprecision( 2 ) << elapsed.count();
+  cout << std::setprecision( 2 ) << elapsed.count();
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
@@ -142,7 +142,7 @@ static bool SolveBoth( void )
    return( true );
    }
     
-  cout << " - " << setprecision( 7 );
+  cout << " - " << std::setprecision( 7 );
   PrintResults( hs1st , rtrn1st , fo1st );
   cout << " - ";
   PrintResults( hs2nd , rtrn2nd , fo2nd );
