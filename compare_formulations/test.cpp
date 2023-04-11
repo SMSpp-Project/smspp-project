@@ -214,7 +214,8 @@ int main( int argc , char **argv )
  auto c = Configuration::deserialize( "BSCfg.txt" );
  auto bsc = dynamic_cast< BlockSolverConfig * >( c );
  if( ! bsc ) {
-  std::cerr << "error: BSCfg.txt does not contain a BlockSolverConfig" << std::endl;
+  std::cerr << "error: BSCfg.txt does not contain a BlockSolverConfig"
+            << std::endl;
   exit( 1 );
   }
 
