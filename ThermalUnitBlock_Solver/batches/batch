@@ -17,13 +17,13 @@ do
 #do
 seed=0
 
-./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter
-
 if [ -z "$iter" ]; then
 printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what]: "
 else
 printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter]: "
 fi
+
+./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
