@@ -2,7 +2,7 @@
 
 par=BSPar-2S.txt
 
-for f in ./data/EC_Data/*.nc4
+for f in ./data/EC_Data/EC_CO_*.nc4 ./data/EC_Data/EC_NC_*.nc4
 do
 
 if [ -z "$par" ]; then
