@@ -1,7 +1,5 @@
 #/usr/bin/env bash
 
-export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIPOptSuite-7.0.3-Darwin/lib
-
 what=133
 #iter=0
 
