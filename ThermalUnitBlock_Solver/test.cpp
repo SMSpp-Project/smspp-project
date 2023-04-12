@@ -2,9 +2,9 @@
 /*-------------------------- File test.cpp ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Main for testing ThermalUnitDPSolver
+ * Main for testing ThermalUnitDPSolver.
  *
- * An ThermalUnitBlock instance is loaded from netCDF file, two different
+ * A ThermalUnitBlock instance is loaded from netCDF file, two different
  * Solver are registered to the ThermalUnitBlock, the second of which is
  * assumed to be a ThermalUnitDPSolver, the ThermalUnitBlock is solved by
  * the Solver and the results are compared. The ThermalUnitBlock is then

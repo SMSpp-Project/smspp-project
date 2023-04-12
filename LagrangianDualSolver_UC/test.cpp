@@ -2,7 +2,7 @@
 /*-------------------------- File test.cpp ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Main for testing LagrangianDualSolver with UCBlock
+ * Main for testing LagrangianDualSolver with UCBlock.
  *
  * An UCBlock instance is loaded from netCDF file, two different Solver are
  * registered to the UCBlock, the second of which is assumed to be a
