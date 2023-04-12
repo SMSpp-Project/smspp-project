@@ -612,6 +612,9 @@ int main( int argc , char **argv )
  // then the two Solver are called to re-solve the BoxBlock
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
+  if( ! AllPassed )
+   break;
+
   LOG1( rep << ": ");
 
   DQuadFunction * of;
