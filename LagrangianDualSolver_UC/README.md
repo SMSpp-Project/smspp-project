@@ -39,7 +39,6 @@ core SMS++ library, and the `UCBlock` module.
 ## Authors
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

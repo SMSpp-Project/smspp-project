@@ -20,12 +20,7 @@
  * the i-th customer followed by L lines, the j-th one containing the unit
  * cost of serving customer j by the warehouse at location i.
  *
- * \version 0.10
- *
- * \date 22 - 11 - 2020
- *
  * \author Rafael Durbano Lobato \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

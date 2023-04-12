@@ -1,24 +1,17 @@
 /*--------------------------------------------------------------------------*/
 /*---------------------------- File Graph.C --------------------------------*/
 /*--------------------------------------------------------------------------*/
-/*---                                                                     --*/
-/*--  The Graph class provide an unified mean for reading descriptions of --*/
+/*--                                                                      --*/
+/*--  The Graph class provide a unified mean for reading descriptions of  --*/
 /*--  (Linear) Multicommodity Min Cost Flow Problems and storing them in  --*/
 /*--  memory, along with a simple interface that can be used to access    --*/
 /*--  and change the data.                                                --*/
 /*--                                                                      --*/
-/*--                            VERSION 2.01                              --*/
-/*--                           11 - 05 - 2012                             --*/
-/*--                                                                      --*/
-/*--                  Original Idea and Implementation by:                --*/
-/*--                                                                      --*/
 /*--                          Antonio Frangioni                           --*/
-/*--                      Operations Research Group                       --*/
 /*--                     Dipartimento di Informatica                      --*/
 /*--                         Universita' di Pisa                          --*/
 /*--                                                                      --*/
 /*--                           Paola Cappanera                            --*/
-/*--                      Operations Research Group                       --*/
 /*--                Dipartimento di Sistemi e Informatica                 --*/
 /*--                        Universita' di Firenze                        --*/
 /*--                                                                      --*/

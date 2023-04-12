@@ -17,11 +17,7 @@
 #           $(libMMCFH)   = all the .h files to include                      #
 #           $(libMMCFINC) = all the -I$(include directories)	     	     #
 #                                                                            #
-#                                VERSION 4.00                                #
-#                               25 - 01 - 2019                               #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                          Operations Research Group                         #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
 #                                                                            #

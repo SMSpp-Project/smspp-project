@@ -18,11 +18,7 @@
 #           $(MMXH)      = the .h files to include                           #
 #           $(MMXINC)    = the -I$(MMCFCplex directory)                      #
 #                                                                            #
-#                                VERSION 4.00                                #
-#                               12 - 12 - 2009                               #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                          Operations Research Group                         #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
 #                                                                            #

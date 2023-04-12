@@ -9,11 +9,7 @@
 #   Output: $(MMFH)   = the .h files to include                              #
 #           $(MMFINC) = the -I$(include directories)                         #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               09 - 05 - 2012                               #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                          Operations Research Group                         #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
 #                                                                            #

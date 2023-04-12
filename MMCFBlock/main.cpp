@@ -9,12 +9,7 @@
  * MMCFCplex object derived from MMCFClass. It solves the instance with
  * both and compares the results.
  *
- * \version 0.10
- *
- * \date 29 - 01 - 2021
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

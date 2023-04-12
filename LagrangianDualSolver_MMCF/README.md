@@ -47,7 +47,6 @@ the tested modules, in particular for the used `Solver`.
 ## Authors
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

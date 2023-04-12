@@ -49,7 +49,6 @@ core SMS++ library.
 ## Authors
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

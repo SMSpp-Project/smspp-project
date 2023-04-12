@@ -73,7 +73,6 @@ A makefile is also provided that builds the executable including the
 ## Authors
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

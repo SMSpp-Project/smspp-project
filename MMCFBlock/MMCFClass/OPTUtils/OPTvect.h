@@ -34,14 +34,7 @@
 /*--   BinSearch(), BinSearch1(), BinSearch2()                            --*/
 /*--   HeapIns(), HeapDel()                                               --*/
 /*--                                                                      --*/
-/*--                             Version 2.62                             --*/
-/*--                            27 - 02 - 2020                            --*/
-/*--                                                                      --*/
-/*--                 Original Idea and Implementation by:                 --*/
-/*--                                                                      --*/
 /*--                          Antonio Frangioni                           --*/
-/*--                                                                      --*/
-/*--                       Operations Research Group                      --*/
 /*--                      Dipartimento di Informatica                     --*/
 /*--                          Universita' di Pisa                         --*/
 /*--                                                                      --*/

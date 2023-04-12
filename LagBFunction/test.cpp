@@ -175,12 +175,7 @@
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 1.02
- *
- * \date 28 - 11 - 2020
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

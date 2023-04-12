@@ -9,12 +9,7 @@
  * requires a file called solver.txt containing the description of a
  * BlockSolverConfig of a Solver for the master problem.
  *
- * \version 0.10
- *
- * \date 22 - 11 - 2020
- *
  * \author Rafael Durbano Lobato \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

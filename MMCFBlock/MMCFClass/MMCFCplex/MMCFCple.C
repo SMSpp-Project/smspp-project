@@ -6,17 +6,13 @@
 /*--   calls to the Cplex(TM) 6.6 Callable Libraries for solution of      --*/
 /*--   generic LP problems.                                               --*/
 /*--                                                                      --*/
-/*--                            VERSION 3.04                              --*/
-/*--                           21 - 01 - 2014                             --*/
-/*--                                                                      --*/
-/*--                  Original Idea and Implementation by:                --*/
-/*--                                                                      --*/
-/*--                           Paola Cappanera                            --*/
 /*--                          Antonio Frangioni                           --*/
-/*--                                                                      --*/
-/*--                      Operations Research Group                       --*/
 /*--                     Dipartimento di Informatica                      --*/
 /*--                         Universita' di Pisa                          --*/
+/*--                                                                      --*/
+/*--                           Paola Cappanera                            --*/
+/*--                Dipartimento di Sistemi e Informatica                 --*/
+/*--                        Universita' di Firenze                        --*/
 /*--                                                                      --*/
 /*-- Copyright(C) 1996 - 2012 Antonio Frangioni                           --*/
 /*--                                                                      --*/

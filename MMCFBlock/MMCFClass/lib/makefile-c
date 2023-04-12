@@ -18,11 +18,7 @@
 #           $(libMMCFINC)     = all the -I$( include dirs ) of libMMCF       #
 #           $(libMMCFLIBMMCF) = the external libraries + -L<libdirs>         #
 #                                                                            #
-#                                VERSION 2.00                                #
-#                               25 - 06 - 2018                               #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                          Operations Research Group                         #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
 #                                                                            #

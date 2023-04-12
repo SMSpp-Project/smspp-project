@@ -13,7 +13,6 @@
 #          keep it in mind when editing it.                                   #
 #                                                                             #
 #                              Niccolo' Iardella                              #
-#                          Operations Research Group                          #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #

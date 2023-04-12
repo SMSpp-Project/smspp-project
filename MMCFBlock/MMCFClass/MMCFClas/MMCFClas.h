@@ -13,17 +13,11 @@
  * class, although an independent Graph class [see Graph.h] has also been
  * developed for the purpose.
  *
- * \version 4.02
- *
- * \date 21 - 11 - 2013
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
  * \author Paola Cappanera \n
- *         Operations Research Group \n
  *         Dipartimento di Sistemi e Informatica \n
  *         Universita' di Firenze \n
  *

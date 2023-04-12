@@ -11,17 +11,11 @@
  * instance easier to solve, such as identification of redundant mutual
  * capacity constraints.
  *
- * \version 2.01
- *
- * \date 11 - 05 - 2012
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
  * \author Paola Cappanera \n
- *         Operations Research Group \n
  *         Dipartimento di Sistemi e Informatica \n
  *         Universita' di Firenze \n
  *

@@ -20,13 +20,9 @@ using namespace std;
 
   C++ polished and enhanced by
 
-			       Antonio Frangioni
-
-   			   Operations Research Group
+         Antonio Frangioni
 			  Dipartimento di Informatica
-   			     Universita' di Pisa
-
-                	       07 - 06 - 2006
+         Universita' di Pisa
 
   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

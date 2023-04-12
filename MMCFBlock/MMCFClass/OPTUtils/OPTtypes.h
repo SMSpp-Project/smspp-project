@@ -10,12 +10,7 @@
  * time of a code, generating random numbers and safely reading parameters
  * out of a stream; see the comments in OPTUtils.h.
  *
- * \version 5.01
- *
- * \date 27 - 02 - 2020
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

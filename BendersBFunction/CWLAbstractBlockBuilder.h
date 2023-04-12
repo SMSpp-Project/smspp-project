@@ -5,12 +5,7 @@
  * Reads an instance of the Capacitated Warehouse Location problem and
  * produces an AbstractBlock associated with that instance.
  *
- * \version 0.10
- *
- * \date 22 - 11 - 2020
- *
  * \author Rafael Durbano Lobato \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *

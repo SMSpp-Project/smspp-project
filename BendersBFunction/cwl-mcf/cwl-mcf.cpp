@@ -8,12 +8,7 @@
  * design variables is iteratively modified to take into account the level
  * of utilization of each warehouse in the previous continuous solution.
  *
- * \version 2.10
- *
- * \date 24 - 03 - 2016
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
