@@ -4,8 +4,6 @@
 #                                                                            #
 #   makefile of test (for CapacitatedFacilityLocationBlock)                  #
 #                                                                            #
-#                              Implementation by:                            #
-#                                                                            #
 #                              Antonio Frangioni                             #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
