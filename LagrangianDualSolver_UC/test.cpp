@@ -588,7 +588,7 @@ int main( int argc , char **argv ) {
   #endif
    {
     // if there is at least one ECNetworkBlock...
-    if( std::any_of( TestBlock->get_nested_Blocks().begin() ,
+    /* if( std::any_of( TestBlock->get_nested_Blocks().begin() ,
                      TestBlock->get_nested_Blocks().end() , []( Block * b ) {
      return( dynamic_cast< ECNetworkBlock * >( b ) );
     } ) )
@@ -597,7 +597,7 @@ int main( int argc , char **argv ) {
       "ECNetworkBlock(s) cannot treat as `hard` components, so set "
       "intDoEasy == 0 in the Configuration file and, optionally, specify "
       "which non-ECNetworkBlocks(s) to treat as `hard` components through "
-      "`vintNoEasy` parameter." ) );
+      "`vintNoEasy` parameter." ) ); */
 
     // load the BlockSolverConfig for all the other :UnitBlock; note that
     // this can be "empty", and indeed even not there

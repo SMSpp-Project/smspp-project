@@ -81,8 +81,6 @@
 
 #include <sstream>
 
-#include <iomanip>
-
 #include <random>
 
 #include "ThermalUnitBlock.h"
@@ -196,7 +194,7 @@ static void PrintSolution( void )
 {
  std::cout.setf( std::ios::fixed );
  // std::cout.setf( std::ios::scientific , std::ios::floatfield );
- // std::cout << setprecision( 4 );
+ // std::cout << std::setprecision( 4 );
 
  auto p = TUBlock->get_active_power( 0 );
  std::cout << std::endl << "p = [ ";
