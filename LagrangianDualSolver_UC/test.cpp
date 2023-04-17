@@ -451,10 +451,13 @@ int main( int argc , char **argv ) {
 
    // check if any of the Solver is a LagrangianDualSolver
    bool DoEasy = false;
+   bool is_LDS = true;
    ComputeConfig * cc = nullptr;
    for( auto h = 0 ; h < nbsc ; ++h ) {
-    if( bsc->get_SolverName( h ) != "LagrangianDualSolver" )  // if not
-     continue;                                                // do nothing
+    if( bsc->get_SolverName( h ) != "LagrangianDualSolver" ) {  // if not
+     is_LDS = false;
+     continue;                                                  // do nothing
+     }
 
     cc = bsc->get_SolverConfig( h );
     if( ! cc ) {
@@ -586,17 +589,18 @@ int main( int argc , char **argv ) {
     }  // end( if( DoEasy ) )
    else
     {
-    // if there is at least one ECNetworkBlock...
-    if( std::any_of( TestBlock->get_nested_Blocks().begin() ,
-                     TestBlock->get_nested_Blocks().end() , []( Block * b ) {
-     return( dynamic_cast< ECNetworkBlock * >( b ) );
-    } ) )
-     // ... then raise error since we cannot treat is as "hard" component
-     throw( std::logic_error(
-      "ECNetworkBlock(s) cannot treat as `hard` components, so set "
-      "intDoEasy == 0 in the Configuration file and, optionally, specify "
-      "which non-ECNetworkBlocks(s) to treat as `hard` components through "
-      "`vintNoEasy` parameter." ) );
+    if( is_LDS )
+     // if there is at least one ECNetworkBlock...
+     if( std::any_of( TestBlock->get_nested_Blocks().begin() ,
+                      TestBlock->get_nested_Blocks().end() , []( Block * b ) {
+      return( dynamic_cast< ECNetworkBlock * >( b ) );
+     } ) )
+      // ... then raise error since we cannot treat is as "hard" component
+      throw( std::logic_error(
+       "ECNetworkBlock(s) cannot treat as `hard` components, so set "
+       "intDoEasy == 0 in the Configuration file and, optionally, specify "
+       "which non-ECNetworkBlocks(s) to treat as `hard` components through "
+       "`vintNoEasy` parameter." ) );
   #endif
     // load the BlockSolverConfig for all the other :UnitBlock; note that
     // this can be "empty", and indeed even not there
