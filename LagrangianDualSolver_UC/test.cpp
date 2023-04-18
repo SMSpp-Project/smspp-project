@@ -768,8 +768,8 @@ int main( int argc , char **argv ) {
  #if USE_BundleSolver
   // since some Solver have been attached "by hand" to some sub-Block,
   // unregister "by hand" any remaining Solver attached to them
-  for( auto ub : TestBlock->get_nested_Blocks() )
-   ub->unregister_Solvers();
+  for( auto sb : TestBlock->get_nested_Blocks() )
+   sb->unregister_Solvers();
  #endif
 
  // finally the AbstractBlock can be deleted
