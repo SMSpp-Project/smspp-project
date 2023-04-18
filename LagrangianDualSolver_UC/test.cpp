@@ -419,8 +419,16 @@ int main( int argc , char **argv ) {
    exit( 1 );
    }
 
+  auto sb = TestBlock->get_nested_Blocks();
+
   // load the BlockSolverConfig for ThermalUnitBlock
-  auto ct = Configuration::deserialize( "TUBSCfg-CPX.txt" );
+  auto any_reserve = std::any_of( sb.begin() , sb.end() , []( Block * b ) {
+   auto tub = dynamic_cast< ThermalUnitBlock * >( b );
+   return( tub ? ( ( ! tub->get_primary_rho().empty() ) ||
+                   ( ! tub->get_secondary_rho().empty() ) ) : 0 );
+  } );
+  auto ct = Configuration::deserialize( any_reserve ? "TUBSCfg-CPX.txt"
+                                                    : "TUBSCfg.txt" );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
    std::cerr << "Error: TUBSCfg-CPX.txt does not contain a BlockSolverConfig"
@@ -500,7 +508,6 @@ int main( int argc , char **argv ) {
     // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
     std::vector< int > NoEasy;
 
-    auto sb = TestBlock->get_nested_Blocks();
     for( auto i = 0 ; i < sb.size() ; ++i ) {
 
      // deal with ThermalUnitBlock
@@ -591,8 +598,7 @@ int main( int argc , char **argv ) {
     {
     if( is_LDS )
      // if there is at least one ECNetworkBlock...
-     if( std::any_of( TestBlock->get_nested_Blocks().begin() ,
-                      TestBlock->get_nested_Blocks().end() , []( Block * b ) {
+     if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
       return( dynamic_cast< ECNetworkBlock * >( b ) );
      } ) )
       // ... then raise error since we cannot treat is as "hard" component
@@ -611,15 +617,15 @@ int main( int argc , char **argv ) {
      obsc = nullptr;
      }
 
-    for( auto sb : TestBlock->get_nested_Blocks() ) {
+    for( auto ub : sb ) {
      // deal with ThermalUnitBlock
-     if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb ) ) {
+     if( auto tub = dynamic_cast< ThermalUnitBlock * >( ub ) ) {
       tbsc->apply( tub );
       continue;
       }
 
      // deal with HydroSystemUnitBlock
-     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) ) {
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( ub ) ) {
       Configure_HSUB( hub );
       if( hbsc )
        hbsc->apply( hub );
@@ -628,7 +634,7 @@ int main( int argc , char **argv ) {
 
      // deal with all other :UnitBlock
      if( obsc )
-      obsc->apply( sb );
+      obsc->apply( ub );
      }
 
     // cleanup
@@ -762,8 +768,8 @@ int main( int argc , char **argv ) {
  #if USE_BundleSolver
   // since some Solver have been attached "by hand" to some sub-Block,
   // unregister "by hand" any remaining Solver attached to them
-  for( auto sb : TestBlock->get_nested_Blocks() )
-   sb->unregister_Solvers();
+  for( auto ub : TestBlock->get_nested_Blocks() )
+   ub->unregister_Solvers();
  #endif
 
  // finally the AbstractBlock can be deleted
