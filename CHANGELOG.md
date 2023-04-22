@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Early stop in test of ThermalUnitBlock.
+
+### Fixed
+
+- LagrangianDualSolver_UC/test.
+
+### Removed
+
+- GoogleTest-based test for DPThermalUnitBlock.
+
 ## [0.5.2] - 2022-07-01
 
 ### Added
