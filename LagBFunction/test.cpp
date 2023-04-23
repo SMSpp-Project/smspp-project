@@ -1033,7 +1033,7 @@ int main( int argc , char **argv )
 
     for( Index i = 0 ; i < nvar ; ++i )
      for( Index j = 0 ; j < nvar ; ++j ) {
-      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : - INF , eNoMod );
+      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : -INF , eNoMod );
       (*pc)[ i ][ j ].set_rhs( convex ? INF : C[ i ][ j ] , eNoMod );
 
       v_coeff_pair cf;
@@ -1067,7 +1067,7 @@ int main( int argc , char **argv )
     for( Index i = 0 ; i < nvar ; ++i )
      for( Index j = 0 ; j < nvar ; ++j ) {
       // construct constraint ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
-      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : - INF , eNoMod );
+      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : -INF , eNoMod );
       (*pc)[ i ][ j ].set_rhs( convex ? INF : C[ i ][ j ] , eNoMod );
 
       v_coeff_pair cf( 3 );

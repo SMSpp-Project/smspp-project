@@ -174,7 +174,7 @@ double cwl_mcf( std::string file_name )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- double LB = - Inf<double>();     // correct lower bound
+ double LB = -Inf< double >();     // correct lower bound
 
  try {
 
@@ -369,9 +369,9 @@ double cwl_mcf( std::string file_name )
   #if LOOP_SIZE
    double oldFO[ LOOP_SIZE ];                // o.f. value at previous rounds
    for( int l = 0 ; l < LOOP_SIZE ; l++ )
-    oldFO[ l ] = Inf<double>();    // ... currently undefined
+    oldFO[ l ] = Inf< double >();    // ... currently undefined
   #endif
-  double bestUB = Inf<double>();   // best UB value found
+  double bestUB = Inf< double >();   // best UB value found
   MCFClass::FRow X = new MCFClass::FNumber[ NArcs ];  // flow solution
 
   for( int itr = 0 ; ; itr++ ) {
@@ -470,7 +470,7 @@ double cwl_mcf( std::string file_name )
 
    #if LOOP_SIZE
     for( int l = 0 ; l < LOOP_SIZE ; l++ )
-      if( oldFO[ l ] < Inf<double>() )
+      if( oldFO[ l ] < Inf< double >() )
        if( std::abs( FO - oldFO[ l ] ) <= 1e-6 * max( FO , double( 1 ) ) ) {
        itr = slp_sclng_it;
        break;
@@ -522,12 +522,12 @@ double cwl_mcf( std::string file_name )
 
   if( print ) {
 
-  if( LB > - Inf<double>() )
+  if( LB > -Inf< double >() )
    std::cout << "Relaxation value = " << setprecision( 12 ) << LB << " ~ ";
-  if( bestUB < Inf<double>() )
+  if( bestUB < Inf< double >() )
    std::cout << "heuristic value = " << setprecision( 12 ) << bestUB << std::endl;
-  if( ( LB > - Inf<double>() ) &&
-      ( bestUB < Inf<double>() ) )
+  if( ( LB > -Inf< double >() ) &&
+      ( bestUB < Inf< double >() ) )
    std::cout << "gap = " << setprecision( 4 ) << ( bestUB - LB ) / LB;
 
   double tu , ts;

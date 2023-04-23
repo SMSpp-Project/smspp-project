@@ -328,7 +328,7 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
  //
  // in the concave case, the constraint is
  //
- //          - INF <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= b[ i ]
+ //          -INF <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= b[ i ]
  //
  // note: constraints are constructed dense (elements == 0, which are
  //       anyway quite unlikely, are ignored) to make things simpler
@@ -340,7 +340,7 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
   ci.set_rhs( INF );
   }
  else {
-  ci.set_lhs( - INF );
+  ci.set_lhs( -INF );
   ci.set_rhs( b[ i ] );
   }
  LinearFunction::v_coeff_pair vars( nvar + 1 );

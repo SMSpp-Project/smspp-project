@@ -50,7 +50,7 @@ using matrix = std::vector< std::vector< double > >;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-const auto inf = Inf<double>();
+const auto inf = Inf< double >();
 
 std::string solver_filename;
 
