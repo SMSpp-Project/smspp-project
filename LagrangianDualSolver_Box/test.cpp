@@ -532,7 +532,7 @@ int main( int argc , char **argv )
 
    if( dis( rg ) <= 0.33 ) {   // in 33% of the cases a <= constraint
     (*link)[ i ].set_rhs( dis( rg ) );     // ... with rhs in [ 0 , 1 ]
-    (*link)[ i ].set_lhs( - INF );         // ... and lhs = - INF
+    (*link)[ i ].set_lhs( -INF );          // ... and lhs = -INF
      }
    else
     if( dis( rg ) <= 0.33 ) {  // in other 33% of the cases a >= constraint
