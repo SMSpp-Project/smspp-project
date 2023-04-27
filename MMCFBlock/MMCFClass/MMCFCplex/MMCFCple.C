@@ -49,8 +49,8 @@ using namespace MMCFClass_di_unipi_it;
 /*------------------------------ CONSTANTS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-static const MMCFClass::CNumber C_INF = Inf<MMCFClass::CNumber>();
-static const MMCFClass::FNumber F_INF = Inf<MMCFClass::FNumber>();
+static const MMCFClass::CNumber C_INF = Inf< MMCFClass::CNumber >();
+static const MMCFClass::FNumber F_INF = Inf< MMCFClass::FNumber >();
 
 static const double EpsXNum = 1e-8;
 
@@ -212,7 +212,7 @@ MMCFCplex::MMCFCplex( Graph *Gh , istream *iStrm , CPXENVptr extenv )
   cFRow Dk = Gh->DeficitsK( k );
   Index_Set NDk = NDict[ k ] = new Index[ NNodes ];
   for( Index j = NNodes ; j-- ; )
-   *(NDk++) = ( *(Dk++) < F_INF ? totNds++ : Inf<Index>() );
+   *(NDk++) = ( *(Dk++) < F_INF ? totNds++ : Inf< Index >() );
 
   if( totNds - StrtRows[ k ] == NNodes ) {
    delete[] NDict[ k ];
@@ -242,7 +242,7 @@ MMCFCplex::MMCFCplex( Graph *Gh , istream *iStrm , CPXENVptr extenv )
   cCRow Ck = Gh->CostsK( k );
   Index_Set ADk = ADict[ k ] = new Index[ NArcs ];
   for( Index j = NArcs ; j-- ; )
-   *(ADk++) = ( *(Ck++) < C_INF ? totArcs++ : Inf<Index>() );
+   *(ADk++) = ( *(Ck++) < C_INF ? totArcs++ : Inf< Index >() );
 
   if( totArcs - StrtCols[ k ] == NArcs ) {
    delete[] ADict[ k ];
@@ -281,7 +281,7 @@ MMCFCplex::MMCFCplex( Graph *Gh , istream *iStrm , CPXENVptr extenv )
   for( Index k = 0 ; k < NComm ; ) {
    cIndex_Set tAA = ActvArcs;
    cCRow Ck = Gh->CostsK( k++ );
-   for( Index h ; ( h = *(tAA++) ) < Inf<Index>() ; )
+   for( Index h ; ( h = *(tAA++) ) < Inf< Index >() ; )
     if( Ck[ h ] < C_INF )
      NActive++;
    }
@@ -743,7 +743,7 @@ MMCFClass::MMCFStatus MMCFCplex::SolveMMCF( void )
 
 MMCFClass::FONumber MMCFCplex::GetPVal( void )
 {
- double objval_p = Inf<FONumber>();
+ double objval_p = Inf< FONumber >();
 
  if( PFeas ) {
   if( CA == kMIP ) {
@@ -762,7 +762,7 @@ MMCFClass::FONumber MMCFCplex::GetPVal( void )
 
 MMCFClass::FONumber MMCFCplex::GetDVal( void )
 {
- double objval_p =  - Inf<FONumber>();
+ double objval_p =  - Inf< FONumber >();
 
  if( CA == kMIP )
   CPXgetbestobjval( env , lp , &objval_p );
@@ -778,7 +778,7 @@ MMCFClass::FONumber MMCFCplex::GetDVal( void )
 MMCFClass::FONumber MMCFCplex::GetUpprBnd( bool &HvSol )
 {
  HvSol = false;              // by default, no integer solution is available
- FONumber UBnd = Inf<FONumber>(); // by default, no UB is known
+ FONumber UBnd = Inf< FONumber >();  // by default, no UB is known
 
  if( PFeas ) {
 
@@ -875,7 +875,7 @@ bool MMCFCplex::GetPSol( void )
      cIndex_Set ADk = ADict ? ADict[ k ] : 0;
      if( ADk ) {  // at least one arc doesn't exist for comm. k
       for( Index j = NArcs ; j-- ; tMFS++ )
-       if( *(ADk++) < Inf<Index>() )
+       if( *(ADk++) < Inf< Index >() )
 	*tMFS += *(tx++);
       }
      else         // all arcs exist for comm. k
@@ -897,7 +897,7 @@ bool MMCFCplex::GetPSol( void )
 
    if( FBse )  // the solution is required in "sparse" format
     *Sparsify( MFSol , FBse , ( WhchFS <= NComm ? NArcs : NArcs * NComm ) )
-     = Inf<Index>();
+     = Inf< Index >();
 
    }  // end( if( MFSol ) ) - - - - - - - - - - - - - - - - - - - - - - - - -
       //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1080,11 +1080,11 @@ void MMCFCplex::GetCosts( CRow Csts , cIndex_Set nms , cIndex strt ,
  int cstp = stp - 1;  // stp - 1 translated into cplex names
  if( ADict ) {
   while( ( cstrt <= cstp ) &&
-	 ( ArcPosKJ( cstrt / NArcs , cstrt % NArcs ) == Inf<Index>() ) )
+	 ( ArcPosKJ( cstrt / NArcs , cstrt % NArcs ) == Inf< Index >() ) )
    cstrt++;
 
   while( ( cstrt <= cstp ) &&
-	 ( ArcPosKJ( cstp / NArcs , cstp % NArcs ) == Inf<Index>() ) )
+	 ( ArcPosKJ( cstp / NArcs , cstp % NArcs ) == Inf< Index >() ) )
    cstp--;
   }
 
@@ -1100,7 +1100,7 @@ void MMCFCplex::GetCosts( CRow Csts , cIndex_Set nms , cIndex strt ,
   if( ADict )
    for( Index h ; ( h = *(nms++) ) < stp ; ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() )
+    if( pkj < Inf< Index >() )
      *(Csts++) = obj[ pkj - cstrt ];
     else
      *(Csts++) = C_INF;
@@ -1113,7 +1113,7 @@ void MMCFCplex::GetCosts( CRow Csts , cIndex_Set nms , cIndex strt ,
   if( ADict )
    for( Index h = strt ; h < stp ; h++ ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() )
+    if( pkj < Inf< Index >() )
      *(Csts++) = obj[ pkj - cstrt ];
     else
      *(Csts++) = C_INF;
@@ -1167,11 +1167,11 @@ void MMCFCplex::GetICaps( FRow ICps, cIndex_Set nms , cIndex strt , Index stp )
  int cstp = stp - 1;  // stp - 1 translated into cplex names
  if( ADict ) {
   while( ( cstrt <= cstp ) &&
-	 ( ArcPosKJ( cstrt / NArcs , cstrt % NArcs ) == Inf<Index>() ) )
+	 ( ArcPosKJ( cstrt / NArcs , cstrt % NArcs ) == Inf< Index >() ) )
    cstrt++;
 
   while( ( cstrt <= cstp ) &&
-	 ( ArcPosKJ( cstp / NArcs , cstp % NArcs ) == Inf<Index>() ) )
+	 ( ArcPosKJ( cstp / NArcs , cstp % NArcs ) == Inf< Index >() ) )
    cstp--;
   }
 
@@ -1187,7 +1187,7 @@ void MMCFCplex::GetICaps( FRow ICps, cIndex_Set nms , cIndex strt , Index stp )
   if( ADict )
    for( Index h ; ( h = *(nms++) ) < stp ; ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() )
+    if( pkj < Inf< Index >() )
      *(ICps++) = ub[ pkj - cstrt ];
     else
      *(ICps++) = 0;
@@ -1200,7 +1200,7 @@ void MMCFCplex::GetICaps( FRow ICps, cIndex_Set nms , cIndex strt , Index stp )
   if( ADict )
    for( Index h = strt ; h < stp ; h++ ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() )
+    if( pkj < Inf< Index >() )
      *(ICps++) = ub[ pkj - cstrt ];
     else
      *(ICps++) = 0;
@@ -1295,7 +1295,7 @@ void MMCFCplex::ChgCosts( cCRow NwCsts , cIndex_Set nms , cIndex strt ,
   if( ADict )
    for( Index h ; ( h = *(nms++) ) < stp ; NwCsts++ ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() )
+    if( pkj < Inf< Index >() )
      CPXchgcoef( env , lp , -1 , int( pkj ) , double( *NwCsts ) );
     }
   else
@@ -1309,7 +1309,7 @@ void MMCFCplex::ChgCosts( cCRow NwCsts , cIndex_Set nms , cIndex strt ,
   if( ADict )
    for( Index h = strt ; h < stp ; h++ , NwCsts++ ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() )
+    if( pkj < Inf< Index >() )
      CPXchgcoef( env , lp , -1 , int( pkj ) , double( *NwCsts ) );
     }
   else
@@ -1332,7 +1332,7 @@ void MMCFCplex::ChgXtrBnds( cRow XLr , cRow XUr , cIndex_Set nms ,
  // some exceptions- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- if( ( XUr && XLr ) || ( !XUr && !XLr ) )
+ if( ( XUr && XLr ) || ( ! XUr && ! XLr ) )
   throw( MMCFException(
     "MMCFCplex::ChgXtrBnds(): this should not happen" ) );
 
@@ -1388,7 +1388,7 @@ void MMCFCplex::ChgXtrBnds( cRow XLr , cRow XUr , cIndex_Set nms ,
    }
   }
 
- } // end( MMCFCplex::ChgXtrBnds( ) )
+ } // end( MMCFCplex::ChgXtrBnds )
 
 /*---------------------------------------------------------------------------*/
 
@@ -1461,7 +1461,7 @@ void MMCFCplex::ChgICaps( cFRow NwICps , cIndex_Set nms , cIndex strt ,
   if( ADict )
    for( Index h ; ( h = *(nms++) ) < stp ; NwICps++ ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() ) {
+    if( pkj < Inf< Index >() ) {
      *(ti++) = pkj;
      *(tbd++) = *NwICps;
      }
@@ -1477,7 +1477,7 @@ void MMCFCplex::ChgICaps( cFRow NwICps , cIndex_Set nms , cIndex strt ,
   if( ADict )
    for( Index h = strt ; h < stp ; h++ , NwICps++ ) {
     cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-    if( pkj < Inf<Index>() ) {
+    if( pkj < Inf< Index >() ) {
      *(ti++) = pkj;
      *(tbd++) = *NwICps;
      }
@@ -1595,11 +1595,11 @@ void MMCFCplex::ChgIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
   int cstp = stp + shftr - 1;  // stp - 1 translated into cplex names
   if( ADict && ( k != NComm ) ) {
    while( ( cstrt <= cstp ) &&
-	  ( ArcPosKJ( cstrt / NArcs , cstrt % NArcs ) == Inf<Index>() ) )
+	  ( ArcPosKJ( cstrt / NArcs , cstrt % NArcs ) == Inf< Index >() ) )
     cstrt++;
 
    while( ( cstrt <= cstp ) &&
-	  ( ArcPosKJ( cstp / NArcs , cstp % NArcs ) == Inf<Index>() ) )
+	  ( ArcPosKJ( cstp / NArcs , cstp % NArcs ) == Inf< Index >() ) )
     cstp--;
 
    cstrt = ArcPosKJ( cstrt / NArcs , cstrt % NArcs );
@@ -1620,7 +1620,7 @@ void MMCFCplex::ChgIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
     for( Index h ; ( h = *(nms++) ) < stp ; ) {
      h += shftr;
      cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-     if( pkj < Inf<Index>() ) {
+     if( pkj < Inf< Index >() ) {
       ctype[ cnt ] = ( ub[ pkj - cstrt ] == 1 ? CPX_BINARY : CPX_INTEGER );
       indices[ cnt++ ] = pkj;
       }
@@ -1628,7 +1628,7 @@ void MMCFCplex::ChgIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
    else
     for( Index h = strt + shftr ; h < stp ; h++ ) {
      cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-     if( pkj < Inf<Index>() ) {
+     if( pkj < Inf< Index >() ) {
       ctype[ cnt ] = ( ub[ pkj - cstrt ] == 1 ? CPX_BINARY : CPX_INTEGER );
       indices[ cnt++ ] = pkj;
       }
@@ -1657,7 +1657,7 @@ void MMCFCplex::ChgIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
     for( Index h ; ( h = *(nms++) ) < stp ; ) {
      h += shftr;
      cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-     if( pkj < Inf<Index>() ) {
+     if( pkj < Inf< Index >() ) {
       ctype[ cnt ] = CPX_CONTINUOUS;
       indices[ cnt++ ] = pkj;
       }
@@ -1665,7 +1665,7 @@ void MMCFCplex::ChgIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
    else
     for( Index h = strt + shftr ; h < stp ; h++ ) {
      cIndex pkj = ArcPosKJ( h / NArcs , h % NArcs );
-     if( pkj < Inf<Index>() ) {
+     if( pkj < Inf< Index >() ) {
       ctype[ cnt ] = CPX_CONTINUOUS;
       indices[ cnt++ ] = pkj;
       }
@@ -1725,7 +1725,7 @@ void MMCFCplex::CloseArcs( cIndex_Set whch )
  throw( MMCFException("MMCFCplex::CloseArcs: no extra variables" ) );
 
  Index count = 0;
- for( Index j = 0 ; whch[ j++ ] < Inf<Index>() ; )
+ for( Index j = 0 ; whch[ j++ ] < Inf< Index >() ; )
   count++;
 
  FRow XUr = new FNumber[ count ];
@@ -1748,7 +1748,7 @@ void MMCFCplex::OpenArcs( cIndex_Set whch )
   throw( MMCFException( "MMCFCplex::OpenArcs: no extra variables" ) );
 
  Index count = 0;
- for( Index j = 0 ; whch[ j++ ] < Inf<Index>() ; )
+ for( Index j = 0 ; whch[ j++ ] < Inf< Index >() ; )
   count++;
 
  FRow XUr = new FNumber[ count ];
@@ -1985,7 +1985,7 @@ inline void MMCFCplex::TranslateK( T *const vect , const cIndex_Set Dict ,
 				   const T Dflt )
 {
  while( n-- )
- if( Dict[ n ] < Inf<Index>() )
+ if( Dict[ n ] < Inf< Index >() )
   vect[ n ] = vect[ Dict[ n ] - strt ];
  else
   vect[ n ] = Dflt;
@@ -2008,7 +2008,7 @@ inline void MMCFCplex::TranslateF( T *const vect , Index_Mat Dict ,
   if( Dict[ k ] ) {
    cIndex_Set Dk = Dict[ k ] + n;
    for( Index i = n ; i-- ; )
-    if( *(--Dk) < Inf<Index>() )
+    if( *(--Dk) < Inf< Index >() )
      *(--tv) = vect[ *Dk ];
     else
      *(--tv) = Dflt;
@@ -2070,7 +2070,7 @@ void MMCFUCFLCplex::GetBounds( Row XLr , Row XUr , cIndex_Set nms ,
    throw( MMCFException(
     "MMCFCplex::GetBounds(): this should not happen" ) );
 
- if( XUr && XLr || ( !XUr && !XLr ) )
+ if( XUr && XLr || ( ! XUr && ! XLr ) )
   throw( MMCFException(
     "MMCFCplex::GetBounds(): this should not happen" ) );
 

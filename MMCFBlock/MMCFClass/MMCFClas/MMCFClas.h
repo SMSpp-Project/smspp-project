@@ -242,7 +242,7 @@ class MMCFClass
 
 /*--------------------------------------------------------------------------*/
 /** Very small class to simplify extracting the "+ infinity" value for a
-    basic type (FNumber, CNumber, Index); just use Inf<type>().
+    basic type (FNumber, CNumber, Index); just use Inf< type >().
 
    template <typename T>
    class Inf {
@@ -253,7 +253,7 @@ class MMCFClass
  */
 /*--------------------------------------------------------------------------*/
 /** Very small class to simplify extracting the "machine epsilon" for a
-    basic type (FNumber, CNumber); just use Eps<type>().
+    basic type (FNumber, CNumber); just use Eps< type >().
 
    template <typename T>
    class Eps {
@@ -275,7 +275,7 @@ class MMCFClass
  public:
   MMCFException( const char *const msg = 0 ) { errmsg = msg; }
 
-  const char* what( void ) const throw () { return( errmsg ); }
+  const char* what( void ) const throw() { return( errmsg ); }
 
  private:
   const char *errmsg;
@@ -334,10 +334,10 @@ class MMCFClass
     MFSol = 0;
     XSol = 0;
     FBse = XBse = 0;
-    WhchFS = WhchSP = Inf<Index>();
+    WhchFS = WhchSP = Inf< Index >();
 
     NPot = RCst = MCst = 0;
-    WhchNP = WhchRC = Inf<Index>();
+    WhchNP = WhchRC = Inf< Index >();
     XtRC = XtDV = 0;
 
     MMCFLog = 0;
@@ -428,7 +428,7 @@ class MMCFClass
 /** @name Solving the problem
     @{ */
 
-   virtual void SetSubP( cIndex ws = Inf<Index>() )
+   virtual void SetSubP( cIndex ws = Inf< Index >() )
    {
     WhchSP = ws;
     }
@@ -457,9 +457,9 @@ class MMCFClass
      ws == NrSubP() + 1;
 
    - all the subproblems simultaneously, *comprised* the 0-th "constant" one,
-     if ws > NrSubP() + 1 (e.g., ws == Inf<Index>()).
+     if ws > NrSubP() + 1 (e.g., ws == Inf< Index >()).
 
-   If SetSubP() is *never* called, ws == Inf<Index>() is assumed.
+   If SetSubP() is *never* called, ws == Inf< Index >() is assumed.
 
    For SolveMMCF(), for instance, 1 <= ws <= NrSubP() only solves the ws-th
    subproblem, ws == 0 only calculates the "constant", while any ws > NrSubP()
@@ -510,7 +510,7 @@ class MMCFClass
   solution (although it will be a "very sparse" one). Obviously, querying
   solution information for the ws-th subproblem (after a call to
   SetSubP( ws )) can be done *only* after that SolveMMCF() has been called
-  with that setting in effect, or with SetSubP( Inf<Index>() ) in effect.
+  with that setting in effect, or with SetSubP( Inf< Index >() ) in effect.
 
   Often, as a by-product of the solution of a MMCF-related problem, an
   Upper/Lower Bound on the value of the solution can be obtained. Typically,
@@ -558,14 +558,14 @@ class MMCFClass
 
    virtual FONumber GetUpprBnd( bool &HvSol )
    {
-    HvSol = false;              // by default, no UB solution is available
-    return( Inf<FONumber>() );  // by default, no UB is known
+    HvSol = false;                // by default, no UB solution is available
+    return( Inf< FONumber >() );  // by default, no UB is known
     }
 
    virtual FONumber GetLwrBnd( bool &HvSol )
    {
-    HvSol = false;                // by default, no LB solution is available
-    return( - Inf<FONumber>() );  // by default, no LB is known
+    HvSol = false;                  // by default, no LB solution is available
+    return( - Inf< FONumber >() );  // by default, no LB is known
     }
 
 /**< These methods have to return any known Upper/Lower Bound on the optimal
@@ -582,14 +582,14 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
 
    virtual void SetFlwSol( FRow Flw = 0 , Index_Set Bse = 0 ,
-			   cIndex wf = Inf<Index>() )
+			   cIndex wf = Inf< Index >() )
    {
     FBse = ( FSol = Flw ) ? Bse : 0;
     WhchFS = wf;
     }
 
    virtual void SetMFlwSol( MFRow Flw = 0 , Index_Set Bse = 0 ,
-			    cIndex wf = Inf<Index>() )
+			    cIndex wf = Inf< Index >() )
    {
     FBse = ( MFSol = Flw ) ? Bse : 0;
     WhchFS = wf;
@@ -632,7 +632,7 @@ class MMCFClass
    the indices of the *nonzero* variables have to be: hence, the solution is
    in a "sparse" format, with e.g., Flw[ i ] containing the (nonzero) flow of
    the variable Bse[ i ]. Bse must be ordered in increasing sense, without
-   duplications and Inf<Index>()-terminated, i.e., an Inf<Index>() must be
+   duplications and Inf< Index >()-terminated, i.e., an Inf< Index >() must be
    placed right after the last significative entry.
 
    For Set[M]FlwSol(), wf means that what is required is
@@ -743,13 +743,13 @@ class MMCFClass
 
 /*--------------------------------------------------------------------------*/
 
-   virtual void SetNPot( CRow NPt = 0 , cIndex wd = Inf<Index>() )
+   virtual void SetNPot( CRow NPt = 0 , cIndex wd = Inf< Index >() )
    {
     NPot = NPt;
     WhchNP = wd;
     }
 
-   virtual void SetRCst( CRow RCs = 0 , cIndex wd = Inf<Index>() )
+   virtual void SetRCst( CRow RCs = 0 , cIndex wd = Inf< Index >() )
    {
     RCst = RCs;
     WhchRC = wd;
@@ -1029,7 +1029,7 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
 
    virtual void GetCosts( CRow Csts , cIndex_Set nms = 0 ,
-			  cIndex strt = 0 , Index stp = Inf<Index>() ) = 0;
+			  cIndex strt = 0 , Index stp = Inf< Index >() ) = 0;
 
 /**< Reads the costs of the flow variables in the MMCF instance.
 
@@ -1039,12 +1039,12 @@ class MMCFClass
    - comprised between strt (included) and min( stp , m * K ) (excluded);
    - contained in nms[] if nms != 0 (in this case, it has to be a vector of
      indices in [ 0 .. m * K ), with no duplicated elements, ordered in
-     increasing sense and Inf<Index>()-terminated). */
+     increasing sense and Inf< Index >()-terminated). */
 
 /*--------------------------------------------------------------------------*/
 
    virtual void GetXtrCsts( CRow XtrCs , cIndex_Set nms = 0 ,
-			    cIndex strt = 0 , Index stp = Inf<Index>() )
+			    cIndex strt = 0 , Index stp = Inf< Index >() )
 
 /**< Reads the costs of the "extra" variables in the MMCF instance; these
    variables are numbered from 0 to NrXtrVrs() - 1, according to the format
@@ -1055,7 +1055,7 @@ class MMCFClass
    - comprised between strt (included) and min( stp , NrXtrVrs() ) (excluded);
    - contained in nms[] if nms != 0 (in this case, it has to be a vector of
      indices in [ 0 .. NrXtrVrs() ), with no duplicated elements, ordered in
-     increasing sense and Inf<Index>()-terminated). */
+     increasing sense and Inf< Index >()-terminated). */
    {
     // by default there are no extra variables, hence nothing has to be done
     }
@@ -1063,7 +1063,7 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
 
    virtual void GetICaps( FRow ICps , cIndex_Set nms = 0 ,
-			  cIndex strt = 0 , Index stp = Inf<Index>() ) = 0;
+			  cIndex strt = 0 , Index stp = Inf< Index >() ) = 0;
 
 /**< Reads the Individual Capacities of the flow variables in the MMCF
    instance. The format of the returned ICps[] depends on nms[], strt and stp
@@ -1072,7 +1072,7 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
 
    virtual void GetMCaps( FRow MCps , cIndex_Set nms = 0 ,
-			  cIndex strt = 0 , Index stp = Inf<Index>() ) = 0;
+			  cIndex strt = 0 , Index stp = Inf< Index >() ) = 0;
 
 /**< Reads the Mutual Capacities of the flow variables in the MMCF instance. 
 
@@ -1081,7 +1081,7 @@ class MMCFClass
    - comprised between strt (included) and min( stp , m ) (excluded);
    - contained in nms[] if nms != 0 (in this case, it has to be a vector of
      indices in [ 0 .. m ), with no duplicated elements, ordered in increasing
-     sense and Inf<Index>()-terminated). */
+     sense and Inf< Index >()-terminated). */
 
 /* @}-----------------------------------------------------------------------*/
 /*------------- METHODS FOR ADDING / REMOVING / CHANGING DATA --------------*/
@@ -1090,7 +1090,7 @@ class MMCFClass
    @{ */
 
    virtual void ChgCosts( cCRow NwCsts , cIndex_Set nms = 0 ,
-			  cIndex strt = 0 , Index stp = Inf<Index>() ) = 0;
+			  cIndex strt = 0 , Index stp = Inf< Index >() ) = 0;
 
 /**< Changes the costs of the flow variables in the MMCF instance.
 
@@ -1099,14 +1099,14 @@ class MMCFClass
    variable strt + i will be taken from NwCsts[ i ] for all 0 <= i <
    min( m * K , stp ) - strt. If nms != 0, it has to point to a vector of
    indices in [ 0 .. m * K ) (with no duplicated elements, ordered in
-   increasing sense and Inf<Index>()-terminated); for all j such that strt <=
+   increasing sense and Inf< Index >()-terminated); for all j such that strt <=
    nms[ j ] < min( stp , m * K ), the new cost for the flow variable nms[ j ]
    will be taken from NwCsts[ j ]. */
 
 /*--------------------------------------------------------------------------*/
 
    virtual void ChgXtrCsts( cCRow NwXtrCs , cIndex_Set nms = 0 ,
-			    cIndex strt = 0 , Index stp = Inf<Index>() )
+			    cIndex strt = 0 , Index stp = Inf< Index >() )
 
 /**< Changes the costs of the "extra" variables in the MMCF instance; these
    variables are numbered from 0 to NrXtrVrs() - 1 according to the format
@@ -1114,7 +1114,7 @@ class MMCFClass
    variable strt + i will be taken from NwXtrCs[ i ] for all 0 <= i <
    min( NrXtrVrs() , stp ) - strt. If nms != 0, it has to point to a vector
    of indices in [ 0 .. NrXtrVrs() ) (with no duplicated elements, ordered in
-   increasing sense and Inf<Index>()-terminated); for all j such that strt <=
+   increasing sense and Inf< Index >()-terminated); for all j such that strt <=
    nms[ j ] < min( stp , NrXtrVrs() ), the new cost for the extra variable
    nms[ j ] will be taken from NwXtrCs[ j ]. */
    {
@@ -1124,7 +1124,7 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
     
    virtual void ChgXtrBnds( cXRow XLr = 0 , cXRow XUr = 0 , cIndex_Set nms = 0 ,
-                            cIndex strt = 0 , Index stp = Inf<Index>() )
+                            cIndex strt = 0 , Index stp = Inf< Index >() )
     
     /**< Changes the lower and upper range of the "extra" variables in the MMCF
      instance; these variables are numbered from 0 to NrXtrVrs() - 1 according
@@ -1133,7 +1133,7 @@ class MMCFClass
      from XLr[ i ] and XUr[ i ] for all 0 <= i < min( NrXtrVrs() , stp ) - strt.
      If nms != 0, it has to point to a vector of indices in [ 0 .. NrXtrVrs() )
      (with no duplicated elements, ordered in increasing sense and
-     Inf<Index>()-terminated); for all j such that strt <= nms[ j ] <
+     Inf< Index >()-terminated); for all j such that strt <= nms[ j ] <
      min( stp , NrXtrVrs() ), the new bounds for the extra variable nms[ j ]
      will be taken from XLr[ j ] and XUr[ j ].
      
@@ -1146,7 +1146,7 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
 
    virtual void ChgICaps( cFRow NwICps , cIndex_Set nms = 0 ,
-			  cIndex strt = 0 , Index stp = Inf<Index>() ) = 0;
+			  cIndex strt = 0 , Index stp = Inf< Index >() ) = 0;
 
 /**< Changes the Individual Capacities of the flow variables in the MMCF
    instance. The format of the returned NwICaps[] depends on nms[], strt and
@@ -1155,21 +1155,21 @@ class MMCFClass
 /*--------------------------------------------------------------------------*/
 
    virtual void ChgMCaps( cFRow NwMCps , cIndex_Set nms = 0 ,
-			  cIndex strt = 0 , Index stp = Inf<Index>() ) = 0;
+			  cIndex strt = 0 , Index stp = Inf< Index >() ) = 0;
 
 /**< Changes the Mutual Capacities of the flow variables in the MMCF instance. 
    If nms == 0, the new mutual capacity for arc i will be taken from 
    NwMCps[ i ] for all 0 <= i < min( m , stp ) - strt. If nms != 0, it has
    to point to a vector of indices in [ 0 .. m ) (with no duplicated elements,
-   ordered in increasing sense and Inf<Index>()-terminated); for all j such
+   ordered in increasing sense and Inf< Index >()-terminated); for all j such
    that strt <= nms[ j ] < min( stp , m ), the mutual capacity for the arc
    nms[ j ] will be taken from NwMCps[ j ]. */
 
 /*--------------------------------------------------------------------------*/
 
-   virtual void ChgIntVar( cIndex k = Inf<Index>() , bool IntVld = true ,
+   virtual void ChgIntVar( cIndex k = Inf< Index >() , bool IntVld = true ,
                            cIndex_Set nms = 0 , Index strt = 0 ,
-                           Index stp = Inf<Index>() ) = 0;
+                           Index stp = Inf< Index >() ) = 0;
 
 /**< Changes the status of (a subset of) the - flow and extra - variables of
    the problem in terms of the integrality constraints imposed upon them.
@@ -1178,7 +1178,7 @@ class MMCFClass
    of the commodity k are/aren't integer-valued. The variables to which the
    change is applied are the flow variables of commodity k whose index is:
    - in the set nms[] (which contains indices in [0, m ), ordered in
-     increasing sense and Inf<Index>()-terminated);
+     increasing sense and Inf< Index >()-terminated);
    - comprised between strt (included) and min( stp , m ) (excluded).
    nms == 0 means "all in the interval [strt, stp)".
 
@@ -1188,7 +1188,7 @@ class MMCFClass
    (non-flow) variables; of course, in this case the indices must be in the
    range [0, NrXtrVrs() ).
 
-   ChgIntVar( k , ... ) with k > K (e.g., k == Inf<Index>()) applies the
+   ChgIntVar( k , ... ) with k > K (e.g., k == Inf< Index >()) applies the
    change to all flow variables, irrespective of the commodity to which they
    belong; in this case, the indices in nms[], strt and stp must be in the
    [ 0 , m * K ) range. */
@@ -1210,9 +1210,9 @@ class MMCFClass
  #endif
 #endif
 
-/**< Respectively "Close" and "Open" the arcs indicated in whch, that must
+/**< Respectively "Close" and "Open" the arcs indicated in which, that must
    point to a vector of indices in [ 0 .. m - 1 ] (with no duplicated
-   elements, ordered in increasing sense and Inf<Index>()-terminated). The
+   elements, ordered in increasing sense and Inf< Index >()-terminated). The
    first forms close/open arcs for *all* the commodities simultaneously, while
    the second forms do it only for the commodity 'k'.
 
@@ -1228,7 +1228,7 @@ class MMCFClass
    an arc is closed, so that they do not need to be stored somewhere else for
    when it is re-opened.
 
-   Opening an arc that has not previusly been Closed is an error: however, it
+   Opening an arc that has not previously been Closed is an error: however, it
    is admitted to call CloseArcs( { i } ) even if CloseArcs( k , { i } ) has
    already been called. The "individual" closure has "precedence" over the
    "global" one, that is if OpenArcs( { i } ) is called afterwards then the
@@ -1252,7 +1252,7 @@ class MMCFClass
 
    IntVar == true means that some of the new variables are integer-valued. If
    nms != 0, it must point to a vector of indices (ordered in increasing
-   sense and Inf<Index>() terminated) containing the indices of those of the
+   sense and Inf< Index >() terminated) containing the indices of those of the
    new extra variables just being added (thus, indices in the [0, NXV) range)
    that are integer-valued; otherwise, all the new variables ar
    integer-valued.

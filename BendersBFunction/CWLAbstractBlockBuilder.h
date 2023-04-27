@@ -435,7 +435,7 @@ BendersBFunction * build_Benders_function( const CWLInstance & instance ,
    if( use_capacity_slack )
     function->add_variable( capacity_slack , - 1.0 );
    ( * capacity_constraints )[ i ].set_function( function );
-   ( * capacity_constraints )[ i ].set_lhs( -Inf<double>() );
+   ( * capacity_constraints )[ i ].set_lhs( -Inf< double >() );
    ( * capacity_constraints )[ i ].set_rhs( 0 );
   }
   block->add_static_constraint( * capacity_constraints );

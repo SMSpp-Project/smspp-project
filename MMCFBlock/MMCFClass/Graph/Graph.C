@@ -73,8 +73,8 @@
 /*------------------------------ CONSTANTS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-static const Graph::CNumber C_INF = Graph::Inf<Graph::CNumber>();
-static const Graph::FNumber F_INF = Graph::Inf<Graph::FNumber>();
+static const Graph::CNumber C_INF = Graph::Inf< Graph::CNumber >();
+static const Graph::FNumber F_INF = Graph::Inf< Graph::FNumber >();
 
 /*--------------------------------------------------------------------------*/
 /*--------------------------- LOCAL FUNCTIONS ------------------------------*/
@@ -1234,7 +1234,7 @@ void Graph::SetIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
    WIsInt[ k ] = 0;
    }
   else
-   WIsInt[ k ][ NInt[ k ] ] = Inf<Index>();
+   WIsInt[ k ][ NInt[ k ] ] = Inf< Index >();
   }
  else {          // set variables to "continuous" - - - - - - - - - - - - - -
   if( ! NInt[ k ] )  // all variables are already continuous
@@ -1285,9 +1285,9 @@ void Graph::SetIntVar( cIndex k , bool IntVld , cIndex_Set nms ,
    WIsInt[ k ] = 0;
    }
   else
-   WIsInt[ k ][ NInt[ k ] ] = Inf<Index>();
+   WIsInt[ k ][ NInt[ k ] ] = Inf< Index >();
   }
- }  // end( SetIntVar() )
+ }  // end( SetIntVar )
 
 /*--------------------------------------------------------------------------*/
 
@@ -1320,7 +1320,7 @@ void Graph::SetExtraVars( cIndex NXV )
    U[ NComm ] = U[ NComm + 1 ] = 0;
    }
   }
- }  // end( Graph::SetExtraVars() )
+ }  // end( Graph::SetExtraVars )
 
 /*--------------------------------------------------------------------------*/
 
@@ -1484,7 +1484,7 @@ void Graph::PreProcess( cFNumber IncUk , cFNumber DecUk , cFNumber IncUjk ,
   }  // end for( i )
 
  if( NCnst < NArcs )
-  Active[ NCnst ] = Inf<Index>();
+  Active[ NCnst ] = Inf< Index >();
 
  // now a squeeze of single-commodity capacities is attempted, and SPTs are -
  // definitively recognized - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1559,7 +1559,7 @@ void Graph::PreProcess( cFNumber IncUk , cFNumber DecUk , cFNumber IncUjk ,
   else {                // some are active, some are not
    tAK = new Index[ cnt + 1 ];
    VectAssign( tAK , ActiveK[ k ] , cnt );
-   tAK[ cnt ] = Inf<Index>();
+   tAK[ cnt ] = Inf< Index >();
    delete[] ActiveK[ k ];
    ActiveK[ k ] = tAK;
    }
@@ -1658,9 +1658,9 @@ void Graph::MakeSingleSourced( bool ToAll )
  Index_Set NewArcs = new Index[ NNodes ];
  Index_Set CmmStts = new Index[ NComm ];
 
- // count the sources and set NNewArcs == Inf<Index>() if there is at least one
- // commodity with more than two sources- - - - - - - - - - - - - - - - - -
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ // count the sources and set NNewArcs == Inf< Index >() if there is at least
+ // one commodity with more than two sources- - - - - - - - - - - - - - - - -
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  Index NNewArcs = 0;
  Index k = NComm;
@@ -1683,7 +1683,7 @@ void Graph::MakeSingleSourced( bool ToAll )
    PT[ k ] = kSPT;
   }
 
- // now CmmStts[ k ] contains Inf<Index>() if the commodity has more than 1
+ // now CmmStts[ k ] contains Inf< Index >() if the commodity has more than 1
  // source, NNodes if it has no sources and its only source name otherwise
  // phase two: construct the new arcs, if necessary - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1702,7 +1702,7 @@ void Graph::MakeSingleSourced( bool ToAll )
    NewArcs[ k ] = 0;
 
   for( k = NComm ; k-- ; )
-   if( CmmStts[ k ] == Inf<Index>() )
+   if( CmmStts[ k ] == Inf< Index >() )
     for( Index i = NNodes ; i-- ; )
      if( B[ k ][ i ] < 0 )
       NewArcs[ i ]++;
@@ -1857,7 +1857,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
 
  if( Active ) {
   cIndex_Set tA = Active;
-  for( Index i ; ( i = *(tA++) ) < Inf<Index>() ; )
+  for( Index i ; ( i = *(tA++) ) < Inf< Index >() ; )
    of << " L  m" << i << endl;
   }
  else
@@ -2041,7 +2041,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
 
   if( Active ) {
    cIndex_Set tA = Active;
-   for( Index i ; ( i = *(tA++) ) < Inf<Index>() ; ) {
+   for( Index i ; ( i = *(tA++) ) < Inf< Index >() ; ) {
     if( first )
      of << " rhs";
 
@@ -2076,7 +2076,7 @@ void Graph::OutMPSFile( const char *const FN , bool FxdClmns ,
   for( Index k = 0 ; k < NComm ; k++ )
    if( ActiveK[ k ] ) {
     cIndex_Set tAK = ActiveK[ k ];
-    for( Index i ; ( i = *(tAK++) ) < Inf<Index>() ; )
+    for( Index i ; ( i = *(tAK++) ) < Inf< Index >() ; )
      if( C[ k ][ i ] < C_INF )
       of << " UP bound\tx" << k << "_" << i << "\t" << U[ k ][ i ] << endl;
    }
@@ -2271,7 +2271,7 @@ inline void Graph::CmnIntlz( void )
     if( ( *(Ck++) < C_INF ) && ( *Uk < F_INF ) )
      *(tAKk++) = i;
 
-   *tAKk = Inf<Index>();
+   *tAKk = Inf< Index >();
   }
   else
    ActiveK[ k ] = 0;

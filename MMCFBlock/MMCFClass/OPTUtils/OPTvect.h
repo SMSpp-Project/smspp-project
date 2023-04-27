@@ -161,12 +161,12 @@ inline T1 CeilDiv( const T1 x , const T2 y )
 /*-- a vector g, with g{B} (where B is a vector of indices) we indicate   --*/
 /*-- the "restricted" vector [ g[ B[ i ] ]. A typical reason for dealing  --*/
 /*-- with "restricted" vectors is that "sparse" vectors, those having few --*/
-/*-- nonzeroes w.r.t. their lenght, are very common.                      --*/
+/*-- nonzeroes w.r.t. their length, are very common.                      --*/
 /*--                                                                      --*/
 /*-- Vector of indices are meant to be "infinity-terminated", i.e., an    --*/
-/*-- Inf<Index>() must be found immediately after the last "valid" Index, and    --*/
-/*-- sometimes they are required to be ordered, typically in increasing   --*/
-/*-- sense.                                                               --*/
+/*-- Inf< Index >() must be found immediately after the last "valid"      --*/
+/*-- Index, and sometimes they are required to be ordered, typically in   --*/
+/*-- increasing sense.                                                    --*/
 /*--                                                                      --*/
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -196,7 +196,7 @@ inline T Norm( const T *g , cIndex_Set B )
  // Norm( g{B} )
 
  T t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; ) {
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; ) {
   const T tmp = g[ h ];
   t += tmp * tmp;
   }
@@ -226,7 +226,7 @@ inline T OneNorm( const T *g , cIndex_Set B )
  // OneNorm( g{B} )
 
  T t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   t += ABS( g[ h ] );
 
  return( t );
@@ -257,7 +257,7 @@ inline T INFNorm( const T *g , cIndex_Set B )
  // INFNorm( g{B} )
 
  T t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; ) {
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; ) {
   const T tmp = g[ h ];
   if( t < tmp )
    t = tmp;
@@ -289,7 +289,7 @@ inline T SumV( const T *g , cIndex_Set B )
  // SumV( g{B} )
 
  T t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   t += g[ h ];
 
  return( t );
@@ -386,7 +386,7 @@ inline T1 ScalarProduct( const T1 *g1 , const T2 *g2 , cIndex_Set B )
  // ScalarProduct( g1 , g2{B} )
 
  T1 t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   t += (*(g1++)) * g2[ h ];
 
  return( t );
@@ -403,27 +403,27 @@ inline T1 ScalarProduct( const T1 *g1 , cIndex_Set B1 ,
  T1 t = 0;
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h )
    {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k )
     {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else
     {
      t += (*(g1++)) * (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -441,7 +441,7 @@ inline T1 ScalarProductB( const T1 *g1 , const T2 *g2 , cIndex_Set B )
  // ScalarProduct( g1{B} , g2 )
 
  T1 t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   t += g1[ h ] * (*(g2++));
 
  return( t );
@@ -456,7 +456,7 @@ inline T1 ScalarProductBB( const T1 *g1 , const T2 *g2 , cIndex_Set B )
  // ScalarProduct( g1{B} , g2{B} )
 
  T1 t = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   t += g1[ h ] * g2[ h ];
 
  return( t );
@@ -485,7 +485,7 @@ inline void VectAssign( T *const g , const T x , cIndex_Set B )
 {
  // g{B} = x, all other entries of g unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g[ h ] = x;
  }
 
@@ -504,11 +504,11 @@ inline void VectAssign( T1 *g1 , const T2 *g2 , Index n )
 
 inline Index_Set VectAssign( Index_Set g1 , cIndex_Set g2 )
 {
- // special version of the above for g2 an Inf<Index>()-terminated vector of indices
- // do not write the terminating Inf<Index>(), but returns the pointer to the
- // position where it should be written
+ // special version of the above for g2 an Inf< Index >()-terminated vector of
+ // indices do not write the terminating Inf< Index >(), but returns the
+ // pointer to the position where it should be written
 
- for( Index h ; ( h = *(g2++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(g2++) ) < Inf< Index >() ; )
   *(g1++) = h;
 
  return( g1 );
@@ -521,7 +521,7 @@ inline void VectAssign( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 = g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) = g2[ h ];
  }
 
@@ -534,27 +534,27 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h )
    {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k )
     {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else
     {
      (*(g1++)) = (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -569,13 +569,13 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
  // g1{B} = g2{B}, B = intersection of B1 and B2, g1{B1 / B} = gg 
 
  Index k = *B2;
- for( Index h ; ( h = *(B1++) ) < Inf<Index>() ; ) {
+ for( Index h ; ( h = *(B1++) ) < Inf< Index >() ; ) {
   while( k < h ) {
    k = *(++B2);
    g2++;
    }
 
-  if( k == Inf<Index>() )
+  if( k == Inf< Index >() )
    break;
 
   if( h == k )
@@ -603,7 +603,7 @@ inline void VectAssign( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 = x * g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) = x * g2[ h ];
  }
 
@@ -617,24 +617,24 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) = x * (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -649,13 +649,13 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
  // g1{B} = x * g2{B}, B = intersection of B1 and B2, g1{B1 / B} = gg 
 
  Index k = *B2;
- for( Index h ; ( h = *(B1++) ) < Inf<Index>() ; ) {
+ for( Index h ; ( h = *(B1++) ) < Inf< Index >() ; ) {
   while( k < h ) {
    k = *(++B2);
    g2++;
    }
 
-  if( k == Inf<Index>() )
+  if( k == Inf< Index >() )
    break;
 
   if( h == k )
@@ -672,7 +672,7 @@ inline void VectAssignB( T *const g , const T x , cIndex_Set B )
 {
  // g{B} = x, all other entries of g unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g[ h ] = x;
  }
 
@@ -702,7 +702,7 @@ inline void VectAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] = *(g2++);
  }
 
@@ -732,7 +732,7 @@ inline void VectAssignB( T1 *g1 , const T2 *g2 ,
 {
  // g1{B} = g2, all other entries of g1 = unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] = x * (*(g2++));
  }
 
@@ -762,7 +762,7 @@ inline void VectAssignBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] = g2[ h ];
  }
 
@@ -773,7 +773,7 @@ inline void VectAssignBB( T1 *g1 , const T2 *g2 , const T1 x , cIndex_Set B )
 {
  // g1{B} = x * g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] = x * g2[ h ];
  }
 
@@ -796,7 +796,7 @@ inline void VectMAssign( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 = - g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) = - g2[ h ];
  }
 
@@ -809,24 +809,24 @@ inline void VectMAssign( T1 *g1 , cIndex_Set B1 , T2 *g2 , cIndex_Set B2 )
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) = - (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -841,13 +841,13 @@ inline void VectMAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
  // g1{B} = - g2{B}, B = intersection of B1 and B2, g1{B1 / B} = gg 
 
  Index k = *B2;
- for( Index h ; ( h = *(B1++) ) < Inf<Index>() ; ) {
+ for( Index h ; ( h = *(B1++) ) < Inf< Index >() ; ) {
   while( k < h ) {
    k = *(++B2);
    g2++;
    }
 
-  if( k == Inf<Index>() )
+  if( k == Inf< Index >() )
    break;
 
   if( h == k )
@@ -864,7 +864,7 @@ inline void VectMAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = - g2, all other entries of g1 = unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) = - g2[ h ];
  }
 
@@ -893,7 +893,7 @@ inline void VectMAssignBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = - g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] = - g2[ h ];
  }
 
@@ -913,9 +913,10 @@ inline void VectSum( T *const g , const T x , cIndex n )
 
 inline void VectSum( Index_Set g , cIndex x )
 {
- // special version of the above for g an Inf<Index>()-terminated vector of indices
+ // special version of the above for g an Inf< Index >()-terminated vector of
+ // indices
 
- while( *g < Inf<Index>() )
+ while( *g < Inf< Index >() )
   *(g++) += x;
  }
 
@@ -926,7 +927,7 @@ inline void VectSum( T *const g , const T x , cIndex_Set B )
 {
  // g{B} += x, all other entries of g unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g[ h ] += x;
  }
 
@@ -948,7 +949,7 @@ inline void VectSum( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 += g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) += g2[ h ];
  }
 
@@ -961,24 +962,24 @@ inline void VectSum( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) += (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1002,7 +1003,7 @@ inline void VectSum( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 += x * g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) += g2[ h ];
  }
 
@@ -1016,24 +1017,24 @@ inline void VectSum( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) += x * (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1063,7 +1064,7 @@ inline void VectSumB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} += g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] += *(g2++);
  }
 
@@ -1092,7 +1093,7 @@ inline void VectSumB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} += x * g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] += x * (*(g2++));
  }
 
@@ -1121,7 +1122,7 @@ inline void VectSumBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} += g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] += g2[ h ];
  }
 
@@ -1132,7 +1133,7 @@ inline void VectSumBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} += x * g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] += x * g2[ h ];
  }
 
@@ -1153,10 +1154,10 @@ inline void VectSubtract( T *const g , const T x , cIndex n )
 
 inline void VectSubtract( Index_Set g , cIndex x )
 {
- // special version of the above for g an Inf<Index>()-terminated vector of indices
- // (note that indices are generally unsigned)
+ // special version of the above for g an Inf< Index >()-terminated vector of
+ // indices (note that indices are generally unsigned)
 
- while( *g < Inf<Index>() )
+ while( *g < Inf< Index >() )
   *(g++) -= x;
  }
 
@@ -1167,7 +1168,7 @@ inline void VectSubtract( T *const g , const T x , cIndex_Set B )
 {
  // g{B} -= x, all other entries of g unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g[ h ] -= x;
  }
 
@@ -1189,7 +1190,7 @@ inline void VectSubtract( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 -= g2{B} (element-wise)
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) -= g2[ h ];
  }
 
@@ -1203,24 +1204,24 @@ inline void VectSubtract( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) -= (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1251,7 +1252,7 @@ inline void VectSubtractB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} -= g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] -= *(g2++);
  }
 
@@ -1280,7 +1281,7 @@ inline void VectSubtractBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} -= g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] -= g2[ h ];
  }
 
@@ -1303,7 +1304,7 @@ inline void VectScale( T *g , const T x , cIndex_Set B )
 {
  // g{B} *= x, x a scalar
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g[ h ] *= x;
  }
 
@@ -1325,7 +1326,7 @@ inline void VectScale( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 *= g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) *= g2[ h ];
  }
 
@@ -1338,24 +1339,24 @@ inline void VectScale( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) *= (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1379,7 +1380,7 @@ inline void VectScale( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 *= x * g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) *= g2[ h ];
  }
 
@@ -1393,24 +1394,24 @@ inline void VectScale( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) *= x * (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1423,7 +1424,7 @@ inline void VectScaleB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} *= g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] *= *(g2++);
  }
 
@@ -1434,7 +1435,7 @@ inline void VectScaleB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} *= x * g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] *= x * (*(g2++));
  }
 
@@ -1445,7 +1446,7 @@ inline void VectScaleBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} *= g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] *= g2[ h ];
  }
 
@@ -1456,7 +1457,7 @@ inline void VectScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} *= x * g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] *= x * g2[ h ];
  }
 
@@ -1480,7 +1481,7 @@ inline void VectIScale( T *g , const T x , cIndex_Set B )
 {
  // g{B} := g{B} / x, x a scalar
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g[ h ] /= x;
  }
 
@@ -1502,7 +1503,7 @@ inline void VectIScale( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 /= g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) /= g2[ h ];
  }
 
@@ -1515,24 +1516,24 @@ inline void VectIScale( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) /= (*(g2++));
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1556,7 +1557,7 @@ inline void VectIScale( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 /= x * g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g1++) /= ( x * g2[ h ] );
  }
 
@@ -1570,24 +1571,24 @@ inline void VectIScale( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
  Index h = *B1;
  Index k = *B2;
- if( ( h < Inf<Index>() ) && ( k < Inf<Index>() ) ) {
+ if( ( h < Inf< Index >() ) && ( k < Inf< Index >() ) ) {
   for(;;)
    if( k < h ) {
-    if( ( k = *(++B2) ) == Inf<Index>() )
+    if( ( k = *(++B2) ) == Inf< Index >() )
      break;
     g2++;
     }
    else
     if( h < k ) {
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      g1++;
      }
     else {
      (*(g1++)) /= ( x * (*(g2++)) );
-     if( ( k = *(++B2) ) == Inf<Index>() )
+     if( ( k = *(++B2) ) == Inf< Index >() )
       break;
-     if( ( h = *(++B1) ) == Inf<Index>() )
+     if( ( h = *(++B1) ) == Inf< Index >() )
       break;
      }
   }
@@ -1600,7 +1601,7 @@ inline void VectIScaleB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} /= g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] /= *(g2++);
  }
 
@@ -1611,7 +1612,7 @@ inline void VectIScaleB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} /= x * g2, all other entries of g1 unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] /= x * (*(g2++));
  }
 
@@ -1622,7 +1623,7 @@ inline void VectIScaleBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} /= g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] *= g2[ h ];
  }
 
@@ -1633,7 +1634,7 @@ inline void VectIScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} /= x * g2{B}, all other entries unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   g1[ h ] *= x * g2[ h ];
  }
 
@@ -1667,7 +1668,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 { 
  // g := g1 + g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g++) = *(g1++) + g2[ h ];
  }
 
@@ -1725,7 +1726,7 @@ inline void VectDiff( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 { 
  // g := g1 - g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g++) = *(g1++) - g2[ h ];
  }
 
@@ -1759,7 +1760,7 @@ inline void VectMult( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 { 
  // g := g1 * g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g++) = *(g1++) * g2[ h ];
  }
 
@@ -1783,7 +1784,7 @@ inline void VectMult( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 { 
  // g := x * g1 * g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g++) = x * (*(g1++)) * g2[ h ];
  }
 
@@ -1806,7 +1807,7 @@ inline void VectDivide( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 { 
  // g := g1 / g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g++) = *(g1++) / g2[ h ];
  }
 
@@ -1830,7 +1831,7 @@ inline void VectDivide( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 { 
  // g := x * ( g1 / g2{B} )
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   *(g++) = x * ( (*(g1++)) / g2[ h ] );
  }
 
@@ -1853,7 +1854,7 @@ inline void VectXcg( T *g1 , T *g2 , cIndex_Set B )
 {
  // swap of g1 and g2{B}
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; g1++ )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; g1++ )
   Swap( *g1 , g2[ h ] );
  }
 
@@ -1864,7 +1865,7 @@ inline void VectXcgB( T *g1 , T *g2 , cIndex_Set B )
 {
  // swap of g1{B} and g2
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; g2++ )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; g2++ )
   Swap( g1[ h ] , *g2 );
  }
 
@@ -1875,7 +1876,7 @@ inline void VectXcgBB( T *g1 , T *g2 , cIndex_Set B )
 {
  // swap of g1{B} and g2{B}, all other entries are unchanged
 
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; )
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; )
   Swap( g1[ h ] , g2[ h ] );
  }
 
@@ -1894,7 +1895,7 @@ inline Index_Set Sparsify( T* g , Index_Set B , Index n , Index Bs = 0 )
  // from Bs onwards, ordered in increasing sense; returns a pointer to the
  // first element in B after the last index vritten: this can be used for
  // computing the number of nonzeroes in the "sparsified" vector and/or for
- // Inf<Index>()-terminating the set
+ // Inf< Index >()-terminating the set
 
  for( ; n ; n-- , g++ )
   if( *g )
@@ -1978,9 +1979,9 @@ inline void Densify( T* g , cIndex_Set B , Index m , Index n , cIndex k = 0 )
 {
  // turns g from a "sparse" m-vector, whose set of nonzero elements is B, to
  // a "dense" n-vector padded with zeroes where necessary; B has to be ordered
- // in increasing sense, but does not need to be Inf<Index>()-terminated (m gives the
- // same information); note that the function will write in g[ n - 1 ], hence
- // the vector has to have been properly allocated
+ // in increasing sense, but does not need to be Inf< Index >()-terminated (m
+ // gives the same information); note that the function will write in
+ // g[ n - 1 ], hence the vector has to have been properly allocated
  // if k > 0, the function only works for the subvector of g between k and
  // n - 1, that is, g[ 0 ] .. g[ k - 1 ] are left intact, while the
  // subvector is densified; it is required that B[] only contains indices
@@ -2043,14 +2044,14 @@ inline void Compact( T* g , cIndex_Set B , Index n )
 {
  // takes a "dense" n-vector g and "compacts" it deleting the elements whose
  // indices are in B (all elements of B[] must be in the range 0 .. n, B[]
- // must be ordered in increasing sense and Inf<Index>()-terminated)
+ // must be ordered in increasing sense and Inf< Index >()-terminated)
  // the remaining entries in g[] are shifted left of the minimum possible
  // amount in order to fill the holes left by the deleted ones
 
  Index i = *(B++);  // current position where to write
  Index j = i + 1;   // element to copy
 
- for( Index h = *(B++) ; h < Inf<Index>() ; j++ ) {
+ for( Index h = *(B++) ; h < Inf< Index >() ; j++ ) {
   while( j < h )
    g[ i++ ] = g[ j++ ];
 
@@ -2223,7 +2224,7 @@ inline bool EqualVect( const T *g1 ,  const T *g2 , cIndex n , cIndex_Set B )
  // where g2 is given in sparse form, i.e., g2[ i ] is the B[ i ]-th element
 
  Index i = 0;
- for( Index h ; ( h = *(B++) ) < Inf<Index>() ; i++ ) {
+ for( Index h ; ( h = *(B++) ) < Inf< Index >() ; i++ ) {
   for( ; i < h ; i++ )
    if( *(g1++) )
     return( false );
