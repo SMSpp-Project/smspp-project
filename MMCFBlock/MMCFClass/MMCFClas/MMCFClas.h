@@ -244,7 +244,7 @@ class MMCFClass
 /** Very small class to simplify extracting the "+ infinity" value for a
     basic type (FNumber, CNumber, Index); just use Inf< type >().
 
-   template <typename T>
+   template< typename T >
    class Inf {
     public:
      Inf() {}
@@ -255,7 +255,7 @@ class MMCFClass
 /** Very small class to simplify extracting the "machine epsilon" for a
     basic type (FNumber, CNumber); just use Eps< type >().
 
-   template <typename T>
+   template< typename T >
    class Eps {
     public:
      Eps() {}

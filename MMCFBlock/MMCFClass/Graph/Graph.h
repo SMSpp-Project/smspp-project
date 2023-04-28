@@ -184,14 +184,14 @@ class Graph
 /** Very small class to simplify extracting the "+ infinity" value for a
     basic type (FNumber, CNumber, Index); just use Inf< type >(). */
 
-  /* template <typename T>
+  /* template< typename T >
    class Inf {
     public:
      Inf() {}
      operator T() { return( std::numeric_limits< T >::max() ); }
     }; */
     
-    template <typename T>
+    template< typename T >
     static constexpr T Inf( void ) noexcept {
         return( std::numeric_limits< T >::has_infinity ?
                 std::numeric_limits< T >::infinity() :
