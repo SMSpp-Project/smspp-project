@@ -80,7 +80,7 @@ static const Graph::FNumber F_INF = Graph::Inf< Graph::FNumber >();
 /*--------------------------- LOCAL FUNCTIONS ------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static inline void VectAssign( T *const g , const T x , Graph::cIndex n )
 {
  // g[ i ] = x for each i = 0 .. n - 1
@@ -91,7 +91,7 @@ static inline void VectAssign( T *const g , const T x , Graph::cIndex n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 static inline void VectAssign( T1 *g1 , const T2 *g2 , Graph::Index n )
 {
  // g1 := g2
@@ -102,7 +102,7 @@ static inline void VectAssign( T1 *g1 , const T2 *g2 , Graph::Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectSubtract( T *const g , const T x , Graph::cIndex n )
 {
  // g[ i ] -= x for each i = 0 .. n - 1; useful for *unsigned* data types
@@ -114,8 +114,8 @@ inline void VectSubtract( T *const g , const T x , Graph::cIndex n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
-static inline bool EqualVect( const T *g1 ,  const T *g2 , Graph::Index n )
+template< class T >
+static inline bool EqualVect( const T * g1 , const T * g2 , Graph::Index n )
 {
  // returns true <=> the two n-vectors g1 and g2 are element-wise identical
 

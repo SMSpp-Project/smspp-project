@@ -222,7 +222,7 @@ static double rs( double x ) { return( convex ? -x : x ); }
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;

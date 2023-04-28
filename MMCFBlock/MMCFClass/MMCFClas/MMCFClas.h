@@ -248,7 +248,7 @@ class MMCFClass
    class Inf {
     public:
      Inf() {}
-     operator T() { return( std::numeric_limits<T>::max() ); }
+     operator T() { return( std::numeric_limits< T >::max() ); }
     };
  */
 /*--------------------------------------------------------------------------*/
@@ -259,7 +259,7 @@ class MMCFClass
    class Eps {
     public:
      Eps() {}
-     operator T() { return( std::numeric_limits<T>::epsilon() ); }
+     operator T() { return( std::numeric_limits< T >::epsilon() ); }
     };
  */
 /*--------------------------------------------------------------------------*/

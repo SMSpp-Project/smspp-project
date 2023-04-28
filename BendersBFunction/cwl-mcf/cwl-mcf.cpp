@@ -123,7 +123,7 @@ using namespace MCFClass_di_unipi_it;
 /*----------------------------- FUNCTIONS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static inline void str2val( const char* const str , T &sthg )
 {
  std::istringstream( str ) >> sthg;

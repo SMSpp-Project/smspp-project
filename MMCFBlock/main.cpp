@@ -54,7 +54,7 @@ using namespace MMCFClass_di_unipi_it;
 /*--------------------------------------------------------------------------*/
 
 /*!!
-template<class T>
+template< class T >
 static inline void str2val( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;

@@ -958,7 +958,7 @@ int main( int argc , char **argv )
    // configure the PolyhedralFunctionBlock in LPBlock to use the
    // "linearised" representation
    auto bc = new BlockConfig();
-   bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
+   bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
    PFBLPk->set_BlockConfig( bc );
 
    }  // end( for( k ) )

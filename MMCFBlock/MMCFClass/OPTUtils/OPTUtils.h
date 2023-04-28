@@ -353,19 +353,19 @@ class OPTrand {
 /*--------------------------------------------------------------------------*/
  /// Inf< T >() = infinity value for T
 
- template <typename T>
+ template< typename T >
  static constexpr T Inf( void ) noexcept {
-  return( std::numeric_limits<T>::has_infinity ?
-	  std::numeric_limits<T>::infinity() :
-	  std::numeric_limits<T>::max() );
+  return( std::numeric_limits< T >::has_infinity ?
+	  std::numeric_limits< T >::infinity() :
+	  std::numeric_limits< T >::max() );
   }
 
 /*--------------------------------------------------------------------------*/
  /// Eps< T >() = "machine epsilon" for T
 
- template <typename T>
+ template< typename T >
  static constexpr T Eps( void ) noexcept {
-  return( std::numeric_limits<T>::epsilon() );
+  return( std::numeric_limits< T >::epsilon() );
   }
 
 /** @} end( group( OPTUtils_CLASSES ) ) */
@@ -388,7 +388,7 @@ class OPTrand {
 
    \note lines should not be longer than 1023 carachters. */
 
-template<class T>
+template< class T >
 inline void DfltdSfInpt( istream *iStrm , T &Param , const T Dflt ,
                          const char cmntc = '#' )
 {

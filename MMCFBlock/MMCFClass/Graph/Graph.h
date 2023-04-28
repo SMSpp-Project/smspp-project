@@ -188,14 +188,14 @@ class Graph
    class Inf {
     public:
      Inf() {}
-     operator T() { return( std::numeric_limits<T>::max() ); }
+     operator T() { return( std::numeric_limits< T >::max() ); }
     }; */
     
     template <typename T>
     static constexpr T Inf( void ) noexcept {
-        return( std::numeric_limits<T>::has_infinity ?
-               std::numeric_limits<T>::infinity() :
-               std::numeric_limits<T>::max() );
+        return( std::numeric_limits< T >::has_infinity ?
+                std::numeric_limits< T >::infinity() :
+                std::numeric_limits< T >::max() );
     }
 
 /*--------------------------------------------------------------------------*/

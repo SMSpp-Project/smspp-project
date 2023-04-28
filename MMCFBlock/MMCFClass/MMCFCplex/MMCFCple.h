@@ -426,7 +426,7 @@ public:
 /*------------------------- PRIVATE METHODS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-   template<class T>
+   template< class T >
    inline void TranslateK( T *const vect , const cIndex_Set Dict ,
 			   Index n , cIndex strt , const T Dflt = 0 );
 
@@ -439,7 +439,7 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
-   template<class T>
+   template< class T >
    inline void TranslateF( T *const vect , Index_Mat Dict , cIndex_Set Strt ,
 			   Index n , const T Dflt = 0 );
 

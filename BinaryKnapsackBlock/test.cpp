@@ -92,7 +92,7 @@ static constexpr double rangeP = 100;  // range values of profits
 /*----------------------------- FUNCTIONS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char * str , T & sthg ) {
  istringstream( str ) >> sthg;
  }

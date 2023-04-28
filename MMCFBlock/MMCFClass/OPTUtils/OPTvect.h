@@ -71,7 +71,7 @@ namespace OPTtypes_di_unipi_it
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T ABS( const T x )
 {
  return( x >= T( 0 ) ? x : -x );
@@ -79,7 +79,7 @@ inline T ABS( const T x )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T sgn( const T x )
 {
  return( x ? ( x > T( 0 ) ? T( 1 ) : T( -1 ) ) : T( 0 ) );
@@ -90,13 +90,13 @@ inline T sgn( const T x )
 
 #ifndef __GNUC__
 
-template<class T>
+template< class T >
 inline T min( const T x , const T y )
 { 
  return( x <= y ? x : y );
  }
 
-template<class T>
+template< class T >
 inline T max( const T x , const T y )
 {
  return( x >= y ? x : y );
@@ -105,13 +105,13 @@ inline T max( const T x , const T y )
 #else
 #if __GNUC__ < 3
 
-template<class T>
+template< class T >
 inline T min( const T x , const T y )
 { 
  return( x <= y ? x : y );
  }
 
-template<class T>
+template< class T >
 inline T max( const T x , const T y )
 {
  return( x >= y ? x : y );
@@ -122,7 +122,7 @@ inline T max( const T x , const T y )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void Swap( T &v1 , T &v2 )
 {
  const T temp = v1;
@@ -133,7 +133,7 @@ inline void Swap( T &v1 , T &v2 )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline T1 CeilDiv( const T1 x , const T2 y )
 {
  // returns the ceiling of (smallest integer number not smaller than) x / y,
@@ -174,7 +174,7 @@ inline T1 CeilDiv( const T1 x , const T2 y )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T Norm( const T *g , Index n )
 {
  // returns Sum{ i = 0 .. n - 1 } g[ i ]^2 = g * g
@@ -190,7 +190,7 @@ inline T Norm( const T *g , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline T Norm( const T *g , cIndex_Set B )
 {
  // Norm( g{B} )
@@ -206,7 +206,7 @@ inline T Norm( const T *g , cIndex_Set B )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T OneNorm( const T *g , Index n )
 {
  // returns Sum{ i = 0 .. n - 1 } ABS( g[ i ] )
@@ -220,7 +220,7 @@ inline T OneNorm( const T *g , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline T OneNorm( const T *g , cIndex_Set B )
 {
  // OneNorm( g{B} )
@@ -234,7 +234,7 @@ inline T OneNorm( const T *g , cIndex_Set B )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T INFNorm( const T *g , Index n )
 {
  // returns Max{ i = 0 .. n - 1 } ABS( g[ i ] )
@@ -251,7 +251,7 @@ inline T INFNorm( const T *g , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline T INFNorm( const T *g , cIndex_Set B )
 {
  // INFNorm( g{B} )
@@ -269,7 +269,7 @@ inline T INFNorm( const T *g , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T SumV( const T *g , Index n )
 {
  // returns Sum{ i = 0 .. n - 1 } g[ i ]
@@ -283,7 +283,7 @@ inline T SumV( const T *g , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline T SumV( const T *g , cIndex_Set B )
 {
  // SumV( g{B} )
@@ -297,7 +297,7 @@ inline T SumV( const T *g , cIndex_Set B )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T MaxVecV( const T *g , Index n )
 {
  // returns Max{ i = 0 .. n - 1 } g[ i ]; n *must* be > 0
@@ -312,7 +312,7 @@ inline T MaxVecV( const T *g , Index n )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline T MinVecV( const T *g , Index n )
 {
  // returns Min{ i = 0 .. n - 1 } g[ i ]; n *must* be > 0
@@ -327,7 +327,7 @@ inline T MinVecV( const T *g , Index n )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index MaxVecI( const T *g , cIndex n )
 {
  // returns the *index* of the maximum element of the n-vector v
@@ -346,7 +346,7 @@ inline Index MaxVecI( const T *g , cIndex n )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index MinVecI( const T *g , cIndex n )
 {
  // returns the *index* of the minimum element of the n-vector v
@@ -366,7 +366,7 @@ inline Index MinVecI( const T *g , cIndex n )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline T1 ScalarProduct( const T1 *g1 , const T2 *g2 , Index n )
 {
  // returns Sum{ i = 0 .. n - 1 } g1[ i ] * g2[ i ]
@@ -380,7 +380,7 @@ inline T1 ScalarProduct( const T1 *g1 , const T2 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline T1 ScalarProduct( const T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // ScalarProduct( g1 , g2{B} )
@@ -394,7 +394,7 @@ inline T1 ScalarProduct( const T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline T1 ScalarProduct( const T1 *g1 , cIndex_Set B1 ,
                          const T2 *g2 , cIndex_Set B2 )
 {
@@ -435,7 +435,7 @@ inline T1 ScalarProduct( const T1 *g1 , cIndex_Set B1 ,
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline T1 ScalarProductB( const T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // ScalarProduct( g1{B} , g2 )
@@ -450,7 +450,7 @@ inline T1 ScalarProductB( const T1 *g1 , const T2 *g2 , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline T1 ScalarProductBB( const T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // ScalarProduct( g1{B} , g2{B} )
@@ -469,7 +469,7 @@ inline T1 ScalarProductBB( const T1 *g1 , const T2 *g2 , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectAssign( T *const g , const T x , cIndex n )
 {
  // g[ i ] = x for each i = 0 .. n - 1
@@ -480,7 +480,7 @@ inline void VectAssign( T *const g , const T x , cIndex n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectAssign( T *const g , const T x , cIndex_Set B )
 {
  // g{B} = x, all other entries of g unchanged
@@ -491,7 +491,7 @@ inline void VectAssign( T *const g , const T x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssign( T1 *g1 , const T2 *g2 , Index n )
 {
  // g1 := g2
@@ -516,7 +516,7 @@ inline Index_Set VectAssign( Index_Set g1 , cIndex_Set g2 )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssign( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 = g2{B}
@@ -527,7 +527,7 @@ inline void VectAssign( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 {
  // g1{B} = g2{B}, B = intersection of B1 and B2, all other unchanged
@@ -562,7 +562,7 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 			cIndex_Set B2 ,	const T1 gg )
 {
@@ -587,7 +587,7 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAssign( T1 *g1 ,  const T2 *g2 , const T3 x , Index n )
 {
  // g1 := x * g2
@@ -598,7 +598,7 @@ inline void VectAssign( T1 *g1 ,  const T2 *g2 , const T3 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAssign( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 = x * g2{B}
@@ -609,7 +609,7 @@ inline void VectAssign( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 			cIndex_Set B2 )
 {
@@ -642,7 +642,7 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 			cIndex_Set B2 , const T1 gg )
 {
@@ -667,7 +667,7 @@ inline void VectAssign( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectAssignB( T *const g , const T x , cIndex_Set B )
 {
  // g{B} = x, all other entries of g unchanged
@@ -678,7 +678,7 @@ inline void VectAssignB( T *const g , const T x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectAssignB( T *g , const T x , cIndex_Set B , cIndex n ,
 			 const T gg = 0 )
 {
@@ -697,7 +697,7 @@ inline void VectAssignB( T *g , const T x , cIndex_Set B , cIndex n ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = g2, all other entries of g1 unchanged
@@ -708,7 +708,7 @@ inline void VectAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 			 const T1 gg = 0 )
 {
@@ -726,7 +726,7 @@ inline void VectAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssignB( T1 *g1 , const T2 *g2 ,
 			 const T1 x , cIndex_Set B )
 {
@@ -738,7 +738,7 @@ inline void VectAssignB( T1 *g1 , const T2 *g2 ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssignB( T1 *g1 , const T2 *g2 , const T1 x , cIndex_Set B ,
 			 cIndex n , const T1 gg = 0 )
 {
@@ -757,7 +757,7 @@ inline void VectAssignB( T1 *g1 , const T2 *g2 , const T1 x , cIndex_Set B ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssignBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = g2{B}, all other entries unchanged
@@ -768,7 +768,7 @@ inline void VectAssignBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAssignBB( T1 *g1 , const T2 *g2 , const T1 x , cIndex_Set B )
 {
  // g1{B} = x * g2{B}, all other entries unchanged
@@ -780,7 +780,7 @@ inline void VectAssignBB( T1 *g1 , const T2 *g2 , const T1 x , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssign( T1 *g1 , const T2 *g2 , Index n )
 {
  // g1 := - g2
@@ -791,7 +791,7 @@ inline void VectMAssign( T1 *g1 , const T2 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssign( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 = - g2{B}
@@ -802,7 +802,7 @@ inline void VectMAssign( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssign( T1 *g1 , cIndex_Set B1 , T2 *g2 , cIndex_Set B2 )
 {
  // g1{B} = - g2{B}, B = intersection of B1 and B2, all other unchanged
@@ -834,7 +834,7 @@ inline void VectMAssign( T1 *g1 , cIndex_Set B1 , T2 *g2 , cIndex_Set B2 )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 			 cIndex_Set B2 , const T1 gg )
 {
@@ -859,7 +859,7 @@ inline void VectMAssign( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = - g2, all other entries of g1 = unchanged
@@ -870,7 +870,7 @@ inline void VectMAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 			  const T1 gg = 0 )
 {
@@ -888,7 +888,7 @@ inline void VectMAssignB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMAssignBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} = - g2{B}, all other entries unchanged
@@ -900,7 +900,7 @@ inline void VectMAssignBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectSum( T *const g , const T x , cIndex n )
 {
  // g[ i ] += x for each i = 0 .. n - 1
@@ -922,7 +922,7 @@ inline void VectSum( Index_Set g , cIndex x )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectSum( T *const g , const T x , cIndex_Set B )
 {
  // g{B} += x, all other entries of g unchanged
@@ -933,7 +933,7 @@ inline void VectSum( T *const g , const T x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSum( T1 *g1 , const T2 *g2 , Index n )
 {
  // g1 += g2
@@ -944,7 +944,7 @@ inline void VectSum( T1 *g1 , const T2 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSum( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 += g2{B}
@@ -955,7 +955,7 @@ inline void VectSum( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSum( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 {
  // g1{B} += g2{B}, B = intersection of B1 and B2, all other unchanged
@@ -987,7 +987,7 @@ inline void VectSum( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectSum( T1 *g1 , const T2 *g2 , const T3 x , Index n )
 {
  // g1 += x * g2
@@ -998,7 +998,7 @@ inline void VectSum( T1 *g1 , const T2 *g2 , const T3 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectSum( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 += x * g2{B}
@@ -1009,7 +1009,7 @@ inline void VectSum( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectSum( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 		     cIndex_Set B2 )
 {
@@ -1042,7 +1042,7 @@ inline void VectSum( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectSumB( T *g , const T x , cIndex_Set B , cIndex n , const T gg )
 {
  // g{B} += x, all other entries (0 .. n - 1) of g1 += gg
@@ -1059,7 +1059,7 @@ inline void VectSumB( T *g , const T x , cIndex_Set B , cIndex n , const T gg )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSumB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} += g2, all other entries of g1 unchanged
@@ -1070,7 +1070,7 @@ inline void VectSumB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSumB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 		      const T1 gg )
 {
@@ -1088,7 +1088,7 @@ inline void VectSumB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectSumB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} += x * g2, all other entries of g1 unchanged
@@ -1099,7 +1099,7 @@ inline void VectSumB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectSumB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B ,
 		      cIndex n , const T1 gg )
 {
@@ -1117,7 +1117,7 @@ inline void VectSumB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSumBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} += g2{B}, all other entries unchanged
@@ -1128,7 +1128,7 @@ inline void VectSumBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectSumBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} += x * g2{B}, all other entries unchanged
@@ -1140,7 +1140,7 @@ inline void VectSumBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectSubtract( T *const g , const T x , cIndex n )
 {
  // g[ i ] -= x for each i = 0 .. n - 1; useful for *unsigned* data types
@@ -1163,7 +1163,7 @@ inline void VectSubtract( Index_Set g , cIndex x )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectSubtract( T *const g , const T x , cIndex_Set B )
 {
  // g{B} -= x, all other entries of g unchanged
@@ -1174,7 +1174,7 @@ inline void VectSubtract( T *const g , const T x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSubtract( T1 *g1 , const T2 *g2 , Index n )
 {
  // g1 -= g2 (element-wise)
@@ -1185,7 +1185,7 @@ inline void VectSubtract( T1 *g1 , const T2 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSubtract( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 -= g2{B} (element-wise)
@@ -1196,7 +1196,7 @@ inline void VectSubtract( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSubtract( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 			  cIndex_Set B2 )
 {
@@ -1229,7 +1229,7 @@ inline void VectSubtract( T1 *g1 , cIndex_Set B1 , const T2 *g2 ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectSubtractB( T *g , const T x , cIndex_Set B , cIndex n ,
 			   const T gg )
 {
@@ -1247,7 +1247,7 @@ inline void VectSubtractB( T *g , const T x , cIndex_Set B , cIndex n ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSubtractB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} -= g2, all other entries of g1 unchanged
@@ -1258,7 +1258,7 @@ inline void VectSubtractB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSubtractB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 			   const T1 gg )
 {
@@ -1276,7 +1276,7 @@ inline void VectSubtractB( T1 *g1 , const T2 *g2 , cIndex_Set B , cIndex n ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectSubtractBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} -= g2{B}, all other entries unchanged
@@ -1288,7 +1288,7 @@ inline void VectSubtractBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectScale( T *g , const T x , Index n )
 {
  // g *= x, x a scalar
@@ -1299,7 +1299,7 @@ inline void VectScale( T *g , const T x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectScale( T *g , const T x , cIndex_Set B )
 {
  // g{B} *= x, x a scalar
@@ -1310,7 +1310,7 @@ inline void VectScale( T *g , const T x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectScale( T1 *g1 , const T2 *g2 , Index n )
 {
  // g1 *= g2
@@ -1321,7 +1321,7 @@ inline void VectScale( T1 *g1 , const T2 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectScale( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 *= g2{B}
@@ -1332,7 +1332,7 @@ inline void VectScale( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectScale( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 {
  // g1{B} *= g2{B}, B = intersection of B1 and B2, all other unchanged
@@ -1364,7 +1364,7 @@ inline void VectScale( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectScale( T1 *g1 , const T2 *g2 , const T3 x , Index n )
 {
  // g1 *= x * g2
@@ -1375,7 +1375,7 @@ inline void VectScale( T1 *g1 , const T2 *g2 , const T3 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectScale( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 *= x * g2{B}
@@ -1386,7 +1386,7 @@ inline void VectScale( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectScale( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 		       cIndex_Set B2 )
 {
@@ -1419,7 +1419,7 @@ inline void VectScale( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectScaleB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} *= g2, all other entries of g1 unchanged
@@ -1430,7 +1430,7 @@ inline void VectScaleB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectScaleB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} *= x * g2, all other entries of g1 unchanged
@@ -1441,7 +1441,7 @@ inline void VectScaleB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectScaleBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} *= g2{B}, all other entries unchanged
@@ -1452,7 +1452,7 @@ inline void VectScaleBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} *= x * g2{B}, all other entries unchanged
@@ -1464,7 +1464,7 @@ inline void VectScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectIScale( T *g , const T x , Index n )
 {
  // g := g / x, x a scalar; useful e.g., for *integer* types where
@@ -1476,7 +1476,7 @@ inline void VectIScale( T *g , const T x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectIScale( T *g , const T x , cIndex_Set B )
 {
  // g{B} := g{B} / x, x a scalar
@@ -1487,7 +1487,7 @@ inline void VectIScale( T *g , const T x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectIScale( T1 *g1 , const T2 *g2 , Index n )
 {
  // g1 /= g2
@@ -1498,7 +1498,7 @@ inline void VectIScale( T1 *g1 , const T2 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectIScale( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1 /= g2{B}
@@ -1509,7 +1509,7 @@ inline void VectIScale( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectIScale( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 {
  // g1{B} /= g2{B}, B = intersection of B1 and B2, all other unchanged
@@ -1541,7 +1541,7 @@ inline void VectIScale( T1 *g1 , cIndex_Set B1 , const T2 *g2 , cIndex_Set B2 )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectIScale( T1 *g1 , const T2 *g2 , const T3 x , Index n )
 {
  // g1 /= x * g2
@@ -1552,7 +1552,7 @@ inline void VectIScale( T1 *g1 , const T2 *g2 , const T3 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectIScale( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1 /= x * g2{B}
@@ -1563,7 +1563,7 @@ inline void VectIScale( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectIScale( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 			cIndex_Set B2 )
 {
@@ -1596,7 +1596,7 @@ inline void VectIScale( T1 *g1 , cIndex_Set B1 , const T3 x , const T2 *g2 ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectIScaleB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} /= g2, all other entries of g1 unchanged
@@ -1607,7 +1607,7 @@ inline void VectIScaleB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectIScaleB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} /= x * g2, all other entries of g1 unchanged
@@ -1618,7 +1618,7 @@ inline void VectIScaleB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectIScaleBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 {
  // g1{B} /= g2{B}, all other entries unchanged
@@ -1629,7 +1629,7 @@ inline void VectIScaleBB( T1 *g1 , const T2 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectIScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 {
  // g1{B} /= x * g2{B}, all other entries unchanged
@@ -1641,7 +1641,7 @@ inline void VectIScaleBB( T1 *g1 , const T2 *g2 , const T3 x , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAdd( T1 *g , const T2 *g1 , const T1 x , Index n )
 {
  // g := g1 + x
@@ -1652,7 +1652,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T1 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 {
  // g := g1 + g2
@@ -1663,7 +1663,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B ) 
 { 
  // g := g1 + g2{B}
@@ -1674,7 +1674,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , const T3 x ,
                      Index n )
 {
@@ -1686,7 +1686,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T3 *g2 , const T3 x ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectAdd( T1 *g , const T2 *g1 , const T2 x1 , const T1 x , Index n )
 {
  // g := x1 * g1 + x
@@ -1697,7 +1697,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T2 x1 , const T1 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectAdd( T1 *g , const T2 *g1 , const T2 x1 , const T3 *g2 ,
 		     const T3 x2 , Index n )
 {
@@ -1710,7 +1710,7 @@ inline void VectAdd( T1 *g , const T2 *g1 , const T2 x1 , const T3 *g2 ,
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectDiff( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 {
  // g := g1 - g2
@@ -1721,7 +1721,7 @@ inline void VectDiff( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectDiff( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B ) 
 { 
  // g := g1 - g2{B}
@@ -1733,7 +1733,7 @@ inline void VectDiff( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2>
+template< class T1 , class T2 >
 inline void VectMult( T1 *g , const T2 *g1 , const T1 x , Index n )
 {
  // g := g1 * x
@@ -1744,7 +1744,7 @@ inline void VectMult( T1 *g , const T2 *g1 , const T1 x , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectMult( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 {
  // g := g1 * g2
@@ -1755,7 +1755,7 @@ inline void VectMult( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectMult( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B ) 
 { 
  // g := g1 * g2{B}
@@ -1766,7 +1766,7 @@ inline void VectMult( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3, class T4>
+template< class T1 , class T2 , class T3 , class T4 >
 inline void VectMult( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 		      Index n )
 {
@@ -1778,7 +1778,7 @@ inline void VectMult( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3, class T4>
+template< class T1 , class T2 , class T3 , class T4 >
 inline void VectMult( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 		      cIndex_Set B ) 
 { 
@@ -1791,7 +1791,7 @@ inline void VectMult( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectDivide( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 {
  // g := g1 / g2
@@ -1802,7 +1802,7 @@ inline void VectDivide( T1 *g , const T2 *g1 , const T3 *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3>
+template< class T1 , class T2 , class T3 >
 inline void VectDivide( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B ) 
 { 
  // g := g1 / g2{B}
@@ -1813,7 +1813,7 @@ inline void VectDivide( T1 *g , const T2 *g1 , const T3 *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3, class T4>
+template< class T1 , class T2 , class T3 , class T4 >
 inline void VectDivide( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 			Index n )
 {
@@ -1825,7 +1825,7 @@ inline void VectDivide( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T1, class T2, class T3, class T4>
+template< class T1 , class T2 , class T3 , class T4 >
 inline void VectDivide( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 			cIndex_Set B ) 
 { 
@@ -1838,7 +1838,7 @@ inline void VectDivide( T1 *g , const T2 x , const T3 *g1 , const T4 *g2 ,
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectXcg( T *g1 , T *g2 , Index n )
 {
  // swap of g1 and g2 (element-wise)
@@ -1849,7 +1849,7 @@ inline void VectXcg( T *g1 , T *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectXcg( T *g1 , T *g2 , cIndex_Set B )
 {
  // swap of g1 and g2{B}
@@ -1860,7 +1860,7 @@ inline void VectXcg( T *g1 , T *g2 , cIndex_Set B )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void VectXcgB( T *g1 , T *g2 , cIndex_Set B )
 {
  // swap of g1{B} and g2
@@ -1871,7 +1871,7 @@ inline void VectXcgB( T *g1 , T *g2 , cIndex_Set B )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void VectXcgBB( T *g1 , T *g2 , cIndex_Set B )
 {
  // swap of g1{B} and g2{B}, all other entries are unchanged
@@ -1887,7 +1887,7 @@ inline void VectXcgBB( T *g1 , T *g2 , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index_Set Sparsify( T* g , Index_Set B , Index n , Index Bs = 0 )
 {
  // turns g from a "dense" n-vector to a "sparse" one, eliminating all items
@@ -1918,7 +1918,7 @@ inline Index_Set Sparsify( T* g , Index_Set B , Index n , Index Bs = 0 )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index_Set SparsifyT( T* g , Index_Set B , Index n , const T eps ,
 			    Index Bs = 0 )
 {
@@ -1946,7 +1946,7 @@ inline Index_Set SparsifyT( T* g , Index_Set B , Index n , const T eps ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index_Set SparsifyAT( T* g , Index_Set B , Index n , const T eps ,
 			     Index Bs = 0 )
 {
@@ -1974,7 +1974,7 @@ inline Index_Set SparsifyAT( T* g , Index_Set B , Index n , const T eps ,
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void Densify( T* g , cIndex_Set B , Index m , Index n , cIndex k = 0 )
 {
  // turns g from a "sparse" m-vector, whose set of nonzero elements is B, to
@@ -2039,7 +2039,7 @@ inline void Densify( T* g , cIndex_Set B , Index m , Index n , cIndex k = 0 )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void Compact( T* g , cIndex_Set B , Index n )
 {
  // takes a "dense" n-vector g and "compacts" it deleting the elements whose
@@ -2072,7 +2072,7 @@ inline void Compact( T* g , cIndex_Set B , Index n )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void Merge( T *g , const T *g2 , const T *g3 , const T Stp )
 {
  // merges the two ordered and "Stp-terminated" vectors g2 and g3 (that is,
@@ -2104,7 +2104,7 @@ inline void Merge( T *g , const T *g2 , const T *g3 , const T Stp )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void ShiftVect( T *g , Index n )
 {
  // g[ 0 ] = g[ 1 ], g[ 1 ] = g[ 2 ] ... g[ n - 1 ] = g[ n ]
@@ -2115,7 +2115,7 @@ inline void ShiftVect( T *g , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void ShiftVect( T *g , Index n , cIndex k )
 {
  // g[ i ] = g[ i + k ], i = 0 ... n - 1
@@ -2126,7 +2126,7 @@ inline void ShiftVect( T *g , Index n , cIndex k )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void RotateVect( T *g , Index n )
 {
  // as ShiftVect(), but g[ 0 ] is moved to g[ n ]
@@ -2141,7 +2141,7 @@ inline void RotateVect( T *g , Index n )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void ShiftRVect( T *g , Index n )
 {
  // g[ n ] = g[ n - 1 ], g[ n - 1 ] = g[ n - 2 ], ..., g[ 1 ] = g[ 0 ]
@@ -2152,7 +2152,7 @@ inline void ShiftRVect( T *g , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline void ShiftRVect( T *g , Index n , cIndex k )
 {
  // g[ i ] = g[ i - k ], i = n - 1 ... 0
@@ -2164,7 +2164,7 @@ inline void ShiftRVect( T *g , Index n , cIndex k )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void RotateRVect( T *g , Index n )
 {
  // as ShiftRVect(), but g[ n ] is moved to g[ 0 ]
@@ -2188,7 +2188,7 @@ inline void RotateRVect( T *g , Index n )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index Match( const T *g , const T x , cIndex n )
 {
  // if v contains elements identical to x, then the smallest index among all
@@ -2203,7 +2203,7 @@ inline Index Match( const T *g , const T x , cIndex n )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline bool EqualVect( const T *g1 ,  const T *g2 , Index n )
 {
  // returns true <=> the two n-vectors g1 and g2 are element-wise identical
@@ -2217,7 +2217,7 @@ inline bool EqualVect( const T *g1 ,  const T *g2 , Index n )
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 
-template<class T>
+template< class T >
 inline bool EqualVect( const T *g1 ,  const T *g2 , cIndex n , cIndex_Set B )
 {
  // returns true <=> the two n-vectors g1 and g2 are element-wise identical,
@@ -2243,7 +2243,7 @@ inline bool EqualVect( const T *g1 ,  const T *g2 , cIndex n , cIndex_Set B )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index BinSearch( const T *Set , Index Stop , const T What )
 {
  // perform a binary search on the ordered set of Stop elements (of type T and
@@ -2272,7 +2272,7 @@ inline Index BinSearch( const T *Set , Index Stop , const T What )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index BinSearch1( const T *Set , Index Stop , const T What )
 {
  // like BinSearch() above, but What *must be* in Set (=> Set is nonempty)
@@ -2294,7 +2294,7 @@ inline Index BinSearch1( const T *Set , Index Stop , const T What )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index BinSearch2( const T *Set , Index Stop , const T What )
 {
  // like BinSearch() above, but What must *not* be in Set (=> the position
@@ -2317,7 +2317,7 @@ inline Index BinSearch2( const T *Set , Index Stop , const T What )
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline void HeapIns( T *H , const T x , Index n )
 {
  // H is a binary heap of elements of type T, ordered in increasing sense
@@ -2339,7 +2339,7 @@ inline void HeapIns( T *H , const T x , Index n )
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 inline Index HeapDel( T *H , cIndex n )
 {
  // H is a binary heap of elements of type T, as above: returns the smallest

@@ -656,7 +656,7 @@ int main( int argc , char **argv )
 
     // configure it to use the "linearised" representation
     auto bc = new BlockConfig();
-    bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
+    bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
     bi->set_BlockConfig( bc );
     }
 
@@ -728,7 +728,7 @@ int main( int argc , char **argv )
 			      convex );
 
    // generate the abstract representation
-   SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
+   SimpleConfiguration< int > cfg( 1 );  // 1 = linearized representation
    LPBlock->generate_abstract_variables( &cfg );
    }
 
@@ -789,7 +789,7 @@ int main( int argc , char **argv )
    NDOBlock->set_valid_upper_bound( bound , true );
 
   // generate the abstract representation
-  SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
+  SimpleConfiguration< int > cfg( 0 );  // 0 = natural representation
   NDOBlock->generate_abstract_variables( &cfg );
   NDOBlock->generate_abstract_constraints();
   NDOBlock->generate_objective();
