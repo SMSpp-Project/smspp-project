@@ -56,10 +56,12 @@ add_subdirectory(SMS++)
 add_subdirectory(BinaryKnapsackBlock)
 add_subdirectory(UCBlock)
 add_subdirectory(MCFBlock)        # Requires MCFClass
-add_subdirectory(MMCFBlock)       # Requires MCFBlock
+add_subdirectory(MMCFBlock)       # Requires MCFBlock, BinaryKnapsackBlock
 add_subdirectory(LukFiBlock)
 add_subdirectory(StochasticBlock)
 add_subdirectory(SDDPBlock)       # Requires StochasticBlock, StOpt
+add_subdirectory(CapacitatedFacilityLocationBlock)
+                                  # Requires MCFBlock, BinaryKnapsackBlock
 
 # Solvers
 add_subdirectory(MILPSolver)      # Requires CPLEX and/or SCIP
