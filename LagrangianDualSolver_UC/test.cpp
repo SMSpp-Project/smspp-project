@@ -177,10 +177,8 @@ static void Configure_HSUB( HydroSystemUnitBlock * hsub ) {
 
  for( auto sb : hsub->get_nested_Blocks() )
   if( auto pfb = dynamic_cast< PolyhedralFunctionBlock * >( sb ) ) {
-   auto sci = new SimpleConfiguration< int >;
-   sci->f_value = 1;
    auto bc = new BlockConfig;
-   bc->f_static_variables_Configuration = sci;
+   bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
    pfb->set_BlockConfig( bc );
    }
  }
@@ -421,6 +419,17 @@ int main( int argc , char **argv ) {
 
   auto sb = TestBlock->get_nested_Blocks();
 
+  // load the BlockConfig for ThermalUnitBlock
+  auto tc = Configuration::deserialize( "TUBCfg.txt" );
+  auto tbc = dynamic_cast< BlockConfig * >( tc );
+  if( ! tbc ) {
+   std::cerr << "Error: TUBCfg.txt does not contain a BlockSolverConfig"
+             << std::endl;
+   delete( c );
+   delete( tc );
+   exit( 1 );
+   }
+
   // load the BlockSolverConfig for ThermalUnitBlock
   auto any_reserve = std::any_of( sb.begin() , sb.end() , []( Block * b ) {
    auto tub = dynamic_cast< ThermalUnitBlock * >( b );
@@ -512,6 +521,7 @@ int main( int argc , char **argv ) {
 
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
+      tub->set_BlockConfig( tbc );
       NoEasy.push_back( i );
       tbsc->apply( tub );
       continue;
@@ -639,6 +649,7 @@ int main( int argc , char **argv ) {
     }
 
   // cleanup
+  delete( tbc );
   delete( hbsc );
   delete( tbsc );
 

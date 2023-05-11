@@ -498,34 +498,44 @@ int main( int argc , char **argv )
 
  long int seed = 0;
  Index wchg = 135;
+ Index wf = 1;
  double p_change = 0.6;
  Index n_change = 10;
  Index n_repeat = 100;
 
  switch( argc ) {
-  case( 7 ): Str2Sthg( argv[ 6 ] , p_change );
-  case( 6 ): Str2Sthg( argv[ 5 ] , n_change );
-  case( 5 ): Str2Sthg( argv[ 4 ] , n_repeat );
+  case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
+  case( 7 ): Str2Sthg( argv[ 6 ] , n_change );
+  case( 6 ): Str2Sthg( argv[ 5 ] , n_repeat );
+  case( 5 ): Str2Sthg( argv[ 4 ] , wf );
   case( 4 ): Str2Sthg( argv[ 3 ] , wchg );
   case( 3 ): Str2Sthg( argv[ 2 ] , seed );
   case( 2 ): break;
   default: std::cerr << "Usage: " << argv[ 0 ] <<
-	   "file [seed wchg #rounds #chng %chng]"
- 		<< std::endl <<
-           "       wchg: what to change, coded bit-wise [135]"
-		<< std::endl <<
-           "             0 = fixed costs, 1 = linear costs "
-		<< std::endl <<
-           "             2 = quadratic costs "
-		<< std::endl <<
- 	   "             +128 = also change abstract representation"
-	        << std::endl <<
-           "       #rounds: how many iterations [100]"
-	        << std::endl <<
-           "       #chng: number changes [10]"
-	        << std::endl <<
-           "       %chng: probability of changing [0.6]"
-	        << std::endl;
+	   "file [seed wchg wf #rounds #chng %chng]"
+    << std::endl <<
+    "       wchg: what to change, coded bit-wise [135]"
+    << std::endl <<
+    "             0 = fixed costs, 1 = linear costs"
+    << std::endl <<
+    "             2 = quadratic costs"
+    << std::endl <<
+    "             +128 = also change abstract representation"
+    << std::endl <<
+    "       wf:   what formulation, coded bit-wise [1]"
+    << std::endl <<
+    "             0 = 3bin, 1 = T, 2 = pt, 3 = DP"
+    << std::endl <<
+    "             4 = SU, 5 = SD (formulation)"
+    << std::endl <<
+    "             +8 = also use perspective cuts"
+    << std::endl <<
+    "       #rounds: how many iterations [100]"
+    << std::endl <<
+    "       #chng: number changes [10]"
+    << std::endl <<
+    "       %chng: probability of changing [0.6]"
+    << std::endl;
 	   return( 1 );
   }
 
@@ -546,6 +556,10 @@ int main( int argc , char **argv )
             << std::endl;
   exit( 1 );
   }
+
+ auto bc = new BlockConfig;
+ bc->f_static_variables_Configuration = new SimpleConfiguration< Index >( wf );
+ TUBlock->set_BlockConfig( bc );
 
  TUBlock->generate_abstract_variables();
  TUBlock->generate_objective( nullptr );
