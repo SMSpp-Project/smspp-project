@@ -627,6 +627,7 @@ int main( int argc , char **argv ) {
     for( auto ub : sb ) {
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( ub ) ) {
+      tub->set_BlockConfig( tbc );
       tbsc->apply( tub );
       continue;
       }
