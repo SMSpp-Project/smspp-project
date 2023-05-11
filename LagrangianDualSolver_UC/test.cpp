@@ -649,7 +649,6 @@ int main( int argc , char **argv ) {
     }
 
   // cleanup
-  delete( tbc );
   delete( hbsc );
   delete( tbsc );
 
