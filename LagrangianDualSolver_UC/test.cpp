@@ -521,7 +521,7 @@ int main( int argc , char **argv ) {
 
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
-      tub->set_BlockConfig( tbc );
+      tbc->apply( tub );
       NoEasy.push_back( i );
       tbsc->apply( tub );
       continue;
@@ -625,9 +625,10 @@ int main( int argc , char **argv ) {
      }
 
     for( auto ub : sb ) {
+
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( ub ) ) {
-      tub->set_BlockConfig( tbc );
+      tbc->apply( tub );
       tbsc->apply( tub );
       continue;
       }
@@ -650,6 +651,7 @@ int main( int argc , char **argv ) {
     }
 
   // cleanup
+  delete( tbc );
   delete( hbsc );
   delete( tbsc );
 
