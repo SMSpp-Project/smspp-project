@@ -498,7 +498,7 @@ int main( int argc , char **argv )
 
  long int seed = 0;
  Index wchg = 135;
- Index wf = 1;
+ int wf = 1;
  double p_change = 0.6;
  Index n_change = 10;
  Index n_repeat = 100;
@@ -558,7 +558,7 @@ int main( int argc , char **argv )
   }
 
  auto bc = new BlockConfig;
- bc->f_static_variables_Configuration = new SimpleConfiguration< Index >( wf );
+ bc->f_static_variables_Configuration = new SimpleConfiguration< int >( wf );
  TUBlock->set_BlockConfig( bc );
 
  TUBlock->generate_abstract_variables();
