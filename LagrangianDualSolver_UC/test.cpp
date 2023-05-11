@@ -436,11 +436,11 @@ int main( int argc , char **argv ) {
    return( tub ? ( ( ! tub->get_primary_rho().empty() ) ||
                    ( ! tub->get_secondary_rho().empty() ) ) : 0 );
   } );
-  auto ct = Configuration::deserialize( any_reserve ? "TUBSCfg-CPX.txt"
-                                                    : "TUBSCfg.txt" );
+  std::string tubscfg = any_reserve ? "TUBSCfg-CPX.txt" : "TUBSCfg.txt";
+  auto ct = Configuration::deserialize( tubscfg );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
-   std::cerr << "Error: TUBSCfg-CPX.txt does not contain a BlockSolverConfig"
+   std::cerr << "Error: " + tubscfg + " does not contain a BlockSolverConfig"
              << std::endl;
    delete( c );
    delete( ct );
@@ -652,8 +652,8 @@ int main( int argc , char **argv ) {
 
   // cleanup
   delete( tbc );
-  delete( hbsc );
   delete( tbsc );
+  delete( hbsc );
 
   bsc->apply( TestBlock );
   bsc->clear();
