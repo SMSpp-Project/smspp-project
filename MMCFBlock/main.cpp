@@ -125,7 +125,7 @@ int main( int argc , char **argv )
    cerr << "Error: BPar.txt does not contain a BlockConfig" << endl;
    exit( 1 );
    }
-  delete cfg;
+  delete( cfg );
   }
 
  MMCFb->generate_abstract_variables();
@@ -139,7 +139,7 @@ int main( int argc , char **argv )
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -173,8 +173,8 @@ int main( int argc , char **argv )
 
  // cleanup MMCFBlock and its Solver
  bsc->apply( MMCFb );
- delete bsc;
- delete MMCFb;
+ delete( bsc );
+ delete( MMCFb );
 
  // read and modify the problem - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -231,7 +231,7 @@ int main( int argc , char **argv )
  // clean up- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- delete mmcf;
+ delete( mmcf );
 
  // output the results- - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

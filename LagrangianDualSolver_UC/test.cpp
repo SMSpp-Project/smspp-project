@@ -415,7 +415,7 @@ int main( int argc , char **argv ) {
   if( ! bsc ) {
    std::cerr << "Error: configuration file not a BlockSolverConfig"
              << std::endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -433,8 +433,8 @@ int main( int argc , char **argv ) {
   if( ! tbsc ) {
    std::cerr << "Error: TUBSCfg-CPX.txt does not contain a BlockSolverConfig"
              << std::endl;
-   delete c;
-   delete ct;
+   delete( c );
+   delete( ct );
    exit( 1 );
    }
 
@@ -444,7 +444,7 @@ int main( int argc , char **argv ) {
   auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
   auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
   if( ( ! hbsc ) || ( ! hbsc->num_ComputeConfig() ) ) {
-   delete ch;
+   delete( ch );
    hbsc = nullptr;
    }
 
@@ -453,7 +453,7 @@ int main( int argc , char **argv ) {
    if( ! nbsc ) {
     std::cerr << "Error: no ComputeConfig in the BlockSolverConfig"
               << std::endl;
-    delete c;
+    delete( c );
     exit( 1 );
     }
 
@@ -471,7 +471,7 @@ int main( int argc , char **argv ) {
     if( ! cc ) {
      std::cerr << "Error: empty ComputeConfig in the BlockSolverConfig"
                << std::endl;
-     delete c;
+     delete( c );
      exit( 1 );
      }
 
@@ -613,7 +613,7 @@ int main( int argc , char **argv ) {
     auto co = Configuration::deserialize( "OUBSCfg.txt" );
     auto obsc = dynamic_cast< BlockSolverConfig * >( co );
     if( ( ! obsc ) || ( ! obsc->num_ComputeConfig() ) ) {
-     delete co;
+     delete( co );
      obsc = nullptr;
      }
 
@@ -638,12 +638,12 @@ int main( int argc , char **argv ) {
      }
 
     // cleanup
-    delete obsc;
+    delete( obsc );
     }
 
   // cleanup
-  delete hbsc;
-  delete tbsc;
+  delete( hbsc );
+  delete( tbsc );
 
   bsc->apply( TestBlock );
   bsc->clear();
@@ -763,7 +763,7 @@ int main( int argc , char **argv ) {
  bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  #if USE_BundleSolver
   // since some Solver have been attached "by hand" to some sub-Block,
@@ -773,7 +773,7 @@ int main( int argc , char **argv ) {
  #endif
 
  // finally the AbstractBlock can be deleted
- delete TestBlock;
+ delete( TestBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

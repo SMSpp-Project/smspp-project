@@ -688,9 +688,9 @@ int main( int argc , char **argv )
 
  bsc->apply( BKB );  // remove the Solver by apply()-ing the clear()-ed bsc
 
- delete bsc;         // delete the BlockSolverConfig
+ delete( bsc );      // delete the BlockSolverConfig
 
- delete BKB;         // dekete the BinaryKnapsackBlock
+ delete( BKB );      // delete the BinaryKnapsackBlock
 
  // all done- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

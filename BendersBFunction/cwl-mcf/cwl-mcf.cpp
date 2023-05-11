@@ -541,7 +541,7 @@ double cwl_mcf( std::string file_name )
 
   delete[] X;
 
-  delete MCF;
+  delete( MCF );
 
   delete[] C;
   delete[] D;

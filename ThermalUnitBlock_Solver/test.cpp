@@ -579,7 +579,7 @@ int main( int argc , char **argv )
   if( ! bsc ) {
    std::cerr << "Error: configuration file not a BlockSolverConfig"
              << std::endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -854,10 +854,10 @@ int main( int argc , char **argv )
  bsc->apply( TUBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // delete the Block
- delete TUBlock;
+ delete( TUBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

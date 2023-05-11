@@ -981,7 +981,7 @@ int main( int argc , char **argv )
    auto cfg = Configuration::deserialize( "HardLBFTPPar.txt" );
    if( ! ( hLBFC = dynamic_cast< ComputeConfig * >( cfg ) ) ) {
     cout << "error loading Configuration file for hard LagBFunction" << endl;
-    delete cfg;
+    delete( cfg );
     exit( 1 );
     }
    }
@@ -1254,7 +1254,7 @@ int main( int argc , char **argv )
 
    }  // end( for( p ) )
 
-  delete hLBFC;
+  delete( hLBFC );
   }
 
  // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1334,7 +1334,7 @@ int main( int argc , char **argv )
   LPParFile.close();
 
   lsc->apply( LPBlock );
-  delete lsc;
+  delete( lsc );
 
   // furthermore, "manually" attach an UpdateSolver to (each
   // PolyhedralFunctionBlock in) LPBlock
@@ -1378,7 +1378,7 @@ int main( int argc , char **argv )
     }
   
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
-  delete bsc;
+  delete( bsc );
 
   #if( LOG_LEVEL >= 4 )
    // in the extremely verbose mode, set an event that spits out the LPs
@@ -2149,8 +2149,8 @@ int main( int argc , char **argv )
  LPBlock->unregister_Solvers();
 
  // delete the Blocks
- delete NDOBlock;
- delete LPBlock;
+ delete( NDOBlock );
+ delete( LPBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

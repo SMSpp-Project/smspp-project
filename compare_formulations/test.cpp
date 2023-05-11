@@ -195,7 +195,7 @@ int main( int argc , char **argv )
   }
 
  cfg1->apply( Block1 );
- delete cfg1;
+ delete( cfg1 );
  
  auto cfg2 = dynamic_cast< BlockConfig * >(
 	     Configuration::deserialize( argc >= 4 ? argv[ 3 ]
@@ -206,7 +206,7 @@ int main( int argc , char **argv )
   }
 
  cfg2->apply( Block2 );
- delete cfg2;
+ delete( cfg2 );
 
  // attach two identical Solver to both Block - - - - - - - - - - - - - - - -
  // do that via a BlockSolverConfig

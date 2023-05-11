@@ -387,7 +387,7 @@ class MMCFClass
      else
       MMCFt = new OPTtimers();
     else
-     delete MMCFt;
+     delete( MMCFt );
     }
 
 /*--------------------------------------------------------------------------*/
@@ -1287,7 +1287,7 @@ class MMCFClass
    Note that IBeg, Indx and Vals are *not* pointers to const: this is done to
    allow the implementation to *overwrite* those vectors, should it find this
    useful. Furthermore, the implementation *need not* to restore the original
-   containts of the vectors: no assumption should be done by the caller on the
+   contains of the vectors: no assumption should be done by the caller on the
    contents of IBeg, Indx and Vals after the call. The rationale for this is
    that these data structures may be "big", and that they should be of no use
    after the call, so by allowing the implementation to exploit that memory
@@ -1315,7 +1315,7 @@ class MMCFClass
 
 /**< Destructor of the class: it must be virtual. */
    {
-    delete MMCFt;
+    delete( MMCFt );
     }
 
 /* @}-----------------------------------------------------------------------*/

@@ -692,7 +692,7 @@ int main( int argc , char **argv )
 
  // make the R3Block
  B2 = B1->get_R3_Block( r3bc );
- 
+
  auto cfg = Configuration::deserialize( "BPar1.txt" );
  if( BlockConfig * bc = dynamic_cast< BlockConfig * >( cfg ) )
   bc->apply( B1 );
@@ -707,7 +707,7 @@ int main( int argc , char **argv )
  // lock()-ed but the sub-Block would not be, which creates problems)
  // probably a Block::set_configuration() would be better
  B1->generate_abstract_variables();
- 
+
  cfg = Configuration::deserialize( "BPar2.txt" );
  if( BlockConfig * bc = dynamic_cast< BlockConfig * >( cfg ) )
   bc->apply( B2 );
@@ -720,7 +720,7 @@ int main( int argc , char **argv )
  B2->generate_abstract_variables();
 
  delete( cfg );
- 
+
  // attach the Solver to the Blocks - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // do this by reading appropriate BlockSolverConfig from file and
@@ -734,7 +734,7 @@ int main( int argc , char **argv )
   
   if( ! bsc1 ) {
    cerr << "Error: BSPar1.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -755,10 +755,10 @@ int main( int argc , char **argv )
  {
   auto c = Configuration::deserialize( "BSPar2.txt" );
   bsc2 = dynamic_cast< BlockSolverConfig * >( c );
-  
+
   if( ! bsc2 ) {
    cerr << "Error: BSPar2.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -805,7 +805,7 @@ int main( int argc , char **argv )
 		BA * std::max( c_abs , double( 1 ) ) ); 
   }
  #endif
- 
+
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1361,19 +1361,19 @@ int main( int argc , char **argv )
  // for B1 the UpdateSolver was manually registered, so it has to be manually
  // un-registered
  B1->unregister_Solver( US );
- delete US;
+ delete( US );
 
  // apply() the clear()-ed BlockSolverConfig to cleanup Solver
  bsc2->apply( B2 );
  bsc1->apply( B1 );
 
  // then delete the BlockSolverConfig
- delete bsc2;
- delete bsc1;
+ delete( bsc2 );
+ delete( bsc1 );
 
  // finally the Block can be deleted
- delete B2;
- delete B1;
+ delete( B2 );
+ delete( B1 );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

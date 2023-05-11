@@ -366,7 +366,7 @@ int main( int argc , char **argv )
   if( ! bsc ) {
    std::cerr << "Error: BSPar.txt does not contain a BlockSolverConfig"
 	     << std::endl;
-   delete c;
+   delete( c );
    return( 1 );
    }
 
@@ -893,10 +893,10 @@ int main( int argc , char **argv )
  bsc->apply( MCFB );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // finally the MCFBlock can be deleted
- delete MCFB;
+ delete( MCFB );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

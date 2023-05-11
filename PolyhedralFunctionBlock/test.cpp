@@ -1557,7 +1557,7 @@ int main( int argc , char **argv )
  // apply()-ing the clear()-ed BlockSolverConfig, then delete them
 
  bsc->apply( NDOBlock );
- delete bsc;
+ delete( bsc );
 
  // for LPBlock, before  "manually" un-register (and delete) the
  // UpdateSolver from (each PolyhedralFunctionBlock in) LPBlock
@@ -1570,11 +1570,11 @@ int main( int argc , char **argv )
   LPBlock->unregister_Solver( LPBlock->get_registered_solvers().back() ,
 			      true );
  msc->apply( LPBlock );
- delete msc;
+ delete( msc );
 
  // delete the Blocks
- delete NDOBlock;
- delete LPBlock;
+ delete( NDOBlock );
+ delete( LPBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

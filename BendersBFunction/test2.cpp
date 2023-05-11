@@ -629,8 +629,8 @@ void test( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == - 2.5 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  auto inner_block_solver = build_inner_block_solver();
  auto benders_block = build_Benders_decomposition
@@ -659,9 +659,9 @@ void test( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -716,8 +716,8 @@ void test2( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -749,9 +749,9 @@ void test2( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -795,8 +795,8 @@ void test3( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -826,9 +826,9 @@ void test3( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -874,8 +874,8 @@ void test4( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -905,9 +905,9 @@ void test4( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -950,8 +950,8 @@ void test5( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == -2.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -981,9 +981,9 @@ void test5( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1031,8 +1031,8 @@ void test6( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1062,9 +1062,9 @@ void test6( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1108,8 +1108,8 @@ void test7( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == -4 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1139,9 +1139,9 @@ void test7( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1181,8 +1181,8 @@ void test8( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1204,7 +1204,7 @@ void test8( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
+ delete( block_solver_config );
  */
 
  // Test linearizations
@@ -1225,8 +1225,8 @@ void test8( bool invert ) {
  test_linearization( benders_block , y_values , solution_values , status ,
                      optimal_value );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1266,8 +1266,8 @@ void test9( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1289,7 +1289,7 @@ void test9( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
+ delete( block_solver_config );
  */
 
  // Test linearizations
@@ -1310,8 +1310,8 @@ void test9( bool invert ) {
  test_linearization( benders_block , y_values , solution_values , status ,
                      optimal_value );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1352,8 +1352,8 @@ void test10( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == -1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1375,7 +1375,7 @@ void test10( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
+ delete( block_solver_config );
  */
 
  // Test linearizations
@@ -1396,8 +1396,8 @@ void test10( bool invert ) {
  test_linearization( benders_block , y_values , solution_values , status ,
                      1 );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1451,8 +1451,8 @@ void test11( bool invert ) {
 
  test_linearization( benders_block , y_values , solution_values , status , 1 );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/

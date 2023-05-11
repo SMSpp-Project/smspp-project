@@ -567,7 +567,7 @@ int main( int argc , char **argv )
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -804,10 +804,10 @@ int main( int argc , char **argv )
  bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // finally the AbstractBlock can be deleted
- delete TestBlock;
+ delete( TestBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

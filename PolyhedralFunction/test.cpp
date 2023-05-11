@@ -879,7 +879,7 @@ int main( int argc , char **argv )
   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! lpbsc ) {
    cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
   }
@@ -893,7 +893,7 @@ int main( int argc , char **argv )
   ndobsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! ndobsc ) {
    cerr << "Error: NDOPar.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
   }
@@ -1480,12 +1480,12 @@ int main( int argc , char **argv )
  lpbsc->apply( LPBlock );
 
  // then delete the BlockSolverConfig
- delete ndobsc;
- delete lpbsc;
+ delete( ndobsc );
+ delete( lpbsc );
 
  // delete the Blocks
- delete NDOBlock;
- delete LPBlock;
+ delete( NDOBlock );
+ delete( LPBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -121,8 +121,8 @@ int solve_with_BundleSolver( std::filesystem::path file_path ,
   *solution_value = solver->get_var_value();
 
  block_solver_config->apply( block );
- delete block_solver_config;
- delete block;
+ delete( block_solver_config );
+ delete( block );
  return( status );
 }
 
@@ -137,7 +137,7 @@ int solve_with_MILPSolver( std::filesystem::path file_path ,
  auto status = solver->compute();
  if( solver->has_var_solution() )
   *solution_value = solver->get_var_value();
- delete block;
+ delete( block );
  return( status );
 }
 
