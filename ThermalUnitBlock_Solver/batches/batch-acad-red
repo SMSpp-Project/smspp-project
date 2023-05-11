@@ -5,6 +5,7 @@ what=133
 
 # ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
 
+for wf in 0 1 2 3 4 5 8 9 10 11 12 13
 i=24
 #for i in 24 96
 #do
@@ -23,7 +24,7 @@ else
 printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter]: "
 fi
 
-./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter
+./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
@@ -34,5 +35,6 @@ done
 done
 #done
 #done
+done
 
 # end batch

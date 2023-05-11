@@ -5,6 +5,7 @@ what=133
 
 # simple thermals - - - - - - - - - - - - - - - - - - - - -
 
+for wf in 0 1 2 3 4 5 8 9 10 11 12 13
 for (( h=1 ; h<=98 ; h++ ))
 do
 for (( seed=0 ; seed<20 ; seed++ ))
@@ -17,13 +18,14 @@ else
 printf "[./simple/ThermalUnitBlock-${h}.nc4 $seed $what $iter]: "
 fi
 
-./TUDPS_test ./simple/ThermalUnitBlock-${h}.nc4 $seed $what $iter
+./TUDPS_test ./simple/ThermalUnitBlock-${h}.nc4 $seed $what $wf $iter
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
     exit 1
 fi
 
+done
 done
 done
 
