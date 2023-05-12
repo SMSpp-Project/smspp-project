@@ -9,13 +9,16 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 # ----- Project definition and configuration -------------------------------- #
 project("The SMS++ Project")
 
 # This file can contain custom settings.
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
+
+#add_compile_options(-fsanitize=address -fsanitize=undefined)
+#add_link_options(-fsanitize=address -fsanitize=undefined)
 
 # Some easier way to alleviate the cmake call and pick the directories from a ROOT
 if( COIN_ROOT_DIR )
