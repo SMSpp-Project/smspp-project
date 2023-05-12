@@ -443,6 +443,7 @@ int main( int argc , char **argv ) {
    std::cerr << "Error: " + tubscfg + " does not contain a BlockSolverConfig"
              << std::endl;
    delete( c );
+   delete( tc );
    delete( ct );
    exit( 1 );
    }
