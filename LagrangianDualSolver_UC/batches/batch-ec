@@ -21,3 +21,10 @@ fi
 done
 
 # end batch
+
+# BSPar-CPX.txt with intRelaxIntVars 0
+# "./data/EC_Data/EC_CO_Test.nc4"        3.5077963e+06
+# "./data/EC_Data/EC_CO_Test_TUB.nc4"    3.4742840e+06
+# "./data/EC_Data/EC_NA_Test.nc4"        4.1773642e+06
+# "./data/EC_Data/EC_NC_Test.nc4"        3.7349463e+06
+# "./data/EC_Data/EC_NC_Test_TUB.nc4"    3.7016024e+06
