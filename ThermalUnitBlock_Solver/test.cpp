@@ -101,26 +101,11 @@ using namespace SMSpp_di_unipi_it;
 /*-------------------------------- TYPES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using Index = Block::Index;
-using c_Index = Block::c_Index;
-
 using Range = Block::Range;
-using c_Range = Block::c_Range;
 
 using Subset = Block::Subset;
-using c_Subset = Block::c_Subset;
 
 using FunctionValue = Function::FunctionValue;
-// using c_FunctionValue = Function::c_FunctionValue;
-// using Vec_FunctionValue = LinearFunction::Vec_FunctionValue;
-
-// using RHSValue = RowConstraint::RHSValue;
-
-// using coeff_pair = LinearFunction::coeff_pair;
-// using v_coeff_pair = LinearFunction::v_coeff_pair;
-
-// using coeff_triple = DQuadFunction::coeff_triple;
-// using v_coeff_triple = DQuadFunction::v_coeff_triple;
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
