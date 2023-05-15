@@ -564,7 +564,7 @@ int main( int argc , char **argv ) {
         return( dynamic_cast< ECNetworkBlock * >( b ) );
        } );
        if( it != sb.end() )
-        NoEasy.push_back( (int) std::distance( sb.begin() , it ) );
+        NoEasy.push_back( ( int ) std::distance( sb.begin() , it ) );
        else
         throw( std::logic_error(
          "There is no non-ECNetworkBlock candidate block to set as a `hard` "
