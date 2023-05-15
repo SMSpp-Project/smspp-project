@@ -131,14 +131,7 @@ using namespace SMSpp_di_unipi_it;
 /*-------------------------------- TYPES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using Index = Block::Index;
-using c_Index = Block::c_Index;
-
-using Range = Block::Range;
-using c_Range = Block::c_Range;
-
 using Subset = Block::Subset;
-using c_Subset = Block::c_Subset;
 
 using FunctionValue = Function::FunctionValue;
 
@@ -147,7 +140,7 @@ using FunctionValue = Function::FunctionValue;
 /*--------------------------------------------------------------------------*/
 
 const double scale = 10;
-const char *const logF = "log.txt";
+const char * const logF = "log.txt";
 
 const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 
