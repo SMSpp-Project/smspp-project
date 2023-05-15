@@ -17,9 +17,9 @@ do
 seed=0
 
 if [ -z "$iter" ]; then
-printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what]: "
+printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf]: "
 else
-printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $iter]: "
+printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter]: "
 fi
 
 ./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter

@@ -13,9 +13,9 @@ do
 #seed=0
 
 if [ -z "$iter" ]; then
-printf "[./simple/ThermalUnitBlock-${h}.nc4 $seed $what]: "
+printf "[./simple/ThermalUnitBlock-${h}.nc4 $seed $what $wf]: "
 else
-printf "[./simple/ThermalUnitBlock-${h}.nc4 $seed $what $iter]: "
+printf "[./simple/ThermalUnitBlock-${h}.nc4 $seed $what $wf $iter]: "
 fi
 
 ./TUDPS_test ./simple/ThermalUnitBlock-${h}.nc4 $seed $what $wf $iter
