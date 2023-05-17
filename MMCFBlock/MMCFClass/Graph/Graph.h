@@ -19,7 +19,7 @@
  *         Dipartimento di Sistemi e Informatica \n
  *         Universita' di Firenze \n
  *
- * Copyright &copy 1994 - 2012 by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 
 /*--------------------------------------------------------------------------*/

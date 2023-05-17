@@ -24,7 +24,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy; by Rafael Durbano Lobato
+ * \copyright &copy; by Rafael Durbano Lobato
  */
 
 /*--------------------------------------------------------------------------*/
@@ -33,7 +33,6 @@
 
 #include "AbstractBlock.h"
 #include "BlockSolverConfig.h"
-#include "BundleSolver.h"
 #include "CPXMILPSolver.h"
 #include "CWLAbstractBlockBuilder.h"
 
