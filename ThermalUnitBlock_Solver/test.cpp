@@ -409,8 +409,8 @@ static bool SolveBoth( void )
   // p >= l u can be slightly violated (with p ending up a bit lower
   // than l) due to either u being, say, 0.999999 or the constraint
   // being violated up to the accuracy tolerated by the solver,
-  // yieldng things like 127.999999 vs 128.000000 and thereby a final
-  // var_value() slighly lower than that of the ThermalUnitDPSolver.
+  // yielding things like 127.999999 vs 128.000000 and thereby a final
+  // var_value() slightly lower than that of the ThermalUnitDPSolver.
   // which is why the relatively loose tolerance of 2e-6 here
   //!!  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
   //!!  emergency version with 1e-4 to find big errors
