@@ -83,6 +83,8 @@
 
 #include <random>
 
+#include <iomanip>
+
 #include "ThermalUnitBlock.h"
 
 #include "BlockSolverConfig.h"
@@ -201,7 +203,7 @@ static void PrintSolution( void )
   else
    std::cout << ", ";
   }
- std::cout << " ]";
+ std::cout << " ]" << std::endl;
  }
 
 /*--------------------------------------------------------------------------*/
