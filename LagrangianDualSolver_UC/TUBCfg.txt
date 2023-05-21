@@ -16,7 +16,9 @@ BlockConfig # exact type of the ComputeConfig object
 *    # [none]
 
 # dynamic_constraints
-*    # [none]
+SimpleConfiguration<std::pair<double,double>>
+1e-6
+1e-4
 
 # static_variables
 SimpleConfiguration<int>

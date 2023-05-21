@@ -5,10 +5,13 @@ iter=0
 
 # ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
 
-for wf in 8 9 10 11 12 13
+for wf in 0 1 2 3 4 5
 do
 for i in 24 96
 do
+if [ $wf -ge 2 ] && [ $i -eq 96 ]; then
+continue
+fi
 for j in 1 12 16 23
 do
 for (( h=1 ; h<=100 ; h++ ))
