@@ -17,8 +17,8 @@ BlockConfig # exact type of the ComputeConfig object
 
 # dynamic_constraints
 SimpleConfiguration<std::pair<double,double>>
-1e-6
-1e-4
+1e-6    # threshold parameter for p/c generation
+1e-4    # tolerance value to consider a binary variable
 
 # static_variables
 SimpleConfiguration<int>

@@ -77,7 +77,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # now all the integer parameters
 intLogVerb      	0    # log verbosity of the MILPSolver
 intRelaxIntVars 	0    # nonzero if the continuous relaxation is solved
-intCutSepPar        3
+intCutSepPar        7    # separate user cuts + lazy constraints
 CPXPARAM_Threads    1
 #CPX_PARAM_NUMERICALEMPHASIS 1
 

@@ -36,7 +36,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # now all the integer parameters
 intLogVerb      	0    # log verbosity of the MILPSolver
 intRelaxIntVars 	1    # nonzero if the continuous relaxation is solved
-intCutSepPar        3
+intCutSepPar        7    # separate user cuts + lazy constraints
 #CPXPARAM_LPMethod	1    # LP method (4 = barrier)
 
 # note that we could eof() the file here since the rest is all empty

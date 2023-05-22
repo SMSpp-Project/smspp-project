@@ -847,7 +847,7 @@ int main( int argc , char **argv )
   std::cout << GREEN( All tests passed!! ) << std::endl;
  else
   std::cout << RED( Shit happened!! ) << std::endl;
- 
+
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
