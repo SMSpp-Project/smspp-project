@@ -13,12 +13,7 @@
  * Additionally, a function is provided for safely reading numbers out of a
  * istream.
  *
- * \version 3.20
- *
- * \date 22 - 04 - 2020
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
@@ -343,7 +338,7 @@ class OPTrand {
 
    gb_fptr = &A[ 54 ];
 
-   return A[ 55 ];
+   return( A[ 55 ] );
    }
  #elif( OPT_RANDOM == 1 )
   int myseed;
@@ -356,21 +351,21 @@ class OPTrand {
 /*--------------------------------------------------------------------------*/
 /*--------------------------- Inf() and Eps() ------------------------------*/
 /*--------------------------------------------------------------------------*/
- /// Inf<T>() = infinity value for T
+ /// Inf< T >() = infinity value for T
 
- template <typename T>
+ template< typename T >
  static constexpr T Inf( void ) noexcept {
-  return( std::numeric_limits<T>::has_infinity ?
-	  std::numeric_limits<T>::infinity() :
-	  std::numeric_limits<T>::max() );
+  return( std::numeric_limits< T >::has_infinity ?
+	  std::numeric_limits< T >::infinity() :
+	  std::numeric_limits< T >::max() );
   }
 
 /*--------------------------------------------------------------------------*/
- /// Eps<T>() = "machine epsilon" for T
+ /// Eps< T >() = "machine epsilon" for T
 
- template <typename T>
+ template< typename T >
  static constexpr T Eps( void ) noexcept {
-  return( std::numeric_limits<T>::epsilon() );
+  return( std::numeric_limits< T >::epsilon() );
   }
 
 /** @} end( group( OPTUtils_CLASSES ) ) */
@@ -393,7 +388,7 @@ class OPTrand {
 
    \note lines should not be longer than 1023 carachters. */
 
-template<class T>
+template< class T >
 inline void DfltdSfInpt( istream *iStrm , T &Param , const T Dflt ,
                          const char cmntc = '#' )
 {

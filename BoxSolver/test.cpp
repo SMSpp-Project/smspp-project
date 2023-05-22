@@ -17,7 +17,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -136,6 +136,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -199,7 +200,7 @@ std::uniform_int_distribution<> idis( 0 , NUMBER_SONS );
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
@@ -213,7 +214,7 @@ static Subset GenerateRand( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -481,8 +482,10 @@ static bool SolveBoth( void )
    BoxBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = Slvr1->get_var_value();
 
   #if DIRECTION_TEST
@@ -557,8 +560,10 @@ static bool SolveBoth( void )
    #endif
    int rtrn2nd = Slvr2->compute( false );
 
-   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-                  || ( rtrn2nd == Solver::kLowPrecision );
+   bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
    double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
    if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
@@ -712,7 +717,7 @@ int main( int argc , char **argv )
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -868,10 +873,10 @@ int main( int argc , char **argv )
  bsc->apply( BoxBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // delete the Block
- delete BoxBlock;
+ delete( BoxBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

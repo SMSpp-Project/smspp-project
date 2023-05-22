@@ -1,7 +1,5 @@
 #/usr/bin/env bash
 
-export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIP-8.0.0/lib
-
 # correct value of tStar: 1e+0
 
 folder=./data/UC_Data/T-Ramp/
@@ -34,9 +32,11 @@ else
 fi
 
 retVal=$?
-#if [ $retVal -ne 0 ]; then
-#    exit 1
-#fi
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
 
 done
 done
+
+# end batch

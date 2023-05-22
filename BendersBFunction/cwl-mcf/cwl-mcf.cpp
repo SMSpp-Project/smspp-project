@@ -8,16 +8,11 @@
  * design variables is iteratively modified to take into account the level
  * of utilization of each warehouse in the previous continuous solution.
  *
- * \version 2.10
- *
- * \date 24 - 03 - 2016
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
- *         Università di Pisa \n
+ *         Universita' di Pisa \n
  *
- * Copyright &copy 2011 - 2016 by Antonio Frangioni.
+ * \copyright &copy; by Antonio Frangioni
  */
 
 /*--------------------------------------------------------------------------*/
@@ -35,7 +30,7 @@
      +1    the Auction() initialization is used (if available)
 
      32    the MCFCplex solver
-     +k    a value of k betweek 1 and 3 set the pricing rule used by the
+     +k    a value of k between 1 and 3 set the pricing rule used by the
            network simplex; 0 means automatic (the default)
 
      48    the MCFZIB solver
@@ -128,7 +123,7 @@ using namespace MCFClass_di_unipi_it;
 /*----------------------------- FUNCTIONS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static inline void str2val( const char* const str , T &sthg )
 {
  std::istringstream( str ) >> sthg;
@@ -179,7 +174,7 @@ double cwl_mcf( std::string file_name )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- double LB = - Inf<double>();     // correct lower bound
+ double LB = -Inf< double >();     // correct lower bound
 
  try {
 
@@ -374,9 +369,9 @@ double cwl_mcf( std::string file_name )
   #if LOOP_SIZE
    double oldFO[ LOOP_SIZE ];                // o.f. value at previous rounds
    for( int l = 0 ; l < LOOP_SIZE ; l++ )
-    oldFO[ l ] = Inf<double>();    // ... currently undefined
+    oldFO[ l ] = Inf< double >();    // ... currently undefined
   #endif
-  double bestUB = Inf<double>();   // best UB value found
+  double bestUB = Inf< double >();   // best UB value found
   MCFClass::FRow X = new MCFClass::FNumber[ NArcs ];  // flow solution
 
   for( int itr = 0 ; ; itr++ ) {
@@ -475,7 +470,7 @@ double cwl_mcf( std::string file_name )
 
    #if LOOP_SIZE
     for( int l = 0 ; l < LOOP_SIZE ; l++ )
-      if( oldFO[ l ] < Inf<double>() )
+      if( oldFO[ l ] < Inf< double >() )
        if( std::abs( FO - oldFO[ l ] ) <= 1e-6 * max( FO , double( 1 ) ) ) {
        itr = slp_sclng_it;
        break;
@@ -527,12 +522,12 @@ double cwl_mcf( std::string file_name )
 
   if( print ) {
 
-  if( LB > - Inf<double>() )
+  if( LB > -Inf< double >() )
    std::cout << "Relaxation value = " << setprecision( 12 ) << LB << " ~ ";
-  if( bestUB < Inf<double>() )
+  if( bestUB < Inf< double >() )
    std::cout << "heuristic value = " << setprecision( 12 ) << bestUB << std::endl;
-  if( ( LB > - Inf<double>() ) &&
-      ( bestUB < Inf<double>() ) )
+  if( ( LB > -Inf< double >() ) &&
+      ( bestUB < Inf< double >() ) )
    std::cout << "gap = " << setprecision( 4 ) << ( bestUB - LB ) / LB;
 
   double tu , ts;
@@ -546,7 +541,7 @@ double cwl_mcf( std::string file_name )
 
   delete[] X;
 
-  delete MCF;
+  delete( MCF );
 
   delete[] C;
   delete[] D;
@@ -573,7 +568,7 @@ double cwl_mcf( std::string file_name )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // return( 0 );
- return LB;
+ return( LB );
 
  }  // end( main )
 

@@ -53,9 +53,9 @@
 /*------------------------------- USING ------------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using namespace SMSpp_di_unipi_it;
-
 using namespace std;
+
+using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- TYPES ------------------------------------*/
@@ -92,7 +92,7 @@ static constexpr double rangeP = 100;  // range values of profits
 /*----------------------------- FUNCTIONS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char * str , T & sthg ) {
  istringstream( str ) >> sthg;
  }
@@ -688,9 +688,9 @@ int main( int argc , char **argv )
 
  bsc->apply( BKB );  // remove the Solver by apply()-ing the clear()-ed bsc
 
- delete bsc;         // delete the BlockSolverConfig
+ delete( bsc );      // delete the BlockSolverConfig
 
- delete BKB;         // dekete the BinaryKnapsackBlock
+ delete( BKB );      // delete the BinaryKnapsackBlock
 
  // all done- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

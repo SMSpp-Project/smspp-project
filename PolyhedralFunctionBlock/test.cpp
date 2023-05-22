@@ -24,7 +24,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -62,12 +62,12 @@
 #define HAVE_CONSTRAINTS 2
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Solver attched to the NDOBlock is detached and re-attached
+// if nonzero, the Solver attached to the NDOBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_NDO 0
 
-// if nonzero, the Solver attched to the LPBlock is detached and re-attached
+// if nonzero, the Solver attached to the LPBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_LP 0
@@ -132,6 +132,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -319,7 +320,7 @@ static Subset GenerateSubset( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -655,7 +656,7 @@ int main( int argc , char **argv )
 
     // configure it to use the "linearised" representation
     auto bc = new BlockConfig();
-    bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
+    bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
     bi->set_BlockConfig( bc );
     }
 
@@ -727,7 +728,7 @@ int main( int argc , char **argv )
 			      convex );
 
    // generate the abstract representation
-   SimpleConfiguration<int> cfg( 1 );  // 1 = linearized representation
+   SimpleConfiguration< int > cfg( 1 );  // 1 = linearized representation
    LPBlock->generate_abstract_variables( &cfg );
    }
 
@@ -788,7 +789,7 @@ int main( int argc , char **argv )
    NDOBlock->set_valid_upper_bound( bound , true );
 
   // generate the abstract representation
-  SimpleConfiguration<int> cfg( 0 );  // 0 = natural representation
+  SimpleConfiguration< int > cfg( 0 );  // 0 = natural representation
   NDOBlock->generate_abstract_variables( &cfg );
   NDOBlock->generate_abstract_constraints();
   NDOBlock->generate_objective();
@@ -1556,7 +1557,7 @@ int main( int argc , char **argv )
  // apply()-ing the clear()-ed BlockSolverConfig, then delete them
 
  bsc->apply( NDOBlock );
- delete bsc;
+ delete( bsc );
 
  // for LPBlock, before  "manually" un-register (and delete) the
  // UpdateSolver from (each PolyhedralFunctionBlock in) LPBlock
@@ -1569,11 +1570,11 @@ int main( int argc , char **argv )
   LPBlock->unregister_Solver( LPBlock->get_registered_solvers().back() ,
 			      true );
  msc->apply( LPBlock );
- delete msc;
+ delete( msc );
 
  // delete the Blocks
- delete NDOBlock;
- delete LPBlock;
+ delete( NDOBlock );
+ delete( LPBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

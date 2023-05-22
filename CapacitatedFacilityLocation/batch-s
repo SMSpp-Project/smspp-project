@@ -2,8 +2,6 @@
 # testing batch reduced to small instances only, so that solving them
 # to integer optimality is an option
 
-export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIP-8.0.0/lib
-
 niter=0
 # everything, comprised abstract
 #wchg=511

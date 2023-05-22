@@ -20,16 +20,11 @@
  * the i-th customer followed by L lines, the j-th one containing the unit
  * cost of serving customer j by the warehouse at location i.
  *
- * \version 0.10
- *
- * \date 22 - 11 - 2020
- *
  * \author Rafael Durbano Lobato \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy; by Rafael Durbano Lobato
+ * \copyright &copy; by Rafael Durbano Lobato
  */
 
 /*--------------------------------------------------------------------------*/
@@ -38,7 +33,6 @@
 
 #include "AbstractBlock.h"
 #include "BlockSolverConfig.h"
-#include "BundleSolver.h"
 #include "CPXMILPSolver.h"
 #include "CWLAbstractBlockBuilder.h"
 
@@ -75,7 +69,7 @@ BlockSolverConfig * build_solver_config
  auto bsc = new BlockSolverConfig;
  config_file >> ( * bsc );
  config_file.close();
- return bsc;
+ return( bsc );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -126,9 +120,9 @@ int solve_with_BundleSolver( std::filesystem::path file_path ,
   *solution_value = solver->get_var_value();
 
  block_solver_config->apply( block );
- delete block_solver_config;
- delete block;
- return status;
+ delete( block_solver_config );
+ delete( block );
+ return( status );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -142,8 +136,8 @@ int solve_with_MILPSolver( std::filesystem::path file_path ,
  auto status = solver->compute();
  if( solver->has_var_solution() )
   *solution_value = solver->get_var_value();
- delete block;
- return status;
+ delete( block );
+ return( status );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -210,7 +204,7 @@ int main( int argc, char ** argv ) {
   std::cerr << "The path to the directory containing the instance files " <<
    "must be provided as argument." << std::endl;
   std::cerr << "Usage: " << argv[ 0 ] << " PATH" << std::endl;
-  return 1;
+  return( 1 );
  }
 
  std::string path = argv[ 1 ];
@@ -221,7 +215,7 @@ int main( int argc, char ** argv ) {
  std::cout << "***** Benders decomposition test *****" << std::endl;
  compare( path , SolverType::BundleSolver );
 
- return 0;
+ return( 0 );
 }
 
 /*--------------------------------------------------------------------------*/

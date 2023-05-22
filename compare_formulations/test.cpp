@@ -14,7 +14,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*------------------------------ MACROS ------------------------------------*/
@@ -33,6 +33,8 @@
 /*----------------------------- INCLUDES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
+#include <iomanip>
+
 #include "RBlockConfig.h"
 
 #include "BlockSolverConfig.h"
@@ -42,8 +44,6 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace SMSpp_di_unipi_it;
-
-using namespace std;
 
 SMSpp_ensure_load( RBlockConfig );
 
@@ -71,15 +71,15 @@ Block * Block2;
 static void PrintResults( bool hs , int rtrn , double fo )
 {
  if( hs )
-  cout << fo;
+  std::cout << fo;
  else
   if( rtrn == Solver::kInfeasible )
-   cout << "    Unfeas";
+   std::cout << "    Unfeas";
   else
    if( rtrn == Solver::kUnbounded )
-    cout << "      Unbounded";
+    std::cout << "      Unbounded";
    else
-    cout << "      Error!";
+    std::cout << "      Error!";
  }
 
 /*--------------------------------------------------------------------------*/
@@ -93,17 +93,17 @@ static bool SolveBoth( void )
   auto start = std::chrono::system_clock::now();
 
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-		 && ( rtrn1st != Solver::kUnbounded )
-		 && ( rtrn1st != Solver::kInfeasible ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   auto end = std::chrono::system_clock::now();
   std::chrono::duration< double > elapsed = end - start;
  
-  cout.setf( ios::scientific, ios::floatfield );
-  cout << setprecision( 2 ) << elapsed.count() << " - " << flush;
+  std::cout.setf( std::ios::scientific, std::ios::floatfield );
+  std::cout << std::setprecision( 2 ) << elapsed.count() << " - " << std::flush;
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   auto Slvr2 = Block2->get_registered_solvers().front();
@@ -111,51 +111,51 @@ static bool SolveBoth( void )
   start = std::chrono::system_clock::now();
 
   int rtrn2nd = Slvr2->compute( false );
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-		 && ( rtrn2nd != Solver::kUnbounded )
-		 && ( rtrn2nd != Solver::kInfeasible ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
+  bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
   end = std::chrono::system_clock::now();
   elapsed = end - start;
 
-  cout.setf( ios::scientific, ios::floatfield );
-  cout << setprecision( 2 ) << elapsed.count();
+  std::cout.setf( std::ios::scientific, std::ios::floatfield );
+  std::cout << std::setprecision( 2 ) << elapsed.count();
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-7 *
-			  max( double( 1 ) , max( abs( fo1st ) ,
+			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   cout << " - OK(f)" << endl;
+   std::cout << " - OK(f)" << std::endl;
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   cout << " - OK(e)" << endl;
+   std::cout << " - OK(e)" << std::endl;
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   cout << " - OK(u)" << endl;
+   std::cout << " - OK(u)" << std::endl;
    return( true );
    }
     
-  cout << " - " << setprecision( 7 );
+  std::cout << " - " << std::setprecision( 7 );
   PrintResults( hs1st , rtrn1st , fo1st );
-  cout << " - ";
+  std::cout << " - ";
   PrintResults( hs2nd , rtrn2nd , fo2nd );
-  cout << endl;
+  std::cout << std::endl;
 
   return( false );
   }
- catch( exception &e ) {
-  cerr << e.what() << endl;
+ catch( std::exception &e ) {
+  std::cerr << e.what() << std::endl;
   exit( 1 );
   }
  catch(...) {
-  cerr << "error: unknown exception thrown" << endl;
+  std::cerr << "error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
  }
@@ -167,9 +167,9 @@ int main( int argc , char **argv )
  // read command line parameters- - - - - - - - - - - - - - - - - - - - - - -
 
  if( argc < 2 ) {
-  cerr << "Usage: " << argv[ 0 ]
-       << " block_filename [cfg_1_filename cfg_1_filename]" << endl
-       << "       default: RBlockConfig1.txt RBlockConfig1.txt" << endl;
+  std::cerr << "Usage: " << argv[ 0 ]
+       << " block_filename [cfg_1_filename cfg_1_filename]" << std::endl
+       << "       default: RBlockConfig1.txt RBlockConfig1.txt" << std::endl;
   return( 1 );  
   }
 
@@ -177,7 +177,7 @@ int main( int argc , char **argv )
 
  Block1 = Block::deserialize( argv[ 1 ] );
  if( ! Block1 ) {
-  cerr << "error: cannot load Block from " << argv[ 1 ] << endl;
+  std::cerr << "error: cannot load Block from " << argv[ 1 ] << std::endl;
   return( 1 );
   }
 
@@ -190,23 +190,23 @@ int main( int argc , char **argv )
 	     Configuration::deserialize( argc >= 3 ? argv[ 2 ]
 					           : "RBlockConfig1.txt" ) );
  if( ! cfg1 ) {
-  cerr << "error: cannot load BlockConfig 1" << endl;
+  std::cerr << "error: cannot load BlockConfig 1" << std::endl;
   return( 1 );
   }
 
  cfg1->apply( Block1 );
- delete cfg1;
+ delete( cfg1 );
  
  auto cfg2 = dynamic_cast< BlockConfig * >(
 	     Configuration::deserialize( argc >= 4 ? argv[ 3 ]
 					           : "RBlockConfig2.txt" ) );
  if( ! cfg2 ) {
-  cerr << "error: cannot load BlockConfig 2" << endl;
+  std::cerr << "error: cannot load BlockConfig 2" << std::endl;
   return( 1 );
   }
 
  cfg2->apply( Block2 );
- delete cfg2;
+ delete( cfg2 );
 
  // attach two identical Solver to both Block - - - - - - - - - - - - - - - -
  // do that via a BlockSolverConfig
@@ -214,14 +214,15 @@ int main( int argc , char **argv )
  auto c = Configuration::deserialize( "BSCfg.txt" );
  auto bsc = dynamic_cast< BlockSolverConfig * >( c );
  if( ! bsc ) {
-  cerr << "error: BSCfg.txt does not contain a BlockSolverConfig" << endl;
+  std::cerr << "error: BSCfg.txt does not contain a BlockSolverConfig"
+            << std::endl;
   exit( 1 );
   }
 
  bsc->apply( Block1 );
 
  if( Block1->get_registered_solvers().empty() ) {
-  cerr << "Error: no Solver registered to Block1" << endl;
+  std::cerr << "Error: no Solver registered to Block1" << std::endl;
   exit( 1 );
   }
 
@@ -234,9 +235,9 @@ int main( int argc , char **argv )
 
  auto ok = SolveBoth();
  if( ok )
-  cout << GREEN( Test passed!! ) << endl;
+  std::cout << GREEN( Test passed!! ) << std::endl;
  else
-  cout << RED( Shit happened!! ) << endl;
+  std::cout << RED( Shit happened!! ) << std::endl;
 
  // clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

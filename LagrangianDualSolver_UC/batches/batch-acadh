@@ -11,12 +11,12 @@ for (( seed=1 ; seed<3 ; seed++ ))
 do
 
 if [ -z "$par" ]; then
-printf "[${size}_${seed}]: " >> logh
+printf "[$folder${size}_${seed}_w.nc4]: "
 else
-printf "[${size}_${seed} $par]: "
+printf "[$folder${size}_${seed}_w.nc4 $par]: "
 fi
 
-./LDS_UC_test $folder${size}_${seed}_w.nc4 $par >> logh
+./LDS_UC_test $folder${size}_${seed}_w.nc4 $par
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
@@ -25,3 +25,5 @@ fi
 
 done
 done
+
+# end batch

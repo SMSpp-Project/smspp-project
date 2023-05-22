@@ -5,17 +5,11 @@
  * Multicommodity Min Cost Flow (MMCF) Problems solver, based on calls calls
  * to the Cplex Callable Libraries for solution of generic LPs.
  *
- * \version 3.03
- *
- * \date 20 - 05 - 2012
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
  * \author Paola Cappanera \n
- *         Operations Research Group \n
  *         Dipartimento di Sistemi e Informatica \n
  *         Universita' di Firenze \n
  *
@@ -53,7 +47,6 @@
 /*--------------------------------------------------------------------------*/
 /*------------------------ NAMESPACE and USINGS ----------------------------*/
 /*--------------------------------------------------------------------------*/
-
 
 namespace MMCFClass_di_unipi_it
 {
@@ -256,16 +249,16 @@ public:
 /*---------------------------------------------------------------------------*/
 
    void GetCosts( CRow Csts, cIndex_Set nms = 0 , cIndex strt = 0 ,
-		      Index stp = Inf<Index>() );
+		      Index stp = Inf< Index >() );
 
    void GetXtrCsts( CRow XtrCs, cIndex_Set nms = 0 , cIndex strt = 0 ,
-              Index stp = Inf<Index>() );
+              Index stp = Inf< Index >() );
 
    void GetICaps( FRow ICps, cIndex_Set nms = 0 , cIndex strt = 0 ,
-              Index stp = Inf<Index>() );
+              Index stp = Inf< Index >() );
 
    void GetMCaps( FRow MCps, cIndex_Set nms = 0 ,
-		  cIndex strt = 0 , Index stp = Inf<Index>() );
+		  cIndex strt = 0 , Index stp = Inf< Index >() );
 
 /*--------------------------------------------------------------------------*/
 
@@ -298,7 +291,7 @@ public:
 
 /* Returns the ordinal number of arc j for commodity k in the sequence of
    existent arcs (which is also the column index of the arc in the Cplex
-   matrix); returns Inf<Index>() if arc j is not defined for commodity k. */
+   matrix); returns Inf< Index >() if arc j is not defined for commodity k. */
 
 /*--------------------------------------------------------------------------*/
 
@@ -306,7 +299,7 @@ public:
 
 /* Returns the ordinal number of node j commodity k in the sequence of
    existent nodes (which is also the row index of the node in the Cplex
-   matrix); returns Inf<Index>() if node j is not defined for commodity k. */
+   matrix); returns Inf< Index >() if node j is not defined for commodity k. */
 
 /*--------------------------------------------------------------------------*/
 
@@ -315,7 +308,7 @@ public:
    inline Index NumActvArcs( void );
 
 /* ActvArcs() returns a pointer to a vector (ordered in increasing sense and
-   Inf<Index>()-terminated) containing the indices of the arcs which have an
+   Inf< Index >()-terminated) containing the indices of the arcs which have an
    associated mutual capacity constraint; it returns 0 if every arc has
    an associated mutual capacity constraint.
 
@@ -333,25 +326,25 @@ public:
 /*--------------------------------------------------------------------------*/
 
    void ChgCosts( cCRow NwCsts, cIndex_Set nms = 0 ,
-		  cIndex strt = 0 , Index stp = Inf<Index>() );
+		  cIndex strt = 0 , Index stp = Inf< Index >() );
 
    void ChgXtrCsts( cCRow nwXtrCs, cIndex_Set nms = 0 ,
-		    cIndex strt = 0 , Index stp = Inf<Index>() );
+		    cIndex strt = 0 , Index stp = Inf< Index >() );
 
    void ChgXtrBnds( cRow XLr = 0 , cRow XUr = 0 , cIndex_Set nms = 0 ,
-        cIndex strt = 0 , Index stp = Inf<Index>() );
+        cIndex strt = 0 , Index stp = Inf< Index >() );
 
    void ChgICaps( cFRow NwICps, cIndex_Set nms = 0 ,
-		  cIndex strt = 0 , Index stp = Inf<Index>() );
+		  cIndex strt = 0 , Index stp = Inf< Index >() );
 
    void ChgMCaps( cFRow NwMCps, cIndex_Set nms = 0 ,
-		  cIndex strt = 0 , Index stp = Inf<Index>() );
+		  cIndex strt = 0 , Index stp = Inf< Index >() );
 
 /*--------------------------------------------------------------------------*/
 
-   void ChgIntVar( cIndex k = Inf<Index>() , bool IntVld = true ,
+   void ChgIntVar( cIndex k = Inf< Index >() , bool IntVld = true ,
 		   cIndex_Set nms = 0 ,
-		   Index strt = 0 , Index stp = Inf<Index>() );
+		   Index strt = 0 , Index stp = Inf< Index >() );
 
 /*--------------------------------------------------------------------------*/
 
@@ -433,7 +426,7 @@ public:
 /*------------------------- PRIVATE METHODS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-   template<class T>
+   template< class T >
    inline void TranslateK( T *const vect , const cIndex_Set Dict ,
 			   Index n , cIndex strt , const T Dflt = 0 );
 
@@ -446,7 +439,7 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
-   template<class T>
+   template< class T >
    inline void TranslateF( T *const vect , Index_Mat Dict , cIndex_Set Strt ,
 			   Index n , const T Dflt = 0 );
 

@@ -2,7 +2,7 @@
 /*-------------------------- File test.cpp ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Main for testing LagrangianDualSolver with UCBlock
+ * Main for testing LagrangianDualSolver with UCBlock.
  *
  * An UCBlock instance is loaded from netCDF file, two different Solver are
  * registered to the UCBlock, the second of which is assumed to be a
@@ -20,13 +20,17 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \author Donato Meoli \n
+ *         Dipartimento di Informatica \n
+ *         Universita' di Pisa \n
+ *
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 1
 // -1 = no log at all, not even pass/fail
 // 0 = only pass/fail
 // 1 = result of each test
@@ -35,12 +39,12 @@
 // 4 = + print data
 
 #if( LOG_LEVEL >= 1 )
- #define LOG1( x ) cout << x
- #define CLOG1( y , x ) if( y ) cout << x
+ #define LOG1( x ) std::cout << x
+ #define CLOG1( y , x ) if( y ) std::cout << x
 
  #if( LOG_LEVEL >= 2 )
   #define LOG_ON_COUT 1
-  // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on cout
+  // if nonzero, the 2nd Solver (LagrangianDualSolver) log is sent on std::cout
   // rather than on a file
  #endif
 #else
@@ -98,6 +102,7 @@
 /*--------------------------------------------------------------------------*/
 
 #include <sstream>
+
 #include <iomanip>
 
 #include <random>
@@ -112,35 +117,21 @@
 
 #include "HydroSystemUnitBlock.h"
 
-/*!!
-#include "FRealObjective.h"
+#include "ECNetworkBlock.h"
 
-#include "FRowConstraint.h"
-
-#include "LinearFunction.h"
-
-#include "OneVarConstraint.h"
-!!*/
+#include "BatteryUnitBlock.h"
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using namespace std;
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- TYPES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using Index = Block::Index;
-using c_Index = Block::c_Index;
-
-using Range = Block::Range;
-using c_Range = Block::c_Range;
-
 using Subset = Block::Subset;
-using c_Subset = Block::c_Subset;
 
 using FunctionValue = Function::FunctionValue;
 
@@ -149,7 +140,7 @@ using FunctionValue = Function::FunctionValue;
 /*--------------------------------------------------------------------------*/
 
 const double scale = 10;
-const char *const logF = "log.txt";
+const char * const logF = "log.txt";
 
 const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 
@@ -166,33 +157,28 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
-static void Str2Sthg( const char* const str , T &sthg )
-{
- istringstream( str ) >> sthg;
+template< class T >
+static void Str2Sthg( const char* const str , T &sthg ) {
+ std::istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
 
-static void Configure_HSUB( HydroSystemUnitBlock * hsub )
-{
+static void Configure_HSUB( HydroSystemUnitBlock * hsub ) {
  // ensure that the PolyhedralFunctionBlock in the HydroSystemUnitBlock is
  // Configured to use the "linearised" representation of the Objective
 
  for( auto sb : hsub->get_nested_Blocks() )
   if( auto pfb = dynamic_cast< PolyhedralFunctionBlock * >( sb ) ) {
-   auto sci = new SimpleConfiguration< int >;
-   sci->f_value = 1;
    auto bc = new BlockConfig;
-   bc->f_static_variables_Configuration = sci;
+   bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
    pfb->set_BlockConfig( bc );
    }
  }
 
 /*--------------------------------------------------------------------------*/
 
-static double rndfctr( void )
-{
+static double rndfctr( void ) {
  // return a random number between 0.5 and 2, with 50% probability of being
  // < 1
  double fctr = dis( rg ) - 0.5;
@@ -201,13 +187,12 @@ static double rndfctr( void )
 
 /*--------------------------------------------------------------------------*/
 
-static Subset GenerateRand( Index m , Index k )
-{
+static Subset GenerateRand( Index m , Index k ) {
  // generate a sorted random k-vector of unique integers in 0 ... m - 1
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -219,7 +204,7 @@ static Subset GenerateRand( Index m , Index k )
 
 static inline std::ostream & def( std::ostream & os ) {
  os.setf( std::ios::scientific , std::ios::floatfield );
- os << setprecision( 7 );
+ os << std::setprecision( 7 );
  return( os );
  }
 
@@ -228,32 +213,30 @@ static inline std::ostream & def( std::ostream & os ) {
 
 static inline std::ostream & fixd( std::ostream & os ) {
  os.setf( std::ios::fixed , std::ios::floatfield );
- os << setprecision( 4 );
+ os << std::setprecision( 4 );
  return( os );
  }
 
 /*--------------------------------------------------------------------------*/
 
-static void PrintResults( bool hs , int rtrn , double fo )
-{
+static void PrintResults( bool hs , int rtrn , double fo ) {
  if( hs ) {
-  cout.setf( ios::scientific, ios::floatfield );
-  cout << def << fo;
+  std::cout.setf( std::ios::scientific, std::ios::floatfield );
+  std::cout << def << fo;
   }
  else
   if( rtrn == Solver::kInfeasible )
-   cout << "    Unfeas";
+   std::cout << "    Unfeas";
   else
    if( rtrn == Solver::kUnbounded )
-    cout << "      Unbounded";
+    std::cout << "      Unbounded";
    else
-    cout << "      Error!";
+    std::cout << "      Error!";
  }
 
 /*--------------------------------------------------------------------------*/
 
-static bool SolveBoth( void ) 
-{
+static bool SolveBoth( void ) {
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
@@ -270,18 +253,18 @@ static bool SolveBoth( void )
    std::chrono::duration< double > elapsed = end - start;
    auto time1 = elapsed.count();
   #endif
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-		 && ( rtrn1st != Solver::kUnbounded )
-		 && ( rtrn1st != Solver::kInfeasible ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
-    cout << "Solver1 (" << fixd << time1 << ", "
+    std::cout << "Solver1 (" << fixd << time1 << ", "
 	 << Slvr1->get_elapsed_iterations() << ") = ";
     PrintResults( hs1st , rtrn1st , fo1st );
-    cout << endl;
+    std::cout << std::endl;
    #endif
    return( true );
    }
@@ -300,59 +283,58 @@ static bool SolveBoth( void )
    end = std::chrono::system_clock::now();
    elapsed = end - start;
    auto time2 = elapsed.count();
-   cout << fixd << time1 << " - " << time2 << " - ";
+   std::cout << fixd << time1 << " - " << time2 << " - ";
   #endif
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-		 && ( rtrn2nd != Solver::kUnbounded )
-		 && ( rtrn2nd != Solver::kInfeasible ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
+  bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
-			  max( double( 1 ) , max( abs( fo1st ) ,
+			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( "OK(f)" << endl );
+   LOG1( "OK(f)" << std::endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-   LOG1( "OK(e)" << endl );
+   LOG1( "OK(e)" << std::endl );
    return( true );
    }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( "OK(u)" << endl );
+   LOG1( "OK(u)" << std::endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "Solver1 = ";
+   std::cout << "Solver1 = ";
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ Solver2 = ";
+   std::cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
-   cout << endl;
+   std::cout << std::endl;
   #endif
 
   return( false );
   }
- catch( exception &e ) {
-  cerr << e.what() << endl;
+ catch( std::exception &e ) {
+  std::cerr << e.what() << std::endl;
   exit( 1 );
   }
  catch(...) {
-  cerr << "Error: unknown exception thrown" << endl;
+  std::cerr << "Error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
  }
 
 /*--------------------------------------------------------------------------*/
 
-int main( int argc , char **argv )
-{
+int main( int argc , char **argv ) {
  // reading command line parameters - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -378,25 +360,25 @@ int main( int argc , char **argv )
 	     !!*/
   case( 3 ): break;
   case( 2 ): break;
-  default: cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
-		<< endl <<
+  default: std::cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
+		<< std::endl <<
 	   "       BSC-file: BlockSolverConfig description [BSPar.txt]"
-	        << endl;
+	        << std::endl;
     /*!!
 	   " UC file [BSC file seed wchg #rounds #chng %chng]"
- 		<< endl <<
+ 		<< std::endl <<
 	   "       seed: random seed generator [0]"
- 		<< endl <<
+ 		<< std::endl <<
            "       wchg: what to change, coded bit-wise [127]"
-		<< endl <<
+		<< std::endl <<
            "             0 = ..., 1 = ...s "
-		<< endl <<
+		<< std::endl <<
            "             2 = ..., 3 = ..."
-	        << endl <<
+	        << std::endl <<
            "       #rounds: how many iterations [40]"
-	        << endl <<
+	        << std::endl <<
            "       #chng: number changes [10]"
-	        << endl <<
+	        << std::endl <<
            "       %chng: probability of changing [0.5]"
 		!!*/
 	   return( 1 );
@@ -407,7 +389,7 @@ int main( int argc , char **argv )
 
  TestBlock = Block::deserialize( argv[ 1 ] );
  if( ! TestBlock ) {
-  cout << endl << "Block::deserialize() failed!" << endl;
+  std::cout << std::endl << "Block::deserialize() failed!" << std::endl;
   exit( 1 );
   }
 
@@ -422,18 +404,40 @@ int main( int argc , char **argv )
   auto c = Configuration::deserialize( argc >= 3 ? argv[ 2 ] : "BSPar.txt" );
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
-   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
-   delete c;
+   std::cerr << "Error: configuration file not a BlockSolverConfig"
+             << std::endl;
+   delete( c );
+   exit( 1 );
+   }
+
+  auto sb = TestBlock->get_nested_Blocks();
+
+  // load the BlockConfig for ThermalUnitBlock
+  auto tc = Configuration::deserialize( "TUBCfg.txt" );
+  auto tbc = dynamic_cast< BlockConfig * >( tc );
+  if( ! tbc ) {
+   std::cerr << "Error: TUBCfg.txt does not contain a BlockSolverConfig"
+             << std::endl;
+   delete( c );
+   delete( tc );
    exit( 1 );
    }
 
   // load the BlockSolverConfig for ThermalUnitBlock
-  auto ct = Configuration::deserialize( "TUBSCfg.txt" );
+  auto any_reserve = std::any_of( sb.begin() , sb.end() , []( Block * b ) {
+   auto tub = dynamic_cast< ThermalUnitBlock * >( b );
+   return( tub ? ( ( ! tub->get_primary_rho().empty() ) ||
+                   ( ! tub->get_secondary_rho().empty() ) ) : 0 );
+  } );
+  std::string tubscfg = any_reserve ? "TUBSCfg-CPX.txt" : "TUBSCfg.txt";
+  auto ct = Configuration::deserialize( tubscfg );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
-   cerr << "Error: TUBSCfg.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
-   delete ct;
+   std::cerr << "Error: " + tubscfg + " does not contain a BlockSolverConfig"
+             << std::endl;
+   delete( c );
+   delete( tc );
+   delete( ct );
    exit( 1 );
    }
 
@@ -443,29 +447,34 @@ int main( int argc , char **argv )
   auto ch = Configuration::deserialize( "HSUBSCfg.txt" );
   auto hbsc = dynamic_cast< BlockSolverConfig * >( ch );
   if( ( ! hbsc ) || ( ! hbsc->num_ComputeConfig() ) ) {
-   delete ch;
+   delete( ch );
    hbsc = nullptr;
    }
-  
+
   #if USE_BundleSolver
    auto nbsc = bsc->num_ComputeConfig();
    if( ! nbsc ) {
-    cerr << "Error: no ComputeConfig in the BlockSolverConfig" << endl;
-    delete c;
+    std::cerr << "Error: no ComputeConfig in the BlockSolverConfig"
+              << std::endl;
+    delete( c );
     exit( 1 );
     }
 
    // check if any of the Solver is a LagrangianDualSolver
    bool DoEasy = false;
+   bool is_LDS = true;
    ComputeConfig * cc = nullptr;
-   for( Block::Index h = 0 ; h < nbsc ; ++h ) {
-    if( bsc->get_SolverName( h ) != "LagrangianDualSolver" )  // if not
-     continue;                                                // do nothing
+   for( auto h = 0 ; h < nbsc ; ++h ) {
+    if( bsc->get_SolverName( h ) != "LagrangianDualSolver" ) {  // if not
+     is_LDS = false;
+     continue;                                                  // do nothing
+     }
 
     cc = bsc->get_SolverConfig( h );
     if( ! cc ) {
-     cerr << "Error: empty ComputeConfig in the BlockSolverConfig" << endl;
-     delete c;
+     std::cerr << "Error: empty ComputeConfig in the BlockSolverConfig"
+               << std::endl;
+     delete( c );
      exit( 1 );
      }
 
@@ -478,11 +487,11 @@ int main( int argc , char **argv )
      continue;                       // do nothing
 
     // check if it is a [Parallel]BundleSolver
-    if( ( sit->second.find( "BundleSolver" ) == string::npos ) &&
-	( sit->second.find( "ParallelBundleSolver" ) == string::npos ) )
+    if( ( sit->second.find( "BundleSolver" ) == std::string::npos ) &&
+        ( sit->second.find( "ParallelBundleSolver" ) == std::string::npos ) )
      continue;  // if not, do nothing
 
-    // check if the BundleSolver uses easy components
+    // check if the BundleSolver uses "easy" components
     // find if the ComputeConfig contains "intDoEasy"
     auto it = std::find_if( cc->int_pars.begin() , cc->int_pars.end() ,
 			    []( auto & pair ) {
@@ -496,32 +505,37 @@ int main( int argc , char **argv )
     break;  // note that we assume this happens *at most* once
     }
 
-    // if easy components are used
+   // if "easy" components are used
    if( DoEasy ) {
     // define the vector of components to be excluded from being "easy",
     // i.e., all ThermalUnitBlock and possibly the HydroSystemUnitBlock
     std::vector< int > NoEasy;
 
-    auto sb = TestBlock->get_nested_Blocks();
-    for( unsigned long i = 0 ; i < sb.size() ; ++i ) {
+    for( auto i = 0 ; i < sb.size() ; ++i ) {
+
      // deal with ThermalUnitBlock
      if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb[ i ] ) ) {
-      auto config = new BlockConfig;
-      config->f_objective_Configuration = new SimpleConfiguration< int >( 3 );
-      sb[ i ]->set_BlockConfig( config );
+      tub->set_BlockConfig( tbc->clone() );
       NoEasy.push_back( i );
       tbsc->apply( tub );
       continue;
       }
 
+     // deal with BatteryUnitBlock with binary variables
+     if( auto bub = dynamic_cast< BatteryUnitBlock * >( sb[ i ] ) ) {
+      if( ! bub->get_intake_outtake_binary_variables().empty() )
+       NoEasy.push_back( i );
+      continue;
+      }
+
      // deal with HydroSystemUnitBlock
-     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
+     if( auto hsub = dynamic_cast< HydroSystemUnitBlock * >( sb[ i ] ) ) {
       // surely Configure it to use the "linearised" representation
-      Configure_HSUB( hub );
-      // if not considered an easy component, also BlockSolverConfig-ure it 
+      Configure_HSUB( hsub );
+      // if not considered an "easy" component, also BlockSolverConfigure it
       if( hbsc ) {
        NoEasy.push_back( i );
-       hbsc->apply( hub );
+       hbsc->apply( hsub );
        }
       continue;
       }
@@ -529,33 +543,92 @@ int main( int argc , char **argv )
      // all the other are treated as easy
      }
 
+    // if no "hard" components were given in Configuration file...
+    auto it_cc = std::find_if( cc->vint_pars.begin() , cc->vint_pars.end() ,
+                               []( const auto & pair ) {
+                                return( pair.first == "vintNoEasy" );
+                               } );
+    if( ( ( cc->vint_pars.empty() ) ||          // no pairs present
+          ( ( it_cc != cc->vint_pars.end() ) && // or vintNoEasy exists
+            ( it_cc->second.empty() ) ) ) ) {   // but is empty
+     // ... and no "hard" components were selected...
+     if( NoEasy.empty() ) {
+
+      // ... but there is at least one ECNetworkBlock
+      if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
+       return( dynamic_cast< ECNetworkBlock * >( b ) );
+      } ) ) {
+       // then indicate the first non-ECNetworkBlock as "hard" component,
+       // otherwise the BundleSolver will fail because all Block are easy
+       auto it = std::find_if_not( sb.begin() , sb.end() , []( Block * b ) {
+        return( dynamic_cast< ECNetworkBlock * >( b ) );
+       } );
+       if( it != sb.end() )
+        NoEasy.push_back( ( int ) std::distance( sb.begin() , it ) );
+       else
+        throw( std::logic_error(
+         "There is no non-ECNetworkBlock candidate block to set as a `hard` "
+         "component, so set intDoEasy == 0 in the Configuration file since "
+         "BundleSolver cannot deal with the problem if all its components are "
+         "`easy`." ) );
+       }
+
+      }
+     } // ... else if "hard" components were given in the Configuration file...
+    else
+     for( auto i : it_cc->second )
+      // ... but some of there is an ECNetworkBlock...
+      if( dynamic_cast< ECNetworkBlock * >( sb[ i ] ) )
+       // ... then raise error since we cannot treat is as "hard" component
+       throw( std::logic_error(
+        "ECNetworkBlock cannot treat as `hard` component, so remove it "
+        "from `vintNoEasy` parameter." ) );
+      else if( ! ( std::find( NoEasy.begin() ,
+                              NoEasy.end() , i ) != NoEasy.end() ) )
+       // ... otherwise add it to NoEasy if it is not already contained
+       NoEasy.push_back( i );
+
     // now add the vintNoEasy parameter to the BundleSolver ComputeConfig
     // we are assuming it's not there already: if it is, the new copy is
     // seen after the old one and therefore overrides it
+    std::sort( NoEasy.begin() , NoEasy.end() );
     cc->vint_pars.push_back( std::make_pair( "vintNoEasy" ,
-					     std::move( NoEasy ) ) );
+                                             std::move( NoEasy ) ) );
     }  // end( if( DoEasy ) )
    else
+    {
+    if( is_LDS )
+     // if there is at least one ECNetworkBlock...
+     if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
+      return( dynamic_cast< ECNetworkBlock * >( b ) );
+     } ) )
+      // ... then raise error since we cannot treat is as "hard" component
+      throw( std::logic_error(
+       "ECNetworkBlock(s) cannot treat as `hard` components, so set "
+       "intDoEasy == 0 in the Configuration file and, optionally, specify "
+       "which non-ECNetworkBlocks(s) to treat as `hard` components through "
+       "`vintNoEasy` parameter." ) );
   #endif
-   {
     // load the BlockSolverConfig for all the other :UnitBlock; note that
     // this can be "empty", and indeed even not there
     auto co = Configuration::deserialize( "OUBSCfg.txt" );
     auto obsc = dynamic_cast< BlockSolverConfig * >( co );
     if( ( ! obsc ) || ( ! obsc->num_ComputeConfig() ) ) {
-     delete co;
+     delete( co );
      obsc = nullptr;
      }
 
-    for( auto sb : TestBlock->get_nested_Blocks() ) {
+    for( auto ub : sb ) {
+
      // deal with ThermalUnitBlock
-     if( auto tub = dynamic_cast< ThermalUnitBlock * >( sb ) ) {
+     if( auto tub = dynamic_cast< ThermalUnitBlock * >( ub ) ) {
+      tub->set_BlockConfig( tbc->clone() );
       tbsc->apply( tub );
       continue;
       }
 
      // deal with HydroSystemUnitBlock
-     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( sb ) ) {
+     if( auto hub = dynamic_cast< HydroSystemUnitBlock * >( ub ) ) {
       Configure_HSUB( hub );
       if( hbsc )
        hbsc->apply( hub );
@@ -564,22 +637,23 @@ int main( int argc , char **argv )
 
      // deal with all other :UnitBlock
      if( obsc )
-      obsc->apply( sb );
+      obsc->apply( ub );
      }
 
     // cleanup
-    delete obsc;
+    delete( obsc );
     }
 
   // cleanup
-  delete hbsc;
-  delete tbsc;
-   
+  delete( tbc );
+  delete( tbsc );
+  delete( hbsc );
+
   bsc->apply( TestBlock );
   bsc->clear();
 
   if( TestBlock->get_registered_solvers().empty() ) {
-   cout << endl << "no Solver registered to the Block!" << endl;
+   std::cout << std::endl << "no Solver registered to the Block!" << std::endl;
    exit( 1 );
    }
   }
@@ -589,14 +663,15 @@ int main( int argc , char **argv )
 
  #if( LOG_LEVEL >= 2 )
   #if( LOG_ON_COUT )
-   ((TestBlock->get_registered_solvers()).back())->set_log( &cout );
+   ((TestBlock->get_registered_solvers()).back())->set_log( &std::cout );
   #else
-   ofstream LOGFile( logF , ofstream::out );
+   std::ofstream LOGFile( logF , std::ofstream::out );
    if( ! LOGFile.is_open() )
-    cerr << "Warning: cannot open log file """ << logF << """" << endl;
+    std::cerr << "Warning: cannot open log file """ << logF << """"
+              << std::endl;
    else {
-    LOGFile.setf( ios::scientific, ios::floatfield );
-    LOGFile << setprecision( 10 );
+    LOGFile.setf( std::ios::scientific, std::ios::floatfield );
+    LOGFile << std::setprecision( 10 );
     ((TestBlock->get_registered_solvers()).back())->set_log( &LOGFile );
     }
   #endif
@@ -608,7 +683,7 @@ int main( int argc , char **argv )
  LOG1( "First call: " );
 
  bool AllPassed = SolveBoth();
- 
+
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // now, for n_repeat times:
@@ -668,7 +743,7 @@ int main( int argc , char **argv )
    AllPassed &= SolveBoth();
   #if( LOG_LEVEL >= 1 )
   else
-   cout << endl;
+   std::cout << std::endl;
   #endif
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -679,9 +754,9 @@ int main( int argc , char **argv )
   if( TestBlock->get_registered_solvers().size() > 1 ) {
    // tests only make sense if more than one Solver is attached
    if( AllPassed )
-    cout << GREEN( All tests passed!! ) << endl;
+    std::cout << GREEN( All tests passed!! ) << std::endl;
    else
-    cout << RED( Shit happened!! ) << endl;
+    std::cout << RED( Shit happened!! ) << std::endl;
    }
  #endif
 
@@ -692,7 +767,7 @@ int main( int argc , char **argv )
  bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  #if USE_BundleSolver
   // since some Solver have been attached "by hand" to some sub-Block,
@@ -702,7 +777,7 @@ int main( int argc , char **argv )
  #endif
 
  // finally the AbstractBlock can be deleted
- delete TestBlock;
+ delete( TestBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -712,5 +787,5 @@ int main( int argc , char **argv )
  }  // end( main )
 
 /*--------------------------------------------------------------------------*/
-/*------------------------ End File test.cpp -------------------------------*/
+/*--------------------------- End File test.cpp ----------------------------*/
 /*--------------------------------------------------------------------------*/

@@ -175,16 +175,11 @@
  * modified "in the same way", and re-solved several times; results of the
  * two solvers are compared.
  *
- * \version 1.02
- *
- * \date 28 - 11 - 2020
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -223,12 +218,12 @@
 #define HAVE_CONSTRAINTS 2
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Solver attched to the NDOBlock is detached and re-attached
+// if nonzero, the Solver attached to the NDOBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_NDO 0
 
-// if nonzero, the Solver attched to the LPBlock is detached and re-attached
+// if nonzero, the Solver attached to the LPBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_LP 0
@@ -295,6 +290,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -543,7 +539,7 @@ static Subset GenerateSubset( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -962,7 +958,7 @@ int main( int argc , char **argv )
    // configure the PolyhedralFunctionBlock in LPBlock to use the
    // "linearised" representation
    auto bc = new BlockConfig();
-   bc->f_static_variables_Configuration = new SimpleConfiguration<int>( 1 );
+   bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
    PFBLPk->set_BlockConfig( bc );
 
    }  // end( for( k ) )
@@ -985,7 +981,7 @@ int main( int argc , char **argv )
    auto cfg = Configuration::deserialize( "HardLBFTPPar.txt" );
    if( ! ( hLBFC = dynamic_cast< ComputeConfig * >( cfg ) ) ) {
     cout << "error loading Configuration file for hard LagBFunction" << endl;
-    delete cfg;
+    delete( cfg );
     exit( 1 );
     }
    }
@@ -1037,7 +1033,7 @@ int main( int argc , char **argv )
 
     for( Index i = 0 ; i < nvar ; ++i )
      for( Index j = 0 ; j < nvar ; ++j ) {
-      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : - INF , eNoMod );
+      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : -INF , eNoMod );
       (*pc)[ i ][ j ].set_rhs( convex ? INF : C[ i ][ j ] , eNoMod );
 
       v_coeff_pair cf;
@@ -1071,7 +1067,7 @@ int main( int argc , char **argv )
     for( Index i = 0 ; i < nvar ; ++i )
      for( Index j = 0 ; j < nvar ; ++j ) {
       // construct constraint ys[ i ] + yd[ j ] - x[ j ] >= c[ i ][ j ]
-      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : - INF , eNoMod );
+      (*pc)[ i ][ j ].set_lhs( convex ? C[ i ][ j ] : -INF , eNoMod );
       (*pc)[ i ][ j ].set_rhs( convex ? INF : C[ i ][ j ] , eNoMod );
 
       v_coeff_pair cf( 3 );
@@ -1258,7 +1254,7 @@ int main( int argc , char **argv )
 
    }  // end( for( p ) )
 
-  delete hLBFC;
+  delete( hLBFC );
   }
 
  // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1338,7 +1334,7 @@ int main( int argc , char **argv )
   LPParFile.close();
 
   lsc->apply( LPBlock );
-  delete lsc;
+  delete( lsc );
 
   // furthermore, "manually" attach an UpdateSolver to (each
   // PolyhedralFunctionBlock in) LPBlock
@@ -1382,7 +1378,7 @@ int main( int argc , char **argv )
     }
   
   bsc->apply( NDOBlock );  // now apply the BlockSolverConfig to NDOBlock
-  delete bsc;
+  delete( bsc );
 
   #if( LOG_LEVEL >= 4 )
    // in the extremely verbose mode, set an event that spits out the LPs
@@ -1844,7 +1840,7 @@ int main( int argc , char **argv )
      auto lf = static_cast< p_LF >(
 		  LPTr->get_objective< FRealObjective >()->get_function() );
 
-     // in the transportation problem inside the LagBFunctionì these are
+     // in the transportation problem inside the LagBFunctionï¿½ these are
      // the RHS of the box constraints: send all the corresponding
      // Modification to a new channel
      Observer::ChnlName chnl = NDOTr->open_channel();
@@ -2153,8 +2149,8 @@ int main( int argc , char **argv )
  LPBlock->unregister_Solvers();
 
  // delete the Blocks
- delete NDOBlock;
- delete LPBlock;
+ delete( NDOBlock );
+ delete( LPBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -15,7 +15,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -58,12 +58,12 @@
 #define HAVE_CONSTRAINTS 2
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Solver attched to the NDOBlock is detached and re-attached
+// if nonzero, the Solver attached to the NDOBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_NDO 0
 
-// if nonzero, the Solver attched to the LPBlock is detached and re-attached
+// if nonzero, the Solver attached to the LPBlock is detached and re-attached
 // to it at all iterations
 
 #define DETACH_LP 0
@@ -136,6 +136,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -221,7 +222,7 @@ static double rs( double x ) { return( convex ? -x : x ); }
 
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
@@ -307,7 +308,7 @@ static Subset GenerateRand( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -327,7 +328,7 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
  //
  // in the concave case, the constraint is
  //
- //          - INF <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= b[ i ]
+ //          -INF <= vLP - \sum_j Ai[ j ] * xLP[ j ] <= b[ i ]
  //
  // note: constraints are constructed dense (elements == 0, which are
  //       anyway quite unlikely, are ignored) to make things simpler
@@ -339,7 +340,7 @@ static void ConstructLPConstraint( Index i , FRowConstraint & ci ,
   ci.set_rhs( INF );
   }
  else {
-  ci.set_lhs( - INF );
+  ci.set_lhs( -INF );
   ci.set_rhs( b[ i ] );
   }
  LinearFunction::v_coeff_pair vars( nvar + 1 );
@@ -878,7 +879,7 @@ int main( int argc , char **argv )
   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! lpbsc ) {
    cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
   }
@@ -892,7 +893,7 @@ int main( int argc , char **argv )
   ndobsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! ndobsc ) {
    cerr << "Error: NDOPar.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
   }
@@ -1479,12 +1480,12 @@ int main( int argc , char **argv )
  lpbsc->apply( LPBlock );
 
  // then delete the BlockSolverConfig
- delete ndobsc;
- delete lpbsc;
+ delete( ndobsc );
+ delete( lpbsc );
 
  // delete the Blocks
- delete NDOBlock;
- delete LPBlock;
+ delete( NDOBlock );
+ delete( LPBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

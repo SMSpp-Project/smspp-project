@@ -6,9 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
-#include <fstream>
 
-#include <sstream>
 using namespace std;
 
 /*-------------------------------- MNETGEN -----------------------------------
@@ -22,13 +20,9 @@ using namespace std;
 
   C++ polished and enhanced by
 
-			       Antonio Frangioni
-
-   			   Operations Research Group
+         Antonio Frangioni
 			  Dipartimento di Informatica
-   			     Universita' di Pisa
-
-                	       07 - 06 - 2006
+         Universita' di Pisa
 
   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -69,7 +63,7 @@ using namespace std;
 	   / 0 if the standard 3-files mnetgen output format is used
   FOUR_F = |
            | 1 if a fourth file *.nod is added with the same meaning of
-	   |   that in JL format, i.e. <commodities> , <nodes>, <arcs>
+	   |   that in JL format, i.e., <commodities> , <nodes>, <arcs>
 	   |   <capacitated arcs>: in this case, the informations about
 	   |   node supplies are contained in the file *.sup (as in the
 	   \   JL standard) rather than in the *.nod
@@ -140,7 +134,7 @@ inline long min( long x , long y )
 
 inline long max( long x , long y )
 {
- return ( x >= y ? x : y );
+ return( x >= y ? x : y );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -627,7 +621,7 @@ int main( int argc , char **argv )
  Arc.close();
  Mut.close();
 
- // is IS THE TOTAL NO OF ARCS WITH MUTUAL ARC CAPACITY
+ // IS THE TOTAL NO OF ARCS WITH MUTUAL ARC CAPACITY
 
  // OUTPUT (node) REQUIREMENTS
 

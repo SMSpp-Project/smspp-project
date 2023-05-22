@@ -16,7 +16,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * \copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*------------------------------ DEFINES -----------------------------------*/
@@ -38,12 +38,12 @@
 #define SET_EPS 0
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the MCFBlock is detached and
+// if nonzero, the 1st Solver attached to the MCFBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the MCFBlock is detached and
+// if nonzero, the 2nd Solver attached to the MCFBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0
@@ -136,7 +136,7 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
  std::istringstream( str ) >> sthg;
@@ -183,7 +183,7 @@ static Subset GenerateRand( Index m , Index k , bool ord = true )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  if( ord )
   sort( rnd.begin() , rnd.end() );
@@ -237,9 +237,10 @@ static bool SolveBoth( void )
   #endif
 
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-		 && ( rtrn1st != Solver::kInfeasible ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = hs1st ? Slvr1->get_var_value() : -CInf;
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
@@ -252,9 +253,10 @@ static bool SolveBoth( void )
 
   int rtrn2nd = Slvr2->compute( false );
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-		 && ( rtrn2nd != Solver::kInfeasible ) )
-                 || ( rtrn2nd == Solver::kLowPrecision );
+  bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -CInf;
 
   if( hs1st && hs2nd && ( std::abs( fo1st - fo2nd ) <= 5e-7 *
@@ -364,7 +366,7 @@ int main( int argc , char **argv )
   if( ! bsc ) {
    std::cerr << "Error: BSPar.txt does not contain a BlockSolverConfig"
 	     << std::endl;
-   delete c;
+   delete( c );
    return( 1 );
    }
 
@@ -891,10 +893,10 @@ int main( int argc , char **argv )
  bsc->apply( MCFB );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // finally the MCFBlock can be deleted
- delete MCFB;
+ delete( MCFB );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

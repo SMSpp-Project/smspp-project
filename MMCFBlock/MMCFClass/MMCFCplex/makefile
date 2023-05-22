@@ -1,31 +1,27 @@
 ##############################################################################
-#									     #
-#   makefile of MMCFCple       						     #
+#                                                                            #
+#   makefile of MMCFCplex                                                    #
 #   all modules are given in input                                           #
-#									     #
-#   Input:  $(CC)        = compiler command				     #
+#                                                                            #
+#   Input:  $(CC)        = compiler command                                  #
 #           $(SW)        = compiler options                                  #
-#           $(OPTH)      = the OPT****.h files to include		     #
-#           $(OPTINC)    = the -I$(OPT****.h directory)			     #
-#           $(MMCFH)     = the include files for MMCFClass		     #
-#           $(MMFINC)    = the -I$(MMCFClass.h directory)		     #
+#           $(OPTH)      = the OPT****.h files to include                    #
+#           $(OPTINC)    = the -I$(OPT****.h directory)                      #
+#           $(MMCFH)     = the include files for MMCFClass                   #
+#           $(MMFINC)    = the -I$(MMCFClass.h directory)                    #
 #           $(MMGH)      = the Graph.h file(s) to include                    #
-#           $(MMGINC)    = the -I$(Graph directory)			     #
-#           $(libCPLEXINC) = the -I$(include directories) for libCPLEX	     #
+#           $(MMGINC)    = the -I$(Graph directory)                          #
+#           $(libCPLEXINC) = the -I$(include directories) for libCPLEX       #
 #           $(MMXDIR)    = the directory where the source is                 #
-#									     #
-#   Output: $(MMXLIB)    = the final object file(s)			     #
-#           $(MMXH)      = the .h files to include			     #
-#           $(MMXINC)    = the -I$(MMCFCple directory)			     #
-#									     #
-#                                VERSION 4.00				     #
-#                	        12 - 12 - 2009				     #
-#									     #
-#			      Antonio Frangioni				     #
-#   			   Operations Research Group			     #
-#			  Dipartimento di Informatica			     #
-#   			     Universita' di Pisa			     #
-#									     #
+#                                                                            #
+#   Output: $(MMXLIB)    = the final object file(s)                          #
+#           $(MMXH)      = the .h files to include                           #
+#           $(MMXINC)    = the -I$(MMCFCplex directory)                      #
+#                                                                            #
+#                              Antonio Frangioni                             #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
 ##############################################################################
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

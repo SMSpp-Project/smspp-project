@@ -1,9 +1,9 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BPar2.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - TUBCfg.txt- - - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockConfig for CapacitatedFacilityLocationBlock
+# A txt description of a BlockConfig for ThermalUnitBlock
 #
-#   Antonio Frangioni
+#   Donato Meoli
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13,15 +13,17 @@ BlockConfig # exact type of the ComputeConfig object
 1  # the BlockConfig is a "differential" one
 
 # static_constraints
-SimpleConfiguration<int>
-1    # bit 0 = customers demand, bit 1 = facilities capacity
+*    # [none]
 
 # dynamic_constraints
-*    # [none]
+SimpleConfiguration<std::pair<double,double>>
+1e-6
+1e-4
 
 # static_variables
 SimpleConfiguration<int>
-1    # 0 = Natural, 1 = Knapsack, 2 = Flow (Formulation)
+1    # 0 = 3bin, 1 = T, 2 = pt, 3 = DP, 4 = SU, 5 = SD (Formulation)
+#9    # +8 with Perspective Cuts
 
 # dynamic_variables
 *    # [none]
@@ -42,5 +44,5 @@ SimpleConfiguration<int>
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BPar2.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END TUBCfg.txt- - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

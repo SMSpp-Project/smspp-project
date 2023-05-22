@@ -70,7 +70,6 @@ with `DIRECTION_TEST > 0`.
 ## Authors
 
 - **Antonio Frangioni**  
-  *Operations Research Group*  
   Dipartimento di Informatica  
   Università di Pisa
 

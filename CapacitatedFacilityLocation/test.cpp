@@ -42,7 +42,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -96,13 +96,13 @@
 #define NEGATIVE_F_COSTS 0
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the Solver attched to the original
+// if nonzero, the Solver attached to the original
 // CapacitatedFacilityLocationBlock is detached and re-attached to it at all
 // iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the Solver attched to the R3Block is detached and re-attached
+// if nonzero, the Solver attached to the R3Block is detached and re-attached
 // to it at all iterations
 
 #define DETACH_2ND 0
@@ -156,6 +156,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -200,7 +201,7 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
@@ -354,7 +355,7 @@ static Subset GenerateRand( Index m , Index k , bool ord = true )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  if( ord )
   sort( rnd.begin() , rnd.end() );
@@ -402,9 +403,10 @@ static bool SolveBoth( void )
   #endif
 
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-		 && ( rtrn1st != Solver::kInfeasible ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   #if( LOG_LEVEL >= 1 )
@@ -430,9 +432,10 @@ static bool SolveBoth( void )
 
   if( ! niter ) {  // solve once and compare results- - - - - - - - - - - - -
 
-   bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-		  && ( rtrn2nd != Solver::kInfeasible ) )
-                || ( rtrn2nd == Solver::kLowPrecision );
+   bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
    double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
    #if( LOG_LEVEL >= 1 )
@@ -689,7 +692,7 @@ int main( int argc , char **argv )
 
  // make the R3Block
  B2 = B1->get_R3_Block( r3bc );
- 
+
  auto cfg = Configuration::deserialize( "BPar1.txt" );
  if( BlockConfig * bc = dynamic_cast< BlockConfig * >( cfg ) )
   bc->apply( B1 );
@@ -704,7 +707,7 @@ int main( int argc , char **argv )
  // lock()-ed but the sub-Block would not be, which creates problems)
  // probably a Block::set_configuration() would be better
  B1->generate_abstract_variables();
- 
+
  cfg = Configuration::deserialize( "BPar2.txt" );
  if( BlockConfig * bc = dynamic_cast< BlockConfig * >( cfg ) )
   bc->apply( B2 );
@@ -717,7 +720,7 @@ int main( int argc , char **argv )
  B2->generate_abstract_variables();
 
  delete( cfg );
- 
+
  // attach the Solver to the Blocks - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // do this by reading appropriate BlockSolverConfig from file and
@@ -731,7 +734,7 @@ int main( int argc , char **argv )
   
   if( ! bsc1 ) {
    cerr << "Error: BSPar1.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -752,10 +755,10 @@ int main( int argc , char **argv )
  {
   auto c = Configuration::deserialize( "BSPar2.txt" );
   bsc2 = dynamic_cast< BlockSolverConfig * >( c );
-  
+
   if( ! bsc2 ) {
    cerr << "Error: BSPar2.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -802,7 +805,7 @@ int main( int argc , char **argv )
 		BA * std::max( c_abs , double( 1 ) ) ); 
   }
  #endif
- 
+
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1358,19 +1361,19 @@ int main( int argc , char **argv )
  // for B1 the UpdateSolver was manually registered, so it has to be manually
  // un-registered
  B1->unregister_Solver( US );
- delete US;
+ delete( US );
 
  // apply() the clear()-ed BlockSolverConfig to cleanup Solver
  bsc2->apply( B2 );
  bsc1->apply( B1 );
 
  // then delete the BlockSolverConfig
- delete bsc2;
- delete bsc1;
+ delete( bsc2 );
+ delete( bsc1 );
 
  // finally the Block can be deleted
- delete B2;
- delete B1;
+ delete( B2 );
+ delete( B1 );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

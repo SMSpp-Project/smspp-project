@@ -72,12 +72,15 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-2 # number of integer parameters
+4 # number of integer parameters
 
 # now all the integer parameters
-intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
-CPXPARAM_Threads        1
+intLogVerb      	0    # log verbosity of the MILPSolver
+intRelaxIntVars 	0    # nonzero if the continuous relaxation is solved
+intCutSepPar        3
+CPXPARAM_Threads    1
 #CPX_PARAM_NUMERICALEMPHASIS 1
+
 # note that we could eof() the file here since the rest is all empty
 
 0 # number of double parameters
@@ -88,7 +91,7 @@ CPXPARAM_Threads        1
 0 # number of string parameters
 
 # now all the string parameters
-#strOutputFile	1uc.lp
+#strOutputFile	1tub.lp
 # [none]
 
 0 # number of vector-of-int parameters

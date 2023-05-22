@@ -21,7 +21,7 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -48,12 +48,12 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the UCBlock is detached
+// if nonzero, the 1st Solver attached to the UCBlock is detached
 // and re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the UCBlock is detached and
+// if nonzero, the 2nd Solver attached to the UCBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0
@@ -105,6 +105,7 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace std;
+
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
@@ -145,7 +146,7 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
  istringstream( str ) >> sthg;
@@ -169,7 +170,7 @@ static Subset GenerateRand( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -270,10 +271,10 @@ static bool SolveBoth( void )
   auto start = std::chrono::system_clock::now();
 
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-		 && ( rtrn1st != Solver::kUnbounded )
-		 && ( rtrn1st != Solver::kInfeasible ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   auto end = std::chrono::system_clock::now();
@@ -309,10 +310,10 @@ static bool SolveBoth( void )
   start = std::chrono::system_clock::now();
 
   int rtrn2nd = Slvr2->compute( false );
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-		 && ( rtrn2nd != Solver::kUnbounded )
-		 && ( rtrn2nd != Solver::kInfeasible ) )
-               || ( rtrn2nd == Solver::kLowPrecision );
+  bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
 
   end = std::chrono::system_clock::now();
@@ -427,7 +428,7 @@ int main( int argc , char **argv )
   
   if( ! bsc ) {
    cerr << "Error: BSPar.txt does not contain a BlockSolverConfig" << endl;
-   delete c;
+   delete( c );
    exit( 1 );
    }
 
@@ -541,10 +542,10 @@ int main( int argc , char **argv )
  bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // finally the AbstractBlock can be deleted
- delete TestBlock;
+ delete( TestBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

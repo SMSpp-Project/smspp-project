@@ -2,9 +2,9 @@
 /*-------------------------- File test.cpp ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Main for testing ThermalUnitDPSolver
+ * Main for testing ThermalUnitDPSolver.
  *
- * An ThermalUnitBlock instance is loaded from netCDF file, two different
+ * A ThermalUnitBlock instance is loaded from netCDF file, two different
  * Solver are registered to the ThermalUnitBlock, the second of which is
  * assumed to be a ThermalUnitDPSolver, the ThermalUnitBlock is solved by
  * the Solver and the results are compared. The ThermalUnitBlock is then
@@ -12,11 +12,10 @@
  * compared. 
  *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -29,25 +28,25 @@
 
 #define CHECK_SOLUTIONS 0
 // coded bit-wise:
-// bit 0: 1 = check feasibiliy of optimal solutions of Solver1
-// bit 1: 1 = check feasibiliy of optimal solutions of Solver2
+// bit 0: 1 = check feasibility of optimal solutions of Solver1
+// bit 1: 1 = check feasibility of optimal solutions of Solver2
 // bit 2: 1 = check that optimal solutions agree (dangerous, they may not)
 
 #if( LOG_LEVEL >= 1 )
- #define LOG1( x ) cout << x
- #define CLOG1( y , x ) if( y ) cout << x
+ #define LOG1( x ) std::cout << x
+ #define CLOG1( y , x ) if( y ) std::cout << x
 #else
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
 
 /*--------------------------------------------------------------------------*/
-// if nonzero, the 1st Solver attched to the UCBlock is detached
+// if nonzero, the 1st Solver attached to the UCBlock is detached
 // and re-attached to it at all iterations
 
 #define DETACH_1ST 0
 
-// if nonzero, the 2nd Solver attched to the UCBlock is detached and
+// if nonzero, the 2nd Solver attached to the UCBlock is detached and
 // re-attached to it at all iterations
 
 #define DETACH_2ND 0
@@ -80,11 +79,11 @@
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include <fstream>
 #include <sstream>
-#include <iomanip>
 
 #include <random>
+
+#include <iomanip>
 
 #include "ThermalUnitBlock.h"
 
@@ -98,33 +97,17 @@
 /*-------------------------------- USING -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using namespace std;
 using namespace SMSpp_di_unipi_it;
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- TYPES -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-using Index = Block::Index;
-using c_Index = Block::c_Index;
-
 using Range = Block::Range;
-using c_Range = Block::c_Range;
 
 using Subset = Block::Subset;
-using c_Subset = Block::c_Subset;
 
 using FunctionValue = Function::FunctionValue;
-// using c_FunctionValue = Function::c_FunctionValue;
-// using Vec_FunctionValue = LinearFunction::Vec_FunctionValue;
-
-// using RHSValue = RowConstraint::RHSValue;
-
-// using coeff_pair = LinearFunction::coeff_pair;
-// using v_coeff_pair = LinearFunction::v_coeff_pair;
-
-// using coeff_triple = DQuadFunction::coeff_triple;
-// using v_coeff_triple = DQuadFunction::v_coeff_triple;
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
@@ -155,10 +138,10 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-template<class T>
+template< class T >
 static void Str2Sthg( const char* const str , T &sthg )
 {
- istringstream( str ) >> sthg;
+ std::istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -169,7 +152,7 @@ static Subset GenerateRand( Index m , Index k )
 
  Subset rnd( m );
  std::iota( rnd.begin() , rnd.end() , 0 );
- std::shuffle( rnd.begin() , rnd.end() , rg );    
+ std::shuffle( rnd.begin() , rnd.end() , rg );
  rnd.resize( k );
  sort( rnd.begin() , rnd.end() );
 
@@ -181,46 +164,46 @@ static Subset GenerateRand( Index m , Index k )
 static void PrintResults( bool hs , int rtrn , double fo )
 {
  if( hs )
-  cout << fo;
+  std::cout << fo;
  else
   if( rtrn == Solver::kInfeasible )
-   cout << "    Unfeas";
+   std::cout << "    Unfeas";
   else
    if( rtrn == Solver::kUnbounded )
-    cout << "      Unbounded";
+    std::cout << "      Unbounded";
    else
-    cout << "      Error!";
+    std::cout << "      Error!";
  }
 
 /*--------------------------------------------------------------------------*/
 
 static void PrintSolution( void )
 {
- cout.setf( std::ios::fixed );
- // cout.setf( std::ios::scientific , std::ios::floatfield );
- // cout << setprecision( 4 );
+ std::cout.setf( std::ios::fixed );
+ // std::cout.setf( std::ios::scientific , std::ios::floatfield );
+ // std::cout << std::setprecision( 4 );
 
  auto p = TUBlock->get_active_power( 0 );
- cout << endl << "p = [ ";
+ std::cout << std::endl << "p = [ ";
  for( Index i = 0 ; ; ++p ) {
-  cout << p->get_value();
+  std::cout << p->get_value();
   if( ++i >= time_horizon )
    break;
   else
-   cout << ", ";
+   std::cout << ", ";
   }
- cout << " ]";
+ std::cout << " ]";
 
  auto u = TUBlock->get_commitment( 0 );
- cout << endl << "u = [ ";
+ std::cout << std::endl << "u = [ ";
  for( Index i = 0 ; ; ++u ) {
-  cout << int( u->get_value() );
+  std::cout << int( u->get_value() );
   if( ++i >= time_horizon )
    break;
   else
-   cout << ", ";
+   std::cout << ", ";
   }
- cout << " ]";
+ std::cout << " ]" << std::endl;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -273,7 +256,7 @@ static double linear_cost( Index i )
  /* Randomly setting the linear cost is nontrivial, since 1UC problems have
   * an unfortunate tendency for producing "all 0" solutions with their
   * original costs. This is because a > 0, b > 0 and c > 0, so producing
-  * power has a positive cost and there is no gain counter-balanging it.
+  * power has a positive cost and there is no gain counter-balancing it.
   *
   * Random fixed costs can be negative (see fixed_cost()) so this provides
   * an incentive to the unit to produce, but typically one should set b < 0
@@ -326,7 +309,7 @@ static bool SolveBoth( void )
   std::vector< bool > u2( time_horizon );
  #endif
 
- #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )  
+ #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
   auto obj = ( static_cast< FRealObjective * >( TUBlock->get_objective() )
 	       )->get_function();
  #endif
@@ -339,13 +322,15 @@ static bool SolveBoth( void )
    TUBlock->register_Solver( Slvr1 , true );  // push it to the front
   #endif
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError ) )
-               || ( rtrn1st == Solver::kLowPrecision );
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
   double fo1st = Slvr1->get_var_value();
   #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs1st ) {
     if( ! Slvr1->has_var_solution() ) {
-     cerr << "Error: Solver1 has not found any solution" << endl;
+     std::cerr << "Error: Solver1 has not found any solution" << std::endl;
      exit( 1 );
      }
     Slvr1->get_var_solution();
@@ -354,17 +339,18 @@ static bool SolveBoth( void )
     #endif
     #if( CHECK_SOLUTIONS & 1 )
      if( ! TUBlock->is_feasible() ) {
-      cerr << "Error: Solver1 solution is not feasible" << endl;
+      std::cerr << "Error: Solver1 solution is not feasible" << std::endl;
       exit( 1 );
       }
     #endif
     obj->compute();
     auto solval = obj->get_value();
-    if( abs( fo1st - solval ) > 1e-8 * max( abs( fo1st ) , double( 1 ) ) ) {
-     cerr.setf( std::ios::scientific , std::ios::floatfield );
-     cerr << setprecision( 9 );
-     cerr << "Error: Solver1 reports value " << fo1st
-	  << " but solution value is " << solval << endl;
+    if( abs( fo1st - solval ) > 1e-8 * std::max( abs( fo1st ) ,
+                                                 double( 1 ) ) ) {
+     std::cerr.setf( std::ios::scientific , std::ios::floatfield );
+     std::cerr << std::setprecision( 9 );
+     std::cerr << "Error: Solver1 reports value " << fo1st
+	  << " but solution value is " << solval << std::endl;
      exit( 1 );
      }
     #if( CHECK_SOLUTIONS & 4 )
@@ -382,13 +368,15 @@ static bool SolveBoth( void )
   #endif
   int rtrn2nd = Slvr2->compute( false );
 
-  bool hs2nd = ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError ) )
-                 || ( rtrn2nd == Solver::kLowPrecision );
+  bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
+                   && ( rtrn2nd != Solver::kUnbounded )
+                   && ( rtrn2nd != Solver::kInfeasible ) )
+                 || ( rtrn2nd == Solver::kLowPrecision ) );
   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
   #if( ( LOG_LEVEL > 1 ) || ( CHECK_SOLUTIONS > 0 ) )
    if( hs2nd ) {
     if( ! Slvr2->has_var_solution() ) {
-     cerr << "Error: Solver2 has not found any solution" << endl;
+     std::cerr << "Error: Solver2 has not found any solution" << std::endl;
      exit( 1 );
      }
     Slvr2->get_var_solution();
@@ -397,17 +385,18 @@ static bool SolveBoth( void )
     #endif
     #if( CHECK_SOLUTIONS & 2 )
      if( ! TUBlock->is_feasible() ) {
-      cerr << "Error: Solver2 solution is not feasible" << endl;
+      std::cerr << "Error: Solver2 solution is not feasible" << std::endl;
       //exit( 1 );
       }
     #endif
     obj->compute();
     auto solval = obj->get_value();
-    if( abs( fo2nd - solval ) > 1e-8 * max( abs( fo2nd ) , double( 1 ) ) ) {
-     cerr.setf( std::ios::scientific , std::ios::floatfield );
-     cerr << setprecision( 9 );
-     cerr << "Error: Solver2 reports value " << fo2nd
-	  << " but solution value is " << solval << endl;
+    if( abs( fo2nd - solval ) > 1e-8 * std::max( abs( fo2nd ) ,
+                                                 double( 1 ) ) ) {
+     std::cerr.setf( std::ios::scientific , std::ios::floatfield );
+     std::cerr << std::setprecision( 9 );
+     std::cerr << "Error: Solver2 reports value " << fo2nd
+	  << " but solution value is " << solval << std::endl;
      exit( 1 );
      }
     #if( CHECK_SOLUTIONS & 4 )
@@ -422,28 +411,28 @@ static bool SolveBoth( void )
   // p >= l u can be slightly violated (with p ending up a bit lower
   // than l) due to either u being, say, 0.999999 or the constraint
   // being violated up to the accuracy tolerated by the solver,
-  // yieldng things like 127.999999 vs 128.000000 and thereby a final
-  // var_value() slighly lower than that of the ThermalUnitDPSolver.
+  // yielding things like 127.999999 vs 128.000000 and thereby a final
+  // var_value() slightly lower than that of the ThermalUnitDPSolver.
   // which is why the relatively loose tolerance of 2e-6 here
   //!!  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
   //!!  emergency version with 1e-4 to find big errors
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-4 *
-			  max( double( 1 ) , max( abs( fo1st ) ,
+			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
-   LOG1( "OK(f)" << endl );
+   LOG1( "OK(f)" << std::endl );
 
    #if( CHECK_SOLUTIONS & 4 )
     for( Index i = 0 ; i < time_horizon ; ++i ) {
      if( abs( p1[ i ] - p2[ i ] ) > 1e-6 * max( abs( p1[ i ] ) ,
 						double( 1 ) ) ) {
-      cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
-	   << " ] = " << p2[ i ] << endl;
+      std::cerr << "p1[ " << i << " ] = " << p1[ i ] << " != p2[ " << i
+	   << " ] = " << p2[ i ] << std::endl;
       return( false );
       }
 
      if( u1[ i ] != u2[ i ] ) {
-      cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
-	   << " ] = " << u2[ i ] << endl;
+      std::cerr << "u1[ " << i << " ] = " << u1[ i ] << " != u2[ " << i
+	   << " ] = " << u2[ i ] << std::endl;
       return( false );
       }
      }
@@ -454,33 +443,33 @@ static bool SolveBoth( void )
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
       ( rtrn2nd == Solver::kInfeasible ) ) {
-    LOG1( "OK(e)" << endl );
+    LOG1( "OK(e)" << std::endl );
     return( true );
     }
 
   if( ( rtrn1st == Solver::kUnbounded ) &&
       ( rtrn2nd == Solver::kUnbounded ) ) {
-   LOG1( "OK(u)" << endl );
+   LOG1( "OK(u)" << std::endl );
    return( true );
    }
 
   #if( LOG_LEVEL >= 1 )
-   cout << "S1 = ";
+   std::cout << "Solver1 = ";
    PrintResults( hs1st , rtrn1st , fo1st );
 
-   cout << " ~ S2 = ";
+   std::cout << " ~ Solver2 = ";
    PrintResults( hs2nd , rtrn2nd , fo2nd );
-   cout << endl;
+   std::cout << std::endl;
   #endif
 
   return( false );
   }
- catch( exception &e ) {
-  cerr << e.what() << endl;
+ catch( std::exception &e ) {
+  std::cerr << e.what() << std::endl;
   exit( 1 );
   }
  catch(...) {
-  cerr << "Error: unknown exception thrown" << endl;
+  std::cerr << "Error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
  }
@@ -496,34 +485,44 @@ int main( int argc , char **argv )
 
  long int seed = 0;
  Index wchg = 135;
+ int wf = 1;
  double p_change = 0.6;
  Index n_change = 10;
  Index n_repeat = 100;
 
  switch( argc ) {
-  case( 7 ): Str2Sthg( argv[ 6 ] , p_change );
-  case( 6 ): Str2Sthg( argv[ 5 ] , n_change );
-  case( 5 ): Str2Sthg( argv[ 4 ] , n_repeat );
+  case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
+  case( 7 ): Str2Sthg( argv[ 6 ] , n_change );
+  case( 6 ): Str2Sthg( argv[ 5 ] , n_repeat );
+  case( 5 ): Str2Sthg( argv[ 4 ] , wf );
   case( 4 ): Str2Sthg( argv[ 3 ] , wchg );
   case( 3 ): Str2Sthg( argv[ 2 ] , seed );
   case( 2 ): break;
-  default: cerr << "Usage: " << argv[ 0 ] <<
-	   "file [seed wchg #rounds #chng %chng]"
- 		<< endl <<
-           "       wchg: what to change, coded bit-wise [135]"
-		<< endl <<
-           "             0 = fixed costs, 1 = linear costs "
-		<< endl <<
-           "             2 = quadratic costs "
-		<< endl <<
- 	   "             +128 = also change abstract representation"
-	        << endl <<
-           "       #rounds: how many iterations [100]"
-	        << endl <<
-           "       #chng: number changes [10]"
-	        << endl <<
-           "       %chng: probability of changing [0.6]"
-	        << endl;
+  default: std::cerr << "Usage: " << argv[ 0 ] <<
+	   "file [seed wchg wf #rounds #chng %chng]"
+    << std::endl <<
+    "       wchg: what to change, coded bit-wise [135]"
+    << std::endl <<
+    "             0 = fixed costs, 1 = linear costs"
+    << std::endl <<
+    "             2 = quadratic costs"
+    << std::endl <<
+    "             +128 = also change abstract representation"
+    << std::endl <<
+    "       wf:   what formulation, coded bit-wise [1]"
+    << std::endl <<
+    "             0 = 3bin, 1 = T, 2 = pt, 3 = DP"
+    << std::endl <<
+    "             4 = SU, 5 = SD (formulation)"
+    << std::endl <<
+    "             +8 = also use perspective cuts"
+    << std::endl <<
+    "       #rounds: how many iterations [100]"
+    << std::endl <<
+    "       #chng: number changes [10]"
+    << std::endl <<
+    "       %chng: probability of changing [0.6]"
+    << std::endl;
 	   return( 1 );
   }
 
@@ -531,18 +530,23 @@ int main( int argc , char **argv )
 
  // read the Block- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- {
-  auto b = Block::deserialize( argv[ 1 ] );
-  if( ! b ) {
-   cout << endl << "Block::deserialize() failed!" << endl;
-   exit( 1 );
-   }
-  TUBlock = dynamic_cast< ThermalUnitBlock * >( b );
-  if( ! TUBlock ) {
-   cout << endl << "The deserialized Block is not a ThermalUnitBlock" << endl;
-   exit( 1 );
-   }
+
+ auto block = Block::deserialize( argv[ 1 ] );
+ if( ! block ) {
+  std::cout << std::endl << "Block::deserialize() failed!" << std::endl;
+  exit( 1 );
   }
+
+ TUBlock = dynamic_cast< ThermalUnitBlock * >( block );
+ if( ! TUBlock ) {
+  std::cout << std::endl << "The deserialized Block is not a ThermalUnitBlock"
+            << std::endl;
+  exit( 1 );
+  }
+
+ auto bc = new BlockConfig;
+ bc->f_static_variables_Configuration = new SimpleConfiguration< int >( wf );
+ TUBlock->set_BlockConfig( bc );
 
  TUBlock->generate_abstract_variables();
  TUBlock->generate_objective( nullptr );
@@ -574,8 +578,9 @@ int main( int argc , char **argv )
   auto c = Configuration::deserialize( "BSCfg.txt" );
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
-   cerr << "Error: configuration file not a BlockSolverConfig" << endl;
-   delete c;
+   std::cerr << "Error: configuration file not a BlockSolverConfig"
+             << std::endl;
+   delete( c );
    exit( 1 );
    }
 
@@ -583,7 +588,8 @@ int main( int argc , char **argv )
   bsc->clear();
 
   if( TUBlock->get_registered_solvers().size() < 2 ) {
-   cout << endl << "too few Solver registered to the Block" << endl;
+   std::cout << std::endl << "too few Solver registered to the Block"
+             << std::endl;
    exit( 1 );
    }
   }
@@ -622,7 +628,8 @@ int main( int argc , char **argv )
 
   // change fixed costs - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if( ( wchg & 1 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+   if( Index tochange = std::min( time_horizon ,
+                                  Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " fixed costs" );
 
     std::vector< double >newcsts( tochange );
@@ -685,7 +692,8 @@ int main( int argc , char **argv )
 
   // change quadratic coefficients- - - - - - - - - - - - - - - - - - - - - -
   if( ( wchg & 2 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+   if( Index tochange = std::min( time_horizon ,
+                                  Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " quadratic coeffs" );
 
     std::vector< double > newcsts( tochange );
@@ -757,7 +765,8 @@ int main( int argc , char **argv )
 
   // change linear coefficients - - - - - - - - - - - - - - - - - - - - - - -
   if( ( wchg & 4 ) && ( dis( rg ) <= p_change ) )
-   if( Index tochange = min( time_horizon , Index( dis( rg ) * n_change ) ) ) {
+   if( Index tochange = std::min( time_horizon ,
+                                  Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " linear coeffs" );
 
     std::vector< double > newcsts( tochange );
@@ -828,16 +837,16 @@ int main( int argc , char **argv )
    }
   #if( LOG_LEVEL >= 1 )
   else
-   cout << endl;
+   std::cout << std::endl;
   #endif
 
   }  // end( main loop )- - - - - - - - - - - - - - - - - - - - - - - - - - -
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  if( AllPassed )
-  cout << GREEN( All tests passed!! ) << endl;
+  std::cout << GREEN( All tests passed!! ) << std::endl;
  else
-  cout << RED( Shit happened!! ) << endl;
+  std::cout << RED( Shit happened!! ) << std::endl;
  
  // destroy objects and vectors - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -846,10 +855,10 @@ int main( int argc , char **argv )
  bsc->apply( TUBlock );
 
  // then delete the BlockSolverConfig
- delete bsc;
+ delete( bsc );
 
  // delete the Block
- delete TUBlock;
+ delete( TUBlock );
 
  // terminate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

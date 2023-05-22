@@ -2,21 +2,15 @@
 ############################## makefile-lib ##################################
 ##############################################################################
 #                                                                            #
-#   makefile of libMMCF - frontend for building the library                   #
+#   makefile of libMMCF - frontend for building the library                  #
 #                                                                            #
-#   Input:  $(libMMCFSDR) = the (base) directory where the libMMCF source is   #
+#   Input:  $(libMMCFSDR) = the (base) directory where the libMMCF source is #
 #           If the variable is not defined, "../" is used since it is        #
 #           assumed that the makefile is ran in the lib/ sub-folder.         #
 #                                                                            #
 #   Output: none, just the library being built                               #
 #                                                                            #
-#                                VERSION 1.00                                #
-#                               26 - 01 - 2019                               #
-#                                                                            #
-#                              Implementation by:                            #
-#                                                                            #
 #                              Antonio Frangioni                             #
-#                           Operations Research Group                        #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #

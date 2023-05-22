@@ -11,21 +11,15 @@
  * instance easier to solve, such as identification of redundant mutual
  * capacity constraints.
  *
- * \version 2.01
- *
- * \date 11 - 05 - 2012
- *
  * \author Antonio Frangioni \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
  * \author Paola Cappanera \n
- *         Operations Research Group \n
  *         Dipartimento di Sistemi e Informatica \n
  *         Universita' di Firenze \n
  *
- * Copyright &copy 1994 - 2012 by Antonio Frangioni
+ * \copyright &copy; by Antonio Frangioni
  */
 
 /*--------------------------------------------------------------------------*/
@@ -109,7 +103,7 @@
   also offers some nice pre-processing features, intended to make the  
   instance more easily solvable.                                       
                                                                       
-  The base class Graph deals with "generic" MMCF problems, i.e. where  
+  The base class Graph deals with "generic" MMCF problems, i.e., where
   there are only constrains (1.k), (2.k) and (3); extra constraints    
   and variables can be added, but there is limited support for them.   
   However, all the methods for handling extra constrains and variables 
@@ -188,20 +182,20 @@ class Graph
 
 /*--------------------------------------------------------------------------*/
 /** Very small class to simplify extracting the "+ infinity" value for a
-    basic type (FNumber, CNumber, Index); just use Inf<type>(). */
+    basic type (FNumber, CNumber, Index); just use Inf< type >(). */
 
-  /* template <typename T>
+  /* template< typename T >
    class Inf {
     public:
      Inf() {}
-     operator T() { return( std::numeric_limits<T>::max() ); }
+     operator T() { return( std::numeric_limits< T >::max() ); }
     }; */
     
-    template <typename T>
+    template< typename T >
     static constexpr T Inf( void ) noexcept {
-        return( std::numeric_limits<T>::has_infinity ?
-               std::numeric_limits<T>::infinity() :
-               std::numeric_limits<T>::max() );
+        return( std::numeric_limits< T >::has_infinity ?
+                std::numeric_limits< T >::infinity() :
+                std::numeric_limits< T >::max() );
     }
 
 /*--------------------------------------------------------------------------*/
@@ -217,7 +211,7 @@ class Graph
  public:
   MMCFGException( const char *const msg = 0 ) { errmsg = msg; }
 
-  const char* what( void ) const throw () { return( errmsg ); }
+  const char* what( void ) const throw() { return( errmsg ); }
 
  private:
   const char *errmsg;
@@ -276,14 +270,14 @@ class Graph
 
    After the end of the constructor, the data read is in a "raw" form, i.e.
    if arc j is not defined for commodity k then CostKJ( k , j ) == 
-   Inf<CNumber>() and CapacityKJ( k , j ) == 0, if no single-commodity upper
-   bound is defined for arc j then CapacityKJ( k , j ) == Inf<FNumber>(), if
+   Inf< CNumber >() and CapacityKJ( k , j ) == 0, if no single-commodity upper
+   bound is defined for arc j then CapacityKJ( k , j ) == Inf< FNumber >(), if
    no mutual capacity constraint is defined for arc j then TotalCapacityJ( j )
-   == Inf<FNumber>() and if node i is not defined for commodity k then
-   DeficitKJ( k , i ) == Inf<FNumber>().
+   == Inf< FNumber >() and if node i is not defined for commodity k then
+   DeficitKJ( k , i ) == Inf< FNumber >().
 
    A preprocessing phase [see PreProcess() below] is available that, among
-   other things, makes sure that all the Inf<FNumber>() arc capacities (that
+   other things, makes sure that all the Inf< FNumber >() arc capacities (that
    may disturb some solver) are replaced with proper, finite values. That
    preprocessing also ensures some obvious things, such as that all arcs
    entering/leaving a non-existent node for commodity k are non-existent. */
@@ -324,17 +318,17 @@ class Graph
 
    - Cost    is the (K x m)-matrix of the arc costs: Cost[ k ][ i ] is the
              cost of arc i relative to commodity k; arcs with Cost[ k ][ i ]
-             == Inf<CNumber>() are intended as non-existent, thus allowing
+             == Inf< CNumber >() are intended as non-existent, thus allowing
 	     graphs to be different for each commodity: this is stronger then
 	     setting U[ k ][ i ] == 0 [see PreProcess() below]; Cost can be
 	     0,
              meaning that all costs are 0, and likewise each Cost[ k ] can
              be 0, meaning that all the costs for commodity k are 0;
 
-   Arc i for commodity k is non-existent if Cost[ k ][ i ] == Inf<CNumber>(),
-   and has no single-commodity capacity if U[ k ][ i ] == Inf<FNumber>(). Arc
-   i has no mutual capacity if CapTot[ i ] == Inf<FNumber>(). Node i for
-   commodity k is non-existent if Def[ k ][ i ] == Inf<FNumber>(). All arcs
+   Arc i for commodity k is non-existent if Cost[ k ][ i ] == Inf< CNumber >(),
+   and has no single-commodity capacity if U[ k ][ i ] == Inf< FNumber >(). Arc
+   i has no mutual capacity if CapTot[ i ] == Inf< FNumber >(). Node i for
+   commodity k is non-existent if Def[ k ][ i ] == Inf< FNumber >(). All arcs
    entering/leaving a non-existent node for commodity k should be
    non-existent; this is guaranteed by PreProcess() [see below].
 
@@ -392,7 +386,7 @@ class Graph
 
    inline Index NrExtraConst( void );
 
-   inline Index NrExtraNonZ( cIndex FrstC = 0 , cIndex LstC = Inf<Index>() );
+   inline Index NrExtraNonZ( cIndex FrstC = 0 , cIndex LstC = Inf< Index >() );
 
 /**< NrExtraConst() returns the total number of "extra" constraints.
 
@@ -446,7 +440,7 @@ class Graph
    inline Index NActives( void );
 
 /**< Actives() returns a read-only pointer to a m-vector (ordered in
-   increasing sense and Inf<Index>()-terminated) of the indices of arcs that
+   increasing sense and Inf< Index >()-terminated) of the indices of arcs that
    have an associated mutual capacity constraint: it returns 0 if every arc
    has a constraint.
 
@@ -456,7 +450,7 @@ class Graph
    This information is computed in PreProcess() [see below], and therefore
    Actives() will always return 0 if called before PreProcess(). Note that
    ProProcess() finds a finite value for mutual capacities, i.e., after
-   ProProcess() TotalCapacityJ( j ) returns something < Inf<FNumber>() even
+   ProProcess() TotalCapacityJ( j ) returns something < Inf< FNumber >() even
    if the index j is not contained in the vector returned by Actives(). */
 
 /*--------------------------------------------------------------------------*/
@@ -471,7 +465,7 @@ class Graph
 
    If k == NrComm(), the costs of "extra" (non-flow) variables are returned;
    it is illegal to call these methods with k == NrComm() if there are no
-   extra variables, i.e. NrExtraVars() == 0. */
+   extra variables, i.e., NrExtraVars() == 0. */
 
 /*--------------------------------------------------------------------------*/
 
@@ -496,19 +490,19 @@ class Graph
 
 /**< ActivesK( k ) returns a read-only pointer to the vector (ordered in
 
-   increasing sense and Inf<Index>()-terminated) of the indices of arcs that
+   increasing sense and Inf< Index >()-terminated) of the indices of arcs that
    have an associated individual capacity constrint for the commodity k; it
    returns 0 if every arc has its constraint.
 
    NActivesK( k ) returns the number of such individual capacity constraints
    for commodity k: ActivesK( k ) == 0 => NActivesK( k ) == NrArcs().
-   NActivesK( NComm ) returns the total number of such constraints, i.e. the
+   NActivesK( NComm ) returns the total number of such constraints, i.e., the
    sum over all k of NActivesK( k ).
 
    This information is computed in PreProcess() [see below], and therefore
    Actives( k ) will always return 0 if called before PreProcess(). Note
-   that ProProcess() finds a finite value for mutual capacities, i.e. after
-   ProProcess() CapacityKJ( k , j ) returns something < Inf<FNumber>() even
+   that ProProcess() finds a finite value for mutual capacities, i.e., after
+   ProProcess() CapacityKJ( k , j ) returns something < Inf< FNumber >() even
    if the index j is not contained in the vector returned by Actives( k ). */
 
 /*--------------------------------------------------------------------------*/
@@ -548,7 +542,7 @@ class Graph
 
 /*--------------------------------------------------------------------------*/
 
-   inline Index NIntVar( cIndex k = Inf<Index>() );
+   inline Index NIntVar( cIndex k = Inf< Index >() );
 
    inline cIndex_Set WIntVar( cIndex k );
 
@@ -556,7 +550,7 @@ class Graph
    integer-valued. NIntVar( k ) returns the number of the variables for
    commodity k that are constrained to be integer-valued. If 0 < NIntVar( k )
    < NrArcs(), WIntVar( k ) returns a read-only pointer to the vector of
-   indices (ordered in increasing sense and Inf<Index>()-terminated) of the
+   indices (ordered in increasing sense and Inf< Index >()-terminated) of the
    flow variables for commodity k that are integer-valued. If
    NIntVar( k ) == 0 or NIntVar( k ) == NrArcs(), then WIntVar( k ) returns 0;
    none/all the variables for commodity k are integer-valued.
@@ -572,7 +566,7 @@ class Graph
 /*--------------------------------------------------------------------------*/
 
    virtual void ExtraConstr( int *IBeg , int *Indx , double *Vals ,
-                             Index FrstC = 0 , Index LstC = Inf<Index>() );
+                             Index FrstC = 0 , Index LstC = Inf< Index >() );
 
 /**< Writes in IBeg, Indx and Vals the description of those "extra" linear
    constraints of the problem whose "names" (indices) are comprised between
@@ -637,10 +631,11 @@ class Graph
 
    virtual void UpDtTotCap( cFRow NewU = 0 );
 
-   virtual void UpDtTotCapJ( cIndex j , cFNumber NewUj = Inf<FNumber>() );
+   virtual void UpDtTotCapJ( cIndex j , cFNumber NewUj = Inf< FNumber >() );
 
 /**< Updates the total upper capacities, either all of them or just the j-th,
-   i.e. the one corresponding to the j-th arc. 0 means "all Inf<FNumber>()". */
+   i.e., the one corresponding to the j-th arc. 0 means "all Inf< FNumber >()".
+   */
 
 /*--------------------------------------------------------------------------*/
 
@@ -653,7 +648,7 @@ class Graph
 
    For k == NrComm(), the costs of the "extra" (non-flow) variables are
    changed: it is illegal to call these methods with k >= NrComm() if there
-   are no extra variables, i.e. NrExtraVars() == 0. */
+   are no extra variables, i.e., NrExtraVars() == 0. */
 
 /*--------------------------------------------------------------------------*/
 
@@ -663,7 +658,7 @@ class Graph
 
 /**< Update the single-commodity capacities, either all of the commodity k or
    just the one relative to the j-th arc for commodity k. 0 means "all
-   Inf<FNumber>()".
+   Inf< FNumber >()".
 
    For k == NrComm() and k == NrComm() + 1, the lower and upper bounds on the
    "extra" (non-flow) variables are changed, respectively: it is illegal to
@@ -688,7 +683,7 @@ class Graph
 
    virtual void SetIntVar( cIndex k , bool IntVld = true ,
                            cIndex_Set nms = 0 , cIndex strt = 0 ,
-                           Index stp = Inf<Index>() );
+                           Index stp = Inf< Index >() );
 
 /**< Gives the Graph object the information about which among the (flow and
    non-flow) variables of the problem are integer-valued.
@@ -697,7 +692,7 @@ class Graph
    commodity k are/aren't integer-valued. The variables to which the change
    is applied are the flow variables of commodity k whose index is:
    - in the set nms[] (which contains indices in [0, NrArcs() ), ordered in
-     increasing sense and Inf<Index>()-terminated);
+     increasing sense and Inf< Index >()-terminated);
    - comprised between strt (included) and min( stp , NrArcs() ) (excluded).
    nms == 0 means "all in the interval [strt, stp)".
 
@@ -720,7 +715,7 @@ class Graph
    The costs and lower/upper bounds on these new variables can be set with
    the methods UpDtArcCstK[J]( NComm , ... ) and UpDtArcCapK[J]( NComm /
    NComm + 1 , ... ) [see above]; they are set by default respectively to
-   0, 0 and Inf<FNumber>() uniformly. Also; by default all extra variables are
+   0, 0 and Inf< FNumber >() uniformly. Also; by default all extra variables are
    continuous, although this can be changed later with SetIntVar().
 
    Note that every previous information about extra variables is lost when
@@ -768,12 +763,12 @@ class Graph
 
    The lower/upper bounds on the new constraints can be set with the method
    UpDtNdeDfctK[J]( NComm / NComm + 1 , ... ) [see above]: they are set by
-   default respectively to 0 and Inf<FNumber>() uniformly.
+   default respectively to 0 and Inf< FNumber >() uniformly.
 
    Note that no check is done in SetExtraConstr() about the validity of the
    data contained in the provided vectors (the indices being within the
    ranges and properly ordered). However, PreProcess() may use the extra
-   constraints for its purposes, and/or modify them (e.g. by removing
+   constraints for its purposes, and/or modify them (e.g., by removing
    all references to variables that are declared non-existent). */
 
 /*--------------------------------------------------------------------------*/
@@ -788,7 +783,7 @@ class Graph
    more easily solvable. The parameters to be given are the following:
 
    IncUk , DecUk   => (>= 0) upper bounds on the increase and decrease of the
-                      mutual capacities: may be Inf<FNumber>() if unknown;
+                      mutual capacities: may be Inf< FNumber >() if unknown;
 
    IncUjk , DecUjk => (>= 0) same as above for single-commodity capacities;
 
@@ -798,13 +793,13 @@ class Graph
                       individual capacities for arcs that have none;
 
    DecCsts         => (>= 0) upper bound on the decrease of arc Costs: must
-                      be < Inf<CNumber>().
+                      be < Inf< CNumber >().
 
    Giving tight bounds (0 is the best, obviously) may cause the preprocessor
    to find more redundant coupling constraints, to squeeze down individual
    arc capacities, to remove more unused arcs and in general to do a better
    preprocessing; for instance, IncUjk == 0 allows PreProcess() to declare
-   un-existent (set the cost to Inf<CNumber>()) any arc with 0 individual
+   un-existent (set the cost to Inf< CNumber >()) any arc with 0 individual
    capacity.
 
    For all k such that, after the pre-processing, the graph has only a source
@@ -842,7 +837,7 @@ class Graph
 
      / at 0 cost and capacity - B[ i ][ k ]     if B[ i ][ k ] < 0
      |
-     \ at Inf<CNumber>() cost and capacity 0    if B[ i ][ k ] >= 0.
+     \ at Inf< CNumber >() cost and capacity 0  if B[ i ][ k ] >= 0.
 
    Hence, in this case exactly n new arcs will be constructed, but the
    setting is "resistent" to changes in the imbalances vector: if ToAll if
@@ -876,7 +871,7 @@ class Graph
 
 /**< Calculates a (very coarse) Upper Bound to the value of the optimal
    solution of the MMCF currently represented in the Graph object. This is
-   useful e.g. to discover if the MMCF has no solutions when using a
+   useful e.g., to discover if the MMCF has no solutions when using a
    decomposition-based algorithm; in fact, in this case one should wait for
    the Lagrangean to go to +INF to declare the problem unfeasible, but any
    finite UB to the value of the optimal solution can be used as +INF. Note,
@@ -903,7 +898,7 @@ class Graph
 /*--------------------------------------------------------------------------*/
 /*--                                                                      --*/
 /*--  The standard user should not need to care about the following part: --*/
-/*--  programmers who need to extend the code (i.e. by deriving a new     --*/
+/*--  programmers who need to extend the code (i.e., by deriving a new     --*/
 /*--  class) may make use of the following methods and data structures.   --*/
 /*--                                                                      --*/
 /*--  IT IS OBVIOUSLY DANGEROUS TO MODIFY THE DATA STRUCTURES, while it   --*/

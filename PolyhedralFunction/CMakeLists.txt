@@ -10,7 +10,7 @@ if (TARGET SMS++::BundleSolver AND
     if (TARGET SMS++::SubGradSolver)
         target_link_libraries(PolyhedralFunction_test PRIVATE
                               SMS++::SubGradSolver)
-    endif()
+    endif ()
 
     # This version copied all the *Par.txt files and the batch shell script
     # so it could run as a test from the build directory.

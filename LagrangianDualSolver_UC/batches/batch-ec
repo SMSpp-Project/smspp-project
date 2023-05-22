@@ -1,0 +1,30 @@
+#/usr/bin/env bash
+
+par=BSPar-2S.txt
+
+for f in ./data/EC_Data/EC_CO_*.nc4 ./data/EC_Data/EC_NC_*.nc4
+do
+
+if [ -z "$par" ]; then
+printf "[${f}]: "
+else
+printf "[${f} $par]: "
+fi
+
+./LDS_UC_test ${f} $par
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    exit 1
+fi
+
+done
+
+# end batch
+
+# BSPar-CPX.txt with intRelaxIntVars 0
+# "./data/EC_Data/EC_CO_Test.nc4"        3.5077963e+06
+# "./data/EC_Data/EC_CO_Test_TUB.nc4"    3.4742840e+06
+# "./data/EC_Data/EC_NA_Test.nc4"        4.1773642e+06
+# "./data/EC_Data/EC_NC_Test.nc4"        3.7349463e+06
+# "./data/EC_Data/EC_NC_Test_TUB.nc4"    3.7016024e+06

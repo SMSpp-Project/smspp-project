@@ -2,29 +2,25 @@
 ################################# makefile ###################################
 ##############################################################################
 #                                                                            #
-#   makefile of libMMCF							     #
+#   makefile of libMMCF                                                      #
 #                                                                            #
 #   all modules are given in input                                           #
 #                                                                            #
-#   Input:  $(CC)        = compiler command				     #
+#   Input:  $(CC)        = compiler command                                  #
 #           $(SW)        = compiler options                                  #
 #           $(OPTUxH)    = the OPT****.h files to include                    #
 #           $(OPTUxINC)  = the -I$( OPT****.h directory )                    #
-#           $(libMMCFSDR) = the basic directory for the library		     #
+#           $(libMMCFSDR) = the basic directory for the library              #
 #                                                                            #
 #   Output: $(libMMCFOBJ) = the libMMCF library (that must be built)	     #
-#           $(libMMCFLIB) = the external libreries + -L<libdirs>              #
-#           $(libMMCFH)   = all the .h files to include			     #
+#           $(libMMCFLIB) = the external libreries + -L<libdirs>             #
+#           $(libMMCFH)   = all the .h files to include                      #
 #           $(libMMCFINC) = all the -I$(include directories)	     	     #
 #                                                                            #
-#                                VERSION 4.00				     #
-#                	        25 - 01 - 2019				     #
-#									     #
-#			      Antonio Frangioni				     #
-#   			   Operations Research Group			     #
-#			  Dipartimento di Informatica			     #
-#   			     Universita' di Pisa			     #
-#									     #
+#                              Antonio Frangioni                             #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
 ##############################################################################
 
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -

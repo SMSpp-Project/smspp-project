@@ -9,16 +9,11 @@
  * requires a file called solver.txt containing the description of a
  * BlockSolverConfig of a Solver for the master problem.
  *
- * \version 0.10
- *
- * \date 22 - 11 - 2020
- *
  * \author Rafael Durbano Lobato \n
- *         Operations Research Group \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * Copyright &copy; by Rafael Durbano Lobato
+ * \copyright &copy; by Rafael Durbano Lobato
  */
 
 /*--------------------------------------------------------------------------*/
@@ -55,7 +50,7 @@ using matrix = std::vector< std::vector< double > >;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-const auto inf = Inf<double>();
+const auto inf = Inf< double >();
 
 std::string solver_filename;
 
@@ -74,22 +69,22 @@ BlockSolverConfig * build_solver_config
  auto bsc = new BlockSolverConfig;
  config_file >> ( * bsc );
  config_file.close();
- return bsc;
+ return( bsc );
 }
 
 /*--------------------------------------------------------------------------*/
 
 bool is_identity( const matrix & A ) {
- if( A.empty() ) return false;
+ if( A.empty() ) return( false );
  for( Index i = 0 ; i < A.size() ; ++i ) {
   if( A[ i ].size() != A.size() )
-   return false;
-  if( A[ i ][ i ] != 1 ) return false;
+   return( false );
+  if( A[ i ][ i ] != 1 ) return( false );
   for( Index j = 0 ; j < A.size() ; ++j )
    if( i != j && A[ i ][ j ] != 0.0 )
-    return false;
+    return( false );
  }
- return true;
+ return( true );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -102,19 +97,19 @@ bool is_identity( const matrix & A ) {
  *      l_x <= x <= u_x
  */
 
-AbstractBlock * build_LP( const std::vector<double> & l ,
-                          const std::vector<double> & u ,
-                          const std::vector<double> & d ,
+AbstractBlock * build_LP( const std::vector< double > & l ,
+                          const std::vector< double > & u ,
+                          const std::vector< double > & d ,
                           const matrix & E = {} ,
                           const matrix & M1 = {} , const matrix & M2 = {} ,
-                          const std::vector<double> & b1 = {} ,
-                          const std::vector<double> & b2 = {} ,
+                          const std::vector< double > & b1 = {} ,
+                          const std::vector< double > & b2 = {} ,
                           const matrix & F = {} ,
-                          const std::vector<double> & f1 = {} ,
-                          const std::vector<double> & f2 = {} ,
-                          const std::vector<double> & l_x = {} ,
-                          const std::vector<double> & u_x = {} ) {
-
+                          const std::vector< double > & f1 = {} ,
+                          const std::vector< double > & f2 = {} ,
+                          const std::vector< double > & l_x = {} ,
+                          const std::vector< double > & u_x = {} )
+{
  if( l.size() != u.size() )
   throw( std::invalid_argument( "The vectors l and u must have the "
                                 "same size." ) );
@@ -229,7 +224,7 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
  // M1 y + b1 <= Ex <= M2 y + b2
 
  auto num_lower_xy_constraints =
-  std::count_if( b1.begin() , b1.end() , [](double d) { return d > -inf; } );
+  std::count_if( b1.begin() , b1.end() , [](double d) { return( d > -inf ); } );
 
  if( num_lower_xy_constraints > 0 ) {
   auto lower_xy_constraints =
@@ -251,7 +246,7 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
  }
 
  auto num_upper_xy_constraints =
-  std::count_if( b2.begin() , b2.end() , [](double d) { return d < inf; } );
+  std::count_if( b2.begin() , b2.end() , [](double d) { return( d < inf ); } );
 
  if( num_upper_xy_constraints > 0 ) {
   auto upper_xy_constraints =
@@ -272,7 +267,7 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
   lp->add_static_constraint( *upper_xy_constraints , "xy-upper");
  }
 
- return lp;
+ return( lp );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -286,22 +281,22 @@ AbstractBlock * build_LP( const std::vector<double> & l ,
  *               f1 <= Fx <= f2
  */
 
-AbstractBlock * build_Benders_decomposition
-( Solver * inner_block_solver ,
-  bool invert_data_mapping_order ,
-  const std::vector<double> & l ,
-  const std::vector<double> & u ,
-  const std::vector<double> & d ,
-  const matrix & E = {} ,
-  const matrix & M1 = {} , const matrix & M2 = {} ,
-  const std::vector<double> & b1 = {} ,
-  const std::vector<double> & b2 = {} ,
-  const matrix & F = {} ,
-  const std::vector<double> & f1 = {} ,
-  const std::vector<double> & f2 = {} ,
-  const std::vector<double> & l_x = {} ,
-  const std::vector<double> & u_x = {} ) {
-
+AbstractBlock * build_Benders_decomposition(
+ Solver * inner_block_solver ,
+ bool invert_data_mapping_order ,
+ const std::vector< double > & l ,
+ const std::vector< double > & u ,
+ const std::vector< double > & d ,
+ const matrix & E = {} ,
+ const matrix & M1 = {} , const matrix & M2 = {} ,
+ const std::vector< double > & b1 = {} ,
+ const std::vector< double > & b2 = {} ,
+ const matrix & F = {} ,
+ const std::vector< double > & f1 = {} ,
+ const std::vector< double > & f2 = {} ,
+ const std::vector< double > & l_x = {} ,
+ const std::vector< double > & u_x = {} )
+{
  if( l.size() != u.size() )
   throw( std::invalid_argument( "The vectors l and u must have the "
                                 "same size." ) );
@@ -505,7 +500,7 @@ AbstractBlock * build_Benders_decomposition
 
  master->set_objective( new FRealObjective( master , benders_function ) );
 
- return master;
+ return( master );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -527,12 +522,12 @@ void test_linearization( Block * benders_block ,
  std::vector< double > optimal_solution( num_y );
  std::vector< ColVariable * > y( num_y );
  for( Index i = 0 ; i < y.size() ; ++i ) {
-  y[ i ] = dynamic_cast<ColVariable *>( benders_function->get_active_var( i ) );
+  y[ i ] = dynamic_cast< ColVariable * >( benders_function->get_active_var( i ) );
   assert( y[ i ] );
   optimal_solution[ i ] = y[ i ]->get_value();
  }
 
- const auto zero = std::vector<double>( num_y , 0 );
+ const auto zero = std::vector< double >( num_y , 0 );
 
  for( Index i = 0 ; i < y_values.size() ; ++i ) {
 
@@ -589,7 +584,7 @@ Solver * build_inner_block_solver() {
  inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
   ( "CPXPARAM_Simplex_Tolerances_Optimality" ) , 1.0e-15 );
 
- return inner_block_solver;
+ return( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -603,27 +598,27 @@ void test( bool invert ) {
 
  int num_x = 3;
 
- std::vector<double> l = { -10 , -10 };
- std::vector<double> u = {  10 ,  10 };
+ std::vector< double > l = { -10 , -10 };
+ std::vector< double > u = {  10 ,  10 };
 
- std::vector<double> d( num_x , 1.0 );
+ std::vector< double > d( num_x , 1.0 );
 
  matrix E = { { -1 , 0 , 1 } };
 
  matrix M1 = { { 0 , 0 } };
  matrix M2 = { { 1 , 1 } };
 
- std::vector<double> b1 = { 0.5 } ;
- std::vector<double> b2 = { 1.0 };
+ std::vector< double > b1 = { 0.5 } ;
+ std::vector< double > b2 = { 1.0 };
 
  matrix F = { { 1.0 , 0.0 , 0.0 } ,
               { 0.0 , 1.0 , 0.0 } ,
               { 0.0 , 0.0 , 1.0 } };
- std::vector<double> f1 = { -1 , -1 , -1 };
- std::vector<double> f2 = {  1 ,  1 ,  1 };
+ std::vector< double > f1 = { -1 , -1 , -1 };
+ std::vector< double > f2 = {  1 ,  1 ,  1 };
 
- std::vector<double> l_x( num_x , -1 );
- std::vector<double> u_x( num_x ,  1 );
+ std::vector< double > l_x( num_x , -1 );
+ std::vector< double > u_x( num_x ,  1 );
 
  auto lp = build_LP( l , u , d , E , M1, M2 , b1 , b2,
                      F , f1 , f2 , l_x , u_x );
@@ -634,8 +629,8 @@ void test( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == - 2.5 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  auto inner_block_solver = build_inner_block_solver();
  auto benders_block = build_Benders_decomposition
@@ -664,9 +659,9 @@ void test( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -687,13 +682,13 @@ void test2( bool invert ) {
 
  int num_x = 7;
 
- std::vector<double> l = {   0 ,   0 };
- std::vector<double> u = { inf , inf };
+ std::vector< double > l = {   0 ,   0 };
+ std::vector< double > u = { inf , inf };
 
- std::vector<double> l_x( num_x ,   0 );
- std::vector<double> u_x( num_x , inf );
+ std::vector< double > l_x( num_x ,   0 );
+ std::vector< double > u_x( num_x , inf );
 
- std::vector<double> d = { 0 , 10 , 0 , 1 , 0 , 0 , 0 };
+ std::vector< double > d = { 0 , 10 , 0 , 1 , 0 , 0 , 0 };
 
  matrix M1 = { { 0 , 0 } , { 1 , 0 } , { 0 , 1 } , { -1 , 0 } , { 0 , 1 } };
  matrix M2 = M1;
@@ -703,14 +698,14 @@ void test2( bool invert ) {
               { 0 ,  0 , 0 , 0 , 0 , -1 ,  0 } ,
               { 0 ,  0 , 0 , 1 , 0 ,  0 , -1 } };
 
- std::vector<double> b1 = { 1 , 0 , 0 , 0 , 0 } ;
- std::vector<double> b2 = b1;
+ std::vector< double > b1 = { 1 , 0 , 0 , 0 , 0 } ;
+ std::vector< double > b2 = b1;
 
  matrix F = { { 0 , 0 , 1 ,  0 ,  0 , 0 , 0 } ,
               { 0 , 1 , 0 ,  0 , -1 , 0 , 0 } ,
               { 0 , 0 , 0 , -1 ,  1 , 1 , 1 } };
- std::vector<double> f1 = { 1 , 0 , 0 };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { 1 , 0 , 0 };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -721,8 +716,8 @@ void test2( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -754,9 +749,9 @@ void test2( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -772,24 +767,24 @@ void test3( bool invert ) {
 
  int num_x = 1;
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x( num_x ,   0 );
- std::vector<double> u_x( num_x , inf );
+ std::vector< double > l_x( num_x ,   0 );
+ std::vector< double > u_x( num_x , inf );
 
- std::vector<double> d = { 1 };
+ std::vector< double > d = { 1 };
 
  matrix M1 = { { 1 } };
  matrix M2 = M1;
  matrix E = { { 1 } };
 
- std::vector<double> b1 = { 0 } ;
- std::vector<double> b2 = b1;
+ std::vector< double > b1 = { 0 } ;
+ std::vector< double > b2 = b1;
 
  matrix F = { { 1 } };
- std::vector<double> f1 = { 1 };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { 1 };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -800,8 +795,8 @@ void test3( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -831,9 +826,9 @@ void test3( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -851,24 +846,24 @@ void test4( bool invert ) {
 
  int num_x = 1;
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x( num_x ,   0 );
- std::vector<double> u_x( num_x , inf );
+ std::vector< double > l_x( num_x ,   0 );
+ std::vector< double > u_x( num_x , inf );
 
- std::vector<double> d = { 1 };
+ std::vector< double > d = { 1 };
 
  matrix M1 = { { 0 } , { 1 } };
  matrix M2 = M1;
  matrix E = { { 1 } , { 1 } };
 
- std::vector<double> b1 = { 1 , 0 } ;
- std::vector<double> b2 = b1;
+ std::vector< double > b1 = { 1 , 0 } ;
+ std::vector< double > b2 = b1;
 
  matrix F = { };
- std::vector<double> f1 = { };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -879,8 +874,8 @@ void test4( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -910,9 +905,9 @@ void test4( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -927,24 +922,24 @@ void test5( bool invert ) {
 
  int num_x = 2;
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x( num_x , -1 );
- std::vector<double> u_x( num_x ,  1 );
+ std::vector< double > l_x( num_x , -1 );
+ std::vector< double > u_x( num_x ,  1 );
 
- std::vector<double> d = { 1 , -1 };
+ std::vector< double > d = { 1 , -1 };
 
  matrix M1 = { { 0 } , { -2 } };
  matrix M2 = { { 1 } , {  0 } };
  matrix E = { {  1 , 1 } , { 1 , -1 } };
 
- std::vector<double> b1 = { -inf , 0 };
- std::vector<double> b2 = {    1 , inf };
+ std::vector< double > b1 = { -inf , 0 };
+ std::vector< double > b2 = {    1 , inf };
 
  matrix F = { };
- std::vector<double> f1 = { };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -955,8 +950,8 @@ void test5( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == -2.0 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -986,9 +981,9 @@ void test5( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1007,25 +1002,25 @@ void test6( bool invert ) {
 
  int num_x = 5;
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x( num_x , 0 );
- //std::vector<double> u_x = { 1 , 1 , 1 , inf , inf };
- std::vector<double> u_x = { inf , inf , inf , inf , inf };
+ std::vector< double > l_x( num_x , 0 );
+ //std::vector< double > u_x = { 1 , 1 , 1 , inf , inf };
+ std::vector< double > u_x = { inf , inf , inf , inf , inf };
 
- std::vector<double> d = { 1 , 1 , 1 , -1 , 0 };
+ std::vector< double > d = { 1 , 1 , 1 , -1 , 0 };
 
  matrix M1 = { { 1 } };
  matrix M2 = M1;
  matrix E = { {  1 , 0 , -1 , 1, 0 } };
 
- std::vector<double> b1 = { 3 };
- std::vector<double> b2 = b1;
+ std::vector< double > b1 = { 3 };
+ std::vector< double > b2 = b1;
 
  matrix F = { { 0 , 1, -1 , 0 , -1 } , { 1 , 0 , 0 , -1 , 1 } , { 0 , 0 , 0 , 1 , 0 } };
- std::vector<double> f1 = { -inf , 5 , -inf };
- std::vector<double> f2 = { 10 , inf , 1 };
+ std::vector< double > f1 = { -inf , 5 , -inf };
+ std::vector< double > f2 = { 10 , inf , 1 };
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -1036,8 +1031,8 @@ void test6( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1067,9 +1062,9 @@ void test6( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1085,24 +1080,24 @@ void test7( bool invert ) {
   *      0 <= xi      , i = 3, 4
   */
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x = { -inf , -inf , 0 , 0   };
- std::vector<double> u_x = {  inf ,  inf , 1 , inf };
+ std::vector< double > l_x = { -inf , -inf , 0 , 0   };
+ std::vector< double > u_x = {  inf ,  inf , 1 , inf };
 
- std::vector<double> d = { 0 , 1 , -5 , 0 };
+ std::vector< double > d = { 0 , 1 , -5 , 0 };
 
  matrix M1 = { { 1 } };
  matrix M2 = M1;
  matrix E = { {  1 , 0 , 0 , 0 } };
 
- std::vector<double> b1 = { 0 };
- std::vector<double> b2 = b1;
+ std::vector< double > b1 = { 0 };
+ std::vector< double > b2 = b1;
 
  matrix F = { { 0 , -1 , 5 , -1 } , { 0 , 0 , 0 , 1 } , { 0 , 1 , 0 , 0 } };
- std::vector<double> f1 = { -inf , -inf , 1 };
- std::vector<double> f2 = {    3 ,    1 , inf };
+ std::vector< double > f1 = { -inf , -inf , 1 };
+ std::vector< double > f2 = {    3 ,    1 , inf };
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -1113,8 +1108,8 @@ void test7( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == -4 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1144,9 +1139,9 @@ void test7( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
- delete benders_block;
- delete inner_block_solver;
+ delete( block_solver_config );
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1158,24 +1153,24 @@ void test8( bool invert ) {
   *      1 <= x <= y + 0
   */
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x = { -inf };
- std::vector<double> u_x = {  inf };
+ std::vector< double > l_x = { -inf };
+ std::vector< double > u_x = {  inf };
 
- std::vector<double> d = { 1 };
+ std::vector< double > d = { 1 };
 
  matrix M1 = { { 0 } };
  matrix M2 = { { 1 } };
  matrix E  = { { 1 } };
 
- std::vector<double> b1 = { 1 };
- std::vector<double> b2 = { 0 };
+ std::vector< double > b1 = { 1 };
+ std::vector< double > b2 = { 0 };
 
  matrix F = { };
- std::vector<double> f1 = { };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -1186,8 +1181,8 @@ void test8( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1209,7 +1204,7 @@ void test8( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
+ delete( block_solver_config );
  */
 
  // Test linearizations
@@ -1220,7 +1215,7 @@ void test8( bool invert ) {
 
  assert( benders_function );
 
- auto y = dynamic_cast<ColVariable *>( benders_function->get_active_var( 0 ) );
+ auto y = dynamic_cast< ColVariable * >( benders_function->get_active_var( 0 ) );
  y->set_value( 1 );
 
  std::vector< std::vector< double > > y_values = { { 1 } };
@@ -1230,8 +1225,8 @@ void test8( bool invert ) {
  test_linearization( benders_block , y_values , solution_values , status ,
                      optimal_value );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1243,24 +1238,24 @@ void test9( bool invert ) {
   *      1 <= x <= -y + 2
   */
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x = { -inf };
- std::vector<double> u_x = {  inf };
+ std::vector< double > l_x = { -inf };
+ std::vector< double > u_x = {  inf };
 
- std::vector<double> d = { 1 };
+ std::vector< double > d = { 1 };
 
  matrix M1 = { { 0 } };
  matrix M2 = { { -1 } };
  matrix E  = { { 1 } };
 
- std::vector<double> b1 = { 1 };
- std::vector<double> b2 = { 2 };
+ std::vector< double > b1 = { 1 };
+ std::vector< double > b2 = { 2 };
 
  matrix F = { };
- std::vector<double> f1 = { };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -1271,8 +1266,8 @@ void test9( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == 1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1294,7 +1289,7 @@ void test9( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
+ delete( block_solver_config );
  */
 
  // Test linearizations
@@ -1305,7 +1300,7 @@ void test9( bool invert ) {
 
  assert( benders_function );
 
- auto y = dynamic_cast<ColVariable *>( benders_function->get_active_var( 0 ) );
+ auto y = dynamic_cast< ColVariable * >( benders_function->get_active_var( 0 ) );
  y->set_value( 1 );
 
  std::vector< std::vector< double > > y_values = { { 1 } };
@@ -1315,8 +1310,8 @@ void test9( bool invert ) {
  test_linearization( benders_block , y_values , solution_values , status ,
                      optimal_value );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1329,24 +1324,24 @@ void test10( bool invert ) {
   *     y >= 0
   */
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x = { -inf };
- std::vector<double> u_x = {  inf };
+ std::vector< double > l_x = { -inf };
+ std::vector< double > u_x = {  inf };
 
- std::vector<double> d = { 1 };
+ std::vector< double > d = { 1 };
 
  matrix M1 = { {  2 } };
  matrix M2 = { { -1 } };
  matrix E  = { { 1 } };
 
- std::vector<double> b1 = { -1 };
- std::vector<double> b2 = { 2 };
+ std::vector< double > b1 = { -1 };
+ std::vector< double > b2 = { 2 };
 
  matrix F = { };
- std::vector<double> f1 = { };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { };
+ std::vector< double > f2 = f1;
 
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
@@ -1357,8 +1352,8 @@ void test10( bool invert ) {
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
  assert( optimal_value == -1 );
- delete lp;
- delete solver;
+ delete( lp );
+ delete( solver );
 
  // Solve
 
@@ -1380,7 +1375,7 @@ void test10( bool invert ) {
 
  block_solver_config->clear();
  block_solver_config->apply( benders_block );
- delete block_solver_config;
+ delete( block_solver_config );
  */
 
  // Test linearizations
@@ -1391,7 +1386,7 @@ void test10( bool invert ) {
 
  assert( benders_function );
 
- auto y = dynamic_cast<ColVariable *>( benders_function->get_active_var( 0 ) );
+ auto y = dynamic_cast< ColVariable * >( benders_function->get_active_var( 0 ) );
  y->set_value( 1 );
 
  std::vector< std::vector< double > > y_values = { { 1 } };
@@ -1401,8 +1396,8 @@ void test10( bool invert ) {
  test_linearization( benders_block , y_values , solution_values , status ,
                      1 );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1415,24 +1410,24 @@ void test11( bool invert ) {
   *    y >= 0
   */
 
- std::vector<double> l = { 0 };
- std::vector<double> u = { inf };
+ std::vector< double > l = { 0 };
+ std::vector< double > u = { inf };
 
- std::vector<double> l_x = { -inf };
- std::vector<double> u_x = {  inf };
+ std::vector< double > l_x = { -inf };
+ std::vector< double > u_x = {  inf };
 
- std::vector<double> d = { 1 };
+ std::vector< double > d = { 1 };
 
  matrix M1 = { { -1 } };
  matrix M2 = { {  2 } };
  matrix E  = { {  1 } };
 
- std::vector<double> b1 = {  2 };
- std::vector<double> b2 = { -1 };
+ std::vector< double > b1 = {  2 };
+ std::vector< double > b2 = { -1 };
 
  matrix F = { };
- std::vector<double> f1 = { };
- std::vector<double> f2 = f1;
+ std::vector< double > f1 = { };
+ std::vector< double > f2 = f1;
 
  auto inner_block_solver = build_inner_block_solver();
  auto benders_block = build_Benders_decomposition
@@ -1447,7 +1442,7 @@ void test11( bool invert ) {
 
  assert( benders_function );
 
- auto y = dynamic_cast<ColVariable *>( benders_function->get_active_var( 0 ) );
+ auto y = dynamic_cast< ColVariable * >( benders_function->get_active_var( 0 ) );
  y->set_value( 1 );
 
  std::vector< std::vector< double > > y_values = { { 1 } };
@@ -1456,8 +1451,8 @@ void test11( bool invert ) {
 
  test_linearization( benders_block , y_values , solution_values , status , 1 );
 
- delete benders_block;
- delete inner_block_solver;
+ delete( benders_block );
+ delete( inner_block_solver );
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1484,14 +1479,14 @@ int main( int argc, char ** argv ) {
    "BlockSolverConfig of the Solver for the master problem must be provided "
    "as argument." << std::endl;
   std::cerr << "Usage: " << argv[ 0 ] << " PATH" << std::endl;
-  return 1;
+  return( 1 );
  }
 
  solver_filename = argv[ 1 ];
 
  run( false );
  run( true );
- return 0;
+ return( 0 );
 }
 
 /*--------------------------------------------------------------------------*/
