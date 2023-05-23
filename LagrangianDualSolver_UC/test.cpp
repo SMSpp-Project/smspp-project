@@ -424,16 +424,10 @@ int main( int argc , char **argv ) {
    }
 
   // load the BlockSolverConfig for ThermalUnitBlock
-  auto any_reserve = std::any_of( sb.begin() , sb.end() , []( Block * b ) {
-   auto tub = dynamic_cast< ThermalUnitBlock * >( b );
-   return( tub ? ( ( ! tub->get_primary_rho().empty() ) ||
-                   ( ! tub->get_secondary_rho().empty() ) ) : 0 );
-  } );
-  std::string tubscfg = any_reserve ? "TUBSCfg-CPX.txt" : "TUBSCfg.txt";
-  auto ct = Configuration::deserialize( tubscfg );
+  auto ct = Configuration::deserialize( "TUBSCfg-CPX.txt" );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
-   std::cerr << "Error: " + tubscfg + " does not contain a BlockSolverConfig"
+   std::cerr << "Error: TUBSCfg-CPX.txt does not contain a BlockSolverConfig"
              << std::endl;
    delete( c );
    delete( tc );
