@@ -24,7 +24,7 @@
 clean::
 	rm -f $(MMGDIR)*.o $(MMGDIR)*~
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 MMGOBJ = $(MMGDIR)Graph.o
 MMGLIB =

@@ -29,7 +29,7 @@
 clean::
 	rm -f $(MMXDIR)*.o $(MMXDIR)*~
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 MMXOBJ = $(MMXDIR)MMCFCple.o
 MMXLIB = 

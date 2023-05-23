@@ -45,7 +45,7 @@ MMGDIR = $(libMMCFSDR)Graph/
 include $(MMGDIR)makefile
 
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
 libMMCFOBJ = $(MMGOBJ)\

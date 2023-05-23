@@ -42,7 +42,7 @@ OPTUxINC = -I$(libMMCFSDR)OPTUtils
 # include the libMMCF makefile requiring all external modules in input
 include $(libMMCFSDR)lib/makefile
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external -I directives for the core libMMCF
 libMMCFINC := $(libMMCFINC) $(OPTUxINC) $(libCPLEXINC)

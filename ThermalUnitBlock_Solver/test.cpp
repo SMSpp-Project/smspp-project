@@ -282,7 +282,7 @@ static double linear_cost( Index i )
   *   = if a ~= 0, then it is - | b | multiplied by a factor "uniformly
   *     distributed" in [ 0.1 , 10 ] (hence negative no matter what)
   *
-  *   = else is is - a u is multiplied by a factor "uniformly distributed"
+  *   = else if is - a u is multiplied by a factor "uniformly distributed"
   *     in [ 4 , 1 / 4 ] (hence negative no matter what)
   *
   * Note, however, that a could have just changed prior to the call to
@@ -300,7 +300,7 @@ static double linear_cost( Index i )
 
 /*--------------------------------------------------------------------------*/
 
-static bool SolveBoth( void ) 
+static bool SolveBoth( void )
 {
  #if( CHECK_SOLUTIONS & 4 )
   std::vector< double > p1( time_horizon );
@@ -550,7 +550,7 @@ int main( int argc , char **argv )
 
  TUBlock->generate_abstract_variables();
  TUBlock->generate_objective( nullptr );
- 
+
  // save some original data of the ThermalUnitBlock - - - - - - - - - - - - -
 
  time_horizon = TUBlock->get_time_horizon();
@@ -566,7 +566,7 @@ int main( int argc , char **argv )
   // l[ i ] = TUBlock->get_operational_min_power( i );
   u[ i ] = TUBlock->get_operational_max_power( i );
   }
- 
+
  // attach the Solver(s) to the ThermalUnitBlock- - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // do this by reading an appropriate BlockSolverConfig from file and
@@ -600,7 +600,7 @@ int main( int argc , char **argv )
  LOG1( "First call: " );
 
  bool AllPassed = SolveBoth();
- 
+
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // now, for n_repeat times:
@@ -679,7 +679,7 @@ int main( int argc , char **argv )
 
       for( Index i = 0 ; i < tochange ; ++i )
        nms[ i ] = of->is_active( TUBlock->get_commitment( 0 ) + nms[ i ] );
-     
+
       of->modify_linear_coefficients( std::move( newcsts ) ,
 				      std::move( nms ) , false );
       }
@@ -817,7 +817,7 @@ int main( int argc , char **argv )
 
       for( Index i = 0 ; i < tochange ; ++i )
        nms[ i ] = of->is_active( TUBlock->get_active_power( 0 ) + nms[ i ] );
-     
+
       of->modify_linear_coefficients( std::move( newcsts ) ,
 				      std::move( nms ) , false );
       }
