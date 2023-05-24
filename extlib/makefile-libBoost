@@ -19,7 +19,7 @@
 #                                                                            #
 ##############################################################################
 
-# define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
+# define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
 libBoostINC = -I/usr/local/include/
 libBoostLIB = -L/usr/local/lib

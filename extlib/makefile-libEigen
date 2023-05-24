@@ -19,7 +19,7 @@
 #                                                                            #
 ##############################################################################
 
-# define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
+# define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
 libEigenINC = -I/usr/local/include/eigen3/
 libEigenLIB = 

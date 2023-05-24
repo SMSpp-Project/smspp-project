@@ -19,7 +19,7 @@
 #                                                                            #
 ##############################################################################
 
-# define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
+# define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
 libNtCDFINC = -I/usr/local/include/
 libNtCDFLIB = -L/usr/local/lib/ -lnetcdf -lnetcdf-cxx4

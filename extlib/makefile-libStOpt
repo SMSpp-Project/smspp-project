@@ -22,7 +22,7 @@
 # basic StOpt directory - not needed if StOpt is installed, say in /usr/local
 libStOptBSCDIR = /Users/frangio/Applications/StOpt/install/
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libStOptLIB = -L/Users/frangio/Applications/StOpt/install/lib/ \
 	    -lStOpt -lgeners -lboost_timer-mt

@@ -22,7 +22,7 @@
 # basic SCIP directory
 libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libSCIPLIB = -L$(libSCIPBSCDIR)lib/ -lzimpl -lsoplex -lscip -ltbb
 libSCIPINC = -I$(libSCIPBSCDIR)include/

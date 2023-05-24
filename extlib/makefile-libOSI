@@ -22,7 +22,7 @@
 # basic COIN directory
 libOSIBSCDIR = /usr/local/
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libOSILIB = -L$(libOSIBSCDIR)lib -lOsiClp -lClp -lOsi -lCoinUtils
 libOSIINC = -I$(libOSIBSCDIR)include/coin
