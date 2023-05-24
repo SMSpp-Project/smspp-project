@@ -410,8 +410,6 @@ int main( int argc , char **argv ) {
    exit( 1 );
    }
 
-  auto sb = TestBlock->get_nested_Blocks();
-
   // load the BlockConfig for ThermalUnitBlock
   auto tc = Configuration::deserialize( "TUBCfg.txt" );
   auto tbc = dynamic_cast< BlockConfig * >( tc );
@@ -499,6 +497,8 @@ int main( int argc , char **argv ) {
     break;  // note that we assume this happens *at most* once
     }
 
+   auto sb = TestBlock->get_nested_Blocks();
+
    // if "easy" components are used
    if( DoEasy ) {
     // define the vector of components to be excluded from being "easy",
@@ -542,12 +542,11 @@ int main( int argc , char **argv ) {
                                []( const auto & pair ) {
                                 return( pair.first == "vintNoEasy" );
                                } );
-    if( ( ( cc->vint_pars.empty() ) ||          // no pairs present
+    if( ( cc->vint_pars.empty() ||              // no pairs present
           ( ( it_cc != cc->vint_pars.end() ) && // or vintNoEasy exists
-            ( it_cc->second.empty() ) ) ) ) {   // but is empty
+            it_cc->second.empty() ) ) ) {       // but is empty
      // ... and no "hard" components were selected...
      if( NoEasy.empty() ) {
-
       // ... but there is at least one ECNetworkBlock
       if( std::any_of( sb.begin() , sb.end() , []( Block * b ) {
        return( dynamic_cast< ECNetworkBlock * >( b ) );
@@ -566,7 +565,6 @@ int main( int argc , char **argv ) {
          "BundleSolver cannot deal with the problem if all its components are "
          "`easy`." ) );
        }
-
       }
      } // ... else if "hard" components were given in the Configuration file...
     else
