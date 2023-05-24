@@ -39,7 +39,7 @@
 	url = https://gitlab.com/smspp/lagrangiandualsolver.git
 [submodule "InvestmentBlock"]
 	path = InvestmentBlock
-	url = https://gitlab.com/smspp/investmentblock.git
+	url = git@gitlab.com:smspp/investmentblock.git
 [submodule "tools"]
 	path = tools
 	url = https://gitlab.com/smspp/tools.git
