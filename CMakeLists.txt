@@ -58,6 +58,8 @@ add_subdirectory(StochasticBlock)
 add_subdirectory(SDDPBlock)       # Requires StochasticBlock, StOpt
 add_subdirectory(CapacitatedFacilityLocationBlock)
                                   # Requires MCFBlock, BinaryKnapsackBlock
+add_subdirectory(InvestmentBlock) # Requires SDDPBlock, UCBlock,
+                                  # MILPSolver, BundleSolver
 
 # Solvers
 add_subdirectory(MILPSolver)      # Requires CPLEX and/or SCIP
