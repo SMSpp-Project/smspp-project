@@ -46,3 +46,6 @@
 [submodule "tests"]
 	path = tests
 	url = https://gitlab.com/smspp/tests.git
+[submodule "InvestmentBlock"]
+	path = InvestmentBlock
+	url = https://gitlab.com/smspp/investmentblock
