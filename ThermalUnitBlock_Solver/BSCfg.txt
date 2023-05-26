@@ -45,7 +45,6 @@ ComputeConfig # exact type of the ComputeConfig object
 0 # number of string parameters
 
 # now all the string parameters
-#strOutputFile	cfl1.lp
 # [none]
 
 0 # number of vector-of-int parameters
@@ -93,7 +92,6 @@ CPXPARAM_Threads    1
 
 # now all the string parameters
 #strOutputFile	1tub.lp
-# [none]
 
 0 # number of vector-of-int parameters
 
