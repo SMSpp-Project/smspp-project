@@ -1,7 +1,14 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BPar1.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BPar2.txt - - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockConfig for CapacitatedFacilityLocationBlock
+#
+# The CapacitatedFacilityLocationBlock is Configur-ed for being solved by a
+# *MILPSolver (either to integer optimality or the continuous relaxation)
+# with the use of the strong forcing constraints, hence
+# - Natural configuration
+# - all (static) Constraint
+# - dynamic Constraint active
 #
 #   Antonio Frangioni
 #
@@ -14,7 +21,7 @@ BlockConfig # exact type of the ComputeConfig object
 
 # static_constraints
 SimpleConfiguration<int>
-3    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
+7    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
 
 # dynamic_constraints
 SimpleConfiguration<std::pair<int,double>>
@@ -24,6 +31,8 @@ SimpleConfiguration<std::pair<int,double>>
 # static_variables
 SimpleConfiguration<int>
 0    # 0 = Natural, 1 = Knapsack, 2 = Flow (Formulation)
+
+# note that we could eof() the file here since the rest is all empty
 
 # dynamic_variables
 *    # [none]
@@ -44,5 +53,5 @@ SimpleConfiguration<int>
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BPar1.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BPar2.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

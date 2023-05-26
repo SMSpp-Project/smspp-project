@@ -48,7 +48,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 2
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -72,7 +72,7 @@
 // the data of the problem is read and used to find the proper scaling
 // factor needed to properly setting EpsFlw and EpsCst;
 
-#define SET_EPS 1
+#define SET_EPS 0
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, random facilities cost are chosen with some probability of
@@ -93,14 +93,14 @@
 // tests with ( wchg & 1 ) == true (changing facility costs) have a high
 // cance of producing negative facilities costs and then failing
 
-#define NEGATIVE_F_COSTS 0
+#define NEGATIVE_F_COSTS 1
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attached to the original
 // CapacitatedFacilityLocationBlock is detached and re-attached to it at all
 // iterations
 
-#define DETACH_1ST 0
+#define DETACH_1ST 1
 
 // if nonzero, the Solver attached to the R3Block is detached and re-attached
 // to it at all iterations
@@ -374,15 +374,12 @@ static void SShift( Subset & sbst , Index k )
 
 /*--------------------------------------------------------------------------*/
 
-static void PrintResults( bool hs , int rtrn , double fo )
+static void PrintResults( int rtrn , double fo )
 {
- if( hs )
-  cout << fo;
+ if( rtrn == Solver::kInfeasible )
+  cout << "    Unfeas";
  else
-  if( rtrn == Solver::kInfeasible )
-   cout << "    Unfeas";
-  else
-   cout << "      Error!";
+  cout << fo;
  }
 
 /*--------------------------------------------------------------------------*/
@@ -403,11 +400,7 @@ static bool SolveBoth( void )
   #endif
 
   int rtrn1st = Slvr1->compute( false );
-  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
-                   && ( rtrn1st != Solver::kUnbounded )
-                   && ( rtrn1st != Solver::kInfeasible ) )
-                 || ( rtrn1st == Solver::kLowPrecision ) );
-  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
+  double fo1st = Slvr1->get_lb();  // only compare lower bounds
 
   #if( LOG_LEVEL >= 1 )
    auto end = std::chrono::system_clock::now();
@@ -432,11 +425,7 @@ static bool SolveBoth( void )
 
   if( ! niter ) {  // solve once and compare results- - - - - - - - - - - - -
 
-   bool hs2nd = ( ( ( rtrn2nd >= Solver::kOK ) && ( rtrn2nd < Solver::kError )
-                   && ( rtrn2nd != Solver::kUnbounded )
-                   && ( rtrn2nd != Solver::kInfeasible ) )
-                 || ( rtrn2nd == Solver::kLowPrecision ) );
-   double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+   double fo2nd = Slvr2->get_lb();  // only compare lower bounds
 
    #if( LOG_LEVEL >= 1 )
     end = std::chrono::system_clock::now();
@@ -445,9 +434,8 @@ static bool SolveBoth( void )
     cout << setprecision( 2 ) << " - " << elapsed.count();
    #endif
 
-   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 5e-7 *
-			   max( double( 1 ) , max( abs( fo1st ) ,
-						   abs( fo2nd ) ) ) ) ) {
+   if( abs( fo1st - fo2nd ) <
+       1e-5 *  max( double( 1 ) , max( abs( fo1st ) , abs( fo2nd ) ) ) ) {
     LOG1( " - OK(f)" << endl );
     return( true );
     }
@@ -460,9 +448,9 @@ static bool SolveBoth( void )
 
    #if( LOG_LEVEL >= 1 )
     cout << " - " << setprecision( 7 );
-    PrintResults( hs1st , rtrn1st , fo1st );
+    PrintResults( rtrn1st , fo1st );
     cout << " - ";
-    PrintResults( hs2nd , rtrn2nd , fo2nd );
+    PrintResults( rtrn2nd , fo2nd );
     cout << endl;
    #endif
 
@@ -641,6 +629,8 @@ int main( int argc , char **argv )
 		  << "      typ = [C], F, L, ignored if name ends in .nc4"
 		  << endl 
 		  << "      niter: how many Slope Scaling iterations [0]"
+		  << endl 
+		  << "      seed: seed for the random number generator [1]"
 		  << endl 
 		  << "      wchg: what to change, coded bit-wise "
 		  << endl

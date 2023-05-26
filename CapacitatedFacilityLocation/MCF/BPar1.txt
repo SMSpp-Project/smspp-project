@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BPar2.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BPar1.txt - - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockConfig for CapacitatedFacilityLocationBlock
 #
@@ -17,9 +17,10 @@ SimpleConfiguration<int>
 3    # bit 0 = demand, bit 1 = capacity, bit 2 = strong
 
 # dynamic_constraints
-SimpleConfiguration<std::pair<int,double>>
-375
-1e-4
+*    # [none]
+#SimpleConfiguration<std::pair<int,double>>
+#375
+#1e-4
 
 # static_variables
 SimpleConfiguration<int>
@@ -44,5 +45,5 @@ SimpleConfiguration<int>
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BPar2.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BPar1.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

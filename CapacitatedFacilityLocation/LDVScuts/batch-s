@@ -1,8 +1,12 @@
 #/usr/bin/env bash
 # testing batch reduced to small instances only, so that solving them
-# to integer optimality is an option
+# is an option
+
+export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIPOptSuite-8.0.3-Darwin/lib
 
 niter=0
+# nothing
+wchg=1
 # everything, comprised abstract
 #wchg=511
 # everything, but not abstract
@@ -11,7 +15,7 @@ niter=0
 #wchg=447
 # everything but fix-open and change type, comprised abstract
 #wchg=319
-wchg=63
+#wchg=63
 rounds=40
 maxseed=1
 
@@ -23,7 +27,7 @@ do
 for (( seed=0 ; seed<=maxseed ; seed++ ))
 do
 
-g=data/txt/ORLib/cap${f}.txt
+g=../data/txt/ORLib/cap${f}.txt
 
 printf "[${g} c $niter $seed $wchg $rounds]: "
 
