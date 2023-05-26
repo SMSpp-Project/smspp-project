@@ -30,7 +30,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 // -1 = no log at all, not even pass/fail
 // 0 = only pass/fail
 // 1 = result of each test
