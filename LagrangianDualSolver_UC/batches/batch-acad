@@ -3,7 +3,7 @@
 # correct value of tStar: 1e+0
 
 folder=./data/UC_Data/T-Ramp/
-#par=BSPar-2S.txt
+par=BSPar-2S.txt
 #mlf=log.txt
 
 for size in 10 20 50 75 100 200
