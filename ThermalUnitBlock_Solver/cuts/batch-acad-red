@@ -28,7 +28,7 @@ else
 printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter]: "
 fi
 
-"/home/david/Insync/donato.meoli.95@gmail.com/Google Drive/smspp-project/build/tests/ThermalUnitBlock_Solver/TUDPS_test" ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter
+./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
