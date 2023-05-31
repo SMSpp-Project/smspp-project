@@ -21,6 +21,21 @@ submodules.
 > If you are looking for the *SMS++ core library*, you will find it
 > [here](https://gitlab.com/smspp/smspp).
 
+## Success stories
+
+The SMS++ framework is written in advanced C++, and its use entails climbing
+a significant learning curve. Yet, mastering it may be worth especially for
+the solution of very-large-scale, demanding optimization problems arising
+in applications. Indeed, the SMS++ project has already been instrumental in
+some complex projects, such as
+
+- the [plan4res H2020 project](https://www.plan4res.eu)
+
+- the [openENTRANCE H2020 project](https://openentrance.eu)
+
+and its use is planned for several other ones (watch this space).
+
+
 ## Documentation
 
 - The [SMS++ API reference](https://smspp.gitlab.io/smspp-project)
