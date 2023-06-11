@@ -1,7 +1,7 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 for f in ./data/plan4res/*.nc4
-do 
+do
 
 printf "[${f}]: "
 

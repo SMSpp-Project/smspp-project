@@ -1,8 +1,8 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 #for f in ./data/plan4res-data/France/WeekAgr/*.nc4
 for f in ./data/plan4res-data/France/WeekDesAgr/*.nc4
-do 
+do
 
 printf "[${f}]: "
 
