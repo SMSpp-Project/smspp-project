@@ -5,40 +5,35 @@ what=133
 
 # ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
 
-for wf in 8 9 10 11 12 13
-do
-i=24
-#for i in 24 96
-#do
-#if [ $wf -ge 10 ] && [ $i -eq 96 ]; then
-#continue
-#fi
-j=1
-#for j in 1 12 16 23 
-#do
-for (( h=1 ; h<=100 ; h++ ))
-do
-for (( seed=0 ; seed<20 ; seed++ ))
-do
-#seed=0
+for wf in 8 9 10 11 12 13; do
+  i=24
+  #for i in 24 96; do
+    #if [ $wf -ge 10 ] && [ $i -eq 96 ]; then
+      #continue
+    #fi
+    j=1
+    #for j in 1 12 16 23; do
+      for (( h = 1 ; h <= 100 ; h++ )); do
+        for (( seed = 0 ; seed < 20 ; seed++ )); do
+          #seed=0
 
-if [ -z "$iter" ]; then
-printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf]: "
-else
-printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter]: "
-fi
+          if [ -z "$iter" ]; then
+            printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf]: "
+          else
+            printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter]: "
+          fi
 
-./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter
+          ./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter
 
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    exit 1
-fi
+          retVal=$?
+          if [ $retVal -ne 0 ]; then
+            exit 1
+          fi
 
-done
-done
-#done
-#done
+        done
+      done
+    #done
+  #done
 done
 
 # end batch

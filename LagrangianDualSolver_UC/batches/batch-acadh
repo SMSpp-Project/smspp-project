@@ -5,25 +5,23 @@
 folder=./data/UC_Data/HT-Ramp/
 par=BSPar-2S.txt
 
-for size in 20_10 50_20 75_35 100_50 150_75 200_100
-do
-for (( seed=1 ; seed<3 ; seed++ ))
-do
+for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
+  for (( seed = 1 ; seed < 3 ; seed++ )); do
 
-if [ -z "$par" ]; then
-printf "[$folder${size}_${seed}_w.nc4]: "
-else
-printf "[$folder${size}_${seed}_w.nc4 $par]: "
-fi
+    if [ -z "$par" ]; then
+      printf "[$folder${size}_${seed}_w.nc4]: "
+    else
+      printf "[$folder${size}_${seed}_w.nc4 $par]: "
+    fi
 
-./LDS_UC_test $folder${size}_${seed}_w.nc4 $par
+    ./LDS_UC_test $folder${size}_${seed}_w.nc4 $par
 
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    exit 1
-fi
+    retVal=$?
+    if [ $retVal -ne 0 ]; then
+      exit 1
+    fi
 
-done
+  done
 done
 
 # end batch

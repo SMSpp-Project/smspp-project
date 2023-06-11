@@ -2,21 +2,20 @@
 
 par=BSPar-2S.txt
 
-for f in ./data/EC_Data/EC_CO_*.nc4 ./data/EC_Data/EC_NC_*.nc4
-do
+for f in ./data/EC_Data/EC_CO_*.nc4 ./data/EC_Data/EC_NC_*.nc4; do
 
-if [ -z "$par" ]; then
-printf "[${f}]: "
-else
-printf "[${f} $par]: "
-fi
+  if [ -z "$par" ]; then
+    printf "[${f}]: "
+  else
+    printf "[${f} $par]: "
+  fi
 
-./LDS_UC_test ${f} $par
+  ./LDS_UC_test ${f} $par
 
-retVal=$?
-if [ $retVal -ne 0 ]; then
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
     exit 1
-fi
+  fi
 
 done
 

@@ -16,20 +16,18 @@
 #1W_19Z_DP_1230TU_11SS_12STS_52RES
 #1W_19Z_D_1230TU_11SS_12STS_52RES
 
+for f in ./data/plan4res-data/FirstSetofInstances/*.nc4; do
+#for f in ./data/plan4res-data/SecondSetofInstances/*.nc4; do
+#for f in ./data/plan4res-data/TestUC/1D_1Z_DP_1SS_10TU/*.nc4; do
 
-for f in ./data/plan4res-data/FirstSetofInstances/*.nc4
-#for f in ./data/plan4res-data/SecondSetofInstances/*.nc4
-#for f in ./data/plan4res-data/TestUC/1D_1Z_DP_1SS_10TU/*.nc4
-do
+  printf "[${f}]: "
 
-printf "[${f}]: "
+  ./LDS_UC_test ${f}
 
-./LDS_UC_test ${f}
-
-retVal=$?
-if [ $retVal -ne 0 ]; then
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
     exit 1
-fi
+  fi
 
 done
 

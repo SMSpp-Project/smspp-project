@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 
-for f in ./data/plan4res/*.nc4
-do
+for f in ./data/plan4res/*.nc4; do
 
-printf "[${f}]: "
+  printf "[${f}]: "
 
-./LDS_UC_test ${f} > log
+  ./LDS_UC_test ${f} > log
 
-retVal=$?
-if [ $retVal -ne 0 ]; then
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
     exit 1
-fi
+  fi
 
 done
 
