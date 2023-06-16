@@ -2,79 +2,58 @@
 
 # JLF - - - - - - - - - - - - - - - - - - - -
 
-for i in HALF TWO
-do 
-./MMCFtest data/JLF/ALK/alk.$i p
+for i in HALF TWO; do
+  ./MMCFtest data/JLF/ALK/alk.$i p
 done
 
-for i in 1.5k 1.6k 3.4k 3.7k
-do
-./MMCFtest data/JLF/Assad/assad$i p
+for i in 1.5k 1.6k 3.4k 3.7k; do
+  ./MMCFtest data/JLF/Assad/assad$i p
 done
 
-for (( i = 1 ; i < 7 ; i++ ))
-do
-./MMCFtest data/JLF/Chen.DSP/chen$i p
+for (( i = 1 ; i < 7 ; i++ )); do
+  ./MMCFtest data/JLF/Chen.DSP/chen$i p
 done
 
-for (( i = 1 ; i < 7 ; i++ ))
-do
-./MMCFtest data/JLF/Chen.PSP/psp$i p
+for (( i = 1 ; i < 7 ; i++ )); do
+  ./MMCFtest data/JLF/Chen.PSP/psp$i p
 done
 
-for i in 10term 10term.0 10term.50 10term.100 15term 15term.0
-do
-./MMCFtest data/JLF/Farvolden/$i p
+for i in 10term 10term.0 10term.50 10term.100 15term 15term.0; do
+  ./MMCFtest data/JLF/Farvolden/$i p
 done
 
 ./MMCFtest data/JLF/Powell/veh8 p
 
 # Mnetgen - - - - - - - - - - - - - - - - - - - -
 
-for i in 64
-do
-for j in 4 8 16 32 64
-do
-for (( h = 1 ; h < 13 ; h++ ))
-do
-
-./MMCFtest data/Mnetgen/$i-$j-$h m
-
-done
-done
+for i in 64; do
+  for j in 4 8 16 32 64; do
+    for (( h = 1 ; h < 13 ; h++ )); do
+      ./MMCFtest data/Mnetgen/$i-$j-$h m
+    done
+  done
 done
 
-for i in 128
-do
-for j in 4 8 16 32 64 128
-do
-for (( h = 1 ; h < 13 ; h++ ))
-do
-
-./MMCFtest data/Mnetgen/$i-$j-$h m
-
-done
-done
+for i in 128; do
+  for j in 4 8 16 32 64 128; do
+    for (( h = 1 ; h < 13 ; h++ )); do
+      ./MMCFtest data/Mnetgen/$i-$j-$h m
+    done
+  done
 done
 
-for i in 256
-do
-for j in 4 8 16 32 64 128 256
-do
-for (( h = 1 ; h < 13 ; h++ ))
-do
-
-./MMCFtest data/Mnetgen/$i-$j-$h m
-
-done
-done
+for i in 256; do
+  for j in 4 8 16 32 64 128 256; do
+    for (( h = 1 ; h < 13 ; h++ )); do
+      ./MMCFtest data/Mnetgen/$i-$j-$h m
+    done
+  done
 done
 
 # Canad - - - - - - - - - - - - - - - - - - - -
 
-for f in data/Canad/*.dat
-do 
-./MMCFtest ${f} s
+for f in data/Canad/*.dat; do
+  ./MMCFtest ${f} s
 done
 
 # end batch
