@@ -12,12 +12,12 @@ do
 ./MMCFtest data/JLF/Assad/assad$i p
 done
 
-for (( i=1 ; i<7 ; i++ ))
+for (( i = 1 ; i < 7 ; i++ ))
 do
 ./MMCFtest data/JLF/Chen.DSP/chen$i p
 done
 
-for (( i=1 ; i<7 ; i++ ))
+for (( i = 1 ; i < 7 ; i++ ))
 do
 ./MMCFtest data/JLF/Chen.PSP/psp$i p
 done
@@ -35,7 +35,7 @@ for i in 64
 do
 for j in 4 8 16 32 64
 do
-for (( h=1 ; h<13 ; h++ ))
+for (( h = 1 ; h < 13 ; h++ ))
 do
 
 ./MMCFtest data/Mnetgen/$i-$j-$h m
@@ -48,7 +48,7 @@ for i in 128
 do
 for j in 4 8 16 32 64 128
 do
-for (( h=1 ; h<13 ; h++ ))
+for (( h = 1 ; h < 13 ; h++ ))
 do
 
 ./MMCFtest data/Mnetgen/$i-$j-$h m
@@ -61,7 +61,7 @@ for i in 256
 do
 for j in 4 8 16 32 64 128 256
 do
-for (( h=1 ; h<13 ; h++ ))
+for (( h = 1 ; h < 13 ; h++ ))
 do
 
 ./MMCFtest data/Mnetgen/$i-$j-$h m

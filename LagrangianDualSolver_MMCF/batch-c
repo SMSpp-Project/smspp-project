@@ -1,16 +1,15 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
-for f in data/Canad/*.dat
-do
+for f in data/Canad/*.dat; do
 
-printf "[${f} s]: "
+  printf "[${f} s]: "
 
-./LDS_MMCF_test ${f} s
+  ./LDS_MMCF_test ${f} s
 
-retVal=$?
-if [ $retVal -ne 0 ]; then
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
     exit 1
-fi
+  fi
 
 done
 
