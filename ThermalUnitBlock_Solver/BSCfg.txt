@@ -81,12 +81,10 @@ intCutSepPar        7    # separate user cuts + lazy constraints
 CPXPARAM_Threads    1
 #CPX_PARAM_NUMERICALEMPHASIS 1
 
-# note that we could eof() the file here since the rest is all empty
-
-0 # number of double parameters
+1 # number of double parameters
 
 # now all the double parameters
-# [none]
+CPXPARAM_Simplex_Tolerances_Feasibility 1e-9
 
 0 # number of string parameters
 
