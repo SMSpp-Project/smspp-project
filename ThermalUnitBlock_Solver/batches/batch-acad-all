@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 what=7
-iter=0
+#iter=0
 
 # ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
 

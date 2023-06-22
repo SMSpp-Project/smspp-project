@@ -740,7 +740,7 @@ int main( int argc , char **argv )
      Subset nms( GenerateRand( time_horizon , tochange ) );
 
      for( Index i = 0 ; i < tochange ; ++i )
-      newcsts[ i ] = linear_cost( nms[ i ] );
+      newcsts[ i ] = quadratic_cost( nms[ i ] );
 
      if( ( wchg & 128 ) && ( dis( rg ) < 0.5 ) ) {
       // change via abstract representation
