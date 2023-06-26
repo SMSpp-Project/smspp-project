@@ -11,11 +11,6 @@
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.12)
 
-if (MINGW)
-	set(CMAKE_CXX_COMPILER "C:/MinGW/bin/g++")
-	set(CMAKE_C_COMPILER "C:/MinGW/bin/gcc")
-endif ()
-
 # ----- Project definition and configuration -------------------------------- #
 project("The SMS++ Project")
 
