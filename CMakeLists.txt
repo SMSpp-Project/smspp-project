@@ -18,9 +18,6 @@ project("The SMS++ Project")
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
-#add_compile_options(-fsanitize=address -fsanitize=undefined)
-#add_link_options(-fsanitize=address -fsanitize=undefined)
-
 # Some easier way to alleviate the cmake call and pick the directories from a ROOT
 if (COIN_ROOT_DIR)
 	set(Clp_ROOT ${COIN_ROOT_DIR})
