@@ -1,5 +1,0 @@
-REMEMBER TO COMPILE test.cpp WITH
-
-#define SET_EPS 1
-
-#define NEGATIVE_F_COSTS 0
