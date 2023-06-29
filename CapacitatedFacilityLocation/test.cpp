@@ -35,8 +35,25 @@
  *    FACILITIES THAT SHOULD WORK IN ALL FORMULATIONS
  *
  * 3) if the Flow Formulation is selected and a MCFSolver is used to solve
- *    it, then it is likely necessary to set the absolute accuracies (see
- *    SET_EPS)
+ *    it, then it is likely necessary to set the absolute accuracies, since
+ *    several MCFSolver won't work properly without properly setting the
+ *    numerical tolerances EpsFlw and EpsCst. Furthermore, an issue with the
+ *    MCF R3Block is that the corresponding relaxation is *not* equivalent to
+ *    the continuous one if the facilities cost are negative. Indeed, in that
+ *    relaxation one has
+ *
+ *      y = \sum_j x_{ij} / D_i
+ *
+ *    while usually it is
+ *
+ *      y >= \sum_j x_{ij} / D_i
+ *
+ *    This means that with a negative facility cost y_i will be put to 1 in
+ *    the "normal" formulations, but it will not (unless \sum_j x_{ij} = D_i)
+ *    in the MCF relaxation. A specific setting from the command line is
+ *    provided to ensure that 1) absolute accuracies are set in the Solver
+ *    of the R3B, and 2) no negative facility costs are ever generated. Not
+ *    using this setting in the right case may cause tests to fail.
  *
  * \author Antonio Frangioni \n
  *         Dipartimento di Informatica \n
@@ -48,7 +65,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -67,40 +84,11 @@
 #endif
 
 /*--------------------------------------------------------------------------*/
-// several MCFSolver won't work properly without properly setting the
-// numerical tolerances EpsFlw and EpsCst; if this macro is set to nonzero,
-// the data of the problem is read and used to find the proper scaling
-// factor needed to properly setting EpsFlw and EpsCst;
-
-#define SET_EPS 0
-
-/*--------------------------------------------------------------------------*/
-// if nonzero, random facilities cost are chosen with some probability of
-// becoming negative (even assuming they are all non-negative to start with);
-// this is an issue with the MCF R3Block, since that relaxation is not
-// equivalent to the continuous onw if the facilities cost are negative.
-// indeed, in that relaxation one has
-//
-//      y = \sum_j x_{ij} / D_i
-//
-// while usually it is
-//
-//      y >= \sum_j x_{ij} / D_i
-//
-// this means that with a negative facility cost y_i will be put to 1 in
-// the "normal" formulations, but it will not (unless \sum_j x_{ij} = D_i)
-// in the MCF relaxation. hence, setting NEGATIVE_F_COSTS == 1 means that
-// tests with ( wchg & 1 ) == true (changing facility costs) have a high
-// cance of producing negative facilities costs and then failing
-
-#define NEGATIVE_F_COSTS 1
-
-/*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attached to the original
 // CapacitatedFacilityLocationBlock is detached and re-attached to it at all
 // iterations
 
-#define DETACH_1ST 1
+#define DETACH_1ST 0
 
 // if nonzero, the Solver attached to the R3Block is detached and re-attached
 // to it at all iterations
@@ -143,13 +131,11 @@
 
 #include "BlockSolverConfig.h"
 
+#include "CDASolver.h"
+
 #include "UpdateSolver.h"
 
 #include "CapacitatedFacilityLocationBlock.h"
-
-#if SET_EPS
- #include "CDASolver.h"
-#endif
 
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- USING -----------------------------------*/
@@ -256,73 +242,60 @@ static double rndfctrn( void )
  }
 
 /*--------------------------------------------------------------------------*/
-// return vect[ rng ] scaled by random factors in [ 0.5 , 2 ]: this conserves
-// positivity (if vect[ rng ] >= 0 before, this is still true after), and
-// therefore is the "right" operation for demands and capacities that need
+// if neg == true, returns vect[ rng ] scaled by random factors in [ -2 , 2 ]
+// (using rndfctrn(), see comments there): this means that there is some
+// chance that some element of vect[ rng ] is < 0 after the operation even if
+// vect[ rng ] was all >= 0 before, and therefore is the "right" operation
+// for costs (facility and transporation) since these may end up being < 0,
+// e.g., in a Lagrangian approach. But this may have to be controlled for
+// design costs in some cases (cf. the comments at the beginning), which is
+// why by rather setting neg == false it returns vect[ rng ] scaled by random
+// factors in [ 0.5 , 2 ]: (using rndfctr(), see comments there); this
+// conserves positivity (if vect[ rng ] >= 0 before, this is still true after),
+// and therefore is the "right" operation for demands and capacities that need
 // always be >= 0
 
 template< class T >
-static vector< T > rndscale( const T * vect , Range rng )
+static vector< T > rndscale( const T * vect , Range rng , bool neg = false )
 {
  vector< T > tmp( rng.second - rng.first );
  vect += rng.first;
- for( auto & el : tmp )
-  el = rndfctr() * (*(vect++));
+ if( neg )
+  for( auto & el : tmp )
+   el = rndfctrn() * (*(vect++));
+ else
+  for( auto & el : tmp )
+   el = rndfctr() * (*(vect++));
 
  return( tmp );
  }
 
 /*--------------------------------------------------------------------------*/
-// return vect[ sbst ] scaled by random factors in [ 0.5 , 2 ] (using
-// rndscale(), see comments there); this conserves positivity (if
-// vect[ sbst ] >= 0 before, this is still true after), and therefore is the
-// "right" operation for demands and capacities that need always be >= 0
-
-template< class T >
-static vector< T > rndscale( const T * vect , c_Subset sbst )
-{
- vector< T > tmp( sbst.size() );
- auto vit = tmp.begin();
- for( auto i : sbst )
-  *(vit++) = rndfctr() * vect[ i ];
-
- return( tmp );
- }
-
-/*--------------------------------------------------------------------------*/
-// return vect[ rng ] scaled by random factors in [ - 2 , 2 ]  (using
-// rndscalen(), see comments there): this means that there is some chance
-// that some element of vect[ rng ] is < 0 after the operation even if
-// vect[ rng ] was all >= 0 before, and therefore is the "right" operation
-// for costs (facility and transporation) since these may end up being < 0,
-// e.g., in a Lagrangian approach (but check comments to  NEGATIVE_F_COSTS)
-
-template< class T >
-static vector< T > rndscalen( const T * vect , Range rng )
-{
- vector< T > tmp( rng.second - rng.first );
- vect += rng.first;
- for( auto & el : tmp )
-  el = rndfctrn() * (*(vect++));
-
- return( tmp );
- }
-
-/*--------------------------------------------------------------------------*/
-// return vect[ sbst ] scaled by random factors in [ - 2 , 2 ] (using
-// rndscalen(), see comments there): this means that there is some chance
-// that some element of vect[ sbst ] is < 0 after the operation even if
+// if neg == true, returns vect[ sbst ] scaled by random factors in [ -2 , 2 ]
+// (using rndfctrn(), see comments there): this means that there is some
+// chance that some element of vect[ sbst ] is < 0 after the operation even if
 // vect[ sbst ] was all >= 0 before, and therefore is the "right" operation
 // for costs (facility and transporation) since these may end up being < 0,
-// e.g., in a Lagrangian approach (but check comments to  NEGATIVE_F_COSTS)
+// e.g., in a Lagrangian approach. But this may have to be controlled for
+// design costs in some cases (cf. the comments at the beginning), which is
+// why by rather setting neg == false it returns vect[ sbst ] scaled by random
+// factors in [ 0.5 , 2 ]: (using rndfctr(), see comments there); this
+// conserves positivity (if vect[ sbst ] >= 0 before, this is still true
+// after), and therefore is the "right" operation for demands and capacities
+// that need always be >= 0
 
 template< class T >
-static vector< T > rndscalen( const T * vect , c_Subset sbst )
+static vector< T > rndscale( const T * vect , c_Subset sbst ,
+			     bool neg = false )
 {
  vector< T > tmp( sbst.size() );
  auto vit = tmp.begin();
+ if( neg )
+  for( auto i : sbst )
+   *(vit++) = rndfctrn() * vect[ i ];
+ else
  for( auto i : sbst )
-  *(vit++) = rndfctrn() * vect[ i ];
+  *(vit++) = rndfctr() * vect[ i ];
 
  return( tmp );
  }
@@ -644,6 +617,8 @@ int main( int argc , char **argv )
 		  << endl
 		  << "            8 (+256) = change abstract representation"
 		  << endl
+		  << "            9 (+512) = set eps & no negative design"
+		  << endl
 		  << "      #rounds: number of changing rounds [40]"
 		  << endl
 		  << "      #chng: average number of elements to change [10]"
@@ -764,8 +739,7 @@ int main( int argc , char **argv )
  // compute and set numerical tolerances in the B2 (MCF)Solver - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
- #if( SET_EPS )
- {
+ if( wchg & 512 ) {
   auto TC = B1->get_Transportation_Costs().data();
   auto c_abs = std::abs( *std::max_element( TC , TC + n * m ,
 					    []( auto a , auto b ) {
@@ -794,7 +768,6 @@ int main( int argc , char **argv )
   B2S->set_par( CDASolver::dblAAccDSol ,
 		BA * std::max( c_abs , double( 1 ) ) ); 
   }
- #endif
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -883,11 +856,11 @@ int main( int argc , char **argv )
 
     if( tochange == 1 ) {     // change a single element
      auto i = Index( dis( rg ) * ( m - 1 ) );
-     #if NEGATIVE_F_COSTS
-      auto NC = rndfctrn() * B1->get_Fixed_Cost( i );
-     #else
-      auto NC = rndfctr() * B1->get_Fixed_Cost( i );
-     #endif
+     auto NC = B1->get_Fixed_Cost( i );
+     if( wchg & 512 )
+      NC *= rndfctr();   // ensure no negative fixed costs
+     else
+      NC *= rndfctrn();  // negative fixed costs alowed
 
     if( ( wchg & 256 ) && ( dis( rg ) < 0.5 ) ) {
      // change via abstract representation
@@ -902,11 +875,8 @@ int main( int argc , char **argv )
       Range rng;
       rng.first = dis( rg ) * ( m - tochange );
       rng.second = rng.first  + tochange;
-      #if NEGATIVE_F_COSTS
-       auto NC = rndscalen( B1->get_Fixed_Costs().data() , rng );
-      #else
-       auto NC = rndscale( B1->get_Fixed_Costs().data() , rng );
-      #endif
+      auto NC = rndscale( B1->get_Fixed_Costs().data() , rng ,
+			  ! ( wchg & 512 ) );
 
       if( ( wchg & 256 ) && ( dis( rg ) < 0.5 ) ) {
        // change via abstract representation
@@ -919,11 +889,8 @@ int main( int argc , char **argv )
      else {                    // in the others do a sparse change
       bool ord = ( dis( rg ) < 0.5 );
       auto sbst = GenerateRand( m , tochange , ord );
-      #if NEGATIVE_F_COSTS
-       auto NC = rndscalen( B1->get_Fixed_Costs().data() , sbst );
-      #else
-       auto NC = rndscale( B1->get_Fixed_Costs().data() , sbst );
-      #endif
+      auto NC = rndscale( B1->get_Fixed_Costs().data() , sbst ,
+			  ! ( wchg & 512 ) );
       LOG1( "(s" );
       if( ! ord )
        LOG1( ",u" );
@@ -966,7 +933,7 @@ int main( int argc , char **argv )
       Range rng;
       rng.first = dis( rg ) * ( n * m - tochange );
       rng.second = rng.first  + tochange;
-      auto NC = rndscalen( B1->get_Transportation_Costs().data() , rng );
+      auto NC = rndscale( B1->get_Transportation_Costs().data() , rng , true );
 
       if( ( wchg & 256 ) && ( dis( rg ) < 0.5 ) ) {
        // change via abstract representation
@@ -981,7 +948,8 @@ int main( int argc , char **argv )
      else {                    // in the others do a sparse change
       bool ord = ( dis( rg ) < 0.5 );
       auto sbst = GenerateRand( n * m , tochange , ord );
-      auto NC = rndscalen( B1->get_Transportation_Costs().data() , sbst );
+      auto NC = rndscale( B1->get_Transportation_Costs().data() , sbst ,
+			  true );
       LOG1( "(s" );
       if( ! ord )
        LOG1( ",u" );
