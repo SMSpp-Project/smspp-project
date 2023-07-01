@@ -16,8 +16,9 @@ BlockSolverConfig     # exact type of the Configuration object
 
 2  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-CPXMILPSolver           # name of 1st Solver
+#CPXMILPSolver           # name of 1st Solver
 #SCIPMILPSolver           # name of 1st Solver
+GRBMILPSolver           # name of 1st Solver
 LagrangianDualSolver    # name of 2nd Solver
 
 2  # number of ComputeConfig in this BlockSolverConfig
@@ -38,7 +39,7 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-26 # number of integer parameters
+27 # number of integer parameters
 
 # now all the integer parameters
 # first those of LagrangianDualSolver proper
@@ -60,6 +61,7 @@ intBPar7   11     # how to deal with the global pools
 intMnSSC    0     # min number of consecutive SS with the same t for a t increase
 intMnNSC    1     # min number of consecutive NS with the same t for a t decrease
 inttSPar1  12     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
+intMaxThread 1
 
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration
 
