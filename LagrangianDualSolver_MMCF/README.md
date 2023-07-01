@@ -4,8 +4,9 @@ A tester which provides initial tests for `LagrangianDualSolver`,
 `LagBFunction`, any `CDASolver` able to handle `C05Function` in the
 `Objective` (such as `BundleSolver`), any `CDASolver` able to handle
 Linear Programs (such as `MILPSolver` and its derived classes
-`CPXMILPSolver` and `SCIPMILPSolver`), `MMCFBlock` and `MCFBlock`,
-as well as for quite a lot of the mechanics of the "core" SMS++ library.
+`CPXMILPSolver`, `SCIPMILPSolver` and `GRBMILPSolver`), `MMCFBlock` 
+and `MCFBlock`, as well as for quite a lot of the mechanics of the 
+"core" SMS++ library.
 
 This executable, given the filename and (optionally) filetype of one
 Multicommodity Min-Cost Flow (MMCF) in one of the several supported file
