@@ -9,9 +9,9 @@ ignores them and solves the corresponding separable relaxation. However,
 an interesting feature of `BoxSolver` is that it at the same time
 minimizes and maximizes the `Objective`. The tester also provides some
 tests for any `CDASolver` able to handle Linear Programs (such as
-`MILPSolver` and its derived classes `CPXMILPSolver` and
-`SCIPMILPSolver`), as well as for some of the mechanics of the "core"
-SMS++ library.
+`MILPSolver` and its derived classes `CPXMILPSolver` ,
+`SCIPMILPSolver` and `GRBMILPSolver`), as well as for some of the mechanics
+of the "core" SMS++ library.
 
 Given the number of variables, a single random "box-only" `AbstractBlock`
 with separable `Objective` (a `FRealObjective` with either a
