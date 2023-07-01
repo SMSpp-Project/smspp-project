@@ -4,8 +4,8 @@ A tester which provides very comprehensive tests for `LagBFunction`,
 `PolyhedralFunctionBlock`, `PolyhedralFunction`, any `CDASolver` able to
 handle `C05Function` in the objective (such as `BundleSolver`, for which
 some specific provisions are made), any `CDASolver` able to handle Linear
-Programs (such as `MILPSolver` and its derived classes `CPXMILPSolver` and
-`SCIPMILPSolver`), as well as for quite a lot of the mechanics of the "core"
+Programs (such as `MILPSolver` and its derived classes `CPXMILPSolver` ,
+`SCIPMILPSolver` and `GRBMILPSolver`), as well as for quite a lot of the mechanics of the "core"
 SMS++ library.
 
 This executable, given three input parameters n, k and p, construct two
