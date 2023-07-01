@@ -372,9 +372,9 @@ int main( int argc , char **argv )
  // load the Binary Knapsack instance- - - - - - - - - - - - - - - - - - - -
  
  if( nI < 1 )
-  BKB->load( N , C , move( W ) , move( P ) , move( I ) );
+  BKB->load( N , C , std::move( W ) , std::move( P ) , std::move( I ) );
  else
-  BKB->load( N , C , move( W ) , move( P ) ); 
+  BKB->load( N , C , std::move( W ) , std::move( P ) );
  
  // attach two Solver to the BinaryKnapsackBlock- - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -477,18 +477,18 @@ int main( int argc , char **argv )
       LOG( "(R)" );
       }
      else {
-      lfobj->modify_coefficients( move( nP ) , rng );    // AR
+      lfobj->modify_coefficients( std::move( nP ) , rng );    // AR
       LOG( "(AR)" );
       }
      }
     else {                                    // or subset modification
      Subset nms = generateSubset( m ); 
      if( dis( rg ) < 0.5 ) {
-      BKB->chg_profits( nP.begin() , move( nms ) );              // PR
+      BKB->chg_profits( nP.begin() , std::move( nms ) );              // PR
       LOG( "(S)" );
       }
      else {
-      lfobj->modify_coefficients( move( nP ) , move( nms ) );    // AR
+      lfobj->modify_coefficients( std::move( nP ) , std::move( nms ) );    // AR
       LOG( "(AS)" );
       }
      }
@@ -515,7 +515,7 @@ int main( int argc , char **argv )
       LOG( "(R)" );
       }
      else {
-      lfcnst->modify_coefficients( move( nW ) , rng );   // AR
+      lfcnst->modify_coefficients( std::move( nW ) , rng );   // AR
       LOG( "(AR)" );
       }
      }
@@ -523,11 +523,11 @@ int main( int argc , char **argv )
      Subset nms = generateSubset( m ); 
 
      if( dis( rg ) < 0.5 ) {
-      BKB->chg_weights( nW.begin() , move( nms ) );              // PR
+      BKB->chg_weights( nW.begin() , std::move( nms ) );              // PR
       LOG( "(S)" );
       }
      else {
-      lfcnst->modify_coefficients( move( nW ) , move( nms ) );   // AR
+      lfcnst->modify_coefficients( std::move( nW ) , std::move( nms ) );   // AR
       LOG( "(AS)" );
       }
      }
@@ -570,7 +570,7 @@ int main( int argc , char **argv )
      Subset nms = generateSubset( m ); 
 
      if( dis( rg ) < 0.5 ) {                 // PR
-      BKB->fix_x( nXit , move( nms ) );        
+      BKB->fix_x( nXit , std::move( nms ) );
       LOG( "(S)" );
       }
      else {                                  // AR
@@ -612,7 +612,7 @@ int main( int argc , char **argv )
      Subset nms = generateSubset( m ); 
 
      if( dis( rg ) < 0.5 ) {                  // PR
-      BKB->unfix_x( move( nms ) );
+      BKB->unfix_x( std::move( nms ) );
       LOG( "(S)" );
       }
      else {                                   // AR
@@ -655,7 +655,7 @@ int main( int argc , char **argv )
      Subset nms = generateSubset( m ); 
 
      if( dis( rg ) < 0.5 ) {              // PR
-      BKB->chg_integrality( nI.begin() , move( nms ) );
+      BKB->chg_integrality( nI.begin() , std::move( nms ) );
       LOG( "(S)" );
       }
      else {                               // AR
