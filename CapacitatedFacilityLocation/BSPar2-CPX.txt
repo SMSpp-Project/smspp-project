@@ -1,8 +1,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSPar2.txt- - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BSPar2-CPX.txt- - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a
-# CapacitatedFacilityLocationBlock to be solved by a *MILPSolver
+# CapacitatedFacilityLocationBlock to be solved by a CPXMILPSolver
 #
 #   Antonio Frangioni
 #
@@ -78,5 +78,5 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSPar2.txt- - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BSPar2-CPX.txt- - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

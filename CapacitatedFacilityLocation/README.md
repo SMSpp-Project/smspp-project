@@ -5,9 +5,9 @@ possibly `MCFBlock` and `MCFSolver`, possibly `BinaryKnapsackBlock` and any
 specialised `Solver` for it, possibly `LagrangianDualSolver`, `LagBFunction`,
 any `CDASolver` able to handle `C05Function` in the `Objective` (such as
 `BundleSolver`), any `Solver` able to handle (Mixed Integer) Linear Programs
-(such as `MILPSolver` and its derived classes `CPXMILPSolver` and
-`SCIPMILPSolver`), as well as for quite a lot of the mechanics of the "core"
-SMS++ library.
+(such as `MILPSolver` and its derived classes `CPXMILPSolver` ,
+`SCIPMILPSolver` and `GRBMILPSolver`), as well as for quite a lot of the 
+mechanics of the "core" SMS++ library.
 
 This executable, given the filename and (optionally) filetype of one
 Capacitated Facility Location (CFL) instance in one of the several supported
