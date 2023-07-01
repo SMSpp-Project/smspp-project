@@ -4,8 +4,8 @@ A tester which provides very comprehensive tests for `PolyhedralFunction`
 and some tests for any `CDASolver` able to handle `C05Function` in the
 objective (such as `BundleSolver`) and any `CDASolver` able to handle
 Linear Programs (such as `MILPSolver` and its derived classes
-`CPXMILPSolver` and `SCIPMILPSolver`), as well as for some of the
-mechanics of the "core" SMS++ library.
+`CPXMILPSolver` , `SCIPMILPSolver` and `GRBMILPSolver`), as well as for 
+some of the mechanics of the "core" SMS++ library.
 
 This executable, given the input parameter n, constructs a "random"
 `PolyhedralFunction` and put it as the only `Objective` of the
@@ -22,7 +22,7 @@ An appropriate `CDASolver` is attached to NDOBlock, which can be any
 `Solver` capable of handling a `C05Function` objective (say,
 `BundleSolver`). An appropriate `CDASolver` is attached to LPBlock, which
 can be any `Solver` capable of handling Linear Programs (say, some derived
-class of `MILPSolver` such as `CPXMILPSolver` or `SCIPMILPSolver`).
+class of `MILPSolver` such as `CPXMILPSolver` , `SCIPMILPSolver` or `GRBMILPSolver`).
 
 After all this is done, the NDOBlock and LPBlock are solved with the
 registered `Solver` and the results (termination status and objective
