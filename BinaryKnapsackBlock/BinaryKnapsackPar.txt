@@ -6,7 +6,7 @@
 # 
 #  - DPBinaryKnapsackSolver
 #
-#  - MILPSolver (CPXMILPSolver)
+#  - MILPSolver (CPXMILPSolver, SCIPMILPSolver or GRBMILPSolver)
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # BlockSolverConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
