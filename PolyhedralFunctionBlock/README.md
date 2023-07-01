@@ -4,9 +4,9 @@ A tester which provides very comprehensive tests for `PolyhedralFunction`
 and especially `PolyhedralFunctionBlock`, plus quited some tests for any
 `CDASolver` able to handle multiple `C05Function` in the objective (such
 as `BundleSolver`) and any `CDASolver` able to handle Linear Programs
-(such as `MILPSolver` and its derived classes `CPXMILPSolver` and
-`SCIPMILPSolver`), as well as for some of the mechanics of the "core"
-SMS++ library.
+(such as `MILPSolver` and its derived classes `CPXMILPSolver` ,
+`SCIPMILPSolver` and `GRBMILPSolver`), as well as for some of the mechanics 
+of the "core" SMS++ library.
 
 This executable, given the input parameters nvar and nf, constructs
 abs( nf ) "random" `PolyhedralFunction` with nvar variables, each inside
@@ -26,12 +26,12 @@ inside).
 
 Then, LPBlock is configured to use the "linearized" representation, and has
 an appropriate LP `Solver` registered (say, some derived class of `MILPSolver`
-such as `CPXMILPSolver` or `SCIPMILPSolver`); also, `UpdateSolver` are
-registered to all its sons (`PolyhedralFunctionBlock`, or directly to itself
-if and( nf ) = 1) that maps all the `Modification` to the corresponding son
-of NDOBlock (or to NDOBlock if abs( nf ) = 1). The latter is configured to
-use the "natural" representation and has an appropriate NDO `Solver`
-attached (say, `BundleSolver`).
+such as `CPXMILPSolver` , `SCIPMILPSolver` or `GRBMILPSolver`); 
+also, `UpdateSolver` are registered to all its sons (`PolyhedralFunctionBlock`,
+or directly to itself if and( nf ) = 1) that maps all the `Modification` 
+to the corresponding son of NDOBlock (or to NDOBlock if abs( nf ) = 1). 
+The latter is configured to use the "natural" representation and has an 
+appropriate NDO `Solver` attached (say, `BundleSolver`).
 
 After all this is done, the NDOBlock and LPBlock are solved with the
 registered `Solver` and the results (termination status and objective
