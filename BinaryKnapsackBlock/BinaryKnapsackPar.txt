@@ -21,8 +21,9 @@ BlockSolverConfig     # exact type of the Configuration object
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
 
 DPBinaryKnapsackSolver   	# name of 1st Solver
-CPXMILPSolver 			# name of 2nd Solver
+#CPXMILPSolver 			# name of 2nd Solver
 #SCIPMILPSolver 		# name of 2nd Solver
+GRBMILPSolver 			# name of 2nd Solver
 
 2  # number of ComputeConfig in this BlockSolverConfig
 
@@ -68,7 +69,8 @@ intLogVerb 0
 2  # number of double parameters
 # now all the double parameters
 dblRelAcc		1e-08
-CPXPARAM_MIP_Tolerances_Integrality	1e-07	
+#CPXPARAM_MIP_Tolerances_Integrality	1e-07	# CPlex parameter (uncomment based on 2nd solver)
+IntFeasTol  1e-07	# Gurobi parameter (uncomment based on 2nd solver)
 
 0  # number of string parameters
 # now all the double parameters

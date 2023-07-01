@@ -18,7 +18,7 @@ for N in 100 500 3000; do
 
             printf "[$seed $wchg $N $n_repeat $delta $nW $nP $nI $nM]: "
 
-            ./test $seed $wchg $N $n_repeat $delta $nW $nP $nI $nM
+            ./BinaryKnapsackBlock_test $seed $wchg $N $n_repeat $delta $nW $nP $nI $nM
 
             retVal=$?
             if [ $retVal -ne 0 ]; then
