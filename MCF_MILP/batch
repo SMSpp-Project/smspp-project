@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#/usr/bin/env bash
 
 wchg=255
 #rounds=40
