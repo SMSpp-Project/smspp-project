@@ -37,7 +37,7 @@ ComputeConfig # exact type of the ComputeConfig object
 intLogVerb      0    # log verbosity of the MILPSolver
 intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 
-## All specific CPlex parameter (uncomment based on 1st solver)
+## All specific Cplex parameter (uncomment based on 1st solver)
 #CPXPARAM_LPMethod 3  # network algorithm
 
 # note that we could eof() the file here since the rest is all empty

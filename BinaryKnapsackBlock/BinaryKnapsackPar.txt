@@ -69,7 +69,7 @@ intLogVerb 0
 2  # number of double parameters
 # now all the double parameters
 dblRelAcc		1e-08
-#CPXPARAM_MIP_Tolerances_Integrality	1e-07	# CPlex parameter (uncomment based on 2nd solver)
+#CPXPARAM_MIP_Tolerances_Integrality	1e-07	# Cplex parameter (uncomment based on 2nd solver)
 IntFeasTol  1e-07	# Gurobi parameter (uncomment based on 2nd solver)
 
 0  # number of string parameters

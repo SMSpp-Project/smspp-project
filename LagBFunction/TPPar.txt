@@ -45,7 +45,7 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 2 # number of double parameters
 # now all the double parameters
 
-## All specific CPlex parameter (uncomment based on 1st solver)
+## All specific Cplex parameter (uncomment based on 1st solver)
 # cranking to 11 Cplex LP (simplex) tolerance
 #CPXPARAM_Simplex_Tolerances_Optimality	1e-9
 #CPXPARAM_Simplex_Tolerances_Feasibility	1e-9

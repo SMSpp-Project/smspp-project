@@ -36,7 +36,7 @@ intLogVerb      0    # log verbosity of the MILPSolver
 intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 #intCutSepPar    0    # separate user cuts at the root node & sub-nodes
 
-## All specific CPlex parameter (uncomment based on 1st solver)
+## All specific Cplex parameter (uncomment based on 1st solver)
 #CPXPARAM_Threads 1   # avoid parallel
 #CPXPARAM_MIP_Display 3  # more verbose log
 #CPXPARAM_ScreenOutput   1  # output on screen

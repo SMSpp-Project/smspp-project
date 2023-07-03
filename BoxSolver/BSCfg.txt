@@ -82,7 +82,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 # now all the integer parameters
 intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
-#CPXPARAM_QPMethod	1 # CPlex parameter (uncomment based on 2nd solver)
+#CPXPARAM_QPMethod	1 # Cplex parameter (uncomment based on 2nd solver)
 
 # note that we could eof() the file here since the rest is all empty
 
