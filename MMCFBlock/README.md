@@ -2,8 +2,8 @@
 
 A tester which provides initial tests for `MMCFBlock` and any `Solver`
 able to handle Linear Programs (such as `MILPSolver` and its derived
-classes `CPXMILPSolver` and `SCIPMILPSolver`), as well as for a few of
-the mechanics of the "core" SMS++ library.
+classes `CPXMILPSolver`, `SCIPMILPSolver` and `GRBMILPSolver`), as 
+well as for a few of the mechanics of the "core" SMS++ library.
 
 This executable, given the filename and (optionally) filetype of one
 Multicommodity Min-Cost Flow (MMCF) in one of the several supported file
