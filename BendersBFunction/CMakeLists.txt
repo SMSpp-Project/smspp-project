@@ -32,16 +32,28 @@ if (TARGET SMS++::BundleSolver AND
              COMMAND BendersBFunction_test2
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-    add_executable(BendersBFunction_testGRB testGRB.cpp)
+    add_executable(BendersBFunction_testGRB testGRB.cpp
+                  cwl-mcf/cwl-mcf.cpp)
 
     target_link_libraries(BendersBFunction_testGRB PRIVATE
-                          SMS++::BundleSolver
-                          SMS++::MILPSolver)
+                  SMS++::BundleSolver
+                  MCFClass::MCFClass
+                  SMS++::MILPSolver)
 
     add_test(NAME BendersBFunction_testGRB
              COMMAND BendersBFunction_testGRB
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
+    add_executable(BendersBFunction_test2GRB test2GRB.cpp)
+
+    target_link_libraries(BendersBFunction_test2GRB PRIVATE
+                          SMS++::BundleSolver
+                          SMS++::MILPSolver)
+
+    add_test(NAME BendersBFunction_test2GRB
+            COMMAND BendersBFunction_test2GRB
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+         
 endif ()
 
 # --------------------------------------------------------------------------- #
