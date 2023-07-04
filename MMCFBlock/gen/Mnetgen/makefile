@@ -25,7 +25,7 @@ default: $(NAME)
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-clean:
+clean::
 	rm -f $(DIR)*.o $(DIR)*~ $(NAME)
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -

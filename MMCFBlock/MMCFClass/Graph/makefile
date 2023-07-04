@@ -21,7 +21,7 @@
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-clean:
+clean::
 	rm -f $(MMGDIR)*.o $(MMGDIR)*~
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -

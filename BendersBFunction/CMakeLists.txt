@@ -53,7 +53,7 @@ if (TARGET SMS++::BundleSolver AND
     add_test(NAME BendersBFunction_test2GRB
             COMMAND BendersBFunction_test2GRB
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
+         
 endif ()
 
 # --------------------------------------------------------------------------- #

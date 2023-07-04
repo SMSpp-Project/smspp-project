@@ -34,7 +34,7 @@ default: $(NAME)
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-clean:
+clean::
 	rm -f $(DIR)*.o $(DIR)*~ $(NAME)
 
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -

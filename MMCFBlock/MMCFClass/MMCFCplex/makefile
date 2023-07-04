@@ -26,7 +26,7 @@
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-clean:
+clean::
 	rm -f $(MMXDIR)*.o $(MMXDIR)*~
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
