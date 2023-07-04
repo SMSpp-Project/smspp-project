@@ -93,7 +93,6 @@ Threads  1
 ## GUROBI Parameter(based on the second solver)
 FeasibilityTol 1e-9
 
-
 0 # number of string parameters
 
 # now all the string parameters
