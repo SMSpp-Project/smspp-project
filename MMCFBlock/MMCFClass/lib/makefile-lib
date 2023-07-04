@@ -41,7 +41,7 @@ build: $(NAME)
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-clean::
+clean:
 	rm -f $(NAME)
 
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -
