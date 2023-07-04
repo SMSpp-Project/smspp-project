@@ -20,7 +20,11 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic SCIP directory
-libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
+ifeq ($(UNAME_S),Linux)
+    libSCIPBSCDIR = /usr/local/
+else # macOS
+    libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
+endif
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
