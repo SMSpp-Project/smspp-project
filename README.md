@@ -96,7 +96,7 @@ and its use is planned for several other ones (watch this space).
     [SCIP solver](https://scip.zib.de/);
 
   - GRBMILPSolver, interfacing with the commercial, state-of-the-art [GUROBI 
-    Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
+    Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer).
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the MMCFBlock
   Block for representing Multicommodity Min-Cost Flow problems (MMCF).
