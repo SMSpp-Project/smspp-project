@@ -26,12 +26,18 @@
 # basic Gurobi directory
 libGUROBIBSCDIR = $(GUROBI_HOME)/
 
+# external libreries that Gurobi needs
+# Linux
+#libGRBEXTLIB = -lpthread
+# Mac OSX
+libGRBEXTLIB =
+
 # lib Gurobi directory
 libGUROBIINCDIR = $(libGUROBIBSCDIR)lib/
 
 # macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libGUROBILIB = -L$(libGUROBIINCDIR) $(libGUROBIINCDIR)libgurobi_g++5.2.a $(libGUROBIINCDIR)libgurobi_c++.a $(libGUROBIINCDIR)libgurobi100.so
+libGUROBILIB = -L$(libGUROBIINCDIR) -lgurobi100
 libGUROBIINC = -I$(libGUROBIBSCDIR)include/
 
 ############################# End of makefile ################################
