@@ -23,14 +23,15 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# external libreries that Gurobi needs
+ifeq ($(UNAME_S),Linux)
+    libCPLEXEXTLIB = -lpthread
+else # macOS
+    libCPLEXEXTLIB =
+endif
+
 # basic Gurobi directory
 libGUROBIBSCDIR = $(GUROBI_HOME)/
-
-# external libreries that Gurobi needs
-# Linux
-#libGRBEXTLIB = -lpthread
-# Mac OSX
-libGRBEXTLIB =
 
 # lib Gurobi directory
 libGUROBIINCDIR = $(libGUROBIBSCDIR)lib/
