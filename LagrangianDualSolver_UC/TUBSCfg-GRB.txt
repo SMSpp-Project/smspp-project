@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - TUBSCfg-GRB.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - TUBSCfg-GRB.txt - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for the ThermalUnitBlock
 #
@@ -38,8 +38,8 @@ intRelaxIntVars     1    # nonzero if the continuous relaxation is solved
 1 # number of double parameters
 
 # now all the double parameters
-#OptimalityTol 1e-9	# simplex tolerance
-MIPGap 1e-8 # MIP tolerance
+#OptimalityTol 1e-9    # simplex tolerance
+MIPGap 1e-8            # MIP tolerance
 
 0 # number of string parameters
 
@@ -66,5 +66,5 @@ MIPGap 1e-8 # MIP tolerance
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TUBSCfg-CPX.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - END TUBSCfg-GRB.txt - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

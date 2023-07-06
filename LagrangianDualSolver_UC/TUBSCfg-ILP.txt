@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - TUBSCfg-ILP.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - TUBSCfg-ILP.txt - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a ThermalUnitBlock that is
 # being solved to integer optimality by a :MILPSolver.
@@ -70,5 +70,5 @@ dblRelAcc  1e-6          # relative accuracy required to solution = mipmap
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TUBSCfg.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END TUBSCfg.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

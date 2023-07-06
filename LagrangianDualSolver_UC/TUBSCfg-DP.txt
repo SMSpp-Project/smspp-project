@@ -63,5 +63,5 @@ ComputeConfig # exact type of the ComputeConfig object
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TUBSCfg-DP.txt- - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END TUBSCfg-DP.txt- - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

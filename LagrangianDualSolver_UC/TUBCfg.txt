@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - TUBCfg-DP.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - TUBCfg.txt- - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockConfig for a ThermalUnitBlock that is being
 # solved by a ThermalUnitDPSolver. As such, no details corresponding to the
@@ -46,5 +46,5 @@ SimpleConfiguration<int>
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TUBCfg.txt-DP - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END TUBCfg.txt- - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
