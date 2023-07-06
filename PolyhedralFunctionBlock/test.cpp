@@ -106,6 +106,10 @@
 
 #define DYNAMIC_VARS 0
 // if 1, half of the variables are dynamic
+// WARNING: THE CODE HERE IS LIFTER STRAIGHT FROM PolthedralFunction/test.cpp
+// BUT IT DOES NOT WORK DUE TO NOT-YET-HANDLED COMPLICATIONS IN BundleSolver
+// (ALL C05Function MUST HAVE THE SAME ColVariable, AND THEREFORE ADDING AND
+// REMOVING THEM MUST ALWAYS BE DONE AT THE SAME TIME)
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
@@ -370,9 +374,9 @@ static void ConstructObj( AbstractBlock * AB )
 
  #if DYNAMIC_VARS > 0
   // dynamic x
-  auto xdit = xd.begin();
+  auto xdit = xd->begin();
   for( ; i < nvar ; ++i , ++xdit )
-   cp[ j ] = std::make_pair( &(*xdit) , A[ 0 ][ i ] );
+   cp[ i ] = std::make_pair( &(*xdit) , A[ 0 ][ i ] );
  #endif
 
  auto obj = new FRealObjective( AB , new LinearFunction( std::move( cp ) ) );
@@ -1016,7 +1020,7 @@ int main( int argc , char **argv )
 
       #if DYNAMIC_VARS > 0
        // finally, dynamic x
-       auto xLPdit = xLPd.begin();
+       auto xLPdit = xLPd->begin();
        for( ; j < nvar ; ++j , ++xLPdit )
 	vars[ j + 1 ] = std::make_pair( &(*xLPdit) , - A[ i ][ j ] );
       #endif
