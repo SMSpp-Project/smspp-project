@@ -35,7 +35,7 @@ libGUROBIINCDIR = $(libGUROBIBSCDIR)lib/
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libGUROBILIB = -L$(libGUROBIINCDIR) -lgurobi100
+libGUROBILIB = -L$(libGUROBIINCDIR) -lgurobi100 $(libGUROBIEXTLIB)
 libGUROBIINC = -I$(libGUROBIBSCDIR)include/
 
 ############################# End of makefile ################################
