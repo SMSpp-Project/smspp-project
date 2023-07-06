@@ -257,7 +257,8 @@ static bool SolveBoth( void ) {
                    && ( rtrn1st != Solver::kUnbounded )
                    && ( rtrn1st != Solver::kInfeasible ) )
                  || ( rtrn1st == Solver::kLowPrecision ) );
-  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
+  // the Lagrangian Dual computes lower bounds, so that's what we compare
+  double fo1st = Slvr1->get_lb();
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
@@ -290,7 +291,8 @@ static bool SolveBoth( void ) {
                    && ( rtrn2nd != Solver::kUnbounded )
                    && ( rtrn2nd != Solver::kInfeasible ) )
                  || ( rtrn2nd == Solver::kLowPrecision ) );
-  double fo2nd = hs2nd ? Slvr2->get_var_value() : -INF;
+  // the Lagrangian Dual computes lower bounds, so that's what we compare
+  double fo2nd = Slvr2->get_lb();
 
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
@@ -422,7 +424,7 @@ int main( int argc , char **argv ) {
    }
 
   // load the BlockSolverConfig for ThermalUnitBlock
-  auto ct = Configuration::deserialize( "TUBSCfg-CPX.txt" );
+  auto ct = Configuration::deserialize( "TUBSCfg.txt" );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
    std::cerr << "Error: TUBSCfg-CPX.txt does not contain a BlockSolverConfig"

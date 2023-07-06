@@ -1,9 +1,9 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - TUBSCfg.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - TUBSCfg-DP.txt- - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for the ThermalUnitBlock
-#
-#   version 1.1 , 21/02/2021
+# A txt description of a BlockSolverConfig for a ThermalUnitBlock that is being
+# solved by a ThermalUnitDPSolver. As such, it contains no parameters since
+# ThermalUnitDPSolver currently has none
 #
 #   Antonio Frangioni
 #
@@ -63,5 +63,5 @@ ComputeConfig # exact type of the ComputeConfig object
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TUBSCfg.txt - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END TUBSCfg-DP.txt- - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

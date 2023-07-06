@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 # runs all the academic instances: intended for being used when the
-# ThermalUnitBlock subproblems are solved as their continuous relaxation
+# ThermalUnitBlock subproblems are solved to integer optimality
+# (typically using ThermalUnitDPSolver, although a :MILPSolver would
+# be a less efficient option)
 
-cp ./TUBCfg-LP.txt ./TUBCfg.txt 
-cp ./TUBSCfg-CLP.txt ./TUBSCfg.txt 
+cp ./TUBCfg-DP.txt ./TUBCfg.txt 
+cp ./TUBSCfg-DP.txt ./TUBSCfg.txt 
 
 # correct value of tStar: 1e+0
 
@@ -12,7 +14,7 @@ folder=./data/UC_Data/T-Ramp/
 par=BSPar-2S.txt
 #mlf=log.txt
 
-for size in 10 20 50 75 100 200; do
+for size in 10 20 50; do
   for (( seed = 1 ; seed < 6 ; seed++ )); do
 
     if [ -z "$par" ]; then

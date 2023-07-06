@@ -1,10 +1,18 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - TUBCfg-DP.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - TUBCfg-LP.txt - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockConfig for a ThermalUnitBlock that is being
-# solved by a ThermalUnitDPSolver. As such, no details corresponding to the
-# formulation (which one is chosen, if it includes P/Cs, the corresponding
-# separation tolerances) is relevant.
+# solved by a :MILPSolver. As such it is relevant:
+#
+# - if dynamic constraints (Perspective Cuts) are separated, and what are
+#   corresponding tolerances, as controlled by the Configuration of
+#   dynamic constraints
+#
+# - which of the several different available formulation is selected, as
+#   controlled by the Configuration of static variables
+#
+# Note that if the latter does not include P/C (+8), then the former is
+# actually irrelevant
 #
 #   Antonio Frangioni, Donato Meoli
 #
@@ -25,7 +33,8 @@ SimpleConfiguration<std::pair<double,double>>
 
 # static_variables
 SimpleConfiguration<int>
-11    # 3 = DP +8 = with Perspective Cuts
+1    # 0 = 3bin, 1 = T, 2 = pt, 3 = DP, 4 = SU, 5 = SD (Formulation)
+#9    # +8 with Perspective Cuts
 
 # dynamic_variables
 *    # [none]
@@ -46,5 +55,5 @@ SimpleConfiguration<int>
 *    # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END TUBCfg.txt-DP - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END TUBCfg-LP.txt - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
