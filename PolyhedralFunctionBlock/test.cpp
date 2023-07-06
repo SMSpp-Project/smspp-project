@@ -58,9 +58,21 @@
 // only have random upper bound, and the rest will have both. of the
 // remaining 50% of the variables, another 50%  will have a
 // non-negativity constraint implemented via ColVariable::is_positive()
+// if HAVE_CONSTRAINT == 3, then the same situation described in the case 2 
+// will be reproduced, but while in the NDOBlock the bound constraint are 
+// realized by BoxContstraint, in the LPBlock they are FRowConstraint.
 
-#define HAVE_CONSTRAINTS 2
+#define HAVE_CONSTRAINTS 1
 
+/*--------------------------------------------------------------------------*/
+// if BOUND_ALWAYS_RANGED == 0, then the global bound could be turned off and
+// the static constraint "global bound" could be treated as a non ranged one.
+// if BOUND_ALWAYS_RANGED == 1, then the global bound is always set and the
+// the static constraint "global bound" is always represented as a ranged one.
+// WARNING: using GRBMILPSolver as *MILPSolver in the LPBlock and with this 
+// option set to 0 could generate error.
+
+#define BOUND_ALWAYS_RANGED 0
 /*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attached to the NDOBlock is detached and re-attached
 // to it at all iterations
@@ -273,9 +285,15 @@ static double GenerateBND( void )
  double BND = INF;          // no bound
  if( dis( rg ) <= 0.333 )   // "tight" bound
   BND = dis( rg ) * 5 * scale * nvar / 4;
- else
-  if( dis( rg ) <= 0.333 )  // "loose" bound
-   BND = dis( rg ) * 5 * scale * nvar;
+ else{
+  #if BOUND_ALWAYS_RANGED == 0
+    if( dis( rg ) <= 0.333 )  // "loose" bound
+    BND = dis( rg ) * 5 * scale * nvar;
+  #endif
+  #if BOUND_ALWAYS_RANGED == 1 // global bound needs to be always set
+    BND = dis( rg ) * 5 * scale * nvar; // "loose" bound
+  #endif
+ }
 
  if( convex )
   BND = - BND;
@@ -844,6 +862,39 @@ int main( int argc , char **argv )
      }
 
   LPBlock->add_dynamic_constraint( *LPbnd , "box" );
+  NDOBlock->add_dynamic_constraint( *NDObnd , "box" );
+  }
+ #endif
+ #if HAVE_CONSTRAINTS == 3
+ {
+  auto LPx = LPBlock->get_static_variable_v< ColVariable >( "x" );
+  auto NDOx = NDOBlock->get_static_variable_v< ColVariable >( "x" );
+  auto LPbnd = new std::list< FRowConstraint >;
+  auto NDObnd = new std::list< BoxConstraint >;
+  for( Index i = 0 ; i < nsvar ; ++i )
+   if( dis( rg ) < 0.5 ) {
+    LinearFunction::v_coeff_pair vars_LP( 1 );
+    LinearFunction::v_coeff_pair vars_NDO( 1 );
+    vars_LP[ 0 ] = std::make_pair( & (*LPx)[ i ] , 1 );
+    LPbnd->resize( LPbnd->size() + 1 );
+    NDObnd->resize( NDObnd->size() + 1 );
+    LPbnd->back().set_function( new LinearFunction( std::move( vars_LP ) ) );
+    NDObnd->back().set_variable( & (*NDOx)[ i ] );
+    auto p = dis( rg );
+    auto lhs = p < 0.666 ? 0 : -INF;
+    auto rhs = p > 0.333 ? dis( rg ) : INF;
+    LPbnd->back().set_lhs( lhs , eNoMod );
+    NDObnd->back().set_lhs( lhs , eNoMod );
+    LPbnd->back().set_rhs( rhs , eNoMod );
+    NDObnd->back().set_rhs( rhs , eNoMod );
+    }
+   else
+    if( dis( rg ) < 0.5 ) {
+     (*LPx)[ i ].is_positive( true , eNoMod );
+     (*NDOx)[ i ].is_positive( true , eNoMod );
+     }
+
+  LPBlock->add_dynamic_constraint( *LPbnd , "NObox" );
   NDOBlock->add_dynamic_constraint( *NDObnd , "box" );
   }
  #endif
