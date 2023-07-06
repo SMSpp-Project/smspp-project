@@ -58,6 +58,7 @@ add_compile_options(
 #set(netCDFCxx_ROOT "/usr/local/")
 #set(CPLEX_STUDIO_DIR "/opt/ibm/ILOG/CPLEX_Studio1210")
 #set(SCIP_ROOT "/usr/local/")
+#set(GUROBI_DIR "/opt/gurobi1002")
 #set(CoinUtils_ROOT "/usr/local/")
 #set(Osi_ROOT "/usr/local/")
 #set(Clp_ROOT "/usr/local/")

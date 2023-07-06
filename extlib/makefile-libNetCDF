@@ -1,5 +1,5 @@
 ##############################################################################
-############################ makefile-libNetCDF ##############################
+############################# makefile-libNetCDF #############################
 ##############################################################################
 #                                                                            #
 #   makefile of libNetCDF                                                    #
@@ -24,7 +24,8 @@
 ifeq ($(UNAME_S),Linux)
     libNtCDFINC = -I/usr/include/
     libNtCDFLIB = -L/usr/lib/x86_64-linux-gnu/ -lnetcdf -lnetcdf_c++4
-else # macOS
+endif
+ifeq ($(UNAME_S),Darwin)
     libNtCDFINC = -I/usr/local/include/
     libNtCDFLIB = -L/usr/local/lib/ -lnetcdf -lnetcdf-cxx4
 endif

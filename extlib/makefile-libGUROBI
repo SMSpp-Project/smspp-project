@@ -1,5 +1,5 @@
 ##############################################################################
-############################ makefile-libGUROBI ##############################
+############################# makefile-libGUROBI #############################
 ##############################################################################
 #                                                                            #
 #   makefile of libGUROBI                                                    #
@@ -11,13 +11,9 @@
 #           $(libGUROBILIB) = external libreries + -L<libdirs> for libGUROBI #
 #           $(libGUROBIINC) = the -I$(include directories) for libGUROBI     #
 #                                                                            #
-#                             Antonio Frangioni                              #
+#                              Antonio Frangioni                             #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
-#                                                                            #
-#                             Enrico Calandrini                              #
-#                         Dipartimento di Matematica                         #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 
@@ -25,9 +21,10 @@
 
 # external libreries that Gurobi needs
 ifeq ($(UNAME_S),Linux)
-    libCPLEXEXTLIB = -lpthread
-else # macOS
-    libCPLEXEXTLIB =
+    libGUROBIEXTLIB = -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libGUROBIEXTLIB =
 endif
 
 # basic Gurobi directory
@@ -36,7 +33,7 @@ libGUROBIBSCDIR = $(GUROBI_HOME)/
 # lib Gurobi directory
 libGUROBIINCDIR = $(libGUROBIBSCDIR)lib/
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libGUROBILIB = -L$(libGUROBIINCDIR) -lgurobi100
 libGUROBIINC = -I$(libGUROBIBSCDIR)include/

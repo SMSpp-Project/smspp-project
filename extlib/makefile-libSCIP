@@ -1,5 +1,5 @@
 ##############################################################################
-############################# makefile-libSCIP ###############################
+############################## makefile-libSCIP ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libSCIP                                                      #
@@ -22,7 +22,8 @@
 # basic SCIP directory
 ifeq ($(UNAME_S),Linux)
     libSCIPBSCDIR = /usr/local/
-else # macOS
+endif
+ifeq ($(UNAME_S),Darwin)
     libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
 endif
 

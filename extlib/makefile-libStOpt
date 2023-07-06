@@ -22,7 +22,8 @@
 # basic StOpt directory
 ifeq ($(UNAME_S),Linux)
     libStOptBSCDIR = /usr/local/
-else # macOS
+endif
+ifeq ($(UNAME_S),Darwin)
     libStOptBSCDIR = /Users/frangio/Applications/StOpt/install/
 endif
 
@@ -31,7 +32,8 @@ endif
 ifeq ($(UNAME_S),Linux)
     libStOptLIB = -L$(libStOptBSCDIR)lib/ -lStOpt -lgeners \
 	    -L$(libStOptBSCDIR)lib/x86_64-linux-gnu/ -lboost_timer
-else # macOS
+endif
+ifeq ($(UNAME_S),Darwin)
     libStOptLIB = -L$(libStOptBSCDIR)lib/ -lStOpt -lgeners -lboost_timer-mt
 endif
 libStOptINC = -I$(libStOptBSCDIR)include/
