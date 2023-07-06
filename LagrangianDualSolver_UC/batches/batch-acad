@@ -3,8 +3,8 @@
 # runs all the academic instances: intended for being used when the
 # ThermalUnitBlock subproblems are solved as their continuous relaxation
 
-cp ./TUBCfg-LP.txt ./TUBCfg.txt 
-cp ./TUBSCfg-CLP.txt ./TUBSCfg.txt 
+cp ./TUBCfg-LP.txt ./TUBCfg.txt
+cp ./TUBSCfg-CLP.txt ./TUBSCfg.txt
 
 # correct value of tStar: 1e+0
 
