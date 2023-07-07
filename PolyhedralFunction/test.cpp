@@ -21,7 +21,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL 3
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -54,6 +54,9 @@
 // only have random upper bound, and the rest will have both. of the
 // remaining 50% of the variables, another 50%  will have a
 // non-negativity constraint implemented via ColVariable::is_positive()
+// if HAVE_CONSTRAINT == 3, then the same situation described in the case 2 
+// will be reproduced, but while in the NDOBlock the bound constraint are 
+// realized by BoxContstraint, in the LPBlock they are FRowConstraint.
 
 #define HAVE_CONSTRAINTS 2
 
@@ -209,6 +212,10 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
 
 #if HAVE_CONSTRAINTS == 2
  std::list< BoxConstraint > * LPbnd;   // BoxConstraint for LPBlock
+ std::list< BoxConstraint > * NDObnd;  // BoxConstraint for NDOBlock
+#endif
+#if HAVE_CONSTRAINTS == 3
+ std::list< FRowConstraint > * LPbnd;   // BoxConstraint for LPBlock
  std::list< BoxConstraint > * NDObnd;  // BoxConstraint for NDOBlock
 #endif
 
@@ -415,29 +422,6 @@ static inline void SetNN( ColVariable & LPxi , ColVariable & NDOxi )
 
 /*--------------------------------------------------------------------------*/
 
-#if HAVE_CONSTRAINTS > 1
-
-static inline void SetBox( ColVariable & LPxi , ColVariable & NDOxi )
-{
- if( dis( rg ) < 0.5 ) {
-  LPbnd->resize( LPbnd->size() + 1 );
-  NDObnd->resize( NDObnd->size() + 1 );
-  LPbnd->back().set_variable( & LPxi );
-  NDObnd->back().set_variable( & NDOxi );
-  auto p = dis( rg );
-  auto lhs = p < 0.666 ? 0 : -INF;
-  auto rhs = p > 0.333 ? dis( rg ) : INF;
-  LPbnd->back().set_lhs( lhs , eNoMod );
-  NDObnd->back().set_lhs( lhs , eNoMod );
-  LPbnd->back().set_rhs( rhs , eNoMod );
-  NDObnd->back().set_rhs( rhs , eNoMod );
-  }
- else
-  SetNN( LPxi , NDOxi );
- }
-
-/*--------------------------------------------------------------------------*/
-
 #if DYNAMIC_VARS > 0
 
 static void RemoveBox( AbstractBlock & AB , Range rng )
@@ -519,9 +503,148 @@ static void RemoveBox( AbstractBlock & AB , const Subset & sbst )
   AB.remove_dynamic_constraints( box , rmvd ); 
  }
 
-#endif
-#endif
-#endif
+/*--------------------------------------------------------------------------*/
+
+#endif // DYNAMIC_VARS > 0
+
+#if HAVE_CONSTRAINTS == 2
+
+static inline void SetBox( ColVariable & LPxi , ColVariable & NDOxi )
+{
+ if( dis( rg ) < 0.5 ) {
+  LPbnd->resize( LPbnd->size() + 1 );
+  NDObnd->resize( NDObnd->size() + 1 );
+  LPbnd->back().set_variable( & LPxi );
+  NDObnd->back().set_variable( & NDOxi );
+  auto p = dis( rg );
+  auto lhs = p < 0.666 ? 0 : -INF;
+  auto rhs = p > 0.333 ? dis( rg ) : INF;
+  LPbnd->back().set_lhs( lhs , eNoMod );
+  NDObnd->back().set_lhs( lhs , eNoMod );
+  LPbnd->back().set_rhs( rhs , eNoMod );
+  NDObnd->back().set_rhs( rhs , eNoMod );
+  }
+ else
+  SetNN( LPxi , NDOxi );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+#endif // HAVE CONSTRAINT == 2
+
+#if HAVE_CONSTRAINTS == 3
+
+static inline void SetFRow_Box( ColVariable & LPxi , ColVariable & NDOxi )
+{
+ if( dis( rg ) < 0.5 ) {
+  LPbnd->resize( LPbnd->size() + 1 );
+  NDObnd->resize( NDObnd->size() + 1 );
+  LinearFunction::v_coeff_pair vars_LP( 1 );
+  vars_LP[ 0 ] = std::make_pair( & LPxi , 1 );
+  LPbnd->back().set_function( new LinearFunction( std::move( vars_LP ) ) );
+  NDObnd->back().set_variable( & NDOxi );
+  auto p = dis( rg );
+  auto lhs = p < 0.666 ? 0 : -INF;
+  auto rhs = p > 0.333 ? dis( rg ) : INF;
+  LPbnd->back().set_lhs( lhs , eNoMod );
+  NDObnd->back().set_lhs( lhs , eNoMod );
+  LPbnd->back().set_rhs( rhs , eNoMod );
+  NDObnd->back().set_rhs( rhs , eNoMod );
+  }
+ else
+  SetNN( LPxi , NDOxi );
+ }
+
+/*--------------------------------------------------------------------------*/
+
+#if DYNAMIC_VARS > 0
+
+static void RemoveFRow( AbstractBlock & AB , Range rng )
+{
+ // the dynamic variable from the "xd" group in the Range are removed: if
+ // anything is "active" in those is a FRowConstraint from the "xbnd" group
+ // that has to be removed as well
+
+ auto xd = AB.get_dynamic_variable< ColVariable >( "xd" );
+ auto & frow = *(AB.get_dynamic_constraint< FRowConstraint >( "xbnd" ));
+ std::vector< typename std::list< FRowConstraint >::iterator > rmvd;
+ auto it = std::next( xd->begin() , rng.first );
+ for( Index i = rng.first ; i < rng.second ; ++i , ++it ) {
+  if( ! it->get_num_active() )
+   continue;
+  if( it->get_num_active() != 1 ) {
+   cout << "Too much stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto bc = dynamic_cast< FRowConstraint * >( it->get_active( 0 ) );
+  if( ! bc ) {
+   cout << "Unexpected stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto it = std::find_if( frow.begin() , frow.end() ,
+			  [ bc ]( FRowConstraint & x ) {
+			   return( & x == bc );
+			   } );
+  if( it == frow.end() ) {
+   cout << "FRowConstraint not found" << endl;
+   exit( 1 );
+   }
+  rmvd.push_back( it );
+  }
+
+ if( ! rmvd.empty() )
+  AB.remove_dynamic_constraints( frow , rmvd ); 
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static void RemoveFRow( AbstractBlock & AB , const Subset & sbst )
+{
+ // the dynamic variable from the "xd" group in the (ordered) Subset are
+ // removed: if anything is "active" in those is a FRowConstraint from the
+ // "xbnd" group that has to be removed as well
+
+ auto xd = AB.get_dynamic_variable< ColVariable >( "xd" );
+ auto & frow = *(AB.get_dynamic_constraint< FRowConstraint >( "xbnd" ));
+ std::vector< typename std::list< FRowConstraint >::iterator > rmvd;
+ Index prev = 0;
+ auto it = xd->begin();
+ for( auto ind : sbst ) {
+  it = std::next( it , ind - prev );
+  prev = ind;
+  if( ! it->get_num_active() )
+   continue;
+  if( it->get_num_active() != 1 ) {
+   cout << "Too much stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto bc = dynamic_cast< FRowConstraint * >( it->get_active( 0 ) );
+  if( ! bc ) {
+   cout << "Unexpected stuff active in to-be-deleted Variable" << endl;
+   exit( 1 );
+   }
+  auto it = std::find_if( frow.begin() , frow.end() ,
+			  [ bc ]( FRowConstraint & x ) {
+			   return( & x == bc );
+			   } );
+  if( it == frow.end() ) {
+   cout << "FRowConstraint not found" << endl;
+   exit( 1 );
+   }
+  rmvd.push_back( it );
+  }
+
+ if( ! rmvd.empty() )
+  AB.remove_dynamic_constraints( frow , rmvd ); 
+ }
+
+/*--------------------------------------------------------------------------*/
+
+#endif // DYNAMIC_VARS > 0
+
+#endif // HAVE_CONSTRAINT == 3
+
+#endif // HAVE_CONSTRAINT > 0
 
 /*--------------------------------------------------------------------------*/
 
@@ -859,6 +982,27 @@ int main( int argc , char **argv )
 							       )->begin();
    for( Index i = 0 ; i < ndvar ; ++i )
     SetBox( *(LPxd++) , *(NDOxd++) );
+  #endif
+
+  // note: the list may be empty, but it is intentionally added anyway
+  LPBlock->add_dynamic_constraint( *LPbnd , "xbnd" );
+  NDOBlock->add_dynamic_constraint( *NDObnd , "xbnd" );
+  }
+ #endif
+ #if HAVE_CONSTRAINTS == 3
+ {
+  LPbnd = new std::list< FRowConstraint >;
+  NDObnd = new std::list< BoxConstraint >;
+  auto & LPx = *(LPBlock->get_static_variable_v< ColVariable >( "x" ));
+  auto & NDOx = *(NDOBlock->get_static_variable_v< ColVariable >( "x" ));
+  for( Index i = 0 ; i < nsvar ; ++i )
+   SetFRow_Box( LPx[ i ] , NDOx[ i ] );
+  #if DYNAMIC_VARS > 0
+   auto LPxd = LPBlock->get_dynamic_variable< ColVariable >( "xd" )->begin();
+   auto NDOxd = NDOBlock->get_dynamic_variable< ColVariable >( "xd"
+							       )->begin();
+   for( Index i = 0 ; i < ndvar ; ++i )
+    SetFRow_Box( *(LPxd++) , *(NDOxd++) );
   #endif
 
   // note: the list may be empty, but it is intentionally added anyway
@@ -1251,7 +1395,8 @@ int main( int argc , char **argv )
     #if HAVE_CONSTRAINTS == 1
      for( ; LPxd_it != LPxd.end() ; )
       SetNN( *(LPxd_it++) , *(NDOxd_it++) );
-    #else
+    #endif
+    #if HAVE_CONSTRAINTS == 2
      LPbnd = new std::list< BoxConstraint >;
      NDObnd = new std::list< BoxConstraint >;
 
@@ -1261,6 +1406,22 @@ int main( int argc , char **argv )
      if( ! LPbnd->empty() ) {
       LPBlock->add_dynamic_constraints(
 	 *(LPBlock->get_dynamic_constraint< BoxConstraint >( "xbnd" )) ,
+	 *LPbnd );
+      NDOBlock->add_dynamic_constraints(
+	 *(NDOBlock->get_dynamic_constraint< BoxConstraint >( "xbnd" )) ,
+	 *NDObnd );
+      }
+    #endif
+    #if HAVE_CONSTRAINTS == 3
+     LPbnd = new std::list< FRowConstraint >;
+     NDObnd = new std::list< BoxConstraint >;
+
+     for( ; LPxd_it != LPxd.end() ; )
+      SetFRow_Box( *(LPxd_it++) , *(NDOxd_it++) );
+
+     if( ! LPbnd->empty() ) {
+      LPBlock->add_dynamic_constraints(
+	 *(LPBlock->get_dynamic_constraint< FRowConstraint >( "xbnd" )) ,
 	 *LPbnd );
       NDOBlock->add_dynamic_constraints(
 	 *(NDOBlock->get_dynamic_constraint< BoxConstraint >( "xbnd" )) ,
@@ -1324,11 +1485,17 @@ int main( int argc , char **argv )
        fi->remove_variables( Range( strt + 1 , stp + 1 ) , true );
        }
     
-     #if HAVE_CONSTRAINTS > 1
+     #if HAVE_CONSTRAINTS == 2
       // the variables can now only be active in the associated box
       // constraint, if any: exploit this to identify the box constraint
       // and remove it
       RemoveBox( *LPBlock , Range( strt , stp ) );
+     #endif
+     #if HAVE_CONSTRAINTS == 3
+      // the variables can now only be active in the associated frow
+      // constraint, if any: exploit this to identify the frow constraint
+      // and remove it
+      RemoveFRow( *LPBlock , Range( strt , stp ) );
      #endif
 
      LPBlock->remove_dynamic_variables( *xLPd , Range( strt , stp ) );
@@ -1344,6 +1511,8 @@ int main( int argc , char **argv )
       // the variables can now only be active in the associated box
       // constraint, if any: exploit this to identify the box constraint
       // and remove it
+      // NOTE: no need in calling RemoveFRow because in the NDOBlock
+      // bound constraints are always treated as Box ones
       RemoveBox( *NDOBlock , Range( strt , stp ) );
      #endif
 
@@ -1363,11 +1532,17 @@ int main( int argc , char **argv )
        fi->remove_variable( nms[ 0 ] + 1 );
        }
 
-      #if HAVE_CONSTRAINTS > 1
+      #if HAVE_CONSTRAINTS == 2
        // the variables can now only be active in the associated box
        // constraint, if any: exploit this to identify the box constraint
        // and remove it
        RemoveBox( *LPBlock , Range( nms[ 0 ] , nms[ 0 ] + 1 ) );
+      #endif
+      #if HAVE_CONSTRAINTS == 3
+       // the variables can now only be active in the associated frow
+       // constraint, if any: exploit this to identify the frow constraint
+       // and remove it
+       RemoveFRow( *LPBlock , Range( nms[ 0 ] , nms[ 0 ] + 1 ) );
       #endif
 
       auto vp = std::next( xLPd->begin() , nms[ 0 ] );
@@ -1382,11 +1557,17 @@ int main( int argc , char **argv )
        fi->remove_variables( std::move( nms1 ) , true );
        }
 
-      #if HAVE_CONSTRAINTS > 1
+      #if HAVE_CONSTRAINTS == 2
        // the variables can now only be active in the associated box
        // constraint, if any: exploit this to identify the box constraint
        // and remove it
        RemoveBox( *LPBlock , nms );
+      #endif
+      #if HAVE_CONSTRAINTS == 3
+       // the variables can now only be active in the associated frow
+       // constraint, if any: exploit this to identify the frow constraint
+       // and remove it
+       RemoveFRow( *LPBlock , nms );
       #endif
 
       LPBlock->remove_dynamic_variables( *xLPd , Subset( nms ) );
@@ -1401,6 +1582,8 @@ int main( int argc , char **argv )
        // the variables can now only be active in the associated box
        // constraint, if any: exploit this to identify the box constraint
        // and remove it
+       // NOTE: no need in calling RemoveFRow because in the NDOBlock
+       // bound constraints are always treated as Box ones
        RemoveBox( *NDOBlock , Range( nms[ 0 ] , nms[ 0 ] + 1 ) );
       #endif
 
@@ -1414,6 +1597,8 @@ int main( int argc , char **argv )
        // the variables can now only be active in the associated box
        // constraint, if any: exploit this to identify the box constraint
        // and remove it
+       // NOTE: no need in calling RemoveFRow because in the NDOBlock
+       // bound constraints are always treated as Box ones
        RemoveBox( *NDOBlock , nms );
       #endif
 
