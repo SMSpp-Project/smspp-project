@@ -18,6 +18,13 @@ project("The SMS++ Project")
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
+# Retrieve the system architecture
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(ARCH x86-64)
+else ()
+	set(ARCH x86)
+endif ()
+
 # Some easier way to alleviate the cmake call and pick the directories from a ROOT
 if (COIN_ROOT_DIR)
 	set(Clp_ROOT ${COIN_ROOT_DIR})
