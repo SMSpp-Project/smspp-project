@@ -68,7 +68,7 @@ MOBJ =  $(SMS++OBJ) $(MILPSOBJ)
 #
 #    nm libSMS++.a -j | grep BoxSolver
 #
-# in wherever folder libSMS++.a lives (tipically SMS++/lib in the root
+# in wherever folder libSMS++.a lives (typically SMS++/lib in the root
 # umbrella folder) and use one of the many names that will come out of
 # it. Be aware, though, that not all names may work and you may get a
 #
