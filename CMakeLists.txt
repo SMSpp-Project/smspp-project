@@ -37,12 +37,13 @@ macro(makefile_macros_to_cmake file)
 				string(STRIP "${lhs}" lhs)
 
 				string(REGEX MATCH "[=].*" rhs "${path}") # retrieve the rhs
+				string(REGEX REPLACE "[#].*" "" rhs ${rhs}) # remove comments starting with # from tails, if any
 				string(REGEX REPLACE "=" "" rhs ${rhs}) # remove =
-				string(REGEX REPLACE "\"" "" rhs ${rhs}) # remove " if any
+				string(REGEX REPLACE "\"" "" rhs ${rhs}) # remove ", if any
 				# remove tab or white space from head or tail
 				string(STRIP "${rhs}" rhs)
 
-				# if it is not already defined before in custom makefile-paths..
+				# if it is not already defined before in custom makefile-paths...
 				if (NOT DEFINED ${lhs})
 					# ... then set the one defined in makefile-default-paths
 					set("${lhs}" ${rhs})
@@ -68,7 +69,11 @@ makefile_macros_to_cmake(makefile-default-paths)
 
 # Retrieve the system architecture
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set(ARCH x86-64)
+	if (UNIX)
+		set(ARCH x86-64)
+	else () # Windows
+		set(ARCH X64)
+	endif ()
 else ()
 	set(ARCH x86)
 endif ()
