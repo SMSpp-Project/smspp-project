@@ -20,16 +20,11 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic SCIP directory
-ifeq ($(UNAME_S),Linux)
-    libSCIPBSCDIR = /usr/local/
-endif
-ifeq ($(UNAME_S),Darwin)
-    libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
-endif
+libSCIPBSCDIR = $(StOpt_ROOT)
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libSCIPLIB = -L$(libSCIPBSCDIR)lib/ -lzimpl -lsoplex -lscip -ltbb
-libSCIPINC = -I$(libSCIPBSCDIR)include/
+libSCIPLIB = -L$(libSCIPBSCDIR)/lib/ -lzimpl -lsoplex -lscip -ltbb
+libSCIPINC = -I$(libSCIPBSCDIR)/include/
 
 ############################# End of makefile ################################

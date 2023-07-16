@@ -20,11 +20,11 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic COIN directory
-libOSIBSCDIR = /usr/local/
+libOSIBSCDIR = $(Osi_ROOT)
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libOSILIB = -L$(libOSIBSCDIR)lib -lOsiClp -lClp -lOsi -lCoinUtils
-libOSIINC = -I$(libOSIBSCDIR)include/coin
+libOSILIB = -L$(libOSIBSCDIR)/lib -lOsiClp -lClp -lOsi -lCoinUtils
+libOSIINC = -I$(libOSIBSCDIR)/include/coin
 
 ############################# End of makefile ################################

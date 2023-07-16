@@ -18,6 +18,54 @@ project("The SMS++ Project")
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
+# Read the dependencies default location from a file written in a
+# bash-style syntax since it is shared with the other hand-written Makefiles,
+# so we define a function to convert these macros written as `lhs = rhs` into
+# their equivalent cmake variants, i.e., `set(lhs rhs)`, avoiding comments.
+macro(makefile_macros_to_cmake file)
+	FILE(STRINGS ${file} paths)
+	while (paths)
+		list(POP_FRONT paths path)
+		if (path) # ignore empty lines, i.e., \n
+			# makes empty the comment lines, i.e. those start with #...
+			string(REGEX REPLACE "^[ \t]*[#].*" "" path ${path})
+			if (path) # ... and then ignore them
+
+				string(REGEX MATCH ".*[=]" lhs "${path}") # retrieve the lhs
+				string(REGEX REPLACE "=" "" lhs ${lhs}) # remove =
+				# remove tab or white spaces from head
+				string(STRIP "${lhs}" lhs)
+
+				string(REGEX MATCH "[=].*" rhs "${path}") # retrieve the rhs
+				string(REGEX REPLACE "=" "" rhs ${rhs}) # remove =
+				string(REGEX REPLACE "\"" "" rhs ${rhs}) # remove " if any
+				# remove tab or white space from head or tail
+				string(STRIP "${rhs}" rhs)
+
+				# if it is not already defined before in custom makefile-paths..
+				if (NOT DEFINED ${lhs})
+					# ... then set the one defined in makefile-default-paths
+					set("${lhs}" ${rhs})
+					message(STATUS "Specify ${lhs}: " ${rhs})
+				endif ()
+
+				unset(lhs)
+				unset(rhs)
+			endif ()
+		endif ()
+	endwhile ()
+
+	unset(path)
+	unset(paths)
+endmacro()
+
+# firstly, set the custom makefile-paths, if any...
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/makefile-paths")
+	makefile_macros_to_cmake(makefile-paths)
+endif ()
+# ... then set the default other ones ignoring those already previously set
+makefile_macros_to_cmake(makefile-default-paths)
+
 # Retrieve the system architecture
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	set(ARCH x86-64)

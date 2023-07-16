@@ -21,7 +21,7 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-libEigenINC = -I/usr/local/include/eigen3/ -I/usr/include/eigen3/
+libEigenINC = -I$(Eigen3_ROOT)
 libEigenLIB = 
 
 ############################# End of makefile ################################

@@ -21,7 +21,7 @@
 
 # basic StOpt directory
 ifeq ($(UNAME_S),Linux)
-    libStOptBSCDIR = /usr/local/
+    libStOptBSCDIR =
 endif
 ifeq ($(UNAME_S),Darwin)
     libStOptBSCDIR = /Users/frangio/Applications/StOpt/install/

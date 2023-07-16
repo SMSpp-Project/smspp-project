@@ -652,3 +652,6 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# custom locations for dependencies
+makefile-paths

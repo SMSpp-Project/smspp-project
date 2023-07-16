@@ -49,17 +49,3 @@ add_compile_options(
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# ----- Custom locations for dependencies ----------------------------------- #
-
-#set(BOOST_ROOT "/usr/local/")
-#set(Eigen3_ROOT "/usr/local/include/eigen3")
-#set(netCDF_ROOT "/usr/local/")
-#set(netCDFCxx_ROOT "/usr/local/")
-#set(CPLEX_STUDIO_DIR "/opt/ibm/ILOG/CPLEX_Studio1210")
-#set(SCIP_ROOT "/usr/local/")
-#set(GUROBI_DIR "/opt/gurobi1002")
-#set(CoinUtils_ROOT "/usr/local/")
-#set(Osi_ROOT "/usr/local/")
-#set(Clp_ROOT "/usr/local/")
-#set(StOpt_ROOT "/usr/local/")

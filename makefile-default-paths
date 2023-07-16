@@ -1,0 +1,27 @@
+##############################################################################
+########################### makefile-default-paths ###########################
+##############################################################################
+#                                                                            #
+#   makefile with the default locations for dependencies                     #
+#                                                                            #
+#                                 Donato Meoli                               #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
+##############################################################################
+
+# define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
+
+BOOST_ROOT = "/usr/local"
+Eigen3_ROOT = "/usr/include/eigen3"
+netCDF_ROOT = "/usr/local"
+#netCDFCxx_ROOT = "/usr/local"
+CPLEX_STUDIO_DIR = "/opt/ibm/ILOG/CPLEX_Studio2210"
+SCIP_ROOT = "/usr/local"
+GUROBI_DIR = "/opt/gurobi1002"
+CoinUtils_ROOT = "/usr/local"
+Osi_ROOT = "/usr/local"
+Clp_ROOT = "/usr/local"
+StOpt_ROOT = "/usr/local"
+
+############################# End of makefile ################################
