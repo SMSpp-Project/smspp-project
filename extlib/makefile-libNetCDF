@@ -22,7 +22,7 @@
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Linux)
-    libNtCDFLIB = -L$(netCDFCxx_ROOT)/x86_64-linux-gnu/ -lnetcdf -lnetcdf_c++4
+    libNtCDFLIB = -L$(netCDFCxx_ROOT)/lib/x86_64-linux-gnu/ -lnetcdf -lnetcdf_c++4
 endif
 ifeq ($(UNAME_S),Darwin)
     libNtCDFLIB = -L$(netCDFCxx_ROOT)/lib/ -lnetcdf -lnetcdf-cxx4
