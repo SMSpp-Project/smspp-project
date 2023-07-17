@@ -22,12 +22,11 @@
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Linux)
-    libNtCDFINC = -I/usr/include/
-    libNtCDFLIB = -L/usr/lib/x86_64-linux-gnu/ -lnetcdf -lnetcdf_c++4
+    libNtCDFLIB = -L$(netCDFCxx_ROOT)/x86_64-linux-gnu/ -lnetcdf -lnetcdf_c++4
 endif
 ifeq ($(UNAME_S),Darwin)
-    libNtCDFINC = -I/usr/local/include/
-    libNtCDFLIB = -L/usr/local/lib/ -lnetcdf -lnetcdf-cxx4
+    libNtCDFLIB = -L$(netCDFCxx_ROOT)/lib/ -lnetcdf -lnetcdf-cxx4
 endif
+libNtCDFINC = -I$(netCDF_ROOT)/include/
 
 ############################# End of makefile ################################
