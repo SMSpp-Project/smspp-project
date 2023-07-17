@@ -36,16 +36,18 @@ macro(makefile_macros_to_cmake file)
 				# remove tab or white spaces from head
 				string(STRIP "${lhs}" lhs)
 
-				string(REGEX MATCH "[=].*" rhs "${path}") # retrieve the rhs
-				string(REGEX REPLACE "[#].*" "" rhs ${rhs}) # remove comments starting with # from tails, if any
-				string(REGEX REPLACE "=" "" rhs ${rhs}) # remove =
-				string(REGEX REPLACE "\"" "" rhs ${rhs}) # remove ", if any
-				# remove tab or white space from head or tail
-				string(STRIP "${rhs}" rhs)
-
 				# if it is not already defined before in custom makefile-paths...
 				if (NOT DEFINED ${lhs})
-					# ... then set the one defined in makefile-default-paths
+					# then read its rhs...
+					string(REGEX MATCH "[=].*" rhs "${path}") # retrieve the rhs
+					# remove comments starting with # from tails, if any
+					string(REGEX REPLACE "[#].*" "" rhs ${rhs})
+					string(REGEX REPLACE "=" "" rhs ${rhs}) # remove =
+					string(REGEX REPLACE "\"" "" rhs ${rhs}) # remove ", if any
+					# remove tab or white space from head or tail
+					string(STRIP "${rhs}" rhs)
+
+					# ... and set the one defined in makefile-default-paths
 					set("${lhs}" ${rhs})
 					message(STATUS "Specify ${lhs}: " ${rhs})
 				endif ()

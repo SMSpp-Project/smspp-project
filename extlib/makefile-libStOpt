@@ -20,22 +20,17 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic StOpt directory
-ifeq ($(UNAME_S),Linux)
-    libStOptBSCDIR =
-endif
-ifeq ($(UNAME_S),Darwin)
-    libStOptBSCDIR = /Users/frangio/Applications/StOpt/install/
-endif
+libStOptBSCDIR = $(StOpt_ROOT)
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Linux)
-    libStOptLIB = -L$(libStOptBSCDIR)lib/ -lStOpt -lgeners \
-	    -L$(libStOptBSCDIR)lib/x86_64-linux-gnu/ -lboost_timer
+    libStOptLIB = -L$(libStOptBSCDIR)/lib/ -lStOpt -lgeners \
+	    -L$(libStOptBSCDIR)/lib/x86_64-linux-gnu/ -lboost_timer
 endif
 ifeq ($(UNAME_S),Darwin)
-    libStOptLIB = -L$(libStOptBSCDIR)lib/ -lStOpt -lgeners -lboost_timer-mt
+    libStOptLIB = -L$(libStOptBSCDIR)/lib/ -lStOpt -lgeners -lboost_timer-mt
 endif
-libStOptINC = -I$(libStOptBSCDIR)include/
+libStOptINC = -I$(libStOptBSCDIR)/include/
 
 ############################# End of makefile ################################
