@@ -72,7 +72,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	if (UNIX)
 		set(ARCH x86-64)
 	else () # Windows
-		set(ARCH X64)
+		set(ARCH x64)
 	endif ()
 else ()
 	set(ARCH x86)
