@@ -10,10 +10,10 @@ if (TARGET SMS++::BundleSolver AND
                           MCFClass::MCFClass
                           SMS++::MILPSolver)
 
-    if ( (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-          CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9") OR
-         (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND
-          CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9" ) )
+    if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
+         CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9") OR
+        (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND
+         CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9" ))
         target_link_libraries(BendersBFunction_test PRIVATE
                               stdc++fs)
     endif ()
