@@ -458,11 +458,11 @@ int main( int argc , char **argv )
    }                   
 
   // change Profits (range or subset) - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 4 && dis( rg ) < 0.3 ){
+  if( wchg & 4 && dis( rg ) < 0.3 ) {
 
    Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
    m = min( m , N );
-   if( m ){
+   if( m ) {
     LOG( "P" );
 
     vector< double > nP( m );                 // generate new profits
@@ -496,11 +496,11 @@ int main( int argc , char **argv )
     }                   
   }
   // change Weights (range or subset) - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 8 && dis( rg ) < 0.3 ){
+  if( wchg & 8 && dis( rg ) < 0.3 ) {
 
    Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
    m = min( m , N );
-   if( m ){
+   if( m ) {
     LOG( "W" );
 
     vector< double > nW( m );                 // generate new weights
@@ -536,11 +536,11 @@ int main( int argc , char **argv )
    }
    
   // Fix (range or subset)- - - - - - - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 16 && dis( rg ) < 0.3 ){
+  if( wchg & 16 && dis( rg ) < 0.3 ) {
 
    Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
    m = min( m , N );
-   if( m ){
+   if( m ) {
     LOG( "F" );
 
     vector< bool > nX( m );
@@ -588,11 +588,11 @@ int main( int argc , char **argv )
     }
    }
   // Unfix (range or subset)- - - - - - - - - - - - - - - - - - - - - - - - -
-  if( wchg & 32 && dis( rg ) < 0.3 ){
+  if( wchg & 32 && dis( rg ) < 0.3 ) {
 
    Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
    m = min( m , N );
-   if( m ){
+   if( m ) {
     LOG( "U" );
 
     if( dis( rg ) < 0.5 ) {                   // ranged modification
@@ -625,11 +625,11 @@ int main( int argc , char **argv )
     }
    }
   // change Integrality (range or subset) - - - - - - - - - - - - - - - - - -
-  if( wchg & 64 && dis( rg ) < 0.3 ){
+  if( wchg & 64 && dis( rg ) < 0.3 ) {
 
    Index m = dis( rg ) * max( int( nM * N ) , minM ); // n. of items to modify
    m = min( m , N );
-   if( m ){
+   if( m ) {
     LOG( "I" );
 
     vector< bool > nI( m );               // generate new integrality vector

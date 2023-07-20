@@ -1286,7 +1286,7 @@ void MMCFCplex::ChgCosts( cCRow NwCsts , cIndex_Set nms , cIndex strt ,
  if( CPXgetprobtype( env , lp ) == CPXPROB_LP )
   CPXchgprobtype( env , lp , CPXPROB_MILP );
 
- if( nms ){
+ if( nms ) {
   while( *nms < strt ) {
    NwCsts++;
    nms++;
@@ -1336,7 +1336,7 @@ void MMCFCplex::ChgXtrBnds( cRow XLr , cRow XUr , cIndex_Set nms ,
   throw( MMCFException(
     "MMCFCplex::ChgXtrBnds(): this should not happen" ) );
 
- if( !XtrVrs )
+ if( ! XtrVrs )
   throw( MMCFException(
 	  "MMCFCplex::ChgXtrBnds(): this should not happen" ) );
 
