@@ -40,7 +40,7 @@ macro(makefile_macros_to_cmake file)
 				# remove tab or white spaces from head
 				string(STRIP "${lhs}" lhs)
 
-				# if it is not already defined before in custom makefile-paths...
+				# if it's not already defined before in custom makefile-paths...
 				if (NOT DEFINED ${lhs})
 					# then read its rhs...
 					string(REGEX MATCH "[=].*" rhs "${path}") # retrieve the rhs
@@ -51,9 +51,13 @@ macro(makefile_macros_to_cmake file)
 					# remove tab or white space from head or tail
 					string(STRIP "${rhs}" rhs)
 
-					# ... and set the one defined in makefile-default-paths
-					set("${lhs}" ${rhs})
-					message(STATUS "Specify ${lhs}: " ${rhs})
+					# ... and if it is not a default path in Unix...
+					if (NOT (rhs STREQUAL /usr OR
+							 rhs STREQUAL /usr/local))
+						# ... then set the one defined in makefile-default-paths
+						set("${lhs}" ${rhs})
+						message(STATUS "Specify ${lhs}: " ${rhs})
+					endif ()
 				endif ()
 
 				unset(lhs)
