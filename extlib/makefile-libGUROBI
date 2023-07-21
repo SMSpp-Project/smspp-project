@@ -28,14 +28,19 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 # basic Gurobi directory
-libGUROBIBSCDIR = $(GUROBI_HOME)
+ifeq ($(UNAME_S),Linux)
+    libGUROBIBSCDIR = $(GUROBI_DIR)/linux64
+endif
+ifeq ($(UNAME_S),Darwin)
+    libGUROBIBSCDIR = $(GUROBI_DIR)
+endif
 
 # lib Gurobi directory
-libGUROBIINCDIR = $(libGUROBIBSCDIR)/lib/
+libGUROBIINCDIR = $(libGUROBIBSCDIR)/lib
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libGUROBILIB = -L$(libGUROBIINCDIR) -lgurobi100 $(libGUROBIEXTLIB)
-libGUROBIINC = -I$(libGUROBIBSCDIR)/include/
+libGUROBIINC = -I$(libGUROBIBSCDIR)/include
 
 ############################# End of makefile ################################
