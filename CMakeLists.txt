@@ -71,11 +71,11 @@ macro(makefile_macros_to_cmake file)
 endmacro()
 
 # firstly, set the custom makefile-paths, if any...
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/makefile-paths")
-	makefile_macros_to_cmake(makefile-paths)
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extlib/makefile-paths")
+	makefile_macros_to_cmake(extlib/makefile-paths)
 endif ()
 # ... then set the default other ones ignoring those already previously set
-makefile_macros_to_cmake(makefile-default-paths)
+makefile_macros_to_cmake(extlib/makefile-default-paths)
 
 # Retrieve the system architecture
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
