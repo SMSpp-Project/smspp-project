@@ -5,7 +5,7 @@
  * This file contains the implementation of a series of tests for the
  * linearizations that are produced by the BendersBFunction. It constructs a
  * number of simple linear programming problems and solve them by Benders
- * decomposition. It uses CPXMILPSolver for solving the inner problem and
+ * decomposition. It uses *MILPSolver for solving the inner problem and
  * requires a file called solver.txt containing the description of a
  * BlockSolverConfig of a Solver for the master problem.
  *
@@ -23,10 +23,10 @@
 #include "AbstractBlock.h"
 #include "BendersBFunction.h"
 #include "BlockSolverConfig.h"
-#include "CPXMILPSolver.h"
 #include "FRealObjective.h"
 #include "FRowConstraint.h"
 #include "LinearFunction.h"
+#include "OneVarConstraint.h"
 
 #include <iostream>
 #include <filesystem>
@@ -570,20 +570,25 @@ void test_linearization( Block * benders_block ,
 /*--------------------------------------------------------------------------*/
 
 Solver * build_inner_block_solver() {
- auto inner_block_solver = new CPXMILPSolver();
+ auto inner_block = new AbstractBlock();
 
- inner_block_solver->set_par( inner_block_solver->int_par_str2idx
-  ( "CPXPARAM_Preprocessing_Presolve" ) , 0 );
+ // Add a *MILPSolver to inner_block
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar_innerBlock.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar_innerBlock.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
 
- inner_block_solver->set_par( inner_block_solver->int_par_str2idx
-  ( "CPXPARAM_LPMethod" ) , CPX_ALG_DUAL );
+ lpbsc->apply( inner_block );
+ lpbsc->clear();
 
- inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
-  ( "CPXPARAM_Simplex_Tolerances_Feasibility" ) , 1.0e-15 );
-
- inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
-  ( "CPXPARAM_Simplex_Tolerances_Optimality" ) , 1.0e-15 );
-
+ auto inner_block_solver = (inner_block->get_registered_solvers()).front();
+ 
  return( inner_block_solver );
 }
 
@@ -623,8 +628,22 @@ void test( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1, M2 , b1 , b2,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -710,8 +729,22 @@ void test2( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -789,8 +822,22 @@ void test3( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -868,8 +915,22 @@ void test4( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -944,8 +1005,22 @@ void test5( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1025,8 +1100,22 @@ void test6( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1102,8 +1191,22 @@ void test7( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1175,8 +1278,22 @@ void test8( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1195,7 +1312,7 @@ void test8( bool invert ) {
  block_solver_config->apply( benders_block );
  block_solver_config->clear();
 
- /* // TODO Uncomment when CPXMILPSolver is ready to deal with l > u bounds
+ /* // TODO Uncomment when *MILPSolver is ready to deal with l > u bounds
  auto bundle_solver = benders_block->get_registered_solvers().front();
  assert( bundle_solver->compute() == Solver::kOK );
  assert( bundle_solver->has_var_solution() );
@@ -1260,8 +1377,22 @@ void test9( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1280,7 +1411,7 @@ void test9( bool invert ) {
  block_solver_config->apply( benders_block );
  block_solver_config->clear();
 
- /* // TODO Uncomment when CPXMILPSolver is ready to deal with l > u bounds
+ /* // TODO Uncomment when *MILPSolver is ready to deal with l > u bounds
  auto bundle_solver = benders_block->get_registered_solvers().front();
  assert( bundle_solver->compute() == Solver::kOK );
  assert( bundle_solver->has_var_solution() );
@@ -1346,8 +1477,22 @@ void test10( bool invert ) {
  auto lp = build_LP( l , u , d , E , M1 , M2 , b1 , b2 ,
                      F , f1 , f2 , l_x , u_x );
 
- auto solver = new CPXMILPSolver();
- lp->register_Solver( solver );
+ // Add a *MILPSolver to lp
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( lp );
+ lpbsc->clear();
+
+ auto solver = ( lp->get_registered_solvers()).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1366,7 +1511,7 @@ void test10( bool invert ) {
  block_solver_config->apply( benders_block );
  block_solver_config->clear();
 
- /* // TODO Uncomment when CPXMILPSolver is ready to deal with l > u bounds
+ /* // TODO Uncomment when *MILPSolver is ready to deal with l > u bounds
  auto bundle_solver = benders_block->get_registered_solvers().front();
  assert( bundle_solver->compute() == Solver::kOK );
  assert( bundle_solver->has_var_solution() );
@@ -1490,5 +1635,5 @@ int main( int argc, char ** argv ) {
 }
 
 /*--------------------------------------------------------------------------*/
-/*--------------------------- End File tes2.cpp ----------------------------*/
+/*--------------------------- End File test2.cpp ----------------------------*/
 /*--------------------------------------------------------------------------*/

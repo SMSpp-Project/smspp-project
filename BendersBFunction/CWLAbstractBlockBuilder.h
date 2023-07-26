@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------------------*/
-/*---------------------- File CWLAbstractBlockBuilder ----------------------*/
+/*---------------------- File CWLAbstractBlockBuilder -------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
  * Reads an instance of the Capacitated Warehouse Location problem and
@@ -7,6 +7,10 @@
  *
  * \author Rafael Durbano Lobato \n
  *         Dipartimento di Informatica \n
+ *         Universita' di Pisa \n
+ * 
+ * \author Enrico Calandrini \n
+ *         Dipartimento di Matematica \n
  *         Universita' di Pisa \n
  *
  * \copyright &copy; by Rafael Durbano Lobato
@@ -242,8 +246,23 @@ BendersBFunction * build_decomposition_by_customer
  nested_Blocks.reserve( instance.num_customers );
  for( int j = 0 ; j < instance.num_customers ; ++j ) {
   auto customer_block = build_customer_Block( instance , j );
-  customer_block->register_Solver( new CPXMILPSolver() );
-  nested_Blocks.push_back( customer_block );
+
+  // Add a *MILPSolver to customer_block
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar_AbstractBlock.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar_AbstractBlock.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( customer_block );
+ lpbsc->clear();
+
+ nested_Blocks.push_back( customer_block );
  }
 
  // Constraints
@@ -336,7 +355,21 @@ BendersBFunction * build_decomposition_by_location
  nested_Blocks.reserve( instance.num_locations );
  for( int i = 0 ; i < instance.num_locations ; ++i ) {
   auto location_block = build_location_Block( instance , i );
-  location_block->register_Solver( new CPXMILPSolver() );
+
+  // Add a *MILPSolver to location_block
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar_AbstractBlock.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar_AbstractBlock.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+  lpbsc->apply( location_block );
+  lpbsc->clear();
   nested_Blocks.push_back( location_block );
  }
 

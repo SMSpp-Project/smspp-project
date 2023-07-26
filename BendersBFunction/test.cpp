@@ -6,7 +6,7 @@
  * BendersBFunction. The test consists in solving relaxations of the
  * Capacitated Warehouse Location (CWL) problem by Benders
  * decomposition. BundleSolver is used to solve the master problem and
- * CPXMILPSolver is used to solve the inner problem. The program requires as
+ * *MILPSolver is used to solve the inner problem. The program requires as
  * argument the path to a directory containing instances of the CWL
  * problem. Each file in that directory is assumed to contain an instance of
  * the CWL problem, except if they are named manual.txt or readme.txt. A file
@@ -23,6 +23,10 @@
  * \author Rafael Durbano Lobato \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
+ * 
+ * \author Enrico Calandrini \n
+ *         Dipartimento di Matematica \n
+ *         Universita' di Pisa \n
  *
  * \copyright &copy; by Rafael Durbano Lobato
  */
@@ -33,7 +37,6 @@
 
 #include "AbstractBlock.h"
 #include "BlockSolverConfig.h"
-#include "CPXMILPSolver.h"
 #include "CWLAbstractBlockBuilder.h"
 
 #include "cwl-mcf/cwl-mcf.h"
@@ -77,27 +80,25 @@ BlockSolverConfig * build_solver_config
 int solve_with_BundleSolver( std::filesystem::path file_path ,
                              bool continuous_relaxation ,
                              double * solution_value ) {
- auto inner_block_solver = new CPXMILPSolver();
+ auto inner_block = new AbstractBlock();
 
- inner_block_solver->set_par( CPXMILPSolver::strOutputFile , "lp.txt" );
+ // Add a *MILPSolver to inner_block
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar_innerBlock.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar_innerBlock.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
 
- inner_block_solver->set_par( inner_block_solver->int_par_str2idx
-  ( "CPXPARAM_Preprocessing_Presolve" ) , 0 );
+ lpbsc->apply( inner_block );
+ lpbsc->clear();
 
- inner_block_solver->set_par( inner_block_solver->int_par_str2idx
-  ( "CPXPARAM_LPMethod" ) , CPX_ALG_DUAL );
-
- inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
-  ( "CPXPARAM_Simplex_Tolerances_Feasibility" ) , 1.0e-15 );
-
- inner_block_solver->set_par( inner_block_solver->dbl_par_str2idx
-  ( "CPXPARAM_Simplex_Tolerances_Optimality" ) , 1.0e-15 );
-
- inner_block_solver->set_par( inner_block_solver->int_par_str2idx
-  ( "CPXPARAM_ScreenOutput" ) , 0 );
-
- inner_block_solver->set_par( inner_block_solver->int_par_str2idx
-  ( "intLogVerb" ) , 0 );
+ auto inner_block_solver = (inner_block->get_registered_solvers()).front();
+ //inner_block_solver->set_par( MILPSolver::strOutputFile , "lp.txt" )
 
  auto block = build_CWL_block_with_Benders_decomposition
    ( file_path , continuous_relaxation , inner_block_solver );
@@ -131,8 +132,23 @@ int solve_with_MILPSolver( std::filesystem::path file_path ,
                            bool continuous_relaxation ,
                            double * solution_value ) {
  auto block = build_CWL_block( file_path , continuous_relaxation );
- auto solver = new CPXMILPSolver();
- block->register_Solver( solver );
+
+ // Add a *MILPSolver to block
+  BlockSolverConfig * lpbsc;
+  {
+   auto c = Configuration::deserialize( "LPPar.txt" );
+   lpbsc = dynamic_cast< BlockSolverConfig * >( c );
+   if( ! lpbsc ) {
+    std::cerr << "Error: LPPar.txt does not contain a BlockSolverConfig" << std::endl;
+    delete( c );
+    exit( 1 );
+    }
+   }
+
+ lpbsc->apply( block );
+ lpbsc->clear();
+
+ auto solver = (block->get_registered_solvers()).front();
  auto status = solver->compute();
  if( solver->has_var_solution() )
   *solution_value = solver->get_var_value();
