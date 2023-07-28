@@ -24,5 +24,6 @@ CoinUtils_ROOT = /usr/local
 Osi_ROOT = /usr/local
 Clp_ROOT = /usr/local
 StOpt_ROOT = /usr/local
+HiGHS_DIR = /opt/HiGHS # C:/HiGHS
 
 ############################# End of makefile ################################
