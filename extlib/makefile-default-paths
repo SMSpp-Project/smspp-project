@@ -16,7 +16,7 @@ BOOST_ROOT = /usr/local
 Eigen3_ROOT = /usr
 netCDF_ROOT = /usr/local
 netCDFCxx_ROOT = /usr/local
-CPLEX_STUDIO_ROOT = /opt/ibm/ILOG/CPLEX_Studio2211
+CPLEX_ROOT = /opt/ibm/ILOG/CPLEX_Studio2211
 # C:/Program Files/IBM/ILOG/CPLEX_Studio2211
 SCIP_ROOT = /usr/local
 GUROBI_ROOT = /opt/gurobi1002 # C:/gurobi1002
