@@ -28,7 +28,7 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 # basic CPLEX directory
-libCPLEXBSCDIR = $(CPLEX_STUDIO_DIR)/cplex
+libCPLEXBSCDIR = $(CPLEX_STUDIO_ROOT)/cplex
 
 # lib Cplex directory
 ifeq ($(UNAME_S),Linux)

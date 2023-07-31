@@ -29,10 +29,10 @@ endif
 
 # basic Gurobi directory
 ifeq ($(UNAME_S),Linux)
-    libGUROBIBSCDIR = $(GUROBI_DIR)/linux64
+    libGUROBIBSCDIR = $(GUROBI_ROOT)/linux64
 endif
 ifeq ($(UNAME_S),Darwin)
-    libGUROBIBSCDIR = $(GUROBI_DIR)
+    libGUROBIBSCDIR = $(GUROBI_ROOT)
 endif
 
 # lib Gurobi directory
