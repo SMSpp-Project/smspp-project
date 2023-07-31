@@ -28,8 +28,7 @@ include(CMakeSettings.txt OPTIONAL)
 # their equivalent cmake variants, i.e., `set(lhs rhs)`, avoiding comments.
 macro(makefile_macros_to_cmake file)
 	FILE(STRINGS ${file} paths)
-	while (paths)
-		list(POP_FRONT paths path)
+	foreach (path IN LISTS paths)
 		if (path) # ignore empty lines, i.e., \n
 			# makes empty the comment lines, i.e. those start with #...
 			string(REGEX REPLACE "^[ \t]*[#].*" "" path ${path})
@@ -64,7 +63,7 @@ macro(makefile_macros_to_cmake file)
 				unset(rhs)
 			endif ()
 		endif ()
-	endwhile ()
+	endforeach ()
 
 	unset(path)
 	unset(paths)
