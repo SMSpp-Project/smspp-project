@@ -1,8 +1,8 @@
 ##############################################################################
-########################### makefile-default-paths ###########################
+######################## makefile-default-paths-linux ########################
 ##############################################################################
 #                                                                            #
-#   makefile with the default locations for dependencies                     #
+#   makefile with the default locations for dependencies for Linux OS        #
 #                                                                            #
 #                                 Donato Meoli                               #
 #                         Dipartimento di Informatica                        #
@@ -17,13 +17,12 @@ Eigen3_ROOT = /usr
 netCDF_ROOT = /usr/local
 netCDFCxx_ROOT = /usr/local
 CPLEX_ROOT = /opt/ibm/ILOG/CPLEX_Studio2211
-# C:/Program Files/IBM/ILOG/CPLEX_Studio2211
 SCIP_ROOT = /usr/local
-GUROBI_ROOT = /opt/gurobi1002 # C:/gurobi1002
+GUROBI_ROOT = /opt/gurobi1002
 CoinUtils_ROOT = /usr/local
 Osi_ROOT = /usr/local
 Clp_ROOT = /usr/local
 StOpt_ROOT = /usr/local
-HiGHS_ROOT = /opt/HiGHS # C:/HiGHS
+HiGHS_ROOT = /opt/HiGHS
 
-############################# End of makefile ################################
+#################### End of makefile-default-paths-linux #####################
