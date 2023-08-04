@@ -27,18 +27,18 @@
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 clean::
-	rm -f $(MMXDIR)*.o $(MMXDIR)*~
+	rm -f $(MMXDIR)/*.o $(MMXDIR)/*~
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-MMXOBJ = $(MMXDIR)MMCFCple.o
+MMXOBJ = $(MMXDIR)/MMCFCple.o
 MMXLIB = 
-MMXH   = $(MMXDIR)MMCFCple.h
+MMXH   = $(MMXDIR)/MMCFCple.h
 MMXINC = -I$(MMXDIR)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
-$(MMXDIR)MMCFCple.o: $(MMXDIR)MMCFCple.C $(MMXH) $(MMGH) $(MMFH) $(OPTUxH)
+$(MMXDIR)/MMCFCple.o: $(MMXDIR)/MMCFCple.C $(MMXH) $(MMGH) $(MMFH) $(OPTUxH)
 	$(CC) -c $*.C -o $@ $(SW) $(MMGINC) $(MMFINC) $(libCPLEXINC) $(OPTUxINC)
 
 ############################ End of makefile #################################

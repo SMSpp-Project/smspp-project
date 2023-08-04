@@ -14,7 +14,7 @@
 NAME = TUDPS_test
 
 # basic directory
-DIR = ./
+DIR = .
 
 # debug switches
 #SW = -g3 -glldb -fno-inline -std=c++17 -ferror-limit=1 -Wno-enum-compare
@@ -33,33 +33,33 @@ CC = clang++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-default: $(NAME)
+default: $(DIR)/$(NAME)
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 clean::
-	rm -f $(DIR)*.o $(DIR)*~ $(NAME)
+	rm -f $(DIR)/*.o $(DIR)/*~ $(DIR)/$(NAME)
 
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -
 # if a module is not used in the current configuration, just comment out the
 # corresponding include line
 # each module outputs some macros to be used here:
 # *OBJ is the final object(s) / library
-# *LIB is the external libreries + -L<libdirs>
+# *LIB is the external libraries + -L< libdirs >
 # *H   is the list of all include files
-# *INC is the -I<include directories>
+# *INC is the -I< include directories >
 
 # define input macros for SMS++ complete makefile, then include it
-SMS++SDR = ../../SMS++/
-include $(SMS++SDR)lib/makefile-c
+SMS++SDR = ../../SMS++
+include $(SMS++SDR)/lib/makefile-c
 
 # MILPSolver
-MILPSSDR = ../../MILPSolver/
-include $(MILPSSDR)makefile-c
+MILPSSDR = ../../MILPSolver
+include $(MILPSSDR)/makefile-s
 
 # define input macros for UCBlock makefile, then include it
-UCBckDIR = ../../UCBlock/
-include $(UCBckDIR)lib/makefile
+UCBckDIR = ../../UCBlock
+include $(UCBckDIR)/lib/makefile
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -69,8 +69,8 @@ MOBJ =  $(MILPSOBJ) $(UCBckOBJ) $(SMS++OBJ)
 # libreries
 MLIB =  $(SMS++LIB) $(MILPSLIB) $(UCBckLIB)
 
-$(NAME): $(MOBJ) $(DIR)test.o
-	$(CC) -o $(DIR)$(NAME) $^ $(MLIB) $(SW)
+$(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
+	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
@@ -82,7 +82,7 @@ MH =    $(SMS++H) $(MILPSH) $(UCBckH)
 
 # compile command
 
-$(DIR)test.o: $(DIR)test.cpp $(MH)
-	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
+$(DIR)/test.o: $(DIR)/test.cpp $(MH)
+	$(CC) -c $(DIR)/test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################

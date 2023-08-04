@@ -28,21 +28,21 @@
 # corresponding include line
 # each module outputs some macros to be used here:
 # *OBJ is the final object/library
-# *LIB external libreries + -L<libdirs>
+# *LIB external libraries + -L<libdirs>
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
 # MMCFClass
-MMFDIR = $(libMMCFSDR)MMCFClas/
-include $(MMFDIR)makefile
+MMFDIR = $(libMMCFSDR)/MMCFClas
+include $(MMFDIR)/makefile
 
 # MCFCplex
-MMXDIR =  $(libMMCFSDR)MMCFCplex/
-include $(MMXDIR)makefile
+MMXDIR =  $(libMMCFSDR)/MMCFCplex
+include $(MMXDIR)/makefile
 
 # Graph
-MMGDIR = $(libMMCFSDR)Graph/
-include $(MMGDIR)makefile
+MMGDIR = $(libMMCFSDR)/Graph
+include $(MMGDIR)/makefile
 
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -

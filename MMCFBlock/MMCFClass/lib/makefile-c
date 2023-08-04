@@ -31,16 +31,14 @@
 # *INC are the -I<include directories>
 # *LIB are the external libreries + -L<libdirs>
 
-# cplex external libreries: need be included MMCFCplex
-include $(libMMCFSDR)../../../extlib/makefile-libCPLEX
-
 # OPT*** stuff
-OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
-	 $(libMMCFSDR)OPTUtils/OPTvect.h
-OPTUxINC = -I$(libMMCFSDR)OPTUtils
+OPTUxH   = $(libMMCFSDR)/OPTUtils/OPTUtils.h \
+	$(libMMCFSDR)/OPTUtils/OPTtypes.h \
+	$(libMMCFSDR)/OPTUtils/OPTvect.h
+OPTUxINC = -I$(libMMCFSDR)/OPTUtils
 
 # include the libMMCF makefile requiring all external modules in input
-include $(libMMCFSDR)lib/makefile
+include $(libMMCFSDR)/lib/makefile
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

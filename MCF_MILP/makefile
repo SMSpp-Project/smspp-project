@@ -14,7 +14,7 @@
 NAME = MCF_MILP_test
 
 # basic directory
-DIR = ./
+DIR = .
 
 # debug switches
 #SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
@@ -28,44 +28,34 @@ CC = clang++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-default: $(NAME)
+default: $(DIR)/$(NAME)
 
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 clean::
-	rm -f $(DIR)*.o $(DIR)*~ $(NAME)
+	rm -f $(DIR)/*.o $(DIR)/*~ $(DIR)/$(NAME)
 
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -
 # if a module is not used in the current configuration, just comment out the
 # corresponding include line
 # each module outputs some macros to be used here:
 # *OBJ is the final object(s) / library
-# *LIB is the external libreries + -L<libdirs>
+# *LIB is the external libraries + -L< libdirs >
 # *H   is the list of all include files
-# *INC is the -I<include directories>
+# *INC is the -I< include directories >
 
 # not necessary, MCFBlock does that already
 # define input macros for SMS++ complete makefile, then include it
-#SMS++SDR = ../..SMS++/
-#include $(SMS++SDR)lib/makefile-inc
+#SMS++SDR = ../..SMS++
+#include $(SMS++SDR)/lib/makefile-inc
 
 # MCFBlock
-MCFBkSDR = ../../MCFBlock/
-include $(MCFBkSDR)makefile-c
-
-# not necessary, MILPSolver does that already
-# define input macros for libCPLEX complete makefile, then include it
-#libCPLEXDIR = ../../extlib/
-#include $(libCPLEXDIR)makefile-libCPLEX
-
-# not necessary, MILPSolver does that already
-# define input macros for libSCIP complete makefile, then include it
-#libSCIPDIR = ../../extlib/
-#include $(libSCIPDIR)makefile-libSCIP
+MCFBkSDR = ../../MCFBlock
+include $(MCFBkSDR)/makefile-c
 
 # MILPSolver
-MILPSSDR = ../../MILPSolver/
-include $(MILPSSDR)makefile-c
+MILPSSDR = ../../MILPSolver
+include $(MILPSSDR)/makefile-c
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -75,8 +65,8 @@ MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
 # libreries
 MLIB =  $(MCFBkLIB) $(MILPSLIB)
 
-$(NAME): $(MOBJ) $(DIR)test.o
-	$(CC) -o $(DIR)$(NAME) $(DIR)test.o $(MOBJ) $(MLIB) $(SW)
+$(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
+	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
@@ -88,7 +78,7 @@ MH =    $(MCFBkH) $(MILPSH)
 
 # compile command
 
-$(DIR)test.o: $(DIR)test.cpp $(MH)
-	$(CC) -c $(DIR)test.cpp -o $@ $(MINC) $(SW)
+$(DIR)/test.o: $(DIR)/test.cpp $(MH)
+	$(CC) -c $(DIR)/test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################

@@ -22,18 +22,18 @@
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 clean::
-	rm -f $(MMGDIR)*.o $(MMGDIR)*~
+	rm -f $(MMGDIR)/*.o $(MMGDIR)/*~
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-MMGOBJ = $(MMGDIR)Graph.o
+MMGOBJ = $(MMGDIR)/Graph.o
 MMGLIB =
-MMGH   = $(MMGDIR)Graph.h $(OPTUxH)
+MMGH   = $(MMGDIR)/Graph.h $(OPTUxH)
 MMGINC = -I$(MMGDIR) $(OPTUxINC)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
-$(MMGOBJ): $(MMGDIR)Graph.C $(MMGH) 
+$(MMGOBJ): $(MMGDIR)/Graph.C $(MMGH) 
 	$(CC) -c $*.C -o $@ $(SW)  
 
 ############################ End of makefile #################################
