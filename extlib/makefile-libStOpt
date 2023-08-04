@@ -23,8 +23,9 @@ ifeq ($(UNAME_S),Linux)
 	    -L$(StOpt_ROOT)/lib/x86_64-linux-gnu/ -lboost_timer
 endif
 ifeq ($(UNAME_S),Darwin)
-    libStOptLIB = -L$(StOpt_ROOT)/lib/ -lStOpt -lgeners -lboost_timer-mt
+    libStOptLIB = -L$(StOpt_ROOT)/install/lib/ -lStOpt -lgeners \
+	-lboost_timer-mt
 endif
-libStOptINC = -I$(StOpt_ROOT)/include/
+libStOptINC = -I$(StOpt_ROOT) -I$(StOpt_ROOT)/geners-1.11.0
 
 ######################## End of makefile-libStOpt ############################

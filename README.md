@@ -3,12 +3,12 @@
 ![To boldly model (and solve) what no one has modeled (and solved)
 before](doxygen/SMSpp_logo_mid_noback.png)
 
-This is the splash page of the SMS++ Project, an "umbrella project" meant to
+This is the splash page of the `SMS++ Project`, an "umbrella project" meant to
 provide a quick way to download and install all the projects related to the
-SMS++ framework. It also allows to produce a unified documentation and to
+`SMS++` framework. It also allows to produce a unified documentation and to
 track issues that involve all the modules or the project in general.
 
-SMS++ is a set of C++ classes intended to provide a system for modeling
+`SMS++` is a set of `C++` classes intended to provide a system for modeling
 complex, block-structured mathematical models (in particular, but not
 exclusively, single-real-objective optimization problems), and solving them
 via sophisticated, structure-exploiting algorithms (in particular, but not
@@ -23,10 +23,10 @@ submodules.
 
 ## Success stories
 
-The SMS++ framework is written in advanced C++, and its use entails climbing
+The `SMS++` framework is written in advanced `C++`, and its use entails climbing
 a significant learning curve. Yet, mastering it may be worth especially for
 the solution of very-large-scale, demanding optimization problems arising
-in applications. Indeed, the SMS++ project has already been instrumental in
+in applications. Indeed, the `SMS++ Project` has already been instrumental in
 some complex projects, such as
 
 - the [plan4res H2020 project](https://www.plan4res.eu)
@@ -50,19 +50,19 @@ and its use is planned for several other ones (watch this space).
 ## Current projects
 
 - [SMS++ core library](https://gitlab.com/smspp/smspp), the repository
-  defining the general SMS++ framework features.
+  defining the general `SMS++` framework features.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
-  a Block implementing the Binary Knapsack Problem and the corresponding
+  a `Block` implementing the Binary Knapsack Problem and the corresponding
   Solver.
 
 - [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
-  an implementation of the Block concept for a "pretty basic version" the
+  an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
   Warehouse Location (CWL) problem, primarily intended as a "didactic"
-  implementation for showing some of the features of SMS++.
+  implementation for showing some of the features of `SMS++`.
 
-- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a Solver for
+- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
   function(s) based on the (generalized) "bundle method". It currently
   uses some modules from the [NDOSolver / FiOracle
@@ -70,61 +70,64 @@ and its use is planned for several other ones (watch this space).
   although the dependency will be hopefully removed in time.
 
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
-  "generic" Lagrangian-based Solver for Block with appropriate structure.
+  "generic" Lagrangian-based Solver for `Block` with appropriate structure.
 
-- [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple Block defining
+- [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple `Block` defining
   several test functions from the literature for NonDifferentiable
-  Optimization solvers (such as BundleSolver).
+  Optimization solvers (such as `BundleSolver`).
 
 - [MCFBlock / MCFSolver](https://gitlab.com/smspp/mcfblock), defining the
-  MCFBlock class for the (continuous, linear) Min-Cost Flow problem and
-  its associated MCFSolver, basically a wrapper for solvers from the
+  `MCFBlock` class for the (continuous, linear) Min-Cost Flow problem and
+  its associated `MCFSolver`, basically a wrapper for solvers from the
   [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
-  general MILPSolver Solver that aims at being able to solve any Block whose
-  abstract representation encodes for a Mixed-Integer Linear Program
-  (ColVariable, FRowConstraint and FRealObjective with LinearFunction inside,
-  OneVarConstraint), together with derived MILPSolver classes that actually
+  general `MILPSolver` `Solver` that aims at being able to solve any `Block`
+  whose abstract representation encodes for a Mixed-Integer Linear Program
+  (`ColVariable`, `FRowConstraint` and `FRealObjective` with `LinearFunction`
+  inside, `OneVarConstraint`), together with derived classes that actually
   interface with existing MILP solvers. Currently, available derived classes
   are:
 
-  - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
-    Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
+  - `CPXMILPSolver`, interfacing with the commercial, state-of-the-art [IBM
+    ILOG Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
 
-  - SCIPMILPSolver, interfacing with the open-source, state-of-the-art
+  - `SCIPMILPSolver`, interfacing with the open-source, state-of-the-art
     [SCIP solver](https://scip.zib.de/);
 
-  - GRBMILPSolver, interfacing with the commercial, state-of-the-art [GUROBI 
-    Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer).
+  - `GRBMILPSolver`, interfacing with the commercial, state-of-the-art
+    [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer).
 
-- [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the MMCFBlock
-  Block for representing Multicommodity Min-Cost Flow problems (MMCF).
+  - `HiGHSMILPSolver`, interfacing with the open-source, state-of-the-art
+    [HiGHS solver](https://github.com/ERGO-Code/HiGHS).
 
-- [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the SDDPBlock for
+- [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
+  `Block` for representing Multicommodity Min-Cost Flow problems (MMCF).
+
+- [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
   multi-stage stochastic optimization problems solvable by the Stochastic
-  Dual Dynamic Programming approach, and the SDDPSolver that interfaces with
+  Dual Dynamic Programming approach, and the `SDDPSolver` that interfaces with
   the SDDP solver in the
   [StOpt project](https://gitlab.com/stochastic-control/StOpt).
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
-  StochasticBlock "meta-Block" that takes *any* "deterministic" Block and
+  `StochasticBlock` "meta-Block" that takes *any* "deterministic" `Block` and
   "makes it stochastic" by allowing to change some of its data in a very
-  general and abstract way (using the SMS++ "methods factory").
+  general and abstract way (using the `SMS++` "methods factory").
 
-- [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
-  Unit Commitment problems (the general UCBlock "root" class, several Block
-  for specific generating units, with some specialized Solver, and some
-  Block for specific network constraints).
+- [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
+  Unit Commitment problems: the general `UCBlock` "root" class, several
+  `Block` for specific generating units (`UnitBlock`) and interconnect
+  networks (`NetworkBlock`), with some specialized `Solver`.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
-  several components of the project that require elements (Block and/or
-  Solver) from different subprojects and that therefore are better not
+  several components of the project that require elements (`Block` and/or
+  `Solver`) from different subprojects and that therefore are better not
   included in any specific subproject.
 
 - [tools](https://gitlab.com/smspp/tools), defining some tools that can be
   useful for users (such as "main files" that take instances of problems
-  and solve them) and that require elements (Block and/or Solver) from
+  and solve them) and that require elements (`Block` and/or `Solver`) from
   different subprojects so that they are better not included in any specific
   subproject.
 
