@@ -53,7 +53,7 @@ macro(makefile_macros_to_cmake file)
 					# ... and if it is not a default path in Unix...
 					if (NOT (rhs STREQUAL /usr OR
 							 rhs STREQUAL /usr/local))
-						# ... then set the one defined in makefile-default-paths
+						# ... then set the one defined in makefile-default-paths-*
 						set("${lhs}" ${rhs})
 						message(STATUS "Specify ${lhs}: " ${rhs})
 					endif ()
@@ -73,8 +73,17 @@ endmacro()
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extlib/makefile-paths")
 	makefile_macros_to_cmake(extlib/makefile-paths)
 endif ()
-# ... then set the default other ones ignoring those already previously set
-makefile_macros_to_cmake(extlib/makefile-default-paths)
+# ... then set the default other ones ignoring those already previously set,
+# according to the specific OS
+if (UNIX)
+	if (APPLE)
+		makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
+	else ()
+		makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
+	endif ()
+else ()
+	makefile_macros_to_cmake(extlib/makefile-default-paths-win)
+endif ()
 
 # Retrieve the system architecture
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -87,39 +96,7 @@ else ()
 	set(ARCH x86)
 endif ()
 
-# Some easier way to alleviate the cmake call and pick the directories from a ROOT
-if (COIN_ROOT_DIR)
-	set(Clp_ROOT ${COIN_ROOT_DIR})
-	set(Osi_ROOT ${COIN_ROOT_DIR})
-	set(CoinUtils_ROOT ${COIN_ROOT_DIR})
-endif ()
-
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CXX_FLAGS}")
-
-# ----- Dependencies -------------------------------------------------------- #
-# Comment out the ones you do not need.
-
-# MCFClass library, required by MCFBlock.
-# Requires CPLEX.
-set(MCFClass_READ_PATHS OFF CACHE BOOL
-		                "Whether MCFClass will read locations for
-		                dependencies or not." FORCE)
-add_subdirectory(MCFClass)
-# Add the binary directory to RPATH, so executables that use
-# dynamic loading will look into it.
-set(SMSPP_BUILD_RPATH
-	"${SMSPP_BUILD_RPATH};${CMAKE_CURRENT_BINARY_DIR}/MCFClass")
-
-# NDOSolver/FiOracle library, required by BundleSolver.
-# Requires CoinUtils, Osi and CPLEX.
-set(NDOFiOracle_READ_PATHS OFF CACHE BOOL
-		                   "Whether NdoFiOracle will read locations for
-		                   dependencies or not." FORCE)
-add_subdirectory(BundleSolver/NdoFiOracle)
-# Add the binary directory to RPATH, so executables that use
-# dynamic loading will look into it.
-set(SMSPP_BUILD_RPATH
-	"${SMSPP_BUILD_RPATH};${CMAKE_CURRENT_BINARY_DIR}/BundleSolver/NdoFiOracle")
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.

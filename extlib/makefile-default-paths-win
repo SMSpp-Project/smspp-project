@@ -1,0 +1,28 @@
+##############################################################################
+######################### makefile-default-paths-win #########################
+##############################################################################
+#                                                                            #
+#   makefile with the default locations for dependencies for Windows OS      #
+#                                                                            #
+#                                 Donato Meoli                               #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
+##############################################################################
+
+# define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
+
+BOOST_ROOT = /usr/local
+Eigen3_ROOT = /usr
+netCDF_ROOT = /usr/local
+netCDFCxx_ROOT = /usr/local
+CPLEX_ROOT = C:/Program Files/IBM/ILOG/CPLEX_Studio2211
+SCIP_ROOT = /usr/local
+GUROBI_ROOT = C:/gurobi1002
+CoinUtils_ROOT = /usr/local
+Osi_ROOT = /usr/local
+Clp_ROOT = /usr/local
+StOpt_ROOT = /usr/local
+HiGHS_ROOT = C:/HiGHS
+
+##################### End of makefile-default-paths-win ######################
