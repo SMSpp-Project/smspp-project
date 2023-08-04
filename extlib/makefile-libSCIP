@@ -4,10 +4,11 @@
 #                                                                            #
 #   makefile of libSCIP                                                      #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
+#   Input:  SCIP_ROOT, the directory where SCIP is installed                 #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libSCIPLIB) = external libreries + -L<libdirs> for libSCIP     #
 #           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
 #                                                                            #
@@ -17,14 +18,7 @@
 #                                                                            #
 ##############################################################################
 
-# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# basic SCIP directory
-libSCIPBSCDIR = $(StOpt_ROOT)
-
-# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-libSCIPLIB = -L$(libSCIPBSCDIR)/lib/ -lzimpl -lsoplex -lscip -ltbb
-libSCIPINC = -I$(libSCIPBSCDIR)/include/
+libSCIPLIB = -L$(SCIP_ROOT)/lib/ -lzimpl -lsoplex -lscip -ltbb
+libSCIPINC = -I$(SCIP_ROOT)/include/
 
 ############################# End of makefile ################################

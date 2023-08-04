@@ -4,10 +4,11 @@
 #                                                                            #
 #   makefile of libOSI                                                       #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
+#   Input:  $(Osi_ROOT), the directory where OSI is installed                #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libOSILIB) = external libreries + -L<libdirs> for libOSI	     #
 #           $(libOSIINC) = the -I$(include directories) for libOSI           #
 #                                                                            #
@@ -17,14 +18,7 @@
 #                                                                            #
 ##############################################################################
 
-# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+libOSILIB = -L$(Osi_ROOT)/lib -lOsiClp -lClp -lOsi -lCoinUtils
+libOSIINC = -I$(Osi_ROOT)/include/coin
 
-# basic COIN directory
-libOSIBSCDIR = $(Osi_ROOT)
-
-# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-libOSILIB = -L$(libOSIBSCDIR)/lib -lOsiClp -lClp -lOsi -lCoinUtils
-libOSIINC = -I$(libOSIBSCDIR)/include/coin
-
-############################# End of makefile ################################
+######################### End of makefile-libOSI #############################

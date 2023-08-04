@@ -4,12 +4,12 @@
 #                                                                            #
 #   makefile of libNetCDF                                                    #
 #                                                                            #
-#   Input:  $(SMS++SDR) = the directory where the core SMS++ source is       #
-#           According to the standard library layout, it is assumed that     #
-#           the external libreries live in $(SMS++SDR)../extlib              #
+#   Input:  $(netCDF_ROOT) and $(netCDFxx_ROOT), the directories where       #
+#           netCDF (basic C lib) and its C++ interface are installed         #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libNtCDFINC) = the -I$(include directories) for NetCDF	     #
 #           $(libNtCDFLIB) = external libreries + -L<libdirs> for NetCDF     #
 #                                                                            #
@@ -18,8 +18,6 @@
 #                            Universita' di Pisa                             #
 #                                                                            #
 ##############################################################################
-
-# define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Linux)
     libNtCDFLIB = -L$(netCDFCxx_ROOT)/lib/x86_64-linux-gnu -lnetcdf -lnetcdf_c++4

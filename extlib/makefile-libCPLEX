@@ -4,10 +4,10 @@
 #                                                                            #
 #   makefile of libCPLEX                                                     #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
-#                                                                            #
+#   Input:  $(CPLEX_ROOT), the directory where Cplex Studio is installed     #                                                                            #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libCPLEXLIB) = external libreries + -L<libdirs> for libCPLEX   #
 #           $(libCPLEXINC) = the -I$(include directories) for libCPLEX       #
 #                                                                            #
@@ -24,7 +24,7 @@ ifeq ($(UNAME_S),Linux)
     libCPLEXEXTLIB = -lpthread
 endif
 ifeq ($(UNAME_S),Darwin)
-    libCPLEXEXTLIB = -framework CoreFoundation -framework IOKit
+    libCPLEXEXTLIB = 
 endif
 
 # basic CPLEX directory
@@ -43,4 +43,4 @@ endif
 libCPLEXLIB = -L$(libCPLEXINCDIR) -lilocplex -lcplex $(libCPLEXEXTLIB)
 libCPLEXINC = -I$(libCPLEXBSCDIR)/include
 
-############################# End of makefile ################################
+######################### End of makefile-libCPLEX ###########################

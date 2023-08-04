@@ -1,10 +1,10 @@
 ##############################################################################
-############################ makefile-libHiGHS ##############################
+####################à######## makefile-libHiGHS ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libHiGHS                                                     #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
+#   Input:  $(HiGHS_ROOT), the directory where HiGHS is installed            #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
@@ -16,28 +16,20 @@
 #                            Universita' di Pisa                             #
 #                                                                            #
 #                             Enrico Calandrini                              #
-#                         Dipartimento di Matematica                         #
+#                         Dipartimento di Informatica                        #
 #                            Universita' di Pisa                             #
 #                                                                            #
 ##############################################################################
 
-# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ifeq ($(UNAME_S),Linux)
+    libHiGHSLIB = -L$(HiGHS_ROOT)/lib -lhighs -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libHiGHSLIB = -L$(HiGHS_ROOT)/lib -lhighs
+endif
 
-# basic HiGHS directory
-libHiGHSBSCDIR = /usr/local/
+libHiGHSLIB = -L$(HiGHS_ROOT)/lib -lhighs
+libHiGHSINC = -I$(HiGHS_ROOT)/interfaces -I$(HiGHS_ROOT)/include/highs \
+	-I$(HiGHS_ROOT)/include/highs/docs/c_api_gen
 
-# external libreries that Gurobi needs
-# Linux
-#libHiGHSEXTLIB = -lpthread
-# Mac OSX
-libHiGHSEXTLIB =
-
-# lib Gurobi directory
-libHiGHSINCDIR = $(libHiGHSBSCDIR)/include/highs/
-
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-libHiGHSLIB = -L$(libHiGHSBSCDIR)/lib/ -lhighs
-libHiGHSINC = -I$(libHiGHSINCDIR)interfaces/ -I$(libHiGHSINCDIR) -I$(libHiGHSINCDIR)docs/c_api_gen/
-
-############################# End of makefile ################################
+######################## End of makefile-libHiGHS ############################

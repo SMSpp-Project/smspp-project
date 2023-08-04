@@ -4,10 +4,11 @@
 #                                                                            #
 #   makefile of libStOpt                                                     #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
+#   Input:  $(StOpt_ROOT), the directory where StOpt is installed            #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libStOptLIB) = external libreries + -L<libdirs> for libStOpt   #
 #           $(libStOptINC) = the -I$(include directories) for libStOpt       #
 #                                                                            #
@@ -17,20 +18,13 @@
 #                                                                            #
 ##############################################################################
 
-# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# basic StOpt directory
-libStOptBSCDIR = $(StOpt_ROOT)
-
-# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 ifeq ($(UNAME_S),Linux)
-    libStOptLIB = -L$(libStOptBSCDIR)/lib/ -lStOpt -lgeners \
-	    -L$(libStOptBSCDIR)/lib/x86_64-linux-gnu/ -lboost_timer
+    libStOptLIB = -L$(StOpt_ROOT)/lib/ -lStOpt -lgeners \
+	    -L$(StOpt_ROOT)/lib/x86_64-linux-gnu/ -lboost_timer
 endif
 ifeq ($(UNAME_S),Darwin)
-    libStOptLIB = -L$(libStOptBSCDIR)/lib/ -lStOpt -lgeners -lboost_timer-mt
+    libStOptLIB = -L$(StOpt_ROOT)/lib/ -lStOpt -lgeners -lboost_timer-mt
 endif
-libStOptINC = -I$(libStOptBSCDIR)/include/
+libStOptINC = -I$(StOpt_ROOT)/include/
 
-############################# End of makefile ################################
+######################## End of makefile-libStOpt ############################
