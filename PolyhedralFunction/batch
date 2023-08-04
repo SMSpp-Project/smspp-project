@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-export DYLD_LIBRARY_PATH=/Users/frangio/Applications/SCIPOptSuite-8.0.3-Darwin/lib:/Users/frangio/Applications/HiGHS/lib
-
 what=31
 #what=1
 #iter=10
