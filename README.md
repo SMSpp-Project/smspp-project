@@ -69,6 +69,13 @@ and its use is planned for several other ones (watch this space).
   project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
   although the dependency will be hopefully removed in time.
 
+- [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
+  designed to model the investment in different assets defined in
+  [UCBlock](https://gitlab.com/smspp/ucblock). The corresponding problem
+  can be either deterministic or stochastic, in which case the module also
+  uses [SDDPBlock](https://gitlab.com/smspp/sddpblock) and therefore
+  [StochasticBlock](https://gitlab.com/smspp/stochasticblock).
+  
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
   "generic" Lagrangian-based Solver for `Block` with appropriate structure.
 
@@ -102,7 +109,8 @@ and its use is planned for several other ones (watch this space).
     [HiGHS solver](https://github.com/ERGO-Code/HiGHS).
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
-  `Block` for representing Multicommodity Min-Cost Flow problems (MMCF).
+  `Block` for representing Multicommodity Min-Cost Flow problems (MMCF). The
+  current version is rather crude and in desperate need of some love.
 
 - [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
   multi-stage stochastic optimization problems solvable by the Stochastic
@@ -162,10 +170,37 @@ git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
 If you are not interested in building all the modules you can comment away
 the ones you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
 
-In alternative, you can avoid using this project altogether and
-fetch, build and install the modules individually (follow their own READMEs).
-In that case, you should start from the [SMS++ core
+In alternative, you can avoid using this project altogether and fetch, build
+and install the modules individually (follow their own READMEs). In that
+case, you should start from the [SMS++ core
 library](https://gitlab.com/smspp/smspp).
+
+### Centralised path repository
+
+You can either use [CMake](https://cmake.org) or plain makefiles to build the
+library, your choice. CMake compiles off-dource and it is therefore perhaps
+better suited to one-off, compile-and-forget installations, whereby the
+provided makefiles compile on-source and we find that they are better suited
+while developing and testing new code (please do, this is a community project).
+
+In both cases, all external dependencies should be automatically dealt with if
+they are installed in their default paths. These are specified in the `*_ROOT`
+values that are defined in the three files
+[`extlib/makefile-default-paths-linux`](extlib/makefile-default-paths-linux),
+[`extlib/makefile-default-paths-macos`](extlib/makefile-default-paths-macos),
+and [`extlib/makefile-default-paths-win`](extlib/makefile-default-paths-win)
+for the three major OS families; the one that gets used is automatically
+selected by the build process (both with CMake and the makefiles). If not, the
+suggested way to change them is to copy the (right one of these) file(s) into
+`extlib/makefile-paths` and edit it. This file, if present, is automatically
+read and the values found there replace the corresponding non-default definitions.
+The rationale for not directly changing the makefile-default-paths-* is that
+`extlib/makefile-paths` file is .gitignore-d. Hence, it should not be necessary to
+re-change the makefiles (or stash/restore the changes) each time the project is
+pulled, or manually ignore the changes when it is pushed, which is very convenient
+for anyone who actually develops new `SMS++` components (which you know you
+should, so please do).
+
 
 ### Build and install with CMake
 
@@ -179,8 +214,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-Some configuration options are available (i.e. for customizing the paths where
-required libraries can be found) see
+Severa� configuration options are available, see
 [here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration).
 Optionally install the libraries in the system with:
 
@@ -188,35 +222,27 @@ Optionally install the libraries in the system with:
 sudo make install
 ```
 
-
 ### Build and install with makefiles
 
-Most modules, and in particular the "core" SMS++ classes, also come with
-carefully hand-crafted makefiles. Using them requires dabbling with some
-make editing, but it is independent on CMake.
+All modules, starting with the "core" `SMS++ classes`, also come with
+carefully hand-crafted makefiles. Using them may require dabbling with some
+makefile editing, but it is independent on CMake and may be more suited for
+anyone who is developing `SMS++` components.
 
-The main step is to edit the makefiles into extlib/. There is one for each
-of the external libraries that any module requires (starting with Boost,
-Eigen and netCDF that are required by the core library and therefore by
-everyone). Setting the
+In principle makefiles may work right out of the bat if all dependencies are
+installed at their OS-specific default locations; see the
+extlib/makefile-default-paths-* discussion above. If not, creating and
+editing `extlib/makefile-paths` could be all that is needed to make them work.
 
-```make
-lib*INC = -I<paths to include files directories>
-lib*LIB = -L<paths to lib files directories> -l<libs>
-```
-
-in each allows one to set any non-standard path if the library is not
-installed in the system (or leave them empty if they are).
-
-The "core" SMS++ classes have a makefile for building the corresponding
+The "core" `SMS++` classes have a makefile for building the corresponding
 library in
 
 ```sh
 SMS++/lib/makefile-lib
 ```
 
-The makefile allow to choose the compiler name and the optimization/debug.
-This builds the lib/libSMS++.a that can be linked upon. Also, the
+The makefile allow to choose the compiler name and the optimization/debug
+settings. This builds the `lib/libSMS++.a` that can be linked upon. Also, the
 
 ```sh
 SMS++/lib/makefile-inc
@@ -229,6 +255,7 @@ those in
 
 ```sh
 MCFBlock/test
+MILPSolver/test_*
 tests/CapacitatedFacilityLocationBlock 
 tests/LagBFunction 
 tests/LagrangianDualSolver_MMCF
@@ -237,8 +264,9 @@ tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
 
-Note that the makefile-lib and makefile-inc "listen" to the general macros
-CC and SW controlling the c++ compiler and its main options; these can
+and many others. Note that the [makefile-lib](SMS++/lib/makefile-lib) and
+[makefile-inc](SMS++/lib/makefile-inc) "listen" to the general macros `CC`
+and `SW` controlling the `C++` compiler and its main options; these can
 therefore be set in the "main" makefile and will be used throughout the
 whole compilation. This may be useful to set system-specific values.
 
@@ -248,15 +276,17 @@ An example of this is the macro
 CLANG_1200_0_32_27_PATCH
 ```
 
-which activates a patch for a weird glitch of clang++ (from 1200.0.32.27
-to at least 1200.0.32.29) that cause some boost::any magic to stop working.
-Other settings may be needed.
+which activates a patch for a weird glitch of `clang++` (from 1200.0.32.27
+to at least 1200.0.32.29) that cause some `boost::any magic` to stop working.
+Other settings may be needed (see, for instance, the comments about
+`--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile).
+
 
 ## First steps
 
 Although sadly a proper User Manual is still missing, the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
-first look at possible ways of using SMS++. In particular the three
+first look at possible ways of using `SMS++`. In particular the three
 tests `LagrangianDualSolver_Box`, `LagrangianDualSolver_MMCF` and
 `LagrangianDualSolver_UC` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register two `Solver` (a `:MILPSolver` and a
@@ -269,7 +299,7 @@ programming a whole `Block` from scratch, more of which can be found, e.g.,
 in `tests/LagBFunction` and `tests/PolyhedralFunction`. Furthermore,
 provides an example on how to (randomly) modify the `:Block` and re-solve
 it many times (still checking that the results agree), showcasing the
-crucial `Modification` SMS++ concept whereby changes in the `:Block` are
+crucial `Modification` `SMS++` concept whereby changes in the `:Block` are
 automatically forwarded to all concerned `Solver`. Other similar examples
 can be found in basically all the other tests.
 
@@ -278,6 +308,7 @@ provides examples about using full-featured "pre-built" `:Block`, that can be
 found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
 [MCFBlock](https://gitlab.com/smspp/mcfblock) repos and in the
 [UCBlock](https://gitlab.com/smspp/ucblock) repo, respectively.
+
 
 ## Getting help
 
@@ -293,22 +324,39 @@ If your issue is not covered by our guides, or you want to propose a new
 module, you can
 [open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
 conduct, and the process for submitting merge requests to us. To contribute
 to the individual projects, see the Contribute section for those.
 
+Contributing entirely new sub-projects, i.e., either new `:Block` for your
+favourite class of optimization models and/or new `:Solver` implementing your
+favourite solution method (very general or specialised to a very narrow class,
+everything is useful) is extremely welcome. The `SMS++ Project` maintainers
+will bend backwards to help you develop them and will be happy to host them in
+the umbrella repository and integrate them with the rest of the
+`SMS++ Project`. This being open source, of course it is your choice whether
+or not you do it, if you will release your code and which license will it be
+released under. However, `SMS++` is a community project and we humbly suggest
+you to consider participating in it with the rules we have been setting.
+Constructive criticisms and proposals about changing these rules (the umbrella
+repository organisation and whatnot) are very welcome. In fact we believe that
+the `SMS++ Project` underlines the need for a software distribution mechanism
+for projects that are at the same time tightly knit together and composed of
+largely independent units that we don't seem to see around, but if we have
+missed it we'd be happy for a tip.
+
+
 ## Authors
 
 These authors are for the umbrella project alone. Check the individual
 projects for their respective authors.
 
-- **Antonio Frangioni**  
-  Dipartimento di Informatica  
-  Università di Pisa
+### Current lead authors
 
-- **Niccolò Iardella**  
+- **Antonio Frangioni**  
   Dipartimento di Informatica  
   Università di Pisa
 
@@ -316,11 +364,19 @@ projects for their respective authors.
   Dipartimento di Informatica  
   Università di Pisa
 
+### Main past contributors
+
+- **Niccolò Iardella**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public
 License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
 see the [LICENSE](LICENSE) file for details.
+
 
 ## Disclaimer
 
@@ -332,9 +388,10 @@ any damage or loss that anybody could suffer for having used it. More
 details about the non-warranty attached to this code are available in the
 license description file.
 
+
 ## Acknowledgements
 
-The development of SMS++ has greatly benefited from the contributions
+The development of `SMS++` has greatly benefited from the contributions
 of the following projects:
 
 - "Consistent Dual Signals and Optimal Primal Solutions", funded by the
