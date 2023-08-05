@@ -7,10 +7,7 @@
 #       cmake -DCMAKE_BUILD_TYPE=Debug ..                                     #
 #                                                                             #
 #                              Niccolo' Iardella                              #
-#                         Dipartimento di Informatica                         #
-#                             Universita' di Pisa                             #
-#                                                                             #
-#                                 Donato Meoli                                #
+#                                Donato Meoli                                 #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #

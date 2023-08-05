@@ -28,9 +28,10 @@
 #   changes) each time parts of the project are pulled, or manually ignore   #
 #   the changes when they are pushed, which is very convenient for anyone    #
 #   who actually develops SMS++ components (and if you don't, you perhaps    #
-#   should; think of it).
+#   should; think of it).                                                    #
 #                                                                            #
-#                             Antonio Frangioni                              #
+#                              Antonio Frangioni                             #
+#                                 Donato Meoli                               #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
 #                                                                            #
