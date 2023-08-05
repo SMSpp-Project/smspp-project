@@ -39,10 +39,10 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-#BOOST_ROOT =
-#Eigen3_ROOT =
-#netCDF_ROOT =
-#netCDFCxx_ROOT =
+#BOOST_ROOT = C:/path/to/vcpkg
+#Eigen3_ROOT = C:/path/to/vcpkg
+#netCDF_ROOT = C:/path/to/vcpkg
+#netCDFCxx_ROOT = C:/path/to/vcpkg
 CPLEX_ROOT = C:/Program Files/IBM/ILOG/CPLEX_Studio2211
 SCIP_ROOT = C:/Program Files/SCIPOptSuite 8.0.3
 GUROBI_ROOT = C:/gurobi1002
