@@ -39,17 +39,17 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_ROOT = /usr/local
-Eigen3_ROOT = /usr
-netCDF_ROOT = /usr/local
-netCDFCxx_ROOT = /usr/local
+#BOOST_ROOT =
+#Eigen3_ROOT =
+#netCDF_ROOT =
+#netCDFCxx_ROOT =
 CPLEX_ROOT = C:/Program Files/IBM/ILOG/CPLEX_Studio2211
-SCIP_ROOT = /usr/local
+SCIP_ROOT = C:/Program Files/SCIPOptSuite 8.0.3
 GUROBI_ROOT = C:/gurobi1002
-CoinUtils_ROOT = /usr/local
-Osi_ROOT = /usr/local
-Clp_ROOT = /usr/local
-StOpt_ROOT = /usr/local
+#CoinUtils_ROOT =
+#Osi_ROOT =
+#Clp_ROOT =
+StOpt_ROOT = C:/StOpt
 HiGHS_ROOT = C:/HiGHS
 
 ##################### End of makefile-default-paths-win ######################
