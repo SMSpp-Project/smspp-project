@@ -1,5 +1,5 @@
 ##############################################################################
-####################à######## makefile-libHiGHS ##############################
+############################# makefile-libHiGHS ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libHiGHS                                                     #
@@ -21,15 +21,31 @@
 #                                                                            #
 ##############################################################################
 
-ifeq ($(UNAME_S),Linux)
-    libHiGHSLIB = -L$(HiGHS_ROOT)/lib -lhighs -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHiGHSLIB = -L$(HiGHS_ROOT)/lib -lhighs
+# we support two different build patterns for HiGHS
+# - either it has been installed, typically in /usr/local, and therefore
+#   includes are in $(HiGHS_ROOT)/include/highs (/usr/local/include/highs) and
+#   subdirs, and libraries are -L$(HiGHS_ROOT)/lib (/usr/local/lib);
+#   furthermore, HConfig.h has been moved with all the other .h
+# - or it has been built but not installed, and therefore includes are in
+#   $(HiGHS_ROOT)/src and subdirs, and libraries are -L$(HiGHS_ROOT)/build/lib;
+#   furthermore, HConfig.h is in $(HiGHS_ROOT)/build
+# to tell the two cases we look if $(HiGHS_ROOT)/highs.pc.in exists
+
+ifneq ("$(wildcard $(HiGHS_ROOT)/highs.pc.in)","")
+    libHiGHSLIBBSC = $(HiGHS_ROOT)/build/lib
+    libHiGHSINC = -I$(HiGHS_ROOT)/src -I$(HiGHS_ROOT)/src/interfaces \
+	-I$(HiGHS_ROOT)/build
+else
+    libHiGHSLIBBSC = $(HiGHS_ROOT)/lib
+    libHiGHSINC = -I$(HiGHS_ROOT)/include/highs \
+    -I$(HiGHS_ROOT)/include/highs/interfaces
 endif
 
-libHiGHSLIB = -L$(HiGHS_ROOT)/lib -lhighs
-libHiGHSINC = -I$(HiGHS_ROOT)/interfaces -I$(HiGHS_ROOT)/include/highs \
-	-I$(HiGHS_ROOT)/include/highs/docs/c_api_gen
+ifeq ($(UNAME_S),Linux)
+    libHiGHSLIB = -L$(libHiGHSLIBBSC) -lhighs -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libHiGHSLIB = -L$(libHiGHSLIBBSC) -lhighs
+endif
 
 ######################## End of makefile-libHiGHS ############################
