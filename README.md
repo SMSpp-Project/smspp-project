@@ -182,6 +182,27 @@ Getting the whole umbrella project and all the subprojects can be done with:
 git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
 ```
 
+**Important note**: due to the rapid pace of development, the "master"
+branch(es) of the repositories is(are) usually rather outdated. Even ordinary
+users of the system are advised to rather live on the "develop" branch(es), at
+least for the time being. This is obtained, e.g., by running
+
+```sh
+git checkout develop
+
+git pull
+
+git submodule foreach --recursive "git checkout develop || git checkout master"
+
+git submodule foreach --recursive "git pull"
+```
+
+(note that not all the involved repositories, and in particular those not
+directly belonging to the `SMS++ Project`, have a "develop" branch). Due care
+is usually taken in ensuring that the "develop" branches do work all the time
+(albeit slippages may happen, nobody is perfect).
+
+
 ### Excluding modules
 
 If you are not interested in building all the modules you can comment away
