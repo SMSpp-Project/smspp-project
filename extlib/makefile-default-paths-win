@@ -39,16 +39,16 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-#BOOST_ROOT = C:/path/to/vcpkg
-#Eigen3_ROOT = C:/path/to/vcpkg
-#netCDF_ROOT = C:/path/to/vcpkg
-#netCDFCxx_ROOT = C:/path/to/vcpkg
+BOOST_ROOT = C:/vcpkg/installed/x64-windows
+Eigen3_ROOT = C:/vcpkg/installed/x64-windows
+netCDF_ROOT = C:/vcpkg/installed/x64-windows
+netCDFCxx_ROOT = C:/vcpkg/installed/x64-windows
 CPLEX_ROOT = C:/Program Files/IBM/ILOG/CPLEX_Studio2211
 SCIP_ROOT = C:/Program Files/SCIPOptSuite 8.0.3
 GUROBI_ROOT = C:/gurobi1002
-#CoinUtils_ROOT =
-#Osi_ROOT =
-#Clp_ROOT =
+CoinUtils_ROOT = C:/vcpkg/installed/x64-windows
+Osi_ROOT = C:/vcpkg/installed/x64-windows
+Clp_ROOT = C:/vcpkg/installed/x64-windows
 StOpt_ROOT = C:/StOpt
 HiGHS_ROOT = C:/HiGHS
 
