@@ -31,9 +31,26 @@ some complex projects, such as
 
 - the [plan4res H2020 project](https://www.plan4res.eu)
 
-- the [openENTRANCE H2020 project](https://openentrance.eu)
+- the [openENTRANCE H2020 project](https://openentrance.eu), where `SMS++`
+  contributed to [the open modelling platform developed by the
+  project](https://openenergymodels.net/models/plan4res-modelling-suite)
 
-and its use is planned for several other ones (watch this space).
+Furthermore, the use of `SMS++` is planned for several other projects; two
+recently accepted ones are
+
+- the CETPartnership "RESILIENT - Resilient Energy System Infrastructure
+  Layouts for Industry, E-Fuels and Network Transition", where `SMS++` will be
+  interfaced with the open-source, widely-used, multi-vector energy planning
+  tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
+  the more demanding energy models;
+
+- the CETPartnership "Manoeuvre", where a methodology will be developed for
+  linking `SMS++` with the global energy model
+  [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case studies,
+  where `SMS++` will be run on a technologies mix calculated by GENeSYS-Mod and
+  will send back some indicators that will allow to refine the previous solution.
+
+Watch this space for more details and news as they become available.
 
 
 ## Documentation
