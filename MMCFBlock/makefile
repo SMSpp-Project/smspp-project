@@ -72,9 +72,9 @@ include $(libMMCFSDR)/lib/makefile-c
 
 # object files
 MOBJ = $(MMCFOBJ) \
-       $(SMS++OBJ) \
        $(MILPSOBJ) \
-       $(libMMCFOBJ)
+       $(libMMCFOBJ) \
+       $(SMS++OBJ)
 
 # libreries
 MLIB = $(SMS++LIB) \
@@ -82,7 +82,7 @@ MLIB = $(SMS++LIB) \
        $(MMCFLIB) \
        $(libMMCFLIB)
 
-$(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o 
+$(DIR)/$(NAME): $(DIR)/main.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $(DIR)/main.o $(MOBJ) $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -

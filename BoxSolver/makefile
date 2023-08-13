@@ -59,7 +59,7 @@ include $(MILPSSDR)/makefile-s
 # object files
 MOBJ =  $(SMS++OBJ) $(MILPSOBJ)
 
-# libreries
+# libraries
 # note the --force_link, that is used to ensure that BoxSolver (which is
 # never explicitly mentioned in test.cpp if SMSpp_ensure_load() is not
 # called) is properly linked with the final executable and therefore
@@ -80,7 +80,7 @@ MOBJ =  $(SMS++OBJ) $(MILPSOBJ)
 MLIB =  $(SMS++LIB) $(MILPSLIB) \
 	--force-link=__ZTVN17SMSpp_di_unipi_it9BoxSolverE
 
-$(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
+$(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -

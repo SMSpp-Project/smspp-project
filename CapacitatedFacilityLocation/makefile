@@ -73,7 +73,7 @@ MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(CFLBkOBJ) $(SMS++OBJ)
 # libraries
 MLIB =   $(BNDSLVLIB) $(LgDSLVLIB) $(CFLBkLIB) $(SMS++LIB)
 
-$(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
+$(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
