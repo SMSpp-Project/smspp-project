@@ -35,6 +35,13 @@ endif
 ifeq ($(UNAME_S),Darwin)
     libGUROBIBSCDIR = $(GUROBI_ROOT)
 endif
+ifeq ($(UNAME_S),Windows)
+    ifeq ($(UNAME_P),x86_64)
+        libGUROBIBSCDIR = $(GUROBI_ROOT)/win32
+    else
+         libGUROBIBSCDIR = $(GUROBI_ROOT)/win64
+    endif
+endif
 
 # lib Gurobi directory
 libGUROBIINCDIR = $(libGUROBIBSCDIR)/lib

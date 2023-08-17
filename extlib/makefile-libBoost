@@ -4,7 +4,7 @@
 #                                                                            #
 #   makefile of libBoost                                                     #
 #                                                                            #
-#   Input:  (BOOST_ROOT), the directory where boost is installed             #                                                                            #                                                                            #
+#   Input:  (BOOST_ROOT), the directory where boost is installed             #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #

@@ -4,7 +4,7 @@
 #                                                                            #
 #   makefile of libCPLEX                                                     #
 #                                                                            #
-#   Input:  $(CPLEX_ROOT), the directory where Cplex Studio is installed     #                                                                            #                                                                            #
+#   Input:  $(CPLEX_ROOT), the directory where Cplex Studio is installed     #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
@@ -36,6 +36,9 @@ ifeq ($(UNAME_S),Linux)
 endif
 ifeq ($(UNAME_S),Darwin)
     libCPLEXINCDIR = $(libCPLEXBSCDIR)/lib/x86-64_osx/static_pic
+endif
+ifeq ($(UNAME_S),Windows)
+    libCPLEXINCDIR = $(libCPLEXBSCDIR)/lib/x64_windows_msvc14/stat_mda
 endif
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
