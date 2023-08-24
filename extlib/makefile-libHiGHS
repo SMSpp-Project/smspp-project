@@ -8,7 +8,7 @@
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libHiGHSLIB) = external libreries + -L<libdirs> for libHiGHS   #
+#           $(libHiGHSLIB) = external libraries + -L< libdirs > for libHiGHS #
 #           $(libHiGHSINC) = the -I$(include directories) for libHiGHS       #
 #                                                                            #
 #                             Antonio Frangioni                              #
@@ -21,6 +21,13 @@
 #                                                                            #
 ##############################################################################
 
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic HiGHS directory without quotes, if any
+libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # we support two different build patterns for HiGHS
 # - either it has been installed, typically in /usr/local, and therefore
 #   includes are in $(HiGHS_ROOT)/include/highs (/usr/local/include/highs) and
@@ -31,21 +38,21 @@
 #   furthermore, HConfig.h is in $(HiGHS_ROOT)/build
 # to tell the two cases we look if $(HiGHS_ROOT)/highs.pc.in exists
 
-ifneq ("$(wildcard $(HiGHS_ROOT)/highs.pc.in)","")
-    libHiGHSLIBBSC = $(HiGHS_ROOT)/build/lib
-    libHiGHSINC = -I$(HiGHS_ROOT)/src -I$(HiGHS_ROOT)/src/interfaces \
-	-I$(HiGHS_ROOT)/build
+ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
+    libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
+    libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
+	-I"$(libHiGHSBSCDIR)/build"
 else
-    libHiGHSLIBBSC = $(HiGHS_ROOT)/lib
-    libHiGHSINC = -I$(HiGHS_ROOT)/include/highs \
-    -I$(HiGHS_ROOT)/include/highs/interfaces
+    libHiGHSLIBBSC = $(libHiGHSBSCDIR)/lib
+    libHiGHSINC = -I"$(libHiGHSBSCDIR)/include/highs" \
+    -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
 endif
 
 ifeq ($(UNAME_S),Linux)
-    libHiGHSLIB = -L$(libHiGHSLIBBSC) -lhighs -lpthread
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs -lpthread
 endif
 ifeq ($(UNAME_S),Darwin)
-    libHiGHSLIB = -L$(libHiGHSLIBBSC) -lhighs
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs
 endif
 
 ######################## End of makefile-libHiGHS ############################

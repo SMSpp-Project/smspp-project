@@ -9,7 +9,8 @@
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
-#           $(libGUROBILIB) = external libreries + -L<libdirs> for libGUROBI #
+#           $(libGUROBILIB) = external libraries + -L< libdirs > for         #
+#                             libGUROBI                                      #
 #           $(libGUROBIINC) = the -I$(include directories) for libGUROBI     #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -20,7 +21,7 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# external libreries that Gurobi needs
+# external libraries that Gurobi needs
 ifeq ($(UNAME_S),Linux)
     libGUROBIEXTLIB = -lpthread
 endif
@@ -43,12 +44,9 @@ ifeq ($(UNAME_S),Windows)
     endif
 endif
 
-# lib Gurobi directory
-libGUROBIINCDIR = $(libGUROBIBSCDIR)/lib
-
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libGUROBILIB = -L$(libGUROBIINCDIR) -lgurobi100 $(libGUROBIEXTLIB)
-libGUROBIINC = -I$(libGUROBIBSCDIR)/include
+libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
+libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
 ############################# End of makefile ################################
