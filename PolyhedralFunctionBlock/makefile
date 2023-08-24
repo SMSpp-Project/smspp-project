@@ -40,9 +40,9 @@ clean::
 # corresponding include line
 # each module outputs some macros to be used here:
 # *OBJ is the final object(s) / library
-# *LIB is the external libreries + -L<libdirs>
+# *LIB is the external libraries + -L< libdirs >
 # *H   is the list of all include files
-# *INC is the -I<include directories>
+# *INC is the -I< include directories >
 
 # define input macros for SMS++ complete makefile, then include it
 SMS++SDR = ../../SMS++
@@ -62,7 +62,7 @@ include $(BNDSLVSDR)/makefile-s
 # object files
 MOBJ =  $(BNDSLVOBJ) $(SMS++OBJ)
 
-# libreries
+# libraries
 MLIB =  $(BNDSLVLIB) $(SMS++LIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o

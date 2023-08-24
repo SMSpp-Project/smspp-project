@@ -66,7 +66,7 @@ include $(UCBckDIR)/lib/makefile
 # object files
 MOBJ =  $(MILPSOBJ) $(UCBckOBJ) $(SMS++OBJ)
 
-# libreries
+# libraries
 MLIB =  $(SMS++LIB) $(MILPSLIB) $(UCBckLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/$(NAME).o

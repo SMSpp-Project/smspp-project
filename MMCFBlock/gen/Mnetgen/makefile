@@ -10,7 +10,7 @@ DIR = ./
 # module
 NAME = mnetgen
 
-# libreries
+# libraries
 LIB = -lm
 
 # switches

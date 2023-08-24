@@ -9,7 +9,7 @@
 #           $(MMGDIR) = the directory where the source is                    #
 #                                                                            #
 #   Output: $(MMGOBJ) = the final object(s) / library                        #
-#           $(MMGLIB) = external libreries + -L<libdirs>                     #
+#           $(MMGLIB) = external libraries + -L< libdirs >                   #
 #           $(MMGH)   = the .h files to include	(apart from the OPT* ones)   #
 #           $(MMGINC) = the -I$(include directories)                         #
 #                                                                            #

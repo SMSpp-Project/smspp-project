@@ -61,7 +61,7 @@ include $(LukFiSDR)/makefile
 # object files
 MOBJ = $(LukFiOBJ) $(SMS++OBJ) $(BNDSLVOBJ)
 
-# libreries
+# libraries
 MLIB = $(SMS++LIB) $(BNDSLVLIB) $(LukFiLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o 

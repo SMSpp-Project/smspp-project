@@ -13,7 +13,7 @@
 #           $(libMMCFSDR) = the basic directory for the library              #
 #                                                                            #
 #   Output: $(libMMCFOBJ) = the libMMCF library (that must be built)	     #
-#           $(libMMCFLIB) = the external libreries + -L<libdirs>             #
+#           $(libMMCFLIB) = the external libraries + -L< libdirs >           #
 #           $(libMMCFH)   = all the .h files to include                      #
 #           $(libMMCFINC) = all the -I$(include directories)	     	     #
 #                                                                            #
@@ -28,9 +28,9 @@
 # corresponding include line
 # each module outputs some macros to be used here:
 # *OBJ is the final object/library
-# *LIB external libraries + -L<libdirs>
+# *LIB external libraries + -L< libdirs >
 # *H   is the list of all include files
-# *INC is the -I<include directories>
+# *INC is the -I< include directories >
 
 # MMCFClass
 MMFDIR = $(libMMCFSDR)/MMCFClas

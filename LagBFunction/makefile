@@ -64,7 +64,7 @@ include $(BNDSLVSDR)/makefile-s
 # object files
 MOBJ =  $(BNDSLVOBJ) $(SMS++OBJ)
 
-# libreries
+# libraries
 MLIB =  $(BNDSLVLIB) $(SMS++LIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o

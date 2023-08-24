@@ -76,7 +76,7 @@ MOBJ = $(MMCFOBJ) \
        $(libMMCFOBJ) \
        $(SMS++OBJ)
 
-# libreries
+# libraries
 MLIB = $(SMS++LIB) \
        $(MILPSLIB) \
        $(MMCFLIB) \

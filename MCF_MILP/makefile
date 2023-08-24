@@ -62,7 +62,7 @@ include $(MILPSSDR)/makefile-c
 # object files
 MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
 
-# libreries
+# libraries
 MLIB =  $(MCFBkLIB) $(MILPSLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o

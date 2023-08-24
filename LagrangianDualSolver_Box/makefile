@@ -68,7 +68,7 @@ include $(LgDSLVSDR)/makefile
 # object files
 MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(SMS++OBJ)
 
-# libreries
+# libraries
 # note the --force_link, that is used to ensure that BoxSolver (which is
 # never explicitly mentioned in test.cpp if SMSpp_ensure_load() is not
 # called) is properly linked with the final executable and therefore

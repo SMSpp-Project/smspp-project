@@ -6,7 +6,7 @@
 #                                                                            #
 #   The makefile defines internally all external libraries required by       #
 #   the libMMCF library. Accordingly, all necessary OBJ, H, -I directives,   #
-#   and external libraries + -L<libdirs> are added to the corresponding      #
+#   and external libraries + -L< libdirs > are added to the corresponding    #
 #   libMMCF* macros.                                                         #
 #                                                                            #
 #   Input:  $(CC)         = compiler command                                 #
@@ -16,7 +16,7 @@
 #   Output: $(libMMCFOBJ)     = the final objects                            #
 #           $(libMMCFH)       = the .h files to include for libMMCF          #
 #           $(libMMCFINC)     = all the -I$( include dirs ) of libMMCF       #
-#           $(libMMCFLIBMMCF) = the external libraries + -L<libdirs>         #
+#           $(libMMCFLIBMMCF) = the external libraries + -L< libdirs >       #
 #                                                                            #
 #                              Antonio Frangioni                             #
 #                         Dipartimento di Informatica                        #
@@ -28,8 +28,8 @@
 # if a module is not used in the current configuration, just comment out the
 # corresponding include line
 # each module outputs some macros to be used here:
-# *INC are the -I<include directories>
-# *LIB are the external libreries + -L<libdirs>
+# *INC are the -I< include directories >
+# *LIB are the external libraries + -L< libdirs >
 
 # OPT*** stuff
 OPTUxH   = $(libMMCFSDR)/OPTUtils/OPTUtils.h \
