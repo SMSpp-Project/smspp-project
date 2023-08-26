@@ -31,7 +31,7 @@ ifeq ($(UNAME_S),Linux)
 endif
 ifeq ($(UNAME_S),Darwin)
     libStOptLIB = -L"$(libStOptBSCDIR)/install/lib" -lStOpt -lgeners \
-	-lboost_timer-mt
+	    -lboost_timer-mt
 endif
 libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners-1.11.0"
 

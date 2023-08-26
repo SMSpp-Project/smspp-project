@@ -41,11 +41,11 @@ libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
     libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
-	-I"$(libHiGHSBSCDIR)/build"
+	    -I"$(libHiGHSBSCDIR)/build"
 else
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/lib
     libHiGHSINC = -I"$(libHiGHSBSCDIR)/include/highs" \
-    -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
+        -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
 endif
 
 ifeq ($(UNAME_S),Linux)
