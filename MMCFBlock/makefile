@@ -48,7 +48,7 @@ clean::
 
 
 # OPT*** stuff
-#OPTUxH   = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
+#OPTUxH = $(libMMCFSDR)OPTUtils/OPTUtils.h $(libMMCFSDR)OPTUtils/OPTtypes.h \
 #	 $(libMMCFSDR)OPTUtils/OPTvect.h
 #OPTUxINC = -I$(libMMCFSDR)OPTUtils
 

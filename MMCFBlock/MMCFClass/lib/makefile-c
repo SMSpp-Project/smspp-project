@@ -32,7 +32,7 @@
 # *LIB are the external libraries + -L< libdirs >
 
 # OPT*** stuff
-OPTUxH   = $(libMMCFSDR)/OPTUtils/OPTUtils.h \
+OPTUxH = $(libMMCFSDR)/OPTUtils/OPTUtils.h \
 	$(libMMCFSDR)/OPTUtils/OPTtypes.h \
 	$(libMMCFSDR)/OPTUtils/OPTvect.h
 OPTUxINC = -I$(libMMCFSDR)/OPTUtils
