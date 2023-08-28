@@ -44,12 +44,12 @@ Eigen3_ROOT = /usr
 netCDF_ROOT = /usr/local
 netCDFCxx_ROOT = /usr/local
 CPLEX_ROOT = /Applications/CPLEX_Studio2211
-SCIP_ROOT = /usr/local
+SCIP_ROOT = /Library/stopt
 GUROBI_ROOT = /Library/gurobi1002
-CoinUtils_ROOT = /usr/local
-Osi_ROOT = /usr/local
-Clp_ROOT = /usr/local
-StOpt_ROOT = /usr/local
 HiGHS_ROOT = /Library/HiGHS
+StOpt_ROOT = /Library/stopt
+CoinUtils_ROOT = /Library/coin-or
+Osi_ROOT = /Library/coin-or
+Clp_ROOT = /Library/coin-or
 
 #################### End of makefile-default-paths-macos #####################

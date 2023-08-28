@@ -43,13 +43,13 @@ BOOST_ROOT = C:/vcpkg/installed/x64-windows
 Eigen3_ROOT = C:/vcpkg/installed/x64-windows
 netCDF_ROOT = C:/vcpkg/installed/x64-windows
 netCDFCxx_ROOT = C:/vcpkg/installed/x64-windows
+StOpt_ROOT = C:/vcpkg/installed/x64-windows
 CPLEX_ROOT = "C:/Program Files/IBM/ILOG/CPLEX_Studio1210"
 SCIP_ROOT = "C:/Program Files/SCIPOptSuite 8.0.3"
 GUROBI_ROOT = C:/gurobi1002
-CoinUtils_ROOT = C:/vcpkg/installed/x64-windows
-Osi_ROOT = C:/vcpkg/installed/x64-windows
-Clp_ROOT = C:/vcpkg/installed/x64-windows
-StOpt_ROOT = C:/vcpkg/installed/x64-windows
 HiGHS_ROOT = C:/HiGHS
+CoinUtils_ROOT = C:/coin-or
+Osi_ROOT = C:/coin-or
+Clp_ROOT = C:/coin-or
 
 ##################### End of makefile-default-paths-win ######################
