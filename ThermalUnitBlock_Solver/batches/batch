@@ -7,6 +7,7 @@ what=7
 
 for wf in 0 1 2 3 4 5; do
   for i in 24 96; do
+    # skip DP, pt, SU and SD formulations for 96 problems
     if [ $wf -ge 2 ] && [ $i -eq 96 ]; then
       continue
     fi
