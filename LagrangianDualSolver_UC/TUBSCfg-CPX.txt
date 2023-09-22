@@ -40,7 +40,7 @@ intRelaxIntVars     1    # nonzero if the continuous relaxation is solved
 
 # now all the double parameters
 #CPXPARAM_Simplex_Tolerances_Optimality	1e-9	# simplex tolerance
-CPXPARAM_MIP_Tolerances_MIPGap 1e-8 #cplex MIP tolerance
+CPXPARAM_MIP_Tolerances_MIPGap 1e-8 # cplex MIP tolerance
 
 0 # number of string parameters
 

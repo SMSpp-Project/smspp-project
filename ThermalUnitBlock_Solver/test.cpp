@@ -513,7 +513,7 @@ int main( int argc , char **argv )
     << std::endl <<
     "             0 = 3bin, 1 = T, 2 = pt, 3 = DP"
     << std::endl <<
-    "             4 = SU, 5 = SD (formulation)"
+    "             4 = SU, 5 = SD, 6 = SUSD (formulation)"
     << std::endl <<
     "             +8 = also use perspective cuts"
     << std::endl <<
