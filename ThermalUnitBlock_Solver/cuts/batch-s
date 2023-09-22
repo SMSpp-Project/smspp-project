@@ -5,7 +5,7 @@ what=133
 
 # simple thermals - - - - - - - - - - - - - - - - - - - - -
 
-for wf in 8 9 10 11 12 13; do
+for wf in 8 9 10 11 12 13 14; do
   for (( h = 1 ; h <= 98 ; h++ )); do
     for (( seed = 0 ; seed < 20 ; seed++ )); do
       #seed=0
