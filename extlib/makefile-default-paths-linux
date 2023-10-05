@@ -44,12 +44,12 @@ Eigen3_ROOT = /usr
 netCDF_ROOT = /usr/local
 netCDFCxx_ROOT = /usr/local
 CPLEX_ROOT = /opt/ibm/ILOG/CPLEX_Studio2211
-SCIP_ROOT = /usr/local
-GUROBI_ROOT = /opt/gurobi1002
-CoinUtils_ROOT = /usr/local
-Osi_ROOT = /usr/local
-Clp_ROOT = /usr/local
-StOpt_ROOT = /usr/local
+SCIP_ROOT = /opt/scip
+GUROBI_ROOT = /opt/gurobi1003
 HiGHS_ROOT = /opt/HiGHS
+StOpt_ROOT = /opt/stopt
+CoinUtils_ROOT = /opt/coin-or
+Osi_ROOT = /opt/coin-or
+Clp_ROOT = /opt/coin-or
 
 #################### End of makefile-default-paths-linux #####################

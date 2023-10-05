@@ -10,7 +10,7 @@
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
 #           $(libEigenINC) = the -I$(include directories) for Eigen          #
-#           $(libEigenLIB) = external libreries + -L< libdirs > for Eigen    #
+#           $(libEigenLIB) = external libraries + -L< libdirs > for Eigen    #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
@@ -18,7 +18,14 @@
 #                                                                            #
 ##############################################################################
 
-libEigenINC = -I$(Eigen3_ROOT)/include/eigen3
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic Eigen directory without quotes, if any
+libEigenBSCDIR = $(subst $\",,$(Eigen3_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libEigenINC = -I"$(libEigenBSCDIR)/include/eigen3"
 libEigenLIB = 
 
 ############################# End of makefile ################################

@@ -9,7 +9,7 @@
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
-#           $(libStOptLIB) = external libreries + -L<libdirs> for libStOpt   #
+#           $(libStOptLIB) = external libraries + -L< libdirs > for libStOpt #
 #           $(libStOptINC) = the -I$(include directories) for libStOpt       #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -18,14 +18,21 @@
 #                                                                            #
 ##############################################################################
 
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic StOpt directory without quotes, if any
+libStOptBSCDIR = $(subst $\",,$(StOpt_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 ifeq ($(UNAME_S),Linux)
-    libStOptLIB = -L$(StOpt_ROOT)/lib/ -lStOpt -lgeners \
-	    -L$(StOpt_ROOT)/lib/x86_64-linux-gnu/ -lboost_timer
+    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners \
+	    -L"$(libStOptBSCDIR)/lib/x86_64-linux-gnu" -lboost_timer
 endif
 ifeq ($(UNAME_S),Darwin)
-    libStOptLIB = -L$(StOpt_ROOT)/install/lib/ -lStOpt -lgeners \
-	-lboost_timer-mt
+    libStOptLIB = -L"$(libStOptBSCDIR)/install/lib" -lStOpt -lgeners \
+	    -lboost_timer-mt
 endif
-libStOptINC = -I$(StOpt_ROOT) -I$(StOpt_ROOT)/geners-1.11.0
+libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners-1.11.0"
 
 ######################## End of makefile-libStOpt ############################

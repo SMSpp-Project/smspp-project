@@ -9,7 +9,7 @@
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
-#           $(libSCIPLIB) = external libreries + -L<libdirs> for libSCIP     #
+#           $(libSCIPLIB) = external libraries + -L< libdirs > for libSCIP   #
 #           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -18,7 +18,21 @@
 #                                                                            #
 ##############################################################################
 
-libSCIPLIB = -L$(SCIP_ROOT)/lib/ -lzimpl -lsoplex -lscip -ltbb
-libSCIPINC = -I$(SCIP_ROOT)/include/
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic SCIP directory without quotes, if any
+libSCIPBSCDIR = $(subst $\",,$(SCIP_ROOT))
+
+# Cplex lib
+ifeq ($(UNAME_S),Windows)
+    libSCIP = -llibsoplex -llibscip
+else
+    libSCIP = -lsoplex -lscip -ltbb
+endif
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lzimpl $(libSCIP)
+libSCIPINC = -I"$(libSCIPBSCDIR)/include"
 
 ############################# End of makefile ################################

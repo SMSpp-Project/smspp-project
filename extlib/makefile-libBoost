@@ -4,12 +4,12 @@
 #                                                                            #
 #   makefile of libBoost                                                     #
 #                                                                            #
-#   Input:  (BOOST_ROOT), the directory where boost is installed             #                                                                            #                                                                            #
+#   Input:  (BOOST_ROOT), the directory where boost is installed             #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
 #           $(libBoostINC) = the -I$(include directories) for Boost          #
-#           $(libBoostLIB) = external libreries + -L<libdirs> for Boost      #
+#           $(libBoostLIB) = external libraries + -L< libdirs > for Boost    #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
@@ -17,7 +17,14 @@
 #                                                                            #
 ##############################################################################
 
-libBoostINC = -I$(BOOST_ROOT)/include
-libBoostLIB = -L$(BOOST_ROOT)/lib
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic BOOST directory without quotes, if any
+libBOOSTBSCDIR = $(subst $\",,$(BOOST_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libBoostINC = -I"$(libBOOSTBSCDIR)/include"
+libBoostLIB = -L"$(libBOOSTBSCDIR)/lib"
 
 ######################## End of makefile-libBoost ############################

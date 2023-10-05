@@ -11,7 +11,7 @@
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
 #           $(libNtCDFINC) = the -I$(include directories) for NetCDF	     #
-#           $(libNtCDFLIB) = external libreries + -L<libdirs> for NetCDF     #
+#           $(libNtCDFLIB) = external libraries + -L< libdirs > for NetCDF   #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
@@ -19,12 +19,19 @@
 #                                                                            #
 ##############################################################################
 
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic netCDF directories without quotes, if any
+libnetCDFCxxBSCDIR = $(subst $\",,$(netCDFCxx_ROOT))
+libnetCDFBSCDIR = $(subst $\",,$(netCDF_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 ifeq ($(UNAME_S),Linux)
-    libNtCDFLIB = -L$(netCDFCxx_ROOT)/lib/x86_64-linux-gnu -lnetcdf -lnetcdf_c++4
+    libNtCDFLIB = -L"$(libnetCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf -lnetcdf_c++4
+else
+    libNtCDFLIB = -L"$(libnetCDFCxxBSCDIR)/lib" -lnetcdf -lnetcdf-cxx4
 endif
-ifeq ($(UNAME_S),Darwin)
-    libNtCDFLIB = -L$(netCDFCxx_ROOT)/lib -lnetcdf -lnetcdf-cxx4
-endif
-libNtCDFINC = -I$(netCDF_ROOT)/include
+libNtCDFINC = -I"$(libnetCDFBSCDIR)/include"
 
 ############################# End of makefile ################################
