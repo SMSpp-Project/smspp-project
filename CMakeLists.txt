@@ -70,7 +70,6 @@ if (NOT hasParent)
     find_package(LagrangianDualSolver)
     find_package(MILPSolver)
     find_package(BinaryKnapsackBlock)
-    #find_package(SubGradSolver)
 endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
