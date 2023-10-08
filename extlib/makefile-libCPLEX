@@ -20,11 +20,10 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that Cplex needs
-ifeq ($(UNAME_S),Linux)
-    libCPLEXEXTLIB = -lpthread
-endif
 ifeq ($(UNAME_S),Darwin)
-    libCPLEXEXTLIB = 
+    libCPLEXEXTLIB =
+else
+    libCPLEXEXTLIB = -lpthread
 endif
 
 # basic CPLEX directory without quotes, if any
@@ -51,6 +50,10 @@ endif
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libCPLEXLIB = -L"$(libCPLEXINCDIR)" -lilocplex $(libCPLEX) $(libCPLEXEXTLIB)
-libCPLEXINC = -I"$(libCPLEXBSCDIR)/include"
+ifeq ($(UNAME_S),Windows)
+    libCPLEXINC = -I"$(libCPLEXBSCDIR)/include" -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
+else
+    libCPLEXINC = -I"$(libCPLEXBSCDIR)/include"
+endif
 
 ######################### End of makefile-libCPLEX ###########################

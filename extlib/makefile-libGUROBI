@@ -22,11 +22,10 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that Gurobi needs
-ifeq ($(UNAME_S),Linux)
-    libGUROBIEXTLIB = -lpthread
-endif
 ifeq ($(UNAME_S),Darwin)
     libGUROBIEXTLIB =
+else
+    libGUROBIEXTLIB = -lpthread
 endif
 
 # basic Gurobi directory

@@ -64,7 +64,7 @@ macro(makefile_macros_to_cmake file)
 
 	unset(path)
 	unset(paths)
-endmacro()
+endmacro ()
 
 # firstly, set the custom makefile-paths, if any...
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extlib/makefile-paths")
@@ -119,7 +119,6 @@ add_subdirectory(InvestmentBlock) # Requires SDDPBlock, UCBlock
 add_subdirectory(MILPSolver)
 add_subdirectory(BundleSolver)    # Requires MILPSolver
 add_subdirectory(LagrangianDualSolver)
-#add_subdirectory(SubGradSolver)
 
 # ----- Tools --------------------------------------------------------------- #
 add_subdirectory(tools)

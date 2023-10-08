@@ -12,9 +12,6 @@
 #           $(libHiGHSINC) = the -I$(include directories) for libHiGHS       #
 #                                                                            #
 #                             Antonio Frangioni                              #
-#                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
-#                                                                            #
 #                             Enrico Calandrini                              #
 #                         Dipartimento di Informatica                        #
 #                            Universita' di Pisa                             #
@@ -22,6 +19,13 @@
 ##############################################################################
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# external libraries that HiGHS needs
+ifeq ($(UNAME_S),Darwin)
+    libHiGHSEXTLIB =
+else
+    libHiGHSEXTLIB = -lpthread
+endif
 
 # basic HiGHS directory without quotes, if any
 libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
@@ -39,7 +43,11 @@ libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 # to tell the two cases we look if $(HiGHS_ROOT)/highs.pc.in exists
 
 ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
-    libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
+    ifeq ($(UNAME_S),Windows)
+        libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/bin
+    else
+        libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
+    endif
     libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
 	    -I"$(libHiGHSBSCDIR)/build" -I"$(libHiGHSBSCDIR)/include/highs"
 else
@@ -48,11 +56,6 @@ else
         -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
 endif
 
-ifeq ($(UNAME_S),Linux)
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs
-endif
+libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs $(libHiGHSEXTLIB)
 
 ######################## End of makefile-libHiGHS ############################
