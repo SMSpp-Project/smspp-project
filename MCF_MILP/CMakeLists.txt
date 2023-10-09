@@ -10,7 +10,6 @@ if (TARGET SMS++::MCFBlock AND
     add_test(NAME MCF_MILP_test
              COMMAND MCF_MILP_test
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 endif ()
 
 # --------------------------------------------------------------------------- #

@@ -113,8 +113,6 @@ using FunctionValue = Function::FunctionValue;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-//SMSpp_ensure_load( ThermalUnitDPSolver );
-
 static constexpr auto INF = Inf< FunctionValue >();
 
 /*--------------------------------------------------------------------------*/

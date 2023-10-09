@@ -27,7 +27,6 @@ if (TARGET SMS++::BundleSolver AND
     add_test(NAME BendersBFunction_test2
              COMMAND BendersBFunction_test2 "BundlePar-cwl.txt"
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 endif ()
 
 # --------------------------------------------------------------------------- #

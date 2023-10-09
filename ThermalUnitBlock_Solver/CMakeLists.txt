@@ -10,7 +10,6 @@ if (TARGET SMS++::UCBlock AND
     add_test(NAME TUDPS_test
              COMMAND TUDPS_test
              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 endif ()
 
 # --------------------------------------------------------------------------- #
