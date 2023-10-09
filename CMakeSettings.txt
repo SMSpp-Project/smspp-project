@@ -33,15 +33,15 @@ set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # FindBoost.cmake contains:
-#if(Boost_VERSION_STRING VERSION_GREATER_EQUAL 1.79.0 AND NOT Boost_NO_WARN_NEW_VERSIONS)
+#if (Boost_VERSION_STRING VERSION_GREATER_EQUAL 1.79.0 AND NOT Boost_NO_WARN_NEW_VERSIONS)
 #  message(WARNING "New Boost version may have incorrect or missing dependencies and imported targets")
-#endif()
+#endif ()
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 
 # Add compilation flags
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
 add_compile_options(
-#        "-Wno-enum-compare"
+         "-Wno-enum-compare"
 #        "-ferror-limit=1" "-fexceptions"
 #        "-Wall" "-Wpedantic" "-Wextra"
 #        "-fsanitize=undefined" "-fsanitize=address" "-fno-omit-frame-pointer"
