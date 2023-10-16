@@ -9,7 +9,7 @@
  * assumed to be a ThermalUnitDPSolver, the ThermalUnitBlock is solved by
  * the Solver and the results are compared. The ThermalUnitBlock is then
  * repeatedly randomly modified and re-solved several times, the results are
- * compared. 
+ * compared.
  *
  * \author Antonio Frangioni \n
  *         Dipartimento di Informatica \n
@@ -112,8 +112,6 @@ using FunctionValue = Function::FunctionValue;
 /*--------------------------------------------------------------------------*/
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
-
-//SMSpp_ensure_load( ThermalUnitDPSolver );
 
 static constexpr auto INF = Inf< FunctionValue >();
 

@@ -61,6 +61,14 @@
 #define HAVE_CONSTRAINTS 2
 
 /*--------------------------------------------------------------------------*/
+
+// if nonzero, we are considering only variables with finite bound.
+// This is because some *MILPSolver (e.g. SCIPMILPSolver) could have 
+// some problems with interior point method in the case of unbounded variables.
+// NOTE: At the moment, it can be nonzero only with HAVE_CONSTRAINT = 2
+#define BOUND_FINITE 0
+
+/*--------------------------------------------------------------------------*/
 // if nonzero, the Solver attached to the NDOBlock is detached and re-attached
 // to it at all iterations
 
@@ -215,7 +223,7 @@ std::vector< ColVariable > * xLP;  // pointer to (static) x LP variables
  std::list< BoxConstraint > * NDObnd;  // BoxConstraint for NDOBlock
 #endif
 #if HAVE_CONSTRAINTS == 3
- std::list< FRowConstraint > * LPbnd;   // BoxConstraint for LPBlock
+ std::list< FRowConstraint > * LPbnd;   // FRowConstrait for LPBlock
  std::list< BoxConstraint > * NDObnd;  // BoxConstraint for NDOBlock
 #endif
 
@@ -413,7 +421,7 @@ static void SetGlobalBound( void )
 #if HAVE_CONSTRAINTS > 0
 
 static inline void SetNN( ColVariable & LPxi , ColVariable & NDOxi )
-{
+{ 
  if( dis( rg ) < 0.5 ) {
   LPxi.is_positive( true , eNoMod );
   NDOxi.is_positive( true , eNoMod );
@@ -511,14 +519,20 @@ static void RemoveBox( AbstractBlock & AB , const Subset & sbst )
 
 static inline void SetBox( ColVariable & LPxi , ColVariable & NDOxi )
 {
- if( dis( rg ) < 0.5 ) {
+ if( dis( rg ) < 0.5 || BOUND_FINITE == 1 ) {
   LPbnd->resize( LPbnd->size() + 1 );
   NDObnd->resize( NDObnd->size() + 1 );
   LPbnd->back().set_variable( & LPxi );
   NDObnd->back().set_variable( & NDOxi );
   auto p = dis( rg );
-  auto lhs = p < 0.666 ? 0 : -INF;
-  auto rhs = p > 0.333 ? dis( rg ) : INF;
+  double lhs, rhs;
+  #if BOUND_FINITE == 1
+    lhs = 0;
+    rhs = p;
+  #else
+    lhs = p < 0.666 ? 0 : -INF;
+    rhs = p > 0.333 ? dis( rg ) : INF;
+  #endif
   LPbnd->back().set_lhs( lhs , eNoMod );
   NDObnd->back().set_lhs( lhs , eNoMod );
   LPbnd->back().set_rhs( rhs , eNoMod );

@@ -143,8 +143,6 @@ using v_coeff_triple = DQuadFunction::v_coeff_triple;
 /*------------------------------- CONSTANTS --------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-//SMSpp_ensure_load( BoxSolver );
-
 const char *const logF = "log.txt";
 
 static constexpr FunctionValue INF = Inf< RHSValue >();
