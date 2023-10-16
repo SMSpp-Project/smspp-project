@@ -22,7 +22,7 @@ for f in 102 113 124 42 62 73 91 103 114 131 43 63 74 92 104 121 132 44 \
   64 81 93 111 122 134 51 71 82 94 112 123 41 61 72 84; do
   for (( seed = 0 ; seed <= maxseed ; seed++ )); do
 
-    g=data/txt/ORLib/cap${f}.txt
+    g=./data/txt/ORLib/cap${f}.txt
 
     printf "[${g} c $niter $seed $wchg $rounds]: "
 

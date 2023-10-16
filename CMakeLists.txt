@@ -34,26 +34,6 @@ get_directory_property(hasParent PARENT_DIRECTORY)
 # See: https://cmake.org/cmake/help/latest/manual/ctest.1.html
 include(CTest)
 
-# Since we are using the block factory, objects from linked libraries
-# may wrongly appear unused, and by default the linker does not include them,
-# so we have to force the linking.
-if (BUILD_SHARED_LIBS)
-    if (UNIX AND (NOT APPLE))
-        add_link_options("-Wl,--no-as-needed")
-    endif ()
-else ()
-    if (UNIX)
-        if (APPLE)
-            add_link_options("-Wl,-all_load")
-        else ()
-            add_link_options("-Wl,--whole-archive,--allow-multiple-definition")
-        endif ()
-    else () # Windows
-        add_link_options("/WHOLEARCHIVE")
-        add_link_options("/FORCE:MULTIPLE")
-    endif ()
-endif ()
-
 # ----- Policies ----------------------------------------------------------- #
 # Introduced in 3.19 to handle arbitrary characters in test names
 # See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
