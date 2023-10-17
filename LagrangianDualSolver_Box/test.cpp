@@ -83,18 +83,13 @@
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include <fstream>
 #include <sstream>
-#include <iomanip>
 
 #include <random>
 
 #include "AbstractBlock.h"
 
 #include "BlockSolverConfig.h"
-
-// if SMSpp_ensure_load() need not be used, BoxSolver.h need not be included
-//#include "BoxSolver.h"
 
 #include "FRealObjective.h"
 
@@ -443,7 +438,7 @@ int main( int argc , char **argv )
    break;
  default: cerr << "Usage: " << argv[ 0 ] <<
 	   " seed [wchg nvar nson dens #rounds #chng %chng]"
- 		<< endl <<
+ 	<< endl <<
            "       wchg: what to change, coded bit-wise [15]"
 		<< endl <<
            "             0 = bounds, 1 = objective"
@@ -455,13 +450,13 @@ int main( int argc , char **argv )
            "       nson: number of sub-Block [2]"
 		<< endl <<
            "       dens: number of constraints, fraction of nvar * nson [0.1]"
-	        << endl <<
+	 << endl <<
            "       #rounds: how many iterations [40]"
-	        << endl <<
+	 << endl <<
            "       #chng: number changes [10]"
-	        << endl <<
+	 << endl <<
            "       %chng: probability of changing [0.5]"
-	        << endl;
+	 << endl;
 	   return( 1 );
   }
 
@@ -736,7 +731,7 @@ int main( int argc , char **argv )
 
      if( tcn == 1 )
        lf->modify_coefficient( strt , NC.front() );
-      else
+     else
        lf->modify_coefficients( std::move( NC ) , Range( strt , stp ) );
      }
     else {  // in the other 50% of the cases, do a sparse change
@@ -773,8 +768,8 @@ int main( int argc , char **argv )
     else
      li.set_lhs( - dis( rg ) );
 
-     if( ! --tochange )
-      break;
+    if( ! --tochange )
+     break;
     }
    }
 
