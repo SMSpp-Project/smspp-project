@@ -49,12 +49,10 @@ else
         -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
 endif
 
-ifeq ($(UNAME_S),Linux)
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs -lpthread
-else ifeq ($(UNAME_S),Darwin)
+ifeq ($(UNAME_S),Darwin)
     libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -lhighs
 else
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs -lpthread
 endif
 
 ######################## End of makefile-libHiGHS ############################
