@@ -63,6 +63,7 @@ if (MSVC)
                     # possible loss of data
             "C4373"
             "C4389" # 'operator' : signed/unsigned mismatch
+            "C4390"
             "C4456"
             "C4457"
             "C4458"
