@@ -32,9 +32,9 @@ for size in 10 20 50 75 100 200; do
     fi
 
     if [ -z "$mlf" ]; then
-      "C:\smspp-project\cmake-build-debug-visual-studio\tests\LagrangianDualSolver_UC\Debug\LDS_UC_test.exe" $what $par
+      ./LDS_UC_test $what $par
     else
-      "C:\smspp-project\cmake-build-debug-visual-studio\tests\LagrangianDualSolver_UC\Debug\LDS_UC_test.exe" $what $par >> $mlf
+      ./LDS_UC_test $what $par >> $mlf
     fi
 
     retVal=$?

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DATADIR=../../MMCFBlock/data
+DATADIR=../MMCFBlock/data
 
 # Mnetgen - - - - - - - - - - - - - - - - - - - -
 
