@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-#for f in ./data/plan4res-data/France/WeekAgr/*.nc4; do
-for f in ./data/plan4res-data/France/WeekDesAgr/*.nc4; do
+#for what in ../../UCBlock/netCDF_files/plan4res-data/France/WeekAgr/*.nc4; do
+for what in ../../UCBlock/netCDF_files/plan4res-data/France/WeekDesAgr/*.nc4; do
 
-  printf "[${f}]: "
+  printf "[$what]: "
 
-  ./LDS_UC_test ${f}
+  ./LDS_UC_test $what
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
@@ -13,5 +13,3 @@ for f in ./data/plan4res-data/France/WeekDesAgr/*.nc4; do
   fi
 
 done
-
-# end batch

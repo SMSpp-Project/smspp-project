@@ -9,7 +9,7 @@
 #
 # In a *nix environment, simply type "source batch" or "./batch"
 
-MnetgenDir=../../data/Mnetgen/
+MnetgenDir=../../data/Mnetgen
 mkdir $MnetgenDir
 
 for i in 64; do
