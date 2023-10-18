@@ -33,6 +33,14 @@ ifeq ($(UNAME_S),Darwin)
     libStOptLIB = -L"$(libStOptBSCDIR)/install/lib" -lStOpt -lgeners \
 	    -lboost_timer-mt
 endif
-libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners-1.11.0"
+ifeq ($(UNAME_S),Windows)
+    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners -lboost_timer-vc140-mt
+endif
+
+ifeq ($(UNAME_S),Windows)
+    libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners"
+else
+    libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners-1.11.0"
+endif
 
 ######################## End of makefile-libStOpt ############################

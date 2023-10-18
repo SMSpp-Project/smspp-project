@@ -33,23 +33,84 @@ set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # FindBoost.cmake contains:
-#if(Boost_VERSION_STRING VERSION_GREATER_EQUAL 1.79.0 AND NOT Boost_NO_WARN_NEW_VERSIONS)
+#if (Boost_VERSION_STRING VERSION_GREATER_EQUAL 1.79.0 AND NOT Boost_NO_WARN_NEW_VERSIONS)
 #  message(WARNING "New Boost version may have incorrect or missing dependencies and imported targets")
-#endif()
+#endif ()
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 
 # Add compilation flags
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
-add_compile_options(
-#        "-Wno-enum-compare"
-#        "-ferror-limit=1" "-fexceptions"
-#        "-Wall" "-Wpedantic" "-Wextra"
-#        "-fsanitize=undefined" "-fsanitize=address" "-fno-omit-frame-pointer"
-        "$<$<CONFIG:DEBUG>:-fno-inline>"
-#        "$<$<CONFIG:MINSIZEREL>:>"
-#        "$<$<CONFIG:RELEASE>:>"
-#        "$<$<CONFIG:RELWITHDEBINFO>:>"
-)
+if (MSVC)
+    if (CMAKE_C_COMPILER_ID MATCHES "MSVC" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+        set(MSVC_DISABLED_WARNINGS_LIST
+            "C4018" # 'expression' : signed/unsigned mismatch
+            "C4057" # 'operator' : 'identifier1' indirection to
+                    # slightly different base types from 'identifier2'
+            "C4060"
+            "C4065"
+            "C4100" # 'identifier' : unreferenced formal parameter
+            "C4101"
+            "C4102"
+            "C4127" # conditional expression is constant
+            "C4146" # unary minus operator applied to unsigned type,
+                    # result still unsigned
+            "C4189"
+            "C4244" # 'argument' : conversion from 'type1' to 'type2',
+                    # possible loss of data
+            "C4245" # 'conversion' : conversion from 'type1' to 'type2',
+                    # signed/unsigned mismatch
+            "C4267" # 'var' : conversion from 'size_t' to 'type',
+                    # possible loss of data
+            "C4373"
+            "C4389" # 'operator' : signed/unsigned mismatch
+            "C4456"
+            "C4457"
+            "C4458"
+            "C4459"
+            "C4505"
+            "C4701"
+            "C4702"
+            "C4703"
+            "C4706" # assignment within conditional expression
+            "C4717"
+            "C4804"
+            "C4858"
+            "C4996" # The POSIX name for this item is deprecated.
+                    # Instead, use the ISO C and C++ conformant name
+        )
+    elseif (CMAKE_C_COMPILER_ID MATCHES "Intel")
+        set(MSVC_DISABLED_WARNINGS_LIST
+            "C111"  # Unreachable statement
+            "C128"  # Unreachable loop
+            "C167"  # Unexplict casting unsigned to signed
+            "C186"  # Pointless comparison of unsigned int with zero
+            "C188"  # Enumerated type mixed with another type
+            "C344"  # Redeclared type
+            "C556"  # Unexplict casting signed to unsigned
+            "C869"  # Unreferenced parameters
+            "C1786" # Deprecated functions
+            "C2545" # Empty else statement
+            "C2557" # Comparing signed to unsigned
+            "C2722" # List init syntax is c++11 feature
+            "C3280" # Declaration hides variable
+        )
+    endif ()
+    string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
+    string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
+else() # Unix
+    add_compile_options(
+             "-Wno-enum-compare"
+             -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
+             #"-ferror-limit=1" "-fexceptions"
+             #"-Wall" "-Wpedantic" "-Wextra"
+             #"-fsanitize=undefined" "-fsanitize=address" "-fno-omit-frame-pointer"
+             "$<$<CONFIG:DEBUG>:-fno-inline>"
+             #"$<$<CONFIG:MINSIZEREL>:>"
+             #"$<$<CONFIG:RELEASE>:>"
+             #"$<$<CONFIG:RELWITHDEBINFO>:>"
+    )
+endif ()
 
 #add_link_options("-fsanitize=address")
 
