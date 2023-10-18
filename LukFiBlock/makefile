@@ -11,7 +11,7 @@
 ##############################################################################
 
 # module name
-NAME = LukFiMain
+NAME = LukFi_test
 
 # basic directory
 DIR = .
