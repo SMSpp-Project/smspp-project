@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-what=7
+DATADIR=../../UCBlock/netCDF_files/1UC_Data
+
+wchg=7
 #iter=0
 
 # ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
@@ -16,13 +18,15 @@ for wf in 0 1 2 3 4 5; do
         #for (( seed = 0 ; seed < 20 ; seed++ )); do
           seed=0
 
+          what=${DATADIR}/${i}/S${j}ramp${h}_${i}.nc4
+
           if [ -z "$iter" ]; then
-            printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf]: "
+            printf "[$what $seed $wchg $wf]: "
           else
-            printf "[./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter]: "
+            printf "[$what $seed $wchg $wf $iter]: "
           fi
 
-          ./TUDPS_test ./data/${i}/S${j}ramp${h}_${i}.nc4 $seed $what $wf $iter
+          ./TUDPS_test $what $seed $wchg $wf $iter
 
           retVal=$?
           if [ $retVal -ne 0 ]; then
@@ -34,5 +38,3 @@ for wf in 0 1 2 3 4 5; do
     done
   done
 done
-
-# end batch

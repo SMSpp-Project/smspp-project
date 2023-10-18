@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
+DATADIR=../../MMCFBlock/data
+
 # Mnetgen - - - - - - - - - - - - - - - - - - - -
 
 for i in 64; do
   for j in 4 8 16 32 64; do
     for (( h = 1 ; h < 13 ; h++ )); do
 
-      printf "[data/Mnetgen/$i-$j-$h m]: "
+      what=${DATADIR}/Mnetgen/$i-$j-$h
 
-      ./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+      printf "[$what m]: "
+
+      ./LDS_MMCF_test $what m
 
       retVal=$?
       #if [ $retVal -ne 0 ]; then
@@ -23,9 +27,11 @@ for i in 128; do
   for j in 4 8 16 32 64 128; do
     for (( h = 1 ; h < 13 ; h++ )); do
 
-      printf "[data/Mnetgen/$i-$j-$h m]: "
+      what=${DATADIR}/Mnetgen/$i-$j-$h
 
-      ./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+      printf "[$what m]: "
+
+      ./LDS_MMCF_test $what m
 
       retVal=$?
       if [ $retVal -ne 0 ]; then
@@ -43,9 +49,11 @@ done
 #for (( h = 1 ; h < 13 ; h++ ))
 #do
 
-#printf "[data/Mnetgen/$i-$j-$h m]: "
+#what=${DATADIR}/Mnetgen/$i-$j-$h
 
-#./LDS_MMCF_test data/Mnetgen/$i-$j-$h m
+#printf "[$what m]: "
+
+#./LDS_MMCF_test $what m
 
 #retVal=$?
 #if [ $retVal -ne 0 ]; then
@@ -55,5 +63,3 @@ done
 #done
 #done
 #done
-
-# end batch

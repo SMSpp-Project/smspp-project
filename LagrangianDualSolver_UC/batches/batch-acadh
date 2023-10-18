@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 
-# correct value of tStar: 1e+0
+DATADIR=../../UCBlock/netCDF_files/UC_Data/HT-Ramp
 
-folder=./data/UC_Data/HT-Ramp/
+# correct value of tStar: 1e+0
 par=BSPar-2S.txt
 
 for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
   for (( seed = 1 ; seed < 3 ; seed++ )); do
 
+    what=${DATADIR}/${size}_${seed}_w.nc4
+
     if [ -z "$par" ]; then
-      printf "[$folder${size}_${seed}_w.nc4]: "
+      printf "[$what]: "
     else
-      printf "[$folder${size}_${seed}_w.nc4 $par]: "
+      printf "[$what $par]: "
     fi
 
-    ./LDS_UC_test $folder${size}_${seed}_w.nc4 $par
+    ./LDS_UC_test $what $par
 
     retVal=$?
     if [ $retVal -ne 0 ]; then
@@ -23,5 +25,3 @@ for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
 
   done
 done
-
-# end batch

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+DATADIR=../../MCFBlock/data
+
 wchg=255
 #rounds=40
 
@@ -11,7 +13,8 @@ for type in net goto; do
     for sz in 8_8 8_32 10_8 10_64 12_8; do
       for h in 1 2 3 4 5; do
 
-        what=./data/nc4/${type}${sz}_${h}.nc4
+        what=${DATADIR}/nc4/${type}${sz}_${h}.nc4
+
         if [ -z "$wchg" ]; then
           printf "[$what $seed]: "
         else

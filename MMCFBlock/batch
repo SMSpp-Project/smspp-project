@@ -52,8 +52,6 @@ done
 
 # Canad - - - - - - - - - - - - - - - - - - - -
 
-for f in data/Canad/*.dat; do
-  ./MMCFBlock_test ${f} s
+for what in data/Canad/*.dat; do
+  ./MMCFBlock_test $what s
 done
-
-# end batch

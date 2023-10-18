@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-for f in ./data/plan4res/*.nc4; do
+for what in ../../UCBlock/netCDF_files/plan4res/*.nc4; do
 
-  printf "[${f}]: "
+  printf "[$what]: "
 
-  ./LDS_UC_test ${f} > log
+  ./LDS_UC_test $what
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
@@ -12,5 +12,3 @@ for f in ./data/plan4res/*.nc4; do
   fi
 
 done
-
-# end batch

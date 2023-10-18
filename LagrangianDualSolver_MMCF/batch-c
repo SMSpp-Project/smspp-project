@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-for f in data/Canad/*.dat; do
+DATADIR=../../MMCFBlock/data
 
-  printf "[${f} s]: "
+for what in ${DATADIR}/Canad/*.dat; do
 
-  ./LDS_MMCF_test ${f} s
+  printf "[$what s]: "
+
+  ./LDS_MMCF_test $what s
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
@@ -12,5 +14,3 @@ for f in data/Canad/*.dat; do
   fi
 
 done
-
-# end batch
