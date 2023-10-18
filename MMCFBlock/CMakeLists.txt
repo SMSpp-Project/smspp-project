@@ -5,11 +5,11 @@ if (TARGET MMCFClass AND
     TARGET SMS++::MILPSolver)
 
     add_subdirectory(MMCFClass)
-    add_executable(MMCFBlock_test)
+    add_executable(MMCF_test)
 
-    target_sources(MMCFBlock_test PRIVATE main.cpp)
+    target_sources(MMCF_test PRIVATE main.cpp)
 
-    target_link_libraries(MMCFBlock_test PRIVATE
+    target_link_libraries(MMCF_test PRIVATE
                           SMS++::BundleSolver
                           SMS++::MILPSolver
                           SMS++::MMCFBlock
