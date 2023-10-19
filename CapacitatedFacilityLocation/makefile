@@ -48,6 +48,10 @@ clean::
 SMS++SDR = ../../SMS++
 include $(SMS++SDR)/lib/makefile-inc
 
+# CapacitatedFacilityLocationBlock
+CFLBkSDR = ../../CapacitatedFacilityLocationBlock
+include $(CFLBkSDR)/makefile-s
+
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver
 include $(BNDSLVSDR)/makefile-s
@@ -60,10 +64,6 @@ include $(LgDSLVSDR)/makefile
 # MILPSolver
 #MILPSSDR = ../../MILPSolver/
 #include $(MILPSSDR)makefile-c
-
-# CapacitatedFacilityLocationBlock
-CFLBkSDR = ../../CapacitatedFacilityLocationBlock
-include $(CFLBkSDR)/makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
