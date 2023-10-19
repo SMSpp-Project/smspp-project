@@ -11,7 +11,7 @@
 ##############################################################################
 
 # module name
-NAME = MMCFtest
+NAME = MMCF_test
 
 # basic directory
 DIR = .

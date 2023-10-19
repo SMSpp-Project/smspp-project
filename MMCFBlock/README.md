@@ -15,7 +15,7 @@ the results (and printing the running time).
 
 The usage of the executable is the following:
 
-        ./MMCFtest file_name [typ]
+        ./MMCF_test file_name [typ]
         typ = s*, c, p, o, d, u, m (lower or uppercase)
 
 A batch file is provided that runs the test on a largish set of

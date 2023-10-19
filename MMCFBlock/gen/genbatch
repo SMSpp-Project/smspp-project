@@ -6,8 +6,8 @@ mkdir -p ../data
 # http://groups.di.unipi.it/optimize/Data/MMCF.html#Canad
 #
 tar -zxvf Canad.tgz -C ../data
-curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz | tar -xvC ../data/Canad
-curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz | tar -xvC ../data
+curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/CanadN.tgz | tar -zxvC ../data/Canad
+curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz | tar -zxvC ../data
 
 # Use Mnetgen to generate other MMCF problems
 cd Mnetgen || exit

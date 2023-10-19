@@ -10,7 +10,7 @@
 # In a *nix environment, simply type "source batch" or "./batch"
 
 MnetgenDir=../../data/Mnetgen
-mkdir $MnetgenDir
+mkdir -p $MnetgenDir
 
 for i in 64; do
   for j in 4 8 16 32 64; do
@@ -53,5 +53,3 @@ for i in 256; do
     done
   done
 done
-
-# end of batch
