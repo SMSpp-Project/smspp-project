@@ -59,10 +59,10 @@ include $(LukFiSDR)/makefile
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ = $(LukFiOBJ) $(SMS++OBJ) $(BNDSLVOBJ)
+MOBJ =  $(LukFiOBJ) $(SMS++OBJ) $(BNDSLVOBJ)
 
 # libraries
-MLIB = $(SMS++LIB) $(BNDSLVLIB) $(LukFiLIB)
+MLIB =  $(SMS++LIB) $(BNDSLVLIB) $(LukFiLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o
 	$(CC) -o $(DIR)/$(NAME) $(DIR)/main.o $(MOBJ) $(MLIB) $(SW)
@@ -70,10 +70,10 @@ $(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC = $(SMS++INC) $(BNDSLVINC) $(LukFiINC)
+MINC =  $(SMS++INC) $(BNDSLVINC) $(LukFiINC)
 
 # includes
-MH = $(SMS++H) $(BNDSLVH) $(LukFiH) 
+MH =    $(SMS++H) $(BNDSLVH) $(LukFiH)
 
 # compile command
 

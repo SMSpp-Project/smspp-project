@@ -71,7 +71,7 @@ include $(LgDSLVSDR)/makefile
 MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(CFLBkOBJ) $(SMS++OBJ)
 
 # libraries
-MLIB =   $(BNDSLVLIB) $(LgDSLVLIB) $(CFLBkLIB) $(SMS++LIB)
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(CFLBkLIB) $(SMS++LIB)
 
 $(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
