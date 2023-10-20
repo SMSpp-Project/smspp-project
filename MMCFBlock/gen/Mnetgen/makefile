@@ -17,7 +17,6 @@ LIB = -lm
 SW = -O -w
 
 # compiler
-#CC = g++
 CC = clang++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
