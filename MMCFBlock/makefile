@@ -71,16 +71,10 @@ include $(libMMCFSDR)/lib/makefile-c
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ = $(MMCFOBJ) \
-       $(MILPSOBJ) \
-       $(libMMCFOBJ) \
-       $(SMS++OBJ)
+MOBJ =  $(MMCFOBJ) $(MILPSOBJ) $(libMMCFOBJ) $(SMS++OBJ)
 
 # libraries
-MLIB = $(SMS++LIB) \
-       $(MILPSLIB) \
-       $(MMCFLIB) \
-       $(libMMCFLIB)
+MLIB =  $(SMS++LIB) $(MILPSLIB) $(MMCFLIB) $(libMMCFLIB)
 
 $(DIR)/$(NAME): $(DIR)/main.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $(DIR)/main.o $(MOBJ) $(MLIB) $(SW)
@@ -88,22 +82,14 @@ $(DIR)/$(NAME): $(DIR)/main.o $(MOBJ)
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC = $(libMMCFINC) \
-       $(SMS++INC) \
-       $(MILPSINC) \
-       $(MMCFINC) \
-       $(OPTUxINC)
+MINC =  $(libMMCFINC) $(SMS++INC) $(MILPSINC) $(MMCFINC) $(OPTUxINC)
 
 # includes
-MH = $(SMS++H) \
-     $(MILPSH) \
-     $(MMCFH) \
-     $(libMMCFH) \
-     $(OPTUxH)  
+MH =    $(SMS++H) $(MILPSH) $(MMCFH) $(libMMCFH) $(OPTUxH)
 
 # compile command
 
-$(DIR)/main.o: $(DIR)/main.cpp $(MH) 
+$(DIR)/main.o: $(DIR)/main.cpp $(MH)
 	$(CC) -c $*.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile ################################

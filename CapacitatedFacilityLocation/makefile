@@ -48,6 +48,10 @@ clean::
 SMS++SDR = ../../SMS++
 include $(SMS++SDR)/lib/makefile-inc
 
+# CapacitatedFacilityLocationBlock
+CFLBkSDR = ../../CapacitatedFacilityLocationBlock
+include $(CFLBkSDR)/makefile-s
+
 # BundleSolver
 BNDSLVSDR = ../../BundleSolver
 include $(BNDSLVSDR)/makefile-s
@@ -61,17 +65,13 @@ include $(LgDSLVSDR)/makefile
 #MILPSSDR = ../../MILPSolver/
 #include $(MILPSSDR)makefile-c
 
-# CapacitatedFacilityLocationBlock
-CFLBkSDR = ../../CapacitatedFacilityLocationBlock
-include $(CFLBkSDR)/makefile-s
-
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
 MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(CFLBkOBJ) $(SMS++OBJ)
 
 # libraries
-MLIB =   $(BNDSLVLIB) $(LgDSLVLIB) $(CFLBkLIB) $(SMS++LIB)
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(CFLBkLIB) $(SMS++LIB)
 
 $(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
