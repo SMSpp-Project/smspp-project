@@ -64,7 +64,7 @@ MOBJ = $(LukFiOBJ) $(SMS++OBJ) $(BNDSLVOBJ)
 # libraries
 MLIB = $(SMS++LIB) $(BNDSLVLIB) $(LukFiLIB)
 
-$(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o 
+$(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o
 	$(CC) -o $(DIR)/$(NAME) $(DIR)/main.o $(MOBJ) $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
