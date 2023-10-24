@@ -76,7 +76,7 @@ MOBJ =  $(MMCFOBJ) $(MILPSOBJ) $(libMMCFOBJ) $(SMS++OBJ)
 # libraries
 MLIB =  $(SMS++LIB) $(MILPSLIB) $(MMCFLIB) $(libMMCFLIB)
 
-$(DIR)/$(NAME): $(DIR)/main.o $(MOBJ)
+$(DIR)/$(NAME): $(MOBJ) $(DIR)/main.o
 	$(CC) -o $(DIR)/$(NAME) $(DIR)/main.o $(MOBJ) $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -

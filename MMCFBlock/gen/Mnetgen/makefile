@@ -5,7 +5,7 @@
 ##############################################################################
 
 # basic directory
-DIR = ./
+DIR = .
 
 # module
 NAME = mnetgen
@@ -26,7 +26,7 @@ default: $(NAME)
 # clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 clean::
-	rm -f $(DIR)*.o $(DIR)*~ $(NAME)
+	rm -f $(DIR)/*.o $(DIR)/*~ $(NAME)
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
