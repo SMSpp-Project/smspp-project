@@ -7,8 +7,8 @@ DATADIR=../../UCBlock/netCDF_files/UC_Data/T-Ramp
 # (typically using ThermalUnitDPSolver, although a :MILPSolver would
 # be a less efficient option)
 
-cp ./TUBCfg-DP.txt ./TUBCfg.txt
-cp ./TUBSCfg-DP.txt ./TUBSCfg.txt
+#cp ./TUBCfg-DP.txt ./TUBCfg.txt
+#cp ./TUBSCfg-DP.txt ./TUBSCfg.txt
 
 # correct value of tStar: 1e+0
 par=BSPar-2S.txt
