@@ -50,10 +50,6 @@ endif
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libCPLEXLIB = -L"$(libCPLEXINCDIR)" -lilocplex $(libCPLEX) $(libCPLEXEXTLIB)
-ifeq ($(UNAME_S),Windows)
-    libCPLEXINC = -I"$(libCPLEXBSCDIR)/include" -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
-else
-    libCPLEXINC = -I"$(libCPLEXBSCDIR)/include"
-endif
+libCPLEXINC = -I"$(libCPLEXBSCDIR)/include" -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
 
 ######################### End of makefile-libCPLEX ###########################

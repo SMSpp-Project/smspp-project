@@ -10,7 +10,14 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.19)
+
+# ----- Policies ------------------------------------------------------------ #
+# Introduced in 3.15 to handle arbitrary characters in test names
+# See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
+if (POLICY CMP0091)
+	cmake_policy(SET CMP0091 NEW)
+endif ()
 
 # ----- Project definition and configuration -------------------------------- #
 project("The SMS++ Project")
@@ -78,7 +85,7 @@ if (UNIX)
 	else ()
 		makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
 	endif ()
-else ()
+else () # Windows
 	makefile_macros_to_cmake(extlib/makefile-default-paths-win)
 endif ()
 
@@ -93,7 +100,9 @@ else ()
 	set(ARCH x86)
 endif ()
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CXX_FLAGS}")
+
+set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
