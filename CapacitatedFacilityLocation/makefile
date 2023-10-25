@@ -62,8 +62,8 @@ include $(LgDSLVSDR)/makefile
 
 # not necessary, BundleSolver does that already
 # MILPSolver
-#MILPSSDR = ../../MILPSolver/
-#include $(MILPSSDR)makefile-c
+#MILPSSDR = ../../MILPSolver
+#include $(MILPSSDR)/makefile-c
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
