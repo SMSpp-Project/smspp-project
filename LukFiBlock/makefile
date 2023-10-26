@@ -48,7 +48,7 @@ clean::
 SMS++SDR = ../../SMS++
 include $(SMS++SDR)/lib/makefile-inc
 
-# BundeSolver
+# BundleSolver
 BNDSLVSDR = ../../BundleSolver
 include $(BNDSLVSDR)/makefile-c
 
