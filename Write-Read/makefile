@@ -52,7 +52,7 @@ clean::
 # *INC is the -I< include directories >
 
 # define input macros for SMS++ complete makefile, then include it
-SMS++SDR = ../../smspp/
+SMS++SDR = ../../SMS++/
 include $(SMS++SDR)lib/makefile-c
 
 # MILPSolver
@@ -66,10 +66,10 @@ include $(MILPSSDR)/makefile
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(MILPSOBJ) $(SMS++OBJ)
+MOBJ =  $(SMS++OBJ) $(MILPSOBJ)
 
 # libraries
-MLIB =  $(MILPSLIB) $(SMS++LIB)
+MLIB =  $(SMS++LIB) $(MILPSLIB)
 
 $(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
