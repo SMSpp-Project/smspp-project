@@ -102,7 +102,7 @@ if (MSVC)
 else() # Unix
     add_compile_options(
              "-Wno-enum-compare"
-             -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
+             "-DBUILD_CPXSTATIC" "-DCPXSIZE_BITS_TEST_DISABLE"
              #"-ferror-limit=1" "-fexceptions"
              #"-Wall" "-Wpedantic" "-Wextra"
              #"-fsanitize=undefined" "-fsanitize=address" "-fno-omit-frame-pointer"
