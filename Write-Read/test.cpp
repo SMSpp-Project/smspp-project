@@ -355,13 +355,13 @@ static bool SolveFirst( void )
    return( true );
    }
 
-  if( ( rtrnfirstLP == Solver::kInfeasible ) ) {
+  if( rtrnfirstLP == Solver::kInfeasible ) {
     LOG1( "OK(?e?) - " );
     LOG1( "First optimization produced an unfeasible model" << endl );
     return( true );
     }
 
-  if( ( rtrnfirstLP == Solver::kUnbounded ) ) {
+  if( rtrnfirstLP == Solver::kUnbounded ) {
    LOG1( "OK(u) - " );
    LOG1( "First optimization produced an unbounded model" << endl );
    return( true );
@@ -406,12 +406,12 @@ static bool SolveSecond( void )
    LOG1( "Second optimization produced an optimal solution : " << fosecondLP << endl );
    }
 
-  if( ( rtrnsecondLP == Solver::kInfeasible ) ) {
+  if( rtrnsecondLP == Solver::kInfeasible ) {
     LOG1( "OK(?e?) - " );
     LOG1( "Second optimization produced an unfeasible model" << endl );
     }
 
-  if( ( rtrnsecondLP == Solver::kUnbounded ) ) {
+  if( rtrnsecondLP == Solver::kUnbounded ) {
    LOG1( "OK(u) - " );
    LOG1( "Second optimization produced an unbounded model" << endl );
    }
