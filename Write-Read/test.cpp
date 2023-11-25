@@ -116,6 +116,11 @@ const FunctionValue INF = SMSpp_di_unipi_it::Inf< FunctionValue >();
 /*------------------------------- GLOBALS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
+// Choose here the format of the output file:
+// L stands for LP-file
+// M stands for MPS-file
+char format = 'L';
+
 AbstractBlock * LPBlock;   // the problem expressed as an LP
 AbstractBlock * secondLPBlock;   // the problem expressed as an LP
 
@@ -398,7 +403,11 @@ static bool SolveSecond( void )
   ** the read one we need to take the inverse of the objective value 
   ** obtained. For this reason, if the starting model is not convex, we 
   ** consider as objective value of the read model: - slvrLP->get_lb() */
-  fosecondLP = hssecondLP ? ( convex ? slvrLP->get_ub() : - slvrLP->get_lb() )
+  if( format == 'M' )
+    fosecondLP = hssecondLP ? ( convex ? slvrLP->get_ub() : - slvrLP->get_lb() )
+                     : ( convex ? INF : -INF );
+  else if( format == 'L' )
+    fosecondLP = hssecondLP ? ( convex ? slvrLP->get_ub() : slvrLP->get_lb() )
                      : ( convex ? INF : -INF );
 
   if( hssecondLP ) {
@@ -592,8 +601,15 @@ int main( int argc , char **argv )
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // write the .mps file which will be then read again from another AbstractBlock
  // and resolved
+ 
+ std::string output_name = "LPBlock";
+ if( format == 'L')
+  output_name = output_name + ".lp";
+ else if( format == 'M' )
+  output_name = output_name + ".mps";
+
  ((LPBlock->get_registered_solvers()).front())->set_par(
-	                         MILPSolver::strOutputFile , "LPBlock.mps" );
+	                         MILPSolver::strOutputFile , output_name );
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -606,8 +622,8 @@ int main( int argc , char **argv )
   secondLPBlock = new AbstractBlock();
   
   std::ifstream file;
-  file.open("LPBlock.mps");
-  secondLPBlock->load( file , 'M' );
+  file.open(output_name);
+  secondLPBlock->load( file , format );
  }
 
  // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
@@ -633,7 +649,7 @@ int main( int argc , char **argv )
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // write the .mps file which will be then compared with the previous one
  ((secondLPBlock->get_registered_solvers()).front())->set_par(
-	                         MILPSolver::strOutputFile , "SecondLPBlock.mps" );
+	                         MILPSolver::strOutputFile , "SecondLPBlock.lp" );
 
  // second solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -826,7 +842,12 @@ int main( int argc , char **argv )
     // write the .mps file which will be then read again from another AbstractBlock
     // and resolved
 
-    std::string rep_name = "LPBlock-" + std::to_string( rep ) + ".mps";
+    std::string rep_name = "LPBlock-" + std::to_string( rep );
+    if( format == 'L')
+     rep_name = rep_name + ".lp";
+    else if( format == 'M' )
+     rep_name = rep_name + ".mps";
+
     ((LPBlock->get_registered_solvers()).front())->set_par(
                                 MILPSolver::strOutputFile , rep_name );
 
@@ -840,7 +861,7 @@ int main( int argc , char **argv )
 
     std::ifstream file;
     file.open(rep_name);
-    secondLPBlock->load( file , 'M' );
+    secondLPBlock->load( file , format );
     }
 
     // attach the Solver to the Block- - - - - - - - - - - - - - - - - - - - - -
