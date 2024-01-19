@@ -6,8 +6,6 @@ if (TARGET SMS++::MILPSolver)
 
     target_link_libraries(writeandread_test PRIVATE
                           SMS++::MILPSolver)
-
-    set_target_properties(writeandread_test PROPERTIES COMPILE_FLAGS "-O3 -std=c++17 -DNDEBUG")
 endif ()
 
 # --------------------------------------------------------------------------- #
