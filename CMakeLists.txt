@@ -115,18 +115,19 @@ add_subdirectory(SMS++)
 # Blocks
 add_subdirectory(BinaryKnapsackBlock)
 add_subdirectory(UCBlock)
-add_subdirectory(MCFBlock)        # Requires MCFClass
-add_subdirectory(MMCFBlock)       # Requires MCFBlock, BinaryKnapsackBlock
+add_subdirectory(MCFBlock) # Requires MCFClass
+add_subdirectory(MMCFBlock) # Requires MCFBlock, BinaryKnapsackBlock
 add_subdirectory(LukFiBlock)
 add_subdirectory(StochasticBlock)
-add_subdirectory(SDDPBlock)       # Requires StochasticBlock
+add_subdirectory(TwoStageStochasticBlock) # Requires StochasticBlock
+add_subdirectory(SDDPBlock) # Requires StochasticBlock
 add_subdirectory(CapacitatedFacilityLocationBlock)
-                                  # Requires MCFBlock, BinaryKnapsackBlock
+                                       # Requires MCFBlock, BinaryKnapsackBlock
 add_subdirectory(InvestmentBlock) # Requires SDDPBlock, UCBlock
 
 # Solvers
 add_subdirectory(MILPSolver)
-add_subdirectory(BundleSolver)    # Requires MILPSolver
+add_subdirectory(BundleSolver) # Requires MILPSolver
 add_subdirectory(LagrangianDualSolver)
 
 # ----- Tools --------------------------------------------------------------- #
