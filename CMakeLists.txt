@@ -100,8 +100,6 @@ else ()
 	set(ARCH x86)
 endif ()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CXX_FLAGS}")
-
 set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # ----- Subprojects --------------------------------------------------------- #

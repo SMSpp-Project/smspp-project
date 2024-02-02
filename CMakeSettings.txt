@@ -38,7 +38,7 @@ set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
 #endif ()
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 
-# Add compilation flags
+# Add compilation and linking flags
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
 if (MSVC)
     if (CMAKE_C_COMPILER_ID MATCHES "MSVC" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -99,6 +99,7 @@ if (MSVC)
     string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
     string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
+    add_link_options("/IGNORE:4006,4075,4088,4255")
 else() # Unix
     add_compile_options(
              "-Wno-enum-compare"
@@ -111,9 +112,8 @@ else() # Unix
              #"$<$<CONFIG:RELEASE>:>"
              #"$<$<CONFIG:RELWITHDEBINFO>:>"
     )
+    #add_link_options("-fsanitize=address")
 endif ()
-
-#add_link_options("-fsanitize=address")
 
 # Custom output directories
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
