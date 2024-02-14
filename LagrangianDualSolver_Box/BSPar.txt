@@ -24,7 +24,7 @@ LagrangianDualSolver    # name of 2nd Solver
 2  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ComputeConfig of the *MILPSolver
 *LPCCfg.txt
 

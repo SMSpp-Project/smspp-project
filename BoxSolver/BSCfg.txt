@@ -28,7 +28,7 @@ GRBMILPSolver  # name of 2nd Solver
 2  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # this is the ComputeConfig of BoxSolver
 
 ComputeConfig # exact type of the ComputeConfig object
@@ -71,7 +71,7 @@ ComputeConfig # exact type of the ComputeConfig object
 # pointer to the "extra" Configuration
 * # [none]
 
-# 2nd ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 2nd ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ComputeConfig # exact type of the ComputeConfig object
 

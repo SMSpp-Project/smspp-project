@@ -28,7 +28,7 @@ GRBMILPSolver # name of 1st Solver
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ComputeConfig # exact type of the ComputeConfig object
 

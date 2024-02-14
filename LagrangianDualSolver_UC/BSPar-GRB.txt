@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSPar-GRB.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BSPar-GRB.txt - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a UCBlock to be solved by a 
 # GRBMILPSolver using a BundleSolver as the inner Solver
@@ -22,7 +22,7 @@ GRBMILPSolver           # name of 1st Solver
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ComputeConfig of the *MILPSolver
 
 ComputeConfig # exact type of the ComputeConfig object
@@ -74,5 +74,5 @@ intCutSepPar        7    # separate user cuts + lazy constraints
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSPar-CPX.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BSPar-CPX.txt - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
