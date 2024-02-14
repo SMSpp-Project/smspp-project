@@ -424,10 +424,10 @@ int main( int argc , char **argv ) {
    }
 
   // load the BlockSolverConfig for ThermalUnitBlock
-  auto ct = Configuration::deserialize( "TUBSCfg.txt" );
+  auto ct = Configuration::deserialize( "TUBSCfg-GRB.txt" );
   auto tbsc = dynamic_cast< BlockSolverConfig * >( ct );
   if( ! tbsc ) {
-   std::cerr << "Error: TUBSCfg-CPX.txt does not contain a BlockSolverConfig"
+   std::cerr << "Error: TUBSCfg-GRB.txt does not contain a BlockSolverConfig"
              << std::endl;
    delete( c );
    delete( tc );
