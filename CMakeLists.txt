@@ -34,7 +34,7 @@ macro(makefile_macros_to_cmake file)
 	FILE(STRINGS ${file} paths)
 	foreach (path IN LISTS paths)
 		if (path) # ignore empty lines, i.e., \n
-			# makes empty the comment lines, i.e. those start with #...
+			# makes empty the comment lines, i.e., those start with #...
 			string(REGEX REPLACE "^[ \t]*[#].*" "" path ${path})
 			if (path) # ... and then ignore them
 
