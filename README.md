@@ -21,6 +21,7 @@ submodules.
 > If you are looking for the *SMS++ core library*, you will find it
 > [here](https://gitlab.com/smspp/smspp).
 
+
 ## Success stories
 
 The `SMS++` framework is written in advanced `C++`, and its use entails climbing
@@ -59,10 +60,10 @@ Watch this space for more details and news as they become available.
   contains the documentation for the classes and methods of the SMS++ core
   library and all its modules.
 
-- The [SMS++ Project
-  Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
+- The [SMS++ Project Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
   contains detailed installation instructions, troubleshooting information
   and additional guides for developers and maintainers.
+
 
 ## Current projects
 
@@ -113,8 +114,8 @@ Watch this space for more details and news as they become available.
   interface with existing MILP solvers. Currently, available derived classes
   are:
 
-  - `CPXMILPSolver`, interfacing with the commercial, state-of-the-art [IBM
-    ILOG Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
+  - `CPXMILPSolver`, interfacing with the commercial, state-of-the-art
+    [IBM ILOG Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
 
   - `SCIPMILPSolver`, interfacing with the open-source, state-of-the-art
     [SCIP solver](https://scip.zib.de/);
@@ -126,7 +127,7 @@ Watch this space for more details and news as they become available.
     [HiGHS solver](https://github.com/ERGO-Code/HiGHS).
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
-  `Block` for representing Multicommodity Min-Cost Flow problems (MMCF). The
+  for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
 
 - [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
@@ -161,64 +162,18 @@ Watch this space for more details and news as they become available.
 
 These instructions will let you build the projects on your local machine.
 
-If you need more detailed instructions on how to install the project and
-its requirements, please refer to the [installation
-guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
-
 ### Requirements
 
-See the individual projects for their requirements, or see the *Requirements*
-section in the [installation
-guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
-
-The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
-on requirements and dependencies between modules.
-
-### Getting the code
-
-Getting the whole umbrella project and all the subprojects can be done with:
-
-```sh
-git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
-```
-
-**Important note**: due to the rapid pace of development, the "master"
-branch(es) of the repositories is(are) usually rather outdated. Even ordinary
-users of the system are advised to rather live on the "develop" branch(es), at
-least for the time being. This is obtained, e.g., by running
-
-```sh
-git checkout develop
-
-git pull
-
-git submodule foreach --recursive "git checkout develop || git checkout master"
-
-git submodule foreach --recursive "git pull"
-```
-
-(note that not all the involved repositories, and in particular those not
-directly belonging to the `SMS++ Project`, have a "develop" branch). Due care
-is usually taken in ensuring that the "develop" branches do work all the time
-(albeit slippages may happen, nobody is perfect).
-
-
-### Excluding modules
-
-If you are not interested in building all the modules you can comment away
-the ones you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
-
-In alternative, you can avoid using this project altogether and fetch, build
-and install the modules individually (follow their own READMEs). In that
-case, you should start from the [SMS++ core
-library](https://gitlab.com/smspp/smspp).
+If you need more detailed instructions on how to install the project's
+requirements, please refer to the [SMS++ requirements installation
+guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements).
 
 ### Centralised path repository
 
 You can either use [CMake](https://cmake.org) or plain makefiles to build the
-library, your choice. CMake compiles off-dource and it is therefore perhaps
+library, your choice. CMake compiles off-source, and it is therefore perhaps
 better suited to one-off, compile-and-forget installations, whereby the
-provided makefiles compile on-source and we find that they are better suited
+provided makefiles compile on-source, and we find that they are better suited
 while developing and testing new code (please do, this is a community project).
 
 In both cases, all external dependencies should be automatically dealt with if
@@ -239,26 +194,17 @@ pulled, or manually ignore the changes when it is pushed, which is very convenie
 for anyone who actually develops new `SMS++` components (which you know you
 should, so please do).
 
-
 ### Build and install with CMake
 
-Using CMake it is possible to configure and build all the projects at once
-with:
+If you need more detailed instructions on how to install the project with
+CMake, please refer to the
+[SMS++ installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#sms).
 
-```sh
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make
-```
+The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
+on requirements and dependencies between modules.
 
-Severa� configuration options are available, see
+Several CMake configuration options are available, see
 [here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration).
-Optionally install the libraries in the system with:
-
-```sh
-sudo make install
-```
 
 ### Build and install with makefiles
 
@@ -317,7 +263,7 @@ CLANG_1200_0_32_27_PATCH
 which activates a patch for a weird glitch of `clang++` (from 1200.0.32.27
 to at least 1200.0.32.29) that cause some `boost::any magic` to stop working.
 Other settings may be needed (see, for instance, the comments about
-`--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile).
+`--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
 
 
 ## First steps
@@ -369,20 +315,20 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
 conduct, and the process for submitting merge requests to us. To contribute
 to the individual projects, see the Contribute section for those.
 
-Contributing entirely new sub-projects, i.e., either new `:Block` for your
+Contributing entirely new subprojects, i.e., either new `:Block` for your
 favourite class of optimization models and/or new `:Solver` implementing your
 favourite solution method (very general or specialised to a very narrow class,
 everything is useful) is extremely welcome. The `SMS++ Project` maintainers
 will bend backwards to help you develop them and will be happy to host them in
 the umbrella repository and integrate them with the rest of the
 `SMS++ Project`. This being open source, of course it is your choice whether
-or not you do it, if you will release your code and which license will it be
-released under. However, `SMS++` is a community project and we humbly suggest
+you do it, if you will release your code and which license will it be
+released under. However, `SMS++` is a community project, and we humbly suggest
 you to consider participating in it with the rules we have been setting.
 Constructive criticisms and proposals about changing these rules (the umbrella
-repository organisation and whatnot) are very welcome. In fact we believe that
+repository organisation and whatnot) are very welcome. In fact, we believe that
 the `SMS++ Project` underlines the need for a software distribution mechanism
-for projects that are at the same time tightly knit together and composed of
+for projects that are at the same time tightly-knit together and composed of
 largely independent units that we don't seem to see around, but if we have
 missed it we'd be happy for a tip.
 
