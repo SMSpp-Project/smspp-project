@@ -201,15 +201,14 @@ make editing, but it is independent on CMake.
 The main step is to edit the makefiles into extlib/. There is one for each
 of the external libraries that any module requires (starting with Boost,
 Eigen and netCDF that are required by the core library and therefore by
-everyone). Setting the
-
-```make
-lib*INC = -I<paths to include files directories>
-lib*LIB = -L<paths to lib files directories> -l<libs>
-```
-
-in each allows one to set any non-standard path if the library is not
-installed in the system (or leave them empty if they are).
+everyone). If any of the libaries is in a nonstandard location, It should
+be possible to still have the make process to run easily by copying
+extliv/makefile-default-paths into extlib/makefile-paths (the file is
+not there because it is .gitignore-d, precisely so that local settings
+are never accientally made public and are not overwritten when pulling
+the repo again) and properly setting the corresponding *-ROOT values.
+See the [installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration)
+for further details.
 
 The "core" SMS++ classes have a makefile for building the corresponding
 library in
