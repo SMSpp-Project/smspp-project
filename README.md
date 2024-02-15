@@ -3,12 +3,12 @@
 ![To boldly model (and solve) what no one has modeled (and solved)
 before](doxygen/SMSpp_logo_mid_noback.png)
 
-This is the splash page of the SMS++ Project, an "umbrella project" meant to
+This is the splash page of the `SMS++ Project`, an "umbrella project" meant to
 provide a quick way to download and install all the projects related to the
-SMS++ framework. It also allows to produce a unified documentation and to
+`SMS++` framework. It also allows to produce a unified documentation and to
 track issues that involve all the modules or the project in general.
 
-SMS++ is a set of C++ classes intended to provide a system for modeling
+`SMS++` is a set of `C++` classes intended to provide a system for modeling
 complex, block-structured mathematical models (in particular, but not
 exclusively, single-real-objective optimization problems), and solving them
 via sophisticated, structure-exploiting algorithms (in particular, but not
@@ -21,19 +21,38 @@ submodules.
 > If you are looking for the *SMS++ core library*, you will find it
 > [here](https://gitlab.com/smspp/smspp).
 
+
 ## Success stories
 
-The SMS++ framework is written in advanced C++, and its use entails climbing
+The `SMS++` framework is written in advanced `C++`, and its use entails climbing
 a significant learning curve. Yet, mastering it may be worth especially for
 the solution of very-large-scale, demanding optimization problems arising
-in applications. Indeed, the SMS++ project has already been instrumental in
+in applications. Indeed, the `SMS++ Project` has already been instrumental in
 some complex projects, such as
 
 - the [plan4res H2020 project](https://www.plan4res.eu)
 
-- the [openENTRANCE H2020 project](https://openentrance.eu)
+- the [openENTRANCE H2020 project](https://openentrance.eu), where `SMS++`
+  contributed to [the open modelling platform developed by the
+  project](https://openenergymodels.net/models/plan4res-modelling-suite)
 
-and its use is planned for several other ones (watch this space).
+Furthermore, the use of `SMS++` is planned for several other projects; two
+recently accepted ones are
+
+- the CETPartnership "RESILIENT - Resilient Energy System Infrastructure
+  Layouts for Industry, E-Fuels and Network Transition", where `SMS++` will be
+  interfaced with the open-source, widely-used, multi-vector energy planning
+  tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
+  the more demanding energy models;
+
+- the CETPartnership "Manoeuvre", where a methodology will be developed for
+  linking `SMS++` with the global energy model
+  [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case studies,
+  where `SMS++` will be run on a technologies mix calculated by GENeSYS-Mod and
+  will send back some indicators that will allow to refine the previous solution.
+
+Watch this space for more details and news as they become available.
+
 
 ## Documentation
 
@@ -41,51 +60,58 @@ and its use is planned for several other ones (watch this space).
   contains the documentation for the classes and methods of the SMS++ core
   library and all its modules.
 
-- The [SMS++ Project
-  Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
+- The [SMS++ Project Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
   contains detailed installation instructions, troubleshooting information
   and additional guides for developers and maintainers.
+
 
 ## Current projects
 
 - [SMS++ core library](https://gitlab.com/smspp/smspp), the repository
-  defining the general SMS++ framework features.
+  defining the general `SMS++` framework features.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
-  a Block implementing the Binary Knapsack Problem and the one corresponding
+  a `Block` implementing the Binary Knapsack Problem and the corresponding
   Solver based on a straightforward implementation of the Dynamic Programming
-  approach (for integer weights)
+  approach (for integer weights).
 
 - [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
-  an implementation of the Block concept for a "pretty basic version" the
+  an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
   Warehouse Location (CWL) problem, primarily intended as a "didactic"
-  implementation for showing some of the features of SMS++.
+  implementation for showing some of the features of `SMS++`.
 
-- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a Solver for
+- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
   function(s) based on the (generalized) "bundle method". It currently
   uses some modules from the [NDOSolver / FiOracle
   project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
   although the dependency will be hopefully removed in time.
 
+- [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
+  designed to model the investment in different assets defined in
+  [UCBlock](https://gitlab.com/smspp/ucblock). The corresponding problem
+  can be either deterministic or stochastic, in which case the module also
+  uses [SDDPBlock](https://gitlab.com/smspp/sddpblock) and therefore
+  [StochasticBlock](https://gitlab.com/smspp/stochasticblock).
+  
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
-  "generic" Lagrangian-based Solver for Block with appropriate structure.
+  "generic" Lagrangian-based Solver for `Block` with appropriate structure.
 
-- [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple Block defining
+- [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple `Block` defining
   several test functions from the literature for NonDifferentiable
-  Optimization solvers (such as BundleSolver).
+  Optimization solvers (such as `BundleSolver`).
 
 - [MCFBlock / MCFSolver](https://gitlab.com/smspp/mcfblock), defining the
-  MCFBlock class for the (continuous, linear) Min-Cost Flow problem and
-  its associated MCFSolver, basically a wrapper for solvers from the
+  `MCFBlock` class for the (continuous, linear) Min-Cost Flow problem and
+  its associated `MCFSolver`, basically a wrapper for solvers from the
   [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
-  general MILPSolver Solver that aims at being able to solve any Block whose
-  abstract representation encodes for a Mixed-Integer Linear Program
-  (ColVariable, FRowConstraint and FRealObjective with LinearFunction inside,
-  OneVarConstraint), together with derived MILPSolver classes that actually
+  general `MILPSolver` `Solver` that aims at being able to solve any `Block`
+  whose abstract representation encodes for a Mixed-Integer Linear Program
+  (`ColVariable`, `FRowConstraint` and `FRealObjective` with `LinearFunction`
+  inside, `OneVarConstraint`), together with derived classes that actually
   interface with existing MILP solvers. Currently, available derived classes
   are:
 
@@ -95,7 +121,7 @@ and its use is planned for several other ones (watch this space).
 - `SCIPMILPSolver`, providing the interface with the open-source
   [SCIP](https://www.scipopt.org) (note that since version 8.0.3 SCIP is
   "truly" FOSS by dint of being distributed under the Apache 2.0 License as
-  opposed to the previous academic license preventing roialty-free commercial
+  opposed to the previous academic license preventing royalty-free commercial
   use)
 
 - `GRBMILPSolver`, providing the interface with the commercial
@@ -104,33 +130,34 @@ and its use is planned for several other ones (watch this space).
 - `HiGHSMILPSolver`, providing the interface with the open-source
   [HiGHS](https://highs.dev)
 
-- [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the MMCFBlock
-  Block for representing Multicommodity Min-Cost Flow problems (MMCF).
+- [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
+  for representing Multicommodity Min-Cost Flow problems (MMCF). The
+  current version is rather crude and in desperate need of some love.
 
-- [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the SDDPBlock for
+- [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
   multi-stage stochastic optimization problems solvable by the Stochastic
-  Dual Dynamic Programming approach, and the SDDPSolver that interfaces with
+  Dual Dynamic Programming approach, and the `SDDPSolver` that interfaces with
   the SDDP solver in the
   [StOpt project](https://gitlab.com/stochastic-control/StOpt).
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
-  StochasticBlock "meta-Block" that takes *any* "deterministic" Block and
+  `StochasticBlock` "meta-Block" that takes *any* "deterministic" `Block` and
   "makes it stochastic" by allowing to change some of its data in a very
-  general and abstract way (using the SMS++ "methods factory").
+  general and abstract way (using the `SMS++` "methods factory").
 
-- [UCBlock](https://gitlab.com/smspp/ucblock), defining several Block for
-  Unit Commitment problems (the general UCBlock "root" class, several Block
-  for specific generating units, with some specialized Solver, and some
-  Block for specific network constraints).
+- [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
+  Unit Commitment problems: the general `UCBlock` "root" class, several
+  `Block` for specific generating units (`UnitBlock`) and interconnect
+  networks (`NetworkBlock`), with some specialized `Solver`.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
-  several components of the project that require elements (Block and/or
-  Solver) from different subprojects and that therefore are better not
+  several components of the project that require elements (`Block` and/or
+  `Solver`) from different subprojects and that therefore are better not
   included in any specific subproject.
 
 - [tools](https://gitlab.com/smspp/tools), defining some tools that can be
   useful for users (such as "main files" that take instances of problems
-  and solve them) and that require elements (Block and/or Solver) from
+  and solve them) and that require elements (`Block` and/or `Solver`) from
   different subprojects so that they are better not included in any specific
   subproject.
 
@@ -139,86 +166,79 @@ and its use is planned for several other ones (watch this space).
 
 These instructions will let you build the projects on your local machine.
 
-If you need more detailed instructions on how to install the project and
-its requirements, please refer to the [installation
-guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
-
 ### Requirements
 
-See the individual projects for their requirements, or see the *Requirements*
-section in the [installation
-guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++).
+If you need more detailed instructions on how to install the project's
+requirements, please refer to the [SMS++ requirements installation
+guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements).
+
+### Centralised path repository
+
+You can either use [CMake](https://cmake.org) or plain makefiles to build the
+library, your choice. CMake compiles off-source, and it is therefore perhaps
+better suited to one-off, compile-and-forget installations, whereby the
+provided makefiles compile on-source, and we find that they are better suited
+while developing and testing new code (please do, this is a community project).
+
+In both cases, all external dependencies should be automatically dealt with if
+they are installed in their default paths. These are specified in the `*_ROOT`
+values that are defined in the three files
+[`extlib/makefile-default-paths-linux`](extlib/makefile-default-paths-linux),
+[`extlib/makefile-default-paths-macos`](extlib/makefile-default-paths-macos),
+and [`extlib/makefile-default-paths-win`](extlib/makefile-default-paths-win)
+for the three major OS families; the one that gets used is automatically
+selected by the build process (both with CMake and the makefiles). If not, the
+suggested way to change them is to copy the (right one of these) file(s) into
+`extlib/makefile-paths` and edit it. This file, if present, is automatically
+read and the values found there replace the corresponding non-default definitions.
+The rationale for not directly changing the makefile-default-paths-* is that
+`extlib/makefile-paths` file is .gitignore-d. Hence, it should not be necessary to
+re-change the makefiles (or stash/restore the changes) each time the project is
+pulled, or manually ignore the changes when it is pushed, which is very convenient
+for anyone who actually develops new `SMS++` components (which you know you
+should, so please do).
+
+### Build and install with CMake
+
+If you need more detailed instructions on how to install the project with
+CMake, please refer to the
+[SMS++ installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#sms).
 
 The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
 on requirements and dependencies between modules.
 
-### Getting the code
-
-Getting the whole umbrella project and all the subprojects can be done with:
-
-```sh
-git clone --recurse-submodules https://gitlab.com/smspp/smspp-project.git
-```
-
-### Excluding modules
-
-If you are not interested in building all the modules you can comment away
-the ones you don't need from the [`CMakeLists.txt`](CMakeLists.txt) file.
-
-In alternative, you can avoid using this project altogether and
-fetch, build and install the modules individually (follow their own READMEs).
-In that case, you should start from the [SMS++ core
-library](https://gitlab.com/smspp/smspp).
-
-### Build and install with CMake
-
-Using CMake it is possible to configure and build all the projects at once
-with:
-
-```sh
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make
-```
-
-Some configuration options are available (i.e. for customizing the paths where
-required libraries can be found) see
+Several CMake configuration options are available, see
 [here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration).
-Optionally install the libraries in the system with:
-
-```sh
-sudo make install
-```
-
 
 ### Build and install with makefiles
 
-Most modules, and in particular the "core" SMS++ classes, also come with
-carefully hand-crafted makefiles. Using them requires dabbling with some
-make editing, but it is independent on CMake.
+All modules, starting with the "core" `SMS++ classes`, also come with
+carefully hand-crafted makefiles. Using them may require dabbling with some
+makefile editing, but it is independent on CMake and may be more suited for
+anyone who is developing `SMS++` components.
 
-The main step is to edit the makefiles into extlib/. There is one for each
-of the external libraries that any module requires (starting with Boost,
-Eigen and netCDF that are required by the core library and therefore by
-everyone). If any of the libaries is in a nonstandard location, It should
-be possible to still have the make process to run easily by copying
-extliv/makefile-default-paths into extlib/makefile-paths (the file is
-not there because it is .gitignore-d, precisely so that local settings
-are never accientally made public and are not overwritten when pulling
-the repo again) and properly setting the corresponding *-ROOT values.
-See the [installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration)
+In principle makefiles may work right out of the bat if all dependencies are
+installed at their OS-specific default locations; see the
+`extlib/makefile-default-paths-*` discussion above. If any of the libraries 
+is in a nonstandard location, it should be possible to still have the make 
+process to run easily by copying `extlib/makefile-default-paths-*` into 
+`extlib/makefile-paths` (the file is not there because it is .gitignore, 
+precisely so that local settings are never accidentally made public and are 
+not overwritten when pulling the repository again), and properly setting the 
+corresponding *-ROOT values.
+
+See the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration#location-of-required-libraries)
 for further details.
 
-The "core" SMS++ classes have a makefile for building the corresponding
+The "core" `SMS++` classes have a makefile for building the corresponding
 library in
 
 ```sh
 SMS++/lib/makefile-lib
 ```
 
-The makefile allow to choose the compiler name and the optimization/debug.
-This builds the lib/libSMS++.a that can be linked upon. Also, the
+The makefile allow to choose the compiler name and the optimization/debug
+settings. This builds the `lib/libSMS++.a` that can be linked upon. Also, the
 
 ```sh
 SMS++/lib/makefile-inc
@@ -231,6 +251,7 @@ those in
 
 ```sh
 MCFBlock/test
+MILPSolver/test_*
 tests/CapacitatedFacilityLocationBlock 
 tests/LagBFunction 
 tests/LagrangianDualSolver_MMCF
@@ -239,8 +260,9 @@ tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
 
-Note that the makefile-lib and makefile-inc "listen" to the general macros
-CC and SW controlling the c++ compiler and its main options; these can
+and many others. Note that the [makefile-lib](SMS++/lib/makefile-lib) and
+[makefile-inc](SMS++/lib/makefile-inc) "listen" to the general macros `CC`
+and `SW` controlling the `C++` compiler and its main options; these can
 therefore be set in the "main" makefile and will be used throughout the
 whole compilation. This may be useful to set system-specific values.
 
@@ -250,15 +272,17 @@ An example of this is the macro
 CLANG_1200_0_32_27_PATCH
 ```
 
-which activates a patch for a weird glitch of clang++ (from 1200.0.32.27
-to at least 1200.0.32.29) that cause some boost::any magic to stop working.
-Other settings may be needed.
+which activates a patch for a weird glitch of `clang++` (from 1200.0.32.27
+to at least 1200.0.32.29) that cause some `boost::any magic` to stop working.
+Other settings may be needed (see, for instance, the comments about
+`--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
+
 
 ## First steps
 
 Although sadly a proper User Manual is still missing, the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
-first look at possible ways of using SMS++. In particular the three
+first look at possible ways of using `SMS++`. In particular the three
 tests `LagrangianDualSolver_Box`, `LagrangianDualSolver_MMCF` and
 `LagrangianDualSolver_UC` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register two `Solver` (a `:MILPSolver` and a
@@ -271,7 +295,7 @@ programming a whole `Block` from scratch, more of which can be found, e.g.,
 in `tests/LagBFunction` and `tests/PolyhedralFunction`. Furthermore,
 provides an example on how to (randomly) modify the `:Block` and re-solve
 it many times (still checking that the results agree), showcasing the
-crucial `Modification` SMS++ concept whereby changes in the `:Block` are
+crucial `Modification` `SMS++` concept whereby changes in the `:Block` are
 automatically forwarded to all concerned `Solver`. Other similar examples
 can be found in basically all the other tests.
 
@@ -280,6 +304,7 @@ provides examples about using full-featured "pre-built" `:Block`, that can be
 found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
 [MCFBlock](https://gitlab.com/smspp/mcfblock) repos and in the
 [UCBlock](https://gitlab.com/smspp/ucblock) repo, respectively.
+
 
 ## Getting help
 
@@ -295,22 +320,39 @@ If your issue is not covered by our guides, or you want to propose a new
 module, you can
 [open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
 conduct, and the process for submitting merge requests to us. To contribute
 to the individual projects, see the Contribute section for those.
 
+Contributing entirely new subprojects, i.e., either new `:Block` for your
+favourite class of optimization models and/or new `:Solver` implementing your
+favourite solution method (very general or specialised to a very narrow class,
+everything is useful) is extremely welcome. The `SMS++ Project` maintainers
+will bend backwards to help you develop them and will be happy to host them in
+the umbrella repository and integrate them with the rest of the
+`SMS++ Project`. This being open source, of course it is your choice whether
+you do it, if you will release your code and which license will it be
+released under. However, `SMS++` is a community project, and we humbly suggest
+you to consider participating in it with the rules we have been setting.
+Constructive criticisms and proposals about changing these rules (the umbrella
+repository organisation and whatnot) are very welcome. In fact, we believe that
+the `SMS++ Project` underlines the need for a software distribution mechanism
+for projects that are at the same time tightly-knit together and composed of
+largely independent units that we don't seem to see around, but if we have
+missed it we'd be happy for a tip.
+
+
 ## Authors
 
 These authors are for the umbrella project alone. Check the individual
 projects for their respective authors.
 
-- **Antonio Frangioni**  
-  Dipartimento di Informatica  
-  Università di Pisa
+### Current lead authors
 
-- **Niccolò Iardella**  
+- **Antonio Frangioni**  
   Dipartimento di Informatica  
   Università di Pisa
 
@@ -322,11 +364,19 @@ projects for their respective authors.
   Dipartimento di Informatica  
   Università di Pisa
 
+### Main past contributors
+
+- **Niccolò Iardella**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public
 License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
 see the [LICENSE](LICENSE) file for details.
+
 
 ## Disclaimer
 
@@ -338,9 +388,10 @@ any damage or loss that anybody could suffer for having used it. More
 details about the non-warranty attached to this code are available in the
 license description file.
 
+
 ## Acknowledgements
 
-The development of SMS++ has greatly benefited from the contributions
+The development of `SMS++` has greatly benefited from the contributions
 of the following projects:
 
 - "Consistent Dual Signals and Optimal Primal Solutions", funded by the
