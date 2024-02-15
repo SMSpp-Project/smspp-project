@@ -52,8 +52,9 @@ and its use is planned for several other ones (watch this space).
   defining the general SMS++ framework features.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
-  a Block implementing the Binary Knapsack Problem and the corresponding
-  Solver.
+  a Block implementing the Binary Knapsack Problem and the one corresponding
+  Solver based on a straightforward implementation of the Dynamic Programming
+  approach (for integer weights)
 
 - [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
   an implementation of the Block concept for a "pretty basic version" the
@@ -88,11 +89,20 @@ and its use is planned for several other ones (watch this space).
   interface with existing MILP solvers. Currently, available derived classes
   are:
 
-  - CPXMILPSolver, interfacing with the commercial, state-of-the-art [IBM ILOG
-    Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
+- `CPXMILPSolver`, providing the interface with the commercial
+  [IBM ILOG CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio)
 
-  - SCIPMILPSolver, interfacing with the open-source, state-of-the-art
-    [SCIP solver](https://scip.zib.de/).
+- `SCIPMILPSolver`, providing the interface with the open-source
+  [SCIP](https://www.scipopt.org) (note that since version 8.0.3 SCIP is
+  "truly" FOSS by dint of being distributed under the Apache 2.0 License as
+  opposed to the previous academic license preventing roialty-free commercial
+  use)
+
+- `GRBMILPSolver`, providing the interface with the commercial
+  [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
+
+- `HiGHSMILPSolver`, providing the interface with the open-source
+  [HiGHS](https://highs.dev)
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the MMCFBlock
   Block for representing Multicommodity Min-Cost Flow problems (MMCF).
@@ -306,6 +316,10 @@ projects for their respective authors.
   Università di Pisa
 
 - **Rafael Durbano Lobato**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+- **Donato Meoli**  
   Dipartimento di Informatica  
   Università di Pisa
 
