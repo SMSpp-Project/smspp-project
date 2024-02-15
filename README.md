@@ -72,7 +72,8 @@ Watch this space for more details and news as they become available.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
   a `Block` implementing the Binary Knapsack Problem and the corresponding
-  Solver.
+  Solver based on a straightforward implementation of the Dynamic Programming
+  approach (for integer weights).
 
 - [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
   an implementation of the `Block` concept for a "pretty basic version" the
@@ -114,17 +115,20 @@ Watch this space for more details and news as they become available.
   interface with existing MILP solvers. Currently, available derived classes
   are:
 
-  - `CPXMILPSolver`, interfacing with the commercial, state-of-the-art
-    [IBM ILOG Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio);
+- `CPXMILPSolver`, providing the interface with the commercial
+  [IBM ILOG CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio)
 
-  - `SCIPMILPSolver`, interfacing with the open-source, state-of-the-art
-    [SCIP solver](https://scip.zib.de/);
+- `SCIPMILPSolver`, providing the interface with the open-source
+  [SCIP](https://www.scipopt.org) (note that since version 8.0.3 SCIP is
+  "truly" FOSS by dint of being distributed under the Apache 2.0 License as
+  opposed to the previous academic license preventing royalty-free commercial
+  use)
 
-  - `GRBMILPSolver`, interfacing with the commercial, state-of-the-art
-    [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer).
+- `GRBMILPSolver`, providing the interface with the commercial
+  [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
-  - `HiGHSMILPSolver`, interfacing with the open-source, state-of-the-art
-    [HiGHS solver](https://github.com/ERGO-Code/HiGHS).
+- `HiGHSMILPSolver`, providing the interface with the open-source
+  [HiGHS](https://highs.dev)
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
@@ -215,7 +219,7 @@ anyone who is developing `SMS++` components.
 
 In principle makefiles may work right out of the bat if all dependencies are
 installed at their OS-specific default locations; see the
-extlib/makefile-default-paths-* discussion above. If not, creating and
+`extlib/makefile-default-paths-*` discussion above. If not, creating and
 editing `extlib/makefile-paths` could be all that is needed to make them work.
 
 The "core" `SMS++` classes have a makefile for building the corresponding
@@ -345,6 +349,10 @@ projects for their respective authors.
   Università di Pisa
 
 - **Rafael Durbano Lobato**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+- **Donato Meoli**  
   Dipartimento di Informatica  
   Università di Pisa
 
