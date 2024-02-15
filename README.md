@@ -219,8 +219,16 @@ anyone who is developing `SMS++` components.
 
 In principle makefiles may work right out of the bat if all dependencies are
 installed at their OS-specific default locations; see the
-`extlib/makefile-default-paths-*` discussion above. If not, creating and
-editing `extlib/makefile-paths` could be all that is needed to make them work.
+`extlib/makefile-default-paths-*` discussion above. If any of the libraries 
+is in a nonstandard location, it should be possible to still have the make 
+process to run easily by copying `extlib/makefile-default-paths-*` into 
+`extlib/makefile-paths` (the file is not there because it is .gitignore, 
+precisely so that local settings are never accidentally made public and are 
+not overwritten when pulling the repository again), and properly setting the 
+corresponding *-ROOT values.
+
+See the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration#location-of-required-libraries)
+for further details.
 
 The "core" `SMS++` classes have a makefile for building the corresponding
 library in
