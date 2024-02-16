@@ -115,20 +115,20 @@ Watch this space for more details and news as they become available.
   interface with existing MILP solvers. Currently, available derived classes
   are:
 
-- `CPXMILPSolver`, providing the interface with the commercial
-  [IBM ILOG CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio)
+  - `CPXMILPSolver`, providing the interface with the commercial
+    [IBM ILOG CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio)
 
-- `SCIPMILPSolver`, providing the interface with the open-source
-  [SCIP](https://www.scipopt.org) (note that since version 8.0.3 SCIP is
-  "truly" FOSS by dint of being distributed under the Apache 2.0 License as
-  opposed to the previous academic license preventing royalty-free commercial
-  use)
+  - `SCIPMILPSolver`, providing the interface with the open-source
+    [SCIP](https://www.scipopt.org) (note that since version 8.0.3 SCIP is
+    "truly" FOSS by dint of being distributed under the Apache 2.0 License as
+    opposed to the previous academic license preventing royalty-free commercial
+    use)
 
-- `GRBMILPSolver`, providing the interface with the commercial
-  [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
+  - `GRBMILPSolver`, providing the interface with the commercial
+    [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
-- `HiGHSMILPSolver`, providing the interface with the open-source
-  [HiGHS](https://highs.dev)
+  - `HiGHSMILPSolver`, providing the interface with the open-source
+    [HiGHS](https://highs.dev)
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
