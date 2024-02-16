@@ -116,7 +116,7 @@ Watch this space for more details and news as they become available.
   are:
 
   - `CPXMILPSolver`, providing the interface with the commercial
-    [IBM ILOG CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio)
+    [IBM ILOG CPLEX Studio](https://www.ibm.com/products/ilog-cplex-optimization-studio)
 
   - `SCIPMILPSolver`, providing the interface with the open-source
     [SCIP](https://www.scipopt.org) (note that since version 8.0.3 SCIP is
