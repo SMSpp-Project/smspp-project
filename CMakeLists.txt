@@ -117,7 +117,6 @@ add_subdirectory(MCFBlock) # Requires MCFClass
 add_subdirectory(MMCFBlock) # Requires MCFBlock, BinaryKnapsackBlock
 add_subdirectory(LukFiBlock)
 add_subdirectory(StochasticBlock)
-add_subdirectory(TwoStageStochasticBlock) # Requires StochasticBlock
 add_subdirectory(SDDPBlock) # Requires StochasticBlock
 add_subdirectory(CapacitatedFacilityLocationBlock)
                                        # Requires MCFBlock, BinaryKnapsackBlock
