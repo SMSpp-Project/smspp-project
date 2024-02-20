@@ -20,6 +20,17 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# external libraries that HiGHS needs
+ifeq ($(UNAME_S),Linux)
+    libHiGHSEXTLIB = -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libHiGHSEXTLIB =
+endif
+ifeq ($(UNAME_S),Windows)
+    libHiGHSEXTLIB = -lpthreadVC3
+endif
+
 # basic HiGHS directory without quotes, if any
 libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 
@@ -37,7 +48,7 @@ libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 
 ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
     ifeq ($(UNAME_S),Windows)
-        libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/bin
+        libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/RELEASE/bin
     else
         libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
     endif
@@ -49,10 +60,15 @@ else
         -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
 endif
 
+ifeq ($(UNAME_S),Linux)
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs $(libHiGHSEXTLIB)
+endif
 ifeq ($(UNAME_S),Darwin)
     libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -lhighs
-else
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs -lpthread
+endif
+ifeq ($(UNAME_S),Windows)
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs \
+              -L"$(pthread_ROOT)/lib" $(libHiGHSEXTLIB)
 endif
 
 ######################## End of makefile-libHiGHS ############################

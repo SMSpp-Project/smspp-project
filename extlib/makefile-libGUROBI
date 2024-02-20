@@ -22,10 +22,14 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that Gurobi needs
+ifeq ($(UNAME_S),Linux)
+    libGUROBIEXTLIB = -lpthread
+endif
 ifeq ($(UNAME_S),Darwin)
     libGUROBIEXTLIB =
-else
-    libGUROBIEXTLIB = -lpthread
+endif
+ifeq ($(UNAME_S),Windows)
+    libGUROBIEXTLIB = -lpthreadVC3
 endif
 
 # basic Gurobi directory
@@ -45,7 +49,12 @@ endif
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
+ifeq ($(UNAME_S),Windows)
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 \
+               -L"$(pthread_ROOT)/lib" $(libGUROBIEXTLIB)
+else
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
+endif
 libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
 ############################# End of makefile ################################

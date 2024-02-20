@@ -23,16 +23,13 @@
 # basic SCIP directory without quotes, if any
 libSCIPBSCDIR = $(subst $\",,$(SCIP_ROOT))
 
-# Cplex lib
-ifeq ($(UNAME_S),Windows)
-    libSCIP =
-else
-    libSCIP = -lzimpl -lsoplex -ltbb
-endif
-
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip $(libSCIP)
+ifeq ($(UNAME_S),Windows)
+    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -llibscip -lzimpl -llibsoplex
+else
+    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
+endif
 libSCIPINC = -I"$(libSCIPBSCDIR)/include"
 
 ############################# End of makefile ################################
