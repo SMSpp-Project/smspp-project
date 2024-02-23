@@ -27,12 +27,12 @@ libnetCDFCxxBSCDIR = $(subst $\",,$(netCDFCxx_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Linux)
-    libNtCDFLIB = -L"$(libnetCDFBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf \
-              -L"$(libnetCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
-else
+ifeq ($(UNAME_S),Windows)
     libNtCDFLIB = -L"$(libnetCDFBSCDIR)/lib" -lnetcdf \
-              -L"$(libnetCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
+                  -L"$(libnetCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
+else
+    libNtCDFLIB = -L"$(libnetCDFBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf \
+                  -L"$(libnetCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
 endif
 libNtCDFINC = -I"$(libnetCDFBSCDIR)/include" -I"$(libnetCDFCxxBSCDIR)/include"
 
