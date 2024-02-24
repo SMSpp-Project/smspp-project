@@ -103,6 +103,7 @@ if (MSVC)
 else() # Unix
     add_compile_options(
              "-Wno-enum-compare"
+             "-Wmacro-redefined"
              "-DBUILD_CPXSTATIC" "-DCPXSIZE_BITS_TEST_DISABLE"
              #"-ferror-limit=1" "-fexceptions"
              #"-Wall" "-Wpedantic" "-Wextra"
