@@ -22,18 +22,18 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic netCDF directories without quotes, if any
-libnetCDFBSCDIR = $(subst $\",,$(netCDF_ROOT))
-libnetCDFCxxBSCDIR = $(subst $\",,$(netCDFCxx_ROOT))
+libNtCDFBSCDIR = $(subst $\",,$(netCDF_ROOT))
+libNtCDFCxxBSCDIR = $(subst $\",,$(netCDFCxx_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Linux)
-    libNtCDFLIB = -L"$(libnetCDFBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf \
-                  -L"$(libnetCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
+    libNtCDFLIB = -L"$(libNtCDFBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf \
+                  -L"$(libNtCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
 else
-    libNtCDFLIB = -L"$(libnetCDFBSCDIR)/lib" -lnetcdf \
-                  -L"$(libnetCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
+    libNtCDFLIB = -L"$(libNtCDFBSCDIR)/lib" -lnetcdf \
+                  -L"$(libNtCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
 endif
-libNtCDFINC = -I"$(libnetCDFBSCDIR)/include" -I"$(libnetCDFCxxBSCDIR)/include"
+libNtCDFINC = -I"$(libNtCDFBSCDIR)/include" -I"$(libNtCDFCxxBSCDIR)/include"
 
 ############################# End of makefile ################################
