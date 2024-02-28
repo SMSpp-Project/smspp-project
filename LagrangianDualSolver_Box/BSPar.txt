@@ -16,10 +16,10 @@ BlockSolverConfig     # exact type of the Configuration object
 
 2  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-CPXMILPSolver           # name of 1st Solver
-#GRBMILPSolver           # name of 1st Solver
-#SCIPMILPSolver          # name of 1st Solver
-LagrangianDualSolver    # name of 2nd Solver
+CPXMILPSolver           # name of 1nd Solver
+#GRBMILPSolver           # name of 1nd Solver
+#SCIPMILPSolver          # name of 1nd Solver
+LagrangianDualSolver    # name of 2st Solver 
 
 2  # number of ComputeConfig in this BlockSolverConfig
 
@@ -27,8 +27,6 @@ LagrangianDualSolver    # name of 2nd Solver
 # 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ComputeConfig of the *MILPSolver
 *LPCCfg.txt
-
-# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # 2nd ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ComputeConfig of the LagrangianDualSolver; it basically is the
@@ -147,6 +145,12 @@ str_LagBF_BSCfg		BXBSCfg.txt   # the BlockSolverConfig for inner Block
 
 # pointer to the "extra" Configuration
 * # [none]
+
+# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# 2nd ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ComputeConfig of the *MILPSolver
+*LPCCfg.txt
 
 # end of 2nd ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 

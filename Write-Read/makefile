@@ -55,12 +55,8 @@ SMS++SDR = ../../SMS++/
 include $(SMS++SDR)lib/makefile-c
 
 # MILPSolver
-MILPSSDR = ../../../MILPSolver
-include $(MILPSSDR)/makefile
-
-# SubGradSolver
-#SBGSLVSDR = ../../SubGradSolver
-#include $(SBGSLVSDR)/makefile
+MILPSSDR = ../../MILPSolver
+include $(MILPSSDR)/makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 

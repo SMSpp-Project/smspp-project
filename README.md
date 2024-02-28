@@ -36,6 +36,11 @@ The following tests are provided:
   reformulation as a bunch of `BinaryKnapsackBlock`, so that a
   `LagrangianDualSolver` can be used to compute a stronger bound.
 
+- [`compare_formulations`](compare_formulations),  very simple tester for
+  testing different formulations of some problem obtained by
+  `BlockConfig`-uring in two different ways two copies of the same `:Block`
+  and solving them with two copies of the same `:Solver`.
+
 - [`LagBFunction`](LagBFunction), a tester which provides very
   comprehensive tests for `LagBFunction`, `PolyhedralFunctionBlock`,
   `PolyhedralFunction`, any `CDASolver` able to handle `C05Function` in the
@@ -68,6 +73,10 @@ The following tests are provided:
   Unit-Commitment problems, as well as for quite a lot of the mechanics
   of the SMS++ core library.
 
+- [`LukFiBlock`](LukFiBlock): a very simple main for running tests with
+  [LukFiBlock](https://gitlab.com/smspp/lukfiblock). It just creates one
+  and loads it from a stream; little more than a compilation check.
+
 - [`MCF_MILP`](MCF_MILP): solve a `MCFBlock` with both a `MILPSolver` and a
   `MCFSolver` and compare the results. This is a test for `MCFBlock`,
   `MCFSolver`, `MILPSolver` and its derived classes (`CPXMILPSolver` and
@@ -98,6 +107,23 @@ The following tests are provided:
   `SCIPMILPSolver`), as well as for some of the mechanics of the SMS++
   core library.
 
+- [`ThermalUnitBlock_Solver`](ThermalUnitBlock_Solver), a tester for the
+  `ThermalUnitDPSolver` specialised Dynamic Programming `:Solver` for
+  `ThermalUnitBlock` as compared with a `:MILPSolver` on some of the (many)
+  different formulations supported by `ThermalUnitBlock`.
+
+- [`Write-Read`](Write-Read), a tester for the function
+  `AbstractBlock::read_mps` and some tests for any  `CDASolver` able 
+  to handle Linear Programs (such as `MILPSolver` and its derived classes
+  `CPXMILPSolver` , `SCIPMILPSolver` , `GRBMILPSolver` and
+  `HiGHSMILPSolver`), as well as for some of the mechanics of the "core" 
+  SMS++ library. A random MILP is constructed in an `AbstractBlock` and
+  saved to a `.mps` file. A new `AbstractBlock` is created and read back
+  to the file, two `:Solver` are attached to the two `AbstractBlock` andù
+  the results are compared. The first `AbstractBlock` is randomly chamged
+  many times and the process is repeated.
+
+
 The tests run as traditional command line executables.
 Most of the tests can also run as a 
 [CTest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) suites.
@@ -107,7 +133,6 @@ Most of the tests can also run as a
 
 These instructions will let you build and run the SMS++ System Tests
 on your system.
-
 
 ### Requirements
 
@@ -164,10 +189,12 @@ Each tester has an executable built in the corresponding directory; run
 it for instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
 
+
 ## Getting help
 
 If you need support, you want to submit bugs or propose a new feature, you can
 [open a new issue](https://gitlab.com/smspp/tests/-/issues/new).
+
 
 ## Contributing
 
@@ -176,6 +203,10 @@ conduct, and the process for submitting merge requests to us.
 
 
 ## Authors
+
+- **Enrico Calandrini**  
+  Dipartimento di Informatica  
+  Universita' di Pisa
 
 - **Federica Di Pasquale**  
   Dipartimento di Informatica  
@@ -201,11 +232,13 @@ conduct, and the process for submitting merge requests to us.
   Dipartimento di Informatica  
   UniversitÃ  di Pisa
 
+
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public
 License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
 see the [LICENSE](LICENSE) file for details.
+
 
 ## Disclaimer
 
