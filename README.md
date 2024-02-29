@@ -123,9 +123,8 @@ The following tests are provided:
   the results are compared. The first `AbstractBlock` is randomly chamged
   many times and the process is repeated.
 
-
-The tests run as traditional command line executables.
-Most of the tests can also run as a 
+The tests run as traditional command line executables. Most of the tests
+can also run as a
 [CTest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) suites.
 
 
@@ -152,41 +151,35 @@ make
 ### Build and install with makefiles
 
 Carefully hand-crafted makefiles have also been developed for those unwilling
-to use CMake. General instructions are:
+to use CMake. Makefiles build the executable in-source (in the same directory
+tree where the code is) as opposed to out-of-source (in the copy of the
+directory tree constructed in the build/ folder) and therefore it is more
+convenient when having to recompile often, such as when developing/debugging
+a new module, as opposed to the compile-and-forget usage envisioned by CMake.
 
-- The arrangements of folders must be that envisioned by the
-  [Umbrella SMS++ Project](https://gitlab.com/smspp/smspp-project)
+Each of the executables in the individual folders has its own makefile which
+includes the "main makefile" of the concerned modules, typically either
+`makefile-c` including all necessary libraries comprised the "core SMS++" one,
+or `makefile-s` including all necessary libraries but not the "core SMS++"
+one (for the common case in which this is used together with other modules
+that already include them). The makefiles in turn recursively include all the
+required other makefiles, hence one should only need to edit the makefile
+of each executable for compilation type (C++ compiler and its options) and it
+all should be good to go. In case some of the external libraries are not at
+their default location, it should only be necessary to create the
+`../extlib/makefile-paths` out of the `extlib/makefile-default-paths-*` for
+your OS `*` and edit the relevant bits (commenting out all the rest).
 
-- The main step is to edit the makefiles into ../extlib/. There is one for
-  each of the external libraries that any module requires, starting with
-  Boost, Eigen and netCDF-C++. Setting the
+Check the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration#location-of-required-libraries)
+for further details.
 
-```make
-lib*INC = -I< paths to include files directories >
-lib*LIB = -L< paths to lib files directories > -l< libs >
-```
-
-  in each allows one to set any non-standard path if the library is not
-  installed in the system (or leave them empty if they are).
-
-- For each test that has a makefile, you can chdir the corresponding directory
-  and run make. However, note that the "basic" makefile macros
-
-```make
-CC =
-SW =
-```
-
-  for setting the c++ compiler and its options are defined in the makefile and
-  "automatically forwarded" to these of the other SMS++ components, so that
-  (possibly at the cost of a make clean) consistency is ensured during the
-  building process; thus, editing the makefile and changig these may also be
-  required.
 
 ## Usage
 
-Each tester has an executable built in the corresponding directory; run
-it for instructions. In several cases a (bash) batch is available to run
+Each tester has an executable built in the corresponding directory (or in the
+corresponding directory in the copy of the directory tree in the build/ folder
+if you use CMake); look at the `README.md` in the folder and/or run it for
+instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
 
 
@@ -204,15 +197,23 @@ conduct, and the process for submitting merge requests to us.
 
 ## Authors
 
+### Current Lead Authors
+
 - **Enrico Calandrini**  
   Dipartimento di Informatica  
   Universita' di Pisa
 
-- **Federica Di Pasquale**  
+- **Antonio Frangioni**  
   Dipartimento di Informatica  
   Università di Pisa
 
-- **Antonio Frangioni**  
+- **Rafael Durbano Lobato**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+### Contributors
+
+- **Federica Di Pasquale**  
   Dipartimento di Informatica  
   Università di Pisa
 
@@ -225,10 +226,6 @@ conduct, and the process for submitting merge requests to us.
   Università di Cagliari
 
 - **Niccolò Iardella**  
-  Dipartimento di Informatica  
-  Università di Pisa
-
-- **Rafael Durbano Lobato**  
   Dipartimento di Informatica  
   Università di Pisa
 
