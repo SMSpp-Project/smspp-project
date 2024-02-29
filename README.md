@@ -201,8 +201,8 @@ should, so please do).
 ### Build and install with CMake
 
 If you need more detailed instructions on how to install the project with
-CMake, please refer to the
-[SMS++ installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#sms).
+CMake, please refer to the [SMS++ installation
+guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#sms).
 
 The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
 on requirements and dependencies between modules.
@@ -222,7 +222,7 @@ installed at their OS-specific default locations; see the
 `extlib/makefile-default-paths-*` discussion above. If any of the libraries 
 is in a nonstandard location, it should be possible to still have the make 
 process to run easily by copying `extlib/makefile-default-paths-*` into 
-`extlib/makefile-paths` (the file is not there because it is .gitignore, 
+`extlib/makefile-paths` (the file is not there because it is .gitignore-d,
 precisely so that local settings are never accidentally made public and are 
 not overwritten when pulling the repository again), and properly setting the 
 corresponding *-ROOT values.
@@ -300,9 +300,11 @@ automatically forwarded to all concerned `Solver`. Other similar examples
 can be found in basically all the other tests.
 
 The `LagrangianDualSolver_MMCF` and `LagrangianDualSolver_UC` versions rather
-provides examples about using full-featured "pre-built" `:Block`, that can be
-found in the [MMCFBlock](https://gitlab.com/smspp/mmcfblock)/
-[MCFBlock](https://gitlab.com/smspp/mcfblock) repos and in the
+provides examples about using full-featured "pre-built" `:Block`, each of
+which is "structured" and therefore has sub-`Block` inside of possibly
+different types that can possibly be solved by specialised `:Solver`; c.f.,
+e.g., the [MMCFBlock](https://gitlab.com/smspp/mmcfblock),
+[MCFBlock](https://gitlab.com/smspp/mcfblock) and the
 [UCBlock](https://gitlab.com/smspp/ucblock) repo, respectively.
 
 
@@ -312,13 +314,15 @@ If you need support, you want to submit bugs or propose a new feature for an
 individual module, see the *Getting help* section for that module.
 
 If you need support on the project installation you can check out the
-[installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
-or the [troubleshooting page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
+[installation
+guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
+or the [troubleshooting
+page](https://gitlab.com/smspp/smspp-project/-/wikis/Troubleshooting)
 in our Wiki.
 
 If your issue is not covered by our guides, or you want to propose a new
-module, you can
-[open a new issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
+module, you can [open a new
+issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
 
 ## Contributing
