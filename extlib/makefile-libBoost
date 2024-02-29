@@ -1,17 +1,15 @@
 ##############################################################################
-############################ makefile-libBoost ###############################
+############################# makefile-libBoost ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libBoost                                                     #
 #                                                                            #
-#   Input:  $(SMS++SDR) = the directory where the core SMS++ source is       #
-#           According to the standard library layout, it is assumed that     #
-#           the external libreries live in $(SMS++SDR)../extlib              #
-#                                                                            #
+#   Input:  (BOOST_ROOT), the directory where boost is installed             #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libBoostINC) = the -I$(include directories) for Boost          #
-#           $(libBoostLIB) = external libreries + -L<libdirs> for Boost      #
+#           $(libBoostLIB) = external libraries + -L< libdirs > for Boost    #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
@@ -19,9 +17,14 @@
 #                                                                            #
 ##############################################################################
 
-# define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libBoostINC = -I/usr/local/include/
-libBoostLIB = -L/usr/local/lib
+# basic BOOST directory without quotes, if any
+libBOOSTBSCDIR = $(subst $\",,$(BOOST_ROOT))
 
-############################# End of makefile ################################
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libBoostINC = -I"$(libBOOSTBSCDIR)/include"
+libBoostLIB = -L"$(libBOOSTBSCDIR)/lib"
+
+######################## End of makefile-libBoost ############################

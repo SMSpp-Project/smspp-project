@@ -1,14 +1,14 @@
 ##############################################################################
-############################ makefile-libCPLEX ###############################
+############################# makefile-libCPLEX ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libCPLEX                                                     #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
-#                                                                            #
+#   Input:  $(CPLEX_ROOT), the directory where Cplex Studio is installed     #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libCPLEXLIB) = external libreries + -L<libdirs> for libCPLEX   #
+#                                                                            #
+#           $(libCPLEXLIB) = external libraries + -L< libdirs > for libCPLEX #
 #           $(libCPLEXINC) = the -I$(include directories) for libCPLEX       #
 #                                                                            #
 #                             Antonio Frangioni                              #
@@ -19,24 +19,39 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# external libreries that Cplex needs
-# Linux
-#libCPLEXEXTLIB = -lpthread
-# macOS
-libCPLEXEXTLIB = -framework CoreFoundation -framework IOKit
+# external libraries that Cplex needs
+ifeq ($(UNAME_S),Linux)
+    libCPLEXEXTLIB = -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libCPLEXEXTLIB =
+endif
+ifeq ($(UNAME_S),Windows)
+    libCPLEXEXTLIB = -lpthreadVC3
+endif
 
-# basic CPLEX directory
-#libCPLEXBSCDIR = /opt/ibm/ILOG/CPLEX_Studio1210/cplex/
-#libCPLEXBSCDIR = /Users/frangio/Applications/CPLEX_Studio1210/cplex/
-libCPLEXBSCDIR = /Users/frangio/Applications/CPLEX_Studio221/cplex/
+# basic CPLEX directory without quotes, if any
+libCPLEXBSCDIR = $(subst $\",,$(CPLEX_ROOT))/cplex
 
 # lib Cplex directory
-#libCPLEXINCDIR = $(libCPLEXBSCDIR)lib/x86-64_linux/static_pic/
-libCPLEXINCDIR = $(libCPLEXBSCDIR)lib/x86-64_osx/static_pic/
+ifeq ($(UNAME_S),Linux)
+    libCPLEXINCDIR = $(libCPLEXBSCDIR)/lib/x86-64_linux/static_pic
+endif
+ifeq ($(UNAME_S),Darwin)
+    libCPLEXINCDIR = $(libCPLEXBSCDIR)/lib/x86-64_osx/static_pic
+endif
+ifeq ($(UNAME_S),Windows)
+    libCPLEXINCDIR = $(libCPLEXBSCDIR)/lib/x64_windows_msvc14/stat_mda
+endif
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libCPLEXLIB = -L$(libCPLEXINCDIR) -lilocplex -lcplex $(libCPLEXEXTLIB)
-libCPLEXINC = -I$(libCPLEXBSCDIR)include/
+ifeq ($(UNAME_S),Windows)
+    libCPLEXLIB = -L"$(libCPLEXINCDIR)" -lilocplex -lcplex \
+              -L"$(vcpkg_ROOT)/lib" $(libCPLEXEXTLIB)
+else
+    libCPLEXLIB = -L"$(libCPLEXINCDIR)" -lilocplex -lcplex $(libCPLEXEXTLIB)
+endif
+libCPLEXINC = -I"$(libCPLEXBSCDIR)/include" -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
 
-############################# End of makefile ################################
+######################### End of makefile-libCPLEX ###########################

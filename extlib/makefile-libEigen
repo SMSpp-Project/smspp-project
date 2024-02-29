@@ -1,17 +1,16 @@
 ##############################################################################
-############################ makefile-libEigen ###############################
+############################# makefile-libEigen ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libEigen                                                     #
 #                                                                            #
-#   Input:  $(SMS++SDR) = the directory where the core SMS++ source is       #
-#           According to the standard library layout, it is assumed that     #
-#           the external libreries live in $(SMS++SDR)../extlib              #
+#   Input:  $(Eigen3_ROOT), the directory where Eigen is installed           #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
 #           $(libEigenINC) = the -I$(include directories) for Eigen          #
-#           $(libEigenLIB) = external libreries + -L<libdirs> for Eigen      #
+#           $(libEigenLIB) = external libraries + -L< libdirs > for Eigen    #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
@@ -19,9 +18,14 @@
 #                                                                            #
 ##############################################################################
 
-# define the macroes to be exported - - - - - - - - - - - - - - - - - - - - -
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libEigenINC = -I/usr/local/include/eigen3/
+# basic Eigen directory without quotes, if any
+libEigenBSCDIR = $(subst $\",,$(Eigen3_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libEigenINC = -I"$(libEigenBSCDIR)/include/eigen3"
 libEigenLIB = 
 
 ############################# End of makefile ################################

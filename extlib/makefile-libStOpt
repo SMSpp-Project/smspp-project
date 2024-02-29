@@ -4,11 +4,12 @@
 #                                                                            #
 #   makefile of libStOpt                                                     #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
+#   Input:  $(StOpt_ROOT), the directory where StOpt is installed            #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libStOptLIB) = external libreries + -L<libdirs> for libStOpt   #
+#                                                                            #
+#           $(libStOptLIB) = external libraries + -L< libdirs > for libStOpt #
 #           $(libStOptINC) = the -I$(include directories) for libStOpt       #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -19,14 +20,27 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# basic StOpt directory - not needed if StOpt is installed, say in /usr/local
-libStOptBSCDIR = /Users/frangio/Applications/StOpt/install/
+# basic StOpt directory without quotes, if any
+libStOptBSCDIR = $(subst $\",,$(StOpt_ROOT))
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libStOptLIB = -L/Users/frangio/Applications/StOpt/install/lib/ \
-	    -lStOpt -lgeners -lboost_timer-mt
-libStOptINC = -I/Users/frangio/Applications/StOpt/install/include/
-# not needed if StOpt is installed, say in /usr/local
+ifeq ($(UNAME_S),Linux)
+    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners \
+	    -L"$(libStOptBSCDIR)/lib/x86_64-linux-gnu" -lboost_timer
+endif
+ifeq ($(UNAME_S),Darwin)
+    libStOptLIB = -L"$(libStOptBSCDIR)/install/lib" -lStOpt -lgeners \
+	    -lboost_timer-mt
+endif
+ifeq ($(UNAME_S),Windows)
+    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners -lboost_timer-vc140-mt
+endif
 
-############################# End of makefile ################################
+ifeq ($(UNAME_S),Windows)
+    libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners"
+else
+    libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners-1.11.0"
+endif
+
+######################## End of makefile-libStOpt ############################

@@ -1,14 +1,15 @@
 ##############################################################################
-############################# makefile-libSCIP ###############################
+############################## makefile-libSCIP ##############################
 ##############################################################################
 #                                                                            #
 #   makefile of libSCIP                                                      #
 #                                                                            #
-#   Input:  none, this is a pre-built library                                #
+#   Input:  SCIP_ROOT, the directory where SCIP is installed                 #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libSCIPLIB) = external libreries + -L<libdirs> for libSCIP     #
+#                                                                            #
+#           $(libSCIPLIB) = external libraries + -L< libdirs > for libSCIP   #
 #           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
 #                                                                            #
 #                              Antonio Frangioni                             #
@@ -19,12 +20,16 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# basic SCIP directory
-libSCIPBSCDIR = /Users/frangio/Applications/SCIP-8.0.0/
+# basic SCIP directory without quotes, if any
+libSCIPBSCDIR = $(subst $\",,$(SCIP_ROOT))
 
-# macroes to be exported- - - - - - - - - - - - - - - - - - - - - - - - - - -
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libSCIPLIB = -L$(libSCIPBSCDIR)lib/ -lzimpl -lsoplex -lscip -ltbb
-libSCIPINC = -I$(libSCIPBSCDIR)include/
+ifeq ($(UNAME_S),Windows)
+    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -llibscip -lzimpl -llibsoplex
+else
+    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
+endif
+libSCIPINC = -I"$(libSCIPBSCDIR)/include"
 
 ############################# End of makefile ################################

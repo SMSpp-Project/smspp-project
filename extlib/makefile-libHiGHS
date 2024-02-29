@@ -1,0 +1,74 @@
+##############################################################################
+############################# makefile-libHiGHS ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libHiGHS                                                     #
+#                                                                            #
+#   Input:  $(HiGHS_ROOT), the directory where HiGHS is installed            #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libHiGHSLIB) = external libraries + -L< libdirs > for libHiGHS #
+#           $(libHiGHSINC) = the -I$(include directories) for libHiGHS       #
+#                                                                            #
+#                             Antonio Frangioni                              #
+#                             Enrico Calandrini                              #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# external libraries that HiGHS needs
+ifeq ($(UNAME_S),Linux)
+    libHiGHSEXTLIB = -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libHiGHSEXTLIB =
+endif
+ifeq ($(UNAME_S),Windows)
+    libHiGHSEXTLIB = -lpthreadVC3
+endif
+
+# basic HiGHS directory without quotes, if any
+libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# we support two different build patterns for HiGHS
+# - either it has been installed, typically in /usr/local, and therefore
+#   includes are in $(HiGHS_ROOT)/include/highs (/usr/local/include/highs) and
+#   subdirs, and libraries are -L$(HiGHS_ROOT)/lib (/usr/local/lib);
+#   furthermore, HConfig.h has been moved with all the other .h
+# - or it has been built but not installed, and therefore includes are in
+#   $(HiGHS_ROOT)/src and subdirs, and libraries are -L$(HiGHS_ROOT)/build/lib;
+#   furthermore, HConfig.h is in $(HiGHS_ROOT)/build
+# to tell the two cases we look if $(HiGHS_ROOT)/highs.pc.in exists
+
+ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
+    ifeq ($(UNAME_S),Windows)
+        libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/RELEASE/bin
+    else
+        libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
+    endif
+    libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
+	    -I"$(libHiGHSBSCDIR)/build" -I"$(libHiGHSBSCDIR)/include/highs"
+else
+    libHiGHSLIBBSC = $(libHiGHSBSCDIR)/lib
+    libHiGHSINC = -I"$(libHiGHSBSCDIR)/include/highs" \
+        -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
+endif
+
+ifeq ($(UNAME_S),Linux)
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs $(libHiGHSEXTLIB)
+endif
+ifeq ($(UNAME_S),Darwin)
+    libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -lhighs
+endif
+ifeq ($(UNAME_S),Windows)
+    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs \
+              -L"$(vcpkg_ROOT)/lib" $(libHiGHSEXTLIB)
+endif
+
+######################## End of makefile-libHiGHS ############################

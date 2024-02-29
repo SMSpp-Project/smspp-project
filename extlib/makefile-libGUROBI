@@ -1,0 +1,60 @@
+##############################################################################
+############################# makefile-libGUROBI #############################
+##############################################################################
+#                                                                            #
+#   makefile of libGUROBI                                                    #
+#                                                                            #
+#   Input:  $(GUROBI_ROOT), the directory where Gurobi is installed          #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libGUROBILIB) = external libraries + -L< libdirs > for         #
+#                             libGUROBI                                      #
+#           $(libGUROBIINC) = the -I$(include directories) for libGUROBI     #
+#                                                                            #
+#                              Antonio Frangioni                             #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# external libraries that Gurobi needs
+ifeq ($(UNAME_S),Linux)
+    libGUROBIEXTLIB = -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libGUROBIEXTLIB =
+endif
+ifeq ($(UNAME_S),Windows)
+    libGUROBIEXTLIB = -lpthreadVC3
+endif
+
+# basic Gurobi directory
+ifeq ($(UNAME_S),Linux)
+    libGUROBIBSCDIR = $(GUROBI_ROOT)/linux64
+endif
+ifeq ($(UNAME_S),Darwin)
+    libGUROBIBSCDIR = $(GUROBI_ROOT)
+endif
+ifeq ($(UNAME_S),Windows)
+    ifeq ($(UNAME_P),x86_64)
+        libGUROBIBSCDIR = $(GUROBI_ROOT)/win32
+    else
+         libGUROBIBSCDIR = $(GUROBI_ROOT)/win64
+    endif
+endif
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ifeq ($(UNAME_S),Windows)
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 \
+               -L"$(vcpkg_ROOT)/lib" $(libGUROBIEXTLIB)
+else
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
+endif
+libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
+
+############################# End of makefile ################################
