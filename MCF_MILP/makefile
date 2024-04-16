@@ -21,7 +21,7 @@ DIR = .
 # debug switches with address sanitizer and extra pedantic warning
 #SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
+SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
 
 # compiler
 CC = clang++
@@ -49,21 +49,26 @@ clean::
 #SMS++SDR = ../..SMS++
 #include $(SMS++SDR)/lib/makefile-inc
 
+# not necessary, LEMONSolver does that already
 # MCFBlock
-MCFBkSDR = ../../MCFBlock
-include $(MCFBkSDR)/makefile-c
+#MCFBkSDR = ../../MCFBlock
+#include $(MCFBkSDR)/makefile-c
+
+# LEMONSolver
+MCFLESDR = ../../LEMONSolver
+include $(MCFLESDR)/makefile-c
 
 # MILPSolver
 MILPSSDR = ../../MILPSolver
-include $(MILPSSDR)/makefile-c
+include $(MILPSSDR)/makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
+MOBJ =  $(MCFBkOBJ) $(MCFLEOBJ) $(MILPSOBJ)
 
 # libraries
-MLIB =  $(MCFBkLIB) $(MILPSLIB)
+MLIB =  $(MCFBkLIB) $(MCFLELIB) $(MILPSLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
 	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW)
@@ -71,10 +76,10 @@ $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(MCFBkINC) $(MILPSINC)
+MINC =  $(MCFBkINC) $(MCFLEINC) $(MILPSINC)
 
 # includes
-MH =    $(MCFBkH) $(MILPSH)
+MH =    $(MCFBkH) $(MCFLEH) $(MILPSH)
 
 # compile command
 
