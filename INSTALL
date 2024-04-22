@@ -1,0 +1,93 @@
+#!/bin/bash
+
+set -e  # Exit immediately if a command exits with a non-zero status.
+
+echo "Starting the installation process..."
+
+# Update packages and install basic requirements
+echo "Updating system and installing basic requirements..."
+sudo apt-get update
+sudo apt-get install -y build-essential cmake git
+
+# Install Boost libraries
+echo "Installing Boost libraries..."
+sudo apt-get install -y libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+
+# Install NetCDF-C++
+echo "Installing NetCDF-C++..."
+sudo apt-get install -y libnetcdf-c++4-dev
+
+# Install Eigen
+echo "Installing Eigen..."
+sudo apt-get install -y libeigen3-dev
+
+# Set Gurobi environment variable
+export GUROBI_HOME="/opt/gurobi/linux64"
+export PATH="${PATH}:${GUROBI_HOME}/bin"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+echo "GUROBI_HOME: $GUROBI_HOME"
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+
+# Download and install Gurobi
+echo "Downloading and installing Gurobi..."
+wget https://packages.gurobi.com/10.0/gurobi10.0.2_linux64.tar.gz
+tar -xvf gurobi10.0.2_linux64.tar.gz
+sudo mv gurobi1002 /opt/gurobi
+sudo sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+sudo ldconfig
+
+# Install SCIP
+echo "Installing SCIP..."
+sudo apt-get install -y gfortran libtbb-dev
+curl -O https://www.scipopt.org/download/release/SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
+chmod u+x SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
+./SCIPOptSuite-9.0.0-Linux-ubuntu22.sh --prefix=/opt/scip --exclude-subdir --skip-license
+sudo sh -c "echo '/opt/scip/lib' > /etc/ld.so.conf.d/scip.conf"
+sudo ldconfig
+
+# Install HiGHS
+echo "Installing HiGHS..."
+git clone https://github.com/ERGO-Code/HiGHS.git
+cd HiGHS
+mkdir build
+cd build
+cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+cmake --build .
+sudo cmake --install .
+sudo sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
+sudo ldconfig
+cd ../..
+
+# Install COIN-OR CoinUtils and other components
+echo "Installing COIN-OR utilities..."
+sudo apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+chmod u+x coinbrew
+sudo ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
+sudo ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+sudo ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
+
+# Install StOpt
+echo "Installing StOpt..."
+sudo apt-get install -y zlib1g-dev
+git clone https://gitlab.com/stochastic-control/StOpt
+cd StOpt
+mkdir build
+cd build
+cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
+cmake --build .
+sudo cmake --install . --prefix /opt/stopt
+cd ../..
+
+# Clone and compile SMSpp
+echo "Cloning and compiling SMSpp..."
+git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git
+cd smspp-project
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+sudo cmake --install .
+cd ../..
+
+echo "Installation completed successfully."
