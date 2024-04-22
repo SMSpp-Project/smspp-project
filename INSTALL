@@ -81,17 +81,6 @@ install_on_ubuntu() {
   sudo cmake --install . --prefix=/opt/stopt
   cd ../..
 
-  # Clone and compile SMSpp
-  echo "Cloning and compiling SMSpp..."
-  git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git
-  cd smspp-project
-  mkdir build
-  cd build
-  cmake ..
-  cmake --build . --config Release
-  sudo cmake --install .
-  cd ../..
-
   echo "Installation completed successfully on Ubuntu."
 }
 
@@ -175,17 +164,6 @@ install_on_macos() {
   cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
   cmake --build .
   sudo cmake --install . --prefix=/Library/stopt
-  cd ../..
-
-  # Clone and compile SMSpp
-  echo "Cloning and compiling SMSpp..."
-  git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git
-  cd smspp-project
-  mkdir build
-  cd build
-  cmake ..
-  cmake --build . --config Release
-  sudo cmake --install .
   cd ../..
 
   echo "Installation completed successfully on macOS."
