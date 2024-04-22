@@ -1,93 +1,216 @@
 #!/bin/bash
 
-set -e  # Exit immediately if a command exits with a non-zero status.
+# Function to install software on Ubuntu
+install_on_ubuntu() {
+  set -e # Exit immediately if a command exits with a non-zero status.
 
-echo "Starting the installation process..."
+  echo "Starting the installation process on Ubuntu..."
 
-# Update packages and install basic requirements
-echo "Updating system and installing basic requirements..."
-sudo apt-get update
-sudo apt-get install -y build-essential cmake git
+  # Update packages and install basic requirements
+  echo "Updating system and installing basic requirements..."
+  sudo apt-get update
+  sudo apt-get install -y build-essential cmake git
 
-# Install Boost libraries
-echo "Installing Boost libraries..."
-sudo apt-get install -y libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+  # Install Boost libraries
+  echo "Installing Boost libraries..."
+  sudo apt-get install -y libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
 
-# Install NetCDF-C++
-echo "Installing NetCDF-C++..."
-sudo apt-get install -y libnetcdf-c++4-dev
+  # Install NetCDF-C++
+  echo "Installing NetCDF-C++..."
+  sudo apt-get install -y libnetcdf-c++4-dev
 
-# Install Eigen
-echo "Installing Eigen..."
-sudo apt-get install -y libeigen3-dev
+  # Install Eigen
+  echo "Installing Eigen..."
+  sudo apt-get install -y libeigen3-dev
 
-# Set Gurobi environment variable
-export GUROBI_HOME="/opt/gurobi/linux64"
-export PATH="${PATH}:${GUROBI_HOME}/bin"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-echo "GUROBI_HOME: $GUROBI_HOME"
-echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+  # Set Gurobi environment variable
+  export GUROBI_HOME="/opt/gurobi/linux64"
+  export PATH="${PATH}:${GUROBI_HOME}/bin"
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+  echo "GUROBI_HOME: $GUROBI_HOME"
+  echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 
-# Download and install Gurobi
-echo "Downloading and installing Gurobi..."
-wget https://packages.gurobi.com/10.0/gurobi10.0.2_linux64.tar.gz
-tar -xvf gurobi10.0.2_linux64.tar.gz
-sudo mv gurobi1002 /opt/gurobi
-sudo sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-sudo ldconfig
+  # Download and install Gurobi
+  echo "Downloading and installing Gurobi..."
+  wget https://packages.gurobi.com/10.0/gurobi10.0.2_linux64.tar.gz
+  tar -xvf gurobi10.0.2_linux64.tar.gz
+  sudo mv gurobi1002 /opt/gurobi
+  sudo sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+  sudo ldconfig
 
-# Install SCIP
-echo "Installing SCIP..."
-sudo apt-get install -y gfortran libtbb-dev
-curl -O https://www.scipopt.org/download/release/SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
-chmod u+x SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
-./SCIPOptSuite-9.0.0-Linux-ubuntu22.sh --prefix=/opt/scip --exclude-subdir --skip-license
-sudo sh -c "echo '/opt/scip/lib' > /etc/ld.so.conf.d/scip.conf"
-sudo ldconfig
+  # Install SCIP
+  echo "Installing SCIP..."
+  sudo apt-get install -y gfortran libtbb-dev
+  curl -O https://www.scipopt.org/download/release/SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
+  chmod u+x SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
+  ./SCIPOptSuite-9.0.0-Linux-ubuntu22.sh --prefix=/opt/scip --exclude-subdir --skip-license
+  sudo sh -c "echo '/opt/scip/lib' > /etc/ld.so.conf.d/scip.conf"
+  sudo ldconfig
 
-# Install HiGHS
-echo "Installing HiGHS..."
-git clone https://github.com/ERGO-Code/HiGHS.git
-cd HiGHS
-mkdir build
-cd build
-cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
-cmake --build .
-sudo cmake --install .
-sudo sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
-sudo ldconfig
-cd ../..
+  # Install HiGHS
+  echo "Installing HiGHS..."
+  git clone https://github.com/ERGO-Code/HiGHS.git
+  cd HiGHS
+  mkdir build
+  cd build
+  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+  cmake --build .
+  sudo cmake --install .
+  sudo sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
+  sudo ldconfig
+  cd ../..
 
-# Install COIN-OR CoinUtils and other components
-echo "Installing COIN-OR utilities..."
-sudo apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
-curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-chmod u+x coinbrew
-sudo ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-sudo ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
-sudo ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
+  # Install COIN-OR CoinUtils and other components
+  echo "Installing COIN-OR utilities..."
+  sudo apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+  curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  chmod u+x coinbrew
+  sudo ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
+  sudo ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  sudo ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
 
-# Install StOpt
-echo "Installing StOpt..."
-sudo apt-get install -y zlib1g-dev
-git clone https://gitlab.com/stochastic-control/StOpt
-cd StOpt
-mkdir build
-cd build
-cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
-cmake --build .
-sudo cmake --install . --prefix /opt/stopt
-cd ../..
+  # Install StOpt
+  echo "Installing StOpt..."
+  sudo apt-get install -y zlib1g-dev
+  git clone https://gitlab.com/stochastic-control/StOpt
+  cd StOpt
+  mkdir build
+  cd build
+  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
+  cmake --build .
+  sudo cmake --install . --prefix=/opt/stopt
+  cd ../..
 
-# Clone and compile SMSpp
-echo "Cloning and compiling SMSpp..."
-git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git
-cd smspp-project
-mkdir build
-cd build
-cmake ..
-cmake --build . --config Release
-sudo cmake --install .
-cd ../..
+  # Clone and compile SMSpp
+  echo "Cloning and compiling SMSpp..."
+  git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git
+  cd smspp-project
+  mkdir build
+  cd build
+  cmake ..
+  cmake --build . --config Release
+  sudo cmake --install .
+  cd ../..
 
-echo "Installation completed successfully."
+  echo "Installation completed successfully on Ubuntu."
+}
+
+# Function to install software on macOS
+install_on_macos() {
+  set -e # Exit immediately if a command exits with a non-zero status.
+
+  echo "Starting the installation process on macOS..."
+
+  # Install Xcode Command Line Tools
+  echo "Installing Xcode Command Line Tools..."
+  xcode-select --install
+
+  # Install Homebrew
+  echo "Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  # Install CMake
+  echo "Installing CMake..."
+  brew install cmake
+
+  # Install Boost libraries
+  echo "Installing Boost libraries..."
+  brew install boost
+
+  # Install NetCDF
+  echo "Installing NetCDF..."
+  brew install netcdf
+
+  # Install Eigen
+  echo "Installing Eigen..."
+  brew install eigen
+
+  # Set Gurobi environment variables
+  export GUROBI_HOME="/Library/gurobi1002"
+  export PATH="${PATH}:${GUROBI_HOME}/bin"
+  echo "GUROBI_HOME: $GUROBI_HOME"
+  echo "PATH: $PATH"
+
+  # Download and install Gurobi
+  echo "Downloading and installing Gurobi..."
+  curl -O https://packages.gurobi.com/10.0/gurobi10.0.2_mac64.tar.gz
+  tar -xvf gurobi10.0.2_mac64.tar.gz
+  sudo mv gurobi1002 /Library/gurobi1002
+
+  # Install SCIP
+  echo "Installing SCIP..."
+  brew install gcc tbb
+  curl -O https://www.scipopt.org/download/release/SCIPOptSuite-9.0.0-Darwin.sh
+  chmod u+x SCIPOptSuite-9.0.0-Darwin.sh
+  ./SCIPOptSuite-9.0.0-Darwin.sh --prefix=/Library/scip --exclude-subdir --skip-license
+
+  # Install HiGHS
+  echo "Installing HiGHS..."
+  git clone https://github.com/ERGO-Code/HiGHS.git
+  cd HiGHS
+  mkdir build
+  cd build
+  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/Library/HiGHS ..
+  cmake --build .
+  sudo cmake --install .
+  cd ../..
+
+  # Install COIN-OR CoinUtils and other components
+  echo "Installing COIN-OR utilities..."
+  brew install coinutils bz2 lapack openblas
+  curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  chmod u+x coinbrew
+  ./coinbrew fetch CoinUtils --no-prompt
+  ./coinbrew build CoinUtils --prefix=/Library/coin-or --no-prompt --tests=none
+  ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  ./coinbrew build Clp --prefix=/Library/coin-or --no-prompt --tests=none
+
+  # Install StOpt
+  echo "Installing StOpt..."
+  brew install zlib
+  git clone https://gitlab.com/stochastic-control/StOpt
+  cd StOpt
+  mkdir build
+  cd build
+  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
+  cmake --build .
+  sudo cmake --install . --prefix=/Library/stopt
+  cd ../..
+
+  # Clone and compile SMSpp
+  echo "Cloning and compiling SMSpp..."
+  git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git
+  cd smspp-project
+  mkdir build
+  cd build
+  cmake ..
+  cmake --build . --config Release
+  sudo cmake --install .
+  cd ../..
+
+  echo "Installation completed successfully on macOS."
+}
+
+# Detect operating system and execute the appropriate installation function
+OS="$(uname)"
+case "$OS" in
+"Linux")
+  # Check if it's Ubuntu
+  if [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    if [ "$DISTRIB_ID" = "Ubuntu" ]; then
+      install_on_ubuntu
+    else
+      echo "This script supports Ubuntu only."
+    fi
+  else
+    echo "This script supports Ubuntu only."
+  fi
+  ;;
+"Darwin")
+  install_on_macos
+  ;;
+*)
+  echo "This script does not support the detected operating system."
+  ;;
+esac
