@@ -122,9 +122,8 @@ install_on_macos() {
 
   # Download and install Gurobi
   echo "Downloading and installing Gurobi..."
-  curl -O https://packages.gurobi.com/10.0/gurobi10.0.3_TODO.tar.gz
-  tar -xvf gurobi10.0.3_TODO.tar.gz
-  sudo mv gurobi1003 /Library
+  curl -O https://packages.gurobi.com/10.0/gurobi10.0.3_macos_universal2.pkg
+  sudo installer -pkg gurobi10.0.3_macos_universal2.pkg -target /
 
   # Install SCIP
   echo "Installing SCIP..."
