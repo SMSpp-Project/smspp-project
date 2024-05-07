@@ -30,7 +30,6 @@ DIR = .
  SW = -O3 -std=c++17 -ferror-limit=1 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
 
 # compiler
-#CC = g++
 CC = clang++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,12 +55,8 @@ SMS++SDR = ../../SMS++/
 include $(SMS++SDR)lib/makefile-c
 
 # MILPSolver
-MILPSSDR = ../../../MILPSolver
-include $(MILPSSDR)/makefile
-
-# SubGradSolver
-#SBGSLVSDR = ../../SubGradSolver
-#include $(SBGSLVSDR)/makefile
+MILPSSDR = ../../MILPSolver
+include $(MILPSSDR)/makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 

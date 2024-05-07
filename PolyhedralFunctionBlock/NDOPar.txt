@@ -21,7 +21,7 @@ BundleSolver # name of 1st Solver
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ComputeConfig # exact type of the ComputeConfig object
 
@@ -60,10 +60,10 @@ intRstAlg   2     # parameter to handle the reset of the algorithm
 
 # MPSolver parameters :- - - - - - - -
 
-intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+intMPName  15     # MP solver: 0 = QPP, 7 = OSI with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
-intMPlvl   4      # log verbosity of Master Problem
+intMPlvl   0      # log verbosity of Master Problem
 
 # QPPenalty's parameters : - - - - - -
                   
@@ -92,7 +92,7 @@ dblmxIncr  10     # max increase of t
 dblmnIncr  1.5    # min increase of t (each time it is increased)
 dblmxDecr  0.1    # max decrease of t
 dblmnDecr  0.66   # min decrease of t (each time it is decreased)
-dbltMaior  1e+4   # maximum value for t
+dbltMaior  1e+6   # maximum value for t
 dbltMinor  1e-8   # minimum value for t
 dbltInit   1      # initial value for t
 dbltSPar2  0.001  # parameter for the long-term t-strategy

@@ -12,7 +12,7 @@
 BoxSolver/BoxSolver_test
 BinaryKnapsackBlock/BinaryKnapsackBlock_test
 CapacitatedFacilityLocation/CFL_test
-compare_formulations/test
+compare_formulations/compare_formulations
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_Box/LDS_Box_test
 LagrangianDualSolver_UC/LDS_UC_test
@@ -24,6 +24,7 @@ MMCFBlock/Mnetgen/mnetgen
 PolyhedralFunction/PolyhedralFunction_test
 PolyhedralFunctionBlock/PolyhedralFunctionBlock_test
 ThermalUnitBlock_Solver/TUDPS_test
+Write-Read/writeandread_test
 
 # large data test files
 MMCFBlock/data/*

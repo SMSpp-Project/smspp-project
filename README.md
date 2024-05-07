@@ -36,6 +36,11 @@ The following tests are provided:
   reformulation as a bunch of `BinaryKnapsackBlock`, so that a
   `LagrangianDualSolver` can be used to compute a stronger bound.
 
+- [`compare_formulations`](compare_formulations),  very simple tester for
+  testing different formulations of some problem obtained by
+  `BlockConfig`-uring in two different ways two copies of the same `:Block`
+  and solving them with two copies of the same `:Solver`.
+
 - [`LagBFunction`](LagBFunction), a tester which provides very
   comprehensive tests for `LagBFunction`, `PolyhedralFunctionBlock`,
   `PolyhedralFunction`, any `CDASolver` able to handle `C05Function` in the
@@ -68,6 +73,10 @@ The following tests are provided:
   Unit-Commitment problems, as well as for quite a lot of the mechanics
   of the SMS++ core library.
 
+- [`LukFiBlock`](LukFiBlock): a very simple main for running tests with
+  [LukFiBlock](https://gitlab.com/smspp/lukfiblock). It just creates one
+  and loads it from a stream; little more than a compilation check.
+
 - [`MCF_MILP`](MCF_MILP): solve a `MCFBlock` with both a `MILPSolver` and a
   `MCFSolver` and compare the results. This is a test for `MCFBlock`,
   `MCFSolver`, `MILPSolver` and its derived classes (`CPXMILPSolver` and
@@ -98,8 +107,24 @@ The following tests are provided:
   `SCIPMILPSolver`), as well as for some of the mechanics of the SMS++
   core library.
 
-The tests run as traditional command line executables.
-Most of the tests can also run as a 
+- [`ThermalUnitBlock_Solver`](ThermalUnitBlock_Solver), a tester for the
+  `ThermalUnitDPSolver` specialised Dynamic Programming `:Solver` for
+  `ThermalUnitBlock` as compared with a `:MILPSolver` on some of the (many)
+  different formulations supported by `ThermalUnitBlock`.
+
+- [`Write-Read`](Write-Read), a tester for the function
+  `AbstractBlock::read_mps` and some tests for any  `CDASolver` able 
+  to handle Linear Programs (such as `MILPSolver` and its derived classes
+  `CPXMILPSolver` , `SCIPMILPSolver` , `GRBMILPSolver` and
+  `HiGHSMILPSolver`), as well as for some of the mechanics of the "core" 
+  SMS++ library. A random MILP is constructed in an `AbstractBlock` and
+  saved to a `.mps` file. A new `AbstractBlock` is created and read back
+  to the file, two `:Solver` are attached to the two `AbstractBlock` and�
+  the results are compared. The first `AbstractBlock` is randomly chamged
+  many times and the process is repeated.
+
+The tests run as traditional command line executables. Most of the tests
+can also run as a
 [CTest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) suites.
 
 
@@ -107,7 +132,6 @@ Most of the tests can also run as a
 
 These instructions will let you build and run the SMS++ System Tests
 on your system.
-
 
 ### Requirements
 
@@ -127,47 +151,43 @@ make
 ### Build and install with makefiles
 
 Carefully hand-crafted makefiles have also been developed for those unwilling
-to use CMake. General instructions are:
+to use CMake. Makefiles build the executable in-source (in the same directory
+tree where the code is) as opposed to out-of-source (in the copy of the
+directory tree constructed in the build/ folder) and therefore it is more
+convenient when having to recompile often, such as when developing/debugging
+a new module, as opposed to the compile-and-forget usage envisioned by CMake.
 
-- The arrangements of folders must be that envisioned by the
-  [Umbrella SMS++ Project](https://gitlab.com/smspp/smspp-project)
+Each of the executables in the individual folders has its own makefile which
+includes the "main makefile" of the concerned modules, typically either
+`makefile-c` including all necessary libraries comprised the "core SMS++" one,
+or `makefile-s` including all necessary libraries but not the "core SMS++"
+one (for the common case in which this is used together with other modules
+that already include them). The makefiles in turn recursively include all the
+required other makefiles, hence one should only need to edit the makefile
+of each executable for compilation type (C++ compiler and its options) and it
+all should be good to go. In case some of the external libraries are not at
+their default location, it should only be necessary to create the
+`../extlib/makefile-paths` out of the `extlib/makefile-default-paths-*` for
+your OS `*` and edit the relevant bits (commenting out all the rest).
 
-- The main step is to edit the makefiles into ../extlib/. There is one for
-  each of the external libraries that any module requires, starting with
-  Boost, Eigen and netCDF-C++. Setting the
+Check the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration#location-of-required-libraries)
+for further details.
 
-```make
-lib*INC = -I< paths to include files directories >
-lib*LIB = -L< paths to lib files directories > -l< libs >
-```
-
-  in each allows one to set any non-standard path if the library is not
-  installed in the system (or leave them empty if they are).
-
-- For each test that has a makefile, you can chdir the corresponding directory
-  and run make. However, note that the "basic" makefile macros
-
-```make
-CC =
-SW =
-```
-
-  for setting the c++ compiler and its options are defined in the makefile and
-  "automatically forwarded" to these of the other SMS++ components, so that
-  (possibly at the cost of a make clean) consistency is ensured during the
-  building process; thus, editing the makefile and changig these may also be
-  required.
 
 ## Usage
 
-Each tester has an executable built in the corresponding directory; run
-it for instructions. In several cases a (bash) batch is available to run
+Each tester has an executable built in the corresponding directory (or in the
+corresponding directory in the copy of the directory tree in the build/ folder
+if you use CMake); look at the `README.md` in the folder and/or run it for
+instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
+
 
 ## Getting help
 
 If you need support, you want to submit bugs or propose a new feature, you can
 [open a new issue](https://gitlab.com/smspp/tests/-/issues/new).
+
 
 ## Contributing
 
@@ -177,11 +197,23 @@ conduct, and the process for submitting merge requests to us.
 
 ## Authors
 
-- **Federica Di Pasquale**  
+### Current Lead Authors
+
+- **Enrico Calandrini**  
+  Dipartimento di Informatica  
+  Universita' di Pisa
+
+- **Antonio Frangioni**  
   Dipartimento di Informatica  
   Università di Pisa
 
-- **Antonio Frangioni**  
+- **Rafael Durbano Lobato**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+### Contributors
+
+- **Federica Di Pasquale**  
   Dipartimento di Informatica  
   Università di Pisa
 
@@ -197,15 +229,13 @@ conduct, and the process for submitting merge requests to us.
   Dipartimento di Informatica  
   Università di Pisa
 
-- **Rafael Durbano Lobato**  
-  Dipartimento di Informatica  
-  Università di Pisa
 
 ## License
 
 This code is provided free of charge under the [GNU Lesser General Public
 License version 3.0](https://opensource.org/licenses/lgpl-3.0.html) -
 see the [LICENSE](LICENSE) file for details.
+
 
 ## Disclaimer
 

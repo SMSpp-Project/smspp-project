@@ -11,7 +11,7 @@
 ##############################################################################
 
 # module name
-NAME = test
+NAME = compare_formulations
 
 # basic directory
 DIR = .
@@ -69,7 +69,7 @@ MOBJ =  $(MILPSOBJ) $(UCBckOBJ) $(SMS++OBJ)
 # libraries
 MLIB =  $(SMS++LIB) $(MILPSLIB) $(UCBckLIB)
 
-$(DIR)/$(NAME): $(MOBJ) $(DIR)/$(NAME).o
+$(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
@@ -82,7 +82,7 @@ MH =    $(SMS++H) $(MILPSH) $(UCBckH)
 
 # compile command
 
-$(DIR)/$(NAME).o: $(DIR)/$(NAME).cpp $(MH)
-	$(CC) -c $(DIR)/$(NAME).cpp -o $@ $(MINC) $(SW)
+$(DIR)/test.o: $(DIR)/test.cpp $(MH)
+	$(CC) -c $(DIR)/test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################

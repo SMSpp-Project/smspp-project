@@ -28,7 +28,7 @@ GRBMILPSolver 			# name of 2nd Solver
 2  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ComputeConfig # exact type of the ComputeConfig object
 
@@ -53,9 +53,9 @@ dblReopt	0.3
 # pointer to the "extra" Configuration
 * # [none]
 
-# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - 
+# end of 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# 2nd ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 2nd ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ComputeConfig # exact type of the ComputeConfig object
 
@@ -92,7 +92,7 @@ IntFeasTol  1e-07	# Gurobi parameter (uncomment based on 2nd solver)
 # pointer to the "extra" Configuration
 * # [none]
 
-# end of 2st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - 
+# end of 2nd ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 

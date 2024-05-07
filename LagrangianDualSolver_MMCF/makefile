@@ -2,7 +2,7 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for LagrangianDualSolver with MMCFBlock)               #
+#   makefile of test (for LagrangianDualSolver_MMCF)                         #
 #                                                                            #
 #                              Antonio Frangioni                             #
 #                          Dipartimento di Informatica                       #

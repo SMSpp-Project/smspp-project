@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSPar2-GRB.txt- - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BSPar2-GRB.txt- - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a
 # CapacitatedFacilityLocationBlock to be solved by a GRBMILPSolver
@@ -20,7 +20,7 @@ GRBMILPSolver           # name of 1st Solver
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ComputeConfig of the *MILPSolver
 
 ComputeConfig # exact type of the ComputeConfig object
@@ -75,5 +75,5 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSPar2-GRB.txt- - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BSPar2-GRB.txt- - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

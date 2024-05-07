@@ -1,9 +1,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - TUBSCfg.txt - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - TUBSCfg-CLP.txt - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockSolverConfig for a ThermalUnitBlock that is being
-# solved by a ThermalUnitDPSolver. As such, it contains no parameters since
-# ThermalUnitDPSolver currently has none
+# A txt description of a BlockSolverConfig for a ThermalUnitBlock whose
+# continuous relaxation is being solved (to optimality) by a :MILPSolver.
 #
 #   Antonio Frangioni
 #
@@ -17,11 +16,10 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver
-ThermalUnitDPSolver
-#CPXMILPSolver
-#SCIPMILPSolver
+CPXMILPSolver
+#GRBMILPSolver
 
-0  # number of ComputeConfig in this BlockSolverConfig
+1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
 ComputeConfig # exact type of the ComputeConfig object
@@ -29,22 +27,29 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-0 # number of integer parameters
+3 # number of integer parameters
 
 # now all the integer parameters
-#intLogVerb         1    # log verbosity of the MILPSolver
-#intRelaxIntVars    0    # nonzero if the continuous relaxation is solved
-#CPXPARAM_QPMethod	1    # QP algorithm (primal simplex)
+intLogVerb          0    # log verbosity of the MILPSolver
+intRelaxIntVars     1    # nonzero = the continuous relaxation is solved
+intCutSepPar        7    # separate user cuts at the root node & sub-nodes
+                         # and lazy constraints (everywhere); this has no
+                         # effect if P/C are not activated in the TUBCfg
 
-0 # number of double parameters
+1 # number of double parameters
 
 # now all the double parameters
-# [none]
+dblRelAcc  1e-8          # relative accuracy required to solution = mipmap
+                         # must be tighter than the accuracy required to
+                         # the Lagrangian Dual, but not too much so
 
 0 # number of string parameters
 
 # now all the string parameters
+#strOutputFile	thermal.lp
 # [none]
+
+# note that we could eof() the file here since the rest is all empty
 
 0 # number of vector-of-int parameters
 
@@ -65,5 +70,5 @@ ComputeConfig # exact type of the ComputeConfig object
 * # [none]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - END TUBSCfg.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - TUBSCfg-CLP.txt - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

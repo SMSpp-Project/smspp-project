@@ -34,6 +34,6 @@ MMGINC = -I$(MMGDIR) $(OPTUxINC)
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 $(MMGOBJ): $(MMGDIR)/Graph.C $(MMGH) 
-	$(CC) -c $*.C -o $@ $(SW)  
+	$(CC) -c $*.C -o $@ $(SW)
 
 ############################ End of makefile #################################

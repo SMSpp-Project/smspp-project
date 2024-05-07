@@ -23,7 +23,7 @@ MCFSolver<MCFCplex>
 1  # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
-# 1st ComputeConfig- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ComputeConfig of the MCFSolver<>
 
 ComputeConfig # exact type of the ComputeConfig object
