@@ -17,11 +17,11 @@ NAME = MCF_MILP_test
 DIR = .
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
 # debug switches with address sanitizer and extra pedantic warning
 #SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
 # production switches
-SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
+#SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
 
 # compiler
 CC = clang++
@@ -65,21 +65,21 @@ include $(MILPSSDR)/makefile-s
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(MCFBkOBJ) $(MCFLEOBJ) $(MILPSOBJ)
+MOBJ =  $(MCFLEOBJ) $(MILPSOBJ)
 
 # libraries
-MLIB =  $(MCFBkLIB) $(MCFLELIB) $(MILPSLIB)
+MLIB =  $(MCFLELIB) $(MILPSLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
-	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW)
+	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW) \
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(MCFBkINC) $(MCFLEINC) $(MILPSINC)
+MINC =  $(MCFLEINC) $(MILPSINC)
 
 # includes
-MH =    $(MCFBkH) $(MCFLEH) $(MILPSH)
+MH =    $(MCFLEH) $(MILPSH)
 
 # compile command
 
