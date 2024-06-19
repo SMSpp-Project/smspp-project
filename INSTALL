@@ -345,7 +345,7 @@ function install_on_windows() {
   # Install StOpt using custom vcpkg registry
   echo "Installing StOpt..."
   ./vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
-  #rm -R C:\vcpkg-registry
+  rm -R C:\vcpkg-registry
 
   echo "Installation completed successfully on Windows."
 }
@@ -358,7 +358,9 @@ case "$OS" in
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
       install_on_ubuntu
-      CMAKE_PREFIX="/opt/SMSpp"
+      mkdir -p build
+      cd build
+      cmake -DCMAKE_INSTALL_PREFIX=/opt/SMSpp ..
     else
       echo "This script supports Ubuntu only."
     fi
@@ -368,11 +370,15 @@ case "$OS" in
   ;;
 "Darwin")
   install_on_macos
-  CMAKE_PREFIX="/Library/SMSpp"
+  mkdir -p build
+  cd build
+  cmake -DCMAKE_INSTALL_PREFIX=/Library/SMSpp ..
   ;;
 "Windows")
   install_on_windows
-  CMAKE_PREFIX="C:/SMSpp"
+  mkdir -p build
+  cd build
+  cmake -DCMAKE_INSTALL_PREFIX=C:/SMSpp -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -Wno-dev ..
   ;;
 *)
   echo "This script does not support the detected operating system."
@@ -381,9 +387,6 @@ esac
 
 # Compile SMSpp
 echo "Compiling SMSpp..."
-mkdir -p build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" ..
 cmake --build . --config Release
 cmake --install .
 cd ..
