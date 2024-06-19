@@ -4,155 +4,189 @@
 install_on_ubuntu() {
   set -e # Exit immediately if a command exits with a non-zero status
 
-  # Save the current directory
-  local current_dir
-  current_dir=$(pwd)
-
   echo "Starting the installation process on Ubuntu..."
 
   # Update packages and install basic requirements
   echo "Updating system and installing basic requirements..."
-  sudo apt-get update
-  sudo apt-get install -y build-essential cmake git
+  apt-get update
+  apt-get install -y build-essential clang cmake git curl
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
-  sudo apt-get install -y libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+  apt-get install -y libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
 
-  # Install NetCDF-C++
-  echo "Installing NetCDF-C++..."
-  sudo apt-get install -y libnetcdf-c++4-dev
+  # Install OpenMP
+  apt-get install -y libomp-dev
 
   # Install Eigen
   echo "Installing Eigen..."
-  sudo apt-get install -y libeigen3-dev
+  apt-get install -y libeigen3-dev
 
-  # Prepare to install Gurobi
-  echo "Downloading and installing Gurobi..."
+  # Install NetCDF-C++
+  echo "Installing NetCDF-C++..."
+  apt-get install -y libnetcdf-c++4-dev
+
+  # Install CPLEX
+  echo "Installing CPLEX..."
   cd /opt
-  sudo wget https://packages.gurobi.com/10.0/gurobi10.0.3_linux64.tar.gz
-  sudo tar -xvf gurobi10.0.3_linux64.tar.gz
-  sudo rm gurobi10.0.3_linux64.tar.gz
+  CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
+  curl -O https://TODO/$CPLEX_INSTALLER
+  chmod u+x $CPLEX_INSTALLER
+  ./$CPLEX_INSTALLER
+  rm $CPLEX_INSTALLER
+  mv ./ibm/ILOG/CPLEX_Studio2211 /opt/ibm/ILOG/CPLEX_Studio
+  export CPLEX_HOME="/opt/ibm/ILOG/CPLEX_Studio/cplex"
+  export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+  sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+  ldconfig
+
+  # Install Gurobi
+  echo "Installing Gurobi..."
+  cd /opt
+  GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
+  curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+  tar -xvf $GUROBI_INSTALLER
+  rm $GUROBI_INSTALLER
+  mv ./gurobi1003 /opt/gurobi
   export GUROBI_HOME="/opt/gurobi/linux64"
   export PATH="${PATH}:${GUROBI_HOME}/bin"
   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-  sudo sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-  sudo ldconfig
+  sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+  ldconfig
 
   # Install SCIP
   echo "Installing SCIP..."
-  sudo apt-get install -y gfortran libtbb-dev
+  apt-get install -y gfortran libtbb-dev
   cd /opt
-  sudo curl -O https://www.scipopt.org/download/release/SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
-  sudo chmod u+x SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
-  sudo ./SCIPOptSuite-9.0.0-Linux-ubuntu22.sh --prefix=/opt/scip --exclude-subdir --skip-license
-  sudo rm SCIPOptSuite-9.0.0-Linux-ubuntu22.sh
-  sudo sh -c "echo '/opt/scip/lib' > /etc/ld.so.conf.d/scip.conf"
-  sudo ldconfig
+  SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
+  curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
+  chmod u+x $SCIP_INSTALLER
+  ./$SCIP_INSTALLER --prefix=/opt/scip --exclude-subdir --skip-license
+  rm $SCIP_INSTALLER
+  sh -c "echo '/opt/scip/lib' > /etc/ld.so.conf.d/scip.conf"
+  ldconfig
 
   # Install HiGHS
   echo "Installing HiGHS..."
-  sudo git clone https://github.com/ERGO-Code/HiGHS.git /opt/HiGHS
-  cd /opt/HiGHS
-  sudo mkdir build
+  cd /opt
+  git clone https://github.com/ERGO-Code/HiGHS.git
+  cd HiGHS
+  mkdir build
   cd build
-  sudo cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
-  sudo cmake --build .
-  sudo cmake --install .
-  sudo sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
-  sudo ldconfig
+  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+  cmake --build .
+  cmake --install .
+  sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
+  ldconfig
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-  sudo apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+  apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
   cd /opt
-  sudo curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  sudo chmod u+x coinbrew
-  sudo ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-  sudo ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
-  sudo ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-  sudo rm coinbrew
+  curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  chmod u+x coinbrew
+  ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
+  ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
+  rm -R coinbrew build
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/coin-or/lib"
+  ldconfig
 
   # Install StOpt
   echo "Installing StOpt..."
-  sudo apt-get install -y zlib1g-dev
-  sudo git clone https://gitlab.com/stochastic-control/StOpt /opt/StOpt
-  cd /opt/StOpt
-  sudo mkdir build
+  apt-get install -y zlib1g-dev
+  cd /opt
+  git clone https://gitlab.com/stochastic-control/StOpt
+  cd StOpt
+  mkdir build
   cd build
-  sudo cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
-  sudo cmake --build .
-  sudo cmake --install . --prefix=/opt/stopt
+  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=/opt/StOpt ..
+  cmake --build .
+  cmake --install .
 
   echo "Installation completed successfully on Ubuntu."
-
-  # Return to the original directory
-  cd "$current_dir"
 }
 
 # Function to install software on macOS
 install_on_macos() {
   set -e # Exit immediately if a command exits with a non-zero status
 
-  # Save the current directory
-  local current_dir
-  current_dir=$(pwd)
-
   echo "Starting the installation process on macOS..."
-
-  # Install Xcode Command Line Tools
-  echo "Installing Xcode Command Line Tools..."
-  xcode-select --install
 
   # Install Homebrew
   echo "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  # Install CMake
-  echo "Installing CMake..."
-  brew install cmake
+  # Install Xcode Command Line Tools (includes build-essential and clang)
+  echo "Installing Xcode Command Line Tools..."
+  xcode-select --install
+
+  # Install basic requirements
+  echo "Installing basic requirements..."
+  brew install cmake git
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
   brew install boost
 
-  # Install NetCDF
-  echo "Installing NetCDF..."
-  brew install netcdf
+  # Install OpenMP
+  brew install libomp
 
   # Install Eigen
   echo "Installing Eigen..."
   brew install eigen
 
-  # Download and install Gurobi
-  echo "Downloading and installing Gurobi..."
+  # Install NetCDF
+  echo "Installing NetCDF..."
+  brew install netcdf
+
+  # Install CPLEX
+  echo "Installing CPLEX..."
+  cd /Applications
+  CPLEX_INSTALLER="cplex_studio2211.osx.zip"
+  curl -O https://TODO/$CPLEX_INSTALLER
+  tar -xvf $CPLEX_INSTALLER
+  # TODO
+  rm $CPLEX_INSTALLER
+  mv ./CPLEX_Studio2211 /Applications/CPLEX_Studio
+  export CPLEX_HOME="/Applications/CPLEX_Studio"
+  export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
+  export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+  ldconfig
+
+  # Install Gurobi
+  echo "Installing Gurobi..."
   cd /Library
-  curl -O https://packages.gurobi.com/10.0/gurobi10.0.3_macos_universal2.pkg
-  sudo installer -pkg gurobi10.0.3_macos_universal2.pkg -target /
-  rm gurobi10.0.3_macos_universal2.pkg
-  export GUROBI_HOME="/Library/gurobi1003"
+  GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
+  curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+  installer -pkg $GUROBI_INSTALLER -target /
+  rm $GUROBI_INSTALLER
+  mv ./gurobi1003 /Library/gurobi
+  export GUROBI_HOME="/Library/gurobi"
   export PATH="${PATH}:${GUROBI_HOME}/bin"
-  echo "GUROBI_HOME: $GUROBI_HOME"
-  echo "PATH: $PATH"
+  export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+  ldconfig
 
   # Install SCIP
   echo "Installing SCIP..."
   brew install gcc tbb
-  curl -O https://www.scipopt.org/download/release/SCIPOptSuite-9.0.0-Darwin.sh
-  chmod u+x SCIPOptSuite-9.0.0-Darwin.sh
-  ./SCIPOptSuite-9.0.0-Darwin.sh --prefix=/Library/scip --exclude-subdir --skip-license
-  rm SCIPOptSuite-9.0.0-Darwin.sh
+  SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
+  curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
+  chmod u+x $SCIP_INSTALLER
+  ./$SCIP_INSTALLER --prefix=/Library/scip --exclude-subdir --skip-license
+  rm $SCIP_INSTALLER
 
   # Install HiGHS
   echo "Installing HiGHS..."
-  git clone https://github.com/ERGO-Code/HiGHS.git /Library/HiGHS
-  cd /Library/HiGHS
+  cd /Library
+  git clone https://github.com/ERGO-Code/HiGHS.git
+  cd HiGHS
   mkdir build
   cd build
   cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/Library/HiGHS ..
   cmake --build .
-  sudo cmake --install .
-  cd ../..
+  cmake --install .
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
@@ -162,54 +196,57 @@ install_on_macos() {
   chmod u+x coinbrew
   ./coinbrew fetch CoinUtils --no-prompt
   ./coinbrew build CoinUtils --prefix=/Library/coin-or --no-prompt --tests=none
-  ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
   ./coinbrew build Clp --prefix=/Library/coin-or --no-prompt --tests=none
-  rm coinbrew
+  rm -R coinbrew build
 
   # Install StOpt
   echo "Installing StOpt..."
   brew install zlib
-  git clone https://gitlab.com/stochastic-control/StOpt /Library/StOpt
-  cd /Library/StOpt
+  cd /Library
+  git clone https://gitlab.com/stochastic-control/StOpt
+  cd StOpt
   mkdir build
   cd build
-  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF ..
+  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=/Library/StOpt ..
   cmake --build .
-  sudo cmake --install . --prefix=/Library/stopt
-  cd ../..
+  cmake --install .
 
   echo "Installation completed successfully on macOS."
-
-  # Return to the original directory
-  cd "$current_dir"
 }
 
 # Function to install software on Windows
+# RUN THIS SCRIPT FROM A "DEVELOPER POWERSHELL FOR VS" AS ADMINISTRATOR
+# VISUAL STUDIO WITH THE ENGLISH LANGUAGE PACK IS NEEDED
 function install_on_windows() {
-  # Save current directory
-  local current_dir
-  current_dir=$(pwd)
+  cd C:\
 
   echo "Starting the installation process on Windows..."
 
-  # Ensure the directory for vcpkg exists and move to it
-  echo "Preparing the installation directory for vcpkg..."
-  mkdir -p /c/vcpkg
-  cd /c/vcpkg
+  # Install basic requirements
+  echo "Installing basic requirements..."
+  Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+  choco install git sed
+  Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+  refreshenv
 
   # Install vcpkg
   echo "Installing vcpkg..."
-  git clone https://github.com/microsoft/vcpkg.git .
+  cd C:\
+  git clone https://github.com/microsoft/vcpkg.git
+  cd C:\vcpkg
   ./bootstrap-vcpkg.bat
 
   # Install basic requirements
   echo "Installing basic requirements with vcpkg..."
-  ./vcpkg install cmake git --triplet x64-windows
   ./vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
-  ./vcpkg install boost boost-mpi --triplet x64-windows
+  ./vcpkg install boost --triplet x64-windows
+  # to install boost-mpi you will need to run msmpisetup-10.1.12498.exe before
+  Start-Process -FilePath "C:/vcpkg/downloads/msmpisetup-10.1.12498.exe" -Wait
+  ./vcpkg install boost-mpi --triplet x64-windows
 
   # Install Eigen
   echo "Installing Eigen..."
@@ -219,79 +256,98 @@ function install_on_windows() {
   echo "Installing NetCDF..."
   ./vcpkg install netcdf-cxx4 --triplet x64-windows
 
-  # Move to C:\ for other dependencies
-  echo "Moving to C:\ for downloading and installing other dependencies..."
-  cd /c/
+  # Install CPLEX
+  echo "Installing CPLEX..."
+  cd C:\
+  CPLEX_INSTALLER="cplex_studio2211.win_x86_64.exe"
+  curl -O $CPLEX_INSTALLER https://TODO/$CPLEX_INSTALLER
+  Start-Process -FilePath $CPLEX_INSTALLER -Wait
+  rm $CPLEX_INSTALLER
+  # copy from C:\Program Files to under C:\ to avoid errors due to spaces
+  cp -R "C:\Program Files\IBM" "C:\IBM\ILOG"
+  mv "C:\IBM\ILOG\CPLEX_Studio2211" "C:\IBM\ILOG\CPLEX_Studio"
 
-  # Download and install Gurobi
-  echo "Downloading and installing Gurobi..."
-  local gurobi_installer="Gurobi-10.0.3-win64.msi"
-  curl -LO "https://packages.gurobi.com/10.0/$gurobi_installer"
-  cmd //c start /wait msiexec /i $gurobi_installer /qn
-  rm $gurobi_installer
+  # Install Gurobi
+  echo "Installing Gurobi..."
+  cd C:\
+  GUROBI_INSTALLER="Gurobi-10.0.3-win64.msi"
+  curl -O $GUROBI_INSTALLER https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+  Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
+  rm $GUROBI_INSTALLER
+  mv .\gurobi1003 C:\gurobi
 
-  # Download and install SCIP
-  echo "Downloading and installing SCIP..."
-  local scip_installer="SCIPOptSuite-9.0.0-win64-VS15.exe"
-  curl -LO "https://www.scipopt.org/download.php?fname=$scip_installer"
-  cmd //c start /wait $scip_installer /SILENT
-  rm $scip_installer
+  # Install SCIP
+  echo "Installing SCIP..."
+  cd C:\
+  SCIP_INSTALLER="SCIPOptSuite-9.0.0-win64-VS15.exe"
+  curl -O $SCIP_INSTALLER https://www.scipopt.org/download/release/$SCIP_INSTALLER
+  Start-Process -FilePath $SCIP_INSTALLER -Wait
+  rm $SCIP_INSTALLER
+  mv "C:\Program Files\SCIPOptSuite 9.0.0" "C:\Program Files\SCIPOptSuite"
 
   # Install HiGHS
   echo "Installing HiGHS..."
+  cd C:\
   git clone https://github.com/ERGO-Code/HiGHS.git
   cd HiGHS
   mkdir build
   cd build
-  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:/HiGHS ..
-  cmake --build .
+  # link vcpkg toolchain file for zlib
+  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:/HiGHS -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+  cmake --build . --config Release
   cmake --install .
-  cd ../..
-
-  # Move to C:\vcpkg to install COIN-OR CoinUtils and Osi/Clp
-  printf "Moving to C:\\vcpkg for installing COIN-OR CoinUtils and Osi/Clp...\n"
-  cd /c/vcpkg
 
   # Install COIN-OR CoinUtils
   echo "Installing COIN-OR CoinUtils..."
-  ./vcpkg install coinutils pybind11 blas lapack --triplet x64-windows
+  cd C:\vcpkg
+  ./vcpkg install coinutils blas lapack --triplet x64-windows
 
-  echo "Modifying COIN-OR Osi portfile.cmake for Gurobi support..."
-  cd /c/vcpkg/ports/coin-or-osi
+  echo "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
+
+  cd C:\vcpkg\ports\coin-or-osi
 
   # Backup the original portfile.cmake just in case
   cp portfile.cmake portfile.cmake.bak
 
-  # Use sed `s/old/new/` to replace the configuration line
-  sed -i 's/--with-gurobi/&\
-          --with-gurobi-lib=C:\\\/gurobi1003\\\/win64\\\/lib\\\/gurobi100.lib\
-          --with-gurobi-incdir=C:\\\/gurobi1003\\\/win64\\\/include\
-          --with-gurobi-cflags=-IC:\\\/gurobi1003\\\/win64\\\/include\
-          --with-gurobi-lflags=C:\\\/gurobi1003\\\/win64\\\/lib\\\/gurobi100.lib/' portfile.cmake
+  # Use sed `/old/c\new` to replace the configuration line
+  sed -i '/--without-cplex/c\
+          --with-cplex\
+          --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
+          --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+          --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+          --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+
+  echo "COIN-OR Osi portfile modified for CPLEX support."
+
+  echo "Modifying COIN-OR Osi portfile.cmake for Gurobi support..."
+
+  # Use sed `/old/c\new` to replace the configuration line
+  sed -i '/--without-gurobi/c\
+          --with-gurobi\
+          --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
+          --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
+          --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
+          --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
 
   echo "COIN-OR Osi portfile modified for Gurobi support."
 
   # Install COIN-OR Osi/Clp
-  echo "Installing COIN-OR Osi with Gurobi support..."
-  cd /c/vcpkg
-  ./vcpkg install blas lapack --triplet x64-windows
-  ./vcpkg install coin-or-osi coin-or-clp glpk pybind11 --triplet x64-windows
+  echo "Installing COIN-OR Osi with CPLEX and Gurobi support..."
+  cd C:\vcpkg
+  ./vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
 
   # Setup vcpkg for StOpt installation
   echo "Setting up vcpkg for StOpt installation..."
-  cd /c/
+  cd C:\
   git clone https://gitlab.com/stochastic-control/vcpkg-registry
-  cd /c/vcpkg
+  cd C:\vcpkg
 
   # Install StOpt using custom vcpkg registry
   echo "Installing StOpt..."
-  ./vcpkg install stopt --overlay-ports=/c/vcpkg/vcpkg-registry/ports/stopt --triplet x64-windows
-  rm -rf /c/vcpkg-registry
+  ./vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
+  #rm -R C:\vcpkg-registry
 
   echo "Installation completed successfully on Windows."
-
-  # Return to the original directory
-  cd "$current_dir"
 }
 
 # Detect operating system and execute the appropriate installation function
@@ -302,6 +358,7 @@ case "$OS" in
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
       install_on_ubuntu
+      CMAKE_PREFIX="/opt/SMSpp"
     else
       echo "This script supports Ubuntu only."
     fi
@@ -311,9 +368,11 @@ case "$OS" in
   ;;
 "Darwin")
   install_on_macos
+  CMAKE_PREFIX="/Library/SMSpp"
   ;;
 "Windows")
   install_on_windows
+  CMAKE_PREFIX="C:/SMSpp"
   ;;
 *)
   echo "This script does not support the detected operating system."
@@ -324,11 +383,7 @@ esac
 echo "Compiling SMSpp..."
 mkdir -p build
 cd build
-cmake ..
+cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" ..
 cmake --build . --config Release
-if [[ "$OS" != "Windows" ]]; then
-  sudo cmake --install .
-else
-  cmake --install .
-fi
+cmake --install .
 cd ..
