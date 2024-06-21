@@ -79,6 +79,7 @@ install_on_ubuntu() {
   cmake --install .
   sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
   ldconfig
+  cd /opt
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
@@ -104,6 +105,7 @@ install_on_ubuntu() {
   cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=/opt/StOpt ..
   cmake --build .
   cmake --install .
+  cd /opt
 
   echo "Installation completed successfully on Ubuntu."
 }
@@ -187,6 +189,7 @@ install_on_macos() {
   cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/Library/HiGHS ..
   cmake --build .
   cmake --install .
+  cd /Library
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
@@ -211,6 +214,7 @@ install_on_macos() {
   cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=/Library/StOpt ..
   cmake --build .
   cmake --install .
+  cd /Library
 
   echo "Installation completed successfully on macOS."
 }
@@ -264,7 +268,7 @@ function install_on_windows() {
   Start-Process -FilePath $CPLEX_INSTALLER -Wait
   rm $CPLEX_INSTALLER
   # copy from C:\Program Files to under C:\ to avoid errors due to spaces
-  cp -R "C:\Program Files\IBM" "C:\IBM\ILOG"
+  cp -R "C:\Program Files\IBM" "C:\IBM"
   mv "C:\IBM\ILOG\CPLEX_Studio2211" "C:\IBM\ILOG\CPLEX_Studio"
 
   # Install Gurobi
@@ -296,6 +300,7 @@ function install_on_windows() {
   cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:/HiGHS -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
   cmake --build . --config Release
   cmake --install .
+  cd C:\
 
   # Install COIN-OR CoinUtils
   echo "Installing COIN-OR CoinUtils..."
@@ -358,9 +363,9 @@ case "$OS" in
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
       install_on_ubuntu
-      mkdir -p build
+      mkdir build
       cd build
-      cmake -DCMAKE_INSTALL_PREFIX=/opt/SMSpp ..
+      cmake -DCMAKE_INSTALL_PREFIX=/opt/SMSpp  -DCMAKE_BUILD_TYPE=Release ..
     else
       echo "This script supports Ubuntu only."
     fi
@@ -370,15 +375,15 @@ case "$OS" in
   ;;
 "Darwin")
   install_on_macos
-  mkdir -p build
+  mkdir build
   cd build
-  cmake -DCMAKE_INSTALL_PREFIX=/Library/SMSpp ..
+  cmake -DCMAKE_INSTALL_PREFIX=/Library/SMSpp -DCMAKE_BUILD_TYPE=Release ..
   ;;
 "Windows")
   install_on_windows
-  mkdir -p build
+  mkdir build
   cd build
-  cmake -DCMAKE_INSTALL_PREFIX=C:/SMSpp -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -Wno-dev ..
+  cmake -DCMAKE_INSTALL_PREFIX=C:/SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -Wno-dev ..
   ;;
 *)
   echo "This script does not support the detected operating system."
