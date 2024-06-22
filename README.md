@@ -28,24 +28,32 @@ The `SMS++` framework is written in advanced `C++`, and its use entails climbing
 a significant learning curve. Yet, mastering it may be worth especially for
 the solution of very-large-scale, demanding optimization problems arising
 in applications. Indeed, the `SMS++ Project` has already been instrumental in
-some complex projects, such as
+several complex projects, such as:
 
-- the [plan4res H2020 project](https://www.plan4res.eu)
+- The [plan4res H2020 project](https://www.plan4res.eu) that funded the first
+  major expansion of `SMS++` capabilities.
 
-- the [openENTRANCE H2020 project](https://openentrance.eu), where `SMS++`
+- The [openENTRANCE H2020 project](https://openentrance.eu), where `SMS++`
   contributed to [the open modelling platform developed by the
-  project](https://openenergymodels.net/models/plan4res-modelling-suite)
+  project](https://openenergymodels.net/models/plan4res-modelling-suite).
+
+- The [OpenMod4Africa project](https://openmod4africa.eu), in which `SMS++` has
+  been one of the main modelling tools for solving complex electricity system
+  optimization and simulation problems in Africa, training many researchers,
+  modellers and stakeholders from both western and eastern Africa on how to use
+  the tools to develop case studies at the level of the two regions.
+
+- The [CETPartnership "RESILIENT - Resilient Energy System Infrastructure
+  Layouts for Industry, E-fuels and Network
+  Transition"](https://resilient-project.github.io), where `SMS++` is being
+  interfaced with the open-source, widely-used, multi-vector energy planning
+  tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
+  the more demanding energy models
 
 Furthermore, the use of `SMS++` is planned for several other projects; two
 recently accepted ones are
 
-- the CETPartnership "RESILIENT - Resilient Energy System Infrastructure
-  Layouts for Industry, E-Fuels and Network Transition", where `SMS++` will be
-  interfaced with the open-source, widely-used, multi-vector energy planning
-  tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
-  the more demanding energy models;
-
-- the CETPartnership "Manoeuvre", where a methodology will be developed for
+- The CETPartnership "Manoeuvre", where a methodology will be developed for
   linking `SMS++` with the global energy model
   [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case studies,
   where `SMS++` will be run on a technologies mix calculated by GENeSYS-Mod and
