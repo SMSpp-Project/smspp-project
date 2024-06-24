@@ -249,7 +249,7 @@ function install_on_windows() {
   echo "Installing Boost libraries..."
   ./vcpkg install boost --triplet x64-windows
   # to install boost-mpi you will need to run msmpisetup-10.1.12498.exe before
-  Start-Process -FilePath "C:/vcpkg/downloads/msmpisetup-10.1.12498.exe" -Wait
+  Start-Process -FilePath "C:\vcpkg\downloads\msmpisetup-10.1.12498.exe" -Wait
   ./vcpkg install boost-mpi --triplet x64-windows
 
   # Install Eigen
