@@ -27,19 +27,21 @@ install_on_ubuntu() {
   apt-get install -y libnetcdf-c++4-dev
 
   # Install CPLEX
-  echo "Installing CPLEX..."
-  cd /opt
-  CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
-  curl -O https://TODO/$CPLEX_INSTALLER
-  chmod u+x $CPLEX_INSTALLER
-  ./$CPLEX_INSTALLER
-  rm $CPLEX_INSTALLER
-  mv ./ibm/ILOG/CPLEX_Studio2211 /opt/ibm/ILOG/CPLEX_Studio
-  export CPLEX_HOME="/opt/ibm/ILOG/CPLEX_Studio/cplex"
-  export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-  sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-  ldconfig
+  if [ $install_cplex -eq 1 ]; then
+    echo "Installing CPLEX..."
+    cd /opt
+    CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
+    curl -O https://TODO/$CPLEX_INSTALLER
+    chmod u+x $CPLEX_INSTALLER
+    ./$CPLEX_INSTALLER
+    rm $CPLEX_INSTALLER
+    mv ./ibm/ILOG/CPLEX_Studio2211 /opt/ibm/ILOG/CPLEX_Studio
+    export CPLEX_HOME="/opt/ibm/ILOG/CPLEX_Studio/cplex"
+    export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+    sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+    ldconfig
+  fi
 
   # Install Gurobi
   echo "Installing Gurobi..."
@@ -88,7 +90,11 @@ install_on_ubuntu() {
   curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   chmod u+x coinbrew
   ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-  ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  if [ $install_cplex -eq 1 ]; then
+    ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  else
+    ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  fi
   ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
   rm -R coinbrew build
   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/coin-or/lib"
@@ -144,18 +150,20 @@ install_on_macos() {
   brew install netcdf
 
   # Install CPLEX
-  echo "Installing CPLEX..."
-  cd /Applications
-  CPLEX_INSTALLER="cplex_studio2211.osx.zip"
-  curl -O https://TODO/$CPLEX_INSTALLER
-  tar -xvf $CPLEX_INSTALLER
-  # TODO
-  rm $CPLEX_INSTALLER
-  mv ./CPLEX_Studio2211 /Applications/CPLEX_Studio
-  export CPLEX_HOME="/Applications/CPLEX_Studio"
-  export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
-  export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
-  ldconfig
+  if [ $install_cplex -eq 1 ]; then
+    echo "Installing CPLEX..."
+    cd /Applications
+    CPLEX_INSTALLER="cplex_studio2211.osx.zip"
+    curl -O https://TODO/$CPLEX_INSTALLER
+    tar -xvf $CPLEX_INSTALLER
+    # TODO
+    rm $CPLEX_INSTALLER
+    mv ./CPLEX_Studio2211 /Applications/CPLEX_Studio
+    export CPLEX_HOME="/Applications/CPLEX_Studio"
+    export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+    ldconfig
+  fi
 
   # Install Gurobi
   echo "Installing Gurobi..."
@@ -199,7 +207,11 @@ install_on_macos() {
   chmod u+x coinbrew
   ./coinbrew fetch CoinUtils --no-prompt
   ./coinbrew build CoinUtils --prefix=/Library/coin-or --no-prompt --tests=none
-  ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  if [ $install_cplex -eq 1 ]; then
+    ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  else
+    ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
+  fi
   ./coinbrew build Clp --prefix=/Library/coin-or --no-prompt --tests=none
   rm -R coinbrew build
 
@@ -261,15 +273,17 @@ function install_on_windows() {
   ./vcpkg install netcdf-cxx4 --triplet x64-windows
 
   # Install CPLEX
-  echo "Installing CPLEX..."
-  cd C:\
-  CPLEX_INSTALLER="cplex_studio2211.win_x86_64.exe"
-  curl -O $CPLEX_INSTALLER https://TODO/$CPLEX_INSTALLER
-  Start-Process -FilePath $CPLEX_INSTALLER -Wait
-  rm $CPLEX_INSTALLER
-  # copy from C:\Program Files to under C:\ to avoid errors due to spaces
-  cp -R "C:\Program Files\IBM" "C:\IBM"
-  mv "C:\IBM\ILOG\CPLEX_Studio2211" "C:\IBM\ILOG\CPLEX_Studio"
+  if [ $install_cplex -eq 1 ]; then
+    echo "Installing CPLEX..."
+    cd C:\
+    CPLEX_INSTALLER="cplex_studio2211.win_x86_64.exe"
+    curl -O $CPLEX_INSTALLER https://TODO/$CPLEX_INSTALLER
+    Start-Process -FilePath $CPLEX_INSTALLER -Wait
+    rm $CPLEX_INSTALLER
+    # copy from C:\Program Files to under C:\ to avoid errors due to spaces
+    cp -R "C:\Program Files\IBM" "C:\IBM"
+    mv "C:\IBM\ILOG\CPLEX_Studio2211" "C:\IBM\ILOG\CPLEX_Studio"
+  fi
 
   # Install Gurobi
   echo "Installing Gurobi..."
@@ -307,22 +321,10 @@ function install_on_windows() {
   cd C:\vcpkg
   ./vcpkg install coinutils blas lapack --triplet x64-windows
 
-  echo "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
-
   cd C:\vcpkg\ports\coin-or-osi
 
-  # Backup the original portfile.cmake just in case
+  # Backup the original portfile.cmake
   cp portfile.cmake portfile.cmake.bak
-
-  # Use sed `/old/c\new` to replace the configuration line
-  sed -i '/--without-cplex/c\
-          --with-cplex\
-          --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
-          --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-          --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-          --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
-
-  echo "COIN-OR Osi portfile modified for CPLEX support."
 
   echo "Modifying COIN-OR Osi portfile.cmake for Gurobi support..."
 
@@ -335,6 +337,19 @@ function install_on_windows() {
           --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
 
   echo "COIN-OR Osi portfile modified for Gurobi support."
+
+  if [ $install_cplex -eq 1 ]; then
+    echo "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
+
+    # Use sed `/old/c\new` to replace the configuration line
+    sed -i '/--without-cplex/c\
+            --with-cplex\
+            --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
+            --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+            --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+            --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+    echo "COIN-OR Osi portfile modified for CPLEX support."
+  fi
 
   # Install COIN-OR Osi/Clp
   echo "Installing COIN-OR Osi with CPLEX and Gurobi support..."
@@ -354,6 +369,17 @@ function install_on_windows() {
 
   echo "Installation completed successfully on Windows."
 }
+
+# Default value indicating if CPLEX should be installed
+install_cplex=1
+
+# Loop through arguments to check for the --without-cplex flag
+for arg in "$@"; do
+  if [ "$arg" = "--without-cplex" ]; then
+    install_cplex=0
+    break
+  fi
+done
 
 # Detect operating system and execute the appropriate installation function
 OS="$(uname)"
