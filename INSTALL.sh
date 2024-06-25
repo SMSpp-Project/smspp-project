@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to install software on Ubuntu
+# Function to install dependencies on Ubuntu
 install_on_ubuntu() {
   set -e # Exit immediately if a command exits with a non-zero status
 
@@ -116,7 +116,7 @@ install_on_ubuntu() {
   echo "Installation completed successfully on Ubuntu."
 }
 
-# Function to install software on macOS
+# Function to install dependencies on macOS
 install_on_macos() {
   set -e # Exit immediately if a command exits with a non-zero status
 
@@ -231,9 +231,17 @@ install_on_macos() {
   echo "Installation completed successfully on macOS."
 }
 
-# Function to install software on Windows
+# Function to install dependencies on Windows
 # RUN THIS SCRIPT FROM A "DEVELOPER POWERSHELL FOR VS" AS ADMINISTRATOR
 # VISUAL STUDIO WITH THE ENGLISH LANGUAGE PACK IS NEEDED
+# To run this bash file with bash you will need to install WSL before via:
+# run `VBoxManage modifyvm <VirtualMachineName> --nested-hw-virt on` from Ubuntu shell if Win is under VBox
+# Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+# Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
+# Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All (Win Pro needed)
+# turn ON the `Memory Integrity` under `Core Isolation` in Windows Security
+# wsl --update
+# wsl --install
 function install_on_windows() {
   cd C:\
 
@@ -241,7 +249,8 @@ function install_on_windows() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+  Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+  iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
   choco install git sed
   Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
   refreshenv
@@ -311,7 +320,7 @@ function install_on_windows() {
   mkdir build
   cd build
   # link vcpkg toolchain file for zlib
-  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:/HiGHS -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
   cmake --build . --config Release
   cmake --install .
   cd C:\
@@ -409,7 +418,7 @@ case "$OS" in
   install_on_windows
   mkdir build
   cd build
-  cmake -DCMAKE_INSTALL_PREFIX=C:/SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -Wno-dev ..
+  cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
   ;;
 *)
   echo "This script does not support the detected operating system."
