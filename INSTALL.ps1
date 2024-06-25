@@ -12,7 +12,7 @@ if ($withoutCplex)
     $Global:InstallCplex = $false
 }
 
-if ($withoutCplex)
+if ($Global:InstallCplex)
 {
     Write-Host "Installation of CPLEX will be skipped."
 }
