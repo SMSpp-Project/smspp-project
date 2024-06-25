@@ -12,13 +12,13 @@ if ($withoutCplex)
     $Global:InstallCplex = $false
 }
 
-if ($Global:InstallCplex)
+if ($withoutCplex)
 {
-    Write-Host "Installation of CPLEX will proceed."
+    Write-Host "Installation of CPLEX will be skipped."
 }
 else
 {
-    Write-Host "Installation of CPLEX will be skipped."
+    Write-Host "Installation of CPLEX will proceed."
 }
 
 # Detect operating system and execute the appropriate installation function
