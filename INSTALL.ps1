@@ -6,15 +6,6 @@ param(
     [switch]$withoutCplex
 )
 
-if (-not $withoutCplex)
-{
-    Write-Host "Installation of CPLEX will proceed."
-}
-else
-{
-    Write-Host "Installation of CPLEX will be skipped."
-}
-
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
 if ($OS -eq "Win32NT")
