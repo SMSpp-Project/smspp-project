@@ -231,155 +231,6 @@ install_on_macos() {
   echo "Installation completed successfully on macOS."
 }
 
-# Function to install dependencies on Windows
-# RUN THIS SCRIPT FROM A "DEVELOPER POWERSHELL FOR VS" AS ADMINISTRATOR
-# VISUAL STUDIO WITH THE ENGLISH LANGUAGE PACK IS NEEDED
-# To run this bash file with bash you will need to install WSL before via:
-# run `VBoxManage modifyvm <VirtualMachineName> --nested-hw-virt on` from Ubuntu shell if Win is under VBox
-# Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-# Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
-# Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All (Win Pro needed)
-# turn ON the `Memory Integrity` under `Core Isolation` in Windows Security
-# wsl --update
-# wsl --install
-function install_on_windows() {
-  cd C:\
-
-  echo "Starting the installation process on Windows..."
-
-  # Install basic requirements
-  echo "Installing basic requirements..."
-  Set-ExecutionPolicy Bypass -Scope Process -Force
-  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-  iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-  choco install git sed
-  Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-  refreshenv
-
-  # Install vcpkg
-  echo "Installing vcpkg..."
-  cd C:\
-  git clone https://github.com/microsoft/vcpkg.git
-  cd C:\vcpkg
-  ./bootstrap-vcpkg.bat
-
-  # Install basic requirements
-  echo "Installing basic requirements with vcpkg..."
-  ./vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
-
-  # Install Boost libraries
-  echo "Installing Boost libraries..."
-  ./vcpkg install boost --triplet x64-windows
-  # to install boost-mpi you will need to run msmpisetup-10.1.12498.exe before
-  Start-Process -FilePath "C:\vcpkg\downloads\msmpisetup-10.1.12498.exe" -Wait
-  ./vcpkg install boost-mpi --triplet x64-windows
-
-  # Install Eigen
-  echo "Installing Eigen..."
-  ./vcpkg install eigen3 --triplet x64-windows
-
-  # Install NetCDF
-  echo "Installing NetCDF..."
-  ./vcpkg install netcdf-cxx4 --triplet x64-windows
-
-  # Install CPLEX
-  if [ $install_cplex -eq 1 ]; then
-    echo "Installing CPLEX..."
-    cd C:\
-    CPLEX_INSTALLER="cplex_studio2211.win_x86_64.exe"
-    curl -O $CPLEX_INSTALLER https://TODO/$CPLEX_INSTALLER
-    Start-Process -FilePath $CPLEX_INSTALLER -Wait
-    rm $CPLEX_INSTALLER
-    # copy from C:\Program Files to under C:\ to avoid errors due to spaces
-    cp -R "C:\Program Files\IBM" "C:\IBM"
-    mv "C:\IBM\ILOG\CPLEX_Studio2211" "C:\IBM\ILOG\CPLEX_Studio"
-  fi
-
-  # Install Gurobi
-  echo "Installing Gurobi..."
-  cd C:\
-  GUROBI_INSTALLER="Gurobi-10.0.3-win64.msi"
-  curl -O $GUROBI_INSTALLER https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-  Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
-  rm $GUROBI_INSTALLER
-  mv .\gurobi1003 C:\gurobi
-
-  # Install SCIP
-  echo "Installing SCIP..."
-  cd C:\
-  SCIP_INSTALLER="SCIPOptSuite-9.0.0-win64-VS15.exe"
-  curl -O $SCIP_INSTALLER https://www.scipopt.org/download/release/$SCIP_INSTALLER
-  Start-Process -FilePath $SCIP_INSTALLER -Wait
-  rm $SCIP_INSTALLER
-  mv "C:\Program Files\SCIPOptSuite 9.0.0" "C:\Program Files\SCIPOptSuite"
-
-  # Install HiGHS
-  echo "Installing HiGHS..."
-  cd C:\
-  git clone https://github.com/ERGO-Code/HiGHS.git
-  cd HiGHS
-  mkdir build
-  cd build
-  # link vcpkg toolchain file for zlib
-  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
-  cmake --build . --config Release
-  cmake --install .
-  cd C:\
-
-  # Install COIN-OR CoinUtils
-  echo "Installing COIN-OR CoinUtils..."
-  cd C:\vcpkg
-  ./vcpkg install coinutils blas lapack --triplet x64-windows
-
-  cd C:\vcpkg\ports\coin-or-osi
-
-  # Backup the original portfile.cmake
-  cp portfile.cmake portfile.cmake.bak
-
-  echo "Modifying COIN-OR Osi portfile.cmake for Gurobi support..."
-
-  # Use sed `/old/c\new` to replace the configuration line
-  sed -i '/--without-gurobi/c\
-          --with-gurobi\
-          --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
-          --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
-          --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-          --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
-
-  echo "COIN-OR Osi portfile modified for Gurobi support."
-
-  if [ $install_cplex -eq 1 ]; then
-    echo "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
-
-    # Use sed `/old/c\new` to replace the configuration line
-    sed -i '/--without-cplex/c\
-            --with-cplex\
-            --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
-            --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-            --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-            --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
-    echo "COIN-OR Osi portfile modified for CPLEX support."
-  fi
-
-  # Install COIN-OR Osi/Clp
-  echo "Installing COIN-OR Osi with CPLEX and Gurobi support..."
-  cd C:\vcpkg
-  ./vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
-
-  # Setup vcpkg for StOpt installation
-  echo "Setting up vcpkg for StOpt installation..."
-  cd C:\
-  git clone https://gitlab.com/stochastic-control/vcpkg-registry
-  cd C:\vcpkg
-
-  # Install StOpt using custom vcpkg registry
-  echo "Installing StOpt..."
-  ./vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
-  rm -R C:\vcpkg-registry
-
-  echo "Installation completed successfully on Windows."
-}
-
 # Default value indicating if CPLEX should be installed
 install_cplex=1
 
@@ -399,9 +250,7 @@ case "$OS" in
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
       install_on_ubuntu
-      mkdir build
-      cd build
-      cmake -DCMAKE_INSTALL_PREFIX=/opt/SMSpp  -DCMAKE_BUILD_TYPE=Release ..
+      CMAKE_PREFIX="/opt/SMSpp"
     else
       echo "This script supports Ubuntu only."
     fi
@@ -411,22 +260,28 @@ case "$OS" in
   ;;
 "Darwin")
   install_on_macos
-  mkdir build
-  cd build
-  cmake -DCMAKE_INSTALL_PREFIX=/Library/SMSpp -DCMAKE_BUILD_TYPE=Release ..
-  ;;
-"Windows")
-  install_on_windows
-  mkdir build
-  cd build
-  cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
+  CMAKE_PREFIX="/Library/SMSpp"
   ;;
 *)
   echo "This script does not support the detected operating system."
+  exit 1
   ;;
 esac
 
 # Compile SMSpp
+repoPath="smspp-project"
+# Check if the repo exists
+if [ ! -d "$repoPath" ]; then
+    echo "Repository not found locally. Cloning SMSpp..."
+    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$repoPath"
+else
+    echo "Repository found. Skipping clone."
+fi
+cd $repoPath
+
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release ..
 echo "Compiling SMSpp..."
 cmake --build . --config Release
 cmake --install .

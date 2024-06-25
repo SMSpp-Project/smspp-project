@@ -1,17 +1,24 @@
 # RUN THIS SCRIPT FROM A "DEVELOPER POWERSHELL FOR VS" AS ADMINISTRATOR
-# VISUAL STUDIO WITH THE ENGLISH LANGUAGE PACK IS NEEDED
+# VISUAL STUDIO WITH THE ENGLISH LANGUAGE PACK IS NEEDED WITH "DESKTOP DEVELOPMENT WITH C++"
 
 # Default value indicating if CPLEX should be installed
-$Global:InstallCplex = $true
+param(
+    [switch]$withoutCplex
+)
 
-# Loop through arguments to check for the -without-cplex flag
-foreach ($arg in $args)
+if ($withoutCplex)
 {
-    if ($arg -eq "-without-cplex")
-    {
-        $Global:InstallCplex = $false
-        break
-    }
+    Write-Host "Installation of CPLEX will be skipped."
+}
+else
+{
+    Write-Host "Installation of CPLEX will proceed."
+}
+
+# Check for the -withoutCplex flag
+if ($withoutCplex)
+{
+    $Global:InstallCplex = $false
 }
 
 # Detect operating system and execute the appropriate installation function
@@ -67,7 +74,8 @@ if ($OS -eq "Win32NT")
         Remove-Item $CPLEX_INSTALLER
         # Copy from Program Files to C:\ to avoid errors due to spaces
         Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
-        Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination "C:\IBM\ILOG\CPLEX_Studio"
+        Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination "C:\IBM\ILOG\CPLEX_Studio" -ErrorAction SilentlyContinue
+        Write-Host " done."
     }
 
     # Install Gurobi
@@ -77,7 +85,8 @@ if ($OS -eq "Win32NT")
     Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
     Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
     Remove-Item $GUROBI_INSTALLER
-    Move-Item -Path ".\gurobi1003" -Destination "C:\gurobi"
+    Move-Item -Path ".\gurobi1003" -Destination "C:\gurobi" -ErrorAction SilentlyContinue
+    Write-Host " done."
 
     # Install SCIP
     Write-Host "Installing SCIP..."
@@ -86,7 +95,8 @@ if ($OS -eq "Win32NT")
     Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
     Start-Process -FilePath $SCIP_INSTALLER -Wait
     Remove-Item $SCIP_INSTALLER
-    Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination "C:\Program Files\SCIPOptSuite"
+    Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination "C:\Program Files\SCIPOptSuite" -ErrorAction SilentlyContinue
+    Write-Host " done."
 
     # Install HiGHS
     Write-Host "Installing HiGHS..."
@@ -99,6 +109,7 @@ if ($OS -eq "Win32NT")
     cmake --build . --config Release
     cmake --install .
     Set-Location "C:\"
+    Write-Host " done."
 
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
@@ -151,16 +162,30 @@ if ($OS -eq "Win32NT")
     Remove-Item -Path "C:\vcpkg-registry" -Recurse
 
     Write-Host "Installation completed successfully on Windows."
-
-    Set-Location "build"
-    cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
 }
 else
 {
     Write-Host "This script does not support the detected operating system."
+    exit 1
 }
 
 # Compile SMSpp
+$repoPath = "smspp-project"
+# Check if the repo exists
+if (-not (Test-Path $repoPath))
+{
+    Write-Host "Repository not found locally. Cloning SMSpp..."
+    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $repoPath
+}
+else
+{
+    Write-Host "Repository found. Skipping clone."
+}
+Set-Location $repoPath
+
+New-Item -Path "build" -ItemType Directory -Force
+Set-Location "build"
+cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
 Write-Host "Compiling SMSpp..."
 cmake --build . --config Release
 cmake --install .
