@@ -6,6 +6,12 @@ param(
     [switch]$withoutCplex
 )
 
+# Check for the -withoutCplex flag
+if ($withoutCplex)
+{
+    $Global:InstallCplex = $false
+}
+
 if ($withoutCplex)
 {
     Write-Host "Installation of CPLEX will be skipped."
@@ -13,12 +19,6 @@ if ($withoutCplex)
 else
 {
     Write-Host "Installation of CPLEX will proceed."
-}
-
-# Check for the -withoutCplex flag
-if ($withoutCplex)
-{
-    $Global:InstallCplex = $false
 }
 
 # Detect operating system and execute the appropriate installation function
