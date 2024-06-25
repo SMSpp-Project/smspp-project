@@ -4,10 +4,10 @@
 # Default value indicating if CPLEX should be installed
 $Global:InstallCplex = $true
 
-# Loop through arguments to check for the --without-cplex flag
+# Loop through arguments to check for the -without-cplex flag
 foreach ($arg in $args)
 {
-    if ($arg -eq "--without-cplex")
+    if ($arg -eq "-without-cplex")
     {
         $Global:InstallCplex = $false
         break
@@ -28,6 +28,8 @@ if ($OS -eq "Win32NT")
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     choco install git sed
+    Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+    refreshenv
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."

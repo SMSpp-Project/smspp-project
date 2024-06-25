@@ -249,7 +249,8 @@ function install_on_windows() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+  Set-ExecutionPolicy Bypass -Scope Process -Force
+  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
   iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
   choco install git sed
   Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
@@ -382,9 +383,9 @@ function install_on_windows() {
 # Default value indicating if CPLEX should be installed
 install_cplex=1
 
-# Loop through arguments to check for the --without-cplex flag
+# Loop through arguments to check for the -without-cplex flag
 for arg in "$@"; do
-  if [ "$arg" = "--without-cplex" ]; then
+  if [ "$arg" = "-without-cplex" ]; then
     install_cplex=0
     break
   fi
