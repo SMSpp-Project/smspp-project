@@ -104,19 +104,35 @@ if ($OS -eq "Win32NT")
     .\vcpkg install coinutils blas lapack --triplet x64-windows
 
     Set-Location "C:\vcpkg\ports\coin-or-osi"
+
     # Backup the original portfile.cmake
     Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+
     Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi support..."
 
     # Use sed `/old/c\new` to replace the configuration line
-    # PowerShell equivalent needed here
-    # Write-Host "COIN-OR Osi portfile modified for Gurobi support."
+    sed -i '/--without-gurobi/c\
+          --with-gurobi\
+          --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
+          --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
+          --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
+          --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
+
+    Write-Host "COIN-OR Osi portfile modified for Gurobi support."
 
     if ($Global:InstallCplex)
     {
         Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
-        # PowerShell equivalent needed here
-        # Write-Host "COIN-OR Osi portfile modified for CPLEX support."
+
+        # Use sed `/old/c\new` to replace the configuration line
+        sed -i '/--without-cplex/c\
+            --with-cplex\
+            --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
+            --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+            --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+            --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+
+        Write-Host "COIN-OR Osi portfile modified for CPLEX support."
     }
 
     # Install COIN-OR Osi/Clp
