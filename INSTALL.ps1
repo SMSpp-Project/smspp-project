@@ -6,7 +6,13 @@ param(
     [switch]$withoutCplex
 )
 
-if (-not ($withoutCplex))
+# Check for the -withoutCplex flag
+if ($withoutCplex)
+{
+    $Global:InstallCplex = $false
+}
+
+if ($Global:InstallCplex)
 {
     Write-Host "Installation of CPLEX will proceed."
 }
@@ -58,7 +64,7 @@ if ($OS -eq "Win32NT")
     .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX if necessary
-    if (-not ($withoutCplex))
+    if ($Global:InstallCplex)
     {
         Write-Host "Installing CPLEX..."
         Set-Location "C:\"
@@ -127,7 +133,7 @@ if ($OS -eq "Win32NT")
 
     Write-Host "COIN-OR Osi portfile modified for Gurobi support."
 
-    if (-not ($withoutCplex))
+    if ($Global:InstallCplex)
     {
         Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
 
