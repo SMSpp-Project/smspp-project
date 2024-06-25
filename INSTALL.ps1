@@ -51,7 +51,7 @@ if ($OS -eq "Win32NT")
     # Install CPLEX if necessary
     if (-not $withoutCplex)
     {
-        Write-Host "Installing CPLEX..."
+        Write-Host "Installing CPLEX..." -NoNewline
         Set-Location "C:\"
         $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
         Invoke-WebRequest -Uri "https://TODO/$CPLEX_INSTALLER" -OutFile $CPLEX_INSTALLER
@@ -64,7 +64,7 @@ if ($OS -eq "Win32NT")
     }
 
     # Install Gurobi
-    Write-Host "Installing Gurobi..."
+    Write-Host "Installing Gurobi..." -NoNewline
     Set-Location "C:\"
     $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
     Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
@@ -74,7 +74,7 @@ if ($OS -eq "Win32NT")
     Write-Host " done."
 
     # Install SCIP
-    Write-Host "Installing SCIP..."
+    Write-Host "Installing SCIP..." -NoNewline
     Set-Location "C:\"
     $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
     Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
@@ -84,7 +84,7 @@ if ($OS -eq "Win32NT")
     Write-Host " done."
 
     # Install HiGHS
-    Write-Host "Installing HiGHS..."
+    Write-Host "Installing HiGHS..." -NoNewline
     Set-Location "C:\"
     git clone https://github.com/ERGO-Code/HiGHS.git
     Set-Location "HiGHS"
