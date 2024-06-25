@@ -88,7 +88,7 @@ if ($OS -eq "Win32NT")
     Set-Location "C:\"
     git clone https://github.com/ERGO-Code/HiGHS.git
     Set-Location "HiGHS"
-    New-Item -Path "build" -ItemType "directory"
+    New-Item -Path "build" -ItemType Directory -Force
     Set-Location "build"
     cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
     cmake --build . --config Release
