@@ -6,6 +6,9 @@ param(
     [switch]$withoutCplex
 )
 
+# CMake path
+$cmakePath = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
 if ($OS -eq "Win32NT")
@@ -105,9 +108,9 @@ if ($OS -eq "Win32NT")
         Set-Location "HiGHS"
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
-        & cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
-        & cmake --build . --config Release
-        & cmake --install .
+        $cmakePath -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+        $cmakePath --build . --config Release
+        $cmakePath --install .
         Set-Location "C:\"
     }
 
@@ -186,8 +189,8 @@ Set-Location $repoPath
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
-& cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
+$cmakePath -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
 Write-Host "Compiling SMSpp..."
-& cmake --build . --config Release
-& cmake --install .
+$cmakePath --build . --config Release
+$cmakePath --install .
 Set-Location ".."
