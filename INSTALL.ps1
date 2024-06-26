@@ -51,10 +51,10 @@ if ($OS -eq "Win32NT")
     # Install CPLEX if necessary
     if (-not $withoutCplex)
     {
+        Write-Host "Installing CPLEX..." -NoNewline
         $cplexPath = "C:\IBM\ILOG\CPLEX_Studio"
         if (-not (Test-Path $gurobiPath))
         {
-            Write-Host "Installing CPLEX..." -NoNewline
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
             Invoke-WebRequest -Uri "https://TODO/$CPLEX_INSTALLER" -OutFile $CPLEX_INSTALLER
@@ -63,43 +63,43 @@ if ($OS -eq "Win32NT")
             # Copy from Program Files to C:\ to avoid errors due to spaces
             Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
             Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $cplexPath -ErrorAction SilentlyContinue
-            Write-Host " done."
         }
+        Write-Host " done."
     }
 
     # Install Gurobi
+    Write-Host "Installing Gurobi..." -NoNewline
     $gurobiPath = "C:\gurobi"
     if (-not (Test-Path $gurobiPath))
     {
-        Write-Host "Installing Gurobi..." -NoNewline
         Set-Location "C:\"
         $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
         Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
         Remove-Item $GUROBI_INSTALLER
         Move-Item -Path ".\gurobi1003" -Destination $gurobiPath -ErrorAction SilentlyContinue
-        Write-Host " done."
     }
+    Write-Host " done."
 
     # Install SCIP
+    Write-Host "Installing SCIP..." -NoNewline
     $scipPath = "C:\Program Files\SCIPOptSuite"
     if (-not (Test-Path $gurobiPath))
     {
-        Write-Host "Installing SCIP..." -NoNewline
         Set-Location "C:\"
         $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
         Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
         Start-Process -FilePath $SCIP_INSTALLER -Wait
         Remove-Item $SCIP_INSTALLER
         Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $scipPath -ErrorAction SilentlyContinue
-        Write-Host " done."
     }
+    Write-Host " done."
 
     # Install HiGHS
+    Write-Host "Installing HiGHS..." -NoNewline
     $highsPath = "C:\HiGHS"
     if (-not (Test-Path $gurobiPath))
     {
-        Write-Host "Installing HiGHS..." -NoNewline
         Set-Location "C:\"
         git clone https://github.com/ERGO-Code/HiGHS.git
         Set-Location "HiGHS"
@@ -109,8 +109,8 @@ if ($OS -eq "Win32NT")
         & cmake --build . --config Release
         & cmake --install .
         Set-Location "C:\"
-        Write-Host " done."
     }
+    Write-Host " done."
 
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
