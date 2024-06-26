@@ -96,7 +96,7 @@ if ($OS -eq "Win32NT")
     Write-Host " done."
 
     # Install HiGHS
-    Write-Host "Installing HiGHS..." -NoNewline
+    Write-Host "Installing HiGHS..."
     $highsPath = "C:\HiGHS"
     if (-not (Test-Path $highsPath))
     {
@@ -110,7 +110,6 @@ if ($OS -eq "Win32NT")
         & cmake --install .
         Set-Location "C:\"
     }
-    Write-Host " done."
 
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
