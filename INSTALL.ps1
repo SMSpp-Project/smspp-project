@@ -200,7 +200,7 @@ Write-Host "Compiling SMSpp..."
 & $cmakePath '--build' '.' '--config' 'Debug'
 & $cmakePath '--install' '.'
 # Build Release
-& $cmakePath "-DCMAKE_INSTALL_PREFIX="$repoPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Release'
 & $cmakePath '--install' '.'
 Set-Location ".."
