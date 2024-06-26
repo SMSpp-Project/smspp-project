@@ -108,9 +108,9 @@ if ($OS -eq "Win32NT")
         Set-Location "HiGHS"
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
-        & "$cmakePath -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake .."
-        & "$cmakePath --build . --config Release"
-        & "$cmakePath --install ."
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
+        & $cmakePath '--build' '.' '--config' 'Release'
+        & $cmakePath '--install' '.'
         Set-Location "C:\"
     }
 
@@ -189,8 +189,8 @@ Set-Location $repoPath
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
-& "$cmakePath -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev .."
+& $cmakePath '-DCMAKE_INSTALL_PREFIX=C:\SMSpp' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
 Write-Host "Compiling SMSpp..."
-& "$cmakePath --build . --config Release"
-& "$cmakePath --install ."
+& $cmakePath '--build' '.' '--config' 'Release'
+& $cmakePath '--install' '.'
 Set-Location ".."
