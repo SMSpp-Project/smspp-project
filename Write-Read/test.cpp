@@ -4,14 +4,13 @@
 /** @file
  * Main for testing read_mps feature
  *
- * A "random" PolyhedralFunction is constructed and represented in terms
- * of linear inequalities for an otherwise "empty" AbstractBlock. The
- * Block is then solved by a CPXMILPSolver which also produce a .mps file with 
- * the data of the model. This file is then read again from another 
- * AbstractBlock and solved by a (possibly) different LP Solver. The results
- * are then compared to assess the equality between the written and read model. 
- * The first Block is then repeatedly randomly modified, and each time the 
- * same procedure is applied.
+ * A "random" a Linear Program is constructed and represented in an 
+ * AbstractBlock. The Block is then solved by a *MILPSolver which also produces
+ * a .lp/.mps file with the data of the model. This file is then read again 
+ * from another AbstractBlock and solved by a (possibly) different LP Solver.
+ * The results are then compared to assess the equality between the written 
+ * and read model. The first Block is then repeatedly randomly modified, 
+ * and each time the same procedure is applied.
  *
  * \author Antonio Frangioni \n
  *         Dipartimento di Informatica \n
