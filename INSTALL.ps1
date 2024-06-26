@@ -108,7 +108,12 @@ if ($OS -eq "Win32NT")
         Set-Location "HiGHS"
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
+        # Builg Debug
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
+        & $cmakePath '--build' '.' '--config' 'Debug'
+        & $cmakePath '--install' '.'
+        # Builg Release
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
         & $cmakePath '--build' '.' '--config' 'Release'
         & $cmakePath '--install' '.'
         Set-Location "C:\"
