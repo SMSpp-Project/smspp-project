@@ -194,8 +194,13 @@ Set-Location $repoPath
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
-& $cmakePath '-DCMAKE_INSTALL_PREFIX=$repoPath' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
 Write-Host "Compiling SMSpp..."
+# Build Debug
+& $cmakePath '-DCMAKE_INSTALL_PREFIX=$repoPath' '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath '--build' '.' '--config' 'Debug'
+& $cmakePath '--install' '.'
+# Build Release
+& $cmakePath '-DCMAKE_INSTALL_PREFIX=$repoPath' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Release'
 & $cmakePath '--install' '.'
 Set-Location ".."
