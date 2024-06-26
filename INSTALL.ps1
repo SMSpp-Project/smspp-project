@@ -161,6 +161,7 @@ if ($OS -eq "Win32NT")
     Set-Location "C:\vcpkg"
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
     Remove-Item -Path "C:\vcpkg-registry" -Recurse
+    Set-Location "C:\"
 
     Write-Host "Installation completed successfully on Windows."
 }
