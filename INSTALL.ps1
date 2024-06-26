@@ -53,7 +53,7 @@ if ($OS -eq "Win32NT")
     {
         Write-Host "Installing CPLEX..." -NoNewline
         $cplexPath = "C:\IBM\ILOG\CPLEX_Studio"
-        if (-not (Test-Path $gurobiPath))
+        if (-not (Test-Path $cplexPath))
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
@@ -84,7 +84,7 @@ if ($OS -eq "Win32NT")
     # Install SCIP
     Write-Host "Installing SCIP..." -NoNewline
     $scipPath = "C:\Program Files\SCIPOptSuite"
-    if (-not (Test-Path $gurobiPath))
+    if (-not (Test-Path $scipPath))
     {
         Set-Location "C:\"
         $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
@@ -98,7 +98,7 @@ if ($OS -eq "Win32NT")
     # Install HiGHS
     Write-Host "Installing HiGHS..." -NoNewline
     $highsPath = "C:\HiGHS"
-    if (-not (Test-Path $gurobiPath))
+    if (-not (Test-Path $highsPath))
     {
         Set-Location "C:\"
         git clone https://github.com/ERGO-Code/HiGHS.git
