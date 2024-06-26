@@ -51,50 +51,66 @@ if ($OS -eq "Win32NT")
     # Install CPLEX if necessary
     if (-not $withoutCplex)
     {
-        Write-Host "Installing CPLEX..." -NoNewline
-        Set-Location "C:\"
-        $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
-        Invoke-WebRequest -Uri "https://TODO/$CPLEX_INSTALLER" -OutFile $CPLEX_INSTALLER
-        Start-Process -FilePath $CPLEX_INSTALLER -Wait
-        Remove-Item $CPLEX_INSTALLER
-        # Copy from Program Files to C:\ to avoid errors due to spaces
-        Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
-        Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination "C:\IBM\ILOG\CPLEX_Studio" -ErrorAction SilentlyContinue
-        Write-Host " done."
+        $cplexPath = "C:\IBM\ILOG\CPLEX_Studio"
+        if (-not (Test-Path $gurobiPath))
+        {
+            Write-Host "Installing CPLEX..." -NoNewline
+            Set-Location "C:\"
+            $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
+            Invoke-WebRequest -Uri "https://TODO/$CPLEX_INSTALLER" -OutFile $CPLEX_INSTALLER
+            Start-Process -FilePath $CPLEX_INSTALLER -Wait
+            Remove-Item $CPLEX_INSTALLER
+            # Copy from Program Files to C:\ to avoid errors due to spaces
+            Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
+            Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $cplexPath -ErrorAction SilentlyContinue
+            Write-Host " done."
+        }
     }
 
     # Install Gurobi
-    Write-Host "Installing Gurobi..." -NoNewline
-    Set-Location "C:\"
-    $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
-    Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
-    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
-    Remove-Item $GUROBI_INSTALLER
-    Move-Item -Path ".\gurobi1003" -Destination "C:\gurobi" -ErrorAction SilentlyContinue
-    Write-Host " done."
+    $gurobiPath = "C:\gurobi"
+    if (-not (Test-Path $gurobiPath))
+    {
+        Write-Host "Installing Gurobi..." -NoNewline
+        Set-Location "C:\"
+        $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
+        Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
+        Remove-Item $GUROBI_INSTALLER
+        Move-Item -Path ".\gurobi1003" -Destination $gurobiPath -ErrorAction SilentlyContinue
+        Write-Host " done."
+    }
 
     # Install SCIP
-    Write-Host "Installing SCIP..." -NoNewline
-    Set-Location "C:\"
-    $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
-    Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
-    Start-Process -FilePath $SCIP_INSTALLER -Wait
-    Remove-Item $SCIP_INSTALLER
-    Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination "C:\Program Files\SCIPOptSuite" -ErrorAction SilentlyContinue
-    Write-Host " done."
+    $scipPath = "C:\Program Files\SCIPOptSuite"
+    if (-not (Test-Path $gurobiPath))
+    {
+        Write-Host "Installing SCIP..." -NoNewline
+        Set-Location "C:\"
+        $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
+        Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
+        Start-Process -FilePath $SCIP_INSTALLER -Wait
+        Remove-Item $SCIP_INSTALLER
+        Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $scipPath -ErrorAction SilentlyContinue
+        Write-Host " done."
+    }
 
     # Install HiGHS
-    Write-Host "Installing HiGHS..." -NoNewline
-    Set-Location "C:\"
-    git clone https://github.com/ERGO-Code/HiGHS.git
-    Set-Location "HiGHS"
-    New-Item -Path "build" -ItemType Directory -Force
-    Set-Location "build"
-    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
-    cmake --build . --config Release
-    cmake --install .
-    Set-Location "C:\"
-    Write-Host " done."
+    $highsPath = "C:\HiGHS"
+    if (-not (Test-Path $gurobiPath))
+    {
+        Write-Host "Installing HiGHS..." -NoNewline
+        Set-Location "C:\"
+        git clone https://github.com/ERGO-Code/HiGHS.git
+        Set-Location "HiGHS"
+        New-Item -Path "build" -ItemType Directory -Force
+        Set-Location "build"
+        & cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+        & cmake --build . --config Release
+        & cmake --install .
+        Set-Location "C:\"
+        Write-Host " done."
+    }
 
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
@@ -134,7 +150,7 @@ if ($OS -eq "Win32NT")
     }
 
     # Install COIN-OR Osi/Clp
-    Write-Host "Installing COIN-OR Osi with CPLEX and Gurobi support..."
+    Write-Host "Installing COIN-OR Osi/Clp..."
     Set-Location "C:\vcpkg"
     .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
 
@@ -170,8 +186,8 @@ Set-Location $repoPath
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
-cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
+& cmake -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev ..
 Write-Host "Compiling SMSpp..."
-cmake --build . --config Release
-cmake --install .
+& cmake --build . --config Release
+& cmake --install .
 Set-Location ".."
