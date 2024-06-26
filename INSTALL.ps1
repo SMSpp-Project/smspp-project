@@ -108,9 +108,9 @@ if ($OS -eq "Win32NT")
         Set-Location "HiGHS"
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
-        & $cmakePath '--build' '.' '--config' 'Release'
-        & $cmakePath '--install' '.'
+        Invoke-Expression "$cmakePath -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=C:\HiGHS -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake .."
+        Invoke-Expression "$cmakePath --build . --config Release"
+        Invoke-Expression "$cmakePath --install ."
         Set-Location "C:\"
     }
 
@@ -162,7 +162,7 @@ if ($OS -eq "Win32NT")
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location "C:\vcpkg"
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
-    Remove-Item -Path "C:\vcpkg-registry" -Recurse
+    Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
     Set-Location "C:\"
 
     Write-Host "Installation completed successfully on Windows."
@@ -189,8 +189,8 @@ Set-Location $repoPath
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
-& $cmakePath '-DCMAKE_INSTALL_PREFIX=C:\SMSpp' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
+Invoke-Expression "$cmakePath -DCMAKE_INSTALL_PREFIX=C:\SMSpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -Wno-dev .."
 Write-Host "Compiling SMSpp..."
-& $cmakePath '--build' '.' '--config' 'Release'
-& $cmakePath '--install' '.'
+Invoke-Expression "$cmakePath --build . --config Release"
+Invoke-Expression "$cmakePath --install ."
 Set-Location ".."
