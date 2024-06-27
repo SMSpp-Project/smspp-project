@@ -60,7 +60,7 @@ if ($OS -eq "Win32NT")
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
-            Invoke-WebRequest -Uri "https://TODO/$CPLEX_INSTALLER" -OutFile $CPLEX_INSTALLER
+            Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/ue5hhfngob5it20d88al0/$CPLEX_INSTALLER?rlkey=czafnfkupr1o841u6tbzg1sye&st=uonracxk&dl=0" -OutFile $CPLEX_INSTALLER
             Start-Process -FilePath $CPLEX_INSTALLER -Wait
             Remove-Item $CPLEX_INSTALLER
             # Copy from Program Files to C:\ to avoid errors due to spaces
