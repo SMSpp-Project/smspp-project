@@ -1,4 +1,4 @@
-# RUN THIS SCRIPT FROM A "DEVELOPER POWERSHELL FOR VS" AS ADMINISTRATOR
+# RUN FROM A POWERSHELL WITH ADMINISTRATOR RIGHTS
 
 # Default value indicating if CPLEX should be installed
 param(
@@ -28,6 +28,9 @@ if ($OS -eq "Win32NT")
         Start-Process -FilePath $VISUAL_STUDIO_INSTALLER -Wait
         Remove-Item $VISUAL_STUDIO_INSTALLER
     }
+
+    # Load the developer PowerShell for Visual Studio
+    & "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
 
     # Install basic requirements using Chocolatey
     Write-Host "Installing basic requirements..."
