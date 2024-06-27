@@ -124,13 +124,13 @@ if ($OS -eq "Win32NT")
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
-        & CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-        & CMAKE_EXE '--build' '.' '--config' 'Debug'
-        & CMAKE_EXE '--install' '.'
+        & $CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & $CMAKE_EXE '--build' '.' '--config' 'Debug'
+        & $CMAKE_EXE '--install' '.'
         # Build Release
-        & CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-        & CMAKE_EXE '--build' '.' '--config' 'Release'
-        & CMAKE_EXE '--install' '.'
+        & $CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & $CMAKE_EXE '--build' '.' '--config' 'Release'
+        & $CMAKE_EXE '--install' '.'
         Set-Location "C:\"
     }
 
@@ -212,11 +212,11 @@ New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
 Write-Host "Compiling SMSpp..."
 # Build Debug
-& CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
-& CMAKE_EXE '--build' '.' '--config' 'Debug'
-& CMAKE_EXE '--install' '.'
+& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
+& $CMAKE_EXE '--build' '.' '--config' 'Debug'
+& $CMAKE_EXE '--install' '.'
 # Build Release
-& CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
-& CMAKE_EXE '--build' '.' '--config' 'Release'
-& CMAKE_EXE '--install' '.'
+& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
+& $CMAKE_EXE '--build' '.' '--config' 'Release'
+& $CMAKE_EXE '--install' '.'
 Set-Location ".."
