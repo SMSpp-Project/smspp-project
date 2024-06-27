@@ -6,8 +6,11 @@ param(
     [switch]$withoutCplex
 )
 
-# CMake path
+# CMake exe path
 $cmakePath = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+
+# vcpkg base folder path
+$vcpkgPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\vcpkg"
 
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
@@ -26,12 +29,10 @@ if ($OS -eq "Win32NT")
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
 
-    # Install vcpkg
-    Write-Host "Installing vcpkg..."
-    Set-Location "C:\"
-    git clone https://github.com/microsoft/vcpkg.git
-    Set-Location "C:\vcpkg"
-    .\bootstrap-vcpkg.bat
+    # Initialize vcpkg
+    Write-Host "Initializing vcpkg..."
+    Set-Location $vcpkgPath
+    .\vcpkg integrate install
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
@@ -40,7 +41,7 @@ if ($OS -eq "Win32NT")
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
     .\vcpkg install boost --triplet x64-windows
-    Start-Process -FilePath "C:\vcpkg\downloads\msmpisetup-10.1.12498.exe" -Wait
+    Start-Process -FilePath "$vcpkgPath\downloads\msmpisetup-10.1.12498.exe" -Wait
     .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
@@ -60,10 +61,11 @@ if ($OS -eq "Win32NT")
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
-            Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/ue5hhfngob5it20d88al0/$CPLEX_INSTALLER?rlkey=czafnfkupr1o841u6tbzg1sye&st=uonracxk&dl=0" -OutFile $CPLEX_INSTALLER
+            Invoke-WebRequest -Uri "https://ucef1a74fb512f871814d323a7c0.dl.dropboxusercontent.com/cd/0/get/CVquC_SxQ2zPhEsZuYOLqPp_hPwa9zHsMhu4T3zlV8SCiqIWtzPOj9UxwZ5vNhnBKTBO6tT85YWtGHxljgO9gVIXNHvDJXFgHreHCtPBfIO_eqIyCfQVMMGac5rz_HnYlTW9pwlGKREY4fzP-2shF8y9/file#" -OutFile $CPLEX_INSTALLER
             Start-Process -FilePath $CPLEX_INSTALLER -Wait
             Remove-Item $CPLEX_INSTALLER
-            # Copy from Program Files to C:\ to avoid errors due to spaces
+            # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
+            # spaces in the next when building coin COIN-OR Osi with Cplex interface
             Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
             Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $cplexPath -ErrorAction SilentlyContinue
         }
@@ -109,11 +111,11 @@ if ($OS -eq "Win32NT")
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '..'
         & $cmakePath '--build' '.' '--config' 'Debug'
         & $cmakePath '--install' '.'
         # Build Release
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '..'
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '..'
         & $cmakePath '--build' '.' '--config' 'Release'
         & $cmakePath '--install' '.'
         Set-Location "C:\"
@@ -121,15 +123,20 @@ if ($OS -eq "Win32NT")
 
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
-    Set-Location "C:\vcpkg"
+    Set-Location $vcpkgPath
     .\vcpkg install coinutils blas lapack --triplet x64-windows
 
-    Set-Location "C:\vcpkg\ports\coin-or-osi"
+    # Fix the vcpkg installation including the "ports" folder
+    git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+    Copy-Item -Recurse -Force "C:\vcpkg\ports" $vcpkgPath
+    Remove-Item -Recurse -Force "C:\vcpkg"
+
+    Set-Location "$vcpkgPath\ports\coin-or-osi"
 
     # Backup the original portfile.cmake
     Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
 
-    Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi support..."
+    Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
 
     # Use sed `/old/c\new` to replace the configuration line
     sed -i '/--without-gurobi/c\
@@ -139,11 +146,11 @@ if ($OS -eq "Win32NT")
           --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
           --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
 
-    Write-Host "COIN-OR Osi portfile modified for Gurobi support."
+    Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
 
     if (-not $withoutCplex)
     {
-        Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX support..."
+        Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
 
         # Use sed `/old/c\new` to replace the configuration line
         sed -i '/--without-cplex/c\
@@ -153,19 +160,19 @@ if ($OS -eq "Win32NT")
             --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
             --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
 
-        Write-Host "COIN-OR Osi portfile modified for CPLEX support."
+        Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
     }
 
     # Install COIN-OR Osi/Clp
     Write-Host "Installing COIN-OR Osi/Clp..."
-    Set-Location "C:\vcpkg"
+    Set-Location $vcpkgPath
     .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
 
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
     Set-Location "C:\"
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
-    Set-Location "C:\vcpkg"
+    Set-Location $vcpkgPath
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
     Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
     Set-Location "C:\"
@@ -196,11 +203,11 @@ New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
 Write-Host "Compiling SMSpp..."
 # Build Debug
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Debug'
 & $cmakePath '--install' '.'
 # Build Release
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Release'
 & $cmakePath '--install' '.'
 Set-Location ".."

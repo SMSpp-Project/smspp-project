@@ -31,7 +31,7 @@ install_on_ubuntu() {
     echo "Installing CPLEX..."
     cd /opt
     CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
-    curl -O https://TODO/$CPLEX_INSTALLER
+    curl -O https://uc8639030580f677060fd252458a.dl.dropboxusercontent.com/cd/0/get/CVqx7Wm08RSI6GqAMMSI9rRCCEm9kCxR6LnWyifQmYTllU3lizNNvol7cMRwTEDKmNmggYFs44z-UnOvhTpSqNmSjonWTmirhImKnTDTJ2C0dAvJUx9n-9YE1NSZ6voOnsaG6e7JjLpCw3F_Wvkz-utK/file#
     chmod u+x $CPLEX_INSTALLER
     ./$CPLEX_INSTALLER
     rm $CPLEX_INSTALLER
@@ -154,7 +154,7 @@ install_on_macos() {
     echo "Installing CPLEX..."
     cd /Applications
     CPLEX_INSTALLER="cplex_studio2211.osx.zip"
-    curl -O https://TODO/$CPLEX_INSTALLER
+    curl -O https://ucc4078e93bafd88e56fa816e703.dl.dropboxusercontent.com/cd/0/get/CVr9tTGKp6JwpwGLjFchlgCiHRX6H-v5HlghK4LOTX7jMWYMnVQG-_DrDep3NXDWMxkoMzfWCFsAQToDiXy4oPmRXBqBC9zbN6cVE6V6S3c43wgZWibBbfoHAWTH_d8WIjoUg6K7V-NLhnsoUO5rlnDY/file#
     tar -xvf $CPLEX_INSTALLER
     # TODO
     rm $CPLEX_INSTALLER
