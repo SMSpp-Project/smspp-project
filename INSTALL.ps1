@@ -31,10 +31,19 @@ if ($OS -eq "Win32NT")
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
-    git clone https://github.com/microsoft/vcpkg.git $vcpkgPath
-    Set-Location $vcpkgPath
-    .\bootstrap-vcpkg.bat
-
+    if (-not (Test-Path $vcpkgPath))
+    {
+        git clone https://github.com/microsoft/vcpkg.git $vcpkgPath
+        Set-Location $vcpkgPath
+        .\bootstrap-vcpkg.bat
+    }
+    else
+    {
+        Set-Location $vcpkgPath
+        git pull
+        .\bootstrap-vcpkg.bat
+        .\vcpkg upgrade --no-dry-run
+    }
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
