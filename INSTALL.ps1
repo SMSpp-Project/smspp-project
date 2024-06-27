@@ -201,12 +201,13 @@ if (-not (Test-Path $SMSPP_ROOT))
 {
     Write-Host "Repository not found locally. Cloning SMSpp..."
     git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+    Set-Location $SMSPP_ROOT
 }
 else
 {
-    Write-Host "Repository found. Skipping clone."
+    Set-Location $SMSPP_ROOT
+    git pull
 }
-Set-Location $SMSPP_ROOT
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
