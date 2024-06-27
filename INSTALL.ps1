@@ -10,7 +10,7 @@ param(
 $cmakePath = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
 
 # vcpkg base folder path
-$vcpkgPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\vcpkg"
+$vcpkgPath = "C:\vcpkg"
 
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
@@ -29,10 +29,12 @@ if ($OS -eq "Win32NT")
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
 
-    # Initialize vcpkg
-    Write-Host "Initializing vcpkg..."
+    # Install vcpkg
+    Write-Host "Installing vcpkg..."
+    git clone https://github.com/microsoft/vcpkg.git $vcpkgPath
     Set-Location $vcpkgPath
-    .\vcpkg integrate install
+    .\bootstrap-vcpkg.bat
+
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
@@ -105,9 +107,8 @@ if ($OS -eq "Win32NT")
     $highsPath = "C:\HiGHS"
     if (-not (Test-Path $highsPath))
     {
-        Set-Location "C:\"
-        git clone https://github.com/ERGO-Code/HiGHS.git
-        Set-Location "HiGHS"
+        git clone https://github.com/ERGO-Code/HiGHS.git $highsPath
+        Set-Location $highsPath
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
@@ -125,11 +126,6 @@ if ($OS -eq "Win32NT")
     Write-Host "Installing COIN-OR CoinUtils..."
     Set-Location $vcpkgPath
     .\vcpkg install coinutils blas lapack --triplet x64-windows
-
-    # Fix the vcpkg installation including the "ports" folder
-    git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
-    Copy-Item -Recurse -Force "C:\vcpkg\ports" $vcpkgPath
-    Remove-Item -Recurse -Force "C:\vcpkg"
 
     Set-Location "$vcpkgPath\ports\coin-or-osi"
 
@@ -170,8 +166,7 @@ if ($OS -eq "Win32NT")
 
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
-    Set-Location "C:\"
-    git clone https://gitlab.com/stochastic-control/vcpkg-registry
+    git clone https://gitlab.com/stochastic-control/vcpkg-registry $vcpkgPath
     Set-Location $vcpkgPath
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
     Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
@@ -185,29 +180,30 @@ else
     exit 1
 }
 
+# smspp base folder path
+$smsppPath = "C:\smspp-project"
+
 # Compile SMSpp
-$repoPath = "C:\smspp-project"
-# Check if the repo exists
-if (-not (Test-Path $repoPath))
+if (-not (Test-Path $smsppPath))
 {
     Write-Host "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $repoPath
+    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $smsppPath
 }
 else
 {
     Write-Host "Repository found. Skipping clone."
 }
-Set-Location $repoPath
+Set-Location $smsppPath
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
 Write-Host "Compiling SMSpp..."
 # Build Debug
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Debug'
 & $cmakePath '--install' '.'
 # Build Release
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$repoPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Release'
 & $cmakePath '--install' '.'
 Set-Location ".."
