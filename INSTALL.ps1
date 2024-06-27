@@ -112,11 +112,11 @@ if ($OS -eq "Win32NT")
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '..'
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '..'
         & $cmakePath '--build' '.' '--config' 'Debug'
         & $cmakePath '--install' '.'
         # Build Release
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '..'
+        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '..'
         & $cmakePath '--build' '.' '--config' 'Release'
         & $cmakePath '--install' '.'
         Set-Location "C:\"
@@ -166,7 +166,8 @@ if ($OS -eq "Win32NT")
 
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
-    git clone https://gitlab.com/stochastic-control/vcpkg-registry $vcpkgPath
+    Set-Location "C:\"
+    git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location $vcpkgPath
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
     Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
@@ -199,11 +200,11 @@ New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
 Write-Host "Compiling SMSpp..."
 # Build Debug
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Debug'
 & $cmakePath '--install' '.'
 # Build Release
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake' '-Wno-dev' '..'
+& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
 & $cmakePath '--build' '.' '--config' 'Release'
 & $cmakePath '--install' '.'
 Set-Location ".."
