@@ -22,7 +22,7 @@ if ($OS -eq "Win32NT")
     # Install Visual Studio (English language pack) with the "Desktop Development with C++"
     if (-not (Test-Path "C:\Program Files\Microsoft Visual Studio"))
     {
-        Write-Host "Installing Microsoft Visual Studio compiler..."
+        Write-Host "Installing Microsoft Visual Studio compiler (select `"Desktop Development with C++`")..."
         $VISUAL_STUDIO_INSTALLER = "VisualStudioSetup.exe"
         Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/downloadVS.aspx?sku=community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030:108d217f1e244b9aa0326ce9a131978a" -OutFile $VISUAL_STUDIO_INSTALLER
         Start-Process -FilePath $VISUAL_STUDIO_INSTALLER -Wait
