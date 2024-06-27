@@ -193,13 +193,12 @@ else
     exit 1
 }
 
-# smspp base folder path
+# Install SMSPP
+Write-Host "Compiling SMSpp..."
 $SMSPP_ROOT = "C:\smspp-project"
 
-# Compile SMSpp
 if (-not (Test-Path $SMSPP_ROOT))
 {
-    Write-Host "Repository not found locally. Cloning SMSpp..."
     git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
     Set-Location $SMSPP_ROOT
 }
@@ -211,7 +210,6 @@ else
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
-Write-Host "Compiling SMSpp..."
 # Build Debug
 & $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
 & $CMAKE_EXE '--build' '.' '--config' 'Debug'
