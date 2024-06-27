@@ -7,10 +7,10 @@ param(
 )
 
 # CMake exe path
-$cmakePath = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+$CMAKE_EXE = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
 
-# vcpkg base folder path
-$vcpkgPath = "C:\vcpkg"
+# Set the VCPKG_ROOT environment variable
+$env:VCPKG_ROOT = "C:\vcpkg"
 
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
@@ -34,15 +34,15 @@ if ($OS -eq "Win32NT")
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
-    if (-not (Test-Path $vcpkgPath))
+    if (-not (Test-Path $env:VCPKG_ROOT))
     {
-        git clone https://github.com/microsoft/vcpkg.git $vcpkgPath
-        Set-Location $vcpkgPath
+        git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
+        Set-Location $env:VCPKG_ROOT
         .\bootstrap-vcpkg.bat
     }
     else
     {
-        Set-Location $vcpkgPath
+        Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
         .\vcpkg upgrade --no-dry-run
@@ -55,7 +55,7 @@ if ($OS -eq "Win32NT")
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
     .\vcpkg install boost --triplet x64-windows
-    Start-Process -FilePath "$vcpkgPath\downloads\msmpisetup-10.1.12498.exe" -Wait
+    Start-Process -FilePath "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe" -Wait
     .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
@@ -70,8 +70,8 @@ if ($OS -eq "Win32NT")
     if (-not $withoutCplex)
     {
         Write-Host "Installing CPLEX..." -NoNewline
-        $cplexPath = "C:\IBM\ILOG\CPLEX_Studio"
-        if (-not (Test-Path $cplexPath))
+        $CPLEX_ROOT = "C:\IBM\ILOG\CPLEX_Studio"
+        if (-not (Test-Path $CPLEX_ROOT))
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
@@ -81,65 +81,65 @@ if ($OS -eq "Win32NT")
             # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
             # spaces in the next when building coin COIN-OR Osi with Cplex interface
             Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
-            Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $cplexPath -ErrorAction SilentlyContinue
+            Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
         }
         Write-Host " done."
     }
 
     # Install Gurobi
     Write-Host "Installing Gurobi..." -NoNewline
-    $gurobiPath = "C:\gurobi"
-    if (-not (Test-Path $gurobiPath))
+    $GUROBI_ROOT = "C:\gurobi"
+    if (-not (Test-Path $GUROBI_ROOT))
     {
         Set-Location "C:\"
         $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
         Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
         Remove-Item $GUROBI_INSTALLER
-        Move-Item -Path ".\gurobi1003" -Destination $gurobiPath -ErrorAction SilentlyContinue
+        Move-Item -Path ".\gurobi1003" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
     }
     Write-Host " done."
 
     # Install SCIP
     Write-Host "Installing SCIP..." -NoNewline
-    $scipPath = "C:\Program Files\SCIPOptSuite"
-    if (-not (Test-Path $scipPath))
+    $SCIP_ROOT = "C:\Program Files\SCIPOptSuite"
+    if (-not (Test-Path $SCIP_ROOT))
     {
         Set-Location "C:\"
         $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
         Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
         Start-Process -FilePath $SCIP_INSTALLER -Wait
         Remove-Item $SCIP_INSTALLER
-        Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $scipPath -ErrorAction SilentlyContinue
+        Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $SCIP_ROOT -ErrorAction SilentlyContinue
     }
     Write-Host " done."
 
     # Install HiGHS
     Write-Host "Installing HiGHS..."
-    $highsPath = "C:\HiGHS"
-    if (-not (Test-Path $highsPath))
+    $HiGHS_ROOT = "C:\HiGHS"
+    if (-not (Test-Path $HiGHS_ROOT))
     {
-        git clone https://github.com/ERGO-Code/HiGHS.git $highsPath
-        Set-Location $highsPath
+        git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
+        Set-Location $HiGHS_ROOT
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '..'
-        & $cmakePath '--build' '.' '--config' 'Debug'
-        & $cmakePath '--install' '.'
+        & CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & CMAKE_EXE '--build' '.' '--config' 'Debug'
+        & CMAKE_EXE '--install' '.'
         # Build Release
-        & $cmakePath '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '..'
-        & $cmakePath '--build' '.' '--config' 'Release'
-        & $cmakePath '--install' '.'
+        & CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & CMAKE_EXE '--build' '.' '--config' 'Release'
+        & CMAKE_EXE '--install' '.'
         Set-Location "C:\"
     }
 
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
-    Set-Location $vcpkgPath
+    Set-Location $env:VCPKG_ROOT
     .\vcpkg install coinutils blas lapack --triplet x64-windows
 
-    Set-Location "$vcpkgPath\ports\coin-or-osi"
+    Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
 
     # Backup the original portfile.cmake
     Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
@@ -173,14 +173,14 @@ if ($OS -eq "Win32NT")
 
     # Install COIN-OR Osi/Clp
     Write-Host "Installing COIN-OR Osi/Clp..."
-    Set-Location $vcpkgPath
+    Set-Location $env:VCPKG_ROOT
     .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
 
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
     Set-Location "C:\"
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
-    Set-Location $vcpkgPath
+    Set-Location $env:VCPKG_ROOT
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
     Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
     Set-Location "C:\"
@@ -194,29 +194,29 @@ else
 }
 
 # smspp base folder path
-$smsppPath = "C:\smspp-project"
+$SMSPP_ROOT = "C:\smspp-project"
 
 # Compile SMSpp
-if (-not (Test-Path $smsppPath))
+if (-not (Test-Path $SMSPP_ROOT))
 {
     Write-Host "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $smsppPath
+    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
 }
 else
 {
     Write-Host "Repository found. Skipping clone."
 }
-Set-Location $smsppPath
+Set-Location $SMSPP_ROOT
 
 New-Item -Path "build" -ItemType Directory -Force
 Set-Location "build"
 Write-Host "Compiling SMSpp..."
 # Build Debug
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
-& $cmakePath '--build' '.' '--config' 'Debug'
-& $cmakePath '--install' '.'
+& CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
+& CMAKE_EXE '--build' '.' '--config' 'Debug'
+& CMAKE_EXE '--install' '.'
 # Build Release
-& $cmakePath "-DCMAKE_INSTALL_PREFIX=$smsppPath" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$vcpkgPath/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
-& $cmakePath '--build' '.' '--config' 'Release'
-& $cmakePath '--install' '.'
+& CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
+& CMAKE_EXE '--build' '.' '--config' 'Release'
+& CMAKE_EXE '--install' '.'
 Set-Location ".."
