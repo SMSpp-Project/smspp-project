@@ -47,21 +47,21 @@ if ($OS -eq "Win32NT")
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
-    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
+    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows --vcpkg-root
 
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
-    .\vcpkg install boost --triplet x64-windows
+    .\vcpkg install boost --triplet x64-windows --vcpkg-root
     Start-Process -FilePath "$vcpkgPath\downloads\msmpisetup-10.1.12498.exe" -Wait
-    .\vcpkg install boost-mpi --triplet x64-windows
+    .\vcpkg install boost-mpi --triplet x64-windows --vcpkg-root
 
     # Install Eigen
     Write-Host "Installing Eigen..."
-    .\vcpkg install eigen3 --triplet x64-windows
+    .\vcpkg install eigen3 --triplet x64-windows --vcpkg-root
 
     # Install NetCDF
     Write-Host "Installing NetCDF..."
-    .\vcpkg install netcdf-cxx4 --triplet x64-windows
+    .\vcpkg install netcdf-cxx4 --triplet x64-windows --vcpkg-root
 
     # Install CPLEX if necessary
     if (-not $withoutCplex)
@@ -134,7 +134,7 @@ if ($OS -eq "Win32NT")
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
     Set-Location $vcpkgPath
-    .\vcpkg install coinutils blas lapack --triplet x64-windows
+    .\vcpkg install coinutils blas lapack --triplet x64-windows --vcpkg-root
 
     Set-Location "$vcpkgPath\ports\coin-or-osi"
 
@@ -171,14 +171,14 @@ if ($OS -eq "Win32NT")
     # Install COIN-OR Osi/Clp
     Write-Host "Installing COIN-OR Osi/Clp..."
     Set-Location $vcpkgPath
-    .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
+    .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows --vcpkg-root
 
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
     Set-Location "C:\"
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location $vcpkgPath
-    .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
+    .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows --vcpkg-root
     Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
     Set-Location "C:\"
 
