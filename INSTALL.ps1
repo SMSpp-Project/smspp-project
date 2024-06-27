@@ -22,9 +22,12 @@ if ($OS -eq "Win32NT")
 
     # Install basic requirements using Chocolatey
     Write-Host "Installing basic requirements..."
-    Set-ExecutionPolicy Bypass -Scope Process -Force
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    if (-not (Test-Path "C:\ProgramData\chocolatey"))
+    {
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    }
     choco install git sed
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
@@ -47,21 +50,21 @@ if ($OS -eq "Win32NT")
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
-    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows --vcpkg-root
+    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
 
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
-    .\vcpkg install boost --triplet x64-windows --vcpkg-root
+    .\vcpkg install boost --triplet x64-windows
     Start-Process -FilePath "$vcpkgPath\downloads\msmpisetup-10.1.12498.exe" -Wait
-    .\vcpkg install boost-mpi --triplet x64-windows --vcpkg-root
+    .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
     Write-Host "Installing Eigen..."
-    .\vcpkg install eigen3 --triplet x64-windows --vcpkg-root
+    .\vcpkg install eigen3 --triplet x64-windows
 
     # Install NetCDF
     Write-Host "Installing NetCDF..."
-    .\vcpkg install netcdf-cxx4 --triplet x64-windows --vcpkg-root
+    .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX if necessary
     if (-not $withoutCplex)
@@ -134,7 +137,7 @@ if ($OS -eq "Win32NT")
     # Install COIN-OR CoinUtils
     Write-Host "Installing COIN-OR CoinUtils..."
     Set-Location $vcpkgPath
-    .\vcpkg install coinutils blas lapack --triplet x64-windows --vcpkg-root
+    .\vcpkg install coinutils blas lapack --triplet x64-windows
 
     Set-Location "$vcpkgPath\ports\coin-or-osi"
 
@@ -171,14 +174,14 @@ if ($OS -eq "Win32NT")
     # Install COIN-OR Osi/Clp
     Write-Host "Installing COIN-OR Osi/Clp..."
     Set-Location $vcpkgPath
-    .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows --vcpkg-root
+    .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
 
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
     Set-Location "C:\"
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location $vcpkgPath
-    .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows --vcpkg-root
+    .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
     Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
     Set-Location "C:\"
 
