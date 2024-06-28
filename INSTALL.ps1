@@ -87,7 +87,7 @@ if ($OS -eq "Win32NT")
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
-            Invoke-WebRequest -Uri "https://ucef1a74fb512f871814d323a7c0.dl.dropboxusercontent.com/cd/0/get/CVquC_SxQ2zPhEsZuYOLqPp_hPwa9zHsMhu4T3zlV8SCiqIWtzPOj9UxwZ5vNhnBKTBO6tT85YWtGHxljgO9gVIXNHvDJXFgHreHCtPBfIO_eqIyCfQVMMGac5rz_HnYlTW9pwlGKREY4fzP-2shF8y9/file#" -OutFile $CPLEX_INSTALLER
+            Invoke-WebRequest -Uri "https://drive.google.com/uc?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta&export=download" -OutFile $CPLEX_INSTALLER
             Start-Process -FilePath $CPLEX_INSTALLER -Wait
             Remove-Item $CPLEX_INSTALLER
             # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
