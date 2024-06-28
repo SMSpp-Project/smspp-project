@@ -87,14 +87,21 @@ if ($OS -eq "Win32NT")
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
-            & wget "https://drive.google.com/uc?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta&export=download" -OutFile $CPLEX_INSTALLER
-            # Invoke-WebRequest -Uri "https://drive.google.com/uc?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta&export=download" -OutFile $CPLEX_INSTALLER
-            Start-Process -FilePath $CPLEX_INSTALLER -Wait
-            Remove-Item $CPLEX_INSTALLER
-            # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
-            # spaces in the next when building coin COIN-OR Osi with Cplex interface
-            Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
-            Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
+            $response = Invoke-WebRequest -Uri $initialUrl -SessionVariable session
+            if ($response.Content -match 'name="uuid" value="([^"]+)"')
+            {
+                Invoke-WebRequest -Uri "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta&export=download&authuser=0&confirm=t&uuid=$matches[1]" -OutFile $CPLEX_INSTALLER
+                Start-Process -FilePath $CPLEX_INSTALLER -Wait
+                Remove-Item $CPLEX_INSTALLER
+                # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
+                # spaces in the next when building coin COIN-OR Osi with Cplex interface
+                Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
+                Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
+            }
+            else
+            {
+                Write-Host "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+            }
         }
         Write-Host " done."
     }
