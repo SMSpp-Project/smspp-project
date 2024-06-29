@@ -91,7 +91,7 @@ if ($OS -eq "Win32NT")
             if ((Invoke-WebRequest -Uri $CPLEX_URL -SessionVariable session).Content -match 'name="uuid" value="([^"]+)"')
             {
                 Start-BitsTransfer -Source "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$matches[1]" -Destination $CPLEX_INSTALLER
-                Start-Process -FilePath $CPLEX_INSTALLER -Wait
+                Start-Process -FilePath $CPLEX_INSTALLER -Wait -Verb RunAs
                 Remove-Item $CPLEX_INSTALLER
                 # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
                 # spaces in the next when building coin COIN-OR Osi with Cplex interface
