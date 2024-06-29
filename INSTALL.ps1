@@ -93,9 +93,9 @@ if ($OS -eq "Win32NT")
                 Start-BitsTransfer -Source "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$matches[1]" -Destination $CPLEX_INSTALLER
                 Start-Process -FilePath $CPLEX_INSTALLER -Wait
                 Remove-Item $CPLEX_INSTALLER
-                # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
+                # Move "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
                 # spaces in the next when building coin COIN-OR Osi with Cplex interface
-                Copy-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM" -Recurse
+                Move-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM"
                 Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
             }
             else
