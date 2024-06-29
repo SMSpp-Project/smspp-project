@@ -23,7 +23,7 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path "C:\Program Files\Microsoft Visual Studio"))
     {
         Write-Host "Installing Microsoft Visual Studio compiler (select `"Desktop Development with C++`")..."
-        $VISUAL_STUDIO_INSTALLER = "VisualStudioSetup.exe"
+        $VISUAL_STUDIO_INSTALLER = "C:\VisualStudioSetup.exe"
         Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/downloadVS.aspx?sku=community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030:108d217f1e244b9aa0326ce9a131978a" -OutFile $VISUAL_STUDIO_INSTALLER
         Start-Process -FilePath $VISUAL_STUDIO_INSTALLER -Wait
         Remove-Item $VISUAL_STUDIO_INSTALLER
@@ -86,12 +86,12 @@ if ($OS -eq "Win32NT")
         if (-not (Test-Path $CPLEX_ROOT))
         {
             Set-Location "C:\"
-            $CPLEX_INSTALLER = "cplex_studio2211.win_x86_64.exe"
+            $CPLEX_INSTALLER = "C:\cplex_studio2211.win_x86_64.exe"
             $CPLEX_URL = "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta"
             if ((Invoke-WebRequest -Uri $CPLEX_URL -SessionVariable session).Content -match 'name="uuid" value="([^"]+)"')
             {
                 Start-BitsTransfer -Source "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$matches[1]" -Destination $CPLEX_INSTALLER
-                Start-Process -FilePath $CPLEX_INSTALLER -Wait -Verb RunAs
+                Start-Process -FilePath $CPLEX_INSTALLER -Wait
                 Remove-Item $CPLEX_INSTALLER
                 # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
                 # spaces in the next when building coin COIN-OR Osi with Cplex interface
@@ -112,7 +112,7 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $GUROBI_ROOT))
     {
         Set-Location "C:\"
-        $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
+        $GUROBI_INSTALLER = "C:\Gurobi-10.0.3-win64.msi"
         Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
         Remove-Item $GUROBI_INSTALLER
@@ -126,7 +126,7 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $SCIP_ROOT))
     {
         Set-Location "C:\"
-        $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
+        $SCIP_INSTALLER = "C:\SCIPOptSuite-9.0.0-win64-VS15.exe"
         Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
         Start-Process -FilePath $SCIP_INSTALLER -Wait
         Remove-Item $SCIP_INSTALLER
