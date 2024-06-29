@@ -90,7 +90,7 @@ if ($OS -eq "Win32NT")
             $response = Invoke-WebRequest -Uri $initialUrl -SessionVariable session
             if ($response.Content -match 'name="uuid" value="([^"]+)"')
             {
-                Invoke-WebRequest -Uri "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta&export=download&authuser=0&confirm=t&uuid=$matches[1]" -OutFile $CPLEX_INSTALLER
+                Invoke-WebRequest -Uri "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta&export=download&authuser=0&confirm=t&uuid=$matches[1]" -OutFile $CPLEX_INSTALLER -UseBasicParsing -TimeoutSec 120
                 Start-Process -FilePath $CPLEX_INSTALLER -Wait
                 Remove-Item $CPLEX_INSTALLER
                 # Copy "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
