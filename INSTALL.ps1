@@ -12,6 +12,7 @@
 
     .NOTES
     Ensure that you run this script using PowerShell with administrative privileges.
+
     If you encounter an error about script execution policies, use the following command to temporarily allow
     script execution for the current session:
         Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
@@ -42,9 +43,6 @@ $CMAKE_EXE = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\ID
 
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
-
-# Modify the current
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
@@ -102,7 +100,10 @@ if ($OS -eq "Win32NT")
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
     .\vcpkg install boost --triplet x64-windows
-    Start-Process -FilePath "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe" -Wait
+    if (-not (Test-Path "C:\Program Files\Microsoft MPI"))
+    {
+        Start-Process -FilePath "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe" -Wait
+    }
     .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
