@@ -5,6 +5,7 @@
     .DESCRIPTION
     This script performs the installation of SMS++ and all its dependencies.
     If not already present, it clones the smspp-project repositories, then builds and installs them.
+
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
 
     .AUTHOR
