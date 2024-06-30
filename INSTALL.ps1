@@ -11,7 +11,12 @@
     Donato Meoli
 
     .NOTES
-    Ensure that you run this script using a PowerShell with administrative privileges.
+    Ensure that you run this script using PowerShell with administrative privileges.
+    If you encounter an error about script execution policies, use the following command to temporarily allow
+    script execution for the current session:
+        Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+    otherwise, you can modify the script execution policy overall in the system by:
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
 
     .EXAMPLE
     If you are inside the cloned repository:
@@ -37,6 +42,9 @@ $CMAKE_EXE = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\ID
 
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
+
+# Modify the current
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
