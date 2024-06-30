@@ -1,4 +1,31 @@
-# RUN FROM A POWERSHELL WITH ADMINISTRATOR RIGHTS
+<#
+    .SYNOPSIS
+    This script installs SMS++ and all its dependencies.
+
+    .DESCRIPTION
+    This script performs the installation of SMS++ and all its dependencies.
+    If not already present, it clones the smspp-project repositories, then builds and installs them.
+    You can use the `-withoutCplex` option to skip the installation of CPLEX.
+
+    .AUTHOR
+    Donato Meoli
+
+    .NOTES
+    Ensure that you run this script using a PowerShell with administrative privileges.
+
+    .EXAMPLE
+    If you are inside the cloned repository:
+        .\INSTALL.ps1
+    or:
+        .\INSTALL.ps1 -withoutCplex
+    if you do not have a CPLEX license.
+
+    If you have not cloned the repository:
+        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
+    or:
+        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutCplex
+    if you do not have a CPLEX license.
+#>
 
 # Default value indicating if CPLEX should be installed
 param(
