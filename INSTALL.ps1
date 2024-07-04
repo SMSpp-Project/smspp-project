@@ -7,6 +7,7 @@
     If not already present, it clones the smspp-project repositories, then builds and installs them.
 
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
+    You can use the `-withoutGurobi` option to skip the installation of CPLEX.
 
     .AUTHOR
     Donato Meoli
@@ -16,27 +17,43 @@
 
     If you encounter an error about script execution policies, use the following command to temporarily allow
     script execution for the current session:
+
         Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
     otherwise, you can modify the script execution policy overall in the system by:
+
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
 
     .EXAMPLE
     If you are inside the cloned repository:
+
         .\INSTALL.ps1
+
     or:
+
         .\INSTALL.ps1 -withoutCplex
     if you do not have a CPLEX license.
 
+        .\INSTALL.ps1 -withoutGurobi
+    if you do not have a Gurobi license.
+
     If you have not cloned the repository:
+
         & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
+
     or:
+
         & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutCplex
     if you do not have a CPLEX license.
+
+        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutGurobi
+    if you do not have a Gurobi license.
 #>
 
 # Default value indicating if CPLEX should be installed
 param(
-    [switch]$withoutCplex
+    [switch]$withoutCplex,
+    [switch]$withoutGurobi
 )
 
 # CMake exe path
@@ -143,19 +160,22 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
-    # Install Gurobi
-    Write-Host "Installing Gurobi..." -NoNewline
-    $GUROBI_ROOT = "C:\gurobi"
-    if (-not (Test-Path $GUROBI_ROOT))
+    # Install Gurobi if necessary
+    if (-not $withoutGurobi)
     {
-        Set-Location "C:\"
-        $GUROBI_INSTALLER = "C:\Gurobi-10.0.3-win64.msi"
-        Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
-        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
-        Remove-Item $GUROBI_INSTALLER
-        Move-Item -Path ".\gurobi1003" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
+        Write-Host "Installing Gurobi..." -NoNewline
+        $GUROBI_ROOT = "C:\gurobi"
+        if (-not (Test-Path $GUROBI_ROOT))
+        {
+            Set-Location "C:\"
+            $GUROBI_INSTALLER = "C:\Gurobi-10.0.3-win64.msi"
+            Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
+            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
+            Remove-Item $GUROBI_INSTALLER
+            Move-Item -Path ".\gurobi1003" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
+        }
+        Write-Host " done."
     }
-    Write-Host " done."
 
     # Install SCIP
     Write-Host "Installing SCIP..." -NoNewline
@@ -196,26 +216,34 @@ if ($OS -eq "Win32NT")
     Set-Location $env:VCPKG_ROOT
     .\vcpkg install coinutils blas lapack --triplet x64-windows
 
-    Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
+    if (-not $withoutGurobi)
+    {
+        Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
 
-    # Backup the original portfile.cmake
-    Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+        Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
 
-    Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
+        # Backup the original portfile.cmake
+        #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
 
-    # Use sed `/old/c\new` to replace the configuration line
-    sed -i '/--without-gurobi/c\
+        # Use sed `/old/c\new` to replace the configuration line
+        sed -i '/--without-gurobi/c\
           --with-gurobi\
           --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
           --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
           --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
           --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
 
-    Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+        Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+    }
 
     if (-not $withoutCplex)
     {
         Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
+
+        Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
+
+        # Backup the original portfile.cmake
+        #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
 
         # Use sed `/old/c\new` to replace the configuration line
         sed -i '/--without-cplex/c\
