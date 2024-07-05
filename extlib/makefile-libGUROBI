@@ -51,7 +51,7 @@ endif
 
 ifeq ($(UNAME_S),Windows)
     libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 \
-               -L"$(vcpkg_ROOT)/lib" $(libGUROBIEXTLIB)
+               -L"$(VCPKG_ROOT)/lib" $(libGUROBIEXTLIB)
 else
     libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
 endif
