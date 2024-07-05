@@ -108,19 +108,32 @@ if ($OS -eq "Win32NT")
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
-        <#if (.\vcpkg list | Select-String -Pattern "^stopt\b")
+        if (.\vcpkg list | Select-String -Pattern "^stopt\b")
         {
-            .\vcpkg remove stopt # remove stopt before upgrade
-            .\vcpkg upgrade --no-dry-run
             Set-Location C:\vcpkg-registry\ports\stopt
-            git pull
-            Set-Location $env:VCPKG_ROOT
-            .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows # reinstall stopt
+            if (git pull -match "Already up to date.")
+            {
+                Set-Location $env:VCPKG_ROOT
+                .\vcpkg list | ForEach-Object {
+                    $package = ($_ -split '\s+')[0]
+                    if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]')
+                    {
+                        .\vcpkg upgrade $package
+                    }
+                }
+            }
+            else
+            {
+                Set-Location $env:VCPKG_ROOT
+                .\vcpkg remove stopt # remove stopt before upgrade
+                .\vcpkg upgrade --no-dry-run
+                .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows # reinstall stopt
+            }
         }
         else
-        {#>
+        {
             .\vcpkg upgrade --no-dry-run
-        #}
+        }
     }
 
     # Install basic requirements with vcpkg
