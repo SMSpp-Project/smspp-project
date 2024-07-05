@@ -100,7 +100,9 @@ else ()
 	set(ARCH x86)
 endif ()
 
-set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if (MSVC)
+	set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif ()
 
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
