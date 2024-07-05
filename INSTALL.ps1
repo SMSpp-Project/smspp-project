@@ -108,7 +108,7 @@ if ($OS -eq "Win32NT")
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
-        .\vcpkg upgrade --no-dry-run
+        .\vcpkg upgrade --exclude stopt
     }
 
     # Install basic requirements with vcpkg
