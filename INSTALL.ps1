@@ -293,16 +293,14 @@ else
     git pull
 }
 
+New-Item -Path "build" -ItemType Directory -Force
+Set-Location "build"
 # Build Debug
-New-Item -Path "build-debug" -ItemType Directory -Force
-Set-Location "build-debug"
-& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' '-DCMAKE_C_COMPILER=mpicc' '-DCMAKE_CXX_COMPILER=mpicxx' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
+& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
 & $CMAKE_EXE '--build' '.' '--config' 'Debug'
 & $CMAKE_EXE '--install' '.'
 # Build Release
-New-Item -Path "build-release" -ItemType Directory -Force
-Set-Location "build-release"
-& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' '-DCMAKE_C_COMPILER=mpicc' '-DCMAKE_CXX_COMPILER=mpicxx' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
+& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
 & $CMAKE_EXE '--build' '.' '--config' 'Release'
 & $CMAKE_EXE '--install' '.'
 Set-Location ".."
