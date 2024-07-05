@@ -110,7 +110,7 @@ if ($OS -eq "Win32NT")
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
-        if (.\vcpkg list | Select-String -Pattern "^stopt\b")
+        if (.\vcpkg list | Select-String -Pattern "^stopt\b") # stopt is installed
         {
             Set-Location $STOPT_VCPKG_REGISTRY
             if ((git pull) -match "Already up to date.") # stopt is latest
@@ -128,9 +128,9 @@ if ($OS -eq "Win32NT")
             else # new stopt version is available
             {
                 Set-Location $env:VCPKG_ROOT
-                .\vcpkg remove stopt # remove old stopt before upgrade
+                .\vcpkg remove stopt # remove the old stopt version before upgrade
                 .\vcpkg upgrade --no-dry-run # upgrade all other packages
-                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY --triplet x64-windows # install new stopt version
+                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY --triplet x64-windows # install the new stopt version
             }
         }
         else
