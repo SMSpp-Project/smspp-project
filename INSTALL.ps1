@@ -108,7 +108,19 @@ if ($OS -eq "Win32NT")
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
-        .\vcpkg upgrade --exclude stopt
+        <#if (.\vcpkg list | Select-String -Pattern "^stopt\b")
+        {
+            .\vcpkg remove stopt # remove stopt before upgrade
+            .\vcpkg upgrade --no-dry-run
+            Set-Location C:\vcpkg-registry\ports\stopt
+            git pull
+            Set-Location $env:VCPKG_ROOT
+            .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows # reinstall stopt
+        }
+        else
+        {#>
+            .\vcpkg upgrade --no-dry-run
+        #}
     }
 
     # Install basic requirements with vcpkg
@@ -267,7 +279,7 @@ if ($OS -eq "Win32NT")
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location $env:VCPKG_ROOT
     .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
-    Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
+    #Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
     Set-Location "C:\"
 
     Write-Host "Installation completed successfully on Windows."
