@@ -201,11 +201,11 @@ if ($OS -eq "Win32NT")
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
-        & $CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & $CMAKE_EXE '--build' '.' '--config' 'Debug'
         & $CMAKE_EXE '--install' '.'
         # Build Release
-        & $CMAKE_EXE '-DFAST_BUILD=ON' '-DCMAKE_INSTALL_PREFIX=C:\HiGHS' '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & $CMAKE_EXE '--build' '.' '--config' 'Release'
         & $CMAKE_EXE '--install' '.'
         Set-Location "C:\"
