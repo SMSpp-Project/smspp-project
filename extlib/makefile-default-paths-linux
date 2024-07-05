@@ -39,7 +39,7 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_ROOT = /usr/local
+Boost_ROOT = /usr/local
 Eigen3_ROOT = /usr
 netCDF_ROOT = /usr/local
 netCDFCxx_ROOT = /usr/local

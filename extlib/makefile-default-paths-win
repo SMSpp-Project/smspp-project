@@ -39,7 +39,7 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_ROOT = C:/vcpkg/installed/x64-windows
+Boost_ROOT = C:/vcpkg/installed/x64-windows
 Eigen3_ROOT = C:/vcpkg/installed/x64-windows
 netCDF_ROOT = C:/vcpkg/installed/x64-windows
 netCDFCxx_ROOT = C:/vcpkg/installed/x64-windows
