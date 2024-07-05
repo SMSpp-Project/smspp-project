@@ -111,7 +111,7 @@ if ($OS -eq "Win32NT")
         if (.\vcpkg list | Select-String -Pattern "^stopt\b")
         {
             Set-Location C:\vcpkg-registry\ports\stopt
-            if (git pull -match "Already up to date.")
+            if ((git pull) -match "Already up to date.")
             {
                 Set-Location $env:VCPKG_ROOT
                 .\vcpkg list | ForEach-Object {
