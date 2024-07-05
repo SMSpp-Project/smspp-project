@@ -62,6 +62,8 @@ $CMAKE_EXE = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\ID
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
+$STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry\ports\stopt"
+
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
 if ($OS -eq "Win32NT")
@@ -110,24 +112,25 @@ if ($OS -eq "Win32NT")
         .\bootstrap-vcpkg.bat
         if (.\vcpkg list | Select-String -Pattern "^stopt\b")
         {
-            Set-Location C:\vcpkg-registry\ports\stopt
-            if ((git pull) -match "Already up to date.")
+            Set-Location $STOPT_VCPKG_REGISTRY
+            if ((git pull) -match "Already up to date.") # stopt is latest
             {
                 Set-Location $env:VCPKG_ROOT
+                # upgrade all other packages ignoring stopt
                 .\vcpkg list | ForEach-Object {
-                    $package = ($_ -split '\s+')[0]
+                    $package = ($_ -split '\s+')[0] # first column
                     if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]')
                     {
                         .\vcpkg upgrade $package
                     }
                 }
             }
-            else
+            else # new stopt version is available
             {
                 Set-Location $env:VCPKG_ROOT
-                .\vcpkg remove stopt # remove stopt before upgrade
-                .\vcpkg upgrade --no-dry-run
-                .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows # reinstall stopt
+                .\vcpkg remove stopt # remove old stopt before upgrade
+                .\vcpkg upgrade --no-dry-run # upgrade all other packages
+                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY --triplet x64-windows # install new stopt version
             }
         }
         else
@@ -291,8 +294,7 @@ if ($OS -eq "Win32NT")
     Set-Location "C:\"
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location $env:VCPKG_ROOT
-    .\vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
-    #Remove-Item -Path "C:\vcpkg-registry" -Recurse -Force
+    .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY --triplet x64-windows
     Set-Location "C:\"
 
     Write-Host "Installation completed successfully on Windows."
