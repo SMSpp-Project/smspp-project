@@ -228,15 +228,15 @@ if ($OS -eq "Win32NT")
         git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
         Set-Location $HiGHS_ROOT
         # Build Debug
-        New-Item -Path "build-debug" -ItemType Directory -Force
-        Set-Location "build-debug"
+        New-Item -Path "cmake-build-debug" -ItemType Directory -Force
+        Set-Location "cmake-build-debug"
         & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & $CMAKE_EXE '--build' '.' '--config' 'Debug'
         & $CMAKE_EXE '--install' '.'
         Set-Location ..
         # Build Release
-        New-Item -Path "build-release" -ItemType Directory -Force
-        Set-Location "build-release"
+        New-Item -Path "cmake-build-release" -ItemType Directory -Force
+        Set-Location "cmake-build-release"
         & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & $CMAKE_EXE '--build' '.' '--config' 'Release'
         & $CMAKE_EXE '--install' '.'
@@ -250,15 +250,15 @@ if ($OS -eq "Win32NT")
         {
             Write-Host "" # new line
             # Build Debug
-            New-Item -Path "build-debug" -ItemType Directory -Force
-            Set-Location "build-debug"
+            New-Item -Path "cmake-build-debug" -ItemType Directory -Force
+            Set-Location "cmake-build-debug"
             & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
             & $CMAKE_EXE '--build' '.' '--config' 'Debug'
             & $CMAKE_EXE '--install' '.'
             Set-Location ..
             # Build Release
-            New-Item -Path "build-release" -ItemType Directory -Force
-            Set-Location "build-release"
+            New-Item -Path "cmake-build-release" -ItemType Directory -Force
+            Set-Location "cmake-build-release"
             & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
             & $CMAKE_EXE '--build' '.' '--config' 'Release'
             & $CMAKE_EXE '--install' '.'
@@ -353,15 +353,15 @@ else
 }
 
 # Build Debug
-New-Item -Path "build-debug" -ItemType Directory -Force
-Set-Location "build-debug"
+New-Item -Path "cmake-build-debug" -ItemType Directory -Force
+Set-Location "cmake-build-debug"
 & $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
 & $CMAKE_EXE '--build' '.' '--config' 'Debug'
 & $CMAKE_EXE '--install' '.'
 Set-Location ..
 # Build Release
-New-Item -Path "build-release" -ItemType Directory -Force
-Set-Location "build-release"
+New-Item -Path "cmake-build-release" -ItemType Directory -Force
+Set-Location "cmake-build-release"
 & $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
 & $CMAKE_EXE '--build' '.' '--config' 'Release'
 & $CMAKE_EXE '--install' '.'
