@@ -220,10 +220,11 @@ if ($OS -eq "Win32NT")
     Write-Host " done."
 
     # Install HiGHS
-    Write-Host "Installing HiGHS..."
+    Write-Host "Installing HiGHS..." -NoNewline
     $HiGHS_ROOT = "C:\HiGHS"
     if (-not (Test-Path $HiGHS_ROOT))
     {
+        Write-Host "" # new line
         git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
         Set-Location $HiGHS_ROOT
         New-Item -Path "build" -ItemType Directory -Force
@@ -243,6 +244,7 @@ if ($OS -eq "Win32NT")
         Set-Location $HiGHS_ROOT
         if (-not (git pull) -match "Already up to date.") # HiGHS is not latest
         {
+            Write-Host "" # new line
             Set-Location "build"
             # Build Debug
             & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
