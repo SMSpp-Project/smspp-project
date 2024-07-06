@@ -65,7 +65,6 @@ endif ()
 # If it's not being called by the umbrella, we need to
 # look for the system-installed libraries.
 if (NOT hasParent)
-    find_package(MCFClass)
     find_package(MCFBlock)
     find_package(MMCFBlock)
     find_package(UCBlock)
