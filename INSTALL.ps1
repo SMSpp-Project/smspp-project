@@ -62,7 +62,7 @@ $CMAKE_EXE = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\ID
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
-$STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry\ports\stopt"
+$STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry"
 
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
@@ -130,7 +130,7 @@ if ($OS -eq "Win32NT")
                 Set-Location $env:VCPKG_ROOT
                 .\vcpkg remove stopt # remove the old stopt version before upgrade
                 .\vcpkg upgrade --no-dry-run # upgrade all other packages
-                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY --triplet x64-windows # install the new stopt version
+                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows # install the new stopt version
             }
         }
         else
@@ -311,7 +311,7 @@ if ($OS -eq "Win32NT")
     Set-Location "C:\"
     git clone https://gitlab.com/stochastic-control/vcpkg-registry
     Set-Location $env:VCPKG_ROOT
-    .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY --triplet x64-windows
+    .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
     Set-Location "C:\"
 
     Write-Host "Installation completed successfully on Windows."
