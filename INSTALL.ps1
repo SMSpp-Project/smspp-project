@@ -253,6 +253,10 @@ if ($OS -eq "Win32NT")
             & $CMAKE_EXE '--build' '.' '--config' 'Release'
             & $CMAKE_EXE '--install' '.'
         }
+        else
+        {
+            Write-Host " done."
+        }
     }
     Set-Location "C:\"
 
