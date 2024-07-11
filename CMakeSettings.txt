@@ -84,7 +84,8 @@ if (MSVC)
     add_link_options("/IGNORE:4006,4075,4088,4255")
 else() # Unix
     add_compile_options(
-             "-Wno-enum-compare" "-Wno-deprecated-declarations"
+             "-Wno-enum-compare" "-Wno-enum-conversion" "-Wno-deprecated-declarations"
+             "-Wno-deprecated-enum-enum-conversion" "-Wno-deprecated-enum-float-conversion" # C++20
              "-DBUILD_CPXSTATIC" "-DCPXSIZE_BITS_TEST_DISABLE"
              #"-ferror-limit=1" "-fexceptions"
              #"-Wall" "-Wpedantic" "-Wextra"
