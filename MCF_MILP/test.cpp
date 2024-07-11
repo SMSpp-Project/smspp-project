@@ -874,10 +874,10 @@ int main( int argc , char **argv )
      } while( sn == en );
 
     // random cost in [ - c_max , c_max ]
-    auto cst = c_max * ( 1 - 2 * dis( rg ) );
+    auto cst = intcost( c_max * ( 1 - 2 * dis( rg ) ) );
 
     // random capacity in [ u_min , 1.5 * ( u_avg - u_min ) ]
-    auto cap = 1.5 * ( u_avg - u_min ) * dis( rg ) + u_min;
+    auto cap = intflow( 1.5 * ( u_avg - u_min ) * dis( rg ) + u_min );
 
     auto arc = MCFB->add_arc( sn , en , cst , cap );  // try to add
     if( arc == IInf )  // there was no space
