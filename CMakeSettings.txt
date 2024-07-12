@@ -85,7 +85,7 @@ if (MSVC)
 else() # Unix
     add_compile_options(
              "-Wno-enum-compare" "-Wno-enum-conversion" "-Wno-deprecated-declarations"
-             "-Wno-deprecated-enum-enum-conversion" "-Wno-deprecated-enum-float-conversion" # C++20
+             "-Wno-deprecated-enum-enum-conversion" "-Wno-deprecated-enum-float-conversion" "-Wno-free-nonheap-object" # C++20
              "-DBUILD_CPXSTATIC" "-DCPXSIZE_BITS_TEST_DISABLE"
              #"-ferror-limit=1" "-fexceptions"
              #"-Wall" "-Wpedantic" "-Wextra"
