@@ -1,7 +1,7 @@
 # ----- BendersBFunction_test ----------------------------------------------- #
 if (TARGET SMS++::BundleSolver AND
     TARGET SMS++::MILPSolver AND
-    TARGET MCFClass::MCFClass)
+    TARGET SMS++::MCFBlock)
 
     add_executable(BendersBFunction_test test.cpp
                    cwl-mcf/cwl-mcf.cpp)

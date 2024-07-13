@@ -65,13 +65,14 @@ endif ()
 # If it's not being called by the umbrella, we need to
 # look for the system-installed libraries.
 if (NOT hasParent)
+    find_package(BinaryKnapsackBlock)
+    find_package(BundleSolver)
+    find_package(CapacitatedFacilityLocation)
+    find_package(LagrangianDualSolver)
     find_package(MCFBlock)
+    find_package(MILPSolver)
     find_package(MMCFBlock)
     find_package(UCBlock)
-    find_package(BundleSolver)
-    find_package(LagrangianDualSolver)
-    find_package(MILPSolver)
-    find_package(BinaryKnapsackBlock)
 endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #

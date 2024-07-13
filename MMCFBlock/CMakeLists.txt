@@ -1,5 +1,5 @@
 # ----- Test ---------------------------------------------------------------- #
-if (TARGET MMCFClass AND
+if (TARGET SMS++::MCFBlock AND
     TARGET SMS++::MMCFBlock AND
     TARGET SMS++::BundleSolver AND
     TARGET SMS++::MILPSolver)
