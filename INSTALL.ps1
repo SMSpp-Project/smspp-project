@@ -179,6 +179,8 @@ if ($OS -eq "Win32NT")
                 # spaces in the next when building coin COIN-OR Osi with Cplex interface
                 Move-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM"
                 Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
+                # Update the system PATH to ensure the SMS++ exe can correctly locate the cplex*.dll file
+                Update-EnvironmentVariables -oldPattern "C:\Program Files\IBM\ILOG\CPLEX_Studio2211" -newValue $CPLEX_ROOT
             }
             else
             {
@@ -196,11 +198,13 @@ if ($OS -eq "Win32NT")
         if (-not (Test-Path $GUROBI_ROOT))
         {
             Set-Location "C:\"
-            $GUROBI_INSTALLER = "C:\Gurobi-10.0.3-win64.msi"
-            Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile $GUROBI_INSTALLER
-            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $GUROBI_INSTALLER -Wait
-            Remove-Item $GUROBI_INSTALLER
+            $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
+            Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile "C:\$GUROBI_INSTALLER"
+            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", "C:\$GUROBI_INSTALLER" -Wait
+            Remove-Item "C:\$GUROBI_INSTALLER"
             Move-Item -Path ".\gurobi1003" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
+            # Update the system PATH to ensure the SMS++ exe can correctly locate the gurobi*.dll file
+            Update-EnvironmentVariables -oldPattern "C:\gurobi1003" -newValue $GUROBI_ROOT
         }
         Write-Host " done."
     }
@@ -211,11 +215,13 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $SCIP_ROOT))
     {
         Set-Location "C:\"
-        $SCIP_INSTALLER = "C:\SCIPOptSuite-9.0.0-win64-VS15.exe"
-        Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile $SCIP_INSTALLER
-        Start-Process -FilePath $SCIP_INSTALLER -Wait
-        Remove-Item $SCIP_INSTALLER
+        $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
+        Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile "C:\$SCIP_INSTALLER"
+        Start-Process -FilePath "C:\$SCIP_INSTALLER" -Wait
+        Remove-Item "C:\$SCIP_INSTALLER"
         Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $SCIP_ROOT -ErrorAction SilentlyContinue
+        # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
+        Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
     }
     Write-Host " done."
 
@@ -327,6 +333,38 @@ else
 {
     Write-Host "This script does not support the detected operating system."
     exit 1
+}
+
+function Update-EnvironmentVariables
+{
+    param (
+        [string]$oldPattern,
+        [string]$newValue
+    )
+
+    # Escape the old pattern for regex use
+    $escapedPattern = [regex]::Escape($oldPattern)
+
+    # Get all environment variables
+    $envVars = [System.Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::Machine)
+
+    # Iterate over each environment variable
+    foreach ($envVar in $envVars.GetEnumerator())
+    {
+        $envVarName = $envVar.Key
+        $envVarValue = $envVar.Value
+
+        # Check if the environment variable value contains the old pattern
+        if ($envVarValue -match $escapedPattern)
+        {
+            # Replace the old pattern with the new value
+            $newEnvVarValue = $envVarValue -replace $escapedPattern, $newValue
+            # Update the environment variable
+            [System.Environment]::SetEnvironmentVariable($envVarName, $newEnvVarValue, [System.EnvironmentVariableTarget]::Machine)
+            Write-Host "Updated $envVarName"
+        }
+    }
+    Write-Host "All relevant environment variables have been updated."
 }
 
 # Install SMSPP
