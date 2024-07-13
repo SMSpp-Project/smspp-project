@@ -83,7 +83,7 @@ if (MSVC)
     string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
     add_link_options("/IGNORE:4006,4075,4088,4255")
-else() # Unix
+else () # Unix
     add_compile_options(
              "-Wno-enum-compare" "-Wno-enum-conversion" "-Wno-deprecated-declarations"
              "-Wno-deprecated-enum-enum-conversion" "-Wno-deprecated-enum-float-conversion" "-Wno-free-nonheap-object" # C++20
