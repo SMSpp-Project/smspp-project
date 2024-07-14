@@ -158,6 +158,14 @@ if (BUILD_LEMONSolver)
 	set(BUILD_MCFBlock ON) # Requires MCFBlock
 endif ()
 
+# ----- Initialize submodules ------------------------------------------------ #
+macro(init_submodule name)
+	execute_process(
+			COMMAND git submodule update --init --recursive ${name}
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	)
+endmacro()
+
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
 # Some modules have requirements, so they should be loaded after those.
@@ -168,65 +176,80 @@ add_subdirectory(SMS++)
 
 # Blocks
 if (BUILD_BinaryKnapsackBlock)
+	init_submodule(BinaryKnapsackBlock)
 	add_subdirectory(BinaryKnapsackBlock)
 endif ()
 
 if (BUILD_UCBlock)
+	init_submodule(UCBlock)
 	add_subdirectory(UCBlock)
 endif ()
 
 if (BUILD_MCFBlock)
+	init_submodule(MCFBlock)
 	add_subdirectory(MCFBlock) # Requires MCFClass
 endif ()
 
 if (BUILD_MMCFBlock)
+	init_submodule(MMCFBlock)
 	add_subdirectory(MMCFBlock)
 endif ()
 
 if (BUILD_LukFiBlock)
+	init_submodule(LukFiBlock)
 	add_subdirectory(LukFiBlock)
 endif ()
 
 if (BUILD_StochasticBlock)
+	init_submodule(StochasticBlock)
 	add_subdirectory(StochasticBlock)
 endif ()
 
 if (BUILD_SDDPBlock)
+	init_submodule(SDDPBlock)
 	add_subdirectory(SDDPBlock)
 endif ()
 
 if (BUILD_CapacitatedFacilityLocationBlock)
+	init_submodule(CapacitatedFacilityLocationBlock)
 	add_subdirectory(CapacitatedFacilityLocationBlock)
 endif ()
 
 if (BUILD_InvestmentBlock)
+	init_submodule(InvestmentBlock)
 	add_subdirectory(InvestmentBlock)
 endif ()
 
 # Solvers
 if (BUILD_MILPSolver)
+	init_submodule(MILPSolver)
 	add_subdirectory(MILPSolver)
 endif ()
 
 if (BUILD_BundleSolver)
+	init_submodule(BundleSolver)
 	add_subdirectory(BundleSolver)
 endif ()
 
 if (BUILD_LagrangianDualSolver)
+	init_submodule(LagrangianDualSolver)
 	add_subdirectory(LagrangianDualSolver)
 endif ()
 
 if (BUILD_LEMONSolver)
+	init_submodule(LEMONSolver)
 	add_subdirectory(LEMONSolver)
 endif ()
 
 # ----- Tools --------------------------------------------------------------- #
 if (BUILD_tools)
+	init_submodule(tools)
 	add_subdirectory(tools)
 endif ()
 
 # ----- System tests -------------------------------------------------------- #
 if (BUILD_tests)
+	init_submodule(tests)
 	add_subdirectory(tests)
 endif ()
 
