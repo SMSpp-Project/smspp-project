@@ -56,9 +56,6 @@ param(
     [switch]$withoutGurobi
 )
 
-# CMake exe path
-$CMAKE_EXE = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
-
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
@@ -237,13 +234,13 @@ if ($OS -eq "Win32NT")
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
-        & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-        & $CMAKE_EXE '--build' '.' '--config' 'Debug'
-        & $CMAKE_EXE '--install' '.'
+        & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & cmake '--build' '.' '--config' 'Debug'
+        & cmake '--install' '.'
         # Build Release
-        & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-        & $CMAKE_EXE '--build' '.' '--config' 'Release'
-        & $CMAKE_EXE '--install' '.'
+        & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+        & cmake '--build' '.' '--config' 'Release'
+        & cmake '--install' '.'
 
     }
     else
@@ -255,13 +252,13 @@ if ($OS -eq "Win32NT")
             New-Item -Path "build" -ItemType Directory -Force
             Set-Location "build"
             # Build Debug
-            & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-            & $CMAKE_EXE '--build' '.' '--config' 'Debug'
-            & $CMAKE_EXE '--install' '.'
+            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+            & cmake '--build' '.' '--config' 'Debug'
+            & cmake '--install' '.'
             # Build Release
-            & $CMAKE_EXE '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-            & $CMAKE_EXE '--build' '.' '--config' 'Release'
-            & $CMAKE_EXE '--install' '.'
+            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+            & cmake '--build' '.' '--config' 'Release'
+            & cmake '--install' '.'
         }
         else
         {
@@ -386,16 +383,16 @@ else
 # Build Debug
 New-Item -Path "cmake-build-debug" -ItemType Directory -Force
 Set-Location "cmake-build-debug"
-& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-& cmake-gui '..' # select submodules, then press c to Configure and g to Generate the build files
-& $CMAKE_EXE '--build' '.' '--config' 'Debug'
-& $CMAKE_EXE '--install' '.'
+& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+& cmake-gui '..' -Wait # select submodules, then press Configure and Generate
+& cmake '--build' '.' '--config' 'Debug'
+& cmake '--install' '.'
 Set-Location ..
 # Build Release
 New-Item -Path "cmake-build-release" -ItemType Directory -Force
 Set-Location "cmake-build-release"
-& $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-& cmake-gui '..' # select submodules, then press c to Configure and g to Generate the build files
-& $CMAKE_EXE '--build' '.' '--config' 'Release'
-& $CMAKE_EXE '--install' '.'
+& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+& cmake-gui '..' -Wait # select submodules, then press Configure and Generate
+& cmake '--build' '.' '--config' 'Release'
+& cmake '--install' '.'
 Set-Location ..
