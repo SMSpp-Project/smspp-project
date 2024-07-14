@@ -282,8 +282,9 @@ cd $repoPath
 mkdir build
 cd build
 echo "Compiling SMSpp..."
-cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release ..
+cmake .. # load BUILD_* options
 ccmake .. # select submodules, then press c to Configure and g to Generate the build files
+cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release ..
 cmake --build . --config Release
 cmake --install .
 cd ..
