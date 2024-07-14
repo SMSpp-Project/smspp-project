@@ -380,21 +380,10 @@ else
     git pull
 }
 
-# Build Debug
-New-Item -Path "cmake-build-debug" -ItemType Directory -Force
-Set-Location "cmake-build-debug"
-& cmake '..'
-# select submodules, then press Configure and Generate
-Start-Process -FilePath "cmake-gui" -ArgumentList "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -Wno-dev .." -Wait
-& cmake '--build' '.' '--config' 'Debug'
-& cmake '--install' '.'
-Set-Location ..
-# Build Release
 New-Item -Path "cmake-build-release" -ItemType Directory -Force
 Set-Location "cmake-build-release"
-& cmake '..'
-# select submodules, then press Configure and Generate
-Start-Process -FilePath "cmake-gui" -ArgumentList "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -Wno-dev .." -Wait
+& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -Wno-dev '..'
+Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then press Configure and Generate
 & cmake '--build' '.' '--config' 'Release'
 & cmake '--install' '.'
 Set-Location ..

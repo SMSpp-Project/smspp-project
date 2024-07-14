@@ -268,23 +268,23 @@ case "$OS" in
   ;;
 esac
 
-# Compile SMSpp
+# Install SMSpp
+echo "Compiling SMSpp..."
 repoPath="smspp-project"
-# Check if the repo exists
+
 if [ ! -d "$repoPath" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
     git clone -b develop https://gitlab.com/smspp/smspp-project.git "$repoPath"
+    cd $repoPath
 else
-    echo "Repository found. Skipping clone."
+    cd $repoPath
+    git pull
 fi
-cd $repoPath
 
-mkdir build
-cd build
-echo "Compiling SMSpp..."
-cmake ..
-# select submodules, then press c to Configure and g to Generate the build files
-ccmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release ..
+mkdir cmake-build-release
+cd cmake-build-release
+cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
+ccmake .. # select submodules, then press c to Configure and g to Generate the build files
 cmake --build . --config Release
 cmake --install .
 cd ..
