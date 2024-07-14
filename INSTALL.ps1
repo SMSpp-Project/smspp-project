@@ -371,7 +371,7 @@ $SMSPP_ROOT = "C:\smspp-project"
 
 if (-not (Test-Path $SMSPP_ROOT))
 {
-    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+    git clone -b develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
     Set-Location $SMSPP_ROOT
 }
 else

@@ -273,7 +273,7 @@ repoPath="smspp-project"
 # Check if the repo exists
 if [ ! -d "$repoPath" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$repoPath"
+    git clone -b develop https://gitlab.com/smspp/smspp-project.git "$repoPath"
 else
     echo "Repository found. Skipping clone."
 fi
