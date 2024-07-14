@@ -96,6 +96,7 @@ if ($OS -eq "Win32NT")
         refreshenv
     }
     choco install git sed
+    choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
@@ -386,6 +387,7 @@ else
 New-Item -Path "cmake-build-debug" -ItemType Directory -Force
 Set-Location "cmake-build-debug"
 & $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+& cmake-gui '..' # select submodules, then press c to Configure and g to Generate the build files
 & $CMAKE_EXE '--build' '.' '--config' 'Debug'
 & $CMAKE_EXE '--install' '.'
 Set-Location ..
@@ -393,6 +395,7 @@ Set-Location ..
 New-Item -Path "cmake-build-release" -ItemType Directory -Force
 Set-Location "cmake-build-release"
 & $CMAKE_EXE "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+& cmake-gui '..' # select submodules, then press c to Configure and g to Generate the build files
 & $CMAKE_EXE '--build' '.' '--config' 'Release'
 & $CMAKE_EXE '--install' '.'
 Set-Location ..

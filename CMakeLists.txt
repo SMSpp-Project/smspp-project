@@ -26,6 +26,28 @@ project("The SMS++ Project")
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
+# Define options for modules in the order of the blocks and solvers
+
+# Blocks
+option(BUILD_BinaryKnapsackBlock "Build BinaryKnapsackBlock" ON)
+option(BUILD_UCBlock "Build UCBlock" ON)
+option(BUILD_MCFBlock "Build MCFBlock" ON)
+option(BUILD_MMCFBlock "Build MMCFBlock" ON)
+option(BUILD_LukFiBlock "Build LukFiBlock" ON)
+option(BUILD_StochasticBlock "Build StochasticBlock" ON)
+option(BUILD_SDDPBlock "Build SDDPBlock" ON)
+option(BUILD_CapacitatedFacilityLocationBlock "Build CapacitatedFacilityLocationBlock" ON)
+option(BUILD_InvestmentBlock "Build InvestmentBlock" ON)
+
+# Solvers
+option(BUILD_MILPSolver "Build MILPSolver" ON)
+option(BUILD_BundleSolver "Build BundleSolver" ON)
+option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver" ON)
+option(BUILD_LEMONSolver "Build LEMONSolver" ON)
+
+option(BUILD_tools "Build tools" ON)
+option(BUILD_tests "Build system tests" ON)
+
 # Read the dependencies default location from a file written in a
 # bash-style syntax since it is shared with the other hand-written Makefiles,
 # so we define a function to convert these macros written as `lhs = rhs` into
@@ -104,6 +126,38 @@ if (MSVC)
 	set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
 
+# ----- Handle dependencies ------------------------------------------------- #
+# Resolve dependencies before adding subdirectories
+
+# Blocks
+if (BUILD_MMCFBlock)
+	set(BUILD_MCFBlock ON) # Requires MCFBlock
+	set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
+endif ()
+
+if (BUILD_SDDPBlock)
+	set(BUILD_StochasticBlock ON) # Requires StochasticBlock
+endif ()
+
+if (BUILD_CapacitatedFacilityLocationBlock)
+	set(BUILD_MCFBlock ON) # Requires MCFBlock
+	set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
+endif ()
+
+if (BUILD_InvestmentBlock)
+	set(BUILD_SDDPBlock ON) # Requires SDDPBlock
+	set(BUILD_UCBlock ON) # Requires UCBlock
+endif ()
+
+# Solvers
+if (BUILD_BundleSolver)
+	set(BUILD_MILPSolver ON) # Requires MILPSolver
+endif ()
+
+if (BUILD_LEMONSolver)
+	set(BUILD_MCFBlock ON) # Requires MCFBlock
+endif ()
+
 # ----- Subprojects --------------------------------------------------------- #
 # Comment out the ones you do not need.
 # Some modules have requirements, so they should be loaded after those.
@@ -113,27 +167,67 @@ endif ()
 add_subdirectory(SMS++)
 
 # Blocks
-add_subdirectory(BinaryKnapsackBlock)
-add_subdirectory(UCBlock)
-add_subdirectory(MCFBlock) # Requires MCFClass
-add_subdirectory(MMCFBlock) # Requires MCFBlock, BinaryKnapsackBlock
-add_subdirectory(LukFiBlock)
-add_subdirectory(StochasticBlock)
-add_subdirectory(SDDPBlock) # Requires StochasticBlock
-add_subdirectory(CapacitatedFacilityLocationBlock)
-                                       # Requires MCFBlock, BinaryKnapsackBlock
-add_subdirectory(InvestmentBlock) # Requires SDDPBlock, UCBlock
+if (BUILD_BinaryKnapsackBlock)
+	add_subdirectory(BinaryKnapsackBlock)
+endif ()
+
+if (BUILD_UCBlock)
+	add_subdirectory(UCBlock)
+endif ()
+
+if (BUILD_MCFBlock)
+	add_subdirectory(MCFBlock) # Requires MCFClass
+endif ()
+
+if (BUILD_MMCFBlock)
+	add_subdirectory(MMCFBlock)
+endif ()
+
+if (BUILD_LukFiBlock)
+	add_subdirectory(LukFiBlock)
+endif ()
+
+if (BUILD_StochasticBlock)
+	add_subdirectory(StochasticBlock)
+endif ()
+
+if (BUILD_SDDPBlock)
+	add_subdirectory(SDDPBlock)
+endif ()
+
+if (BUILD_CapacitatedFacilityLocationBlock)
+	add_subdirectory(CapacitatedFacilityLocationBlock)
+endif ()
+
+if (BUILD_InvestmentBlock)
+	add_subdirectory(InvestmentBlock)
+endif ()
 
 # Solvers
-add_subdirectory(MILPSolver)
-add_subdirectory(BundleSolver) # Requires MILPSolver
-add_subdirectory(LagrangianDualSolver)
-add_subdirectory(LEMONSolver) # Requires MCFBlock
+if (BUILD_MILPSolver)
+	add_subdirectory(MILPSolver)
+endif ()
+
+if (BUILD_BundleSolver)
+	add_subdirectory(BundleSolver)
+endif ()
+
+if (BUILD_LagrangianDualSolver)
+	add_subdirectory(LagrangianDualSolver)
+endif ()
+
+if (BUILD_LEMONSolver)
+	add_subdirectory(LEMONSolver)
+endif ()
 
 # ----- Tools --------------------------------------------------------------- #
-add_subdirectory(tools)
+if (BUILD_tools)
+	add_subdirectory(tools)
+endif ()
 
 # ----- System tests -------------------------------------------------------- #
-add_subdirectory(tests)
+if (BUILD_tests)
+	add_subdirectory(tests)
+endif ()
 
 # --------------------------------------------------------------------------- #

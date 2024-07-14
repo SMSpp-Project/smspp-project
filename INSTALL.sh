@@ -9,7 +9,7 @@ install_on_ubuntu() {
   # Update packages and install basic requirements
   echo "Updating system and installing basic requirements..."
   apt-get update
-  apt-get install -y build-essential clang cmake git curl
+  apt-get install -y build-essential clang cmake cmake-curses-gui git curl
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -283,6 +283,7 @@ mkdir build
 cd build
 echo "Compiling SMSpp..."
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release ..
+ccmake .. # select submodules, then press c to Configure and g to Generate the build files
 cmake --build . --config Release
 cmake --install .
 cd ..
