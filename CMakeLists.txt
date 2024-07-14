@@ -128,6 +128,7 @@ add_subdirectory(InvestmentBlock) # Requires SDDPBlock, UCBlock
 add_subdirectory(MILPSolver)
 add_subdirectory(BundleSolver) # Requires MILPSolver
 add_subdirectory(LagrangianDualSolver)
+add_subdirectory(LEMONSolver) # Requires MCFBlock
 
 # ----- Tools --------------------------------------------------------------- #
 add_subdirectory(tools)

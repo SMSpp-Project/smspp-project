@@ -13,6 +13,9 @@
 [submodule "MCFBlock"]
 	path = MCFBlock
 	url = https://gitlab.com/smspp/mcfblock.git
+[submodule "LEMONSolver"]
+	path = LEMONSolver
+	url = https://gitlab.com/smspp/lemonsolver.git
 [submodule "MMCFBlock"]
 	path = MMCFBlock
 	url = https://gitlab.com/smspp/mmcfblock.git
