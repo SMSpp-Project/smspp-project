@@ -1,10 +1,10 @@
 # ----- Test ---------------------------------------------------------------- #
-if (TARGET SMS++::MCFBlock AND
-    TARGET SMS++::MMCFBlock AND
+if (TARGET SMS++::MMCFBlock AND
     TARGET SMS++::BundleSolver AND
-    TARGET SMS++::MILPSolver)
+    TARGET SMS++::MILPSolver AND
+    TARGET MMCFClass)
 
-    add_subdirectory(MMCFClass)
+        add_subdirectory(MMCFClass)
     add_executable(MMCF_test)
 
     target_sources(MMCF_test PRIVATE main.cpp)
