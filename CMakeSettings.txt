@@ -47,7 +47,7 @@ if (MSVC)
                 # slightly different base types from 'identifier2'
         "C4060"
         "C4065"
-        "C4086"
+        "C4068"
         "C4100" # 'identifier' : unreferenced formal parameter
         "C4101"
         "C4102"
