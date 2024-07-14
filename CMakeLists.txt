@@ -29,24 +29,24 @@ include(CMakeSettings.txt OPTIONAL)
 # Define options for modules in the order of the blocks and solvers
 
 # Blocks
-option(BUILD_BinaryKnapsackBlock "Build BinaryKnapsackBlock" ON)
-option(BUILD_UCBlock "Build UCBlock" ON)
-option(BUILD_MCFBlock "Build MCFBlock" ON)
-option(BUILD_MMCFBlock "Build MMCFBlock" ON)
-option(BUILD_LukFiBlock "Build LukFiBlock" ON)
-option(BUILD_StochasticBlock "Build StochasticBlock" ON)
-option(BUILD_SDDPBlock "Build SDDPBlock" ON)
-option(BUILD_CapacitatedFacilityLocationBlock "Build CapacitatedFacilityLocationBlock" ON)
-option(BUILD_InvestmentBlock "Build InvestmentBlock" ON)
+option(BUILD_BinaryKnapsackBlock "Build BinaryKnapsackBlock" OFF)
+option(BUILD_UCBlock "Build UCBlock" OFF)
+option(BUILD_MCFBlock "Build MCFBlock" OFF)
+option(BUILD_MMCFBlock "Build MMCFBlock" OFF)
+option(BUILD_LukFiBlock "Build LukFiBlock" OFF)
+option(BUILD_StochasticBlock "Build StochasticBlock" OFF)
+option(BUILD_SDDPBlock "Build SDDPBlock" OFF)
+option(BUILD_CapacitatedFacilityLocationBlock "Build CapacitatedFacilityLocationBlock" OFF)
+option(BUILD_InvestmentBlock "Build InvestmentBlock" OFF)
 
 # Solvers
-option(BUILD_MILPSolver "Build MILPSolver" ON)
-option(BUILD_BundleSolver "Build BundleSolver" ON)
-option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver" ON)
-option(BUILD_LEMONSolver "Build LEMONSolver" ON)
+option(BUILD_MILPSolver "Build MILPSolver" OFF)
+option(BUILD_BundleSolver "Build BundleSolver" OFF)
+option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver" OFF)
+option(BUILD_LEMONSolver "Build LEMONSolver" OFF)
 
-option(BUILD_tools "Build tools" ON)
-option(BUILD_tests "Build system tests" ON)
+option(BUILD_tools "Build tools" OFF)
+option(BUILD_tests "Build system tests" OFF)
 
 # Read the dependencies default location from a file written in a
 # bash-style syntax since it is shared with the other hand-written Makefiles,
@@ -172,6 +172,7 @@ endmacro()
 
 # The core library, required by all other SMS++ modules.
 # Requires Boost (headers only), netCDF-C++ and Eigen3.
+init_submodule(SMS++)
 add_subdirectory(SMS++)
 
 # Blocks
