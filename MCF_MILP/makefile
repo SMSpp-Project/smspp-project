@@ -17,11 +17,11 @@ NAME = MCF_MILP_test
 DIR = .
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+#SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy
+#SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy -Wno-deprecated-declarations
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
+SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
 
 # compiler
 CC = clang++
@@ -53,28 +53,34 @@ clean::
 MCFBkSDR = ../../MCFBlock
 include $(MCFBkSDR)/makefile-c
 
+# LEMONSolver, assuming all dependencies (MCFBlock) are there already
+# (comment out if not required)
+MCFLESDR = ../../LEMONSolver
+include $(MCFLESDR)/makefile
+
 # MILPSolver
 MILPSSDR = ../../MILPSolver
-include $(MILPSSDR)/makefile-c
+include $(MILPSSDR)/makefile-s
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(MCFBkOBJ) $(MILPSOBJ)
+MOBJ =  $(MCFLEOBJ) $(MILPSOBJ) $(MCFBkOBJ)
 
 # libraries
-MLIB =  $(MCFBkLIB) $(MILPSLIB)
+MLIB =  $(MCFBkLIB) $(MCFLELIB) $(MILPSLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
-	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW)
+	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW) \
+	-Wl,-ld_classic
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
 # include directives
-MINC =  $(MCFBkINC) $(MILPSINC)
+MINC =  $(MCFBkINC) $(MCFLEINC) $(MILPSINC)
 
 # includes
-MH =    $(MCFBkH) $(MILPSH)
+MH =    $(MCFBkH) $(MCFLEH) $(MILPSH)
 
 # compile command
 
