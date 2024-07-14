@@ -81,7 +81,7 @@ macro(makefile_macros_to_cmake file)
 							 rhs STREQUAL /usr/local))
 						# ... then set the one defined in makefile-default-paths-*
 						set("${lhs}" ${rhs})
-						message(STATUS "Specify ${lhs}: " ${rhs})
+						#message(STATUS "Specify ${lhs}: " ${rhs})
 					endif ()
 				endif ()
 
