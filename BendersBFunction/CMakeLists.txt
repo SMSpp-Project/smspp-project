@@ -7,7 +7,7 @@ if (TARGET SMS++::BundleSolver AND
                    cwl-mcf/cwl-mcf.cpp)
     target_link_libraries(BendersBFunction_test PRIVATE
                           SMS++::BundleSolver
-                          MCFClass::MCFClass
+                          SMS++::MCFBlock
                           SMS++::MILPSolver)
 
     if ( (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
