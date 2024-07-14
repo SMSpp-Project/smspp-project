@@ -287,7 +287,7 @@ cd cmake-build-dedug
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
 ccmake .. # select submodules, then press c to Configure and g to Generate the build files
 cmake --build . --config Debug
-cmake --install .
+cmake --install . --config Debug
 cd ..
 
 # Build Release
@@ -296,5 +296,5 @@ cd cmake-build-release
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
 ccmake .. # select submodules, then press c to Configure and g to Generate the build files
 cmake --build . --config Release
-cmake --install .
+cmake --install . --config Release
 cd ..
