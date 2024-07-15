@@ -385,7 +385,6 @@ New-Item -Path "cmake-build-debug" -ItemType Directory -Force
 Set-Location "cmake-build-debug"
 & cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -Wno-dev '..'
 Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then press Configure and Generate
-& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -Wno-dev '..'
 & cmake '--build' '.' '--config' 'Debug'
 & cmake '--install' '.' '--config' 'Debug'
 Set-Location ..
@@ -395,7 +394,6 @@ New-Item -Path "cmake-build-release" -ItemType Directory -Force
 Set-Location "cmake-build-release"
 & cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -Wno-dev '..'
 Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then press Configure and Generate
-& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -Wno-dev '..'
 & cmake '--build' '.' '--config' 'Release'
 & cmake '--install' '.' '--config' 'Release'
 Set-Location ..
