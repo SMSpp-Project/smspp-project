@@ -119,7 +119,7 @@ The following tests are provided:
   `HiGHSMILPSolver`), as well as for some of the mechanics of the "core" 
   SMS++ library. A random MILP is constructed in an `AbstractBlock` and
   saved to a `.mps` file. A new `AbstractBlock` is created and read back
-  to the file, two `:Solver` are attached to the two `AbstractBlock` andù
+  to the file, two `:Solver` are attached to the two `AbstractBlock` andï¿½
   the results are compared. The first `AbstractBlock` is randomly chamged
   many times and the process is repeated.
 
@@ -145,7 +145,7 @@ Configure and build all the tests using CMake:
 mkdir build
 cd build
 cmake ..
-make
+cmake --build .
 ```
 
 ### Build and install with makefiles

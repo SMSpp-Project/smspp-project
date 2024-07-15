@@ -20,7 +20,7 @@ The usage of the executable is the following:
        ./LDS_UC_test UC-file [BSC-file]
        BSC-file: BlockSolverConfig description [BSPar.txt]
 
-The test are supposed to be ran on the pure-thermal "academic" UC
+The test are supposed to be run on the pure-thermal "academic" UC
 instances available at
 
 http://groups.di.unipi.it/optimize/Data/UC.html
@@ -57,7 +57,7 @@ continuous relaxation of the integer problem are equivalent:
    but the "DP formulation" of the ThermalUnitBlock is used in
    the :MILPSolver together with "Perspective Cuts" (P/C).
 
-This is why diferent BlockConfig [TUBCfg\*] and BlockSolverConfig
+This is why different BlockConfig [TUBCfg\*] and BlockSolverConfig
 [TUBSCfg\*] are provided for the ThermalUnitBlock subproblems:
 
 - TUBCfg-DP.txt is supposed to go together with either
@@ -85,7 +85,7 @@ small. Instead, batches/batch-acad is meant for the second case
 and solves them all. 
 
 Both batches automatically copy the right TUBCfg\*.txt and
-TUBSCfg\*.txt for the intended tests to suceed.
+TUBSCfg\*.txt for the intended tests to succeed.
 
 
 ## Authors
