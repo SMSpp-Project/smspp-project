@@ -94,6 +94,8 @@ if ($OS -eq "Win32NT")
     }
     choco install git sed -y
     choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+    Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+    refreshenv
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
