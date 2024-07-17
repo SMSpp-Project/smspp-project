@@ -830,8 +830,8 @@ INPUT                  = doxygen/mainpage.md \
                          BundleSolver/NDOFiOracle/NDOSlver \
                          BundleSolver/NDOFiOracle/OSIMPSolver \
                          BundleSolver/NDOFiOracle/QPPnltMP \
-			 CapacitatedFacilityLocationBlock \
-			 InvestmentBlock/include \
+                         CapacitatedFacilityLocationBlock \
+                         InvestmentBlock/include \
                          LagrangianDualSolver \
                          LukFiBlock \
                          MCFBlock/include \
