@@ -28,25 +28,37 @@ include(CMakeSettings.txt OPTIONAL)
 
 # Define options for modules in the order of the blocks and solvers
 
+macro(smspp_option option_name option_description)
+	string(REPLACE "BUILD_" "" dir ${option_name})
+	# if the submodule is already initialized...
+	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/CMakeLists.txt")
+		# ... then set the default option to ON...
+		option(${option_name} "${option_description}" ON)
+	else ()
+		# ... otherwise set the default option to OFF
+		option(${option_name} "${option_description}" OFF)
+	endif ()
+endmacro()
+
 # Blocks
-option(BUILD_BinaryKnapsackBlock "Build BinaryKnapsackBlock" OFF)
-option(BUILD_UCBlock "Build UCBlock" OFF)
-option(BUILD_MCFBlock "Build MCFBlock" OFF)
-option(BUILD_MMCFBlock "Build MMCFBlock" OFF)
-option(BUILD_LukFiBlock "Build LukFiBlock" OFF)
-option(BUILD_StochasticBlock "Build StochasticBlock" OFF)
-option(BUILD_SDDPBlock "Build SDDPBlock" OFF)
-option(BUILD_CapacitatedFacilityLocationBlock "Build CapacitatedFacilityLocationBlock" OFF)
-option(BUILD_InvestmentBlock "Build InvestmentBlock" OFF)
+smspp_option(BUILD_BinaryKnapsackBlock "Build BinaryKnapsackBlock")
+smspp_option(BUILD_UCBlock "Build UCBlock")
+smspp_option(BUILD_MCFBlock "Build MCFBlock")
+smspp_option(BUILD_MMCFBlock "Build MMCFBlock")
+smspp_option(BUILD_LukFiBlock "Build LukFiBlock")
+smspp_option(BUILD_StochasticBlock "Build StochasticBlock")
+smspp_option(BUILD_SDDPBlock "Build SDDPBlock")
+smspp_option(BUILD_CapacitatedFacilityLocationBlock "Build CapacitatedFacilityLocationBlock")
+smspp_option(BUILD_InvestmentBlock "Build InvestmentBlock")
 
 # Solvers
-option(BUILD_MILPSolver "Build MILPSolver" OFF)
-option(BUILD_BundleSolver "Build BundleSolver" OFF)
-option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver" OFF)
-option(BUILD_LEMONSolver "Build LEMONSolver" OFF)
+smspp_option(BUILD_MILPSolver "Build MILPSolver")
+smspp_option(BUILD_BundleSolver "Build BundleSolver")
+smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
+smspp_option(BUILD_LEMONSolver "Build LEMONSolver")
 
-option(BUILD_tools "Build tools" OFF)
-option(BUILD_tests "Build system tests" OFF)
+smspp_option(BUILD_tools "Build tools")
+smspp_option(BUILD_tests "Build system tests")
 
 # Read the dependencies default location from a file written in a
 # bash-style syntax since it is shared with the other hand-written Makefiles,
