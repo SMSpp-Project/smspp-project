@@ -84,6 +84,7 @@ if ($OS -eq "Win32NT")
 
     # Install basic requirements using Chocolatey
     Write-Host "Installing basic requirements..."
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
     if (-not (Test-Path "C:\ProgramData\chocolatey"))
     {
         Set-ExecutionPolicy Bypass -Scope Process -Force
