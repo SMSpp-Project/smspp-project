@@ -17,11 +17,11 @@ NAME = MCF_MILP_test
 DIR = .
 
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+#SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare -Wno-deprecated-enum-enum-conversion -Wno-deprecated-enum-float-conversion -Wno-deprecated-declarations
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-copy-with-user-provided-copy -Wno-deprecated-declarations
+#SW = -g3 -glldb -fno-inline -std=c++20 -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare -Wno-deprecated-enum-enum-conversion -Wno-deprecated-enum-float-conversion -Wno-deprecated-declarations -Wno-deprecated-copy-with-user-provided-copy
 # production switches
-SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -ferror-limit=1
+SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -Wno-deprecated-enum-enum-conversion -Wno-deprecated-enum-float-conversion -Wno-deprecated-declarations -ferror-limit=1
 
 # compiler
 CC = clang++
