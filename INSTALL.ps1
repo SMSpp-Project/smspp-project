@@ -234,7 +234,7 @@ if ($OS -eq "Win32NT")
         Write-Host "" # new line
         git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
         Set-Location $HiGHS_ROOT
-        git checkout v1.7.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
+        git checkout v1.6.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
@@ -245,7 +245,6 @@ if ($OS -eq "Win32NT")
         & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & cmake '--build' '.' '--config' 'Release'
         & cmake '--install' '.'
-
     }
     else
     {
