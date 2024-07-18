@@ -234,6 +234,7 @@ if ($OS -eq "Win32NT")
         Write-Host "" # new line
         git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
         Set-Location $HiGHS_ROOT
+        git checkout v1.7.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
         New-Item -Path "build" -ItemType Directory -Force
         Set-Location "build"
         # Build Debug
