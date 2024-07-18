@@ -98,6 +98,7 @@ install_on_ubuntu() {
   ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
   rm -R coinbrew build
   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/coin-or/lib"
+  sh -c "echo '/opt/coin-or/lib' > /etc/ld.so.conf.d/coin-or.conf"
   ldconfig
 
   # Install StOpt
