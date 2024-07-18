@@ -71,8 +71,9 @@ MOBJ =  $(MCFLEOBJ) $(MILPSOBJ) $(MCFBkOBJ)
 MLIB =  $(MCFBkLIB) $(MCFLELIB) $(MILPSLIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
-	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW) \
-	-Wl,-ld_classic
+	$(CC) -o $(DIR)/$(NAME) $(DIR)/test.o $(MOBJ) $(MLIB) $(SW)
+#	-Wl,-ld_classic
+# emergency linker option for certain settings on macOS
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
 
