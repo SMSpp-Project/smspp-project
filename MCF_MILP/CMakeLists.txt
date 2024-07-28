@@ -1,11 +1,13 @@
 # ----- Tests --------------------------------------------------------------- #
 if (TARGET SMS++::MCFBlock AND
-    TARGET SMS++::MILPSolver)
+    TARGET SMS++::MILPSolver AND
+    TARGET SMS++::LEMONSolver)
 
     add_executable(MCF_MILP_test test.cpp)
     target_link_libraries(MCF_MILP_test PRIVATE
                           SMS++::MILPSolver
-                          SMS++::MCFBlock)
+                          SMS++::MCFBlock
+                          SMS++::LEMONSolver)
 
     add_test(NAME MCF_MILP_test
              COMMAND MCF_MILP_test
