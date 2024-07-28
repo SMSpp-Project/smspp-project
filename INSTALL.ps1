@@ -170,6 +170,10 @@ if ($OS -eq "Win32NT")
         {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "C:\cplex_studio2211.win_x86_64.exe"
+            # the CPLEX_URL is always given by the same prefix, i.e.:
+            # "https://drive.usercontent.google.com/download?id=" +
+            # the id code suffix in the Drive sharing link, i.e.:
+            # https://drive.google.com/file/d/ 1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta /view?usp=sharing
             $CPLEX_URL = "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta"
             if ((Invoke-WebRequest -Uri $CPLEX_URL -SessionVariable session).Content -match 'name="uuid" value="([^"]+)"')
             {

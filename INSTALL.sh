@@ -31,16 +31,26 @@ install_on_ubuntu() {
     echo "Installing CPLEX..."
     cd /opt
     CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
-    curl -O https://drive.google.com/uc?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x
-    chmod u+x $CPLEX_INSTALLER
-    ./$CPLEX_INSTALLER
-    rm $CPLEX_INSTALLER
-    mv ./ibm/ILOG/CPLEX_Studio2211 /opt/ibm/ILOG/CPLEX_Studio
-    export CPLEX_HOME="/opt/ibm/ILOG/CPLEX_Studio/cplex"
-    export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-    sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-    ldconfig
+    # the CPLEX_URL is always given by the same prefix, i.e.:
+    # "https://drive.usercontent.google.com/download?id=" +
+    # the id code suffix in the Drive sharing link, i.e.:
+    # https://drive.google.com/file/d/ 12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x /view?usp=sharing
+    CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
+    uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
+    if [ -n "$uuid" ]; then
+        curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+        chmod u+x $CPLEX_INSTALLER
+        ./$CPLEX_INSTALLER
+        rm $CPLEX_INSTALLER
+        mv ./ibm/ILOG/CPLEX_Studio2211 /opt/ibm/ILOG/CPLEX_Studio
+        export CPLEX_HOME="/opt/ibm/ILOG/CPLEX_Studio/cplex"
+        export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+        export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+        sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+        ldconfig
+    else
+        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+    fi
   fi
 
   # Install Gurobi
@@ -155,15 +165,25 @@ install_on_macos() {
     echo "Installing CPLEX..."
     cd /Applications
     CPLEX_INSTALLER="cplex_studio2211.osx.zip"
-    curl -O https://drive.google.com/uc?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK
-    tar -xvf $CPLEX_INSTALLER
-    # TODO
-    rm $CPLEX_INSTALLER
-    mv ./CPLEX_Studio2211 /Applications/CPLEX_Studio
-    export CPLEX_HOME="/Applications/CPLEX_Studio"
-    export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
-    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
-    ldconfig
+    # the CPLEX_URL is always given by the same prefix, i.e.:
+    # "https://drive.usercontent.google.com/download?id=" +
+    # the id code suffix in the Drive sharing link, i.e.:
+    # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
+    CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
+    uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
+    if [ -n "$uuid" ]; then
+        curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+        tar -xvf $CPLEX_INSTALLER
+        # TODO
+        rm $CPLEX_INSTALLER
+        mv ./CPLEX_Studio2211 /Applications/CPLEX_Studio
+        export CPLEX_HOME="/Applications/CPLEX_Studio"
+        export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
+        export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+        ldconfig
+    else
+        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+    fi
   fi
 
   # Install Gurobi
