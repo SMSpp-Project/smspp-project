@@ -204,7 +204,7 @@ EOL
     [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
     [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
     [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
-    ./coinbrew build Osi $osi_build_flags
+    ./coinbrew build Osi "$osi_build_flags"
     # Build Clp
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
@@ -385,7 +385,7 @@ install_on_macos() {
     [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
     [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
     [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
-    ./coinbrew build Osi $osi_build_flags
+    ./coinbrew build Osi "$osi_build_flags"
     # Build Clp
     ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
