@@ -52,6 +52,7 @@ install_on_ubuntu() {
           ldconfig
       else
           echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+          exit 1
       fi
     else
       echo " done."
@@ -105,16 +106,16 @@ install_on_ubuntu() {
     cd HiGHS
     mkdir build
     cd build
-    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
     cmake --build .
     cmake --install .
     sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
     ldconfig
   else
-    cd $HiGHS_ROOT
+    cd "$HiGHS_ROOT"
     if ! git pull | grep -q "Already up to date."; then
       cd build
-      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
       cmake --build .
       cmake --install .
     else
@@ -235,6 +236,7 @@ install_on_macos() {
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
       else
         echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+        exit 1
       fi
     else
       echo " done."
@@ -368,9 +370,11 @@ case "$OS" in
       CMAKE_PREFIX="/opt/SMSpp"
     else
       echo "This script supports Ubuntu only."
+      exit 1
     fi
   else
     echo "This script supports Ubuntu only."
+    exit 1
   fi
   ;;
 "Darwin")

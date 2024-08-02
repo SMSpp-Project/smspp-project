@@ -190,6 +190,7 @@ if ($OS -eq "Win32NT")
             else
             {
                 Write-Host "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+                exit 1
             }
         }
         Write-Host " done."
