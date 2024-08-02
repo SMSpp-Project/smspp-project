@@ -186,7 +186,6 @@ install_on_macos() {
         export CPLEX_HOME="/Applications/CPLEX_Studio"
         export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
-        ldconfig
     else
         echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
     fi
@@ -204,7 +203,6 @@ install_on_macos() {
     export GUROBI_HOME="/Library/gurobi"
     export PATH="${PATH}:${GUROBI_HOME}/bin"
     export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-    ldconfig
   fi
 
   # Install SCIP
@@ -267,17 +265,14 @@ install_on_macos() {
 install_cplex=1
 install_gurobi=1
 
-# Loop through arguments to check for the -without-cplex and -without-gurobi flags
-for arg in "$@"; do
-  case $arg in
-    -without-cplex)
-      install_cplex=0
-      ;;
-    -without-gurobi)
-      install_gurobi=0
-      ;;
-  esac
-done
+# Override with environment variables if set
+if [ -n "$install_cplex" ]; then
+  install_cplex=$install_cplex
+fi
+
+if [ -n "$install_gurobi" ]; then
+  install_gurobi=$install_gurobi
+fi
 
 # Detect operating system and execute the appropriate installation function
 OS="$(uname)"
