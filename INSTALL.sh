@@ -97,7 +97,7 @@ LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
           # run the CPLEX installer in a xterm subshell
-          # (gnome-terminal does not work with sudo)
+          # (calling gnome-terminal as a subshell does not work with sudo)
           xterm -e ./"$CPLEX_INSTALLER" -f ./installer.properties &
           wait $!
           INSTALLER_EXIT_CODE=$?
@@ -387,6 +387,7 @@ install_on_macos() {
     # Build Clp
     ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
   else
     echo "COIN-OR already installed."
   fi
