@@ -9,8 +9,8 @@
 #     on Unix-based systems. If not already present, it clones the smspp-project
 #     repositories, then builds and installs them.
 #
-#     You can use the `install_cplex=0` option to skip the installation of CPLEX.
-#     You can use the `install_gurobi=0` option to skip the installation of Gurobi.
+#     You can use the `--without-cplex` option to skip the installation of CPLEX.
+#     You can use the `--without-gurobi` option to skip the installation of Gurobi.
 #
 # AUTHOR
 #     Donato Meoli
@@ -25,10 +25,10 @@
 #
 #     or:
 #
-#         ./INSTALL.sh install_cplex=0
+#         ./INSTALL.sh --without-cplex
 #     if you do not have a CPLEX license.
 #
-#         ./INSTALL.sh install_gurobi=0
+#         ./INSTALL.sh --without-gurobi
 #     if you do not have a Gurobi license.
 #
 #     If you have not yet cloned the SMS++ repository, you can run the script directly:
@@ -38,14 +38,14 @@
 #             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo install_cplex=0 install_gurobi=0 bash
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
 #
 #     Using `wget`:
 #         If you want to install SMS++ with all dependencies:
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo install_cplex=0 install_gurobi=0 bash
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Ubuntu
@@ -195,6 +195,7 @@ EOL
     cd /opt
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
+    mkdir coin-or
     # Build CoinUtils
     ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX and Gurobi
@@ -375,6 +376,7 @@ install_on_macos() {
     cd /Library
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
+    mkdir coin-or
     # Build CoinUtils
     ./coinbrew fetch CoinUtils --no-prompt
     # Build Osi with or without CPLEX and Gurobi
@@ -422,8 +424,26 @@ install_on_macos() {
 }
 
 # Default values indicating if CPLEX and Gurobi should be installed
+# it works even if you use `install_cplex=0` or `install_gurobi=0`
 install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
+
+# Parse command line arguments
+for arg in "$@"
+do
+  case $arg in
+    --without-cplex)
+    install_cplex=0
+    shift
+    ;;
+    --without-gurobi)
+    install_gurobi=0
+    shift
+    ;;
+    *)
+    ;;
+  esac
+done
 
 # Detect operating system and execute the appropriate installation function
 OS="$(uname)"
