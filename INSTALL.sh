@@ -57,7 +57,7 @@ install_on_ubuntu() {
   # Update packages and install basic requirements
   echo "Updating system and installing basic requirements..."
   apt-get update -q
-  apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
+  apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl xterm
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -97,7 +97,7 @@ LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
           # run the CPLEX installer in a subshell
-          gnome-terminal -- bash -c "./$CPLEX_INSTALLER -f ./installer.properties; exit \$?" &
+          xterm -hold -e ./"$CPLEX_INSTALLER" -f ./installer.properties &
           wait $!
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
