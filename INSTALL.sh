@@ -1,34 +1,83 @@
 #!/bin/bash
 
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#     This script installs SMS++ and all its dependencies on Unix-based systems.
+#
+# DESCRIPTION
+#     This script performs the installation of SMS++ and all its dependencies
+#     on Unix-based systems. If not already present, it clones the smspp-project
+#     repositories, then builds and installs them.
+#
+#     You can use the `install_cplex=0` option to skip the installation of CPLEX.
+#     You can use the `install_gurobi=0` option to skip the installation of Gurobi.
+#
+# AUTHOR
+#     Donato Meoli
+#
+# NOTES
+#     Ensure that you use `sudo` to run the script with elevated privileges.
+#
+# EXAMPLES
+#     If you are inside the cloned repository:
+#
+#         ./INSTALL.sh
+#
+#     or:
+#
+#         ./INSTALL.sh install_cplex=0
+#     if you do not have a CPLEX license.
+#
+#         ./INSTALL.sh install_gurobi=0
+#     if you do not have a Gurobi license.
+#
+#     If you have not yet cloned the SMS++ repository, you can run the script directly:
+#
+#     Using `curl`:
+#         If you want to install SMS++ with all dependencies:
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+#
+#         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo install_cplex=0 install_gurobi=0 bash
+#
+#     Using `wget`:
+#         If you want to install SMS++ with all dependencies:
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+#
+#         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo install_cplex=0 install_gurobi=0 bash
+# ------------------------------------------------------------------------------
+
 # Function to install dependencies on Ubuntu
 install_on_ubuntu() {
-  set -e # Exit immediately if a command exits with a non-zero status
+  set -e  # Exit immediately if a command exits with a non-zero status
 
   echo "Starting the installation process on Ubuntu..."
 
   # Update packages and install basic requirements
   echo "Updating system and installing basic requirements..."
-  apt-get update
-  apt-get install -y build-essential clang cmake cmake-curses-gui git curl
+  apt-get update -q
+  apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
-  apt-get install -y libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+  apt-get install -y -q libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
 
   # Install OpenMP
-  apt-get install -y libomp-dev
+  echo "Installing OpenMP..."
+  apt-get install -y -q libomp-dev
 
   # Install Eigen
   echo "Installing Eigen..."
-  apt-get install -y libeigen3-dev
+  apt-get install -y -q libeigen3-dev
 
   # Install NetCDF-C++
   echo "Installing NetCDF-C++..."
-  apt-get install -y libnetcdf-c++4-dev
+  apt-get install -y -q libnetcdf-c++4-dev
 
   # Install CPLEX
-  if [ $install_cplex -eq 1 ]; then
-    echo -n "Installing CPLEX..."
+  if [ "$install_cplex" -eq 1 ]; then
+    echo "Installing CPLEX..."
     CPLEX_ROOT="/opt/ibm/ILOG/CPLEX_Studio"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd /opt
@@ -38,13 +87,13 @@ install_on_ubuntu() {
       # the id code suffix in the Drive sharing link, i.e.:
       # https://drive.google.com/file/d/ 12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x /view?usp=sharing
       CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
-      uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
+      uuid=$(curl -sL "$CPLEX_URL" | grep -oP 'name="uuid" value="\K[^"]+')
       if [ -n "$uuid" ]; then
-          curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-          chmod u+x $CPLEX_INSTALLER
-          ./$CPLEX_INSTALLER
-          rm $CPLEX_INSTALLER
-          mv ./ibm/ILOG/CPLEX_Studio2211 $CPLEX_ROOT
+          curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+          chmod u+x "$CPLEX_INSTALLER"
+          ./"$CPLEX_INSTALLER"
+          rm "$CPLEX_INSTALLER"
+          mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
           export CPLEX_HOME="$CPLEX_ROOT/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
@@ -55,50 +104,50 @@ install_on_ubuntu() {
           exit 1
       fi
     else
-      echo " done."
+      echo "CPLEX already installed."
     fi
   fi
 
   # Install Gurobi
-  if [ $install_gurobi -eq 1 ]; then
-      echo -n "Installing Gurobi..."
+  if [ "$install_gurobi" -eq 1 ]; then
+      echo "Installing Gurobi..."
       GUROBI_ROOT="/opt/gurobi"
       if [ ! -d "$GUROBI_ROOT" ]; then
           cd /opt
           GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
-          curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-          tar -xvf $GUROBI_INSTALLER
-          rm $GUROBI_INSTALLER
-          mv ./gurobi1003 $GUROBI_ROOT
+          curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
+          tar -xvf "$GUROBI_INSTALLER"
+          rm "$GUROBI_INSTALLER"
+          mv ./gurobi1003 "$GUROBI_ROOT"
           export GUROBI_HOME="${GUROBI_ROOT}/linux64"
           export PATH="${PATH}:${GUROBI_HOME}/bin"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
           sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
           ldconfig
       else
-          echo " done."
+          echo "Gurobi already installed."
       fi
   fi
 
   # Install SCIP
-  echo -n "Installing SCIP..."
+  echo "Installing SCIP..."
   SCIP_ROOT="/opt/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
-      apt-get install -y gfortran libtbb-dev
+      apt-get install -y -q gfortran libtbb-dev
       cd /opt
       SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
-      curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
-      chmod u+x $SCIP_INSTALLER
-      ./$SCIP_INSTALLER --prefix=$SCIP_ROOT --exclude-subdir --skip-license
-      rm $SCIP_INSTALLER
+      curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
+      chmod u+x "$SCIP_INSTALLER"
+      ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
+      rm "$SCIP_INSTALLER"
       sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
       ldconfig
   else
-      echo " done."
+      echo "SCIP already installed."
   fi
 
   # Install HiGHS
-  echo -n "Installing HiGHS..."
+  echo "Installing HiGHS..."
   HiGHS_ROOT=/opt/HiGHS
   if [ ! -d "$HiGHS_ROOT" ]; then
     cd /opt
@@ -106,7 +155,7 @@ install_on_ubuntu() {
     cd HiGHS
     mkdir build
     cd build
-    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
+    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
     cmake --build .
     cmake --install .
     sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
@@ -115,64 +164,64 @@ install_on_ubuntu() {
     cd "$HiGHS_ROOT"
     if ! git pull | grep -q "Already up to date."; then
       cd build
-      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
+      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
       cmake --build .
       cmake --install .
     else
-      echo " done."
+      echo "HiGHS already up to date."
     fi
     cd /opt
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
-  echo -n "Installing COIN-OR CoinUtils and Osi/Clp..."
-  apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+  echo "Installing COIN-OR CoinUtils and Osi/Clp..."
+  apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
   CoinOr_ROOT=/opt/coin-or
   if [ ! -d "$CoinOr_ROOT" ]; then
     cd /opt
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
     # Build CoinUtils
-    ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none
+    ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX and Gurobi
     osi_build_flags="--latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none"
-    [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
-    [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-    [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
-    [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+    [ "$install_cplex" -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
+    [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
+    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
+    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
     ./coinbrew build Osi $osi_build_flags
     # Build Clp
-    ./coinbrew build Clp --latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none
+    ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
     sh -c "echo '$CoinOr_ROOT/lib' > /etc/ld.so.conf.d/coin-or.conf"
-    sudo ldconfig
+    ldconfig
   else
-    echo " done."
+    echo "COIN-OR already installed."
   fi
 
   # Install StOpt
-  echo -n "Installing StOpt..."
+  echo "Installing StOpt..."
   StOpt_ROOT=/opt/StOpt
-  apt-get install -y zlib1g-dev
+  apt-get install -y -q zlib1g-dev
   if [ ! -d "$StOpt_ROOT" ]; then
     cd /opt
     git clone https://gitlab.com/stochastic-control/StOpt
     cd StOpt
     mkdir build
     cd build
-    cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+    cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
     cmake --build .
     cmake --install .
   else
-    cd $StOpt_ROOT
+    cd "$StOpt_ROOT"
     if ! git pull | grep -q "Already up to date."; then
       cd build
-      cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+      cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
       cmake --build .
       cmake --install .
     else
-      echo " done."
+      echo "StOpt already up to date."
     fi
     cd /opt
   fi
@@ -182,7 +231,7 @@ install_on_ubuntu() {
 
 # Function to install dependencies on macOS
 install_on_macos() {
-  set -e # Exit immediately if a command exits with a non-zero status
+  set -e  # Exit immediately if a command exits with a non-zero status
 
   echo "Starting the installation process on macOS..."
 
@@ -203,6 +252,7 @@ install_on_macos() {
   brew install boost
 
   # Install OpenMP
+  echo "Installing OpenMP..."
   brew install libomp
 
   # Install Eigen
@@ -214,8 +264,8 @@ install_on_macos() {
   brew install netcdf
 
   # Install CPLEX
-  if [ $install_cplex -eq 1 ]; then
-    echo -n "Installing CPLEX..."
+  if [ "$install_cplex" -eq 1 ]; then
+    echo "Installing CPLEX..."
     CPLEX_ROOT="/Applications/CPLEX_Studio"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd /Applications
@@ -225,12 +275,12 @@ install_on_macos() {
       # the id code suffix in the Drive sharing link, i.e.:
       # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
       CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
-      uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
+      uuid=$(curl -sL "$CPLEX_URL" | grep -oP 'name="uuid" value="\K[^"]+')
       if [ -n "$uuid" ]; then
-        curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        tar -xvf $CPLEX_INSTALLER
-        rm $CPLEX_INSTALLER
-        mv ./CPLEX_Studio2211 $CPLEX_ROOT
+        curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+        tar -xvf "$CPLEX_INSTALLER"
+        rm "$CPLEX_INSTALLER"
+        mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
         export CPLEX_HOME="$CPLEX_ROOT"
         export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
@@ -239,46 +289,46 @@ install_on_macos() {
         exit 1
       fi
     else
-      echo " done."
+      echo "CPLEX already installed."
     fi
   fi
 
   # Install Gurobi
-  if [ $install_gurobi -eq 1 ]; then
-    echo -n "Installing Gurobi..."
+  if [ "$install_gurobi" -eq 1 ]; then
+    echo "Installing Gurobi..."
     GUROBI_ROOT="/Library/gurobi"
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd /Library
       GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
-      curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-      installer -pkg $GUROBI_INSTALLER -target /
-      rm $GUROBI_INSTALLER
-      mv ./gurobi1003 $GUROBI_ROOT
-      export GUROBI_HOME="${GUROBI_ROOT}"
+      curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
+      installer -pkg "$GUROBI_INSTALLER" -target /
+      rm "$GUROBI_INSTALLER"
+      mv ./gurobi1003 "$GUROBI_ROOT"
+      export GUROBI_HOME="$GUROBI_ROOT"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
     else
-      echo " done."
+      echo "Gurobi already installed."
     fi
   fi
 
   # Install SCIP
-  echo -n "Installing SCIP..."
+  echo "Installing SCIP..."
   SCIP_ROOT="/Library/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
     brew install gcc tbb
     cd /Library
     SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
-    curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
-    chmod u+x $SCIP_INSTALLER
-    ./$SCIP_INSTALLER --prefix=$SCIP_ROOT --exclude-subdir --skip-license
-    rm $SCIP_INSTALLER
+    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
+    chmod u+x "$SCIP_INSTALLER"
+    ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
+    rm "$SCIP_INSTALLER"
   else
-    echo " done."
+    echo "SCIP already installed."
   fi
 
   # Install HiGHS
-  echo -n "Installing HiGHS..."
+  echo "Installing HiGHS..."
   HiGHS_ROOT="/Library/HiGHS"
   if [ ! -d "$HiGHS_ROOT" ]; then
     cd /Library
@@ -286,24 +336,24 @@ install_on_macos() {
     cd HiGHS
     mkdir build
     cd build
-    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
+    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
     cmake --build .
     cmake --install .
   else
-    cd $HiGHS_ROOT
+    cd "$HiGHS_ROOT"
     if ! git pull | grep -q "Already up to date."; then
       cd build
-      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
+      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
       cmake --build .
       cmake --install .
     else
-      echo " done."
+      echo "HiGHS already up to date."
     fi
     cd /Library
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
-  echo -n "Installing COIN-OR CoinUtils and Osi/Clp..."
+  echo "Installing COIN-OR CoinUtils and Osi/Clp..."
   CoinOr_ROOT="/Library/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
     brew install coinutils bz2 lapack openblas
@@ -314,20 +364,20 @@ install_on_macos() {
     ./coinbrew fetch CoinUtils --no-prompt
     # Build Osi with or without CPLEX and Gurobi
     osi_build_flags="--prefix=$CoinOr_ROOT --no-prompt --tests=none"
-    [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
-    [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-    [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
-    [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+    [ "$install_cplex" -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
+    [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
+    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
+    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
     ./coinbrew build Osi $osi_build_flags
     # Build Clp
-    ./coinbrew build Clp --prefix=$CoinOr_ROOT --tests=none
+    ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
   else
-    echo " done."
+    echo "COIN-OR already installed."
   fi
 
   # Install StOpt
-  echo -n "Installing StOpt..."
+  echo "Installing StOpt..."
   StOpt_ROOT="/Library/StOpt"
   if [ ! -d "$StOpt_ROOT" ]; then
     brew install zlib
@@ -336,18 +386,18 @@ install_on_macos() {
     cd StOpt
     mkdir build
     cd build
-    cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+    cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
     cmake --build .
     cmake --install .
   else
-    cd $StOpt_ROOT
+    cd "$StOpt_ROOT"
     if ! git pull | grep -q "Already up to date."; then
       cd build
-      cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+      cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
       cmake --build .
       cmake --install .
     else
-      echo " done."
+      echo "StOpt already up to date."
     fi
     cd /Library
   fi
@@ -389,31 +439,37 @@ esac
 
 # Install SMSpp
 echo "Compiling SMSpp..."
-SMSPP_ROOT="smspp-project"
 
-if [ ! -d "$SMSPP_ROOT" ]; then
+# Check if we are inside the SMSpp repository by looking for a .git directory
+if [ -d ".git" ]; then
+  echo "Inside SMSpp repository. Pulling latest changes..."
+  git pull
+else
+  SMSPP_ROOT="smspp-project"
+  if [ ! -d "$SMSPP_ROOT" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
     git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    cd $SMSPP_ROOT
-else
-    cd $SMSPP_ROOT
+    cd "$SMSPP_ROOT"
+  else
+    cd "$SMSPP_ROOT"
     git pull
+  fi
 fi
 
 # Build Debug
-mkdir cmake-build-debug
+mkdir -p cmake-build-debug
 cd cmake-build-debug
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
-ccmake .. # select submodules, then Configure and Generate the build files
+ccmake ..  # select submodules, then Configure and Generate the build files
 cmake --build . --config Debug
 cmake --install . --config Debug
 cd ..
 
 # Build Release
-mkdir cmake-build-release
+mkdir -p cmake-build-release
 cd cmake-build-release
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
-ccmake .. # select submodules, then Configure and Generate the build files
+ccmake ..  # select submodules, then Configure and Generate the build files
 cmake --build . --config Release
 cmake --install . --config Release
 cd ..

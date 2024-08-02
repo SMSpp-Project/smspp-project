@@ -7,7 +7,7 @@
     If not already present, it clones the smspp-project repositories, then builds and installs them.
 
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
-    You can use the `-withoutGurobi` option to skip the installation of CPLEX.
+    You can use the `-withoutGurobi` option to skip the installation of Gurobi.
 
     .AUTHOR
     Donato Meoli
@@ -24,7 +24,7 @@
 
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
 
-    .EXAMPLE
+    .EXAMPLES
     If you are inside the cloned repository:
 
         .\INSTALL.ps1
@@ -37,7 +37,7 @@
         .\INSTALL.ps1 -withoutGurobi
     if you do not have a Gurobi license.
 
-    If you have not cloned the repository:
+    If you have not yet cloned the SMS++ repository, you can run the script directly:
 
         & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
 
@@ -375,17 +375,27 @@ function Update-EnvironmentVariables
 
 # Install SMSPP
 Write-Host "Compiling SMSpp..."
-$SMSPP_ROOT = "C:\smspp-project"
 
-if (-not (Test-Path $SMSPP_ROOT))
+# Check if we are inside the SMSpp repository by looking for a .git directory
+if (Test-Path ".git")
 {
-    git clone -b develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-    Set-Location $SMSPP_ROOT
+    Write-Host "Inside SMSpp repository. Pulling latest changes..."
+    git pull
 }
 else
 {
-    Set-Location $SMSPP_ROOT
-    git pull
+    $SMSPP_ROOT = "C:\smspp-project"
+    if (-not (Test-Path $SMSPP_ROOT))
+    {
+        Write-Host "Repository not found locally. Cloning SMSpp..."
+        git clone -b develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+        Set-Location $SMSPP_ROOT
+    }
+    else
+    {
+        Set-Location $SMSPP_ROOT
+        git pull
+    }
 }
 
 # Build Debug
