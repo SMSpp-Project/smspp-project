@@ -104,7 +104,7 @@ EOL
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
             rm "$CPLEX_INSTALLER" installer.properties
             #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
-            export CPLEX_HOME="$CPLEX_ROOT/cplex"
+            export CPLEX_HOME="${CPLEX_ROOT}/cplex"
             export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
             export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
             sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
@@ -207,12 +207,12 @@ EOL
     if [ "$install_cplex" -eq 0 ]; then
       osi_build_flags="$osi_build_flags --without-cplex"
     else
-      osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L${CPLEX_HOME}/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=${CPLEX_HOME}/include/ilcplex"
+      osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
     fi
     if [ "$install_gurobi" -eq 0 ]; then
       osi_build_flags="$osi_build_flags --without-gurobi"
     else
-      osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L${GUROBI_HOME}/lib -lgurobi100 --with-gurobi-incdir=${GUROBI_HOME}/include"
+      osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi100 --with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
     fi
     # Print osi_build_flags for debugging
     echo "osi_build_flags: $osi_build_flags"
@@ -313,7 +313,7 @@ install_on_macos() {
         # TODO
         rm "$CPLEX_INSTALLER"
         mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
-        export CPLEX_HOME="$CPLEX_ROOT"
+        export CPLEX_HOME="${CPLEX_ROOT}"
         export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
       else

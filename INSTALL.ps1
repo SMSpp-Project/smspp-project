@@ -115,9 +115,9 @@ if ($OS -eq "Win32NT")
         {
             Set-Location $STOPT_VCPKG_REGISTRY
             git remote update
-            $localCommit = git rev-parse @
-            $remoteCommit = git rev-parse @{u}
-            if ($localCommit -eq $remoteCommit) # stopt is latest
+            $local = git rev-parse @
+            $remote = git rev-parse @{u}
+            if ($local -eq $remote) # stopt is latest
             {
                 git pull
                 Set-Location $env:VCPKG_ROOT
@@ -259,9 +259,9 @@ if ($OS -eq "Win32NT")
     {
         Set-Location $HiGHS_ROOT
         git remote update
-        $localCommit = git rev-parse @
-        $remoteCommit = git rev-parse @{u}
-        if ($localCommit -ne $remoteCommit) # HiGHS is not latest
+        $local = git rev-parse @
+        $remote = git rev-parse @{u}
+        if ($local -ne $remote) # HiGHS is not latest
         {
             git pull
             Write-Host "" # new line
