@@ -216,7 +216,7 @@ EOL
     fi
     # Print osi_build_flags for debugging
     echo "osi_build_flags: $osi_build_flags"
-    ./coinbrew build Osi "$osi_build_flags"
+    ./coinbrew build Osi $osi_build_flags
     # Build Clp
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
