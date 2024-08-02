@@ -99,7 +99,7 @@ EOL
           # run the CPLEX installer in a xterm subshell
           # (calling gnome-terminal as a subshell does not work with sudo)
           xterm -e ./"$CPLEX_INSTALLER" -f ./installer.properties &
-          wait $! # Wait for CPLEX installer to finish
+          wait $! # wait for CPLEX installer to finish
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
             rm "$CPLEX_INSTALLER" installer.properties
