@@ -95,7 +95,7 @@ install_on_ubuntu() {
 ACCEPT_LICENSE=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          ./"$CPLEX_INSTALLER" -i silent -f silentinstall.properties -DLOG_FILE=cplex_install.log
+          ./"$CPLEX_INSTALLER" -i silent -f silentinstall.properties > cplex_install.log 2>&1
           rm "$CPLEX_INSTALLER" silentinstall.properties
           export CPLEX_HOME="$CPLEX_ROOT/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
