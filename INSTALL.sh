@@ -45,7 +45,7 @@ install_on_ubuntu() {
           ./$CPLEX_INSTALLER
           rm $CPLEX_INSTALLER
           mv ./ibm/ILOG/CPLEX_Studio2211 $CPLEX_ROOT
-          export CPLEX_HOME=$CPLEX_ROOT/cplex
+          export CPLEX_HOME="$CPLEX_ROOT/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
           sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
@@ -214,95 +214,141 @@ install_on_macos() {
 
   # Install CPLEX
   if [ $install_cplex -eq 1 ]; then
-    echo "Installing CPLEX..."
-    cd /Applications
-    CPLEX_INSTALLER="cplex_studio2211.osx.zip"
-    # the CPLEX_URL is always given by the same prefix, i.e.:
-    # "https://drive.usercontent.google.com/download?id=" +
-    # the id code suffix in the Drive sharing link, i.e.:
-    # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
-    CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
-    uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
-    if [ -n "$uuid" ]; then
+    echo -n "Installing CPLEX..."
+    CPLEX_ROOT="/Applications/CPLEX_Studio"
+    if [ ! -d "$CPLEX_ROOT" ]; then
+      cd /Applications
+      CPLEX_INSTALLER="cplex_studio2211.osx.zip"
+      # the CPLEX_URL is always given by the same prefix, i.e.:
+      # "https://drive.usercontent.google.com/download?id=" +
+      # the id code suffix in the Drive sharing link, i.e.:
+      # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
+      CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
+      uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
+      if [ -n "$uuid" ]; then
         curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         tar -xvf $CPLEX_INSTALLER
-        # TODO
         rm $CPLEX_INSTALLER
-        mv ./CPLEX_Studio2211 /Applications/CPLEX_Studio
-        export CPLEX_HOME="/Applications/CPLEX_Studio"
+        mv ./CPLEX_Studio2211 $CPLEX_ROOT
+        export CPLEX_HOME="$CPLEX_ROOT"
         export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
-    else
+      else
         echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+      fi
+    else
+      echo " done."
     fi
   fi
 
   # Install Gurobi
   if [ $install_gurobi -eq 1 ]; then
-    echo "Installing Gurobi..."
-    cd /Library
-    GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
-    curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-    installer -pkg $GUROBI_INSTALLER -target /
-    rm $GUROBI_INSTALLER
-    mv ./gurobi1003 /Library/gurobi
-    export GUROBI_HOME="/Library/gurobi"
-    export PATH="${PATH}:${GUROBI_HOME}/bin"
-    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+    echo -n "Installing Gurobi..."
+    GUROBI_ROOT="/Library/gurobi"
+    if [ ! -d "$GUROBI_ROOT" ]; then
+      cd /Library
+      GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
+      curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+      installer -pkg $GUROBI_INSTALLER -target /
+      rm $GUROBI_INSTALLER
+      mv ./gurobi1003 $GUROBI_ROOT
+      export GUROBI_HOME="${GUROBI_ROOT}"
+      export PATH="${PATH}:${GUROBI_HOME}/bin"
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+    else
+      echo " done."
+    fi
   fi
 
   # Install SCIP
-  echo "Installing SCIP..."
-  brew install gcc tbb
-  SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
-  curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
-  chmod u+x $SCIP_INSTALLER
-  ./$SCIP_INSTALLER --prefix=/Library/scip --exclude-subdir --skip-license
-  rm $SCIP_INSTALLER
+  echo -n "Installing SCIP..."
+  SCIP_ROOT="/Library/scip"
+  if [ ! -d "$SCIP_ROOT" ]; then
+    brew install gcc tbb
+    cd /Library
+    SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
+    curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
+    chmod u+x $SCIP_INSTALLER
+    ./$SCIP_INSTALLER --prefix=$SCIP_ROOT --exclude-subdir --skip-license
+    rm $SCIP_INSTALLER
+  else
+    echo " done."
+  fi
 
   # Install HiGHS
-  echo "Installing HiGHS..."
-  cd /Library
-  git clone https://github.com/ERGO-Code/HiGHS.git
-  cd HiGHS
-  mkdir build
-  cd build
-  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/Library/HiGHS ..
-  cmake --build .
-  cmake --install .
-  cd /Library
+  echo -n "Installing HiGHS..."
+  HiGHS_ROOT="/Library/HiGHS"
+  if [ ! -d "$HiGHS_ROOT" ]; then
+    cd /Library
+    git clone https://github.com/ERGO-Code/HiGHS.git
+    cd HiGHS
+    mkdir build
+    cd build
+    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
+    cmake --build .
+    cmake --install .
+  else
+    cd $HiGHS_ROOT
+    if ! git pull | grep -q "Already up to date."; then
+      cd build
+      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT ..
+      cmake --build .
+      cmake --install .
+    else
+      echo " done."
+    fi
+    cd /Library
+  fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
-  echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-  brew install coinutils bz2 lapack openblas
-  cd /Library
-  curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  chmod u+x coinbrew
-  # Build CoinUtils
-  ./coinbrew fetch CoinUtils --no-prompt
-  # Build Osi with or without CPLEX and Gurobi
-  osi_build_flags="--prefix=/Library/coin-or --no-prompt --tests=none"
-  [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
-  [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-  [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
-  [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
-  ./coinbrew build Osi $osi_build_flags
-  # Build Clp
-  ./coinbrew build Clp --prefix=/Library/coin-or --no-prompt --tests=none
-  rm -R coinbrew build
+  echo -n "Installing COIN-OR CoinUtils and Osi/Clp..."
+  CoinOr_ROOT="/Library/coin-or"
+  if [ ! -d "$CoinOr_ROOT" ]; then
+    brew install coinutils bz2 lapack openblas
+    cd /Library
+    curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+    chmod u+x coinbrew
+    # Build CoinUtils
+    ./coinbrew fetch CoinUtils --no-prompt
+    # Build Osi with or without CPLEX and Gurobi
+    osi_build_flags="--prefix=$CoinOr_ROOT --no-prompt --tests=none"
+    [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
+    [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
+    [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
+    [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+    ./coinbrew build Osi $osi_build_flags
+    # Build Clp
+    ./coinbrew build Clp --prefix=$CoinOr_ROOT --tests=none
+    rm -R coinbrew build
+  else
+    echo " done."
+  fi
 
   # Install StOpt
-  echo "Installing StOpt..."
-  brew install zlib
-  cd /Library
-  git clone https://gitlab.com/stochastic-control/StOpt
-  cd StOpt
-  mkdir build
-  cd build
-  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=/Library/StOpt ..
-  cmake --build .
-  cmake --install .
-  cd /Library
+  echo -n "Installing StOpt..."
+  StOpt_ROOT="/Library/StOpt"
+  if [ ! -d "$StOpt_ROOT" ]; then
+    brew install zlib
+    cd /Library
+    git clone https://gitlab.com/stochastic-control/StOpt
+    cd StOpt
+    mkdir build
+    cd build
+    cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+    cmake --build .
+    cmake --install .
+  else
+    cd $StOpt_ROOT
+    if ! git pull | grep -q "Already up to date."; then
+      cd build
+      cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+      cmake --build .
+      cmake --install .
+    else
+      echo " done."
+    fi
+    cd /Library
+  fi
 
   echo "Installation completed successfully on macOS."
 }
@@ -341,9 +387,9 @@ esac
 echo "Compiling SMSpp..."
 SMSPP_ROOT="smspp-project"
 
-if [ ! -d "SMSPP_ROOT" ]; then
+if [ ! -d "$SMSPP_ROOT" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop https://gitlab.com/smspp/smspp-project.git "SMSPP_ROOT"
+    git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     cd $SMSPP_ROOT
 else
     cd $SMSPP_ROOT
@@ -351,8 +397,8 @@ else
 fi
 
 # Build Debug
-mkdir cmake-build-dedug
-cd cmake-build-dedug
+mkdir cmake-build-debug
+cd cmake-build-debug
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
 ccmake .. # select submodules, then Configure and Generate the build files
 cmake --build . --config Debug
