@@ -180,7 +180,7 @@ EOL
     LOCAL=$(git rev-parse @)
     REMOTE=$(git rev-parse @{u})
     # if the repository is not up to date
-    if [ $LOCAL != $REMOTE ]; then
+    if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
       cd build
       cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
@@ -206,11 +206,11 @@ EOL
     osi_build_flags="--latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none"
     [ "$install_cplex" -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
     [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
-    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L${CPLEX_HOME}/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=${CPLEX_HOME}/include/ilcplex"
+    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L${GUROBI_HOME}/lib -lgurobi100 --with-gurobi-incdir=${GUROBI_HOME}/include"
     # Print osi_build_flags for debugging
     echo "osi_build_flags: $osi_build_flags"
-    ./coinbrew build Osi $osi_build_flags
+    ./coinbrew build Osi "$osi_build_flags"
     # Build Clp
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
@@ -239,7 +239,7 @@ EOL
     LOCAL=$(git rev-parse @)
     REMOTE=$(git rev-parse @{u})
     # if the repository is not up to date
-    if [ $LOCAL != $REMOTE ]; then
+    if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
       cd build
       cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
@@ -370,7 +370,7 @@ install_on_macos() {
     LOCAL=$(git rev-parse @)
     REMOTE=$(git rev-parse @{u})
     # if the repository is not up to date
-    if [ $LOCAL != $REMOTE ]; then
+    if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
       cd build
       cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
@@ -396,9 +396,9 @@ install_on_macos() {
     osi_build_flags="--prefix=$CoinOr_ROOT --no-prompt --tests=none"
     [ "$install_cplex" -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
     [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
-    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
-    ./coinbrew build Osi $osi_build_flags
+    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L${CPLEX_HOME}/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=${CPLEX_HOME}/include/ilcplex"
+    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L${GUROBI_HOME}/lib -lgurobi100 --with-gurobi-incdir=${GUROBI_HOME}/include"
+    ./coinbrew build Osi "$osi_build_flags"
     # Build Clp
     ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build
@@ -425,7 +425,7 @@ install_on_macos() {
     LOCAL=$(git rev-parse @)
     REMOTE=$(git rev-parse @{u})
     # if the repository is not up to date
-    if [ $LOCAL != $REMOTE ]; then
+    if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
       cd build
       cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
