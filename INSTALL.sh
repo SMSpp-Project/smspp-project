@@ -54,18 +54,20 @@ install_on_ubuntu() {
   fi
 
   # Install Gurobi
-  echo "Installing Gurobi..."
-  cd /opt
-  GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
-  curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-  tar -xvf $GUROBI_INSTALLER
-  rm $GUROBI_INSTALLER
-  mv ./gurobi1003 /opt/gurobi
-  export GUROBI_HOME="/opt/gurobi/linux64"
-  export PATH="${PATH}:${GUROBI_HOME}/bin"
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-  sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-  ldconfig
+  if [ $install_gurobi -eq 1 ]; then
+    echo "Installing Gurobi..."
+    cd /opt
+    GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
+    curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+    tar -xvf $GUROBI_INSTALLER
+    rm $GUROBI_INSTALLER
+    mv ./gurobi1003 /opt/gurobi
+    export GUROBI_HOME="/opt/gurobi/linux64"
+    export PATH="${PATH}:${GUROBI_HOME}/bin"
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+    sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+    ldconfig
+  fi
 
   # Install SCIP
   echo "Installing SCIP..."
@@ -99,12 +101,16 @@ install_on_ubuntu() {
   cd /opt
   curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   chmod u+x coinbrew
+  # Build CoinUtils
   ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-  if [ $install_cplex -eq 1 ]; then
-    ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
-  else
-    ./coinbrew build Osi --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
-  fi
+  # Build Osi with or without CPLEX and Gurobi
+  osi_build_flags="--latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none"
+  [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
+  [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
+  [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
+  [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+  ./coinbrew build Osi $osi_build_flags
+  # Build Clp
   ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
   rm -R coinbrew build
   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/coin-or/lib"
@@ -187,17 +193,19 @@ install_on_macos() {
   fi
 
   # Install Gurobi
-  echo "Installing Gurobi..."
-  cd /Library
-  GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
-  curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-  installer -pkg $GUROBI_INSTALLER -target /
-  rm $GUROBI_INSTALLER
-  mv ./gurobi1003 /Library/gurobi
-  export GUROBI_HOME="/Library/gurobi"
-  export PATH="${PATH}:${GUROBI_HOME}/bin"
-  export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-  ldconfig
+  if [ $install_gurobi -eq 1 ]; then
+    echo "Installing Gurobi..."
+    cd /Library
+    GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
+    curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+    installer -pkg $GUROBI_INSTALLER -target /
+    rm $GUROBI_INSTALLER
+    mv ./gurobi1003 /Library/gurobi
+    export GUROBI_HOME="/Library/gurobi"
+    export PATH="${PATH}:${GUROBI_HOME}/bin"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+    ldconfig
+  fi
 
   # Install SCIP
   echo "Installing SCIP..."
@@ -226,13 +234,16 @@ install_on_macos() {
   cd /Library
   curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   chmod u+x coinbrew
+  # Build CoinUtils
   ./coinbrew fetch CoinUtils --no-prompt
-  ./coinbrew build CoinUtils --prefix=/Library/coin-or --no-prompt --tests=none
-  if [ $install_cplex -eq 1 ]; then
-    ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --with-cplex --with-cplex-lib="-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread" --with-cplex-incdir="$CPLEX_HOME/include/ilcplex" --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
-  else
-    ./coinbrew build Osi --prefix=/Library/coin-or --no-prompt --tests=none --without-cplex --with-gurobi --with-gurobi-lib="-L$GUROBI_HOME/lib -lgurobi100" --with-gurobi-incdir="$GUROBI_HOME/include"
-  fi
+  # Build Osi with or without CPLEX and Gurobi
+  osi_build_flags="--prefix=/Library/coin-or --no-prompt --tests=none"
+  [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
+  [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
+  [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
+  [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+  ./coinbrew build Osi $osi_build_flags
+  # Build Clp
   ./coinbrew build Clp --prefix=/Library/coin-or --no-prompt --tests=none
   rm -R coinbrew build
 
@@ -252,15 +263,20 @@ install_on_macos() {
   echo "Installation completed successfully on macOS."
 }
 
-# Default value indicating if CPLEX should be installed
+# Default values indicating if CPLEX and Gurobi should be installed
 install_cplex=1
+install_gurobi=1
 
-# Loop through arguments to check for the -without-cplex flag
+# Loop through arguments to check for the -without-cplex and -without-gurobi flags
 for arg in "$@"; do
-  if [ "$arg" = "-without-cplex" ]; then
-    install_cplex=0
-    break
-  fi
+  case $arg in
+    -without-cplex)
+      install_cplex=0
+      ;;
+    -without-gurobi)
+      install_gurobi=0
+      ;;
+  esac
 done
 
 # Detect operating system and execute the appropriate installation function
