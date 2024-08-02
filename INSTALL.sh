@@ -28,107 +28,153 @@ install_on_ubuntu() {
 
   # Install CPLEX
   if [ $install_cplex -eq 1 ]; then
-    echo "Installing CPLEX..."
-    cd /opt
-    CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
-    # the CPLEX_URL is always given by the same prefix, i.e.:
-    # "https://drive.usercontent.google.com/download?id=" +
-    # the id code suffix in the Drive sharing link, i.e.:
-    # https://drive.google.com/file/d/ 12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x /view?usp=sharing
-    CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
-    uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
-    if [ -n "$uuid" ]; then
-        curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        chmod u+x $CPLEX_INSTALLER
-        ./$CPLEX_INSTALLER
-        rm $CPLEX_INSTALLER
-        mv ./ibm/ILOG/CPLEX_Studio2211 /opt/ibm/ILOG/CPLEX_Studio
-        export CPLEX_HOME="/opt/ibm/ILOG/CPLEX_Studio/cplex"
-        export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
-        export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-        sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-        ldconfig
+    echo -n "Installing CPLEX..."
+    CPLEX_ROOT="/opt/ibm/ILOG/CPLEX_Studio"
+    if [ ! -d "$CPLEX_ROOT" ]; then
+      cd /opt
+      CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
+      # the CPLEX_URL is always given by the same prefix, i.e.:
+      # "https://drive.usercontent.google.com/download?id=" +
+      # the id code suffix in the Drive sharing link, i.e.:
+      # https://drive.google.com/file/d/ 12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x /view?usp=sharing
+      CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
+      uuid=$(curl -sL $CPLEX_URL | grep -oP 'name="uuid" value="\K[^"]+')
+      if [ -n "$uuid" ]; then
+          curl -o $CPLEX_INSTALLER "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+          chmod u+x $CPLEX_INSTALLER
+          ./$CPLEX_INSTALLER
+          rm $CPLEX_INSTALLER
+          mv ./ibm/ILOG/CPLEX_Studio2211 $CPLEX_ROOT
+          export CPLEX_HOME=$CPLEX_ROOT/cplex
+          export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+          sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+          ldconfig
+      else
+          echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+      fi
     else
-        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+      echo " done."
     fi
   fi
 
   # Install Gurobi
   if [ $install_gurobi -eq 1 ]; then
-    echo "Installing Gurobi..."
-    cd /opt
-    GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
-    curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
-    tar -xvf $GUROBI_INSTALLER
-    rm $GUROBI_INSTALLER
-    mv ./gurobi1003 /opt/gurobi
-    export GUROBI_HOME="/opt/gurobi/linux64"
-    export PATH="${PATH}:${GUROBI_HOME}/bin"
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-    sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-    ldconfig
+      echo -n "Installing Gurobi..."
+      GUROBI_ROOT="/opt/gurobi"
+      if [ ! -d "$GUROBI_ROOT" ]; then
+          cd /opt
+          GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
+          curl -O https://packages.gurobi.com/10.0/$GUROBI_INSTALLER
+          tar -xvf $GUROBI_INSTALLER
+          rm $GUROBI_INSTALLER
+          mv ./gurobi1003 $GUROBI_ROOT
+          export GUROBI_HOME="${GUROBI_ROOT}/linux64"
+          export PATH="${PATH}:${GUROBI_HOME}/bin"
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+          sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+          ldconfig
+      else
+          echo " done."
+      fi
   fi
 
   # Install SCIP
-  echo "Installing SCIP..."
-  apt-get install -y gfortran libtbb-dev
-  cd /opt
-  SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
-  curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
-  chmod u+x $SCIP_INSTALLER
-  ./$SCIP_INSTALLER --prefix=/opt/scip --exclude-subdir --skip-license
-  rm $SCIP_INSTALLER
-  sh -c "echo '/opt/scip/lib' > /etc/ld.so.conf.d/scip.conf"
-  ldconfig
+  echo -n "Installing SCIP..."
+  SCIP_ROOT="/opt/scip"
+  if [ ! -d "$SCIP_ROOT" ]; then
+      apt-get install -y gfortran libtbb-dev
+      cd /opt
+      SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
+      curl -O https://www.scipopt.org/download/release/$SCIP_INSTALLER
+      chmod u+x $SCIP_INSTALLER
+      ./$SCIP_INSTALLER --prefix=$SCIP_ROOT --exclude-subdir --skip-license
+      rm $SCIP_INSTALLER
+      sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
+      ldconfig
+  else
+      echo " done."
+  fi
 
   # Install HiGHS
-  echo "Installing HiGHS..."
-  cd /opt
-  git clone https://github.com/ERGO-Code/HiGHS.git
-  cd HiGHS
-  mkdir build
-  cd build
-  cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
-  cmake --build .
-  cmake --install .
-  sh -c "echo '/opt/HiGHS/lib' > /etc/ld.so.conf.d/highs.conf"
-  ldconfig
-  cd /opt
+  echo -n "Installing HiGHS..."
+  HiGHS_ROOT=/opt/HiGHS
+  if [ ! -d "$HiGHS_ROOT" ]; then
+    cd /opt
+    git clone https://github.com/ERGO-Code/HiGHS.git
+    cd HiGHS
+    mkdir build
+    cd build
+    cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+    cmake --build .
+    cmake --install .
+    sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
+    ldconfig
+  else
+    cd $HiGHS_ROOT
+    if ! git pull | grep -q "Already up to date."; then
+      cd build
+      cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS ..
+      cmake --build .
+      cmake --install .
+    else
+      echo " done."
+    fi
+    cd /opt
+  fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
-  echo "Installing COIN-OR CoinUtils and Osi/Clp..."
+  echo -n "Installing COIN-OR CoinUtils and Osi/Clp..."
   apt-get install -y coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
-  cd /opt
-  curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  chmod u+x coinbrew
-  # Build CoinUtils
-  ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-  # Build Osi with or without CPLEX and Gurobi
-  osi_build_flags="--latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none"
-  [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
-  [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-  [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
-  [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
-  ./coinbrew build Osi $osi_build_flags
-  # Build Clp
-  ./coinbrew build Clp --latest-release --skip-dependencies --prefix=/opt/coin-or --tests=none
-  rm -R coinbrew build
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/coin-or/lib"
-  sh -c "echo '/opt/coin-or/lib' > /etc/ld.so.conf.d/coin-or.conf"
-  ldconfig
+  CoinOr_ROOT=/opt/coin-or
+  if [ ! -d "$CoinOr_ROOT" ]; then
+    cd /opt
+    curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+    chmod u+x coinbrew
+    # Build CoinUtils
+    ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none
+    # Build Osi with or without CPLEX and Gurobi
+    osi_build_flags="--latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none"
+    [ $install_cplex -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
+    [ $install_gurobi -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
+    [ $install_cplex -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L$CPLEX_HOME/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=$CPLEX_HOME/include/ilcplex"
+    [ $install_gurobi -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L$GUROBI_HOME/lib -lgurobi100 --with-gurobi-incdir=$GUROBI_HOME/include"
+    ./coinbrew build Osi $osi_build_flags
+    # Build Clp
+    ./coinbrew build Clp --latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none
+    rm -R coinbrew build
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
+    sh -c "echo '$CoinOr_ROOT/lib' > /etc/ld.so.conf.d/coin-or.conf"
+    sudo ldconfig
+  else
+    echo " done."
+  fi
 
   # Install StOpt
-  echo "Installing StOpt..."
+  echo -n "Installing StOpt..."
+  StOpt_ROOT=/opt/StOpt
   apt-get install -y zlib1g-dev
-  cd /opt
-  git clone https://gitlab.com/stochastic-control/StOpt
-  cd StOpt
-  mkdir build
-  cd build
-  cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=/opt/StOpt ..
-  cmake --build .
-  cmake --install .
-  cd /opt
+  if [ ! -d "$StOpt_ROOT" ]; then
+    cd /opt
+    git clone https://gitlab.com/stochastic-control/StOpt
+    cd StOpt
+    mkdir build
+    cd build
+    cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+    cmake --build .
+    cmake --install .
+  else
+    cd $StOpt_ROOT
+    if ! git pull | grep -q "Already up to date."; then
+      cd build
+      cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=$StOpt_ROOT ..
+      cmake --build .
+      cmake --install .
+    else
+      echo " done."
+    fi
+    cd /opt
+  fi
 
   echo "Installation completed successfully on Ubuntu."
 }
@@ -293,14 +339,14 @@ esac
 
 # Install SMSpp
 echo "Compiling SMSpp..."
-repoPath="smspp-project"
+SMSPP_ROOT="smspp-project"
 
-if [ ! -d "$repoPath" ]; then
+if [ ! -d "SMSPP_ROOT" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop https://gitlab.com/smspp/smspp-project.git "$repoPath"
-    cd $repoPath
+    git clone -b develop https://gitlab.com/smspp/smspp-project.git "SMSPP_ROOT"
+    cd $SMSPP_ROOT
 else
-    cd $repoPath
+    cd $SMSPP_ROOT
     git pull
 fi
 
