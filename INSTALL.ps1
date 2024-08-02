@@ -114,8 +114,12 @@ if ($OS -eq "Win32NT")
         if (.\vcpkg list | Select-String -Pattern "^stopt\b") # stopt is installed
         {
             Set-Location $STOPT_VCPKG_REGISTRY
-            if ((git pull) -match "Already up to date.") # stopt is latest
+            git remote update
+            $localCommit = git rev-parse @
+            $remoteCommit = git rev-parse @{u}
+            if ($localCommit -eq $remoteCommit) # stopt is latest
             {
+                git pull
                 Set-Location $env:VCPKG_ROOT
                 # upgrade all other packages ignoring stopt
                 .\vcpkg list | ForEach-Object {
@@ -254,8 +258,12 @@ if ($OS -eq "Win32NT")
     else
     {
         Set-Location $HiGHS_ROOT
-        if (-not (git pull) -match "Already up to date.") # HiGHS is not latest
+        git remote update
+        $localCommit = git rev-parse @
+        $remoteCommit = git rev-parse @{u}
+        if ($localCommit -ne $remoteCommit) # HiGHS is not latest
         {
+            git pull
             Write-Host "" # new line
             New-Item -Path "build" -ItemType Directory -Force
             Set-Location "build"

@@ -176,7 +176,12 @@ EOL
     ldconfig
   else
     cd "$HiGHS_ROOT"
-    if ! git pull | grep -q "Already up to date."; then
+    git remote update
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse @{u})
+    # if the repository is not up to date
+    if [ $LOCAL != $REMOTE ]; then
+      git pull
       cd build
       cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
       cmake --build .
@@ -195,7 +200,6 @@ EOL
     cd /opt
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
-    mkdir coin-or
     # Build CoinUtils
     ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX and Gurobi
@@ -230,7 +234,11 @@ EOL
     cmake --install .
   else
     cd "$StOpt_ROOT"
-    if ! git pull | grep -q "Already up to date."; then
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse @{u})
+    # if the repository is not up to date
+    if [ $LOCAL != $REMOTE ]; then
+      git pull
       cd build
       cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
       cmake --build .
@@ -357,7 +365,11 @@ install_on_macos() {
     cmake --install .
   else
     cd "$HiGHS_ROOT"
-    if ! git pull | grep -q "Already up to date."; then
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse @{u})
+    # if the repository is not up to date
+    if [ $LOCAL != $REMOTE ]; then
+      git pull
       cd build
       cmake -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT" ..
       cmake --build .
@@ -376,7 +388,6 @@ install_on_macos() {
     cd /Library
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
-    mkdir coin-or
     # Build CoinUtils
     ./coinbrew fetch CoinUtils --no-prompt
     # Build Osi with or without CPLEX and Gurobi
@@ -409,7 +420,11 @@ install_on_macos() {
     cmake --install .
   else
     cd "$StOpt_ROOT"
-    if ! git pull | grep -q "Already up to date."; then
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse @{u})
+    # if the repository is not up to date
+    if [ $LOCAL != $REMOTE ]; then
+      git pull
       cd build
       cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
       cmake --build .
