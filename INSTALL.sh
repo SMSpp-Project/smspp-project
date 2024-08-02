@@ -204,10 +204,16 @@ EOL
     ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX and Gurobi
     osi_build_flags="--latest-release --skip-dependencies --prefix=$CoinOr_ROOT --tests=none"
-    [ "$install_cplex" -eq 0 ] && osi_build_flags="$osi_build_flags --without-cplex"
-    [ "$install_gurobi" -eq 0 ] && osi_build_flags="$osi_build_flags --without-gurobi"
-    [ "$install_cplex" -eq 1 ] && osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L${CPLEX_HOME}/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=${CPLEX_HOME}/include/ilcplex"
-    [ "$install_gurobi" -eq 1 ] && osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L${GUROBI_HOME}/lib -lgurobi100 --with-gurobi-incdir=${GUROBI_HOME}/include"
+    if [ "$install_cplex" -eq 0 ]; then
+      osi_build_flags="$osi_build_flags --without-cplex"
+    else
+      osi_build_flags="$osi_build_flags --with-cplex --with-cplex-lib=-L${CPLEX_HOME}/lib/x86-64_linux/static_pic -lcplex -lilocplex -lm -ldl -lpthread --with-cplex-incdir=${CPLEX_HOME}/include/ilcplex"
+    fi
+    if [ "$install_gurobi" -eq 0 ]; then
+      osi_build_flags="$osi_build_flags --without-gurobi"
+    else
+      osi_build_flags="$osi_build_flags --with-gurobi --with-gurobi-lib=-L${GUROBI_HOME}/lib -lgurobi100 --with-gurobi-incdir=${GUROBI_HOME}/include"
+    fi
     # Print osi_build_flags for debugging
     echo "osi_build_flags: $osi_build_flags"
     ./coinbrew build Osi "$osi_build_flags"
