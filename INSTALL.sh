@@ -95,9 +95,9 @@ install_on_ubuntu() {
 ACCEPT_LICENSE=true
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          ./"$CPLEX_INSTALLER" -f silent -i silentinstall.properties
+          ./"$CPLEX_INSTALLER" -i silent -f silentinstall.properties
           rm "$CPLEX_INSTALLER" silentinstall.properties
-          mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
+          #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
           export CPLEX_HOME="$CPLEX_ROOT/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
