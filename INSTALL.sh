@@ -262,17 +262,8 @@ install_on_macos() {
 }
 
 # Default values indicating if CPLEX and Gurobi should be installed
-install_cplex=1
-install_gurobi=1
-
-# Override with environment variables if set
-if [ -n "$install_cplex" ]; then
-  install_cplex=$install_cplex
-fi
-
-if [ -n "$install_gurobi" ]; then
-  install_gurobi=$install_gurobi
-fi
+install_cplex=${install_cplex:-1}
+install_gurobi=${install_gurobi:-1}
 
 # Detect operating system and execute the appropriate installation function
 OS="$(uname)"
