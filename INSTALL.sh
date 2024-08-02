@@ -91,13 +91,13 @@ install_on_ubuntu() {
       if [ -n "$uuid" ]; then
           curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
           chmod u+x "$CPLEX_INSTALLER"
-          cat <<EOL > silentinstall.properties
+          cat <<EOL > installer.properties
 INSTALLER_UI=silent
 ACCEPT_LICENSE=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          ./"$CPLEX_INSTALLER" -f silentinstall.properties
-          rm "$CPLEX_INSTALLER" silentinstall.properties
+          ./"$CPLEX_INSTALLER" -f ./installer.properties
+          rm "$CPLEX_INSTALLER" installer.properties
           export CPLEX_HOME="$CPLEX_ROOT/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
