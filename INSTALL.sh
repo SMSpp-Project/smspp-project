@@ -92,20 +92,22 @@ install_on_ubuntu() {
           curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
           chmod u+x "$CPLEX_INSTALLER"
           # run the CPLEX installer in a subshell to allow user interaction
-          ( ./"$CPLEX_INSTALLER" )
-          wait
-          if [ $? -eq 0 ]; then
-            rm "$CPLEX_INSTALLER"
-            mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
-            export CPLEX_HOME="$CPLEX_ROOT/cplex"
-            export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
-            export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-            sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-            ldconfig
+          # check for available terminal emulator
+          if command -v gnome-terminal &> /dev/null; then
+              gnome-terminal -- "./$CPLEX_INSTALLER"
+          elif command -v xterm &> /dev/null; then
+              xterm -e "./$CPLEX_INSTALLER"
           else
-            echo "CPLEX installation failed."
-            exit 1
+              echo "Error: no suitable terminal emulator found for interactive installation."
+              exit 1
           fi
+          rm "$CPLEX_INSTALLER"
+          mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
+          export CPLEX_HOME="$CPLEX_ROOT/cplex"
+          export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+          sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+          ldconfig
       else
           echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
           exit 1
