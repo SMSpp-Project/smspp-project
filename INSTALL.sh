@@ -247,11 +247,13 @@ EOL
     cd /opt
     git clone https://gitlab.com/stochastic-control/StOpt
     cd StOpt
+    mv ./doc /opt # TODO remove when the bug in the StOpt CMakeLists.txt will be fixed
     mkdir build
     cd build
     cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
     cmake --build .
     cmake --install .
+    mv ./opt/doc StOpt_ROOT # TODO remove when the bug in the StOpt CMakeLists.txt will be fixed
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -259,10 +261,12 @@ EOL
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
+      mv ./doc /opt # TODO remove when the bug in the StOpt CMakeLists.txt will be fixed
       cd build
       cmake -DBUILD_PYTHON=OFF -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT" ..
       cmake --build .
       cmake --install .
+      mv ./opt/doc StOpt_ROOT # TODO remove when the bug in the StOpt CMakeLists.txt will be fixed
     else
       echo "StOpt already up to date."
     fi
