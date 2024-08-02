@@ -93,7 +93,7 @@ install_on_ubuntu() {
           chmod u+x "$CPLEX_INSTALLER"
           cat <<EOL > installer.properties
 INSTALLER_UI=silent
-ACCEPT_LICENSE=TRUE
+LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
           ./"$CPLEX_INSTALLER" -f ./installer.properties
