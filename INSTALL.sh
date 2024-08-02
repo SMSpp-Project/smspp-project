@@ -92,7 +92,7 @@ install_on_ubuntu() {
           curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
           chmod u+x "$CPLEX_INSTALLER"
           cat <<EOL > installer.properties
-#INSTALLER_UI=silent
+INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
