@@ -96,10 +96,13 @@ INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          ( ./"$CPLEX_INSTALLER" -f ./installer.properties )
+          # run the CPLEX installer in a subshell
+          nohup ./"$CPLEX_INSTALLER" -f ./installer.properties &
+          wait $!
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
             rm "$CPLEX_INSTALLER" installer.properties
+            #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
             export CPLEX_HOME="$CPLEX_ROOT/cplex"
             export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
             export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
