@@ -92,17 +92,23 @@ install_on_ubuntu() {
           curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
           chmod u+x "$CPLEX_INSTALLER"
           cat <<EOL > installer.properties
-INSTALLER_UI=silent
+#INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
           ./"$CPLEX_INSTALLER" -f ./installer.properties
-          rm "$CPLEX_INSTALLER" installer.properties
-          export CPLEX_HOME="$CPLEX_ROOT/cplex"
-          export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
-          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-          sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-          ldconfig
+          INSTALLER_EXIT_CODE=$?
+          if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
+            rm "$CPLEX_INSTALLER" installer.properties
+            export CPLEX_HOME="$CPLEX_ROOT/cplex"
+            export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+            export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+            sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+            ldconfig
+          else
+            echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
+            exit 1
+          fi
       else
           echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
           exit 1
