@@ -91,16 +91,7 @@ install_on_ubuntu() {
       if [ -n "$uuid" ]; then
           curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
           chmod u+x "$CPLEX_INSTALLER"
-          # run the CPLEX installer in a subshell to allow user interaction
-          # check for available terminal emulator
-          if command -v gnome-terminal &> /dev/null; then
-              gnome-terminal -- "./opt/$CPLEX_INSTALLER"
-          elif command -v xterm &> /dev/null; then
-              xterm -e "./opt/$CPLEX_INSTALLER"
-          else
-              echo "Error: no suitable terminal emulator found for interactive installation."
-              exit 1
-          fi
+          ./"$CPLEX_INSTALLER" -f silent -i silentinstall.properties
           rm "$CPLEX_INSTALLER"
           mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
           export CPLEX_HOME="$CPLEX_ROOT/cplex"
