@@ -97,7 +97,7 @@ LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
           # run the CPLEX installer in a subshell
-          nohup ./"$CPLEX_INSTALLER" -f ./installer.properties &
+          setsid ./"$CPLEX_INSTALLER" -f ./installer.properties &
           wait $!
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
@@ -292,6 +292,7 @@ install_on_macos() {
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         tar -xvf "$CPLEX_INSTALLER"
+        # TODO
         rm "$CPLEX_INSTALLER"
         mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
         export CPLEX_HOME="$CPLEX_ROOT"
