@@ -96,8 +96,9 @@ INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          # run the CPLEX installer in a subshell
-          xterm -hold -e ./"$CPLEX_INSTALLER" -f ./installer.properties &
+          # run the CPLEX installer in a xterm subshell
+          # (gnome-terminal does not work with sudo)
+          xterm -e ./"$CPLEX_INSTALLER" -f ./installer.properties &
           wait $!
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
