@@ -91,8 +91,12 @@ install_on_ubuntu() {
       if [ -n "$uuid" ]; then
           curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
           chmod u+x "$CPLEX_INSTALLER"
+          cat <<EOL > silentinstall.properties
+ACCEPT_LICENSE=true
+USER_INSTALL_DIR=$CPLEX_ROOT
+EOL
           ./"$CPLEX_INSTALLER" -f silent -i silentinstall.properties
-          rm "$CPLEX_INSTALLER"
+          rm "$CPLEX_INSTALLER" silentinstall.properties
           mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
           export CPLEX_HOME="$CPLEX_ROOT/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
