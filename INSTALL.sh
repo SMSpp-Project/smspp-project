@@ -16,7 +16,7 @@
 #     Donato Meoli
 #
 # NOTES
-#     Ensure that you use `sudo` to run the script with elevated privileges.
+#     Ensure that you run this script with administrative privileges.
 #
 # EXAMPLES
 #     If you are inside the cloned repository:
