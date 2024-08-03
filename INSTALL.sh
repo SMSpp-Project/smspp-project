@@ -559,7 +559,7 @@ mkdir -p cmake-build-debug
 cd cmake-build-debug
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
 # run ccmake in a subshell
-sh -c "ccmake .." & # select submodules, then Configure and Generate the build files
+ccmake .. # select submodules, then Configure and Generate the build files
 # pause script until user presses enter
 read -p "Press Enter to continue after finishing ccmake configuration..."
 cmake --build . --config Debug
