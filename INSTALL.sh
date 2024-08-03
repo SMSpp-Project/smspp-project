@@ -515,7 +515,7 @@ case "$OS" in
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
       install_on_ubuntu
-      CMAKE_PREFIX="/opt/SMSpp"
+      SMSPP_ROOT="/opt/smspp-project"
     else
       echo "This script supports Ubuntu only."
       exit 1
@@ -527,7 +527,7 @@ case "$OS" in
   ;;
 "Darwin")
   install_on_macos
-  CMAKE_PREFIX="/Library/SMSpp"
+  SMSPP_ROOT="/Library/smspp-project"
   ;;
 *)
   echo "This script does not support the detected operating system."
@@ -543,7 +543,6 @@ if [ -d ".git" ]; then
   echo "Inside SMSpp repository. Pulling latest changes..."
   git pull
 else
-  SMSPP_ROOT="smspp-project"
   if [ ! -d "$SMSPP_ROOT" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
     git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
@@ -557,7 +556,7 @@ fi
 # Build Debug
 mkdir -p cmake-build-debug
 cd cmake-build-debug
-cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX="$SMSPP_ROOT" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
 # run ccmake in a xterm subshell
 # (calling gnome-terminal as a subshell does not work with sudo)
 xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
@@ -569,7 +568,7 @@ cd ..
 # Build Release
 mkdir -p cmake-build-release
 cd cmake-build-release
-cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX="$SMSPP_ROOT" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
 # run ccmake in a xterm subshell
 # (calling gnome-terminal as a subshell does not work with sudo)
 xterm -e ccmake .. & # select submodules, then Configure and Generate the build files

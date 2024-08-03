@@ -384,6 +384,7 @@ function Update-EnvironmentVariables
 
 # Install SMSPP
 Write-Host "Compiling SMSpp..."
+$SMSPP_ROOT = "C:\smspp-project"
 
 # Check if we are inside the SMSpp repository by looking for a .git directory
 if (Test-Path ".git")
@@ -393,7 +394,6 @@ if (Test-Path ".git")
 }
 else
 {
-    $SMSPP_ROOT = "C:\smspp-project"
     if (-not (Test-Path $SMSPP_ROOT))
     {
         Write-Host "Repository not found locally. Cloning SMSpp..."
