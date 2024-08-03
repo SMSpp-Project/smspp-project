@@ -559,9 +559,7 @@ mkdir -p cmake-build-debug
 cd cmake-build-debug
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
 # run ccmake in a subshell
-ccmake .. # select submodules, then Configure and Generate the build files
-# pause script until user presses enter
-read -p "Press Enter to continue after finishing ccmake configuration..."
+(ccmake .. ) # select submodules, then Configure and Generate the build files
 cmake --build . --config Debug
 cmake --install . --config Debug
 cd ..
@@ -571,8 +569,7 @@ mkdir -p cmake-build-release
 cd cmake-build-release
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
 # run ccmake in a subshell
-sh -c "ccmake .." & # select submodules, then Configure and Generate the build files
-wait # wait for ccmake to finish
+(ccmake .. ) # select submodules, then Configure and Generate the build files
 cmake --build . --config Release
 cmake --install . --config Release
 cd ..
