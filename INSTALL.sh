@@ -292,7 +292,7 @@ install_on_macos() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  brew install cmake git
+  brew install cmake git xterm
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -558,8 +558,9 @@ fi
 mkdir -p cmake-build-debug
 cd cmake-build-debug
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
-# run ccmake in a subshell
-(ccmake ..) & # select submodules, then Configure and Generate the build files
+# run ccmake in a xterm subshell
+# (calling gnome-terminal as a subshell does not work with sudo)
+xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
 wait # wait for ccmake to finish
 cmake --build . --config Debug
 cmake --install . --config Debug
@@ -569,8 +570,9 @@ cd ..
 mkdir -p cmake-build-release
 cd cmake-build-release
 cmake -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
-# run ccmake in a subshell
-(ccmake ..) & # select submodules, then Configure and Generate the build files
+# run ccmake in a xterm subshell
+# (calling gnome-terminal as a subshell does not work with sudo)
+xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
 wait # wait for ccmake to finish
 cmake --build . --config Release
 cmake --install . --config Release
