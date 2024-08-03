@@ -126,7 +126,7 @@ if ($OS -eq "Win32NT")
                     $package = ($_ -split '\s+')[0] # first column
                     if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]')
                     {
-                        .\vcpkg upgrade $package
+                        .\vcpkg upgrade $package --no-dry-run
                     }
                 }
             }
