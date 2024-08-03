@@ -257,8 +257,8 @@ if ($OS -eq "Win32NT")
     }
     else
     {
-        Write-Host " done."; return # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
-        Set-Location $HiGHS_ROOT
+        Write-Host " done." # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix and uncomment the following code
+        <#Set-Location $HiGHS_ROOT
         git remote update
         $local = git rev-parse "@"
         $remote = git rev-parse "@{u}"
@@ -280,7 +280,7 @@ if ($OS -eq "Win32NT")
         else
         {
             Write-Host " done."
-        }
+        }#>
     }
     Set-Location "C:\"
 
