@@ -115,8 +115,8 @@ if ($OS -eq "Win32NT")
         {
             Set-Location $STOPT_VCPKG_REGISTRY
             git remote update
-            $local = (git rev-parse @)
-            $remote = (git rev-parse @{u})
+            $local = & git rev-parse "@"
+            $remote = & git rev-parse "@{u}"
             if ($local -eq $remote) # stopt is latest
             {
                 git pull
@@ -259,8 +259,8 @@ if ($OS -eq "Win32NT")
     {
         Set-Location $HiGHS_ROOT
         git remote update
-        $local = (git rev-parse @)
-        $remote = (git rev-parse @{u})
+        $local = & git rev-parse "@"
+        $remote = & git rev-parse "@{u}"
         if ($local -ne $remote) # HiGHS is not latest
         {
             git pull
