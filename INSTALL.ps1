@@ -254,6 +254,24 @@ if ($OS -eq "Win32NT")
         & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & cmake '--build' '.' '--config' 'Release'
         & cmake '--install' '.'
+        # Define paths
+        $releasePath = "$HiGHS_ROOT\build\RELEASE\bin"
+        $debugPath = "$HiGHS_ROOT\build\DEBUG\bin"
+        $binPath = "$HiGHS_ROOT\bin"
+        # Check if paths are already in the current Path
+        if ($env:Path -notcontains $releasePath)
+        {
+            [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$releasePath", [System.EnvironmentVariableTarget]::Machine)
+        }
+        if ($env:Path -notcontains $debugPath)
+        {
+            [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$debugPath", [System.EnvironmentVariableTarget]::Machine)
+        }
+        if ($env:Path -notcontains $binPath)
+        {
+            [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$binPath", [System.EnvironmentVariableTarget]::Machine)
+        }
+        Write-Host "Highs Paths added to the Path"
     }
     else
     {
