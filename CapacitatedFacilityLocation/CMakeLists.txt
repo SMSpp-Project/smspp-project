@@ -4,7 +4,8 @@ if (TARGET SMS++::MCFBlock AND
     TARGET SMS++::BundleSolver AND
     TARGET SMS++::LagrangianDualSolver AND
     TARGET SMS++::CapacitatedFacilityLocationBlock AND
-    TARGET SMS++::MILPSolver)
+    TARGET SMS++::MILPSolver AND
+    TARGET SMS++::LEMONSolver)
 
     add_executable(CFL_test test.cpp)
     target_link_libraries(CFL_test PRIVATE
@@ -13,7 +14,8 @@ if (TARGET SMS++::MCFBlock AND
                           SMS++::MCFBlock
                           SMS++::MILPSolver
                           SMS++::BinaryKnapsackBlock
-                          SMS++::CapacitatedFacilityLocationBlock)
+                          SMS++::CapacitatedFacilityLocationBlock
+                          SMS++::LEMONSolver)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch"

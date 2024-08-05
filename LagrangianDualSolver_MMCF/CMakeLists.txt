@@ -3,7 +3,8 @@ if (TARGET SMS++::MMCFBlock AND
     TARGET SMS++::UCBlock AND
     TARGET SMS++::BundleSolver AND
     TARGET SMS++::LagrangianDualSolver AND
-    TARGET SMS++::MILPSolver)
+    TARGET SMS++::MILPSolver AND
+    TARGET SMS++::LEMONSolver)
 
     add_executable(LDS_MMCF_test test.cpp)
     target_link_libraries(LDS_MMCF_test PRIVATE
@@ -11,7 +12,8 @@ if (TARGET SMS++::MMCFBlock AND
                           SMS++::MILPSolver
                           SMS++::LagrangianDualSolver
                           SMS++::MMCFBlock
-                          SMS++::UCBlock)
+                          SMS++::UCBlock
+                          SMS++::LEMONSolver)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch"
