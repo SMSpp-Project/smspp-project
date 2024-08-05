@@ -12,6 +12,18 @@ if (TARGET SMS++::MMCFBlock AND
                           SMS++::LagrangianDualSolver
                           SMS++::MMCFBlock
                           SMS++::UCBlock)
+
+    # Add a test for each batch file
+    file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/batch-c"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/batch-m")
+    foreach (BATCH_FILE ${BATCH_FILES})
+        # Remove the source directory prefix to get the batch name
+        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" BATCH_NAME ${BATCH_FILE})
+        add_test(NAME LDS_MMCF_test/${BATCH_NAME}
+                 COMMAND bash ${BATCH_FILE}
+                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endforeach ()
 endif ()
 
 # --------------------------------------------------------------------------- #

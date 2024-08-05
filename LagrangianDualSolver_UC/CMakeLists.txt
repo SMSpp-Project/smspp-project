@@ -8,6 +8,19 @@ if (TARGET SMS++::UCBlock AND
                           SMS++::UCBlock
                           SMS++::LagrangianDualSolver
                           SMS++::BundleSolver)
+
+    # Add a test for each batch file
+    file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/batch-acad"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/batches/batch-acad-s"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/batches/batch-acadh"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/batches/batch-ec")
+    foreach (BATCH_FILE ${BATCH_FILES})
+        # Remove the source directory prefix to get the batch name
+        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" BATCH_NAME ${BATCH_FILE})
+        add_test(NAME LDS_UC_test/${BATCH_NAME}
+                 COMMAND bash ${BATCH_FILE}
+                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endforeach ()
 endif ()
 
 # --------------------------------------------------------------------------- #

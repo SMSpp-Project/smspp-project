@@ -1,11 +1,9 @@
 # ----- Test ---------------------------------------------------------------- #
-if (TARGET SMS++::UCBlock AND
-    TARGET SMS++::MILPSolver)
+if (TARGET SMS++::SMS++)
 
     add_executable(compare_formulations test.cpp)
     target_link_libraries(compare_formulations PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::UCBlock)
+                          SMS++::SMS++)
 
     add_test(NAME compare_formulations
              COMMAND compare_formulations

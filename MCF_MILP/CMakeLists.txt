@@ -9,9 +9,15 @@ if (TARGET SMS++::MCFBlock AND
                           SMS++::MCFBlock
                           SMS++::LEMONSolver)
 
-    add_test(NAME MCF_MILP_test
-             COMMAND MCF_MILP_test
-             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    # Add a test for each batch file
+    file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
+    foreach (BATCH_FILE ${BATCH_FILES})
+        # Remove the source directory prefix to get the batch name
+        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" BATCH_NAME ${BATCH_FILE})
+        add_test(NAME MCF_MILP_test/${BATCH_NAME}
+                 COMMAND bash ${BATCH_FILE}
+                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endforeach ()
 endif ()
 
 # --------------------------------------------------------------------------- #

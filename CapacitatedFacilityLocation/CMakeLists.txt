@@ -14,6 +14,19 @@ if (TARGET SMS++::MCFBlock AND
                           SMS++::MILPSolver
                           SMS++::BinaryKnapsackBlock
                           SMS++::CapacitatedFacilityLocationBlock)
+
+    # Add a test for each batch file
+    file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/batch-s"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/MCF/batch"
+                          "${CMAKE_CURRENT_SOURCE_DIR}/LDVScuts/batch-s")
+    foreach (BATCH_FILE ${BATCH_FILES})
+        # Remove the source directory prefix to get the batch name
+        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" BATCH_NAME ${BATCH_FILE})
+        add_test(NAME CFL_test/${BATCH_NAME}
+                 COMMAND bash ${BATCH_FILE}
+                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endforeach ()
 endif ()
 
 # --------------------------------------------------------------------------- #
