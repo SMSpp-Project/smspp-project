@@ -356,6 +356,7 @@ install_on_macos() {
       export GUROBI_HOME="$GUROBI_ROOT"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+      #export GRB_LICENSE_FILE="<your-gurobi.lic-file>"
     else
       echo "Gurobi already installed."
     fi
