@@ -661,3 +661,5 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+*.mps
