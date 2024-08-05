@@ -136,6 +136,7 @@ EOL
           export GUROBI_HOME="${GUROBI_ROOT}/linux64"
           export PATH="${PATH}:${GUROBI_HOME}/bin"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+          #export GRB_LICENSE_FILE="<your-gurobi.lic-file>"
           sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
           ldconfig
       else
