@@ -176,6 +176,63 @@ These instructions will let you build the projects on your local machine.
 
 ### Requirements
 
+If you are new to SMS++ and you are looking for a zero-waste way to install all
+dependencies in the default locations, we suggest you to use the ad-hoc INSTALL
+files.
+
+If you have not yet cloned the SMS++ repository, you can launch the script directly:
+
+```powershell
+# Windows (from a PowerShell with administrative privileges)
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+& ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
+```
+
+or:
+
+```sh
+# Unix (from a shell with administrative privileges)
+# using curl
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+# using  wget
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+```
+
+If you do not have a license for CPLEX and/or Gurobi, or if you just want to
+install SMS++ without them, you can run:
+
+```powershell
+# Windows (from a PowerShell with administrative privileges)
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+& ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutCplex -withoutGurobi
+```
+
+or:
+
+```sh
+# Unix (from a shell with administrative privileges)
+# using curl
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
+# using  wget
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
+```
+
+Finally, if you are already inside the cloned repository, you can run the script via:
+
+```powershell
+# Windows (from a PowerShell with administrative privileges)
+.\INSTALL.ps1
+```
+
+or:
+
+```sh
+# Unix (from a shell with administrative privileges)
+./INSTALL.sh
+```
+
+using the same flag options according to the OS, if needed.
+
 If you need more detailed instructions on how to install the project's
 requirements, please refer to the [SMS++ requirements installation
 guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements).
