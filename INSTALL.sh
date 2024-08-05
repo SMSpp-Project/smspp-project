@@ -557,7 +557,7 @@ fi
 # Build Debug
 mkdir -p cmake-build-debug
 cd cmake-build-debug
-cmake -DCMAKE_INSTALL_PREFIX="$SMSPP_ROOT" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
 # run ccmake in a xterm subshell
 # (calling gnome-terminal as a subshell does not work with sudo)
 xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
@@ -569,7 +569,7 @@ cd ..
 # Build Release
 mkdir -p cmake-build-release
 cd cmake-build-release
-cmake -DCMAKE_INSTALL_PREFIX="$SMSPP_ROOT" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
 # run ccmake in a xterm subshell
 # (calling gnome-terminal as a subshell does not work with sudo)
 xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
