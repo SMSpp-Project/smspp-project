@@ -5,6 +5,8 @@ DATADIR=../../UCBlock/netCDF_files/UC_Data/HT-Ramp
 # correct value of tStar: 1e+0
 par=BSPar-2S.txt
 
+LDS_UC_test=${1:-./LDS_UC_test}
+
 for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
   for (( seed = 1 ; seed < 3 ; seed++ )); do
 
@@ -16,7 +18,7 @@ for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
       printf "[$what $par]: "
     fi
 
-    ./LDS_UC_test $what $par
+    "$LDS_UC_test" $what $par
 
     retVal=$?
     if [ $retVal -ne 0 ]; then

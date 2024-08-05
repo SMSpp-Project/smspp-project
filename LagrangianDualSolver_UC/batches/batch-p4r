@@ -16,13 +16,15 @@
 #1W_19Z_DP_1230TU_11SS_12STS_52RES
 #1W_19Z_D_1230TU_11SS_12STS_52RES
 
+LDS_UC_test=${1:-./LDS_UC_test}
+
 for what in ../../UCBlock/netCDF_files/plan4res-data/FirstSetofInstances/*.nc4 \
             ../../UCBlock/netCDF_files/plan4res-data/SecondSetofInstances/*.nc4 \
             ../../UCBlock/netCDF_files/plan4res-data/TestUC/1D_1Z_DP_1SS_10TU/*.nc4; do
 
   printf "[$what]: "
 
-  ./LDS_UC_test $what
+  "$LDS_UC_test" $what
 
   retVal=$?
   if [ $retVal -ne 0 ]; then

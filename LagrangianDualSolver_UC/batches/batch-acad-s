@@ -14,6 +14,8 @@ DATADIR=../../UCBlock/netCDF_files/UC_Data/T-Ramp
 par=BSPar-2S.txt
 #mlf=log.txt
 
+LDS_UC_test=${1:-./LDS_UC_test}
+
 for size in 10 20 50; do
   for (( seed = 1 ; seed < 6 ; seed++ )); do
 
@@ -34,9 +36,9 @@ for size in 10 20 50; do
     fi
 
     if [ -z "$mlf" ]; then
-      ./LDS_UC_test $what $par
+      "$LDS_UC_test" $what $par
     else
-      ./LDS_UC_test $what $par >> $mlf
+      "$LDS_UC_test" $what $par >> $mlf
     fi
 
     retVal=$?

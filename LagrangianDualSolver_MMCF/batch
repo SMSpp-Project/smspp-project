@@ -2,13 +2,15 @@
 
 DATADIR=../MMCFBlock/data
 
+LDS_MMCF_test=${1:-./LDS_MMCF_test}
+
 # Canad - - - - - - - - - - - - - - - - - - - -
 
 for what in ${DATADIR}/Canad/*.dat; do
 
   printf "[$what s]: "
 
-  ./LDS_MMCF_test $what s
+  "$LDS_MMCF_test" $what s
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
@@ -27,7 +29,7 @@ for i in 64; do
 
       printf "[$what m]: "
 
-      ./LDS_MMCF_test $what m
+      "$LDS_MMCF_test" $what m
 
       retVal=$?
       if [ $retVal -ne 0 ]; then
@@ -46,7 +48,7 @@ for i in 128; do
 
       printf "[$what m]: "
 
-      ./LDS_MMCF_test $what m
+      "$LDS_MMCF_test" $what m
 
       retVal=$?
       if [ $retVal -ne 0 ]; then
@@ -68,7 +70,7 @@ done
 
 #printf "[$what m]: "
 
-#./LDS_MMCF_test $what m
+#"$LDS_MMCF_test" $what m
 
 #retVal=$?
 #if [ $retVal -ne 0 ]; then

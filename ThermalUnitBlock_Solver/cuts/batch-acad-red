@@ -5,6 +5,8 @@ DATADIR=../../UCBlock/netCDF_files/1UC_Data
 wchg=133
 #iter=0
 
+TUDPS_test=${1:-./TUDPS_test}
+
 # ACAD + Lagrangian - - - - - - - - - - - - - - - - - - - -
 
 for wf in 8 9 10 11 12 13 14; do
@@ -28,7 +30,7 @@ for wf in 8 9 10 11 12 13 14; do
             printf "[$what $seed $wchg $wf $iter]: "
           fi
 
-          ./TUDPS_test $what $seed $wchg $wf $iter
+          "$TUDPS_test" $what $seed $wchg $wf $iter
 
           retVal=$?
           if [ $retVal -ne 0 ]; then
