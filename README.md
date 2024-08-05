@@ -182,6 +182,24 @@ if you use CMake); look at the `README.md` in the folder and/or run it for
 instructions. In several cases a (bash) batch is available to run
 a default sequence of tests (this may take a while).
 
+In case you use CMake, you can see all the (bash) batch tests available by
+running:
+
+```sh
+ctest -N
+```
+
+and run them all at one with:
+
+```shell
+ctest -V
+```
+
+or you can choose a specific one from the batch test list and run it with:
+
+```sh
+ctest -V -R <batch-test-name>
+```
 
 ## Getting help
 
