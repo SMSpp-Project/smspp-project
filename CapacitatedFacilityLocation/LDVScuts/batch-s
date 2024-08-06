@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DATADIR=../../../CapacitatedFacilityLocationBlock/data
+DATADIR=../../CapacitatedFacilityLocationBlock/data
 
 # testing batch reduced to small instances only, so that solving them
 # is an option

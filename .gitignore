@@ -662,4 +662,5 @@ TSWLatexianTemp*
 # Makeindex log files
 *.lpz
 
-*.mps
+# Write-Read files
+Write-Read/*.mps
