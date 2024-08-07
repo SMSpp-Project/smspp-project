@@ -436,8 +436,7 @@ else
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
         '-DCMAKE_BUILD_TYPE=Debug' `
         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-        '-Wno-dev' `
-        '-DWHICH_OSI_MP=1' '-DWHICH_OSI_QP=1' # needed to pass tests if Gurobi installed but no gurobi.lic file found
+        '-Wno-dev'
 # run cmake-gui
 Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
 & cmake '--build' 'cmake-build-debug' '--config' 'Debug'
@@ -450,8 +449,7 @@ Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # se
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
         '-DCMAKE_BUILD_TYPE=Release' `
         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-        '-Wno-dev' `
-        '-DWHICH_OSI_MP=1' '-DWHICH_OSI_QP=1' # needed to pass tests if Gurobi installed but no gurobi.lic file found
+        '-Wno-dev'
 # run cmake-gui
 Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
 & cmake '--build' 'cmake-build-release' '--config' 'Release'
