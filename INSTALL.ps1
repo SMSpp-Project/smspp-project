@@ -432,23 +432,29 @@ else
 }
 
 # Build Debug
-New-Item -Path "cmake-build-debug" -ItemType Directory -Force
-Set-Location "cmake-build-debug"
-& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
-Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then Configure and Generate the build files
-& cmake '--build' '.' '--config' 'Debug'
-& cmake '--install' '.' '--config' 'Debug'
-#Set-Location "tests"
+& cmake -S . -B 'cmake-build-debug' `
+        "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
+        '-DCMAKE_BUILD_TYPE=Debug' `
+        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+        '-Wno-dev' `
+        '-DWHICH_OSI_MP=1' '-DWHICH_OSI_QP=1' # needed to pass tests if Gurobi installed but no gurobi.lic file found
+# run cmake-gui
+Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
+& cmake '--build' 'cmake-build-debug' '--config' 'Debug'
+& cmake '--install' 'cmake-build-debug' '--config' 'Debug'
+#Set-Location "cmake-build-debug/tests"
 #& ctest -V -C Debug
-Set-Location ..
 
 # Build Release
-New-Item -Path "cmake-build-release" -ItemType Directory -Force
-Set-Location "cmake-build-release"
-& cmake "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '-Wno-dev' '..'
-Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then Configure and Generate the build files
-& cmake '--build' '.' '--config' 'Release'
-& cmake '--install' '.' '--config' 'Release'
-#Set-Location "tests"
+& cmake -S . -B 'cmake-build-release' `
+        "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
+        '-DCMAKE_BUILD_TYPE=Release' `
+        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+        '-Wno-dev' `
+        '-DWHICH_OSI_MP=1' '-DWHICH_OSI_QP=1' # needed to pass tests if Gurobi installed but no gurobi.lic file found
+# run cmake-gui
+Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
+& cmake '--build' 'cmake-build-release' '--config' 'Release'
+& cmake '--install' 'cmake-build-release' '--config' 'Release'
+#Set-Location "cmake-build-release/tests"
 #& ctest -V -C Release
-Set-Location ..

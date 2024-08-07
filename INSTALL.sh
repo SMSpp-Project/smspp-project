@@ -556,29 +556,29 @@ else
 fi
 
 # Build Debug
-mkdir -p cmake-build-debug
-cd cmake-build-debug
-cmake -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" -DCMAKE_BUILD_TYPE=Debug -Wno-dev ..
+cmake -S . -B cmake-build-debug \
+      -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
+      -DCMAKE_BUILD_TYPE=Debug \
+      -Wno-dev \
+      -DWHICH_OSI_MP=1 -DWHICH_OSI_QP=1 # needed to pass tests if Gurobi installed but no gurobi.lic file found
 # run ccmake in a xterm subshell
-# (calling gnome-terminal as a subshell does not work with sudo)
-xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
+xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
 wait # wait for ccmake to finish
-cmake --build . --config Debug
-cmake --install . --config Debug
-#cd tests
+cmake --build cmake-build-debug --config Debug
+cmake --install cmake-build-debug --config Debug
+#cd cmake-build-debug/tests
 #ctest -V -C Debug
-cd ..
 
 # Build Release
-mkdir -p cmake-build-release
-cd cmake-build-release
-cmake -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" -DCMAKE_BUILD_TYPE=Release -Wno-dev ..
+cmake -S . -B cmake-build-release \
+      -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
+      -DCMAKE_BUILD_TYPE=Release \
+      -Wno-dev \
+      -DWHICH_OSI_MP=1 -DWHICH_OSI_QP=1 # needed to pass tests if Gurobi installed but no gurobi.lic file found
 # run ccmake in a xterm subshell
-# (calling gnome-terminal as a subshell does not work with sudo)
-xterm -e ccmake .. & # select submodules, then Configure and Generate the build files
+xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
 wait # wait for ccmake to finish
-cmake --build . --config Release
-cmake --install . --config Release
-#cd tests
+cmake --build cmake-build-release --config Release
+cmake --install cmake-build-release --config Release
+#cd cmake-build-release/tests
 #ctest -V -C Release
-cd ..
