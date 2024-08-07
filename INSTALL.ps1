@@ -254,10 +254,16 @@ if ($OS -eq "Win32NT")
         & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
         & cmake '--build' '.' '--config' 'Release'
         & cmake '--install' '.'
-        # Define paths
-        $releasePath = "$HiGHS_ROOT\build\RELEASE\bin"
-        $debugPath = "$HiGHS_ROOT\build\DEBUG\bin"
-        $binPath = "$HiGHS_ROOT\bin"
+        # Define the possible paths
+        $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
+        $releasePath1 = "$HiGHS_ROOT\build\RELEASE\bin"; $releasePath2 = "$HiGHS_ROOT\build\bin\Release"
+        # Use an inline if-like construct to assign the paths with error handling
+        $debugPath = if (Test-Path $debugPath1) { $debugPath1 }
+                     elseif (Test-Path $debugPath2) { $debugPath2 }
+                     else { Write-Host "No valid path found for HiGHS Debug"; exit 1 }
+        $releasePath = if (Test-Path $releasePath1) { $releasePath1 }
+                       elseif (Test-Path $releasePath2) { $releasePath2 }
+                       else { Write-Host "No valid path found for HiGHS Release"; exit 1 }
         # Check if paths are already in the current Path
         if ($env:Path -notcontains $releasePath)
         {
@@ -287,11 +293,11 @@ if ($OS -eq "Win32NT")
             New-Item -Path "build" -ItemType Directory -Force
             Set-Location "build"
             # Build Debug
-            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT/Debug" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
             & cmake '--build' '.' '--config' 'Debug'
             & cmake '--install' '.'
             # Build Release
-            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT/Release" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
+            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
             & cmake '--build' '.' '--config' 'Release'
             & cmake '--install' '.'
         }
