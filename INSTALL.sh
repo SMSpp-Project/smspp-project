@@ -565,6 +565,8 @@ xterm -e ccmake .. & # select submodules, then Configure and Generate the build 
 wait # wait for ccmake to finish
 cmake --build . --config Debug
 cmake --install . --config Debug
+#cd tests
+#ctest -V -C Debug
 cd ..
 
 # Build Release
@@ -577,4 +579,6 @@ xterm -e ccmake .. & # select submodules, then Configure and Generate the build 
 wait # wait for ccmake to finish
 cmake --build . --config Release
 cmake --install . --config Release
+#cd tests
+#ctest -V -C Release
 cd ..

@@ -438,6 +438,8 @@ Set-Location "cmake-build-debug"
 Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then Configure and Generate the build files
 & cmake '--build' '.' '--config' 'Debug'
 & cmake '--install' '.' '--config' 'Debug'
+#Set-Location "tests"
+#& ctest -V -C Debug
 Set-Location ..
 
 # Build Release
@@ -447,4 +449,6 @@ Set-Location "cmake-build-release"
 Start-Process -FilePath "cmake-gui" -ArgumentList ".." -Wait # select submodules, then Configure and Generate the build files
 & cmake '--build' '.' '--config' 'Release'
 & cmake '--install' '.' '--config' 'Release'
+#Set-Location "tests"
+#& ctest -V -C Release
 Set-Location ..
