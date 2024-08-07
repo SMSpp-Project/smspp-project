@@ -15,8 +15,8 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-#CPXMILPSolver           # name of 1st Solver
-GRBMILPSolver           # name of 1st Solver
+CPXMILPSolver           # name of 1st Solver
+#GRBMILPSolver           # name of 1st Solver
 
 1  # number of ComputeConfig in this BlockSolverConfig
 
@@ -37,7 +37,7 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 #intCutSepPar    0    # separate user cuts at the root node & sub-nodes
 
 ## All specific Cplex parameter (uncomment based on 1st solver)
-#CPXPARAM_Threads 1   # avoid parallel
+CPXPARAM_Threads 1   # avoid parallel
 #CPXPARAM_MIP_Display 3  # more verbose log
 #CPXPARAM_ScreenOutput   1  # output on screen
 #CPXPARAM_MIP_Limits_Nodes   0   # only do root node
@@ -46,7 +46,7 @@ intRelaxIntVars 1    # nonzero if the continuous relaxation is solved
 #CPXPARAM_LPMethod 3  # network algorithm
 
 ## All specific Gurobi parameter (uncomment based on 1st solver)
-Threads 1   # avoid parallel
+#Threads 1   # avoid parallel
 #NodeLimit 0   # only do root node
 #CutPasses 1000000  # enable standard cuts
 #Heuristics 0 # disable heuristic

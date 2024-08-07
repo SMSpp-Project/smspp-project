@@ -15,7 +15,7 @@ if (TARGET SMS++::BundleSolver AND
          (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND
           CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9" ) )
     target_link_libraries(BendersBFunction_test PRIVATE
-                              stdc++fs)
+                          stdc++fs)
     endif ()
 
     add_executable(BendersBFunction_test2 test2.cpp)

@@ -192,13 +192,13 @@ ctest -N
 and run them all at one with:
 
 ```shell
-ctest -V
+ctest -V -C Release
 ```
 
 or you can choose a specific one from the batch test list and run it with:
 
 ```sh
-ctest -V -R <batch-test-name>
+ctest -V -R <batch-test-name> -C Release
 ```
 
 ## Getting help
