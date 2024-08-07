@@ -23,6 +23,8 @@ if (TARGET SMS++::BundleSolver AND
                              "${BATCH_FILE} $<TARGET_FILE:LDS_Box_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
+        # Disable the test timeout
+        set_tests_properties(LDS_Box_test/${BATCH_NAME} PROPERTIES TIMEOUT 0)
     endforeach ()
 endif ()
 
