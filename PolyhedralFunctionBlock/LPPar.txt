@@ -2,8 +2,8 @@
 # - - - - - - - - - - - - - - - - LPPar.txt - - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a Block containing the LP
-# reprsentation of the problem solved by the tester for
-# PolthedralFunctionBlock; this being a simple LP (albeit one with
+# representation of the problem solved by the tester for
+# PolyhedralFunctionBlock; this being a simple LP (albeit one with
 # sub-Block), a :MILPSolver (say, a CPXMILPSolver, a SCIPMILPSolver or a 
 # GRBMILPSolver) is perfectly adequate
 #
