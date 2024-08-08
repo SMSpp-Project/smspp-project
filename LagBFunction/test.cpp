@@ -1401,8 +1401,8 @@ int main( int argc , char **argv )
 	LBF->get_nested_Block( 0 )->get_registered_solvers().front();
        slv->set_par( slv->str_par_str2idx( "strOutputFile" ) ,
 		     "TB-" + std::to_string( p - nf ) + "-" +
-		     std::to_string( slvr->get_elapsed_calls() ) + "-" +
-		     std::to_string( slvr->get_elapsed_iterations() ) +
+		     std::to_string( slv->get_elapsed_calls() ) + "-" +
+		     std::to_string( slv->get_elapsed_iterations() ) +
 		     ".lp" );
        }
 
@@ -1431,8 +1431,11 @@ int main( int argc , char **argv )
   #endif
 
   #if( LOG_LEVEL >= 3 )
-   ((LPBlock->get_registered_solvers()).front())->set_par(
-	                          MILPSolver::strOutputFile , "LPBlock.lp" );
+  {
+   auto LPslv = (LPBlock->get_registered_solvers()).front();
+   LPslv->set_par( LPslv->str_par_str2idx( "strOutputFile" ) ,
+		   "LPBlock.lp" );
+   }
   #endif
  #endif
 
@@ -2097,9 +2100,12 @@ int main( int argc , char **argv )
   // if verbose, print out stuff- - - - - - - - - - - - - - - - - - - - - - -
 
   #if( LOG_LEVEL >= 3 )
-   ((LPBlock->get_registered_solvers()).front())->set_par(
-		                     MILPSolver::strOutputFile , "LPBlock-" +
-		                     std::to_string( rep ) + ".lp" );
+  {
+   auto LPslv = (LPBlock->get_registered_solvers()).front();
+   LPslv->set_par( LPslv->str_par_str2idx( "strOutputFile" ) ,
+		   "LPBlock-" + std::to_string( rep ) + ".lp" );
+   }
+
    #if( LOG_LEVEL >= 5 )
     if( bn < Index( nf ) ) {
      cout << endl << "LPBlock-PF: ";
