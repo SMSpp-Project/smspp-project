@@ -378,7 +378,7 @@ int main( int argc , char **argv )
  char filetype = 's';  // type of the input file;
  
  switch( argc ) {
-  case( 4 ): wprnt = argv[ 3 ][ 0 ];  
+  case( 4 ): Str2Sthg( argv[ 3 ] , wprnt );
   case( 3 ): filetype = argv[ 2 ][ 0 ];
   case( 2 ): break;
   default:   cerr << "Usage: " << argv[ 0 ] << " file_name [typ wprnt]"
