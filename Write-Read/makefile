@@ -2,13 +2,9 @@
 ################################ makefile ####################################
 ##############################################################################
 #                                                                            #
-#   makefile of test (for write-read)                                        #
+#   makefile of test (for Write-Read)                                        #
 #                                                                            #
 #                              Antonio Frangioni                             #
-#                          Dipartimento di Informatica                       #
-#                              Universita' di Pisa                           #
-#                                                                            #
-#                              Enrico Calandrini                             #
 #                          Dipartimento di Informatica                       #
 #                              Universita' di Pisa                           #
 #                                                                            #
