@@ -9,12 +9,12 @@ if (TARGET SMS++::MCFBlock AND
 
     add_executable(CFL_test test.cpp)
     target_link_libraries(CFL_test PRIVATE
+                          SMS++::MCFBlock
+                          SMS++::BinaryKnapsackBlock
                           SMS++::BundleSolver
                           SMS++::LagrangianDualSolver
-                          SMS++::MCFBlock
-                          SMS++::MILPSolver
-                          SMS++::BinaryKnapsackBlock
                           SMS++::CapacitatedFacilityLocationBlock
+                          SMS++::MILPSolver
                           SMS++::LEMONSolver)
 
     # Add a test for each batch file
