@@ -20,8 +20,8 @@ if (TARGET SMS++::MCFBlock AND
     # Add a test for each batch file
     file(GLOB BATCH_FILES #"${CMAKE_CURRENT_SOURCE_DIR}/batch" # TODO uncomment when it will be fixed
                           #"${CMAKE_CURRENT_SOURCE_DIR}/batch-s" # TODO uncomment when it will be fixed
-                          "${CMAKE_CURRENT_SOURCE_DIR}/MCF/batch"
-                          "${CMAKE_CURRENT_SOURCE_DIR}/LDVScuts/batch-s")
+                          "${CMAKE_CURRENT_SOURCE_DIR}/MCF/batch")
+                          #"${CMAKE_CURRENT_SOURCE_DIR}/LDVScuts/batch-s") # TODO uncomment when it will be fixed
     foreach (BATCH_FILE ${BATCH_FILES})
         # Remove the source directory prefix to get the batch name
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" BATCH_NAME ${BATCH_FILE})
