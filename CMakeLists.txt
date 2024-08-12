@@ -275,6 +275,7 @@ if (BUILD_tests)
 	init_submodule(tests)
 	add_subdirectory(tests)
 	set(SMSPP_REQUIRED ON)
+	enable_testing()
 endif ()
 
 # ----- SMS++ --------------------------------------------------------------- #
