@@ -244,12 +244,14 @@ EOL
     cd /opt
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
+    mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
+    mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -257,12 +259,14 @@ EOL
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
+      mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build
       cmake --install build
+      mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     else
       echo "StOpt already up to date."
     fi
@@ -449,12 +453,14 @@ install_on_macos() {
     cd /Library
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
+    mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
+    mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -462,12 +468,14 @@ install_on_macos() {
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
+      mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build
       cmake --install build
+      mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     else
       echo "StOpt already up to date."
     fi
