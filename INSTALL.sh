@@ -242,7 +242,7 @@ EOL
   apt-get install -y -q zlib1g-dev
   if [ ! -d "$StOpt_ROOT" ]; then
     cd /opt
-    git clone https://gitlab.com/stochastic-control/StOpt
+    git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
@@ -447,7 +447,7 @@ install_on_macos() {
   if [ ! -d "$StOpt_ROOT" ]; then
     brew install zlib
     cd /Library
-    git clone https://gitlab.com/stochastic-control/StOpt
+    git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \

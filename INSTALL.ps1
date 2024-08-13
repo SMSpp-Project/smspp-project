@@ -373,7 +373,7 @@ if ($OS -eq "Win32NT")
     # Setup vcpkg for StOpt installation
     Write-Host "Setting up vcpkg for StOpt installation..."
     Set-Location "C:\"
-    git clone https://gitlab.com/stochastic-control/vcpkg-registry
+    git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
     Set-Location $env:VCPKG_ROOT
     .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
     Set-Location "C:\"
