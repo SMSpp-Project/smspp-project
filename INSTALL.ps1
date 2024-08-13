@@ -244,16 +244,22 @@ if ($OS -eq "Win32NT")
         git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
         Set-Location $HiGHS_ROOT
         git checkout v1.6.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
-        New-Item -Path "build" -ItemType Directory -Force
-        Set-Location "build"
         # Build Debug
-        & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-        & cmake '--build' '.' '--config' 'Debug'
-        & cmake '--install' '.'
+        & cmake -S . -B 'build' `
+                '-DFAST_BUILD=ON' `
+                "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                '-DCMAKE_BUILD_TYPE=Debug' `
+                "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+        & cmake '--build' 'build' '--config' 'Debug'
+        & cmake '--install' 'build' '--config' 'Debug'
         # Build Release
-        & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-        & cmake '--build' '.' '--config' 'Release'
-        & cmake '--install' '.'
+        & cmake -S . -B 'build' `
+                '-DFAST_BUILD=ON' `
+                "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                '-DCMAKE_BUILD_TYPE=Release' `
+                "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+        & cmake '--build' 'build' '--config' 'Release'
+        & cmake '--install' 'build' '--config' 'Release'
         # Define the possible paths
         $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
         $releasePath1 = "$HiGHS_ROOT\build\RELEASE\bin"; $releasePath2 = "$HiGHS_ROOT\build\bin\Release"
@@ -290,16 +296,22 @@ if ($OS -eq "Win32NT")
         {
             git pull
             Write-Host "" # new line
-            New-Item -Path "build" -ItemType Directory -Force
-            Set-Location "build"
             # Build Debug
-            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Debug' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-            & cmake '--build' '.' '--config' 'Debug'
-            & cmake '--install' '.'
+            & cmake -S . -B 'build' `
+                    '-DFAST_BUILD=ON' `
+                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                    '-DCMAKE_BUILD_TYPE=Debug' `
+                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            & cmake '--build' 'build' '--config' 'Debug'
+            & cmake '--install' 'build' '--config' 'Debug'
             # Build Release
-            & cmake '-DFAST_BUILD=ON' "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" '-DCMAKE_BUILD_TYPE=Release' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" '..'
-            & cmake '--build' '.' '--config' 'Release'
-            & cmake '--install' '.'
+            & cmake -S . -B 'build' `
+                    '-DFAST_BUILD=ON' `
+                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                    '-DCMAKE_BUILD_TYPE=Release' `
+                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            & cmake '--build' 'build' '--config' 'Release'
+            & cmake '--install' 'build' '--config' 'Release'
         }
         else
         {
