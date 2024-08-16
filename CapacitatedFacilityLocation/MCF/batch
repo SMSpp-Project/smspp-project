@@ -22,6 +22,8 @@ CFL_test=${1:-./CFL_test}
 # ORLib - - - - - - - - - - - - - - - - - - - - -
 
 for what in ${DATADIR}/txt/ORLib/*.txt; do
+  [[ $what =~ [0-9]+\.txt$ ]] || continue # ignore capopt.txt
+
   for (( seed = 0 ; seed <= maxseed ; seed++ )); do
 
     printf "[$what c $niter $seed $wchg $rounds]: "
