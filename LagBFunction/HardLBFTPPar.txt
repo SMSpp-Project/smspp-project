@@ -7,8 +7,6 @@
 # actually compute()-d. It uses the file redirect feature to load the
 # BlockSolverConfig for the inner Block of the LagBFunction out of TPPar.txt
 #
-#   version 1.0 , 06/12/2020
-#
 #   Enrico Gorgone, Antonio Frangioni
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

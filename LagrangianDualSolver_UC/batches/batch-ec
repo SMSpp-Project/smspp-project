@@ -22,7 +22,7 @@ for what in ../../UCBlock/netCDF_files/EC_Data/EC_CO_*.nc4 \
 
 done
 
-# BSPar-CPX.txt with intRelaxIntVars 0
+# BSPar.txt with intRelaxIntVars 0
 # "../../UCBlock/netCDF_files/EC_Data/EC_CO_Test.nc4"        3.5077963e+06
 # "../../UCBlock/netCDF_files/EC_Data/EC_CO_Test_TUB.nc4"    3.4742840e+06
 # "../../UCBlock/netCDF_files/EC_Data/EC_NA_Test.nc4"        4.1773642e+06
