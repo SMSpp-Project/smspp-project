@@ -23,8 +23,6 @@ if (TARGET SMS++::BinaryKnapsackBlock AND
                              "${BATCH_FILE} $<TARGET_FILE:BinaryKnapsackBlock_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
-        # Disable the test timeout
-        set_tests_properties(BinaryKnapsackBlock_test/${BATCH_NAME} PROPERTIES TIMEOUT 0)
     endforeach ()
 endif ()
 
