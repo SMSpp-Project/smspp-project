@@ -170,6 +170,7 @@ EOL
     cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
     cmake --build build
     cmake --install build
+    cd /opt
     sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
     ldconfig
   else
@@ -252,6 +253,7 @@ EOL
     cmake --build build
     cmake --install build
     mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    cd /opt
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -385,6 +387,7 @@ install_on_macos() {
     cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
     cmake --build build
     cmake --install build
+    cd /Library
   else
     cd "$HiGHS_ROOT"
     LOCAL=$(git rev-parse @)
@@ -461,6 +464,7 @@ install_on_macos() {
     cmake --build build
     cmake --install build
     mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    cd /Library
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -563,8 +567,9 @@ xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Gene
 wait # wait for ccmake to finish
 cmake --build cmake-build-debug --config Debug
 cmake --install cmake-build-debug --config Debug
-#cd cmake-build-debug/tests
+#cd cmake-build-debug
 #ctest -V -C Debug
+#cd "$SMSPP_ROOT"
 
 # Build Release
 cmake -S . -B cmake-build-release \
@@ -576,5 +581,6 @@ xterm -e ccmake cmake-build-release & # select submodules, then Configure and Ge
 wait # wait for ccmake to finish
 cmake --build cmake-build-release --config Release
 cmake --install cmake-build-release --config Release
-#cd cmake-build-release/tests
+#cd cmake-build-release
 #ctest -V -C Release
+#cd "$SMSPP_ROOT"

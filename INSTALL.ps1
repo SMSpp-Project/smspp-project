@@ -453,8 +453,9 @@ else
 Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
 & cmake '--build' 'cmake-build-debug' '--config' 'Debug'
 & cmake '--install' 'cmake-build-debug' '--config' 'Debug'
-#Set-Location "cmake-build-debug/tests"
+#Set-Location "cmake-build-debug"
 #& ctest -V -C Debug
+#Set-Location $SMSPP_ROOT
 
 # Build Release
 & cmake -S . -B 'cmake-build-release' `
@@ -466,5 +467,6 @@ Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # se
 Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
 & cmake '--build' 'cmake-build-release' '--config' 'Release'
 & cmake '--install' 'cmake-build-release' '--config' 'Release'
-#Set-Location "cmake-build-release/tests"
+#Set-Location "cmake-build-release"
 #& ctest -V -C Release
+#Set-Location $SMSPP_ROOT
