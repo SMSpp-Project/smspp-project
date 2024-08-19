@@ -2,6 +2,8 @@
 # If it's not being called by the umbrella, we need to
 # look for the system-installed libraries.
 if (NOT hasParent)
+    # Blocks
+    find_package(SMS++)
     # Solvers
     find_package(MILPSolver)
 endif ()
