@@ -5,9 +5,9 @@ if (NOT hasParent)
     # Blocks
     find_package(MMCFBlock)
     # Solvers
-    find_package(MILPSolver)
     find_package(LagrangianDualSolver)
     find_package(BundleSolver)
+    find_package(MILPSolver)
     find_package(LEMONSolver)
 endif ()
 
@@ -17,16 +17,16 @@ if (TARGET SMS++::MMCFBlock)
     add_executable(LDS_MMCF_test test.cpp)
     target_link_libraries(LDS_MMCF_test PRIVATE SMS++::MMCFBlock)
 
-    if (TARGET SMS++::MILPSolver)
-        target_link_libraries(LDS_MMCF_test PRIVATE SMS++::MILPSolver)
-    endif ()
-
     if (TARGET SMS++::LagrangianDualSolver)
         target_link_libraries(LDS_MMCF_test PRIVATE SMS++::LagrangianDualSolver)
     endif ()
 
     if (TARGET SMS++::BundleSolver)
         target_link_libraries(LDS_MMCF_test PRIVATE SMS++::BundleSolver)
+    endif ()
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(LDS_MMCF_test PRIVATE SMS++::MILPSolver)
     endif ()
 
     if (TARGET SMS++::LEMONSolver)

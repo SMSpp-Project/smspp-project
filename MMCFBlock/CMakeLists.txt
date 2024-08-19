@@ -6,8 +6,8 @@ if (NOT hasParent)
     find_package(MMCFBlock)
     find_package(MMCFClass)
     # Solvers
-    find_package(MILPSolver)
     find_package(BundleSolver)
+    find_package(MILPSolver)
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
@@ -21,12 +21,12 @@ if (TARGET SMS++::MMCFBlock AND
                           SMS++::MMCFBlock
                           MMCFClass)
 
-    if (TARGET SMS++::MILPSolver)
-        target_link_libraries(MMCF_test PRIVATE SMS++::MILPSolver)
-    endif ()
-
     if (TARGET SMS++::BundleSolver)
         target_link_libraries(MMCF_test PRIVATE SMS++::BundleSolver)
+    endif ()
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(MMCF_test PRIVATE SMS++::MILPSolver)
     endif ()
 
     # Add a test for each batch file

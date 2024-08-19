@@ -5,20 +5,20 @@ if (NOT hasParent)
     # Blocks
     find_package(SMS++)
     # Solvers
-    find_package(MILPSolver)
     find_package(BundleSolver)
+    find_package(MILPSolver)
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
 add_executable(LagBFunction_test test.cpp)
 target_link_libraries(LagBFunction_test PRIVATE SMS++::SMS++)
 
-if (TARGET SMS++::MILPSolver)
-    target_link_libraries(LagBFunction_test PRIVATE SMS++::MILPSolver)
-endif ()
-
 if (TARGET SMS++::BundleSolver)
     target_link_libraries(LagBFunction_test PRIVATE SMS++::BundleSolver)
+endif ()
+
+if (TARGET SMS++::MILPSolver)
+    target_link_libraries(LagBFunction_test PRIVATE SMS++::MILPSolver)
 endif ()
 
 # Add a test for each batch file

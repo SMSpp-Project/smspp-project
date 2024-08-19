@@ -5,9 +5,9 @@ if (NOT hasParent)
     # Blocks
     find_package(UCBlock)
     # Solvers
-    find_package(MILPSolver)
     find_package(LagrangianDualSolver)
     find_package(BundleSolver)
+    find_package(MILPSolver)
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
@@ -16,16 +16,16 @@ if (TARGET SMS++::UCBlock)
     add_executable(LDS_UC_test test.cpp)
     target_link_libraries(LDS_UC_test PRIVATE SMS++::UCBlock)
 
-    if (TARGET SMS++::MILPSolver)
-        target_link_libraries(LDS_UC_test PRIVATE SMS++::MILPSolver)
-    endif ()
-
     if (TARGET SMS++::LagrangianDualSolver)
         target_link_libraries(LDS_UC_test PRIVATE SMS++::LagrangianDualSolver)
     endif ()
 
     if (TARGET SMS++::BundleSolver)
         target_link_libraries(LDS_UC_test PRIVATE SMS++::BundleSolver)
+    endif ()
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(LDS_UC_test PRIVATE SMS++::MILPSolver)
     endif ()
 
     # Add a test for each batch file
