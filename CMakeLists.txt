@@ -13,10 +13,13 @@
 cmake_minimum_required(VERSION 3.19)
 
 # ----- Policies ------------------------------------------------------------ #
-# Introduced in 3.15 to handle arbitrary characters in test names
+# Introduced in 3.15 to handle MSVC_RUNTIME_LIBRARY
 # See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
-if (POLICY CMP0091)
-	cmake_policy(SET CMP0091 NEW)
+if (MSVC)
+	if (POLICY CMP0091)
+		cmake_policy(SET CMP0091 NEW)
+		set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	endif ()
 endif ()
 
 # ----- Project definition and configuration -------------------------------- #
@@ -132,10 +135,6 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	endif ()
 else ()
 	set(ARCH x86)
-endif ()
-
-if (MSVC)
-	set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
 
 # ----- Handle dependencies ------------------------------------------------- #
