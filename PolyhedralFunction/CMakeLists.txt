@@ -13,11 +13,9 @@ endif ()
 add_executable(PolyhedralFunction_test test.cpp)
 target_link_libraries(PolyhedralFunction_test PRIVATE SMS++::SMS++)
 
-if (TARGET SMS++::BundleSolver)
+if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
     target_link_libraries(PolyhedralFunction_test PRIVATE SMS++::BundleSolver)
-endif ()
-
-if (TARGET SMS++::MILPSolver)
+elseif (TARGET SMS++::MILPSolver)
     target_link_libraries(PolyhedralFunction_test PRIVATE SMS++::MILPSolver)
 endif ()
 

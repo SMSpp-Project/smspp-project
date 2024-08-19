@@ -16,22 +16,18 @@ if (TARGET SMS++::MCFBlock)
                                          cwl-mcf/cwl-mcf.cpp)
     target_link_libraries(BendersBFunction_test PRIVATE SMS++::MCFBlock)
 
-    if (TARGET SMS++::BundleSolver)
+    if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
         target_link_libraries(BendersBFunction_test PRIVATE SMS++::BundleSolver)
-    endif ()
-
-    if (TARGET SMS++::MILPSolver)
+    elseif (TARGET SMS++::MILPSolver)
         target_link_libraries(BendersBFunction_test PRIVATE SMS++::MILPSolver)
     endif ()
 
 
     add_executable(BendersBFunction_test2 test2.cpp)
 
-    if (TARGET SMS++::BundleSolver)
+    if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
         target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::BundleSolver)
-    endif ()
-
-    if (TARGET SMS++::MILPSolver)
+    elseif (TARGET SMS++::MILPSolver)
         target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::MILPSolver)
     endif ()
 

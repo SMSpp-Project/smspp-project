@@ -7,6 +7,7 @@ if (NOT hasParent)
     # Solvers
     find_package(LagrangianDualSolver)
     find_package(BundleSolver)
+    find_package(MILPSolver)
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
@@ -17,8 +18,10 @@ if (TARGET SMS++::LagrangianDualSolver)
     target_link_libraries(LDS_Box_test PRIVATE SMS++::LagrangianDualSolver)
 endif ()
 
-if (TARGET SMS++::BundleSolver)
+if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
     target_link_libraries(LDS_Box_test PRIVATE SMS++::BundleSolver)
+elseif (TARGET SMS++::MILPSolver)
+    target_link_libraries(LDS_Box_test PRIVATE SMS++::MILPSolver)
 endif ()
 
 # Add a test for each batch file
