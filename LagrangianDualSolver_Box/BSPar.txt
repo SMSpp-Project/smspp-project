@@ -72,12 +72,12 @@ intTrgtMng 0      # bit-wise encoding targets and accuracies management:
                   # bit 2-3: if accuracy is set (2 = upper - lower, 3 = using EpsU)
                   # bit 4: if Lipschitz constant is used to compute the upper model
 
-# MPSolver parameters :- - - - - - - -
+# MPSolver parameters : - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 intMPName  15      # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
-# QPPenalty's parameters : - - - - - -
+# QPPenalty's parameters :- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 intMPlvl   4      # log verbosity of Master Problem
                   
@@ -86,7 +86,7 @@ intQPmp1   0	  # MxAdd, how many variables can be added to the base at each
 intQPmp2   0      # MxRmv, how many variables can be removed from the base at each
       	          # iteration in BMinQuad (0 = at will)
 
-# OSiMPSolver's parameters : - - - - - -
+# OSIMPSolver's parameters :- - - - - - - - - - - - - - - - - - - - - - - - -
 
 intOSImp1  1      # Osi(Cpx/Grb)Solver algorithm (0 = auto (default), 1 = primal, 2 = dual, 3 = network, 4 = barrier, 5 = sifting, 6 = concurrent)
 intOSImp2  3      # pre-processing (reduction)
