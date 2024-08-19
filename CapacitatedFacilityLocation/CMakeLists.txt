@@ -1,21 +1,38 @@
-# ----- Test ---------------------------------------------------------------- #
-if (TARGET SMS++::MCFBlock AND
-    TARGET SMS++::BinaryKnapsackBlock AND
-    TARGET SMS++::BundleSolver AND
-    TARGET SMS++::LagrangianDualSolver AND
-    TARGET SMS++::CapacitatedFacilityLocationBlock AND
-    TARGET SMS++::MILPSolver AND
-    TARGET SMS++::LEMONSolver)
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    # Blocks
+    find_package(CapacitatedFacilityLocationBlock)
+    # Solvers
+    find_package(MILPSolver)
+    find_package(LagrangianDualSolver)
+    find_package(BundleSolver)
+    find_package(LEMONSolver)
+endif ()
+
+# ----- Tests --------------------------------------------------------------- #
+if (TARGET SMS++::CapacitatedFacilityLocationBlock)
 
     add_executable(CFL_test test.cpp)
     target_link_libraries(CFL_test PRIVATE
-                          SMS++::MCFBlock
-                          SMS++::BinaryKnapsackBlock
-                          SMS++::BundleSolver
-                          SMS++::LagrangianDualSolver
-                          SMS++::CapacitatedFacilityLocationBlock
-                          SMS++::MILPSolver
-                          SMS++::LEMONSolver)
+                          SMS++::CapacitatedFacilityLocationBlock)
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(CFL_test PRIVATE SMS++::MILPSolver)
+    endif ()
+
+    if (TARGET SMS++::LagrangianDualSolver)
+        target_link_libraries(CFL_test PRIVATE SMS++::LagrangianDualSolver)
+    endif ()
+
+    if (TARGET SMS++::BundleSolver)
+        target_link_libraries(CFL_test PRIVATE SMS++::BundleSolver)
+    endif ()
+
+    if (TARGET SMS++::LEMONSolver)
+        target_link_libraries(CFL_test PRIVATE SMS++::LEMONSolver)
+    endif ()
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES #"${CMAKE_CURRENT_SOURCE_DIR}/batch" # TODO uncomment when it will be fixed

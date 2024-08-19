@@ -1,28 +1,40 @@
-# ----- BendersBFunction_test ----------------------------------------------- #
-if (TARGET SMS++::BundleSolver AND
-    TARGET SMS++::MILPSolver AND
-    TARGET SMS++::MCFBlock)
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    # Blocks
+    find_package(MCFBlock)
+    # Solvers
+    find_package(BundleSolver)
+    find_package(MILPSolver)
+endif ()
+
+# ----- Tests --------------------------------------------------------------- #
+if (TARGET SMS++::MCFBlock)
 
     add_executable(BendersBFunction_test test.cpp
-                   cwl-mcf/cwl-mcf.cpp)
+                                         cwl-mcf/cwl-mcf.cpp)
     target_link_libraries(BendersBFunction_test PRIVATE
-                          SMS++::BundleSolver
-                          SMS++::MILPSolver
                           SMS++::MCFBlock)
 
-    if ( (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-          CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9") OR
-         (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND
-          CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9" ) )
-    target_link_libraries(BendersBFunction_test PRIVATE
-                          stdc++fs)
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(BendersBFunction_test PRIVATE SMS++::MILPSolver)
     endif ()
+
+    if (TARGET SMS++::BundleSolver)
+        target_link_libraries(BendersBFunction_test PRIVATE SMS++::BundleSolver)
+    endif ()
+
 
     add_executable(BendersBFunction_test2 test2.cpp)
 
-    target_link_libraries(BendersBFunction_test2 PRIVATE
-                          SMS++::BundleSolver
-                          SMS++::MILPSolver)
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::MILPSolver)
+    endif ()
+
+    if (TARGET SMS++::BundleSolver)
+        target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::BundleSolver)
+    endif ()
 
     add_test(NAME BendersBFunction_test2
              COMMAND BendersBFunction_test2 "BundlePar-cwl.txt"

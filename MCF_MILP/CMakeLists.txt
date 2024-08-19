@@ -1,13 +1,27 @@
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    # Blocks
+    find_package(MCFBlock)
+    # Solvers
+    find_package(MILPSolver)
+    find_package(LEMONSolver)
+endif ()
+
 # ----- Tests --------------------------------------------------------------- #
-if (TARGET SMS++::MCFBlock AND
-    TARGET SMS++::MILPSolver AND
-    TARGET SMS++::LEMONSolver)
+if (TARGET SMS++::MCFBlock)
 
     add_executable(MCF_MILP_test test.cpp)
-    target_link_libraries(MCF_MILP_test PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::MCFBlock
-                          SMS++::LEMONSolver)
+    target_link_libraries(MCF_MILP_test PRIVATE SMS++::MCFBlock)
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(MCF_MILP_test PRIVATE SMS++::MILPSolver)
+    endif ()
+
+    if (TARGET SMS++::LEMONSolver)
+        target_link_libraries(MCF_MILP_test PRIVATE SMS++::LEMONSolver)
+    endif ()
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")

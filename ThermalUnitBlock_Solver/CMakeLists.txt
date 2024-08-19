@@ -1,11 +1,22 @@
-# ----- Test ---------------------------------------------------------------- #
-if (TARGET SMS++::UCBlock AND
-    TARGET SMS++::MILPSolver)
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    # Blocks
+    find_package(UCBlock)
+    # Solvers
+    find_package(MILPSolver)
+endif ()
+
+# ----- Tests --------------------------------------------------------------- #
+if (TARGET SMS++::UCBlock)
 
     add_executable(TUDPS_test test.cpp)
-    target_link_libraries(TUDPS_test PRIVATE
-                          SMS++::MILPSolver
-                          SMS++::UCBlock)
+    target_link_libraries(TUDPS_test PRIVATE SMS++::UCBlock)
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(TUDPS_test PRIVATE SMS++::MILPSolver)
+    endif ()
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/*"

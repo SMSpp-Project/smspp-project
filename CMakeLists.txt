@@ -61,21 +61,7 @@ if (POLICY CMP0110)
     cmake_policy(SET CMP0110 NEW)
 endif ()
 
-# ----- Requirements -------------------------------------------------------- #
-# If it's not being called by the umbrella, we need to
-# look for the system-installed libraries.
-if (NOT hasParent)
-    find_package(BinaryKnapsackBlock)
-    find_package(BundleSolver)
-    find_package(CapacitatedFacilityLocation)
-    find_package(LagrangianDualSolver)
-    find_package(MCFBlock)
-    find_package(MILPSolver)
-    find_package(MMCFBlock)
-    find_package(UCBlock)
-endif ()
-
-# ----- Subdirectories ------------------------------------------------------ #
+# ----- Tests --------------------------------------------------------------- #
 add_subdirectory(BendersBFunction)
 add_subdirectory(BinaryKnapsackBlock)
 add_subdirectory(BoxSolver)
@@ -84,11 +70,14 @@ add_subdirectory(LagBFunction)
 add_subdirectory(LagrangianDualSolver_Box)
 add_subdirectory(LagrangianDualSolver_MMCF)
 add_subdirectory(LagrangianDualSolver_UC)
+add_subdirectory(LukFiBlock)
 add_subdirectory(MCF_MILP)
 add_subdirectory(MMCFBlock)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
 add_subdirectory(ThermalUnitBlock_Solver)
 add_subdirectory(Write-Read)
+
+add_subdirectory(compare_formulations)
 
 # --------------------------------------------------------------------------- #

@@ -1,11 +1,24 @@
-# ----- Test ---------------------------------------------------------------- #
-if (TARGET SMS++::BinaryKnapsackBlock AND
-        TARGET SMS++::MILPSolver)
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    # Blocks
+    find_package(BinaryKnapsackBlock)
+    # Solvers
+    find_package(MILPSolver)
+endif ()
+
+# ----- Tests --------------------------------------------------------------- #
+if (TARGET SMS++::BinaryKnapsackBlock)
 
     add_executable(BinaryKnapsackBlock_test test.cpp)
     target_link_libraries(BinaryKnapsackBlock_test PRIVATE
-            SMS++::MILPSolver
-            SMS++::BinaryKnapsackBlock)
+                          SMS++::BinaryKnapsackBlock)
+
+    if (TARGET SMS++::MILPSolver)
+        target_link_libraries(BinaryKnapsackBlock_test PRIVATE
+                              SMS++::MILPSolver)
+    endif ()
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
