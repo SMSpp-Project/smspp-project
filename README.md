@@ -217,7 +217,8 @@ curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo -
 wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
 ```
 
-Finally, if you are already inside the cloned repository, you can run the script via:
+Otherwise, if you are already inside the cloned repository, you can run the
+script via:
 
 ```powershell
 # Windows (from a PowerShell with administrative privileges)
