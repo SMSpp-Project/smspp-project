@@ -578,7 +578,6 @@ cmake -S . -B cmake-build-release \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
       -DCMAKE_BUILD_TYPE=Release \
       -Wno-dev
-
 ccmake cmake-build-release # select submodules, then Configure and Generate the build files
 CCMAKE_EXIT_CODE=$?
 if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
