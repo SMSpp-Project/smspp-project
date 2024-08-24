@@ -57,7 +57,7 @@ install_on_ubuntu() {
   # Update packages and install basic requirements
   echo "Updating system and installing basic requirements..."
   apt-get update -q
-  apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl xterm
+  apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -96,9 +96,7 @@ INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          # run the CPLEX installer in a xterm subshell
-          # (calling gnome-terminal as a subshell does not work with sudo)
-          xterm -e ./"$CPLEX_INSTALLER" -f ./installer.properties &
+          "./$CPLEX_INSTALLER" -f ./installer.properties &
           wait $! # wait for CPLEX installer to finish
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
@@ -294,7 +292,7 @@ install_on_macos() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  brew install cmake git xterm
+  brew install cmake git
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -562,25 +560,34 @@ cmake -S . -B cmake-build-debug \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
       -DCMAKE_BUILD_TYPE=Debug \
       -Wno-dev
-# run ccmake in a xterm subshell
-xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
-wait # wait for ccmake to finish
-cmake --build cmake-build-debug --config Debug
-cmake --install cmake-build-debug --config Debug
-#cd cmake-build-debug
-#ctest -V -C Debug
-#cd "$SMSPP_ROOT"
+ccmake cmake-build-debug # select submodules, then Configure and Generate the build files
+CCMAKE_EXIT_CODE=$?
+if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+  cmake --build cmake-build-debug --config Debug
+  cmake --install cmake-build-debug --config Debug
+  #cd cmake-build-debug
+  #ctest -V -C Debug
+  #cd "$SMSPP_ROOT"
+else
+  echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+  exit 1
+fi
 
 # Build Release
 cmake -S . -B cmake-build-release \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
       -DCMAKE_BUILD_TYPE=Release \
       -Wno-dev
-# run ccmake in a xterm subshell
-xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
-wait # wait for ccmake to finish
-cmake --build cmake-build-release --config Release
-cmake --install cmake-build-release --config Release
-#cd cmake-build-release
-#ctest -V -C Release
-#cd "$SMSPP_ROOT"
+
+ccmake cmake-build-release # select submodules, then Configure and Generate the build files
+CCMAKE_EXIT_CODE=$?
+if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+  cmake --build cmake-build-release --config Release
+  cmake --install cmake-build-release --config Release
+  #cd cmake-build-release
+  #ctest -V -C Release
+  #cd "$SMSPP_ROOT"
+else
+  echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+  exit 1
+fi
