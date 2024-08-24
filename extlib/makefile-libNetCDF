@@ -29,10 +29,10 @@ libNtCDFCxxBSCDIR = $(subst $\",,$(netCDFCxx_ROOT))
 
 ifeq ($(UNAME_S),Linux)
     libNtCDFLIB = -L"$(libNtCDFBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf \
-                  -L"$(libNtCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
+        -L"$(libNtCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
 else
     libNtCDFLIB = -L"$(libNtCDFBSCDIR)/lib" -lnetcdf \
-                  -L"$(libNtCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
+        -L"$(libNtCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
 endif
 libNtCDFINC = -I"$(libNtCDFBSCDIR)/include" -I"$(libNtCDFCxxBSCDIR)/include"
 

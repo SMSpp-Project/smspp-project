@@ -68,7 +68,7 @@ ifeq ($(UNAME_S),Darwin)
 endif
 ifeq ($(UNAME_S),Windows)
     libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs \
-              -L"$(VCPKG_ROOT)/lib" $(libHiGHSEXTLIB)
+        -L"$(VCPKG_ROOT)/lib" $(libHiGHSEXTLIB)
 endif
 
 ######################## End of makefile-libHiGHS ############################

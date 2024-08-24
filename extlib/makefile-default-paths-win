@@ -52,4 +52,6 @@ CoinUtils_ROOT = C:/vcpkg/installed/x64-windows
 Osi_ROOT = C:/vcpkg/installed/x64-windows
 Clp_ROOT = C:/vcpkg/installed/x64-windows
 
+VCPKG_ROOT = C:/vcpkg
+
 ##################### End of makefile-default-paths-win ######################
