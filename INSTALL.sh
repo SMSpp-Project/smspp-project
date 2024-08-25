@@ -96,7 +96,7 @@ INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          "./$CPLEX_INSTALLER" -f ./installer.properties &
+          ./$CPLEX_INSTALLER -f ./installer.properties &
           wait $! # wait for CPLEX installer to finish
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
