@@ -16,21 +16,44 @@ NAME = LDS_MMCF_test
 # basic directory
 DIR = .
 
+# common flags
+COMMON_SW = -std=c++17 -Wno-enum-compare
+
 # debug switches
-#SW = -g3 -glldb -fno-inline -std=c++17 -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -Wno-enum-compare
+SW_DEBUG = -g3 -glldb -fno-inline $(COMMON_SW) -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1
 # debug switches with address sanitizer and extra pedantic warning
-#SW = -g3 -glldb -fno-inline -std=c++17 -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter -Wno-enum-compare
+SW_DEBUG_ASAN = -g3 -glldb -fno-inline $(COMMON_SW) -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -ferror-limit=1 -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer -Wpedantic -Wextra -Wno-unused-parameter
 # production switches
-SW = -O3 -std=c++17 -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare
+SW_RELEASE = -O3 $(COMMON_SW) -DNDEBUG -DHAVE_CPLEX -DHAVE_MFSMX -DCLANG_1200_0_32_27_PATCH
 
 # compiler
 CC = clang++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-default: $(DIR)/$(NAME)
+default: release
 
-# clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# debug target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+debug: SW = $(SW_DEBUG)
+debug: $(DIR)/$(NAME)
+
+# debug_asan target - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+debug_asan: SW = $(SW_DEBUG_ASAN)
+debug_asan: $(DIR)/$(NAME)
+
+# release target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+release: SW = $(SW_RELEASE)
+release: $(DIR)/$(NAME)
+
+# release_asan target - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+release_asan: SW = $(SW_RELEASE_ASAN)
+release_asan: $(DIR)/$(NAME)
+
+# clean target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 clean::
 	rm -f $(DIR)/*.o $(DIR)/*~ $(DIR)/$(NAME)
@@ -65,28 +88,52 @@ include $(LgDSLVSDR)/makefile
 #MILPSSDR = ../../MILPSolver
 #include $(MILPSSDR)/makefile-c
 
+# LEMONSolver, assuming all dependencies (MCFBlock) are there already
+# (comment out if not required)
+MCFLESDR = ../../LEMONSolver
+include $(MCFLESDR)/makefile
+
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ) $(SMS++OBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(MMCFOBJ) $(SMS++OBJ) $(MCFLEOBJ)
 
 # libraries
-MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB) $(SMS++LIB)
+MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(MMCFLIB) $(SMS++LIB) $(MCFLELIB)
 
 $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
-# dependencies: every .o from its .C + every recursively included .h- - - - -
+# dependencies: every .o from its .cpp + every recursively included .h- - - -
 
 # include directives
-MINC =  $(SMS++INC) $(BNDSLVINC) $(LgDSLVINC) $(MMCFINC)
+MINC =  $(SMS++INC) $(BNDSLVINC) $(LgDSLVINC) $(MMCFINC) $(MCFLEINC)
 
 # includes
-MH =    $(SMS++H) $(BNDSLVH) $(LgDSLVH) $(MMCFH)
+MH =    $(SMS++H) $(BNDSLVH) $(LgDSLVH) $(MMCFH) $(MCFLEH)
 
 # compile command
 
 $(DIR)/test.o: $(DIR)/test.cpp $(MH)
 	$(CC) -c $(DIR)/test.cpp -o $@ $(MINC) $(SW)
+
+# install/uninstall - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+prefix = /usr/local
+bindir = $(prefix)/bin
+
+install: $(DIR)/$(NAME)
+	install -s -D $(DIR)/$(NAME) $(DESTDIR)$(bindir)/$(NAME)
+
+uninstall:
+	rm -f $(DESTDIR)$(bindir)/$(NAME)
+
+# distclean target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+distclean: clean
+
+# phony targets - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+.PHONY: debug debug_asan release release_asan install uninstall clean distclean
 
 ############################ End of makefile #################################
