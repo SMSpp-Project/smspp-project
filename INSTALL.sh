@@ -575,7 +575,8 @@ if [ -p /dev/stdin ]; then
   #ctest -V -C Debug
   #cd "$SMSPP_ROOT"
 else
-  ccmake cmake-build-debug # select submodules, then Configure and Generate the build files
+  # select submodules, then Configure and Generate the build files
+  ccmake cmake-build-debug
   CCMAKE_EXIT_CODE=$?
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build cmake-build-debug --config Debug
@@ -603,7 +604,8 @@ if [ -p /dev/stdin ]; then
   #ctest -V -C Release
   #cd "$SMSPP_ROOT"
 else
-  ccmake cmake-build-release # select submodules, then Configure and Generate the build files
+  # select submodules, then Configure and Generate the build files
+  ccmake cmake-build-release
   CCMAKE_EXIT_CODE=$?
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build cmake-build-release --config Release
