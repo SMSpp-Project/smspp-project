@@ -487,6 +487,16 @@ install_on_macos() {
   echo "Installation completed successfully on macOS."
 }
 
+# Check if the script is being executed from a pipe
+if [ -p /dev/stdin ]; then
+    # Temporarily download the script and then execute it
+    SCRIPT_PATH=$(mktemp)
+    cat - > "$SCRIPT_PATH"
+    bash "$SCRIPT_PATH"
+    rm "$SCRIPT_PATH"
+    exit 0
+fi
+
 # Default values indicating if CPLEX and Gurobi should be installed
 # it works even if you use `install_cplex=0` or `install_gurobi=0`
 install_cplex=${install_cplex:-1}
@@ -560,7 +570,7 @@ cmake -S . -B cmake-build-debug \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
       -DCMAKE_BUILD_TYPE=Debug \
       -Wno-dev
-ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
+ccmake cmake-build-debug # select submodules, then Configure and Generate the build files
 CCMAKE_EXIT_CODE=$?
 if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
   cmake --build cmake-build-debug --config Debug
@@ -578,7 +588,7 @@ cmake -S . -B cmake-build-release \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
       -DCMAKE_BUILD_TYPE=Release \
       -Wno-dev
-ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
+ccmake cmake-build-release # select submodules, then Configure and Generate the build files
 CCMAKE_EXIT_CODE=$?
 if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
   cmake --build cmake-build-release --config Release
