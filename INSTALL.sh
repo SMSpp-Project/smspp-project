@@ -48,16 +48,6 @@
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
 # ------------------------------------------------------------------------------
 
-# Check if the script is being executed from a pipe
-if [ -p /dev/stdin ]; then
-    # Temporarily download the script and then execute it
-    SCRIPT_PATH=$(mktemp)
-    cat - > "$SCRIPT_PATH"
-    bash "$SCRIPT_PATH"
-    rm "$SCRIPT_PATH"
-    exit 0
-fi
-
 # Function to install dependencies on Ubuntu
 install_on_ubuntu() {
   set -e  # Exit immediately if a command exits with a non-zero status
@@ -557,7 +547,13 @@ if [ -d ".git" ]; then
 else
   if [ ! -d "$SMSPP_ROOT" ]; then
     echo "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    # Check if the script is being executed from a pipe
+    if [ -p /dev/stdin ]; then
+      # no way to use ccmake interactively to choose which submodules built, so download it all
+      git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    else
+      git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    fi
     cd "$SMSPP_ROOT"
   else
     cd "$SMSPP_ROOT"
@@ -570,18 +566,27 @@ cmake -S . -B cmake-build-debug \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
       -DCMAKE_BUILD_TYPE=Debug \
       -Wno-dev
-ccmake cmake-build-debug # select submodules, then Configure and Generate the build files
-wait $! # wait for ccmake to finish
-CCMAKE_EXIT_CODE=$?
-if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+# Check if the script is being executed from a pipe
+if [ -p /dev/stdin ]; then # no way to use ccmake interactively
+  # no way to use ccmake interactively to choose which submodules built, so build it all
   cmake --build cmake-build-debug --config Debug
   cmake --install cmake-build-debug --config Debug
   #cd cmake-build-debug
   #ctest -V -C Debug
   #cd "$SMSPP_ROOT"
 else
-  echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-  exit 1
+  ccmake cmake-build-debug # select submodules, then Configure and Generate the build files
+  CCMAKE_EXIT_CODE=$?
+  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+    cmake --build cmake-build-debug --config Debug
+    cmake --install cmake-build-debug --config Debug
+    #cd cmake-build-debug
+    #ctest -V -C Debug
+    #cd "$SMSPP_ROOT"
+  else
+    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+    exit 1
+  fi
 fi
 
 # Build Release
@@ -589,16 +594,25 @@ cmake -S . -B cmake-build-release \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
       -DCMAKE_BUILD_TYPE=Release \
       -Wno-dev
-ccmake cmake-build-release # select submodules, then Configure and Generate the build files
-wait $! # wait for ccmake to finish
-CCMAKE_EXIT_CODE=$?
-if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+# Check if the script is being executed from a pipe
+if [ -p /dev/stdin ]; then
+  # no way to use ccmake interactively to choose which submodules built, so build it all
   cmake --build cmake-build-release --config Release
   cmake --install cmake-build-release --config Release
   #cd cmake-build-release
   #ctest -V -C Release
   #cd "$SMSPP_ROOT"
 else
-  echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-  exit 1
+  ccmake cmake-build-release # select submodules, then Configure and Generate the build files
+  CCMAKE_EXIT_CODE=$?
+  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+    cmake --build cmake-build-release --config Release
+    cmake --install cmake-build-release --config Release
+    #cd cmake-build-release
+    #ctest -V -C Release
+    #cd "$SMSPP_ROOT"
+  else
+    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+    exit 1
+  fi
 fi
