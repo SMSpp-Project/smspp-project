@@ -48,6 +48,16 @@
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
 # ------------------------------------------------------------------------------
 
+# Check if the script is being executed from a pipe
+if [ -p /dev/stdin ]; then
+    # Temporarily download the script and then execute it
+    SCRIPT_PATH=$(mktemp)
+    cat - > "$SCRIPT_PATH"
+    bash "$SCRIPT_PATH"
+    rm "$SCRIPT_PATH"
+    exit 0
+fi
+
 # Function to install dependencies on Ubuntu
 install_on_ubuntu() {
   set -e  # Exit immediately if a command exits with a non-zero status
@@ -486,16 +496,6 @@ install_on_macos() {
 
   echo "Installation completed successfully on macOS."
 }
-
-# Check if the script is being executed from a pipe
-if [ -p /dev/stdin ]; then
-    # Temporarily download the script and then execute it
-    SCRIPT_PATH=$(mktemp)
-    cat - > "$SCRIPT_PATH"
-    bash "$SCRIPT_PATH"
-    rm "$SCRIPT_PATH"
-    exit 0
-fi
 
 # Default values indicating if CPLEX and Gurobi should be installed
 # it works even if you use `install_cplex=0` or `install_gurobi=0`
