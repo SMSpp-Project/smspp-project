@@ -555,9 +555,6 @@ else
   fi
 fi
 
-# Redirect standard input to /dev/tty
-exec < /dev/tty
-
 # Build Debug
 cmake -S . -B cmake-build-debug \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
