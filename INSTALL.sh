@@ -571,6 +571,7 @@ cmake -S . -B cmake-build-debug \
       -DCMAKE_BUILD_TYPE=Debug \
       -Wno-dev
 script -q -c "ccmake cmake-build-debug" # select submodules, then Configure and Generate the build files
+wait $! # wait for ccmake to finish
 CCMAKE_EXIT_CODE=$?
 if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
   cmake --build cmake-build-debug --config Debug
@@ -589,6 +590,7 @@ cmake -S . -B cmake-build-release \
       -DCMAKE_BUILD_TYPE=Release \
       -Wno-dev
 script -q -c "ccmake cmake-build-release" # select submodules, then Configure and Generate the build files
+wait $! # wait for ccmake to finish
 CCMAKE_EXIT_CODE=$?
 if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
   cmake --build cmake-build-release --config Release
