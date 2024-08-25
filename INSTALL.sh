@@ -549,7 +549,7 @@ else
     echo "Repository not found locally. Cloning SMSpp..."
     # Check if the script is being executed from a pipe
     if [ -p /dev/stdin ]; then
-      # no way to use ccmake interactively to choose which submodules built, so download it all
+      # no way to use ccmake interactively to choose submodules, so download it all
       git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     else
       git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
@@ -568,7 +568,7 @@ cmake -S . -B cmake-build-debug \
       -Wno-dev
 # Check if the script is being executed from a pipe
 if [ -p /dev/stdin ]; then # no way to use ccmake interactively
-  # no way to use ccmake interactively to choose which submodules built, so build it all
+  # no way to use ccmake interactively to choose submodules, so build it all
   cmake --build cmake-build-debug --config Debug
   cmake --install cmake-build-debug --config Debug
   #cd cmake-build-debug
@@ -596,7 +596,7 @@ cmake -S . -B cmake-build-release \
       -Wno-dev
 # Check if the script is being executed from a pipe
 if [ -p /dev/stdin ]; then
-  # no way to use ccmake interactively to choose which submodules built, so build it all
+  # no way to use ccmake interactively to choose submodules, so build it all
   cmake --build cmake-build-release --config Release
   cmake --install cmake-build-release --config Release
   #cd cmake-build-release
