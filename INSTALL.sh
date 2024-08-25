@@ -567,7 +567,7 @@ cmake -S . -B cmake-build-debug \
       -DCMAKE_BUILD_TYPE=Debug \
       -Wno-dev
 # Check if the script is being executed from a pipe
-if [ -p /dev/stdin ]; then # no way to use ccmake interactively
+if [ -p /dev/stdin ]; then
   # no way to use ccmake interactively to choose submodules, so build it all
   cmake --build cmake-build-debug --config Debug
   cmake --install cmake-build-debug --config Debug
