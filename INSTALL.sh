@@ -58,7 +58,7 @@ install_on_ubuntu() {
     # Update packages and install basic requirements
     echo "Updating system and installing basic requirements..."
     apt-get update -q
-    apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
+    apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl xterm
 
     # Install Boost libraries
     echo "Installing Boost libraries..."
@@ -311,7 +311,7 @@ install_on_macos() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  brew install cmake git
+  brew install cmake git xterm
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -574,8 +574,8 @@ if [ -d "$SMSPP_ROOT" ]; then
   git pull
 else
   echo "Repository not found locally. Cloning SMSpp..."
-  # Check if the script is being executed from a pipe
-  if [ -p /dev/stdin ]; then
+  # Check if the script is being executed on a server without display or interactive terminal
+  if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
     # no way to use ccmake interactively to choose submodules, so download it all
     git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
   else
@@ -609,8 +609,8 @@ cmake -S . -B cmake-build-debug \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
       -DCMAKE_BUILD_TYPE=Debug \
       -Wno-dev
-# Check if the script is being executed from a pipe
-if [ -p /dev/stdin ]; then
+# Check if the script is being executed on a server without display or interactive terminal
+if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
   # no way to use ccmake interactively to choose submodules, so build it all
   cmake --build cmake-build-debug --config Debug
   cmake --install cmake-build-debug --config Debug
@@ -618,8 +618,9 @@ if [ -p /dev/stdin ]; then
   #ctest -V -C Debug
   #cd "$SMSPP_ROOT"
 else
-  # select submodules, then Configure and Generate the build files
-  ccmake cmake-build-debug
+  # run ccmake in a xterm subshell
+  xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
+  wait # wait for ccmake to finish
   CCMAKE_EXIT_CODE=$?
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build cmake-build-debug --config Debug
@@ -638,8 +639,8 @@ cmake -S . -B cmake-build-release \
       -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
       -DCMAKE_BUILD_TYPE=Release \
       -Wno-dev
-# Check if the script is being executed from a pipe
-if [ -p /dev/stdin ]; then
+# Check if the script is being executed on a server without display or interactive terminal
+if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
   # no way to use ccmake interactively to choose submodules, so build it all
   cmake --build cmake-build-release --config Release
   cmake --install cmake-build-release --config Release
@@ -647,8 +648,9 @@ if [ -p /dev/stdin ]; then
   #ctest -V -C Release
   #cd "$SMSPP_ROOT"
 else
-  # select submodules, then Configure and Generate the build files
-  ccmake cmake-build-release
+  # run ccmake in a xterm subshell
+  xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
+  wait # wait for ccmake to finish
   CCMAKE_EXIT_CODE=$?
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build cmake-build-release --config Release
