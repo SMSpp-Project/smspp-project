@@ -618,9 +618,9 @@ if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
   #ctest -V -C Debug
   #cd "$SMSPP_ROOT"
 else
-  # run ccmake in a xterm subshell
+  # run ccmake in a xterm subshell to allow interaction
   xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
-  wait # wait for ccmake to finish
+  wait $! # wait for ccmake to finish
   CCMAKE_EXIT_CODE=$?
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build cmake-build-debug --config Debug
@@ -648,9 +648,9 @@ if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
   #ctest -V -C Release
   #cd "$SMSPP_ROOT"
 else
-  # run ccmake in a xterm subshell
+  # run ccmake in a xterm subshell to allow interaction
   xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
-  wait # wait for ccmake to finish
+  wait $! # wait for ccmake to finish
   CCMAKE_EXIT_CODE=$?
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build cmake-build-release --config Release
