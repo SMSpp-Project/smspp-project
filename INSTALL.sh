@@ -541,7 +541,7 @@ case "$OS" in
         INSTALL_ROOT="/opt"
       else
         HAS_SUDO=0
-        INSTALL_ROOT="$(pwd)"
+        INSTALL_ROOT="$(HOME)"
       fi
       install_on_ubuntu
       SMSPP_ROOT="$INSTALL_ROOT/smspp-project"
