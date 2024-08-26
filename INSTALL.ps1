@@ -422,25 +422,18 @@ function Update-EnvironmentVariables
 Write-Host "Compiling SMSpp..."
 $SMSPP_ROOT = "C:\smspp-project"
 
-# Check if we are inside the SMSpp repository by looking for a .git directory
-if (Test-Path ".git")
+# Check if the SMSpp repository already exists
+if (Test-Path $SMSPP_ROOT)
 {
-    Write-Host "Inside SMSpp repository. Pulling latest changes..."
+    Set-Location $SMSPP_ROOT
+    Write-Host "SMSpp already exists. Pulling latest changes..."
     git pull
 }
 else
 {
-    if (-not (Test-Path $SMSPP_ROOT))
-    {
-        Write-Host "Repository not found locally. Cloning SMSpp..."
-        git clone -b develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        Set-Location $SMSPP_ROOT
-    }
-    else
-    {
-        Set-Location $SMSPP_ROOT
-        git pull
-    }
+    Write-Host "Repository not found locally. Cloning SMSpp..."
+    git clone -b develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+    Set-Location $SMSPP_ROOT
 }
 
 # Build Debug

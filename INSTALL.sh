@@ -567,25 +567,21 @@ esac
 # Install SMSpp
 echo "Compiling SMSpp..."
 
-# Check if we are inside the SMSpp repository by looking for a .git directory
-if [ -d ".git" ]; then
-  echo "Inside SMSpp repository. Pulling latest changes..."
+# Check if the SMSpp repository already exists
+if [ -d "$SMSPP_ROOT" ]; then
+  cd "$SMSPP_ROOT"
+  echo "SMSpp already exists. Pulling latest changes..."
   git pull
 else
-  if [ ! -d "$SMSPP_ROOT" ]; then
-    echo "Repository not found locally. Cloning SMSpp..."
-    # Check if the script is being executed from a pipe
-    if [ -p /dev/stdin ]; then
-      # no way to use ccmake interactively to choose submodules, so download it all
-      git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    else
-      git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    fi
-    cd "$SMSPP_ROOT"
+  echo "Repository not found locally. Cloning SMSpp..."
+  # Check if the script is being executed from a pipe
+  if [ -p /dev/stdin ]; then
+    # no way to use ccmake interactively to choose submodules, so download it all
+    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
   else
-    cd "$SMSPP_ROOT"
-    git pull
+    git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
   fi
+  cd "$SMSPP_ROOT"
 fi
 
 # If the operating system is Ubuntu and HAS_SUDO is 0, update the makefile-paths
@@ -593,7 +589,7 @@ if [[ "$OS" == "Linux" && -f /etc/lsb-release ]]; then
   . /etc/lsb-release
   if [[ "$DISTRIB_ID" == "Ubuntu" && "$HAS_SUDO" -eq 0 ]]; then
     extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
-    # Create or overwrite the file with the new paths for the variables
+    # Create the file with the new paths of the resources
     {
       echo "CPLEX_ROOT = ${CPLEX_ROOT}"
       echo "SCIP_ROOT = ${SCIP_ROOT}"
@@ -604,7 +600,7 @@ if [[ "$OS" == "Linux" && -f /etc/lsb-release ]]; then
       echo "Osi_ROOT = ${CoinOr_ROOT}"
       echo "Clp_ROOT = ${CoinOr_ROOT}"
     } > "$extlib_file"
-    echo "Created or overwritten paths in $extlib_file"
+    echo "Created $extlib_file file."
   fi
 fi
 
