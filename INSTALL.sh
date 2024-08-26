@@ -107,8 +107,10 @@ EOL
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-          sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-          ldconfig
+          if [ "$HAS_SUDO" -eq 1 ]; then
+            sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+            ldconfig
+          fi
         else
           echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
           exit 1
@@ -136,8 +138,10 @@ EOL
       export GUROBI_HOME="${GUROBI_ROOT}/linux64"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-      sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-      ldconfig
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+        ldconfig
+      fi
     else
       echo "Gurobi already installed."
     fi
@@ -156,8 +160,10 @@ EOL
     chmod u+x "$SCIP_INSTALLER"
     ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
     rm "$SCIP_INSTALLER"
-    sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
-    ldconfig
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
+      ldconfig
+    fi
   else
       echo "SCIP already installed."
   fi
@@ -172,9 +178,10 @@ EOL
     cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
     cmake --build build
     cmake --install build
-    cd "$INSTALL_ROOT"
-    sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
-    ldconfig
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
+      ldconfig
+    fi
   else
     cd "$HiGHS_ROOT"
     git remote update
@@ -189,8 +196,8 @@ EOL
     else
       echo "HiGHS already up to date."
     fi
-    cd "$INSTALL_ROOT"
   fi
+  cd "$INSTALL_ROOT"
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
@@ -233,8 +240,10 @@ EOL
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -R coinbrew build CoinUtils Osi Clp
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
-    sh -c "echo '$CoinOr_ROOT/lib' > /etc/ld.so.conf.d/coin-or.conf"
-    ldconfig
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      sh -c "echo '$CoinOr_ROOT/lib' > /etc/ld.so.conf.d/coin-or.conf"
+      ldconfig
+    fi
   else
     echo "COIN-OR already installed."
   fi
