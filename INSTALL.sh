@@ -110,6 +110,8 @@ EOL
           if [ "$HAS_SUDO" -eq 1 ]; then
             sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
             ldconfig
+          else
+            rm -R javasharedresources
           fi
         else
           echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
