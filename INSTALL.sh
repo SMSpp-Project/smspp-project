@@ -201,7 +201,9 @@ EOL
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-  apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+  if [ "$HAS_SUDO" -eq 1 ]; then
+    apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+  fi
   CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
     cd "$INSTALL_ROOT"
@@ -251,7 +253,9 @@ EOL
   # Install StOpt
   echo "Installing StOpt..."
   StOpt_ROOT="${INSTALL_ROOT}/StOpt"
-  apt-get install -y -q zlib1g-dev
+  if [ "$HAS_SUDO" -eq 1 ]; then
+    apt-get install -y -q zlib1g-dev
+  fi
   if [ ! -d "$StOpt_ROOT" ]; then
     cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
