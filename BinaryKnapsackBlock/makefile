@@ -102,23 +102,12 @@ MH =    $(BKBkH)
 $(DIR)/test.o: $(DIR)/test.cpp $(MH)
 	$(CC) -c $*.cpp -o $@ $(MINC) $(SW)
 
-# install/uninstall - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-prefix = /usr/local
-bindir = $(prefix)/bin
-
-install: $(DIR)/$(NAME)
-	install -s -D $(DIR)/$(NAME) $(DESTDIR)$(bindir)/$(NAME)
-
-uninstall:
-	rm -f $(DESTDIR)$(bindir)/$(NAME)
-
 # distclean target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 distclean: clean
 
 # phony targets - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-.PHONY: debug debug_asan release release_asan install uninstall clean distclean
+.PHONY: debug debug_asan release release_asan clean distclean
 
 ############################ End of makefile #################################

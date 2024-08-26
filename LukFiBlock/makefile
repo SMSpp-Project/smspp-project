@@ -98,23 +98,12 @@ MH =    $(SMS++H) $(BNDSLVH) $(LukFiH)
 $(DIR)/main.o: $(DIR)/main.cpp $(MH)
 	$(CC) -c $*.cpp -o $@ $(MINC) $(SW)
 
-# install/uninstall - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-prefix = /usr/local
-bindir = $(prefix)/bin
-
-install: $(DIR)/$(NAME)
-	install -s -D $(DIR)/$(NAME) $(DESTDIR)$(bindir)/$(NAME)
-
-uninstall:
-	rm -f $(DESTDIR)$(bindir)/$(NAME)
-
 # distclean target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 distclean: clean
 
 # phony targets - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-.PHONY: debug debug_asan release install uninstall clean distclean
+.PHONY: debug debug_asan release clean distclean
 
 ############################ End of makefile ################################
