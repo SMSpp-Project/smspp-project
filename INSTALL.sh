@@ -54,33 +54,35 @@ install_on_ubuntu() {
 
   echo "Starting the installation process on Ubuntu..."
 
-  # Update packages and install basic requirements
-  echo "Updating system and installing basic requirements..."
-  apt-get update -q
-  apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
+  if [ "$HAS_SUDO" -eq 1 ]; then
+    # Update packages and install basic requirements
+    echo "Updating system and installing basic requirements..."
+    apt-get update -q
+    apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
 
-  # Install Boost libraries
-  echo "Installing Boost libraries..."
-  apt-get install -y -q libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+    # Install Boost libraries
+    echo "Installing Boost libraries..."
+    apt-get install -y -q libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
 
-  # Install OpenMP
-  echo "Installing OpenMP..."
-  apt-get install -y -q libomp-dev
+    # Install OpenMP
+    echo "Installing OpenMP..."
+    apt-get install -y -q libomp-dev
 
-  # Install Eigen
-  echo "Installing Eigen..."
-  apt-get install -y -q libeigen3-dev
+    # Install Eigen
+    echo "Installing Eigen..."
+    apt-get install -y -q libeigen3-dev
 
-  # Install NetCDF-C++
-  echo "Installing NetCDF-C++..."
-  apt-get install -y -q libnetcdf-c++4-dev
+    # Install NetCDF-C++
+    echo "Installing NetCDF-C++..."
+    apt-get install -y -q libnetcdf-c++4-dev
+  fi
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
-    CPLEX_ROOT="/opt/ibm/ILOG/CPLEX_Studio"
+    CPLEX_ROOT="${INSTALL_ROOT}/ibm/ILOG/CPLEX_Studio"
     if [ ! -d "$CPLEX_ROOT" ]; then
-      cd /opt
+      cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
       # the CPLEX_URL is always given by the same prefix, i.e.:
       # "https://drive.usercontent.google.com/download?id=" +
@@ -89,31 +91,31 @@ install_on_ubuntu() {
       CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
       uuid=$(curl -sL "$CPLEX_URL" | grep -oP 'name="uuid" value="\K[^"]+')
       if [ -n "$uuid" ]; then
-          curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-          chmod u+x "$CPLEX_INSTALLER"
-          cat <<EOL > installer.properties
+        curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+        chmod u+x "$CPLEX_INSTALLER"
+        cat <<EOL > installer.properties
 INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-          ./$CPLEX_INSTALLER -f ./installer.properties &
-          wait $! # wait for CPLEX installer to finish
-          INSTALLER_EXIT_CODE=$?
-          if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-            rm "$CPLEX_INSTALLER" installer.properties
-            #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
-            export CPLEX_HOME="${CPLEX_ROOT}/cplex"
-            export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
-            export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
-            sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-            ldconfig
-          else
-            echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
-            exit 1
-          fi
-      else
-          echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+        ./$CPLEX_INSTALLER -f ./installer.properties &
+        wait $! # wait for CPLEX installer to finish
+        INSTALLER_EXIT_CODE=$?
+        if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
+          rm "$CPLEX_INSTALLER" installer.properties
+          #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
+          export CPLEX_HOME="${CPLEX_ROOT}/cplex"
+          export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
+          sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+          ldconfig
+        else
+          echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
           exit 1
+        fi
+      else
+        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+        exit 1
       fi
     else
       echo "CPLEX already installed."
@@ -122,53 +124,55 @@ EOL
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
-      echo "Installing Gurobi..."
-      GUROBI_ROOT="/opt/gurobi"
-      if [ ! -d "$GUROBI_ROOT" ]; then
-          cd /opt
-          GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
-          curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
-          tar -xvf "$GUROBI_INSTALLER"
-          rm "$GUROBI_INSTALLER"
-          mv ./gurobi1003 "$GUROBI_ROOT"
-          export GUROBI_HOME="${GUROBI_ROOT}/linux64"
-          export PATH="${PATH}:${GUROBI_HOME}/bin"
-          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-          sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-          ldconfig
-      else
-          echo "Gurobi already installed."
-      fi
+    echo "Installing Gurobi..."
+    GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
+    if [ ! -d "$GUROBI_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
+      curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
+      tar -xvf "$GUROBI_INSTALLER"
+      rm "$GUROBI_INSTALLER"
+      mv ./gurobi1003 "$GUROBI_ROOT"
+      export GUROBI_HOME="${GUROBI_ROOT}/linux64"
+      export PATH="${PATH}:${GUROBI_HOME}/bin"
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+      sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+      ldconfig
+    else
+      echo "Gurobi already installed."
+    fi
   fi
 
   # Install SCIP
   echo "Installing SCIP..."
-  SCIP_ROOT="/opt/scip"
+  SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
+    if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q gfortran libtbb-dev
-      cd /opt
-      SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
-      curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
-      chmod u+x "$SCIP_INSTALLER"
-      ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
-      rm "$SCIP_INSTALLER"
-      sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
-      ldconfig
+    fi
+    cd "$INSTALL_ROOT"
+    SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
+    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
+    chmod u+x "$SCIP_INSTALLER"
+    ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
+    rm "$SCIP_INSTALLER"
+    sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
+    ldconfig
   else
       echo "SCIP already installed."
   fi
 
   # Install HiGHS
   echo "Installing HiGHS..."
-  HiGHS_ROOT=/opt/HiGHS
+  HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
   if [ ! -d "$HiGHS_ROOT" ]; then
-    cd /opt
+    cd "$INSTALL_ROOT"
     git clone https://github.com/ERGO-Code/HiGHS.git
     cd HiGHS
     cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
     cmake --build build
     cmake --install build
-    cd /opt
+    cd "$INSTALL_ROOT"
     sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
     ldconfig
   else
@@ -185,15 +189,15 @@ EOL
     else
       echo "HiGHS already up to date."
     fi
-    cd /opt
+    cd "$INSTALL_ROOT"
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
   apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
-  CoinOr_ROOT=/opt/coin-or
+  CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
-    cd /opt
+    cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
     # Build CoinUtils
@@ -237,21 +241,21 @@ EOL
 
   # Install StOpt
   echo "Installing StOpt..."
-  StOpt_ROOT=/opt/StOpt
+  StOpt_ROOT="${INSTALL_ROOT}/StOpt"
   apt-get install -y -q zlib1g-dev
   if [ ! -d "$StOpt_ROOT" ]; then
-    cd /opt
+    cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
-    mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
+    mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
-    mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
-    cd /opt
+    mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    cd "$INSTALL_ROOT"
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -259,18 +263,18 @@ EOL
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
-      mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
+      mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build
       cmake --install build
-      mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     else
       echo "StOpt already up to date."
     fi
-    cd /opt
+    cd "$INSTALL_ROOT"
   fi
 
   echo "Installation completed successfully on Ubuntu."
@@ -454,14 +458,14 @@ install_on_macos() {
     cd /Library
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
-    mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
+    mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
-    mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     cd /Library
   else
     cd "$StOpt_ROOT"
@@ -470,14 +474,14 @@ install_on_macos() {
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
-      mv ./doc /opt # TODO remove when the doc bug in StOpt will be fixed
+      mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build
       cmake --install build
-      mv /opt/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     else
       echo "StOpt already up to date."
     fi
@@ -516,8 +520,16 @@ case "$OS" in
   if [ -f /etc/lsb-release ]; then
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
+      # Check if the user has sudo access
+      if sudo -n true 2>/dev/null; then
+        HAS_SUDO=1
+        INSTALL_ROOT="/opt"
+      else
+        HAS_SUDO=0
+        INSTALL_ROOT="$(pwd)"
+      fi
       install_on_ubuntu
-      SMSPP_ROOT="/opt/smspp-project"
+      SMSPP_ROOT="$INSTALL_ROOT/smspp-project"
     else
       echo "This script supports Ubuntu only."
       exit 1
