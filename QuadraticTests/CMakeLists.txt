@@ -9,7 +9,7 @@ if (NOT hasParent)
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
-add_executable(quad_test quad_test.cpp)
+add_executable(quad_test test.cpp)
 target_link_libraries(quad_test PRIVATE SMS++::SMS++)
 
 if (TARGET SMS++::MILPSolver)

@@ -67,7 +67,7 @@ MOBJ =  $(SMS++OBJ) $(MILPSOBJ)
 # libraries
 MLIB =  $(SMS++LIB) $(MILPSLIB)
 
-$(DIR)/$(NAME): $(DIR)/quad_test.o $(MOBJ)
+$(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .C + every recursively included .h- - - - -
@@ -80,7 +80,7 @@ MH =    $(SMS++H) $(MILPSH)
 
 # compile command
 
-$(DIR)/quad_test.o: $(DIR)/quad_test.cpp $(MH)
-	$(CC) -c $(DIR)/quad_test.cpp -o $@ $(MINC) $(SW)
+$(DIR)/test.o: $(DIR)/test.cpp $(MH)
+	$(CC) -c $(DIR)/test.cpp -o $@ $(MINC) $(SW)
 
 ############################ End of makefile #################################
