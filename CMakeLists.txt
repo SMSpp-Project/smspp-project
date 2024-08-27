@@ -34,6 +34,10 @@ get_directory_property(hasParent PARENT_DIRECTORY)
 # See: https://cmake.org/cmake/help/latest/manual/ctest.1.html
 include(CTest)
 
+# This adds the cmake directory to the module search paths,
+# allowing us to use our modules.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 # Since we are using the block factory, objects from linked libraries
 # may wrongly appear unused, and by default the linker does not include them,
 # so we have to force the linking.
@@ -68,6 +72,7 @@ add_subdirectory(MCF_MILP)
 add_subdirectory(MMCFBlock)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
+add_subdirectory(QuadraticTests)
 add_subdirectory(ThermalUnitBlock_Solver)
 add_subdirectory(Write-Read)
 
