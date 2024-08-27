@@ -19,9 +19,9 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-CPXMILPSolver # name of 1st Solver
+#CPXMILPSolver # name of 1st Solver
 #GRBMILPSolver # name of 1st Solver
-#SCIPMILPSolver # name of 1st Solver
+SCIPMILPSolver # name of 1st Solver
 #HiGHSMILPSolver # name of 1st Solver
 
 1  # number of ComputeConfig in this BlockSolverConfig
@@ -38,7 +38,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 # now all the integer parameters
 intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
-intRelaxIntVars 1   # Relax Integer variables 
+intRelaxIntVars 1   # Relax Integer variables
 
 # Specific Gurobi parameters
 #NonConvex    2       # Specific Gurobi parameter to solve nonconvex instances
@@ -48,7 +48,7 @@ intRelaxIntVars 1   # Relax Integer variables
 1 # number of double parameters
 
 # Specific Cplex parameters
-CPX_PARAM_TILIM 300  # Time limit
+#CPX_PARAM_TILIM 300  # Time limit
 
 # Specific Gurobi parameters
 #TimeLimit    300     # Time limit
@@ -57,7 +57,7 @@ CPX_PARAM_TILIM 300  # Time limit
 #time_limit    300     # Time limit
 
 # Specific SCIP parameters
-#limits/time    30     # Time limit
+limits/time    30     # Time limit
 
 0 # number of string parameters
 
