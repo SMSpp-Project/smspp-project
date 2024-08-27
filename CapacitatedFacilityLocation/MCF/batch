@@ -26,7 +26,7 @@ for what in ${DATADIR}/txt/ORLib/*.txt; do
 
   for (( seed = 0 ; seed <= maxseed ; seed++ )); do
 
-      printf "[$what c $niter $seed $wchg $rounds]: "
+    printf "[$what c $niter $seed $wchg $rounds]: "
 
     "$CFL_test" $what c $niter $seed $wchg $rounds
 
