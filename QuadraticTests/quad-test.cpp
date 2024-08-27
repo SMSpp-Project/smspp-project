@@ -82,15 +82,15 @@ AbstractBlock * LPBlock;   // the problem expressed as an LP
 /*--------------------------------------------------------------------------*/
 
 template< class T >
-static void Str2Sthg( const char* const str , T &sthg )
+static void Str2Sthg( const char* const str , T& sthg )
 {
  istringstream( str ) >> sthg;
  }
 
 /*--------------------------------------------------------------------------*/
 
-static bool search_opt( std::string file_name , double * opt_value ,
-                          char type ){
+static bool search_opt( std::string file_name , double* opt_value , char type )
+{
   // Read all the available optimal solution from the file list_problems.txt
   std::ifstream file;
   file.open( "available_instances.txt" );
@@ -112,8 +112,8 @@ static bool search_opt( std::string file_name , double * opt_value ,
   bool opt_found = false;
 
   // Now we should be reading lp files name until we reach the END word
-  while( word != "END" ){
-    if( word == file_name ){
+  while( word != "END" ) {
+    if( word == file_name ) {
       // We found the right file
 
       // If we want the optimal value of the continuous relaxation, skip the
@@ -157,11 +157,11 @@ static bool SolveModel( bool is_found , double opt_value )
   else
     LOG1( "No known optimal solution available" << endl );
   
-  if( rtrnLP == Solver::kStopTime ){
+  if( rtrnLP == Solver::kStopTime ) {
     double boundLP = hsLP ? ( slvrLP->get_lb() ) : ( INF );
     LOG1( "Optimization stopped due to time limit." << endl );
 
-    if( opt_value == 0 && abs(foLP) <= 1e-4 ){
+    if( opt_value == 0 && abs(foLP) <= 1e-4 ) {
       LOG1( "The best solution found is " << foLP << endl );
 
       return( true );
@@ -173,8 +173,7 @@ static bool SolveModel( bool is_found , double opt_value )
     if( ( opt_value <= foLP + abs(foLP)*1e-4 && opt_value >= boundLP ) || 
           ( opt_value >= foLP - abs(foLP)*1e-4 && opt_value <= boundLP ) )
       return( true );
-    else
-      return( false );
+    return( false );
   }
   
   if( hsLP ) {
@@ -183,9 +182,8 @@ static bool SolveModel( bool is_found , double opt_value )
    if( is_found && abs( foLP - opt_value ) >= 1e-3 * std::max( double( 1 ) , 
         std::max( abs( foLP ) , abs( opt_value ) ) ) )
     return( false );
-   else
-    return( true );
-   }
+   return( true );
+  }
 
   if( rtrnLP == Solver::kInfeasible ) {
     LOG1( "The model hs been proven to be infeasible" << endl );
@@ -201,9 +199,8 @@ static bool SolveModel( bool is_found , double opt_value )
    
    if( is_found )
       return( false );
-    else
-      return( true );
-   }
+   return( true );
+  }
 
   return( false );
   }
@@ -248,7 +245,7 @@ int main( int argc , char **argv )
 	   return( 1 );
   }
 
- if( argc < 4 ){
+ if( argc < 4 ) {
   // We have to retrieve optimal value, if available
   is_opt_found = search_opt( file_name , &opt_value , type );
  }
