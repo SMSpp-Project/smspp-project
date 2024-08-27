@@ -277,6 +277,8 @@
 
 #include <random>
 
+#include "MILPSolver.h"
+
 #include "BlockSolverConfig.h"
 
 #include "LagBFunction.h"
@@ -1471,6 +1473,8 @@ int main( int argc , char **argv )
  // changed an arbitrary number of inner Blocks
 
  for( Index rep = 0 ; rep < n_repeat * ( SKIP_BEAT + 1 ) ; ) {
+  if( ! AllPassed )
+   break;
 
   p_AB LPTr = nullptr;
   p_AB NDOTr = nullptr;

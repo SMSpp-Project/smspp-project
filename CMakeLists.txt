@@ -28,6 +28,10 @@ project(SMS++_tests
 # Find out if it's being called by the umbrella.
 get_directory_property(hasParent PARENT_DIRECTORY)
 
+# This adds the cmake directory to the module search paths,
+# allowing us to use our modules.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 # ----- Settings ------------------------------------------------------------ #
 # This creates an ENABLE_TESTING option (default: ON) and enables the testing
 # using the ctest executable.
@@ -68,6 +72,7 @@ add_subdirectory(MCF_MILP)
 add_subdirectory(MMCFBlock)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
+add_subdirectory(QuadraticTests)
 add_subdirectory(ThermalUnitBlock_Solver)
 add_subdirectory(Write-Read)
 

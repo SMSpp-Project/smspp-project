@@ -35,6 +35,7 @@ ComputeConfig # exact type of the ComputeConfig object
 
 # now all the integer parameters
 intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
+#intSingleBound 0
 
 0 # number of double parameters
 
