@@ -31,7 +31,7 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-2  # number of integer parameters
+3  # number of integer parameters
 
 # now all the integer parameters
 intLogVerb      0    # log verbosity of the MILPSolver
@@ -47,20 +47,12 @@ CPXPARAM_Threads                        1       # avoid parallel
 #CPXPARAM_MIP_Strategy_HeuristicFreq    -1       # disable heuristic
 #CPXPARAM_LPMethod                       3       # 0 = auto (default), 1 = primal, 2 = dual, 3 = network, 4 = barrier, 5 = sifting, 6 = concurrent
 
-<<<<<<< Updated upstream
 ## All specific GUROBI parameter (uncomment based on Solver)
 #Threads    1       # avoid parallel
 #NodeLimit  0       # only do root node
 #CutPasses  1000000 # enable standard cuts
 #Heuristics 0       # disable heuristic
 #Method     4       # -1 = auto (default), 0 = primal, 1 = dual, 2 = barrier, 3 = barrier + crossover, 4 = network
-=======
-## All specific Gurobi parameter (uncomment based on 1st solver)
-#Threads 1   # avoid parallel
-#NodeLimit 0   # only do root node
-#CutPasses 1000000  # enable standard cuts
-#Heuristics 0 # disable heuristic
->>>>>>> Stashed changes
 
 0 # number of double parameters
 
