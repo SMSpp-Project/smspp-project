@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+DATADIR=./ObjL_ConsC
+TYPE=C
+
+cd ../
+
+for entry in "$DATADIR"/*
+  do
+
+  printf "./quad_test $entry $TYPE: "
+  
+  ./quad_test $entry $TYPE 
+
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
+    exit 1
+  fi
+
+done

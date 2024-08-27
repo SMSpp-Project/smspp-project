@@ -24,7 +24,7 @@ DIR = .
 SW = -O3 -std=c++20 -DNDEBUG -DCLANG_1200_0_32_27_PATCH -Wno-enum-compare -Wno-deprecated-enum-enum-conversion -Wno-deprecated-enum-float-conversion -Wno-deprecated-declarations -ferror-limit=1
 
 # compiler
-CC = clang++
+CC = g++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -50,7 +50,7 @@ clean::
 #include $(SMS++SDR)/lib/makefile-inc
 
 # MCFBlock
-MCFBkSDR = ../../MCFBlock
+MCFBkSDR = ../../mcfblock
 include $(MCFBkSDR)/makefile-c
 
 # LEMONSolver, assuming all dependencies (MCFBlock) are there already
@@ -59,8 +59,13 @@ MCFLESDR = ../../LEMONSolver
 include $(MCFLESDR)/makefile
 
 # MILPSolver
+<<<<<<< Updated upstream
 MILPSSDR = ../../MILPSolver
 include $(MILPSSDR)/makefile-s
+=======
+MILPSSDR = ../../milpsolver
+include $(MILPSSDR)/makefile-c
+>>>>>>> Stashed changes
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 

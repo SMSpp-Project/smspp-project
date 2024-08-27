@@ -83,6 +83,9 @@ intLogVerb     0     # LogVerb, log verbosity of the MILPSolver
 
 0 # number of double parameters
 
+# Specific SCIP parameters
+#limits/time    30     # Time limit
+
 # now all the double parameters
 # [none]
 

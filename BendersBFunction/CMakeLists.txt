@@ -24,6 +24,7 @@ if (TARGET SMS++::MCFBlock)
 
 
     add_executable(BendersBFunction_test2 test2.cpp)
+    set_source_files_properties( test2.cpp PROPERTIES COMPILE_FLAGS "-g" )
 
     if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
         target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::BundleSolver)
