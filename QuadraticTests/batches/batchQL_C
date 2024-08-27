@@ -3,14 +3,13 @@
 DATADIR=./ObjQ_ConsL
 TYPE=C
 
-cd ../
+quad_test=${1:-./quad_test}
 
-for entry in "$DATADIR"/*
-  do
+for entry in "$DATADIR"/*; do
 
   printf "./quad_test $entry $TYPE: "
-  
-  ./quad_test $entry $TYPE 
+
+  "$quad_test" $entry $TYPE
 
   retVal=$?
   if [ $retVal -ne 0 ]; then

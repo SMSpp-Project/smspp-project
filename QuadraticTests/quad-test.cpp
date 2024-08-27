@@ -187,7 +187,7 @@ static bool SolveModel( bool is_found , double opt_value )
     return( true );
    }
 
-  if( ( rtrnLP == Solver::kInfeasible ) ) {
+  if( rtrnLP == Solver::kInfeasible ) {
     LOG1( "The model hs been proven to be infeasible" << endl );
 
     if( is_found )
@@ -196,7 +196,7 @@ static bool SolveModel( bool is_found , double opt_value )
       return( true );
     }
 
-  if( ( rtrnLP == Solver::kUnbounded ) ) {
+  if( rtrnLP == Solver::kUnbounded ) {
    LOG1( "The model hs been proven to be unbounded" << endl );
    
    if( is_found )
