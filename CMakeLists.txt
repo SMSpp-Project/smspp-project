@@ -28,15 +28,15 @@ project(SMS++_tests
 # Find out if it's being called by the umbrella.
 get_directory_property(hasParent PARENT_DIRECTORY)
 
+# This adds the cmake directory to the module search paths,
+# allowing us to use our modules.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 # ----- Settings ------------------------------------------------------------ #
 # This creates an ENABLE_TESTING option (default: ON) and enables the testing
 # using the ctest executable.
 # See: https://cmake.org/cmake/help/latest/manual/ctest.1.html
 include(CTest)
-
-# This adds the cmake directory to the module search paths,
-# allowing us to use our modules.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Since we are using the block factory, objects from linked libraries
 # may wrongly appear unused, and by default the linker does not include them,
