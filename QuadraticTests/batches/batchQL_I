@@ -5,11 +5,11 @@ TYPE=I
 
 quad_test=${1:-./quad_test}
 
-for entry in "$DATADIR"/*; do
+for what in "$DATADIR"/*; do
 
-  printf "./quad_test $entry $TYPE: "
+  printf "[$what $TYPE]: "
 
-  "$quad_test" $entry $TYPE
+  "$quad_test" $what $TYPE
 
   retVal=$?
   if [ $retVal -ne 0 ]; then
