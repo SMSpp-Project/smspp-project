@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-par=../BSPar-2S.txt
+par=BSPar-2S.txt
 
 LDS_UC_test=${1:-./LDS_UC_test}
 
