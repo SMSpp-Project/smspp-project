@@ -5,11 +5,11 @@
  * Main for testing the capacity of an AbstractBlock to solve a quadratic 
  * problem.
  *
- * \author Enrico calandrini \n
+ * \author Enrico Calandrini \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * \copyright &copy; by Enrico calandrini
+ * \copyright &copy; by Enrico Calandrini
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
