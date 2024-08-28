@@ -82,9 +82,11 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-25 # number of integer parameters
+26 # number of integer parameters
 
 # now all the integer parameters
+int_InnerS_WVarSCfg  0  # use first Configuration in the "cache"
+#intDoEasy  15      # do not do easy components even for LagBFunction
 intDoEasy  0      # do not do easy components even for LagBFunction
 intMaxIter 10000  # MaxIter, max number of iterations for each call
 intMaxThread 8	   # MaxThread, max number of new tasks to spawn
@@ -172,16 +174,24 @@ str_LagBF_BSCfg	LPBSCfg-K-CX.txt   # BlockSolverConfig for the LagBFunctions
 
 # now all the vector-of-int parameters
 # [none]
+#vintNoEasy
+#20
+#20 21 22 23 24 25 26 27 28 29
+#30 31 32 33 34 35 36 37 38 39
 
 0 # number of vector-of-double parameters
 
 # now all the vector-of-double parameters
 # [none]
 
-0 # number of vector-of-string parameters
+1 # number of vector-of-string parameters
 
 # now all the vector-of-string parameters
 # [none]
+vstr_LDSl_Cfg
+1  # number of elements
+# now all the elements
+GetInnerVarSolConfig.txt
 
 # pointer to the "extra" Configuration
 * # [none]

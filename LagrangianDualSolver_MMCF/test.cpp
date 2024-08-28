@@ -212,23 +212,30 @@ static void PrintSol( CDASolver * slvr , bool first ,
  // start: reduced costs extraction
 
  if( wprnt & 1 ) {
-  slvr->get_dual_solution();
+  // for the second Solver only, read a Configuration for
+  // get_dual_solution( ) from file
+  Configuration * cfg = nullptr;
+  if( ! first )
+   cfg = Configuration::deserialize( "GetDualSolConfig.txt" );
 
-  ofstream solutionsFile( "./redCosts/" + name + "Sol-redCosts.dat" );
+  slvr->get_dual_solution( cfg );
+  delete cfg;
+
+  ofstream dualFile( "./redCosts/" + name + "-Dual.txt" );
   for( Index k = 0 ; k < TestBlock->get_NComm() ; ++k ) {
    for( Index i = 0 ; i < TestBlock->get_NNodes() ; ++i )
-    solutionsFile << TestBlock->get_potential( k , i ) << " ";
-   solutionsFile << "\n";
+    dualFile << TestBlock->get_potential( k , i ) << " ";
+   dualFile << "\n";
    }
 
-  solutionsFile.close();
+  dualFile.close();
   }
   
  // primal solution extraction 
  if( wprnt & 2 ) {
   slvr->get_var_solution();
 
-  ofstream primalFile( "./primals/" + name + "-Prim.dat" );
+  ofstream primalFile( "./primals/" + name + "-Prim.txt" );
   for( Index k = 0 ; k < TestBlock->get_NComm() ; ++k ) {
    for( Index i = 0 ; i < TestBlock->get_NArcs() ; ++i  )
     primalFile << TestBlock->get_flow( k , i ) << " ";
