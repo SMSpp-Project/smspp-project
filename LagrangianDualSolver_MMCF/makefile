@@ -90,8 +90,9 @@ include $(LgDSLVSDR)/makefile
 
 # LEMONSolver, assuming all dependencies (MCFBlock) are there already
 # (comment out if not required)
-MCFLESDR = ../../LEMONSolver
-include $(MCFLESDR)/makefile
+# note: -std=c++20 is required if this is included
+#MCFLESDR = ../../LEMONSolver
+#include $(MCFLESDR)/makefile
 
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
