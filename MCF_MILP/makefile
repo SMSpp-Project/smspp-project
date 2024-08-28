@@ -73,6 +73,7 @@ include $(MCFBkSDR)/makefile-c
 
 # LEMONSolver, assuming all dependencies (MCFBlock) are there already
 # (comment out if not required)
+# note: -std=c++20 is required if this is included
 MCFLESDR = ../../LEMONSolver
 include $(MCFLESDR)/makefile
 
