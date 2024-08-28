@@ -1,19 +1,31 @@
-# ----- Test ---------------------------------------------------------------- #
+# ----- Requirements -------------------------------------------------------- #
+# If it's not being called by the umbrella, we need to
+# look for the system-installed libraries.
+if (NOT hasParent)
+    # Blocks
+    find_package(MMCFBlock)
+    find_package(MMCFClass)
+    # Solvers
+    find_package(BundleSolver)
+    find_package(MILPSolver)
+endif ()
+
+# ----- Tests --------------------------------------------------------------- #
 if (TARGET SMS++::MMCFBlock AND
-    TARGET SMS++::BundleSolver AND
-    TARGET SMS++::MILPSolver AND
     TARGET MMCFClass)
 
     add_subdirectory(MMCFClass)
-    add_executable(MMCF_test)
 
-    target_sources(MMCF_test PRIVATE main.cpp)
-
+    add_executable(MMCF_test main.cpp)
     target_link_libraries(MMCF_test PRIVATE
-                          SMS++::BundleSolver
-                          SMS++::MILPSolver
                           SMS++::MMCFBlock
                           MMCFClass)
+
+    if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
+        target_link_libraries(MMCF_test PRIVATE SMS++::BundleSolver)
+    elseif (TARGET SMS++::MILPSolver)
+        target_link_libraries(MMCF_test PRIVATE SMS++::MILPSolver)
+    endif ()
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")

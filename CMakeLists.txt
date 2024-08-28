@@ -28,6 +28,10 @@ project(SMS++_tests
 # Find out if it's being called by the umbrella.
 get_directory_property(hasParent PARENT_DIRECTORY)
 
+# This adds the cmake directory to the module search paths,
+# allowing us to use our modules.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 # ----- Settings ------------------------------------------------------------ #
 # This creates an ENABLE_TESTING option (default: ON) and enables the testing
 # using the ctest executable.
@@ -54,28 +58,7 @@ else ()
     endif ()
 endif ()
 
-# ----- Policies ----------------------------------------------------------- #
-# Introduced in 3.19 to handle arbitrary characters in test names
-# See: https://cmake.org/cmake/help/latest/policy/CMP0110.html
-if (POLICY CMP0110)
-    cmake_policy(SET CMP0110 NEW)
-endif ()
-
-# ----- Requirements -------------------------------------------------------- #
-# If it's not being called by the umbrella, we need to
-# look for the system-installed libraries.
-if (NOT hasParent)
-    find_package(BinaryKnapsackBlock)
-    find_package(BundleSolver)
-    find_package(CapacitatedFacilityLocation)
-    find_package(LagrangianDualSolver)
-    find_package(MCFBlock)
-    find_package(MILPSolver)
-    find_package(MMCFBlock)
-    find_package(UCBlock)
-endif ()
-
-# ----- Subdirectories ------------------------------------------------------ #
+# ----- Tests --------------------------------------------------------------- #
 add_subdirectory(BendersBFunction)
 add_subdirectory(BinaryKnapsackBlock)
 add_subdirectory(BoxSolver)
@@ -84,11 +67,15 @@ add_subdirectory(LagBFunction)
 add_subdirectory(LagrangianDualSolver_Box)
 add_subdirectory(LagrangianDualSolver_MMCF)
 add_subdirectory(LagrangianDualSolver_UC)
+add_subdirectory(LukFiBlock)
 add_subdirectory(MCF_MILP)
 add_subdirectory(MMCFBlock)
 add_subdirectory(PolyhedralFunction)
 add_subdirectory(PolyhedralFunctionBlock)
+add_subdirectory(QuadraticTests)
 add_subdirectory(ThermalUnitBlock_Solver)
 add_subdirectory(Write-Read)
+
+add_subdirectory(compare_formulations)
 
 # --------------------------------------------------------------------------- #
