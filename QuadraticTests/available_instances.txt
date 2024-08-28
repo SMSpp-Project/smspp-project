@@ -36,7 +36,7 @@
 ./ObjQ_ConsL/QPLib_0633.lp                    79.56070622                      79.57917
 ./ObjQ_ConsL/QPLib_0752.lp                    24071.0                          24025.1719
 ./ObjQ_ConsL/QPLib_2315.lp                    -29432.0                         -25105.0
-./ObjQ_ConsL/QPLib_2353.lp                    -1674.0                          -927.125
+./ObjQ_ConsL/QPLib_2353.lp                    -1674.0                          -1674.0
 ./ObjQ_ConsL/QPLib_2357.lp                    -647.0                           -642.0
 ./ObjQ_ConsL/QPLib_2359.lp                    -648.0                           -647.99998902
 ./ObjQ_ConsL/QPLib_2492.lp                    2724.0                           2656.5535647
