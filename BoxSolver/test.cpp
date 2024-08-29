@@ -101,7 +101,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 0
+#define SKIP_BEAT 3
 
 /*--------------------------------------------------------------------------*/
 
