@@ -41,9 +41,9 @@
  * Block save those in the last level (the leaves) has NUMBER_SONS sub-Block.
  */
 
-#define NUMBER_LEVELS 1
+#define NUMBER_LEVELS 2
 
-#define NUMBER_SONS 3
+#define NUMBER_SONS 5
 
 /*--------------------------------------------------------------------------*/
 /* if nonzero, quadratic terms are always >= 0 when minimizing and <= 0 when
@@ -101,7 +101,7 @@
 // SKIP_BEAT + 1, so that the input parameter still dictates the number of
 // Block solutions
 
-#define SKIP_BEAT 3
+#define SKIP_BEAT 0
 
 /*--------------------------------------------------------------------------*/
 
