@@ -41,9 +41,9 @@
  * Block save those in the last level (the leaves) has NUMBER_SONS sub-Block.
  */
 
-#define NUMBER_LEVELS 1
+#define NUMBER_LEVELS 2
 
-#define NUMBER_SONS 3
+#define NUMBER_SONS 5
 
 /*--------------------------------------------------------------------------*/
 /* if nonzero, quadratic terms are always >= 0 when minimizing and <= 0 when
@@ -306,6 +306,16 @@ static void set_bounds( BoxConstraint & b )
    if( u < 1 ) u = 1;
    }
  #endif
+ // if the variable is integer, round the bounds to integer values: some
+ // solvers do that in different ways for non-integer bounds, which can
+ // create inconsistencies and make tests fail
+ if( x->is_integer() ) {
+  if( l > -INF )
+   l = std::ceil( l );
+  if( u < INF )
+   u = std::floor( u );
+  }
+
  if( l > -INF )                // if a LB is generated
   b.set_lhs( l );              // set it
  if( u < INF )                 // if an UB is generated
