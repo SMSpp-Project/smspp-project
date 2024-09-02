@@ -432,7 +432,7 @@ if (Test-Path $SMSPP_ROOT)
 else
 {
     Write-Host "Repository not found locally. Cloning SMSpp..."
-    git clone -b develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+    git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
     Set-Location $SMSPP_ROOT
 }
 

@@ -579,9 +579,9 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
     # Check if the script is being executed on a server without display or interactive terminal
     if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
       # no way to use ccmake interactively to choose submodules, so download it all
-      git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     else
-      git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     fi
     cd "$SMSPP_ROOT"
   fi
