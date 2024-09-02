@@ -242,7 +242,7 @@ EOL
     ./coinbrew build Osi "${osi_build_flags[@]}"
     # Build Clp
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-    rm -R coinbrew build CoinUtils Osi Clp
+    rm -Rf coinbrew build CoinUtils Osi Clp
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
     if [ "$HAS_SUDO" -eq 1 ]; then
       sh -c "echo '$CoinOr_ROOT/lib' > /etc/ld.so.conf.d/coin-or.conf"
@@ -459,7 +459,7 @@ install_on_macos() {
     ./coinbrew build Osi "${osi_build_flags[@]}"
     # Build Clp
     ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
-    rm -R coinbrew build CoinUtils Osi Clp
+    rm -Rf coinbrew build CoinUtils Osi Clp
     export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
   else
     echo "COIN-OR already installed."
@@ -564,102 +564,105 @@ case "$OS" in
   ;;
 esac
 
-# Install SMSpp
-echo "Compiling SMSpp..."
+# Skip compilation if running in a GitLab CI/CD Docker container
+if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
+  # Install SMSpp
+  echo "Compiling SMSpp..."
 
-# Check if the SMSpp repository already exists
-if [ -d "$SMSPP_ROOT" ]; then
-  cd "$SMSPP_ROOT"
-  echo "SMSpp already exists. Pulling latest changes..."
-  git pull
-else
-  echo "Repository not found locally. Cloning SMSpp..."
+  # Check if the SMSpp repository already exists
+  if [ -d "$SMSPP_ROOT" ]; then
+    cd "$SMSPP_ROOT"
+    echo "SMSpp already exists. Pulling latest changes..."
+    git pull
+  else
+    echo "Repository not found locally. Cloning SMSpp..."
+    # Check if the script is being executed on a server without display or interactive terminal
+    if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
+      # no way to use ccmake interactively to choose submodules, so download it all
+      git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    else
+      git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    fi
+    cd "$SMSPP_ROOT"
+  fi
+
+  # If the operating system is Ubuntu and HAS_SUDO is 0, update the makefile-paths
+  if [[ "$OS" == "Linux" && -f /etc/lsb-release ]]; then
+    . /etc/lsb-release
+    if [[ "$DISTRIB_ID" == "Ubuntu" && "$HAS_SUDO" -eq 0 ]]; then
+      extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
+      # Create the file with the new paths of the resources
+      {
+        echo "CPLEX_ROOT = ${CPLEX_ROOT}"
+        echo "SCIP_ROOT = ${SCIP_ROOT}"
+        echo "GUROBI_ROOT = ${GUROBI_ROOT}"
+        echo "HiGHS_ROOT = ${HiGHS_ROOT}"
+        echo "StOpt_ROOT = ${StOpt_ROOT}"
+        echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
+        echo "Osi_ROOT = ${CoinOr_ROOT}"
+        echo "Clp_ROOT = ${CoinOr_ROOT}"
+      } > "$extlib_file"
+      echo "Created $extlib_file file."
+    fi
+  fi
+
+  # Build Debug
+  cmake -S . -B cmake-build-debug \
+        -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
-    # no way to use ccmake interactively to choose submodules, so download it all
-    git clone -b develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-  else
-    git clone -b develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-  fi
-  cd "$SMSPP_ROOT"
-fi
-
-# If the operating system is Ubuntu and HAS_SUDO is 0, update the makefile-paths
-if [[ "$OS" == "Linux" && -f /etc/lsb-release ]]; then
-  . /etc/lsb-release
-  if [[ "$DISTRIB_ID" == "Ubuntu" && "$HAS_SUDO" -eq 0 ]]; then
-    extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
-    # Create the file with the new paths of the resources
-    {
-      echo "CPLEX_ROOT = ${CPLEX_ROOT}"
-      echo "SCIP_ROOT = ${SCIP_ROOT}"
-      echo "GUROBI_ROOT = ${GUROBI_ROOT}"
-      echo "HiGHS_ROOT = ${HiGHS_ROOT}"
-      echo "StOpt_ROOT = ${StOpt_ROOT}"
-      echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
-      echo "Osi_ROOT = ${CoinOr_ROOT}"
-      echo "Clp_ROOT = ${CoinOr_ROOT}"
-    } > "$extlib_file"
-    echo "Created $extlib_file file."
-  fi
-fi
-
-# Build Debug
-cmake -S . -B cmake-build-debug \
-      -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
-      -DCMAKE_BUILD_TYPE=Debug \
-      -Wno-dev
-# Check if the script is being executed on a server without display or interactive terminal
-if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
-  # no way to use ccmake interactively to choose submodules, so build it all
-  cmake --build cmake-build-debug --config Debug
-  cmake --install cmake-build-debug --config Debug
-  #cd cmake-build-debug
-  #ctest -V -C Debug
-  #cd "$SMSPP_ROOT"
-else
-  # run ccmake in a xterm subshell to allow interaction
-  xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
-  wait $! # wait for ccmake to finish
-  CCMAKE_EXIT_CODE=$?
-  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+    # no way to use ccmake interactively to choose submodules, so build it all
     cmake --build cmake-build-debug --config Debug
     cmake --install cmake-build-debug --config Debug
     #cd cmake-build-debug
     #ctest -V -C Debug
     #cd "$SMSPP_ROOT"
   else
-    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-    exit 1
+    # run ccmake in a xterm subshell to allow interaction
+    xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
+    wait $! # wait for ccmake to finish
+    CCMAKE_EXIT_CODE=$?
+    if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+      cmake --build cmake-build-debug --config Debug
+      cmake --install cmake-build-debug --config Debug
+      #cd cmake-build-debug
+      #ctest -V -C Debug
+      #cd "$SMSPP_ROOT"
+    else
+      echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+      exit 1
+    fi
   fi
-fi
 
-# Build Release
-cmake -S . -B cmake-build-release \
-      -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
-      -DCMAKE_BUILD_TYPE=Release \
-      -Wno-dev
-# Check if the script is being executed on a server without display or interactive terminal
-if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
-  # no way to use ccmake interactively to choose submodules, so build it all
-  cmake --build cmake-build-release --config Release
-  cmake --install cmake-build-release --config Release
-  #cd cmake-build-release
-  #ctest -V -C Release
-  #cd "$SMSPP_ROOT"
-else
-  # run ccmake in a xterm subshell to allow interaction
-  xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
-  wait $! # wait for ccmake to finish
-  CCMAKE_EXIT_CODE=$?
-  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+  # Build Release
+  cmake -S . -B cmake-build-release \
+        -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -Wno-dev
+  # Check if the script is being executed on a server without display or interactive terminal
+  if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
+    # no way to use ccmake interactively to choose submodules, so build it all
     cmake --build cmake-build-release --config Release
     cmake --install cmake-build-release --config Release
     #cd cmake-build-release
     #ctest -V -C Release
     #cd "$SMSPP_ROOT"
   else
-    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-    exit 1
+    # run ccmake in a xterm subshell to allow interaction
+    xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
+    wait $! # wait for ccmake to finish
+    CCMAKE_EXIT_CODE=$?
+    if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+      cmake --build cmake-build-release --config Release
+      cmake --install cmake-build-release --config Release
+      #cd cmake-build-release
+      #ctest -V -C Release
+      #cd "$SMSPP_ROOT"
+    else
+      echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+      exit 1
+    fi
   fi
 fi
