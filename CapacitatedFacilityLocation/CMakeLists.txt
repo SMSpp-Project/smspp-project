@@ -22,9 +22,11 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
         target_link_libraries(CFL_test PRIVATE SMS++::LagrangianDualSolver)
     endif ()
 
-    if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
+    if (TARGET SMS++::BundleSolver)
         target_link_libraries(CFL_test PRIVATE SMS++::BundleSolver)
-    elseif (TARGET SMS++::MILPSolver)
+    endif ()
+
+    if (TARGET SMS++::MILPSolver)
         target_link_libraries(CFL_test PRIVATE SMS++::MILPSolver)
     endif ()
 

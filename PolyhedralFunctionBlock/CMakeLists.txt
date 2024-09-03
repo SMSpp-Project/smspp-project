@@ -13,12 +13,12 @@ endif ()
 add_executable(PolyhedralFunctionBlock_test test.cpp)
 target_link_libraries(PolyhedralFunctionBlock_test PRIVATE SMS++::SMS++)
 
-if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
-    target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
-                          SMS++::BundleSolver)
-elseif (TARGET SMS++::MILPSolver)
-    target_link_libraries(PolyhedralFunctionBlock_test PRIVATE
-                          SMS++::MILPSolver)
+if (TARGET SMS++::BundleSolver)
+    target_link_libraries(PolyhedralFunctionBlock_test PRIVATE SMS++::BundleSolver)
+endif ()
+
+if (TARGET SMS++::MILPSolver)
+    target_link_libraries(PolyhedralFunctionBlock_test PRIVATE SMS++::MILPSolver)
 endif ()
 
 # Add a test for each batch file

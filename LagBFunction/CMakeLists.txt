@@ -13,9 +13,11 @@ endif ()
 add_executable(LagBFunction_test test.cpp)
 target_link_libraries(LagBFunction_test PRIVATE SMS++::SMS++)
 
-if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
+if (TARGET SMS++::BundleSolver)
     target_link_libraries(LagBFunction_test PRIVATE SMS++::BundleSolver)
-elseif (TARGET SMS++::MILPSolver)
+endif ()
+
+if (TARGET SMS++::MILPSolver)
     target_link_libraries(LagBFunction_test PRIVATE SMS++::MILPSolver)
 endif ()
 

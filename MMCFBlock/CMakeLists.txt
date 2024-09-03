@@ -21,9 +21,11 @@ if (TARGET SMS++::MMCFBlock AND
                           SMS++::MMCFBlock
                           MMCFClass)
 
-    if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
+    if (TARGET SMS++::BundleSolver)
         target_link_libraries(MMCF_test PRIVATE SMS++::BundleSolver)
-    elseif (TARGET SMS++::MILPSolver)
+    endif ()
+
+    if (TARGET SMS++::MILPSolver)
         target_link_libraries(MMCF_test PRIVATE SMS++::MILPSolver)
     endif ()
 

@@ -15,9 +15,11 @@ if (TARGET SMS++::LukFiBlock)
     add_executable(LukFi_test main.cpp)
     target_link_libraries(LukFi_test PRIVATE SMS++::LukFiBlock)
 
-    if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
+    if (TARGET SMS++::BundleSolver)
         target_link_libraries(LukFi_test PRIVATE SMS++::BundleSolver)
-    elseif (TARGET SMS++::MILPSolver)
+    endif ()
+
+    if (TARGET SMS++::MILPSolver)
         target_link_libraries(LukFi_test PRIVATE SMS++::MILPSolver)
     endif ()
 endif ()

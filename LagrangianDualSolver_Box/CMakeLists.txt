@@ -18,9 +18,11 @@ if (TARGET SMS++::LagrangianDualSolver)
     target_link_libraries(LDS_Box_test PRIVATE SMS++::LagrangianDualSolver)
 endif ()
 
-if (TARGET SMS++::BundleSolver) # includes SMS+::MILPSolver
+if (TARGET SMS++::BundleSolver)
     target_link_libraries(LDS_Box_test PRIVATE SMS++::BundleSolver)
-elseif (TARGET SMS++::MILPSolver)
+endif ()
+
+if (TARGET SMS++::MILPSolver)
     target_link_libraries(LDS_Box_test PRIVATE SMS++::MILPSolver)
 endif ()
 
