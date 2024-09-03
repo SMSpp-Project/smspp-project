@@ -26,6 +26,7 @@
 #    Note: you need to rebuild and upload the image only when this file       #
 #          changes, not when SMS++ changes.                                   #
 #                                                                             #
+#                              Niccolo' Iardella                              #
 #                                Donato Meoli                                 #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
