@@ -18,6 +18,7 @@ if (TARGET SMS++::MCFBlock)
 
     if (TARGET SMS++::BundleSolver)
         target_link_libraries(BendersBFunction_test PRIVATE SMS++::BundleSolver)
+    endif ()
 
     if (TARGET SMS++::MILPSolver)
         target_link_libraries(BendersBFunction_test PRIVATE SMS++::MILPSolver)
