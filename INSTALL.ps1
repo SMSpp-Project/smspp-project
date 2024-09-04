@@ -185,7 +185,7 @@ if ($OS -eq "Win32NT")
                 Start-Process -FilePath $CPLEX_INSTALLER -Wait
                 Remove-Item $CPLEX_INSTALLER
                 # Move "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
-                # spaces in the next when building coin COIN-OR Osi with Cplex interface
+                # spaces in the next when building COIN-OR Osi with Cplex interface
                 Move-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM"
                 Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
                 # Update the system PATH to ensure the SMS++ exe can correctly locate the cplex*.dll file
