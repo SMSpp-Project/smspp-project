@@ -212,9 +212,9 @@ or:
 ```sh
 # Unix (from a shell with administrative privileges)
 # using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
 # using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
 ```
 
 Otherwise, if you are already inside the cloned repository, you can run the

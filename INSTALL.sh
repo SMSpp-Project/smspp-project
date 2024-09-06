@@ -38,14 +38,14 @@
 #             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
 #
 #     Using `wget`:
 #         If you want to install SMS++ with all dependencies:
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo --without-cplex --without-gurobi bash
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Ubuntu
