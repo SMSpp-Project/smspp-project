@@ -593,24 +593,22 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
     cd "$SMSPP_ROOT"
   fi
 
-  # If the operating system is Ubuntu and HAS_SUDO is 0, update the makefile-paths
-  if [[ "$OS" == "Linux" && -f /etc/lsb-release ]]; then
-    . /etc/lsb-release
-    if [[ "$DISTRIB_ID" == "Ubuntu" && "$HAS_SUDO" -eq 0 ]]; then
-      extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
-      # Create the file with the new paths of the resources
-      {
-        echo "CPLEX_ROOT = ${CPLEX_ROOT}"
-        echo "SCIP_ROOT = ${SCIP_ROOT}"
-        echo "GUROBI_ROOT = ${GUROBI_ROOT}"
-        echo "HiGHS_ROOT = ${HiGHS_ROOT}"
-        echo "StOpt_ROOT = ${StOpt_ROOT}"
-        echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
-        echo "Osi_ROOT = ${CoinOr_ROOT}"
-        echo "Clp_ROOT = ${CoinOr_ROOT}"
-      } > "$extlib_file"
-      echo "Created $extlib_file file."
-    fi
+  # If the installation root is not the default one, update the makefile-paths
+  if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
+        ("$OS" == "Darwin" && "$INSTALL_ROOT" != "/Library") ]]; then
+    extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
+    # Create the file with the new paths of the resources
+    {
+      echo "CPLEX_ROOT = ${CPLEX_ROOT}"
+      echo "SCIP_ROOT = ${SCIP_ROOT}"
+      echo "GUROBI_ROOT = ${GUROBI_ROOT}"
+      echo "HiGHS_ROOT = ${HiGHS_ROOT}"
+      echo "StOpt_ROOT = ${StOpt_ROOT}"
+      echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
+      echo "Osi_ROOT = ${CoinOr_ROOT}"
+      echo "Clp_ROOT = ${CoinOr_ROOT}"
+    } > "$extlib_file"
+    echo "Created $extlib_file file."
   fi
 
   # Build Debug
