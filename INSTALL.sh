@@ -9,6 +9,7 @@
 #     on Unix-based systems. If not already present, it clones the smspp-project
 #     repositories, then builds and installs them.
 #
+#     You can use the `--install-root=<your-custom-path>` option to specify your custom installation root.
 #     You can use the `--without-cplex` option to skip the installation of CPLEX.
 #     You can use the `--without-gurobi` option to skip the installation of Gurobi.
 #
@@ -25,27 +26,27 @@
 #
 #     or:
 #
-#         ./INSTALL.sh --without-cplex
+#         ./INSTALL.sh --install-root=<your-custom-path> --without-cplex
 #     if you do not have a CPLEX license.
 #
-#         ./INSTALL.sh --without-gurobi
+#         ./INSTALL.sh --install-root=<your-custom-path> --without-gurobi
 #     if you do not have a Gurobi license.
 #
 #     If you have not yet cloned the SMS++ repository, you can run the script directly:
 #
 #     Using `curl`:
 #         If you want to install SMS++ with all dependencies:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 #
 #     Using `wget`:
 #         If you want to install SMS++ with all dependencies:
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Ubuntu

@@ -177,7 +177,7 @@ These instructions will let you build the projects on your local machine.
 ### Requirements
 
 If you are new to SMS++ and you are looking for a zero-waste way to install all
-dependencies in the default locations, we suggest you to use the ad-hoc INSTALL
+dependencies in the default locations, we suggest to use the ad-hoc INSTALL
 files.
 
 If you have not yet cloned the SMS++ repository, you can launch the script directly:
@@ -193,9 +193,9 @@ or:
 ```sh
 # Unix (from a shell with administrative privileges)
 # using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 # using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 ```
 
 If you do not have a license for CPLEX and/or Gurobi, or if you just want to
@@ -212,9 +212,9 @@ or:
 ```sh
 # Unix (from a shell with administrative privileges)
 # using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi bash
 # using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi bash
 ```
 
 Otherwise, if you are already inside the cloned repository, you can run the
