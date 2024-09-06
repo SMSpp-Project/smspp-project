@@ -177,7 +177,7 @@ These instructions will let you build the projects on your local machine.
 ### Requirements
 
 If you are new to SMS++ and you are looking for a zero-waste way to install all
-dependencies in the default locations, we suggest to use the ad-hoc INSTALL
+dependencies in the default locations, we suggest using the ad-hoc INSTALL
 files.
 
 If you have not yet cloned the SMS++ repository, you can launch the script directly:
@@ -197,6 +197,9 @@ curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo b
 # using  wget
 wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 ```
+
+if not specified, the default installation root path is `/opt` for Linux (or
+`$HOME` if the current user is not sudoer), and `/Library` for macOS.
 
 If you do not have a license for CPLEX and/or Gurobi, or if you just want to
 install SMS++ without them, you can run:
@@ -379,7 +382,7 @@ e.g., the [MMCFBlock](https://gitlab.com/smspp/mmcfblock),
 If you need support, you want to submit bugs or propose a new feature for an
 individual module, see the *Getting help* section for that module.
 
-If you need support on the project installation you can check out the
+If you need support on the project installation, you can check out the
 [installation
 guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
 or the [troubleshooting
