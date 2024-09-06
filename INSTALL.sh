@@ -332,9 +332,9 @@ install_on_macos() {
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
-    CPLEX_ROOT="/Applications/CPLEX_Studio"
+    CPLEX_ROOT="/Applications/CPLEX_Studio" # CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
     if [ ! -d "$CPLEX_ROOT" ]; then
-      cd /Applications
+      cd /Applications # cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.osx.zip"
       # the CPLEX_URL is always given by the same prefix, i.e.:
       # "https://drive.usercontent.google.com/download?id=" +
@@ -363,9 +363,9 @@ install_on_macos() {
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
     echo "Installing Gurobi..."
-    GUROBI_ROOT="/Library/gurobi"
+    GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
     if [ ! -d "$GUROBI_ROOT" ]; then
-      cd /Library
+      cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
       curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
       installer -pkg "$GUROBI_INSTALLER" -target /
@@ -381,10 +381,10 @@ install_on_macos() {
 
   # Install SCIP
   echo "Installing SCIP..."
-  SCIP_ROOT="/Library/scip"
+  SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
     brew install gcc tbb
-    cd /Library
+    cd "$INSTALL_ROOT"
     SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
     chmod u+x "$SCIP_INSTALLER"
@@ -396,15 +396,15 @@ install_on_macos() {
 
   # Install HiGHS
   echo "Installing HiGHS..."
-  HiGHS_ROOT="/Library/HiGHS"
+  HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
   if [ ! -d "$HiGHS_ROOT" ]; then
-    cd /Library
+    cd "$INSTALL_ROOT"
     git clone https://github.com/ERGO-Code/HiGHS.git
     cd HiGHS
     cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
     cmake --build build
     cmake --install build
-    cd /Library
+    cd "$INSTALL_ROOT"
   else
     cd "$HiGHS_ROOT"
     LOCAL=$(git rev-parse @)
@@ -418,15 +418,15 @@ install_on_macos() {
     else
       echo "HiGHS already up to date."
     fi
-    cd /Library
+    cd "$INSTALL_ROOT"
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-  CoinOr_ROOT="/Library/coin-or"
+  CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
     brew install coinutils bz2 lapack openblas
-    cd /Library
+    cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
     # Build CoinUtils
@@ -467,10 +467,10 @@ install_on_macos() {
 
   # Install StOpt
   echo "Installing StOpt..."
-  StOpt_ROOT="/Library/StOpt"
+  StOpt_ROOT="${INSTALL_ROOT}/StOpt"
   if [ ! -d "$StOpt_ROOT" ]; then
     brew install zlib
-    cd /Library
+    cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
     mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
@@ -481,7 +481,7 @@ install_on_macos() {
     cmake --build build
     cmake --install build
     mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
-    cd /Library
+    cd "$INSTALL_ROOT"
   else
     cd "$StOpt_ROOT"
     LOCAL=$(git rev-parse @)
@@ -500,7 +500,7 @@ install_on_macos() {
     else
       echo "StOpt already up to date."
     fi
-    cd /Library
+    cd "$INSTALL_ROOT"
   fi
 
   echo "Installation completed successfully on macOS."
@@ -510,6 +510,9 @@ install_on_macos() {
 # it works even if you use `install_cplex=0` or `install_gurobi=0`
 install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
+
+# Default value for installation root
+install_root=""
 
 # Parse command line arguments
 for arg in "$@"
@@ -521,6 +524,10 @@ do
     ;;
     --without-gurobi)
     install_gurobi=0
+    shift
+    ;;
+    --install-root=*)
+    install_root="${arg#*=}"
     shift
     ;;
     *)
@@ -538,13 +545,12 @@ case "$OS" in
       # Check if the user has sudo access
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
-        INSTALL_ROOT="/opt"
+        INSTALL_ROOT="${install_root:-/opt}"
       else
         HAS_SUDO=0
-        INSTALL_ROOT="${HOME}"
+        INSTALL_ROOT="${install_root:-${HOME}}"
       fi
       install_on_ubuntu
-      SMSPP_ROOT="$INSTALL_ROOT/smspp-project"
     else
       echo "This script supports Ubuntu only."
       exit 1
@@ -555,8 +561,8 @@ case "$OS" in
   fi
   ;;
 "Darwin")
+  INSTALL_ROOT="${install_root:-/Library}"
   install_on_macos
-  SMSPP_ROOT="/Library/smspp-project"
   ;;
 *)
   echo "This script does not support the detected operating system."
@@ -569,6 +575,7 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   # Install SMSpp
   echo "Compiling SMSpp..."
 
+  SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   # Check if the SMSpp repository already exists
   if [ -d "$SMSPP_ROOT" ]; then
     cd "$SMSPP_ROOT"
