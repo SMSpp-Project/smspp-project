@@ -186,18 +186,20 @@ EOL
       ldconfig
     fi
   else
-    cd "$HiGHS_ROOT"
-    git remote update
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse @{u})
-    # if the repository is not up to date
-    if [ "$LOCAL" != "$REMOTE" ]; then
-      git pull
-      cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-      cmake --build build
-      cmake --install build
-    else
-      echo "HiGHS already up to date."
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      cd "$HiGHS_ROOT"
+      git remote update
+      LOCAL=$(git rev-parse @)
+      REMOTE=$(git rev-parse @{u})
+      # if the repository is not up to date
+      if [ "$LOCAL" != "$REMOTE" ]; then
+        git pull
+        cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+        cmake --build build
+        cmake --install build
+      else
+        echo "HiGHS already up to date."
+      fi
     fi
   fi
   cd "$INSTALL_ROOT"
@@ -273,24 +275,26 @@ EOL
     mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     cd "$INSTALL_ROOT"
   else
-    cd "$StOpt_ROOT"
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse @{u})
-    # if the repository is not up to date
-    if [ "$LOCAL" != "$REMOTE" ]; then
-      git pull
-      mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
-      cmake -S . -B build \
-            -DBUILD_PYTHON=OFF \
-            -DBUILD_TEST=OFF \
-            -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-      cmake --build build
-      cmake --install build
-      mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
-    else
-      echo "StOpt already up to date."
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      cd "$StOpt_ROOT"
+      LOCAL=$(git rev-parse @)
+      REMOTE=$(git rev-parse @{u})
+      # if the repository is not up to date
+      if [ "$LOCAL" != "$REMOTE" ]; then
+        git pull
+        mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+        cmake -S . -B build \
+              -DBUILD_PYTHON=OFF \
+              -DBUILD_TEST=OFF \
+              -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
+        cmake --build build
+        cmake --install build
+        mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      else
+        echo "StOpt already up to date."
+      fi
+      cd "$INSTALL_ROOT"
     fi
-    cd "$INSTALL_ROOT"
   fi
 
   echo "Installation completed successfully on Ubuntu."
@@ -547,9 +551,11 @@ case "$OS" in
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
         INSTALL_ROOT="${install_root:-/opt}"
+        SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       else
         HAS_SUDO=0
         INSTALL_ROOT="${install_root:-${HOME}}"
+        SMSPP_ROOT="${HOME}/smspp-project"
       fi
       install_on_ubuntu
     else
@@ -563,6 +569,7 @@ case "$OS" in
   ;;
 "Darwin")
   INSTALL_ROOT="${install_root:-/Library}"
+  SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   install_on_macos
   ;;
 *)
@@ -576,7 +583,6 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   # Install SMSpp
   echo "Compiling SMSpp..."
 
-  SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   # Check if the SMSpp repository already exists
   if [ -d "$SMSPP_ROOT" ]; then
     cd "$SMSPP_ROOT"
