@@ -38,14 +38,14 @@
 #             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi
 #
 #     Using `wget`:
 #         If you want to install SMS++ with all dependencies:
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi bash
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --without-cplex --without-gurobi
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Ubuntu
@@ -332,9 +332,9 @@ install_on_macos() {
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
-    CPLEX_ROOT="/Applications/CPLEX_Studio" # CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
+    CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
     if [ ! -d "$CPLEX_ROOT" ]; then
-      cd /Applications # cd "$INSTALL_ROOT"
+      cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.osx.zip"
       # the CPLEX_URL is always given by the same prefix, i.e.:
       # "https://drive.usercontent.google.com/download?id=" +
