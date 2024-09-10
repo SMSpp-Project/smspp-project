@@ -246,9 +246,9 @@ EOL
     # Build Clp
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -Rf coinbrew build CoinUtils Osi Clp
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
     if [ "$HAS_SUDO" -eq 1 ]; then
-      sh -c "echo '$CoinOr_ROOT/lib' > /etc/ld.so.conf.d/coin-or.conf"
+      sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
       ldconfig
     fi
   else
@@ -465,7 +465,7 @@ install_on_macos() {
     # Build Clp
     ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
     rm -Rf coinbrew build CoinUtils Osi Clp
-    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:$CoinOr_ROOT/lib"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
   else
     echo "COIN-OR already installed."
   fi
