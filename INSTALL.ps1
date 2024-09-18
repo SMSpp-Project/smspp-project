@@ -245,7 +245,7 @@ if ($OS -eq "Win32NT")
         Set-Location $HiGHS_ROOT
         git checkout v1.6.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
         # Build Debug
-        & cmake -S . -B 'build' `
+        & cmake -S . -B 'build' -G 'Visual Studio 16 2022' `
                 '-DFAST_BUILD=ON' `
                 "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                 '-DCMAKE_BUILD_TYPE=Debug' `
@@ -253,7 +253,7 @@ if ($OS -eq "Win32NT")
         & cmake '--build' 'build' '--config' 'Debug'
         & cmake '--install' 'build' '--config' 'Debug'
         # Build Release
-        & cmake -S . -B 'build' `
+        & cmake -S . -B 'build' -G 'Visual Studio 16 2022' `
                 '-DFAST_BUILD=ON' `
                 "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                 '-DCMAKE_BUILD_TYPE=Release' `
@@ -297,7 +297,7 @@ if ($OS -eq "Win32NT")
             git pull
             Write-Host "" # new line
             # Build Debug
-            & cmake -S . -B 'build' `
+            & cmake -S . -B 'build' -G 'Visual Studio 16 2022' `
                     '-DFAST_BUILD=ON' `
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     '-DCMAKE_BUILD_TYPE=Debug' `
@@ -305,7 +305,7 @@ if ($OS -eq "Win32NT")
             & cmake '--build' 'build' '--config' 'Debug'
             & cmake '--install' 'build' '--config' 'Debug'
             # Build Release
-            & cmake -S . -B 'build' `
+            & cmake -S . -B 'build' -G 'Visual Studio 16 2022' `
                     '-DFAST_BUILD=ON' `
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     '-DCMAKE_BUILD_TYPE=Release' `
@@ -437,7 +437,7 @@ else
 }
 
 # Build Debug
-& cmake -S . -B 'cmake-build-debug' `
+& cmake -S . -B 'cmake-build-debug' -G 'Visual Studio 16 2022' `
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
         '-DCMAKE_BUILD_TYPE=Debug' `
         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
@@ -451,7 +451,7 @@ Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # se
 #Set-Location $SMSPP_ROOT
 
 # Build Release
-& cmake -S . -B 'cmake-build-release' `
+& cmake -S . -B 'cmake-build-release' -G 'Visual Studio 16 2022' `
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
         '-DCMAKE_BUILD_TYPE=Release' `
         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
