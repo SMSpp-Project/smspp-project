@@ -75,6 +75,7 @@ if (MSVC)
         "C4706" # assignment within conditional expression
         "C4717"
         "C4804"
+        "C4834"
         "C4858"
         "C4996" # The POSIX name for this item is deprecated.
                 # Instead, use the ISO C and C++ conformant name
