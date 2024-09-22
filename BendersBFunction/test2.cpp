@@ -590,7 +590,7 @@ Solver * build_inner_block_solver() {
  lpbsc->apply( inner_block );
  lpbsc->clear();
 
- auto inner_block_solver = (inner_block->get_registered_solvers()).front();
+ auto inner_block_solver = ( inner_block->get_registered_solvers() ).front();
  
  return( inner_block_solver );
 }
