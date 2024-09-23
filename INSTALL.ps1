@@ -61,6 +61,38 @@ $env:VCPKG_ROOT = "C:\vcpkg"
 
 $STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry"
 
+function Update-EnvironmentVariables
+{
+    param (
+        [string]$oldPattern,
+        [string]$newValue
+    )
+
+    # Escape the old pattern for regex use
+    $escapedPattern = [regex]::Escape($oldPattern)
+
+    # Get all environment variables
+    $envVars = [System.Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::Machine)
+
+    # Iterate over each environment variable
+    foreach ($envVar in $envVars.GetEnumerator())
+    {
+        $envVarName = $envVar.Key
+        $envVarValue = $envVar.Value
+
+        # Check if the environment variable value contains the old pattern
+        if ($envVarValue -match $escapedPattern)
+        {
+            # Replace the old pattern with the new value
+            $newEnvVarValue = $envVarValue -replace $escapedPattern, $newValue
+            # Update the environment variable
+            [System.Environment]::SetEnvironmentVariable($envVarName, $newEnvVarValue, [System.EnvironmentVariableTarget]::Machine)
+            Write-Host "Updated $envVarName"
+        }
+    }
+    Write-Host "All relevant environment variables have been updated."
+}
+
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
 if ($OS -eq "Win32NT")
@@ -384,38 +416,6 @@ else
 {
     Write-Host "This script does not support the detected operating system."
     exit 1
-}
-
-function Update-EnvironmentVariables
-{
-    param (
-        [string]$oldPattern,
-        [string]$newValue
-    )
-
-    # Escape the old pattern for regex use
-    $escapedPattern = [regex]::Escape($oldPattern)
-
-    # Get all environment variables
-    $envVars = [System.Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::Machine)
-
-    # Iterate over each environment variable
-    foreach ($envVar in $envVars.GetEnumerator())
-    {
-        $envVarName = $envVar.Key
-        $envVarValue = $envVar.Value
-
-        # Check if the environment variable value contains the old pattern
-        if ($envVarValue -match $escapedPattern)
-        {
-            # Replace the old pattern with the new value
-            $newEnvVarValue = $envVarValue -replace $escapedPattern, $newValue
-            # Update the environment variable
-            [System.Environment]::SetEnvironmentVariable($envVarName, $newEnvVarValue, [System.EnvironmentVariableTarget]::Machine)
-            Write-Host "Updated $envVarName"
-        }
-    }
-    Write-Host "All relevant environment variables have been updated."
 }
 
 # Install SMSPP
