@@ -31,8 +31,8 @@ if (TARGET SMS++::UCBlock)
         elseif (WIN32)
             add_test(NAME TUDPS_test/${BATCH_NAME}
                      # using Git for Windows that includes Git Bash
-                     COMMAND "C:/Program Files/Git/bin/bash.exe" -c
-                             "${BATCH_FILE} $<TARGET_FILE:TUDPS_test>"
+                     COMMAND "C:/Program Files/Git/bin/bash.exe"
+                             "${BATCH_FILE}" "$<TARGET_FILE:TUDPS_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
     endforeach ()

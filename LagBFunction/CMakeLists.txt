@@ -33,8 +33,8 @@ foreach (BATCH_FILE ${BATCH_FILES})
     elseif (WIN32)
         add_test(NAME LagBFunction_test/${BATCH_NAME}
                  # using Git for Windows that includes Git Bash
-                 COMMAND "C:/Program Files/Git/bin/bash.exe" -c
-                         "${BATCH_FILE} $<TARGET_FILE:LagBFunction_test>"
+                 COMMAND "C:/Program Files/Git/bin/bash.exe"
+                         "${BATCH_FILE}" "$<TARGET_FILE:LagBFunction_test>"
                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif ()
 endforeach ()
