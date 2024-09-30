@@ -441,6 +441,7 @@ else
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
         '-DCMAKE_BUILD_TYPE=Debug' `
         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+        '-DRUN_txt2nc4=ON' '-DRUN_dmx2nc4=ON' `
         '-Wno-dev'
 # run cmake-gui
 Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
@@ -455,6 +456,7 @@ Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # se
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
         '-DCMAKE_BUILD_TYPE=Release' `
         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+        '-DRUN_txt2nc4=ON' '-DRUN_dmx2nc4=ON' `
         '-Wno-dev'
 # run cmake-gui
 Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
