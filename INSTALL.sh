@@ -307,8 +307,12 @@ install_on_macos() {
   echo "Starting the installation process on macOS..."
 
   # Install Homebrew
-  echo "Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if command -v brew >/dev/null 2>&1; then
+    echo "Homebrew already installed."
+  else
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
 
   # Install Xcode Command Line Tools (includes build-essential and clang)
   echo "Installing Xcode Command Line Tools..."
