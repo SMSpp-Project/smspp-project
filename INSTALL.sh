@@ -315,8 +315,12 @@ install_on_macos() {
   fi
 
   # Install Xcode Command Line Tools (includes build-essential and clang)
-  echo "Installing Xcode Command Line Tools..."
-  xcode-select --install
+  if xcode-select -p >/dev/null 2>&1; then
+    echo "Xcode Command Line Tools already installed."
+  else
+    echo "Installing Xcode Command Line Tools..."
+    xcode-select --install
+  fi
 
   # Install basic requirements
   echo "Installing basic requirements..."
