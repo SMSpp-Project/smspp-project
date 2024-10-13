@@ -1,6 +1,6 @@
 # ----- Settings ------------------------------------------------------------ #
 # An option is an ON/OFF user-settable cache variable
-option(RUN_dat2nc4 "Whether ${modName} will run dat2nc4 or not." OFF)
+option(RUN_mnetgen "Whether ${modName} will run mnetgen or not." OFF)
 
 # ----- Requirements -------------------------------------------------------- #
 # If it's not being called by the umbrella, we need to
@@ -19,15 +19,15 @@ add_subdirectory(gen/Mnetgen)
 
 # ----- Custom commands and targets ----------------------------------------- #
 
-if (RUN_dat2nc4)
-    # Custom command to run gen/batch with the dat2nc4 exe if the .generated file does not exist
+if (RUN_mnetgen)
+    # Custom command to run gen/batch with the mnetgen exe if the .generated file does not exist
     if (UNIX)
         add_custom_command(
                 OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
                 COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/gen/genbatch ${CMAKE_CURRENT_BINARY_DIR}/gen/Mnetgen/mnetgen
                 COMMAND echo > ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen
-                COMMENT "Running dat2nc4"
+                COMMENT "Running mnetgen"
                 VERBATIM
         )
     elseif (WIN32)
@@ -38,13 +38,13 @@ if (RUN_dat2nc4)
                 "${CMAKE_CURRENT_SOURCE_DIR}/gen/genbatch" "$<TARGET_FILE:mnetgen>"
                 COMMAND echo > ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen
-                COMMENT "Running dat2nc4"
+                COMMENT "Running mnetgen"
                 VERBATIM
         )
     endif ()
 
     # Create custom targets to run the nc4 generation
-    add_custom_target(run_dat2nc4 ALL
+    add_custom_target(run_mnetgen ALL
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
     )
 endif ()
