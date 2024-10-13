@@ -59,17 +59,17 @@ else ()
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
-#add_subdirectory(BoxSolver)
-#add_subdirectory(LagrangianDualSolver_Box)
+add_subdirectory(BoxSolver)
+add_subdirectory(LagrangianDualSolver_Box)
 
-#add_subdirectory(LagBFunction)
+add_subdirectory(LagBFunction)
 
-#add_subdirectory(PolyhedralFunction)
-#add_subdirectory(PolyhedralFunctionBlock)
+add_subdirectory(PolyhedralFunction)
+add_subdirectory(PolyhedralFunctionBlock)
 
-#add_subdirectory(QuadraticTests)
+add_subdirectory(QuadraticTests)
 
-#add_subdirectory(Write-Read)
+add_subdirectory(Write-Read)
 
 add_subdirectory(BendersBFunction)
 add_subdirectory(MCF_MILP)
