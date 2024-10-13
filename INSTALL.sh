@@ -320,27 +320,28 @@ install_on_macos() {
   else
     echo "Installing Xcode Command Line Tools..."
     xcode-select --install
+    xcode-select --install
   fi
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  brew install cmake git xterm
+  sudo -u $(whoami) brew install cmake git xterm
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
-  brew install boost
+  sudo -u $(whoami) brew install boost
 
   # Install OpenMP
   echo "Installing OpenMP..."
-  brew install libomp
+  sudo -u $(whoami) brew install libomp
 
   # Install Eigen
   echo "Installing Eigen..."
-  brew install eigen
+  sudo -u $(whoami) brew install eigen
 
   # Install NetCDF
   echo "Installing NetCDF..."
-  brew install netcdf
+  sudo -u $(whoami) brew install netcdf
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
@@ -396,7 +397,7 @@ install_on_macos() {
   echo "Installing SCIP..."
   SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
-    brew install gcc tbb
+    sudo -u $(whoami) brew install gcc tbb
     cd "$INSTALL_ROOT"
     SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
@@ -438,7 +439,7 @@ install_on_macos() {
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
   CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
-    brew install coinutils bz2 lapack openblas
+    sudo -u $(whoami) brew install coinutils bz2 lapack openblas
     cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
@@ -482,7 +483,7 @@ install_on_macos() {
   echo "Installing StOpt..."
   StOpt_ROOT="${INSTALL_ROOT}/StOpt"
   if [ ! -d "$StOpt_ROOT" ]; then
-    brew install zlib
+    sudo -u $(whoami) brew install zlib
     cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
