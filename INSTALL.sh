@@ -631,7 +631,7 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   cmake -S . -B cmake-build-debug \
         -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
         -DCMAKE_BUILD_TYPE=Debug \
-        -DRUN_txt2nc4=ON -DRUN_dmx2nc4=ON -DRUN_dat2nc4=ON \
+        -DRUN_txt2nc4=ON -DRUN_dmx2nc4=ON -DRUN_mnetgen=ON \
         -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
@@ -662,7 +662,7 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   cmake -S . -B cmake-build-release \
         -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DRUN_txt2nc4=ON -DRUN_dmx2nc4=ON -DRUN_dat2nc4=ON \
+        -DRUN_txt2nc4=ON -DRUN_dmx2nc4=ON -DRUN_mnetgen=ON \
         -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
