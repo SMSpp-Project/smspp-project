@@ -320,28 +320,27 @@ install_on_macos() {
   else
     echo "Installing Xcode Command Line Tools..."
     xcode-select --install
-    xcode-select --install
   fi
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  sudo -u $(whoami) brew install cmake git xterm
+  brew install cmake git xterm
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
-  sudo -u $(whoami) brew install boost
+  brew install boost
 
   # Install OpenMP
   echo "Installing OpenMP..."
-  sudo -u $(whoami) brew install libomp
+  brew install libomp
 
   # Install Eigen
   echo "Installing Eigen..."
-  sudo -u $(whoami) brew install eigen
+  brew install eigen
 
   # Install NetCDF
   echo "Installing NetCDF..."
-  sudo -u $(whoami) brew install netcdf
+  brew install netcdf
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
@@ -358,10 +357,10 @@ install_on_macos() {
       uuid=$(curl -sL "$CPLEX_URL" | grep -oP 'name="uuid" value="\K[^"]+')
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        tar -xvf "$CPLEX_INSTALLER"
+        sudo tar -xvf "$CPLEX_INSTALLER"
         # TODO
         rm "$CPLEX_INSTALLER"
-        mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
+        sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
         export CPLEX_HOME="${CPLEX_ROOT}"
         export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
@@ -382,9 +381,9 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
       curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
-      installer -pkg "$GUROBI_INSTALLER" -target /
+      sudo installer -pkg "$GUROBI_INSTALLER" -target /
       rm "$GUROBI_INSTALLER"
-      mv ./gurobi1003 "$GUROBI_ROOT"
+      sudo mv ./gurobi1003 "$GUROBI_ROOT"
       export GUROBI_HOME="$GUROBI_ROOT"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
@@ -397,7 +396,7 @@ install_on_macos() {
   echo "Installing SCIP..."
   SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
-    sudo -u $(whoami) brew install gcc tbb
+    brew install gcc tbb
     cd "$INSTALL_ROOT"
     SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
@@ -439,7 +438,7 @@ install_on_macos() {
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
   CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
-    sudo -u $(whoami) brew install coinutils bz2 lapack openblas
+    brew install coinutils bz2 lapack openblas
     cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
@@ -483,7 +482,7 @@ install_on_macos() {
   echo "Installing StOpt..."
   StOpt_ROOT="${INSTALL_ROOT}/StOpt"
   if [ ! -d "$StOpt_ROOT" ]; then
-    sudo -u $(whoami) brew install zlib
+    brew install zlib
     cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
