@@ -28,6 +28,7 @@ if (RUN_mnetgen)
                 COMMAND echo > ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen
                 COMMENT "Running mnetgen"
+                VERBATIM
         )
     elseif (WIN32)
         add_custom_command(
@@ -38,6 +39,7 @@ if (RUN_mnetgen)
                 COMMAND echo > ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen
                 COMMENT "Running mnetgen"
+                VERBATIM
         )
     endif ()
 
