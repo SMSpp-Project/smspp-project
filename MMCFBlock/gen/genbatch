@@ -14,4 +14,3 @@ curl -SsL http://groups.di.unipi.it/optimize/Data/MMCF/JLF.tgz | tar -zxvC ../da
 # Use Mnetgen to generate other MMCF problems
 cd Mnetgen || exit
 ./batch "$mnetgen"
-make clean
