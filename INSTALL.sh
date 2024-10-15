@@ -358,7 +358,6 @@ install_on_macos() {
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         sudo tar -xvf "$CPLEX_INSTALLER"
-        # TODO
         rm "$CPLEX_INSTALLER"
         sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
         export CPLEX_HOME="${CPLEX_ROOT}"
@@ -630,7 +629,6 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   cmake -S . -B cmake-build-debug \
         -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
         -DCMAKE_BUILD_TYPE=Debug \
-        -DRUN_txt2nc4=ON -DRUN_dmx2nc4=ON -DRUN_mnetgen=ON \
         -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
@@ -661,7 +659,6 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   cmake -S . -B cmake-build-release \
         -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DRUN_txt2nc4=ON -DRUN_dmx2nc4=ON -DRUN_mnetgen=ON \
         -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
