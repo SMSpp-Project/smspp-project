@@ -554,8 +554,8 @@ case "$OS" in
   if [ -f /etc/lsb-release ]; then
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = "Ubuntu" ]; then
-      # Check if the user is in the sudo group
-      if groups "$USER" | grep -q '\bsudo\b'; then
+      # Check if the user has sudo access
+      if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
         INSTALL_ROOT="${install_root:-/opt}"
         SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
