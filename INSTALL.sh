@@ -16,6 +16,9 @@
 # AUTHOR
 #     Donato Meoli
 #
+# NOTES
+#     Ensure that you run this script with administrative privileges.
+#
 # EXAMPLES
 #     If you are inside the cloned repository:
 #
@@ -33,17 +36,17 @@
 #
 #     Using `curl`:
 #         If you want to install SMS++ with all dependencies:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path>
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 #
 #     Using `wget`:
 #         If you want to install SMS++ with all dependencies:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
 #
 #         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Ubuntu
@@ -55,24 +58,24 @@ install_on_ubuntu() {
   if [ "$HAS_SUDO" -eq 1 ]; then
     # Update packages and install basic requirements
     echo "Updating system and installing basic requirements..."
-    sudo apt-get update -q
-    sudo apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl xterm
+    apt-get update -q
+    apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl xterm
 
     # Install Boost libraries
     echo "Installing Boost libraries..."
-    sudo apt-get install -y -q libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+    apt-get install -y -q libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
 
     # Install OpenMP
     echo "Installing OpenMP..."
-    sudo apt-get install -y -q libomp-dev
+    apt-get install -y -q libomp-dev
 
     # Install Eigen
     echo "Installing Eigen..."
-    sudo apt-get install -y -q libeigen3-dev
+    apt-get install -y -q libeigen3-dev
 
     # Install NetCDF-C++
     echo "Installing NetCDF-C++..."
-    sudo apt-get install -y -q libnetcdf-c++4-dev
+    apt-get install -y -q libnetcdf-c++4-dev
   fi
 
   # Install CPLEX
@@ -90,26 +93,26 @@ install_on_ubuntu() {
       uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        sudo chmod u+x "$CPLEX_INSTALLER"
+        chmod u+x "$CPLEX_INSTALLER"
         cat <<EOL > installer.properties
 INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-        sudo ./"$CPLEX_INSTALLER" -f ./installer.properties &
+        ./$CPLEX_INSTALLER -f ./installer.properties &
         wait $! # wait for CPLEX installer to finish
         INSTALLER_EXIT_CODE=$?
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-          sudo rm "$CPLEX_INSTALLER" installer.properties
-          #sudo mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
+          rm "$CPLEX_INSTALLER" installer.properties
+          #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
           if [ "$HAS_SUDO" -eq 1 ]; then
-            sudo sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
-            sudo ldconfig
+            sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+            ldconfig
           else
-            sudo rm -R javasharedresources
+            rm -R javasharedresources
           fi
         else
           echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
@@ -132,15 +135,15 @@ EOL
       cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
       curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
-      sudo tar -xvf "$GUROBI_INSTALLER"
-      sudo rm "$GUROBI_INSTALLER"
-      sudo mv ./gurobi1003 "$GUROBI_ROOT"
+      tar -xvf "$GUROBI_INSTALLER"
+      rm "$GUROBI_INSTALLER"
+      mv ./gurobi1003 "$GUROBI_ROOT"
       export GUROBI_HOME="${GUROBI_ROOT}/linux64"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
       if [ "$HAS_SUDO" -eq 1 ]; then
-        sudo sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
-        sudo ldconfig
+        sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
+        ldconfig
       fi
     else
       echo "Gurobi already installed."
@@ -152,17 +155,17 @@ EOL
   SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
     if [ "$HAS_SUDO" -eq 1 ]; then
-      sudo apt-get install -y -q gfortran libtbb-dev
+      apt-get install -y -q gfortran libtbb-dev
     fi
     cd "$INSTALL_ROOT"
     SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
-    sudo chmod u+x "$SCIP_INSTALLER"
-    sudo ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
-    sudo rm "$SCIP_INSTALLER"
+    chmod u+x "$SCIP_INSTALLER"
+    ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
+    rm "$SCIP_INSTALLER"
     if [ "$HAS_SUDO" -eq 1 ]; then
-      sudo sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
-      sudo ldconfig
+      sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
+      ldconfig
     fi
   else
       echo "SCIP already installed."
@@ -179,8 +182,8 @@ EOL
     cmake --build build
     cmake --install build
     if [ "$HAS_SUDO" -eq 1 ]; then
-      sudo sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
-      sudo ldconfig
+      sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
+      ldconfig
     fi
   else
     if [ "$HAS_SUDO" -eq 1 ]; then
@@ -204,13 +207,13 @@ EOL
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
   if [ "$HAS_SUDO" -eq 1 ]; then
-    sudo apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+    apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
   fi
   CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
     cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-    sudo chmod u+x coinbrew
+    chmod u+x coinbrew
     # Build CoinUtils
     ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX
@@ -242,11 +245,11 @@ EOL
     ./coinbrew build Osi "${osi_build_flags[@]}"
     # Build Clp
     ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-    sudo rm -Rf coinbrew build CoinUtils Osi Clp
+    rm -Rf coinbrew build CoinUtils Osi Clp
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
     if [ "$HAS_SUDO" -eq 1 ]; then
-      sudo sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
-      sudo ldconfig
+      sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
+      ldconfig
     fi
   else
     echo "COIN-OR already installed."
@@ -256,20 +259,20 @@ EOL
   echo "Installing StOpt..."
   StOpt_ROOT="${INSTALL_ROOT}/StOpt"
   if [ "$HAS_SUDO" -eq 1 ]; then
-    sudo apt-get install -y -q zlib1g-dev
+    apt-get install -y -q zlib1g-dev
   fi
   if [ ! -d "$StOpt_ROOT" ]; then
     cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
-    sudo mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+    mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
-    sudo mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     cd "$INSTALL_ROOT"
   else
     if [ "$HAS_SUDO" -eq 1 ]; then
@@ -279,14 +282,14 @@ EOL
       # if the repository is not up to date
       if [ "$LOCAL" != "$REMOTE" ]; then
         git pull
-        sudo mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+        mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
         cmake -S . -B build \
               -DBUILD_PYTHON=OFF \
               -DBUILD_TEST=OFF \
               -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
         cmake --build build
         cmake --install build
-        sudo mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+        mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
       else
         echo "StOpt already up to date."
       fi
@@ -355,7 +358,7 @@ install_on_macos() {
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         sudo tar -xvf "$CPLEX_INSTALLER"
-        sudo rm "$CPLEX_INSTALLER"
+        rm "$CPLEX_INSTALLER"
         sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
         export CPLEX_HOME="${CPLEX_ROOT}"
         export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
@@ -378,7 +381,7 @@ install_on_macos() {
       GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
       curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
       sudo installer -pkg "$GUROBI_INSTALLER" -target /
-      sudo rm "$GUROBI_INSTALLER"
+      rm "$GUROBI_INSTALLER"
       sudo mv ./gurobi1003 "$GUROBI_ROOT"
       export GUROBI_HOME="$GUROBI_ROOT"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
@@ -396,9 +399,9 @@ install_on_macos() {
     cd "$INSTALL_ROOT"
     SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
-    sudo chmod u+x "$SCIP_INSTALLER"
-    sudo ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
-    sudo rm "$SCIP_INSTALLER"
+    chmod u+x "$SCIP_INSTALLER"
+    ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
+    rm "$SCIP_INSTALLER"
   else
     echo "SCIP already installed."
   fi
@@ -437,7 +440,7 @@ install_on_macos() {
     brew install coinutils bz2 lapack openblas
     cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-    sudo chmod u+x coinbrew
+    chmod u+x coinbrew
     # Build CoinUtils
     ./coinbrew fetch CoinUtils --no-prompt
     # Build Osi with or without CPLEX
@@ -468,7 +471,7 @@ install_on_macos() {
     ./coinbrew build Osi "${osi_build_flags[@]}"
     # Build Clp
     ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
-    sudo rm -Rf coinbrew build CoinUtils Osi Clp
+    rm -Rf coinbrew build CoinUtils Osi Clp
     export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
   else
     echo "COIN-OR already installed."
@@ -482,14 +485,14 @@ install_on_macos() {
     cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
-    sudo mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
+    mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
-    sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     cd "$INSTALL_ROOT"
   else
     cd "$StOpt_ROOT"
@@ -498,14 +501,14 @@ install_on_macos() {
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
-      sudo mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
+      mv ./doc /Library # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build
       cmake --install build
-      sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     else
       echo "StOpt already up to date."
     fi
