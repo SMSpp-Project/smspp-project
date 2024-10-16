@@ -90,7 +90,7 @@ install_on_ubuntu() {
       # the id code suffix in the Drive sharing link, i.e.:
       # https://drive.google.com/file/d/ 12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x /view?usp=sharing
       CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
-      uuid=$(curl -sL "$CPLEX_URL" | grep -oP 'name="uuid" value="\K[^"]+')
+      uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         chmod u+x "$CPLEX_INSTALLER"
@@ -354,7 +354,7 @@ install_on_macos() {
       # the id code suffix in the Drive sharing link, i.e.:
       # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
       CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
-      uuid=$(curl -sL "$CPLEX_URL" | grep -oP 'name="uuid" value="\K[^"]+')
+      uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         sudo tar -xvf "$CPLEX_INSTALLER"
