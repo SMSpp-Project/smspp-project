@@ -47,6 +47,9 @@ if (RUN_mnetgen)
     add_custom_target(run_mnetgen ALL
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
     )
+
+    # Ensure that run_txt2nc4 is executed after the build
+    add_dependencies(run_mnetgen mnetgen)
 endif ()
 
 # ----- Tests --------------------------------------------------------------- #
