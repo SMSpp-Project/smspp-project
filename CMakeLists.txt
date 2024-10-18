@@ -171,10 +171,13 @@ endif ()
 
 # ----- Initialize submodules ------------------------------------------------ #
 macro(init_submodule name)
-	execute_process(
-			COMMAND git submodule update --init --recursive ${name}
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	)
+	# if the submodule is not initialized...
+	if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}/CMakeLists.txt")
+		execute_process(
+				COMMAND git submodule update --init --recursive ${name}
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		)
+	endif ()
 endmacro()
 
 # ----- Subprojects --------------------------------------------------------- #
