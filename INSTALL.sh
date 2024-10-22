@@ -358,11 +358,19 @@ install_on_macos() {
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
         sudo tar -xvf "$CPLEX_INSTALLER"
-        rm "$CPLEX_INSTALLER"
-        sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
-        export CPLEX_HOME="${CPLEX_ROOT}"
-        export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
-        export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+        sudo ./cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx &
+        wait $! # wait for CPLEX installer to finish
+        INSTALLER_EXIT_CODE=$?
+        if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
+          rm "$CPLEX_INSTALLER"
+          sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
+          export CPLEX_HOME="${CPLEX_ROOT}"
+          export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
+          export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+        else
+          echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
+          exit 1
+        fi
       else
         echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
         exit 1
