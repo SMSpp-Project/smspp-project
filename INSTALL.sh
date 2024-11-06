@@ -343,42 +343,42 @@ install_on_macos() {
   brew install netcdf
 
   # Install CPLEX
-  if [ "$install_cplex" -eq 1 ]; then
-    echo "Installing CPLEX..."
-    CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
-    if [ ! -d "$CPLEX_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      CPLEX_INSTALLER="cplex_studio2211.osx.zip"
-      # the CPLEX_URL is always given by the same prefix, i.e.:
-      # "https://drive.usercontent.google.com/download?id=" +
-      # the id code suffix in the Drive sharing link, i.e.:
-      # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
-      CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
-      uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
-      if [ -n "$uuid" ]; then
-        curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        sudo tar -xvf "$CPLEX_INSTALLER"
-        sudo ./cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx &
-        wait $! # wait for CPLEX installer to finish
-        INSTALLER_EXIT_CODE=$?
-        if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-          rm "$CPLEX_INSTALLER"
-          sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
-          export CPLEX_HOME="${CPLEX_ROOT}"
-          export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
-          export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+    if [ "$install_cplex" -eq 1 ]; then
+      echo "Installing CPLEX..."
+      CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
+      if [ ! -d "$CPLEX_ROOT" ]; then
+        cd "$INSTALL_ROOT"
+        CPLEX_INSTALLER="cplex_studio2211.osx.zip"
+        # the CPLEX_URL is always given by the same prefix, i.e.:
+        # "https://drive.usercontent.google.com/download?id=" +
+        # the id code suffix in the Drive sharing link, i.e.:
+        # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
+        CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
+        uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
+        if [ -n "$uuid" ]; then
+          curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+          sudo tar --no-same-owner --no-same-permissions -xvf "$CPLEX_INSTALLER"
+          sudo ./cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx &
+          wait $! # wait for CPLEX installer to finish
+          INSTALLER_EXIT_CODE=$?
+          if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
+            rm "$CPLEX_INSTALLER"
+            sudo mv ./CPLEX_Studio2211 "$CPLEX_ROOT"
+            export CPLEX_HOME="${CPLEX_ROOT}"
+            export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
+            export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+          else
+            echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
+            exit 1
+          fi
         else
-          echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
+          echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
           exit 1
         fi
       else
-        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
-        exit 1
+        echo "CPLEX already installed."
       fi
-    else
-      echo "CPLEX already installed."
     fi
-  fi
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
