@@ -500,7 +500,7 @@ install_on_macos() {
           -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
     cmake --build build
     cmake --install build
-    mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+    sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     cd "$INSTALL_ROOT"
   else
     cd "$StOpt_ROOT"
@@ -516,7 +516,7 @@ install_on_macos() {
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build
       cmake --install build
-      mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
     else
       echo "StOpt already up to date."
     fi
