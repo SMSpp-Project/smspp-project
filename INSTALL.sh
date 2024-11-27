@@ -390,7 +390,7 @@ install_on_macos() {
       curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
       sudo installer -pkg "$GUROBI_INSTALLER" -target /
       rm "$GUROBI_INSTALLER"
-      sudo mv /Applications/gurobi1003 "$GUROBI_ROOT"
+      sudo mv /Library/gurobi1003 "$GUROBI_ROOT"
       export GUROBI_HOME="$GUROBI_ROOT"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
