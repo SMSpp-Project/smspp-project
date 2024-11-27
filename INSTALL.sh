@@ -418,6 +418,7 @@ install_on_macos() {
   echo "Installing HiGHS..."
   HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
   if [ ! -d "$HiGHS_ROOT" ]; then
+    brew install bzt
     cd "$INSTALL_ROOT"
     git clone https://github.com/ERGO-Code/HiGHS.git
     cd HiGHS
