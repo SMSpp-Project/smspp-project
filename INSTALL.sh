@@ -493,7 +493,7 @@ install_on_macos() {
     cd "$INSTALL_ROOT"
     git clone https://gitlab.com/stochastic-control/StOpt.git
     cd StOpt
-    mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
+    sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
     cmake -S . -B build \
           -DBUILD_PYTHON=OFF \
           -DBUILD_TEST=OFF \
@@ -509,7 +509,7 @@ install_on_macos() {
     # if the repository is not up to date
     if [ "$LOCAL" != "$REMOTE" ]; then
       git pull
-      mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
+      sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
