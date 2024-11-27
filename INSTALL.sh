@@ -418,7 +418,6 @@ install_on_macos() {
   echo "Installing HiGHS..."
   HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
   if [ ! -d "$HiGHS_ROOT" ]; then
-    brew install bzt
     cd "$INSTALL_ROOT"
     git clone https://github.com/ERGO-Code/HiGHS.git
     cd HiGHS
@@ -446,7 +445,7 @@ install_on_macos() {
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
   CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
   if [ ! -d "$CoinOr_ROOT" ]; then
-    brew install coinutils bz2 lapack openblas
+    brew install coinutils lapack openblas
     cd "$INSTALL_ROOT"
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
