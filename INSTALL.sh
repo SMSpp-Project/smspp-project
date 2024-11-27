@@ -324,7 +324,7 @@ install_on_macos() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  brew install cmake git xterm
+  brew install bash cmake git xterm
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
