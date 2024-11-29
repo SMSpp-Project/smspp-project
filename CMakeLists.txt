@@ -146,10 +146,6 @@ if (BUILD_MMCFBlock)
 	set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
 endif ()
 
-if (BUILD_SDDPBlock)
-	set(BUILD_StochasticBlock ON) # Requires StochasticBlock
-endif ()
-
 if (BUILD_CapacitatedFacilityLocationBlock)
 	set(BUILD_MCFBlock ON) # Requires MCFBlock
 	set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
@@ -158,6 +154,10 @@ endif ()
 if (BUILD_InvestmentBlock)
 	set(BUILD_SDDPBlock ON) # Requires SDDPBlock
 	set(BUILD_UCBlock ON) # Requires UCBlock
+endif ()
+
+if (BUILD_SDDPBlock)
+	set(BUILD_StochasticBlock ON) # Requires StochasticBlock
 endif ()
 
 # Solvers
