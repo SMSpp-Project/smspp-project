@@ -357,8 +357,7 @@ install_on_macos() {
       uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        sudo unzip "$CPLEX_INSTALLER" -d "$HOME/tmp_cplex_install"
-        sudo mv "$HOME/tmp_cplex_install/cplex_studio2211-osx.app" "$INSTALL_ROOT"
+        sudo unzip -o "$CPLEX_INSTALLER" -d "$INSTALL_ROOT"
         sudo "$INSTALL_ROOT/cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx" &
         wait $! # wait for CPLEX installer to finish
         INSTALLER_EXIT_CODE=$?
