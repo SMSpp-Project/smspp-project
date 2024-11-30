@@ -357,13 +357,13 @@ install_on_macos() {
       uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
       if [ -n "$uuid" ]; then
         curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-        sudo unzip -o "$CPLEX_INSTALLER" -d "$INSTALL_ROOT"
-        sudo "$INSTALL_ROOT/cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx" &
+        sudo unzip "$CPLEX_INSTALLER" -d "$INSTALL_ROOT"
+        sudo "${INSTALL_ROOT}/cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx" &
         wait $! # wait for CPLEX installer to finish
         INSTALLER_EXIT_CODE=$?
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
           rm "$CPLEX_INSTALLER"
-          sudo mv /Applications/CPLEX_Studio2211 "$CPLEX_ROOT"
+          sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx/static_pic"
           export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx/static_pic"
