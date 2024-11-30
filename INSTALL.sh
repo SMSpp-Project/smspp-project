@@ -365,8 +365,8 @@ install_on_macos() {
             rm "$CPLEX_INSTALLER"
             sudo mv /Applications/CPLEX_Studio2211 "$CPLEX_ROOT"
             export CPLEX_HOME="${CPLEX_ROOT}"
-            export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx"
-            export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx"
+            export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx/static_pic"
+            export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx/static_pic"
           else
             echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
             exit 1
