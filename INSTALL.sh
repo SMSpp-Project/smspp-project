@@ -82,7 +82,6 @@ install_on_ubuntu() {
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
     CPLEX_ROOT="${INSTALL_ROOT}/ibm/ILOG/CPLEX_Studio"
-    CPLEX_HOME="${CPLEX_ROOT}/cplex"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
@@ -106,7 +105,7 @@ EOL
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
           rm "$CPLEX_INSTALLER" installer.properties
           #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
-          export CPLEX_HOME=$CPLEX_HOME
+          export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
           if [ "$HAS_SUDO" -eq 1 ]; then
@@ -132,7 +131,6 @@ EOL
   if [ "$install_gurobi" -eq 1 ]; then
     echo "Installing Gurobi..."
     GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
-    GUROBI_HOME="${GUROBI_ROOT}/linux64"
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
@@ -140,7 +138,7 @@ EOL
       tar -xvf "$GUROBI_INSTALLER"
       rm "$GUROBI_INSTALLER"
       mv ./gurobi1003 "$GUROBI_ROOT"
-      export GUROBI_HOME=$GUROBI_HOME
+      export GUROBI_HOME="${GUROBI_ROOT}/linux64"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
       if [ "$HAS_SUDO" -eq 1 ]; then
@@ -348,7 +346,6 @@ install_on_macos() {
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
     CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
-    CPLEX_HOME="${CPLEX_ROOT}/cplex"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.osx.zip"
@@ -367,7 +364,7 @@ install_on_macos() {
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
           rm "$CPLEX_INSTALLER"
           sudo mv /Applications/CPLEX_Studio2211 "$CPLEX_ROOT"
-          export CPLEX_HOME=$CPLEX_ROOT
+          export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx/static_pic"
           export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_osx/static_pic"
         else
@@ -387,7 +384,6 @@ install_on_macos() {
   if [ "$install_gurobi" -eq 1 ]; then
     echo "Installing Gurobi..."
     GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
-    GUROBI_HOME="${GUROBI_ROOT}/macos_universal2"
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
@@ -395,7 +391,7 @@ install_on_macos() {
       sudo installer -pkg "$GUROBI_INSTALLER" -target /
       rm "$GUROBI_INSTALLER"
       sudo mv /Library/gurobi1003 "$GUROBI_ROOT"
-      export GUROBI_HOME=$GUROBI_HOME
+      export GUROBI_HOME="${GUROBI_ROOT}/macos_universal2"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
     else
@@ -466,8 +462,8 @@ install_on_macos() {
     else
       osi_build_flags+=(
         "--with-cplex"
-        "--with-cplex-lib=-L${CPLEX_HOME}/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread"
-        "--with-cplex-incdir=${CPLEX_HOME}/include/ilcplex"
+        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread"
+        "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
       )
     fi
     # Build Osi with or without Gurobi
@@ -476,8 +472,8 @@ install_on_macos() {
     else
       osi_build_flags+=(
         "--with-gurobi"
-        "--with-gurobi-lib=-L${GUROBI_HOME}/lib -lgurobi100"
-        "--with-gurobi-incdir=${GUROBI_HOME}/include"
+        "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi100"
+        "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
       )
     fi
     ./coinbrew build Osi "${osi_build_flags[@]}"
