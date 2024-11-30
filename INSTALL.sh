@@ -367,7 +367,7 @@ install_on_macos() {
         wait $! # wait for the installer to finish
         INSTALLER_EXIT_CODE=$?
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-          rm "$CPLEX_INSTALLER"
+          rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
           sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_osx/static_pic"
@@ -468,6 +468,7 @@ install_on_macos() {
       osi_build_flags+=(
         "--with-cplex"
         "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread"
+        "--disable-cplex-libcheck"
         "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
       )
     fi
@@ -478,6 +479,7 @@ install_on_macos() {
       osi_build_flags+=(
         "--with-gurobi"
         "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi100"
+        "--disable-gurobi-libcheck"
         "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
       )
     fi
