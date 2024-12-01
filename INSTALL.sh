@@ -467,7 +467,7 @@ install_on_macos() {
     else
       osi_build_flags+=(
         "--with-cplex"
-        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl -lpthread"
+        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_osx/static_pic -lcplex -lilocplex -lm -ldl"
         "--disable-cplex-libcheck"
         "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
       )
