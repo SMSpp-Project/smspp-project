@@ -222,13 +222,22 @@ EOL
       "--skip-dependencies"
       "--prefix=$CoinOr_ROOT"
       "--tests=none"
+      "--without-metis"
+      "--without-mumps"
+      "--without-cholmod"
+      "--without-lapack"
+      "--without-asl"
+      "--without-glpk"
+      "--without-hsl"
+      "--without-blas"
+      ADD_CFLAGS="--no-warnings"
     )
     if [ "$install_cplex" -eq 0 ]; then
       osi_build_flags+=("--without-cplex")
     else
       osi_build_flags+=(
         "--with-cplex"
-        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lm -ldl -lpthread"
+        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lm"
         "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
       )
     fi
@@ -461,6 +470,15 @@ install_on_macos() {
       "--prefix=$CoinOr_ROOT"
       "--no-prompt"
       "--tests=none"
+      "--without-metis"
+      "--without-mumps"
+      "--without-cholmod"
+      "--without-lapack"
+      "--without-asl"
+      "--without-glpk"
+      "--without-hsl"
+      "--without-blas"
+      ADD_CFLAGS="--no-warnings"
     )
     if [ "$install_cplex" -eq 0 ]; then
       osi_build_flags+=("--without-cplex")
