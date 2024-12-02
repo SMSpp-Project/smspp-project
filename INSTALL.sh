@@ -375,7 +375,7 @@ install_on_macos() {
           wait $! # wait for the installer to finish
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-            rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
+            sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
             sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
             export CPLEX_HOME="${CPLEX_ROOT}/cplex"
             export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}/static_pic"
@@ -408,7 +408,7 @@ install_on_macos() {
           wait $! # wait for the installer to finish
           INSTALLER_EXIT_CODE=$?
           if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-            rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
+            sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
             sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
             export CPLEX_HOME="${CPLEX_ROOT}/cplex"
             export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}/static_pic"
