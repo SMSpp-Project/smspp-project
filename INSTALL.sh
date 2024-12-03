@@ -310,7 +310,7 @@ install_on_macos() {
   if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
     OSX_ARCH="x86-64_osx"
   else # Apple Silicon MX arch
-    OSX_ARCH="arm64"
+    OSX_ARCH="arm64_osx"
   fi
 
   # Install Homebrew
