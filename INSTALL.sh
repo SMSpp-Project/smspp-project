@@ -362,32 +362,7 @@ install_on_macos() {
         # the id code suffix in the Drive sharing link, i.e.:
         # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
         CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
-        uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
-        if [ -n "$uuid" ]; then
-          curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-          # Create a temporary directory to extract the files
-          TEMP_DIR="/tmp/cplex_install"
-          mkdir -p "$TEMP_DIR"
-          # Extract directly into the temporary directory
-          sudo unzip "$CPLEX_INSTALLER" -d "$TEMP_DIR"
-          # Launch the installer
-          sudo "${TEMP_DIR}/cplex_studio2211-osx.app/Contents/MacOS/cplex_studio2211-osx" &
-          wait $! # wait for the installer to finish
-          INSTALLER_EXIT_CODE=$?
-          if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-            sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
-            sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
-            export CPLEX_HOME="${CPLEX_ROOT}/cplex"
-            export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}/static_pic"
-            export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/${OSX_ARCH}/static_pic"
-          else
-            echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
-            exit 1
-          fi
-        else
-          echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
-          exit 1
-        fi
+        CPLEX_NAME="cplex_studio2211-osx"
       else # Apple Silicon MX arch
         CPLEX_INSTALLER="cplex_studio2211.osx.arm64.zip"
         # the CPLEX_URL is always given by the same prefix, i.e.:
@@ -395,32 +370,33 @@ install_on_macos() {
         # the id code suffix in the Drive sharing link, i.e.:
         # https://drive.google.com/file/d/ 1HAEILAjuHXnghVgjQ66jP9sfub-vDq3r /view?usp=sharing
         CPLEX_URL="https://drive.usercontent.google.com/download?id=1HAEILAjuHXnghVgjQ66jP9sfub-vDq3r"
-        uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
-        if [ -n "$uuid" ]; then
-          curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
-          # Create a temporary directory to extract the files
-          TEMP_DIR="/tmp/cplex_install"
-          mkdir -p "$TEMP_DIR"
-          # Extract directly into the temporary directory
-          sudo unzip "$CPLEX_INSTALLER" -d "$TEMP_DIR"
-          # Launch the installer
-          sudo "${TEMP_DIR}/cplex_studio2211-osx-arm64.app/Contents/MacOS/cplex_studio2211-osx-arm64" &
-          wait $! # wait for the installer to finish
-          INSTALLER_EXIT_CODE=$?
-          if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-            sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
-            sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
-            export CPLEX_HOME="${CPLEX_ROOT}/cplex"
-            export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}/static_pic"
-            export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/${OSX_ARCH}/static_pic"
-          else
-            echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
-            exit 1
-          fi
+        CPLEX_NAME="cplex_studio2211-osx-arm64"
+      fi
+      uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
+      if [ -n "$uuid" ]; then
+        curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+        # Create a temporary directory to extract the files
+        TEMP_DIR="/tmp/cplex_install"
+        mkdir -p "$TEMP_DIR"
+        # Extract directly into the temporary directory
+        sudo unzip "$CPLEX_INSTALLER" -d "$TEMP_DIR"
+        # Launch the installer
+        sudo "${TEMP_DIR}/${CPLEX_NAME}.app/Contents/MacOS/${CPLEX_NAME}" &
+        wait $! # wait for the installer to finish
+        INSTALLER_EXIT_CODE=$?
+        if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
+          sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
+          sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
+          export CPLEX_HOME="${CPLEX_ROOT}/cplex"
+          export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}/static_pic"
+          export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/${OSX_ARCH}/static_pic"
         else
-          echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+          echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
           exit 1
         fi
+      else
+        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
+        exit 1
       fi
     else
       echo "CPLEX already installed."
