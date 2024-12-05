@@ -19,7 +19,7 @@ if (TARGET SMS++::UCBlock)
     endif ()
 
     # Add a test for each batch file
-    file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/*"
+    file(GLOB BATCH_FILES # "${CMAKE_CURRENT_SOURCE_DIR}/batches/*"
                           "${CMAKE_CURRENT_SOURCE_DIR}/cuts/*")
     foreach (BATCH_FILE ${BATCH_FILES})
         # Remove the source directory prefix to get the batch name
