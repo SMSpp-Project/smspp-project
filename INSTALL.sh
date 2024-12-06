@@ -347,7 +347,7 @@ install_on_macos() {
 
   # Install NetCDF
   echo "Installing NetCDF..."
-  brew install netcdf netcdf-cxx
+  brew install hdf5 netcdf netcdf-cxx
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
