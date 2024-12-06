@@ -473,11 +473,12 @@ install_on_macos() {
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
     # Build CoinUtils
-    ./coinbrew fetch CoinUtils --no-prompt
+    ./coinbrew fetch CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX
     osi_build_flags=(
+      "--latest-release"
+      "--skip-dependencies"
       "--prefix=$CoinOr_ROOT"
-      "--no-prompt"
       "--tests=none"
     )
     if [ "$install_cplex" -eq 0 ]; then
@@ -503,7 +504,7 @@ install_on_macos() {
     fi
     ./coinbrew build Osi "${osi_build_flags[@]}"
     # Build Clp
-    ./coinbrew build Clp --prefix="$CoinOr_ROOT" --tests=none
+    ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     rm -Rf coinbrew build CoinUtils Osi Clp
     export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
   else
