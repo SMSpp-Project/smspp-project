@@ -130,9 +130,9 @@ endif ()
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	if (UNIX)
 		if (APPLE)
-			if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+			if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64") # Apple Silicon MX arch
 				set(ARCH arm64)
-			else ()
+			else () # Intel arch
 				set(ARCH x86-64)
 			endif ()
 		else ()
