@@ -473,7 +473,7 @@ install_on_macos() {
     curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
     chmod u+x coinbrew
     # Build CoinUtils
-    ./coinbrew fetch CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
+    ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
     # Build Osi with or without CPLEX
     osi_build_flags=(
       "--latest-release"
