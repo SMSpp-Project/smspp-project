@@ -333,13 +333,13 @@ install_on_macos() {
   echo "Installing basic requirements..."
   brew install bash cmake git xterm
 
-  # Install Boost libraries
-  echo "Installing Boost libraries..."
-  brew install boost
-
   # Install OpenMP
   echo "Installing OpenMP..."
-  brew install libomp
+  brew install open-mpi
+
+  # Install Boost libraries
+  echo "Installing Boost libraries..."
+  brew install boost boost-mpi
 
   # Install Eigen
   echo "Installing Eigen..."
@@ -347,7 +347,7 @@ install_on_macos() {
 
   # Install NetCDF
   echo "Installing NetCDF..."
-  brew install netcdf
+  brew install netcdf netcdf-cxx4
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
