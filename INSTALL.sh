@@ -347,7 +347,7 @@ install_on_macos() {
 
   # Install NetCDF
   echo "Installing NetCDF..."
-  brew install netcdf netcdf-cxx4
+  brew install netcdf netcdf-cxx
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
@@ -433,6 +433,8 @@ install_on_macos() {
     chmod u+x "$SCIP_INSTALLER"
     ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
     rm "$SCIP_INSTALLER"
+    export PATH="${PATH}:${SCIP_ROOT}/bin"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
   else
     echo "SCIP already installed."
   fi
@@ -448,6 +450,8 @@ install_on_macos() {
     cmake --build build
     cmake --install build
     cd "$INSTALL_ROOT"
+    export PATH="${PATH}:${HiGHS_ROOT}/bin"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
   else
     cd "$HiGHS_ROOT"
     LOCAL=$(git rev-parse @)
