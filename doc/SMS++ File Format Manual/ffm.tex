@@ -1843,9 +1843,48 @@ Deserialize a \code{DCNetworkData} out of a \code{netCDF::NcGroup}, which should
 %
  \item the \variable \cstr{MaxPowerFlow}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of the variable is assumed to contain the maximum power flow at line $i$ (a non-negative number);
  %
- \item the \variable \cstr{Susceptance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the susceptance of line $i$. Note that this is strictly a positive value.
+ \item the \variable \cstr{LineSusceptance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the susceptance of line $i$. Note that this is a positive value. If all the entries are equal to zero, then the network is a full High-Voltage DC network, and the computation is simplified.
 \end{itemize}
 %
+
+
+\subsubsection{\code{ACNetworkBlock}}
+The \code{ACNetworkBlock} class derives from \code{DCNetworkBlock}, and defines the standard  constraints corresponding to the ``AC model" of the transmission network in the Unit Commitment problem.
+The nonlinear coupling constraints between variables is then tackled through a conic relaxation (second-order cone programming up to now).
+The specific attributes that must be deserialized from a \code{netCDF::NCGroup} are:
+\begin{itemize}
+	%
+ \item the \variable \cstr{LineResistance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the resistance of line $i$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{LineReactance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the reactance of line $i$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{LineRatio}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the ratio of line $i$.
+%
+ \item the \variable \cstr{LineRATEA}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the Rate A of line $i$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{LineShiftAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the shift angle of line $i$.
+%
+ \item the \variable \cstr{LineMinAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the minimum angle of line $i$.
+%
+ \item the \variable \cstr{LineMaxAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the maximum angle of line $i$.
+%
+ \item the \variable \cstr{NodeSusceptance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the susceptance of node $n$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{NodeConductance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the conductance of node $n$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{NodeVoltageMagnitude}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the voltage magnitude of node $n$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{NodeVoltageAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the voltage angle of node $n$.
+%
+ \item the \variable \cstr{NodeMaxVoltage}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the maximum voltage of node $n$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{NodeMinVoltage}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the minimum voltage of node $n$. Note that this is strictly a positive value.
+%
+ \item the \variable \cstr{ReactivePowerDemand}, of type \code{netCDF::NcDouble}, and indexed both over the dimensions \cstr{NumberNodes} and \cstr{TimeHorizon}; the $n$-th entry of this variable is assumed to contain the imaginary part of the demand at node $n$. Note that this is strictly a positive value.
+\end{itemize}
+  \note[Important:]{The units and the definition of the latter variables are aligned with the ones of \textsc{Matpower}\footnotemark[1]
+}
+\footnotetext[1]{see~\url{https://matpower.org/docs/MATPOWER-manual-8.0.pdf}, Appendix B}
 
 \subsubsection  {\code{ECNetworkBlock}}
 The \code{ECNetworkBlock} class, which derives from \code{NetworkBlock} and describe the behaviour of the energy community network at a specific time instant or in a time interval, i.e., a peak period that can span an arbitrary number of sub time horizons, in the Unit Commitment problem.
