@@ -64,7 +64,7 @@ ifeq ($(UNAME_S),Linux)
     libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs $(libHiGHSEXTLIB)
 endif
 ifeq ($(UNAME_S),Darwin)
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs
+    libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -L"$(libHiGHSLIBBSC)" -lhighs
 endif
 ifeq ($(UNAME_S),Windows)
     libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs \
