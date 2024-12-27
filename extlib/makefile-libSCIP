@@ -28,7 +28,7 @@ libSCIPBSCDIR = $(subst $\",,$(SCIP_ROOT))
 ifeq ($(UNAME_S),Windows)
     libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -llibscip -lzimpl -llibsoplex
 else
-    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
+    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex
 endif
 libSCIPINC = -I"$(libSCIPBSCDIR)/include"
 

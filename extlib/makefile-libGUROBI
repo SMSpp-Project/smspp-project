@@ -50,10 +50,10 @@ endif
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Windows)
-    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 \
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi120 \
         -L"$(VCPKG_ROOT)/lib" $(libGUROBIEXTLIB)
 else
-    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi120 $(libGUROBIEXTLIB)
 endif
 libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
