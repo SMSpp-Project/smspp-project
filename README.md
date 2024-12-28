@@ -251,9 +251,10 @@ while developing and testing new code (please do, this is a community project).
 
 In both cases, all external dependencies should be automatically dealt with if
 they are installed in their default paths. These are specified in the `*_ROOT`
-values that are defined in the three files
+values that are defined in the four files
 [`extlib/makefile-default-paths-linux`](extlib/makefile-default-paths-linux),
-[`extlib/makefile-default-paths-macos`](extlib/makefile-default-paths-macos),
+[`extlib/makefile-default-paths-macos-x86_64`](extlib/makefile-default-paths-macos-x86_64),
+[`extlib/makefile-default-paths-macos-arm64`](extlib/makefile-default-paths-macos-arm64),
 and [`extlib/makefile-default-paths-win`](extlib/makefile-default-paths-win)
 for the three major OS families; the one that gets used is automatically
 selected by the build process (both with CMake and the makefiles). If not, the
