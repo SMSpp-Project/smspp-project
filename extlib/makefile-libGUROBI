@@ -47,13 +47,37 @@ ifeq ($(UNAME_S),Windows)
     endif
 endif
 
+# extract Gurobi version
+ifeq ($(UNAME_S),Linux)
+    GUROBI_VERSION := $(shell \
+        ls "$(libGUROBIBSCDIR)/lib" \
+        | grep -E '^libgurobi[0-9]+\.so$$' \
+        | sed -E 's/^libgurobi([0-9]+)\.so$$/\1/' \
+        | head -n1 \
+    )
+    ifeq ($(GUROBI_VERSION),)
+        $(error "No matching Gurobi library (libgurobi[digits].so found in $(libGUROBIBSCDIR)/lib!")
+    endif
+endif
+ifeq ($(UNAME_S),Darwin)
+    GUROBI_VERSION := $(shell \
+        ls "$(libGUROBIBSCDIR)/lib" \
+        | grep -E '^libgurobi[0-9]+\.dylib$$' \
+        | sed -E 's/^libgurobi([0-9]+)\.dylib$$/\1/' \
+        | head -n1 \
+    )
+    ifeq ($(GUROBI_VERSION),)
+        $(error "No matching Gurobi library (libgurobi[digits].dylib) found in $(libGUROBIBSCDIR)/lib!")
+    endif
+endif
+
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Windows)
-    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi120 \
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) \
         -L"$(VCPKG_ROOT)/lib" $(libGUROBIEXTLIB)
 else
-    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi120 $(libGUROBIEXTLIB)
+    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) $(libGUROBIEXTLIB)
 endif
 libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
