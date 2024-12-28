@@ -27,7 +27,7 @@
 	url = https://gitlab.com/smspp/stochasticblock.git
 [submodule "TwoStageStochasticBlock"]
     path = TwoStageStochasticBlock
-    usl = https://gitlab.com/smspp/twostagestochasticblock.git
+    url = https://gitlab.com/smspp/twostagestochasticblock.git
 [submodule "SDDPBlock"]
 	path = SDDPBlock
 	url = https://gitlab.com/smspp/sddpblock.git
