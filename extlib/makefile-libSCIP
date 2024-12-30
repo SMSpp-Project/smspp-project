@@ -25,14 +25,11 @@ libSCIPBSCDIR = $(subst $\",,$(SCIP_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ifeq ($(UNAME_S),Linux)
+    libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
+endif
 ifeq ($(UNAME_S),Darwin)
-#    ifeq ($(UNAME_P),arm)
-     libSCIPLIB = -rpath "$(libSCIPBSCDIR)/lib" -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
-#    else
-#    ??
-#    endif
-else
-     libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
+    libSCIPLIB = -rpath "$(libSCIPBSCDIR)/lib" -L"$(libSCIPBSCDIR)/lib" -lscip -lzimpl -lsoplex -ltbb
 endif
 libSCIPINC = -I"$(libSCIPBSCDIR)/include"
 

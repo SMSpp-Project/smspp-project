@@ -30,8 +30,7 @@ ifeq ($(UNAME_S),Linux)
 	    -L"$(libStOptBSCDIR)/lib/x86_64-linux-gnu" -lboost_timer
 endif
 ifeq ($(UNAME_S),Darwin)
-    libStOptLIB = -L"$(libStOptBSCDIR)/install/lib" -lStOpt -lgeners \
-	    -lboost_timer-mt
+    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners -lboost_timer
 endif
 libStOptINC = -I"$(libStOptBSCDIR)" -I"$(libStOptBSCDIR)/geners-1.11.0"
 
