@@ -103,7 +103,7 @@ MOBJ =  $(SMS++OBJ) $(MILPSOBJ)
 MLIB =  $(SMS++LIB) $(MILPSLIB) \
 	--force-link=__ZTVN17SMSpp_di_unipi_it9BoxSolverE
 
-$(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
+$(DIR)/$(NAME): $(DIR)/test.o $(MOBJ)
 	$(CC) -o $(DIR)/$(NAME) $^ $(MLIB) $(SW)
 
 # dependencies: every .o from its .cpp + every recursively included .h- - - -
