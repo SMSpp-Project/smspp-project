@@ -201,8 +201,8 @@ wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo
 if not specified, the default installation root path is `/opt` for Linux (or
 `$HOME` if the current user is not sudoer), and `/Library` for macOS.
 
-If you do not have a license for CPLEX and/or Gurobi, or if you just want to
-install SMS++ without them, you can run:
+If you do not have a CPLEX and/or Gurobi license, or if you just want to install
+SMS++ without them, you can run:
 
 ```powershell
 # Windows (from a PowerShell with administrative privileges)
@@ -215,9 +215,9 @@ or:
 ```sh
 # Unix (from a shell with administrative privileges)
 # using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi bash
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 # using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi bash
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 ```
 
 Otherwise, if you are already inside the cloned repository, you can run the
