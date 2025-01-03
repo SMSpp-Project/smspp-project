@@ -201,8 +201,8 @@ wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo
 if not specified, the default installation root path is `/opt` for Linux (or
 `$HOME` if the current user is not sudoer), and `/Library` for macOS.
 
-If you do not have a license for CPLEX and/or Gurobi, or if you just want to
-install SMS++ without them, you can run:
+If you do not have a CPLEX and/or Gurobi license, or if you just want to install
+SMS++ without them, you can run:
 
 ```powershell
 # Windows (from a PowerShell with administrative privileges)
@@ -215,9 +215,9 @@ or:
 ```sh
 # Unix (from a shell with administrative privileges)
 # using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi bash
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 # using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi bash
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 ```
 
 Otherwise, if you are already inside the cloned repository, you can run the
@@ -251,9 +251,10 @@ while developing and testing new code (please do, this is a community project).
 
 In both cases, all external dependencies should be automatically dealt with if
 they are installed in their default paths. These are specified in the `*_ROOT`
-values that are defined in the three files
+values that are defined in the four files
 [`extlib/makefile-default-paths-linux`](extlib/makefile-default-paths-linux),
-[`extlib/makefile-default-paths-macos`](extlib/makefile-default-paths-macos),
+[`extlib/makefile-default-paths-macos-x86_64`](extlib/makefile-default-paths-macos-x86_64),
+[`extlib/makefile-default-paths-macos-arm64`](extlib/makefile-default-paths-macos-arm64),
 and [`extlib/makefile-default-paths-win`](extlib/makefile-default-paths-win)
 for the three major OS families; the one that gets used is automatically
 selected by the build process (both with CMake and the makefiles). If not, the

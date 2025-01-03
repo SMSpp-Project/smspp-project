@@ -28,9 +28,6 @@ endif
 ifeq ($(UNAME_S),Darwin)
     libGUROBIEXTLIB =
 endif
-ifeq ($(UNAME_S),Windows)
-    libGUROBIEXTLIB = -lpthreadVC3
-endif
 
 # basic Gurobi directory
 ifeq ($(UNAME_S),Linux)
@@ -39,22 +36,34 @@ endif
 ifeq ($(UNAME_S),Darwin)
     libGUROBIBSCDIR = $(GUROBI_ROOT)
 endif
-ifeq ($(UNAME_S),Windows)
-    ifeq ($(UNAME_P),x86_64)
-        libGUROBIBSCDIR = $(GUROBI_ROOT)/win32
-    else
-         libGUROBIBSCDIR = $(GUROBI_ROOT)/win64
+
+# extract Gurobi version
+ifeq ($(UNAME_S),Linux)
+    GUROBI_VERSION := $(shell \
+        ls "$(libGUROBIBSCDIR)/lib" \
+        | grep -E '^libgurobi[0-9]+\.so$$' \
+        | sed -E 's/^libgurobi([0-9]+)\.so$$/\1/' \
+        | head -n1 \
+    )
+    ifeq ($(GUROBI_VERSION),)
+        $(error "No matching Gurobi library (libgurobi[digits].so found in $(libGUROBIBSCDIR)/lib!")
+    endif
+endif
+ifeq ($(UNAME_S),Darwin)
+    GUROBI_VERSION := $(shell \
+        ls "$(libGUROBIBSCDIR)/lib" \
+        | grep -E '^libgurobi[0-9]+\.dylib$$' \
+        | sed -E 's/^libgurobi([0-9]+)\.dylib$$/\1/' \
+        | head -n1 \
+    )
+    ifeq ($(GUROBI_VERSION),)
+        $(error "No matching Gurobi library (libgurobi[digits].dylib) found in $(libGUROBIBSCDIR)/lib!")
     endif
 endif
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Windows)
-    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 \
-        -L"$(VCPKG_ROOT)/lib" $(libGUROBIEXTLIB)
-else
-    libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi100 $(libGUROBIEXTLIB)
-endif
+libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) $(libGUROBIEXTLIB)
 libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
 ############################# End of makefile ################################

@@ -22,31 +22,39 @@
 # EXAMPLES
 #     If you are inside the cloned repository:
 #
-#         ./INSTALL.sh
+#         ./INSTALL.sh --install-root=<your-custom-path>
 #
 #     or:
 #
-#         ./INSTALL.sh --install-root=<your-custom-path> --without-cplex
-#     if you do not have a CPLEX license.
+#         ./INSTALL.sh --install-root=<your-custom-path> --without-cplex --without-gurobi
 #
-#         ./INSTALL.sh --install-root=<your-custom-path> --without-gurobi
-#     if you do not have a Gurobi license.
+#     if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
 #
 #     If you have not yet cloned the SMS++ repository, you can run the script directly:
 #
 #     Using `curl`:
+#
 #         If you want to install SMS++ with all dependencies:
+#
 #             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 #
-#         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
+#         or:
+#
 #             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 #
-#     Using `wget`:
-#         If you want to install SMS++ with all dependencies:
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash
+#        if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
 #
-#         If you do not have a license for CPLEX and/or Gurobi, or if you just want to install SMS++ without them:
+#     Using `wget`:
+#
+#         If you want to install SMS++ with all dependencies:
+#
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
+#
+#         or:
+#
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
+#
+#         if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Ubuntu
