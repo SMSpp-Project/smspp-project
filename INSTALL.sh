@@ -172,12 +172,10 @@ EOL
     rm "$SCIP_INSTALLER.tgz"
     mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
     cd "$SCIP_ROOT"
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
-    make
-    make check
-    make install
+    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    cmake --build build
+    cmake --install build
+    cd "$INSTALL_ROOT"
     if [ "$HAS_SUDO" -eq 1 ]; then
       sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
       ldconfig
@@ -449,12 +447,10 @@ install_on_macos() {
     rm "$SCIP_INSTALLER.tgz"
     mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
     cd "$SCIP_ROOT"
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
-    make
-    make check
-    make install
+    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    cmake --build build
+    cmake --install build
+    cd "$INSTALL_ROOT"
     export PATH="${PATH}:${SCIP_ROOT}/bin"
     export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
   else
