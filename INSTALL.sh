@@ -166,11 +166,17 @@ EOL
       apt-get install -y -q gfortran libtbb-dev
     fi
     cd "$INSTALL_ROOT"
-    SCIP_INSTALLER="SCIPOptSuite-9.0.0-Linux-ubuntu22.sh"
-    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
-    chmod u+x "$SCIP_INSTALLER"
-    ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
-    rm "$SCIP_INSTALLER"
+    SCIP_INSTALLER="scipoptsuite-9.2.0"
+    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
+    tar xvzf "$SCIP_INSTALLER.tgz"
+    rm "$SCIP_INSTALLER.tgz"
+    cd "$SCIP_INSTALLER"
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    make
+    make check
+    make install
     if [ "$HAS_SUDO" -eq 1 ]; then
       sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
       ldconfig
@@ -436,11 +442,17 @@ install_on_macos() {
   if [ ! -d "$SCIP_ROOT" ]; then
     brew install gcc tbb
     cd "$INSTALL_ROOT"
-    SCIP_INSTALLER="SCIPOptSuite-9.0.0-Darwin.sh"
-    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER"
-    chmod u+x "$SCIP_INSTALLER"
-    ./"$SCIP_INSTALLER" --prefix="$SCIP_ROOT" --exclude-subdir --skip-license
-    rm "$SCIP_INSTALLER"
+    SCIP_INSTALLER="scipoptsuite-9.2.0"
+    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
+    tar xvzf "$SCIP_INSTALLER.tgz"
+    rm "$SCIP_INSTALLER.tgz"
+    cd "$SCIP_INSTALLER"
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    make
+    make check
+    make install
     export PATH="${PATH}:${SCIP_ROOT}/bin"
     export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
   else
