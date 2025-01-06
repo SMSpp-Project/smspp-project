@@ -163,7 +163,12 @@ EOL
   SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q gfortran libtbb-dev libreadline-dev
+      apt-get install -y -q wget cmake g++ m4 xz-utils libgmp-dev unzip zlib1g-dev \
+                            libboost-program-options-dev libboost-serialization-dev \
+                            libboost-regex-dev libboost-iostreams-dev libtbb-dev \
+                            libreadline-dev pkg-config git liblapack-dev libgsl-dev \
+                            flex bison libcliquer-dev gfortran file dpkg-dev \
+                            libopenblas-dev rpm
     fi
     cd "$INSTALL_ROOT"
     SCIP_INSTALLER="scipoptsuite-9.2.0"
