@@ -163,7 +163,7 @@ EOL
   SCIP_ROOT="${INSTALL_ROOT}/scip"
   if [ ! -d "$SCIP_ROOT" ]; then
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q gfortran libtbb-dev
+      apt-get install -y -q gfortran libtbb-dev libreadline-dev
     fi
     cd "$INSTALL_ROOT"
     SCIP_INSTALLER="scipoptsuite-9.2.0"
