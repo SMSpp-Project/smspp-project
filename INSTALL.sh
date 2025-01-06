@@ -170,10 +170,11 @@ EOL
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
     tar xvzf "$SCIP_INSTALLER.tgz"
     rm "$SCIP_INSTALLER.tgz"
-    cd "$SCIP_INSTALLER"
+    mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
+    cd "$SCIP_ROOT"
     mkdir build
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
     make
     make check
     make install
@@ -446,10 +447,11 @@ install_on_macos() {
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
     tar xvzf "$SCIP_INSTALLER.tgz"
     rm "$SCIP_INSTALLER.tgz"
-    cd "$SCIP_INSTALLER"
+    mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
+    cd "$SCIP_ROOT"
     mkdir build
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    cmake .. -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
     make
     make check
     make install
