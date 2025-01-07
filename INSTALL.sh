@@ -661,8 +661,9 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
   # If the installation root is not the default one, update the makefile-paths
   if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
         ("$OS" == "Darwin" && "$INSTALL_ROOT" != "/Library") ]]; then
-    extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
-    # Create the file with the new paths of the resources
+
+    umbrella_extlib_file="$SMSPP_ROOT/extlib/makefile-paths"
+    # Create the file with the new paths of the resources for the umbrella
     {
       echo "CPLEX_ROOT = ${CPLEX_ROOT}"
       echo "SCIP_ROOT = ${SCIP_ROOT}"
@@ -672,8 +673,32 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
       echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
       echo "Osi_ROOT = ${CoinOr_ROOT}"
       echo "Clp_ROOT = ${CoinOr_ROOT}"
-    } > "$extlib_file"
-    echo "Created $extlib_file file."
+    } > "$umbrella_extlib_file"
+    echo "Created $umbrella_extlib_file file."
+
+    # If the submodule BundleSolver is initialized, i.e., the folder is not empty
+    if [ -d "$SMSPP_ROOT/BundleSolver" ] && [ -n "$(ls -A "$SMSPP_ROOT/BundleSolver")" ]; then
+      ndofi_extlib_file="$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib/makefile-paths"
+      # Create the file with the new paths of the resources for BundleSolver/NdoFiOracle
+      {
+        echo "CPLEX_ROOT = ${CPLEX_ROOT}"
+        echo "GUROBI_ROOT = ${GUROBI_ROOT}"
+        echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
+        echo "Osi_ROOT = ${CoinOr_ROOT}"
+        echo "Clp_ROOT = ${CoinOr_ROOT}"
+      } > "$ndofi_extlib_file"
+      echo "Created $ndofi_extlib_file file."
+    fi
+
+    # If the submodule MCFBlock is initialized, i.e., the folder is not empty
+    if [ -d "$SMSPP_ROOT/MCFBlock" ] && [ -n "$(ls -A "$SMSPP_ROOT/MCFBlock")" ]; then
+      mcf_extlib_file="$SMSPP_ROOT/MCFBlock/MCFClass/extlib/makefile-paths"
+      # Create the file with the new paths of the resources for the MCFBlock/MCFClass
+      {
+        echo "CPLEX_ROOT = ${CPLEX_ROOT}"
+      } > "$mcf_extlib_file"
+      echo "Created $mcf_extlib_file file."
+    fi
   fi
 
   # Build SMSpp
