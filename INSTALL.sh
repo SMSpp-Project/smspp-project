@@ -676,59 +676,26 @@ if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
     echo "Created $extlib_file file."
   fi
 
-  # Build Debug
-  cmake -S . -B cmake-build-debug \
-        -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/debug" \
-        -DCMAKE_BUILD_TYPE=Debug \
-        -Wno-dev
+  # Build SMSpp
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
     # no way to use ccmake interactively to choose submodules, so build it all
-    cmake --build cmake-build-debug --config Debug
-    cmake --install cmake-build-debug --config Debug
-    #cd cmake-build-debug
-    #ctest -V -C Debug
+    cmake --build build
+    cmake --install build
+    #cd build
+    #ctest -V
     #cd "$SMSPP_ROOT"
   else
     # run ccmake in a xterm subshell to allow interaction
-    xterm -e ccmake cmake-build-debug & # select submodules, then Configure and Generate the build files
+    xterm -e ccmake build & # select submodules, then Configure and Generate the build files
     wait $! # wait for ccmake to finish
     CCMAKE_EXIT_CODE=$?
     if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
-      cmake --build cmake-build-debug --config Debug
-      cmake --install cmake-build-debug --config Debug
-      #cd cmake-build-debug
-      #ctest -V -C Debug
-      #cd "$SMSPP_ROOT"
-    else
-      echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-      exit 1
-    fi
-  fi
-
-  # Build Release
-  cmake -S . -B cmake-build-release \
-        -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}/release" \
-        -DCMAKE_BUILD_TYPE=Release \
-        -Wno-dev
-  # Check if the script is being executed on a server without display or interactive terminal
-  if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
-    # no way to use ccmake interactively to choose submodules, so build it all
-    cmake --build cmake-build-release --config Release
-    cmake --install cmake-build-release --config Release
-    #cd cmake-build-release
-    #ctest -V -C Release
-    #cd "$SMSPP_ROOT"
-  else
-    # run ccmake in a xterm subshell to allow interaction
-    xterm -e ccmake cmake-build-release & # select submodules, then Configure and Generate the build files
-    wait $! # wait for ccmake to finish
-    CCMAKE_EXIT_CODE=$?
-    if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
-      cmake --build cmake-build-release --config Release
-      cmake --install cmake-build-release --config Release
-      #cd cmake-build-release
-      #ctest -V -C Release
+      cmake --build build
+      cmake --install build
+      #cd build
+      #ctest -V
       #cd "$SMSPP_ROOT"
     else
       echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
