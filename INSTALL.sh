@@ -436,7 +436,7 @@ install_on_macos() {
   if [ ! -d "$SCIP_ROOT" ]; then
     brew install gcc tbb
     cd "$INSTALL_ROOT"
-    SCIP_INSTALLER="scipoptsuite-9.2.0"
+    SCIP_INSTALLER="scip-9.2.0"
     curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
     tar xvzf "$SCIP_INSTALLER.tgz"
     rm "$SCIP_INSTALLER.tgz"
