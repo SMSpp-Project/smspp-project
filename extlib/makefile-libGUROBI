@@ -34,7 +34,7 @@ ifeq ($(UNAME_S),Linux)
     libGUROBIBSCDIR = $(GUROBI_ROOT)/linux64
 endif
 ifeq ($(UNAME_S),Darwin)
-    libGUROBIBSCDIR = $(GUROBI_ROOT)
+    libGUROBIBSCDIR = $(GUROBI_ROOT)/macos_universal2
 endif
 
 # extract Gurobi version
