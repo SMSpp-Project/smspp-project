@@ -16,17 +16,14 @@
 # AUTHOR
 #     Donato Meoli
 #
-# NOTES
-#     Ensure that you run this script with administrative privileges.
-#
 # EXAMPLES
 #     If you are inside the cloned repository:
 #
-#         ./INSTALL.sh --install-root=<your-custom-path>
+#         sudo ./INSTALL.sh --install-root=<your-custom-path>
 #
 #     or:
 #
-#         ./INSTALL.sh --install-root=<your-custom-path> --without-cplex --without-gurobi
+#         sudo ./INSTALL.sh --install-root=<your-custom-path> --without-cplex --without-gurobi
 #
 #     if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
 #

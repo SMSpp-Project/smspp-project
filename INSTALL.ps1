@@ -13,7 +13,7 @@
     Donato Meoli
 
     .NOTES
-    Ensure that you run this script using PowerShell with administrative privileges.
+    Ensure that you run this script using PowerShell as administrator.
 
     If you encounter an error about script execution policies, use the following command to temporarily allow
     script execution for the current session:

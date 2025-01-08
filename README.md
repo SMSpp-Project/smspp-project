@@ -183,7 +183,7 @@ files.
 If you have not yet cloned the SMS++ repository, you can launch the script directly:
 
 ```powershell
-# Windows (from a PowerShell with administrative privileges)
+# Windows (from a PowerShell as administrator)
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
 ```
@@ -191,7 +191,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 or:
 
 ```sh
-# Unix (from a shell with administrative privileges)
+# Unix
 # using curl
 curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 # using  wget
@@ -205,7 +205,7 @@ If you do not have a CPLEX and/or Gurobi license, or if you just want to install
 SMS++ without them, you can run:
 
 ```powershell
-# Windows (from a PowerShell with administrative privileges)
+# Windows (from a PowerShell as administrator)
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutCplex -withoutGurobi
 ```
@@ -213,7 +213,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 or:
 
 ```sh
-# Unix (from a shell with administrative privileges)
+# Unix
 # using curl
 curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
 # using  wget
@@ -224,15 +224,15 @@ Otherwise, if you are already inside the cloned repository, you can run the
 script via:
 
 ```powershell
-# Windows (from a PowerShell with administrative privileges)
+# Windows (from a PowerShell as administrator)
 .\INSTALL.ps1
 ```
 
 or:
 
 ```sh
-# Unix (from a shell with administrative privileges)
-./INSTALL.sh
+# Unix
+sudo ./INSTALL.sh
 ```
 
 using the same flag options according to the OS, if needed.
