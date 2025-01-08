@@ -195,7 +195,7 @@ if ($OS -eq "Win32NT")
 
     # Install NetCDF
     Write-Host "Installing NetCDF..."
-    .\vcpkg install hdf5 netcdf-cxx4 --triplet x64-windows
+    .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX if necessary
     if (-not $withoutCplex)
