@@ -195,7 +195,7 @@ if ($OS -eq "Win32NT")
 
     # Install NetCDF
     Write-Host "Installing NetCDF..."
-    .\vcpkg install netcdf-cxx4 --triplet x64-windows
+    .\vcpkg install hdf5 netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX if necessary
     if (-not $withoutCplex)
@@ -436,7 +436,7 @@ else
     Set-Location $SMSPP_ROOT
 }
 
-# Build Debug
+# Build SMSpp Debug
 & cmake -S . -B 'cmake-build-debug' -G 'Visual Studio 17 2022' `
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
         '-DCMAKE_BUILD_TYPE=Debug' `
@@ -450,7 +450,7 @@ Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # se
 #& ctest -V -C Debug
 #Set-Location $SMSPP_ROOT
 
-# Build Release
+# Build SMSpp Release
 & cmake -S . -B 'cmake-build-release' -G 'Visual Studio 17 2022' `
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
         '-DCMAKE_BUILD_TYPE=Release' `
