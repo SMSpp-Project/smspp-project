@@ -117,7 +117,7 @@ EOL
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux"
           if [ "$HAS_SUDO" -eq 1 ]; then
-            sh -c "echo '${CPLEX_HOME}/lib' > /etc/ld.so.conf.d/cplex.conf"
+            sh -c "echo '${CPLEX_HOME}/lib/x86-64_linux' > /etc/ld.so.conf.d/cplex.conf"
             ldconfig
           else
             rm -R javasharedresources
