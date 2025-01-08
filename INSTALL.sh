@@ -447,7 +447,7 @@ install_on_macos() {
     rm "$SCIP_INSTALLER.tgz"
     mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
     cd "$SCIP_ROOT"
-    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT"
+    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
     cmake --build build
     cmake --install build
     cd "$INSTALL_ROOT"
