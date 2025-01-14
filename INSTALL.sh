@@ -54,11 +54,11 @@
 #         if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
 # ------------------------------------------------------------------------------
 
-# Function to install dependencies on Ubuntu
-install_on_ubuntu() {
+# Function to install dependencies on Linux
+install_on_linux() {
   set -e  # Exit immediately if a command exits with a non-zero status
 
-  echo "Starting the installation process on Ubuntu..."
+  echo "Starting the installation process on Linux..."
 
   if [ "$HAS_SUDO" -eq 1 ]; then
     # Update packages and install basic requirements
@@ -307,7 +307,7 @@ EOL
     fi
   fi
 
-  echo "Installation completed successfully on Ubuntu."
+  echo "Installation completed successfully on Linux."
 }
 
 # Function to install dependencies on macOS
@@ -604,9 +604,9 @@ done
 OS="$(uname)"
 case "$OS" in
 "Linux")
-  if [ -f /etc/lsb-release ]; then
-    . /etc/lsb-release
-    if [ "$DISTRIB_ID" = "Ubuntu" ]; then
+  if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$ID" = "ubuntu" ] || [ "$ID" = "debian" ]; then
       # Check if the user has sudo access
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
@@ -617,13 +617,13 @@ case "$OS" in
         INSTALL_ROOT="${install_root:-${HOME}}"
         SMSPP_ROOT="${HOME}/smspp-project"
       fi
-      install_on_ubuntu
+      install_on_linux
     else
-      echo "This script supports Ubuntu only."
+      echo "This script supports Debian-based Linux distros only."
       exit 1
     fi
   else
-    echo "This script supports Ubuntu only."
+    echo "This script supports Debian-based Linux distros only."
     exit 1
   fi
   ;;
