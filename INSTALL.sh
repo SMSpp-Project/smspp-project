@@ -156,63 +156,67 @@ EOL
   fi
 
   # Install SCIP
-  echo "Installing SCIP..."
-  SCIP_ROOT="${INSTALL_ROOT}/scip"
-  if [ ! -d "$SCIP_ROOT" ]; then
-    if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q gfortran libtbb-dev
+  if [ "$install_scip" -eq 1 ]; then
+    echo "Installing SCIP..."
+    SCIP_ROOT="${INSTALL_ROOT}/scip"
+    if [ ! -d "$SCIP_ROOT" ]; then
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        apt-get install -y -q gfortran libtbb-dev
+      fi
+      cd "$INSTALL_ROOT"
+      SCIP_INSTALLER="scip-9.2.0"
+      curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
+      tar xvzf "$SCIP_INSTALLER.tgz"
+      rm "$SCIP_INSTALLER.tgz"
+      mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
+      cd "$SCIP_ROOT"
+      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
+      cmake --build build
+      cmake --install build
+      cd "$INSTALL_ROOT"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
+        ldconfig
+      fi
+    else
+      echo "SCIP already installed."
     fi
-    cd "$INSTALL_ROOT"
-    SCIP_INSTALLER="scip-9.2.0"
-    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
-    tar xvzf "$SCIP_INSTALLER.tgz"
-    rm "$SCIP_INSTALLER.tgz"
-    mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
-    cd "$SCIP_ROOT"
-    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
-    cmake --build build
-    cmake --install build
-    cd "$INSTALL_ROOT"
-    if [ "$HAS_SUDO" -eq 1 ]; then
-      sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
-      ldconfig
-    fi
-  else
-    echo "SCIP already installed."
   fi
 
   # Install HiGHS
-  echo "Installing HiGHS..."
-  HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
-  if [ ! -d "$HiGHS_ROOT" ]; then
-    cd "$INSTALL_ROOT"
-    git clone https://github.com/ERGO-Code/HiGHS.git
-    cd HiGHS
-    cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-    cmake --build build
-    cmake --install build
-    if [ "$HAS_SUDO" -eq 1 ]; then
-      sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
-      ldconfig
-    fi
-  else
-    if [ "$HAS_SUDO" -eq 1 ]; then
-      cd "$HiGHS_ROOT"
-      git remote update
-      LOCAL=$(git rev-parse @)
-      REMOTE=$(git rev-parse @{u})
-      # if the repository is not up to date
-      if [ "$LOCAL" != "$REMOTE" ]; then
-        git pull
-        cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-        cmake --build build
-        cmake --install build
-      else
-        echo "HiGHS already up to date."
+  if [ "$install_highs" -eq 1 ]; then
+    echo "Installing HiGHS..."
+    HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
+    if [ ! -d "$HiGHS_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/ERGO-Code/HiGHS.git
+      cd HiGHS
+      cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+      cmake --build build
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
+        ldconfig
+      fi
+    else
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        cd "$HiGHS_ROOT"
+        git remote update
+        LOCAL=$(git rev-parse @)
+        REMOTE=$(git rev-parse @{u})
+        # if the repository is not up to date
+        if [ "$LOCAL" != "$REMOTE" ]; then
+          git pull
+          cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+          cmake --build build
+          cmake --install build
+        else
+          echo "HiGHS already up to date."
+        fi
       fi
     fi
+    cd "$INSTALL_ROOT"
   fi
-  cd "$INSTALL_ROOT"
 
   # Install COIN-OR CoinUtils and Osi/Clp
   echo "Installing COIN-OR CoinUtils and Osi/Clp..."
@@ -433,54 +437,58 @@ install_on_macos() {
   fi
 
   # Install SCIP
-  echo "Installing SCIP..."
-  SCIP_ROOT="${INSTALL_ROOT}/scip"
-  if [ ! -d "$SCIP_ROOT" ]; then
-    brew install gcc tbb
-    cd "$INSTALL_ROOT"
-    SCIP_INSTALLER="scip-9.2.0"
-    curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
-    tar xvzf "$SCIP_INSTALLER.tgz"
-    rm "$SCIP_INSTALLER.tgz"
-    mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
-    cd "$SCIP_ROOT"
-    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
-    cmake --build build
-    cmake --install build
-    cd "$INSTALL_ROOT"
-    export PATH="${PATH}:${SCIP_ROOT}/bin"
-    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
-  else
-    echo "SCIP already installed."
+  if [ "$install_scip" -eq 1 ]; then
+    echo "Installing SCIP..."
+    SCIP_ROOT="${INSTALL_ROOT}/scip"
+    if [ ! -d "$SCIP_ROOT" ]; then
+      brew install gcc tbb
+      cd "$INSTALL_ROOT"
+      SCIP_INSTALLER="scip-9.2.0"
+      curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
+      tar xvzf "$SCIP_INSTALLER.tgz"
+      rm "$SCIP_INSTALLER.tgz"
+      mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
+      cd "$SCIP_ROOT"
+      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
+      cmake --build build
+      cmake --install build
+      cd "$INSTALL_ROOT"
+      export PATH="${PATH}:${SCIP_ROOT}/bin"
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
+    else
+      echo "SCIP already installed."
+    fi
   fi
 
   # Install HiGHS
-  echo "Installing HiGHS..."
-  HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
-  if [ ! -d "$HiGHS_ROOT" ]; then
-    cd "$INSTALL_ROOT"
-    git clone https://github.com/ERGO-Code/HiGHS.git
-    cd HiGHS
-    cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-    cmake --build build
-    cmake --install build
-    cd "$INSTALL_ROOT"
-    export PATH="${PATH}:${HiGHS_ROOT}/bin"
-    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
-  else
-    cd "$HiGHS_ROOT"
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse @{u})
-    # if the repository is not up to date
-    if [ "$LOCAL" != "$REMOTE" ]; then
-      git pull
+  if [ "$install_highs" -eq 1 ]; then
+    echo "Installing HiGHS..."
+    HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
+    if [ ! -d "$HiGHS_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/ERGO-Code/HiGHS.git
+      cd HiGHS
       cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build
       cmake --install build
+      cd "$INSTALL_ROOT"
+      export PATH="${PATH}:${HiGHS_ROOT}/bin"
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
     else
-      echo "HiGHS already up to date."
+      cd "$HiGHS_ROOT"
+      LOCAL=$(git rev-parse @)
+      REMOTE=$(git rev-parse @{u})
+      # if the repository is not up to date
+      if [ "$LOCAL" != "$REMOTE" ]; then
+        git pull
+        cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+        cmake --build build
+        cmake --install build
+      else
+        echo "HiGHS already up to date."
+      fi
+      cd "$INSTALL_ROOT"
     fi
-    cd "$INSTALL_ROOT"
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
@@ -571,10 +579,13 @@ install_on_macos() {
   echo "Installation completed successfully on macOS."
 }
 
-# Default values indicating if CPLEX and Gurobi should be installed
-# it works even if you use `install_cplex=0` or `install_gurobi=0`
+# Default values indicating if components should be installed
+# it works even if you use `install_*=0`
 install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
+install_scip=${install_scip:-1}
+install_highs=${install_highs:-1}
+install_smspp=${install_smspp:-1}
 
 # Default value for installation root
 install_root=""
@@ -589,6 +600,18 @@ do
     ;;
     --without-gurobi)
     install_gurobi=0
+    shift
+    ;;
+    --without-scip)
+    install_scip=0
+    shift
+    ;;
+    --without-highs)
+    install_highs=0
+    shift
+    ;;
+    --without-smspp)
+    install_smspp=0
     shift
     ;;
     --install-root=*)
@@ -638,9 +661,8 @@ case "$OS" in
   ;;
 esac
 
-# Skip compilation if running in a GitLab CI/CD Docker container
-if ! { [ -f /.dockerenv ] && [ "$CI" = "true" ]; }; then
-  # Install SMSpp
+# Skip installation of SMSpp if --without-smspp is specified
+if [ "$install_smspp" -eq 1 ]; then
   echo "Compiling SMSpp..."
 
   # Check if the SMSpp repository already exists

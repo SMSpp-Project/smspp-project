@@ -37,5 +37,5 @@ FROM ubuntu:latest
 
 # Install required packages, run the INSTALL.sh script, and clean up
 RUN apt-get update && apt-get install -y wget sudo && \
-    wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash && \
+    wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --without-smspp && \
     rm -rf /var/lib/apt/lists/*
