@@ -12,6 +12,11 @@
 #     You can use the `--install-root=<your-custom-path>` option to specify your custom installation root.
 #     You can use the `--without-cplex` option to skip the installation of CPLEX.
 #     You can use the `--without-gurobi` option to skip the installation of Gurobi.
+#     You can use the `--without-scip` option to skip the installation of SCIP.
+#     You can use the `--without-highs` option to skip the installation of HiGHS.
+#     You can use the `--without-stopt` option to skip the installation of StOpt.
+#     You can use the `--without-coinor` option to skip the installation of COIN-OR.
+#     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
 # AUTHOR
 #     Donato Meoli
@@ -19,13 +24,7 @@
 # EXAMPLES
 #     If you are inside the cloned repository:
 #
-#         sudo ./INSTALL.sh --install-root=<your-custom-path>
-#
-#     or:
-#
-#         sudo ./INSTALL.sh --install-root=<your-custom-path> --without-cplex --without-gurobi
-#
-#     if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
+#         sudo ./INSTALL.sh --install-root=<your-custom-path> --without-<some-component>
 #
 #     If you have not yet cloned the SMS++ repository, you can run the script directly:
 #
@@ -33,25 +32,14 @@
 #
 #         If you want to install SMS++ with all dependencies:
 #
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
-#
-#         or:
-#
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
-#
-#        if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-component>
 #
 #     Using `wget`:
 #
 #         If you want to install SMS++ with all dependencies:
 #
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-component>
 #
-#         or:
-#
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
-#
-#         if you do not have a CPLEX and/or Gurobi license, or if you just want to install SMS++ without them.
 # ------------------------------------------------------------------------------
 
 # Function to install dependencies on Linux
@@ -219,95 +207,99 @@ EOL
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
-  echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-  if [ "$HAS_SUDO" -eq 1 ]; then
-    apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
-  fi
-  CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
-  if [ ! -d "$CoinOr_ROOT" ]; then
-    cd "$INSTALL_ROOT"
-    curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-    chmod u+x coinbrew
-    # Build CoinUtils
-    ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-    # Build Osi with or without CPLEX
-    osi_build_flags=(
-      "--latest-release"
-      "--skip-dependencies"
-      "--prefix=$CoinOr_ROOT"
-      "--tests=none"
-    )
-    if [ "$install_cplex" -eq 0 ]; then
-      osi_build_flags+=("--without-cplex")
-    else
-      osi_build_flags+=(
-        "--with-cplex"
-        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lpthread -lm"
-        "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
-      )
-    fi
-    # Build Osi with or without Gurobi
-    if [ "$install_gurobi" -eq 0 ]; then
-      osi_build_flags+=("--without-gurobi")
-    else
-      osi_build_flags+=(
-        "--with-gurobi"
-        "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi100"
-        "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
-      )
-    fi
-    ./coinbrew build Osi "${osi_build_flags[@]}"
-    # Build Clp
-    ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-    rm -Rf coinbrew build CoinUtils Osi Clp
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
+  if [ "$install_coinor" -eq 1 ]; then
+    echo "Installing COIN-OR CoinUtils and Osi/Clp..."
     if [ "$HAS_SUDO" -eq 1 ]; then
-      sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
-      ldconfig
+      apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
     fi
-  else
-    echo "COIN-OR already installed."
+    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
+    if [ ! -d "$CoinOr_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+      chmod u+x coinbrew
+      # Build CoinUtils
+      ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
+      # Build Osi with or without CPLEX
+      osi_build_flags=(
+        "--latest-release"
+        "--skip-dependencies"
+        "--prefix=$CoinOr_ROOT"
+        "--tests=none"
+      )
+      if [ "$install_cplex" -eq 0 ]; then
+        osi_build_flags+=("--without-cplex")
+      else
+        osi_build_flags+=(
+          "--with-cplex"
+          "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lpthread -lm"
+          "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
+        )
+      fi
+      # Build Osi with or without Gurobi
+      if [ "$install_gurobi" -eq 0 ]; then
+        osi_build_flags+=("--without-gurobi")
+      else
+        osi_build_flags+=(
+          "--with-gurobi"
+          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi100"
+          "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
+        )
+      fi
+      ./coinbrew build Osi "${osi_build_flags[@]}"
+      # Build Clp
+      ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
+      rm -Rf coinbrew build CoinUtils Osi Clp
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
+        ldconfig
+      fi
+    else
+      echo "COIN-OR already installed."
+    fi
   fi
 
   # Install StOpt
-  echo "Installing StOpt..."
-  StOpt_ROOT="${INSTALL_ROOT}/StOpt"
-  if [ "$HAS_SUDO" -eq 1 ]; then
-    apt-get install -y -q zlib1g-dev
-  fi
-  if [ ! -d "$StOpt_ROOT" ]; then
-    cd "$INSTALL_ROOT"
-    git clone https://gitlab.com/stochastic-control/StOpt.git
-    cd StOpt
-    mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
-    cmake -S . -B build \
-          -DBUILD_PYTHON=OFF \
-          -DBUILD_TEST=OFF \
-          -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-    cmake --build build
-    cmake --install build
-    mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
-    cd "$INSTALL_ROOT"
-  else
+  if [ "$install_stopt" -eq 1 ]; then
+    echo "Installing StOpt..."
+    StOpt_ROOT="${INSTALL_ROOT}/StOpt"
     if [ "$HAS_SUDO" -eq 1 ]; then
-      cd "$StOpt_ROOT"
-      LOCAL=$(git rev-parse @)
-      REMOTE=$(git rev-parse @{u})
-      # if the repository is not up to date
-      if [ "$LOCAL" != "$REMOTE" ]; then
-        git pull
-        mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
-        cmake -S . -B build \
-              -DBUILD_PYTHON=OFF \
-              -DBUILD_TEST=OFF \
-              -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-        cmake --build build
-        cmake --install build
-        mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
-      else
-        echo "StOpt already up to date."
-      fi
+      apt-get install -y -q zlib1g-dev
+    fi
+    if [ ! -d "$StOpt_ROOT" ]; then
       cd "$INSTALL_ROOT"
+      git clone https://gitlab.com/stochastic-control/StOpt.git
+      cd StOpt
+      mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+      cmake -S . -B build \
+            -DBUILD_PYTHON=OFF \
+            -DBUILD_TEST=OFF \
+            -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
+      cmake --build build
+      cmake --install build
+      mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      cd "$INSTALL_ROOT"
+    else
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        cd "$StOpt_ROOT"
+        LOCAL=$(git rev-parse @)
+        REMOTE=$(git rev-parse @{u})
+        # if the repository is not up to date
+        if [ "$LOCAL" != "$REMOTE" ]; then
+          git pull
+          mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+          cmake -S . -B build \
+                -DBUILD_PYTHON=OFF \
+                -DBUILD_TEST=OFF \
+                -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
+          cmake --build build
+          cmake --install build
+          mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+        else
+          echo "StOpt already up to date."
+        fi
+        cd "$INSTALL_ROOT"
+      fi
     fi
   fi
 
@@ -492,76 +484,63 @@ install_on_macos() {
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
-  echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-  CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
-  if [ ! -d "$CoinOr_ROOT" ]; then
-    brew install coinutils lapack openblas
-    cd "$INSTALL_ROOT"
-    curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-    chmod u+x coinbrew
-    # Build CoinUtils
-    ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-    # Build Osi with or without CPLEX
-    osi_build_flags=(
-      "--latest-release"
-      "--skip-dependencies"
-      "--prefix=$CoinOr_ROOT"
-      "--tests=none"
-    )
-    if [ "$install_cplex" -eq 0 ]; then
-      osi_build_flags+=("--without-cplex")
-    else
-      osi_build_flags+=(
-        "--with-cplex"
-        "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/${OSX_ARCH}/static_pic -lcplex -lm"
-        "--disable-cplex-libcheck"
-        "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
+  if [ "$install_coinor" -eq 1 ]; then
+    echo "Installing COIN-OR CoinUtils and Osi/Clp..."
+    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
+    if [ ! -d "$CoinOr_ROOT" ]; then
+      brew install coinutils lapack openblas
+      cd "$INSTALL_ROOT"
+      curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+      chmod u+x coinbrew
+      # Build CoinUtils
+      ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
+      # Build Osi with or without CPLEX
+      osi_build_flags=(
+        "--latest-release"
+        "--skip-dependencies"
+        "--prefix=$CoinOr_ROOT"
+        "--tests=none"
       )
-    fi
-    # Build Osi with or without Gurobi
-    if [ "$install_gurobi" -eq 0 ]; then
-      osi_build_flags+=("--without-gurobi")
+      if [ "$install_cplex" -eq 0 ]; then
+        osi_build_flags+=("--without-cplex")
+      else
+        osi_build_flags+=(
+          "--with-cplex"
+          "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/${OSX_ARCH}/static_pic -lcplex -lm"
+          "--disable-cplex-libcheck"
+          "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
+        )
+      fi
+      # Build Osi with or without Gurobi
+      if [ "$install_gurobi" -eq 0 ]; then
+        osi_build_flags+=("--without-gurobi")
+      else
+        osi_build_flags+=(
+          "--with-gurobi"
+          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi100"
+          "--disable-gurobi-libcheck"
+          "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
+        )
+      fi
+      ./coinbrew build Osi "${osi_build_flags[@]}"
+      # Build Clp
+      ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
+      rm -Rf coinbrew build CoinUtils Osi Clp
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
     else
-      osi_build_flags+=(
-        "--with-gurobi"
-        "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi100"
-        "--disable-gurobi-libcheck"
-        "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
-      )
+      echo "COIN-OR already installed."
     fi
-    ./coinbrew build Osi "${osi_build_flags[@]}"
-    # Build Clp
-    ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-    rm -Rf coinbrew build CoinUtils Osi Clp
-    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
-  else
-    echo "COIN-OR already installed."
   fi
 
   # Install StOpt
-  echo "Installing StOpt..."
-  StOpt_ROOT="${INSTALL_ROOT}/StOpt"
-  if [ ! -d "$StOpt_ROOT" ]; then
-    brew install zlib
-    cd "$INSTALL_ROOT"
-    git clone https://gitlab.com/stochastic-control/StOpt.git
-    cd StOpt
-    sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
-    cmake -S . -B build \
-          -DBUILD_PYTHON=OFF \
-          -DBUILD_TEST=OFF \
-          -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-    cmake --build build
-    cmake --install build
-    sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
-    cd "$INSTALL_ROOT"
-  else
-    cd "$StOpt_ROOT"
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse @{u})
-    # if the repository is not up to date
-    if [ "$LOCAL" != "$REMOTE" ]; then
-      git pull
+  if [ "$install_stopt" -eq 1 ]; then
+    echo "Installing StOpt..."
+    StOpt_ROOT="${INSTALL_ROOT}/StOpt"
+    if [ ! -d "$StOpt_ROOT" ]; then
+      brew install zlib
+      cd "$INSTALL_ROOT"
+      git clone https://gitlab.com/stochastic-control/StOpt.git
+      cd StOpt
       sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
@@ -570,10 +549,27 @@ install_on_macos() {
       cmake --build build
       cmake --install build
       sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      cd "$INSTALL_ROOT"
     else
-      echo "StOpt already up to date."
+      cd "$StOpt_ROOT"
+      LOCAL=$(git rev-parse @)
+      REMOTE=$(git rev-parse @{u})
+      # if the repository is not up to date
+      if [ "$LOCAL" != "$REMOTE" ]; then
+        git pull
+        sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
+        cmake -S . -B build \
+              -DBUILD_PYTHON=OFF \
+              -DBUILD_TEST=OFF \
+              -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
+        cmake --build build
+        cmake --install build
+        sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      else
+        echo "StOpt already up to date."
+      fi
+      cd "$INSTALL_ROOT"
     fi
-    cd "$INSTALL_ROOT"
   fi
 
   echo "Installation completed successfully on macOS."
@@ -585,6 +581,8 @@ install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
+install_stopt=${install_stopt:-1}
+install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
 
 # Default value for installation root
@@ -608,6 +606,14 @@ do
     ;;
     --without-highs)
     install_highs=0
+    shift
+    ;;
+    --without-stopt)
+    install_stopt=0
+    shift
+    ;;
+    --without-coinor)
+    install_coinor=0
     shift
     ;;
     --without-smspp)
