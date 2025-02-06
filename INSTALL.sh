@@ -24,7 +24,7 @@
 # EXAMPLES
 #     If you are inside the cloned repository:
 #
-#         sudo ./INSTALL.sh --install-root=<your-custom-path> --without-<some-component>
+#         sudo ./INSTALL.sh --install-root=<your-custom-path> --without-<some-dependency>
 #
 #     If you have not yet cloned the SMS++ repository, you can run the script directly:
 #
@@ -32,13 +32,13 @@
 #
 #         If you want to install SMS++ with all dependencies:
 #
-#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-component>
+#             curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
 #
 #     Using `wget`:
 #
 #         If you want to install SMS++ with all dependencies:
 #
-#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-component>
+#             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
 #
 # ------------------------------------------------------------------------------
 
@@ -575,7 +575,7 @@ install_on_macos() {
   echo "Installation completed successfully on macOS."
 }
 
-# Default values indicating if components should be installed
+# Default values indicating if dependencies should be installed
 # it works even if you use `install_*=0`
 install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}

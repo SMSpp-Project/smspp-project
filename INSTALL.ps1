@@ -8,6 +8,11 @@
 
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
+    You can use the `-withoutSCIP` option to skip the installation of SCIP.
+    You can use the `-withoutHiGHS` option to skip the installation of HiGHS.
+    You can use the `-withoutStOpt` option to skip the installation of StOpt.
+    You can use the `-withoutCoinOr` option to skip the installation of COIN-OR.
+    You can use the `-withoutSMSpp` option to skip the installation of SMS++.
 
     .AUTHOR
     Donato Meoli
@@ -27,33 +32,23 @@
     .EXAMPLES
     If you are inside the cloned repository:
 
-        .\INSTALL.ps1
-
-    or:
-
-        .\INSTALL.ps1 -withoutCplex
-    if you do not have a CPLEX license.
-
-        .\INSTALL.ps1 -withoutGurobi
-    if you do not have a Gurobi license.
+        .\INSTALL.ps1 -without<some-dependency>
 
     If you have not yet cloned the SMS++ repository, you can run the script directly:
 
-        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
+        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -without<some-dependency>
 
-    or:
-
-        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutCplex
-    if you do not have a CPLEX license.
-
-        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutGurobi
-    if you do not have a Gurobi license.
 #>
 
 # Default value indicating if CPLEX should be installed
 param(
     [switch]$withoutCplex,
-    [switch]$withoutGurobi
+    [switch]$withoutGurobi,
+    [switch]$withoutSCIP,
+    [switch]$withoutHiGHS,
+    [switch]$withoutStOpt,
+    [switch]$withoutCoinOr,
+    [switch]$withoutSMSpp
 )
 
 # Set the VCPKG_ROOT environment variable
@@ -197,7 +192,7 @@ if ($OS -eq "Win32NT")
     Write-Host "Installing NetCDF..."
     .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
-    # Install CPLEX if necessary
+    # Install CPLEX
     if (-not $withoutCplex)
     {
         Write-Host "Installing CPLEX..." -NoNewline
@@ -232,7 +227,7 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
-    # Install Gurobi if necessary
+    # Install Gurobi
     if (-not $withoutGurobi)
     {
         Write-Host "Installing Gurobi..." -NoNewline
@@ -252,82 +247,35 @@ if ($OS -eq "Win32NT")
     }
 
     # Install SCIP
-    Write-Host "Installing SCIP..." -NoNewline
-    $SCIP_ROOT = "C:\Program Files\SCIPOptSuite"
-    if (-not (Test-Path $SCIP_ROOT))
+    if (-not $withoutSCIP)
     {
-        Set-Location "C:\"
-        $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
-        Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile "C:\$SCIP_INSTALLER"
-        Start-Process -FilePath "C:\$SCIP_INSTALLER" -Wait
-        Remove-Item "C:\$SCIP_INSTALLER"
-        Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $SCIP_ROOT -ErrorAction SilentlyContinue
-        # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
-        Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
+        Write-Host "Installing SCIP..." -NoNewline
+        $SCIP_ROOT = "C:\Program Files\SCIPOptSuite"
+        if (-not (Test-Path $SCIP_ROOT))
+        {
+            Set-Location "C:\"
+            $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
+            Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile "C:\$SCIP_INSTALLER"
+            Start-Process -FilePath "C:\$SCIP_INSTALLER" -Wait
+            Remove-Item "C:\$SCIP_INSTALLER"
+            Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $SCIP_ROOT -ErrorAction SilentlyContinue
+            # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
+            Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
+        }
+        Write-Host " done."
     }
-    Write-Host " done."
 
     # Install HiGHS
-    Write-Host "Installing HiGHS..." -NoNewline
-    $HiGHS_ROOT = "C:\HiGHS"
-    if (-not (Test-Path $HiGHS_ROOT))
+    if (-not $withoutHiGHS)
     {
-        Write-Host "" # new line
-        git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
-        Set-Location $HiGHS_ROOT
-        git checkout v1.6.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
-        # Build Debug
-        & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
-                '-DFAST_BUILD=ON' `
-                "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                '-DCMAKE_BUILD_TYPE=Debug' `
-                "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-        & cmake '--build' 'build' '--config' 'Debug'
-        & cmake '--install' 'build' '--config' 'Debug'
-        # Build Release
-        & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
-                '-DFAST_BUILD=ON' `
-                "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                '-DCMAKE_BUILD_TYPE=Release' `
-                "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-        & cmake '--build' 'build' '--config' 'Release'
-        & cmake '--install' 'build' '--config' 'Release'
-        # Define the possible paths
-        $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
-        $releasePath1 = "$HiGHS_ROOT\build\RELEASE\bin"; $releasePath2 = "$HiGHS_ROOT\build\bin\Release"
-        # Use an inline if-like construct to assign the paths with error handling
-        $debugPath = if (Test-Path $debugPath1) { $debugPath1 }
-                     elseif (Test-Path $debugPath2) { $debugPath2 }
-                     else { Write-Host "No valid path found for HiGHS Debug"; exit 1 }
-        $releasePath = if (Test-Path $releasePath1) { $releasePath1 }
-                       elseif (Test-Path $releasePath2) { $releasePath2 }
-                       else { Write-Host "No valid path found for HiGHS Release"; exit 1 }
-        # Check if paths are already in the current Path
-        if ($env:Path -notcontains $releasePath)
+        Write-Host "Installing HiGHS..." -NoNewline
+        $HiGHS_ROOT = "C:\HiGHS"
+        if (-not (Test-Path $HiGHS_ROOT))
         {
-            [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$releasePath", [System.EnvironmentVariableTarget]::Machine)
-        }
-        if ($env:Path -notcontains $debugPath)
-        {
-            [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$debugPath", [System.EnvironmentVariableTarget]::Machine)
-        }
-        if ($env:Path -notcontains $binPath)
-        {
-            [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$binPath", [System.EnvironmentVariableTarget]::Machine)
-        }
-        Write-Host "Highs Paths added to the Path"
-    }
-    else
-    {
-        Write-Host " done." # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix and uncomment the following code
-        <#Set-Location $HiGHS_ROOT
-        git remote update
-        $local = git rev-parse "@"
-        $remote = git rev-parse "@{u}"
-        if ($local -ne $remote) # HiGHS is not latest
-        {
-            git pull
             Write-Host "" # new line
+            git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
+            Set-Location $HiGHS_ROOT
+            git checkout v1.6.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
             # Build Debug
             & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
                     '-DFAST_BUILD=ON' `
@@ -344,71 +292,130 @@ if ($OS -eq "Win32NT")
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
             & cmake '--build' 'build' '--config' 'Release'
             & cmake '--install' 'build' '--config' 'Release'
+            # Define the possible paths
+            $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
+            $releasePath1 = "$HiGHS_ROOT\build\RELEASE\bin"; $releasePath2 = "$HiGHS_ROOT\build\bin\Release"
+            # Use an inline if-like construct to assign the paths with error handling
+            $debugPath = if (Test-Path $debugPath1) { $debugPath1 }
+            elseif (Test-Path $debugPath2) { $debugPath2 }
+            else { Write-Host "No valid path found for HiGHS Debug"; exit 1 }
+            $releasePath = if (Test-Path $releasePath1) { $releasePath1 }
+            elseif (Test-Path $releasePath2) { $releasePath2 }
+            else { Write-Host "No valid path found for HiGHS Release"; exit 1 }
+            # Check if paths are already in the current Path
+            if ($env:Path -notcontains $releasePath)
+            {
+                [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$releasePath", [System.EnvironmentVariableTarget]::Machine)
+            }
+            if ($env:Path -notcontains $debugPath)
+            {
+                [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$debugPath", [System.EnvironmentVariableTarget]::Machine)
+            }
+            if ($env:Path -notcontains $binPath)
+            {
+                [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$binPath", [System.EnvironmentVariableTarget]::Machine)
+            }
+            Write-Host "Highs Paths added to the Path"
         }
         else
         {
-            Write-Host " done."
-        }#>
+            Write-Host " done." # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix and uncomment the following code
+            <#Set-Location $HiGHS_ROOT
+            git remote update
+            $local = git rev-parse "@"
+            $remote = git rev-parse "@{u}"
+            if ($local -ne $remote) # HiGHS is not latest
+            {
+                git pull
+                Write-Host "" # new line
+                # Build Debug
+                & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
+                        '-DFAST_BUILD=ON' `
+                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                        '-DCMAKE_BUILD_TYPE=Debug' `
+                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                & cmake '--build' 'build' '--config' 'Debug'
+                & cmake '--install' 'build' '--config' 'Debug'
+                # Build Release
+                & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
+                        '-DFAST_BUILD=ON' `
+                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                        '-DCMAKE_BUILD_TYPE=Release' `
+                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                & cmake '--build' 'build' '--config' 'Release'
+                & cmake '--install' 'build' '--config' 'Release'
+            }
+            else
+            {
+                Write-Host " done."
+            }#>
+        }
+        Set-Location "C:\"
     }
-    Set-Location "C:\"
 
     # Install COIN-OR CoinUtils
-    Write-Host "Installing COIN-OR CoinUtils..."
-    Set-Location $env:VCPKG_ROOT
-    .\vcpkg install coinutils blas lapack --triplet x64-windows
-
-    if (-not $withoutGurobi)
+    if (-not $withoutCoinOr)
     {
-        Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
+        Write-Host "Installing COIN-OR CoinUtils..."
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install coinutils blas lapack --triplet x64-windows
 
-        Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
+        if (-not $withoutGurobi)
+        {
+            Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
 
-        # Backup the original portfile.cmake
-        #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
 
-        # Use sed `/old/c\new` to replace the configuration line
-        sed -i '/--without-gurobi/c\
-          --with-gurobi\
-          --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
-          --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
-          --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-          --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
+            # Backup the original portfile.cmake
+            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
 
-        Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+            # Use sed `/old/c\new` to replace the configuration line
+            sed -i '/--without-gurobi/c\
+              --with-gurobi\
+              --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
+              --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
+              --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
+              --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
+
+            Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+        }
+
+        if (-not $withoutCplex)
+        {
+            Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
+
+            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
+
+            # Backup the original portfile.cmake
+            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+
+            # Use sed `/old/c\new` to replace the configuration line
+            sed -i '/--without-cplex/c\
+                --with-cplex\
+                --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
+                --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+                --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+                --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+
+            Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
+        }
+
+        # Install COIN-OR Osi/Clp
+        Write-Host "Installing COIN-OR Osi/Clp..."
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
     }
-
-    if (-not $withoutCplex)
-    {
-        Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
-
-        Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
-
-        # Backup the original portfile.cmake
-        #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
-
-        # Use sed `/old/c\new` to replace the configuration line
-        sed -i '/--without-cplex/c\
-            --with-cplex\
-            --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
-            --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-            --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-            --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
-
-        Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
-    }
-
-    # Install COIN-OR Osi/Clp
-    Write-Host "Installing COIN-OR Osi/Clp..."
-    Set-Location $env:VCPKG_ROOT
-    .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
 
     # Setup vcpkg for StOpt installation
-    Write-Host "Setting up vcpkg for StOpt installation..."
-    Set-Location "C:\"
-    git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
-    Set-Location $env:VCPKG_ROOT
-    .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
-    Set-Location "C:\"
+    if (-not $withoutStOpt)
+    {
+        Write-Host "Setting up vcpkg for StOpt installation..."
+        Set-Location "C:\"
+        git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
+        Set-Location "C:\"
+    }
 
     Write-Host "Installation completed successfully on Windows."
 }
@@ -419,47 +426,50 @@ else
 }
 
 # Install SMSPP
-Write-Host "Compiling SMSpp..."
-$SMSPP_ROOT = "C:\smspp-project"
-
-# Check if the SMSpp repository already exists
-if (Test-Path $SMSPP_ROOT)
+if (-not $withoutSMSpp)
 {
-    Set-Location $SMSPP_ROOT
-    Write-Host "SMSpp already exists. Pulling latest changes..."
-    git pull
-}
-else
-{
-    Write-Host "Repository not found locally. Cloning SMSpp..."
-    git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-    Set-Location $SMSPP_ROOT
-}
+    Write-Host "Compiling SMSpp..."
+    $SMSPP_ROOT = "C:\smspp-project"
 
-# Build SMSpp Debug
-& cmake -S . -B 'cmake-build-debug' -G 'Visual Studio 17 2022' `
-        "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
-        '-DCMAKE_BUILD_TYPE=Debug' `
-        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-        '-Wno-dev'
-# run cmake-gui
-Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
-& cmake '--build' 'cmake-build-debug' '--config' 'Debug'
-& cmake '--install' 'cmake-build-debug' '--config' 'Debug'
-#Set-Location "cmake-build-debug"
-#& ctest -V -C Debug
-#Set-Location $SMSPP_ROOT
+    # Check if the SMSpp repository already exists
+    if (Test-Path $SMSPP_ROOT)
+    {
+        Set-Location $SMSPP_ROOT
+        Write-Host "SMSpp already exists. Pulling latest changes..."
+        git pull
+    }
+    else
+    {
+        Write-Host "Repository not found locally. Cloning SMSpp..."
+        git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+        Set-Location $SMSPP_ROOT
+    }
 
-# Build SMSpp Release
-& cmake -S . -B 'cmake-build-release' -G 'Visual Studio 17 2022' `
-        "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
-        '-DCMAKE_BUILD_TYPE=Release' `
-        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-        '-Wno-dev'
-# run cmake-gui
-Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
-& cmake '--build' 'cmake-build-release' '--config' 'Release'
-& cmake '--install' 'cmake-build-release' '--config' 'Release'
-#Set-Location "cmake-build-release"
-#& ctest -V -C Release
-#Set-Location $SMSPP_ROOT
+    # Build SMSpp Debug
+    & cmake -S . -B 'cmake-build-debug' -G 'Visual Studio 17 2022' `
+            "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
+            '-DCMAKE_BUILD_TYPE=Debug' `
+            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            '-Wno-dev'
+    # run cmake-gui
+    Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
+    & cmake '--build' 'cmake-build-debug' '--config' 'Debug'
+    & cmake '--install' 'cmake-build-debug' '--config' 'Debug'
+    #Set-Location "cmake-build-debug"
+    #& ctest -V -C Debug
+    #Set-Location $SMSPP_ROOT
+
+    # Build SMSpp Release
+    & cmake -S . -B 'cmake-build-release' -G 'Visual Studio 17 2022' `
+            "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
+            '-DCMAKE_BUILD_TYPE=Release' `
+            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            '-Wno-dev'
+    # run cmake-gui
+    Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
+    & cmake '--build' 'cmake-build-release' '--config' 'Release'
+    & cmake '--install' 'cmake-build-release' '--config' 'Release'
+    #Set-Location "cmake-build-release"
+    #& ctest -V -C Release
+    #Set-Location $SMSPP_ROOT
+}
