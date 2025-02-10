@@ -5,7 +5,6 @@
 #    and build all the SMS++ projects together. It doesn't do much besides    #
 #    calling the list files of the subprojects.                               #
 #                                                                             #
-#                              Niccolo' Iardella                              #
 #                                Donato Meoli                                 #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
