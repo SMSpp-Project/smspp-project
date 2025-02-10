@@ -385,7 +385,7 @@ int main( int argc , char **argv )
  {
   auto c = Configuration::deserialize( "BSPar.txt" );
   bsc = dynamic_cast< BlockSolverConfig * >( c );
-  
+
   if( ! bsc ) {
    std::cerr << "Error: BSPar.txt does not contain a BlockSolverConfig"
 	     << std::endl;
