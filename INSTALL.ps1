@@ -450,7 +450,7 @@ if (-not $withoutSMSpp)
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
             '-DCMAKE_BUILD_TYPE=Debug' `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            '-DBUILD_SHARED_LIBS=ON' `
+            '-DBUILD_SHARED_LIBS=ON' '-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON' `
             '-Wno-dev'
     # run cmake-gui
     Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait # select submodules, then Configure and Generate the build files
@@ -465,7 +465,7 @@ if (-not $withoutSMSpp)
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
             '-DCMAKE_BUILD_TYPE=Release' `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            '-DBUILD_SHARED_LIBS=ON' `
+            '-DBUILD_SHARED_LIBS=ON' '-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON' `
             '-Wno-dev'
     # run cmake-gui
     Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait # select submodules, then Configure and Generate the build files
