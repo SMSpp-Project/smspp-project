@@ -446,32 +446,32 @@ if (-not $withoutSMSpp)
     }
 
     # Build SMSpp Debug
-    & cmake -S . -B 'cmake-build-debug' -G 'Visual Studio 17 2022' `
+    & cmake -S . -B 'build/Debug' -G 'Visual Studio 17 2022' `
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
             '-DCMAKE_BUILD_TYPE=Debug' `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
             '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
-    Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-debug" -Wait # select submodules, then Configure and Generate the build files
-    & cmake '--build' 'cmake-build-debug' '--config' 'Debug'
-    & cmake '--install' 'cmake-build-debug' '--config' 'Debug'
-    #Set-Location "cmake-build-debug"
+    Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait # select submodules, then Configure and Generate the build files
+    & cmake '--build' 'build/Debug' '--config' 'Debug'
+    & cmake '--install' 'build/Debug' '--config' 'Debug'
+    #Set-Location "build/Debug"
     #& ctest -V -C Debug
     #Set-Location $SMSPP_ROOT
 
     # Build SMSpp Release
-    & cmake -S . -B 'cmake-build-release' -G 'Visual Studio 17 2022' `
+    & cmake -S . -B 'build/Release' -G 'Visual Studio 17 2022' `
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
             '-DCMAKE_BUILD_TYPE=Release' `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
             '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
-    Start-Process -FilePath "cmake-gui" -ArgumentList "cmake-build-release" -Wait # select submodules, then Configure and Generate the build files
-    & cmake '--build' 'cmake-build-release' '--config' 'Release'
-    & cmake '--install' 'cmake-build-release' '--config' 'Release'
-    #Set-Location "cmake-build-release"
+    Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait # select submodules, then Configure and Generate the build files
+    & cmake '--build' 'build/Release' '--config' 'Release'
+    & cmake '--install' 'build/Release' '--config' 'Release'
+    #Set-Location "build/Release"
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
 }
