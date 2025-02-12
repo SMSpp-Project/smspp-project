@@ -28,6 +28,8 @@ project("The SMS++ Project")
 # Use it as an alternative to specify CMake variables manually with -D.
 include(CMakeSettings.txt OPTIONAL)
 
+option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
+
 # Define options for modules in the order of the blocks and solvers
 
 macro(smspp_option option_name option_description)
