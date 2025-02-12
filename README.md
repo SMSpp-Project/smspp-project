@@ -191,34 +191,47 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 or:
 
 ```sh
-# Unix
+# Linux
 # using curl
 curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
 # using  wget
 wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
+
+# macOS
+# using curl
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path>
+# using  wget
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path>
 ```
 
 if not specified, the default installation root path is `/opt` for Linux (or
 `$HOME` if the current user is not sudoer), and `/Library` for macOS.
 
-If you do not have a CPLEX and/or Gurobi license, or if you just want to install
-SMS++ without them, you can run:
+If you do not want to install some SMS++ dependency, you can run:
 
 ```powershell
 # Windows (from a PowerShell as administrator)
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-& ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -withoutCplex -withoutGurobi
+& ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -without<some-dependency>
 ```
 
 or:
 
 ```sh
-# Unix
+# Linux
 # using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
 # using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-cplex --without-gurobi
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
+
+# macOS
+# using curl
+curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
+# using  wget
+wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
 ```
+
+according to the documentation inside the bash files.
 
 Otherwise, if you are already inside the cloned repository, you can run the
 script via:
@@ -231,8 +244,11 @@ script via:
 or:
 
 ```sh
-# Unix
+# Linux
 sudo ./INSTALL.sh
+
+# macOS
+./INSTALL.sh
 ```
 
 using the same flag options according to the OS, if needed.
