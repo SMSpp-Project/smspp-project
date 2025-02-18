@@ -16,8 +16,8 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.19)
-cmake_policy(VERSION 3.12)
+cmake_minimum_required(VERSION 3.4)
+cmake_policy(VERSION 3.15)
 project(SMS++_tests
         VERSION 0.5.4
         DESCRIPTION "SMS++ tests"
@@ -46,8 +46,7 @@ if (BUILD_SHARED_LIBS)
     endif ()
 else ()
     if (MSVC)
-        add_link_options("/WHOLEARCHIVE")
-        add_link_options("/FORCE:MULTIPLE")
+        add_link_options("/WHOLEARCHIVE" "/FORCE:MULTIPLE")
     else () # Unix
         if (APPLE)
             add_link_options("-Wl,-all_load")
