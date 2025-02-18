@@ -732,7 +732,7 @@ if [ "$install_smspp" -eq 1 ]; then
   fi
 
   # Build SMSpp
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -DBUILD_SHARED_LIBS=ON -Wno-dev
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
     # no way to use ccmake interactively to choose submodules, so build it all

@@ -9,10 +9,10 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.4)
 
 # ----- Policies ------------------------------------------------------------ #
-# Introduced in 3.15 to handle MSVC_RUNTIME_LIBRARY
+# Introduced in CMake 3.15 to handle MSVC_RUNTIME_LIBRARY
 # See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
 if (MSVC)
 	if (POLICY CMP0091)
@@ -29,6 +29,12 @@ project("The SMS++ Project")
 include(CMakeSettings.txt OPTIONAL)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
+
+# Only apply this on Windows when building shared libraries
+if (WIN32 AND BUILD_SHARED_LIBS)
+	# Enable automatic symbol export introduced in CMake 3.4
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "Force export of all symbols on Windows")
+endif ()
 
 # Define options for modules in the order of the blocks and solvers
 
