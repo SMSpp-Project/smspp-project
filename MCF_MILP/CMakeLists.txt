@@ -23,6 +23,13 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(MCF_MILP_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
+    # Create a test fixture to generate .nc4 files by running run_dmx2nc4.
+    # This test will build and run the run_dmx2nc4 target
+    add_test(NAME run_dmx2nc4
+             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_dmx2nc4)
+    # Mark run_dmx2nc4 as a fixture that sets up "dmx2nc4_generated"
+    set_tests_properties(run_dmx2nc4 PROPERTIES FIXTURES_SETUP dmx2nc4_generated)
+
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
     foreach (BATCH_FILE ${BATCH_FILES})
@@ -39,6 +46,9 @@ if (TARGET SMS++::MCFBlock)
                              "${BATCH_FILE}" "$<TARGET_FILE:MCF_MILP_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
+        # Make each batch test require the dmx2nc4_generated fixture
+        set_tests_properties(MCF_MILP_test/${BATCH_NAME}
+                             PROPERTIES FIXTURES_REQUIRED dmx2nc4_generated)
     endforeach ()
 endif ()
 

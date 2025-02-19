@@ -34,6 +34,13 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
         target_link_libraries(CFL_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
+    # Create a test fixture to generate .nc4 files by running run_txt2nc4.
+    # This test will build and run the run_txt2nc4 target
+    add_test(NAME run_txt2nc4
+            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_txt2nc4)
+    # Mark run_txt2nc4 as a fixture that sets up "txt2nc4_generated"
+    set_tests_properties(run_txt2nc4 PROPERTIES FIXTURES_SETUP txt2nc4_generated)
+
     # Add a test for each batch file
     file(GLOB BATCH_FILES #"${CMAKE_CURRENT_SOURCE_DIR}/batch" # TODO uncomment when it will be fixed
                           #"${CMAKE_CURRENT_SOURCE_DIR}/batch-s" # TODO uncomment when it will be fixed
@@ -53,6 +60,9 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
                              "${BATCH_FILE}" "$<TARGET_FILE:CFL_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
+        # Make each batch test require the txt2nc4_generated fixture
+        set_tests_properties(CFL_test/${BATCH_NAME}
+                             PROPERTIES FIXTURES_REQUIRED txt2nc4_generated)
     endforeach ()
 endif ()
 
