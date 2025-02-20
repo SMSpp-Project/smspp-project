@@ -4,13 +4,13 @@
 if (NOT hasParent)
     # Blocks
     find_package(MMCFBlock)
-    find_package(MMCFClass)
     # Solvers
     find_package(BundleSolver)
     find_package(MILPSolver)
 endif ()
 
 # ----- Subdirectories ------------------------------------------------------ #
+add_subdirectory(MMCFClass)
 add_subdirectory(gen/Mnetgen)
 
 # ----- Custom commands and targets ----------------------------------------- #
@@ -47,8 +47,6 @@ add_dependencies(run_mnetgen mnetgen)
 if (TARGET SMS++::MMCFBlock AND
     TARGET MMCFClass)
 
-    add_subdirectory(MMCFClass)
-
     add_executable(MMCF_test main.cpp)
     target_link_libraries(MMCF_test PRIVATE
                           SMS++::MMCFBlock
@@ -65,7 +63,7 @@ if (TARGET SMS++::MMCFBlock AND
     # Create a test fixture to generate files by running run_mnetgen.
     # This test will build and run the run_mnetgen target
     add_test(NAME run_mnetgen
-            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_mnetgen)
+             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_mnetgen)
     # Mark run_mnetgen as a fixture that sets up "mnetgen_generated"
     set_tests_properties(run_mnetgen PROPERTIES FIXTURES_SETUP mnetgen_generated)
 
