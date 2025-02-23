@@ -657,6 +657,9 @@ do
   esac
 done
 
+# Remove trailing slash from install_root if present
+install_root="${install_root%/}"
+
 # Detect operating system and execute the appropriate installation function
 OS="$(uname)"
 case "$OS" in
