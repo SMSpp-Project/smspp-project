@@ -231,7 +231,17 @@ curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -
 wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
 ```
 
-according to the documentation inside the bash files.
+according to the following options table:
+
+| Unix               | Windows          | Description               |
+|--------------------|------------------|---------------------------|
+| `--without-cplex`  | `-withoutCplex`  | skip CPLEX installation   |
+| `--without-gurobi` | `-withoutGurobi` | skip Gurobi installation  |
+| `--without-scip`   | `-withoutScip`   | skip SCIP installation    |
+| `--without-highs`  | `-withoutHiGHS`  | skip HiGHS installation   |
+| `--without-stopt`  | `-withoutStOpt`  | skip StOpt installation   |
+| `--without-coinor` | `-withoutCoinOr` | skip COIN-OR installation |
+| `--without-smspp`  | `-withoutSMSpp`  | skip SMS++ installation   |
 
 Otherwise, if you are already inside the cloned repository, you can run the
 script via:
