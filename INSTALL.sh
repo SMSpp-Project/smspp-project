@@ -42,9 +42,17 @@
 #
 # ------------------------------------------------------------------------------
 
+cleanup_on_error() {
+  if [ -n "$CURRENT_INSTALL_FOLDER" ]; then
+    rm -Rf "$CURRENT_INSTALL_FOLDER"
+  fi
+  exit 1
+}
+
 # Function to install dependencies on Linux
 install_on_linux() {
   set -e  # Exit immediately if a command exits with a non-zero status
+  trap 'cleanup_on_error' ERR
 
   echo "Starting the installation process on Linux..."
 
@@ -75,6 +83,7 @@ install_on_linux() {
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
     CPLEX_ROOT="${INSTALL_ROOT}/ibm/ILOG/CPLEX_Studio"
+    CURRENT_INSTALL_FOLDER="${INSTALL_ROOT}ibm"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
@@ -118,12 +127,14 @@ EOL
     else
       echo "CPLEX already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
     echo "Installing Gurobi..."
     GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
+    CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
@@ -141,12 +152,14 @@ EOL
     else
       echo "Gurobi already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
     echo "Installing SCIP..."
     SCIP_ROOT="${INSTALL_ROOT}/scip"
+    CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
     if [ ! -d "$SCIP_ROOT" ]; then
       if [ "$HAS_SUDO" -eq 1 ]; then
         apt-get install -y -q gfortran libtbb-dev
@@ -164,12 +177,14 @@ EOL
     else
       echo "SCIP already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install HiGHS
   if [ "$install_highs" -eq 1 ]; then
     echo "Installing HiGHS..."
     HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
+    CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
     if [ ! -d "$HiGHS_ROOT" ]; then
       cd "$INSTALL_ROOT"
       git clone https://github.com/ERGO-Code/HiGHS.git
@@ -199,15 +214,17 @@ EOL
       fi
     fi
     cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
   if [ "$install_coinor" -eq 1 ]; then
     echo "Installing COIN-OR CoinUtils and Osi/Clp..."
+    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
+    CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
     fi
-    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
     if [ ! -d "$CoinOr_ROOT" ]; then
       cd "$INSTALL_ROOT"
       curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
@@ -252,12 +269,14 @@ EOL
     else
       echo "COIN-OR already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install StOpt
   if [ "$install_stopt" -eq 1 ]; then
     echo "Installing StOpt..."
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
+    CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q zlib1g-dev
     fi
@@ -296,6 +315,7 @@ EOL
         cd "$INSTALL_ROOT"
       fi
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   echo "Installation completed successfully on Linux."
@@ -304,6 +324,7 @@ EOL
 # Function to install dependencies on macOS
 install_on_macos() {
   set -e  # Exit immediately if a command exits with a non-zero status
+  trap 'cleanup_on_error' ERR
 
   echo "Starting the installation process on macOS..."
 
@@ -354,6 +375,7 @@ install_on_macos() {
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
     CPLEX_ROOT="${INSTALL_ROOT}/CPLEX_Studio"
+    CURRENT_INSTALL_FOLDER=${CPLEX_ROOT}
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
       if [ "$OSX_ARCH" == "x86-64_osx" ]; then # Intel arch
@@ -402,12 +424,14 @@ install_on_macos() {
     else
       echo "CPLEX already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
     echo "Installing Gurobi..."
     GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
+    CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
       GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
@@ -421,12 +445,14 @@ install_on_macos() {
     else
       echo "Gurobi already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
     echo "Installing SCIP..."
     SCIP_ROOT="${INSTALL_ROOT}/scip"
+    CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
     if [ ! -d "$SCIP_ROOT" ]; then
       brew install gcc tbb
       cd "$INSTALL_ROOT"
@@ -445,12 +471,14 @@ install_on_macos() {
     else
       echo "SCIP already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install HiGHS
   if [ "$install_highs" -eq 1 ]; then
     echo "Installing HiGHS..."
     HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
+    CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
     if [ ! -d "$HiGHS_ROOT" ]; then
       cd "$INSTALL_ROOT"
       git clone https://github.com/ERGO-Code/HiGHS.git
@@ -476,12 +504,14 @@ install_on_macos() {
       fi
       cd "$INSTALL_ROOT"
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install COIN-OR CoinUtils and Osi/Clp
   if [ "$install_coinor" -eq 1 ]; then
     echo "Installing COIN-OR CoinUtils and Osi/Clp..."
     CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
+    CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ ! -d "$CoinOr_ROOT" ]; then
       brew install coinutils lapack openblas
       cd "$INSTALL_ROOT"
@@ -525,12 +555,14 @@ install_on_macos() {
     else
       echo "COIN-OR already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install StOpt
   if [ "$install_stopt" -eq 1 ]; then
     echo "Installing StOpt..."
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
+    CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ ! -d "$StOpt_ROOT" ]; then
       brew install zlib
       cd "$INSTALL_ROOT"
@@ -565,6 +597,7 @@ install_on_macos() {
       fi
       cd "$INSTALL_ROOT"
     fi
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   echo "Installation completed successfully on macOS."
