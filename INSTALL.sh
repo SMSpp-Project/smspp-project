@@ -165,13 +165,13 @@ EOL
         apt-get install -y -q gfortran libtbb-dev
       fi
       cd "$INSTALL_ROOT"
-      SCIP_INSTALLER="scip-9.2.0"
+      SCIP_INSTALLER="scip-9.2.1"
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar xvzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
       mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
       cd "$SCIP_ROOT"
-      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON
+      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON -DZIMPL=OFF
       cmake --build build
       cmake --install build
       cd "$INSTALL_ROOT"
@@ -461,7 +461,7 @@ install_on_macos() {
     if [ ! -d "$SCIP_ROOT" ]; then
       brew install gcc tbb
       cd "$INSTALL_ROOT"
-      SCIP_INSTALLER="scip-9.2.0"
+      SCIP_INSTALLER="scip-9.2.1"
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar xvzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
