@@ -51,6 +51,9 @@ param(
     [switch]$withoutSMSpp
 )
 
+# Remove trailing backslash from installRoot if present
+$installRoot = $installRoot.TrimEnd('\')
+
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
