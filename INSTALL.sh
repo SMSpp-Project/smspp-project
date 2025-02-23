@@ -171,7 +171,25 @@ EOL
       rm "$SCIP_INSTALLER.tgz"
       mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
       cd "$SCIP_ROOT"
-      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON -DZIMPL=OFF
+      scip_build_flags=(
+        "-DCMAKE_INSTALL_PREFIX="$SCIP_ROOT""
+        "-DAUTOBUILD=ON"
+        "-DZIMPL=OFF"
+        "-Wno-dev"
+      )
+      # Build SCIP with CPLEX
+      if [ "$install_cplex" -ne 0 ]; then
+        scip_build_flags+=(
+          "-DCPLEX_DIR=${CPLEX_ROOT}"
+        )
+      fi
+      # Build SCIP with Gurobi
+      if [ "$install_gurobi" -ne 0 ]; then
+        scip_build_flags+=(
+          "-DGUROBI_DIR=${GUROBI_ROOT}"
+        )
+      fi
+      cmake -S . -B build "${scip_build_flags[@]}"
       cmake --build build
       cmake --install build
       cd "$INSTALL_ROOT"
@@ -236,13 +254,13 @@ EOL
       chmod u+x coinbrew
       # Build CoinUtils
       ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      # Build Osi with or without CPLEX
       osi_build_flags=(
         "--latest-release"
         "--skip-dependencies"
         "--prefix=$CoinOr_ROOT"
         "--tests=none"
       )
+      # Build Osi with or without CPLEX
       if [ "$install_cplex" -eq 0 ]; then
         osi_build_flags+=("--without-cplex")
       else
@@ -467,7 +485,25 @@ install_on_macos() {
       rm "$SCIP_INSTALLER.tgz"
       mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
       cd "$SCIP_ROOT"
-      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$SCIP_ROOT" -DAUTOBUILD=ON -DZIMPL=OFF
+      scip_build_flags=(
+        "-DCMAKE_INSTALL_PREFIX="$SCIP_ROOT""
+        "-DAUTOBUILD=ON"
+        "-DZIMPL=OFF"
+        "-Wno-dev"
+      )
+      # Build SCIP with CPLEX
+      if [ "$install_cplex" -ne 0 ]; then
+        scip_build_flags+=(
+          "-DCPLEX_DIR=${CPLEX_ROOT}"
+        )
+      fi
+      # Build SCIP with Gurobi
+      if [ "$install_gurobi" -ne 0 ]; then
+        scip_build_flags+=(
+          "-DGUROBI_DIR=${GUROBI_ROOT}"
+        )
+      fi
+      cmake -S . -B build "${scip_build_flags[@]}"
       cmake --build build
       cmake --install build
       cd "$INSTALL_ROOT"
@@ -524,13 +560,13 @@ install_on_macos() {
       chmod u+x coinbrew
       # Build CoinUtils
       ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      # Build Osi with or without CPLEX
       osi_build_flags=(
         "--latest-release"
         "--skip-dependencies"
         "--prefix=$CoinOr_ROOT"
         "--tests=none"
       )
+      # Build Osi with or without CPLEX
       if [ "$install_cplex" -eq 0 ]; then
         osi_build_flags+=("--without-cplex")
       else
