@@ -173,7 +173,7 @@ EOL
       cd "$SCIP_ROOT"
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX="$SCIP_ROOT""
-        "-DAUTOBUILD=ON"
+        #"-DAUTOBUILD=ON"
         "-DZIMPL=OFF"
         "-Wno-dev"
       )
