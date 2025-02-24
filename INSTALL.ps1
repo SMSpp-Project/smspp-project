@@ -238,13 +238,13 @@ if ($OS -eq "Win32NT")
         if (-not (Test-Path $GUROBI_ROOT))
         {
             Set-Location "C:\"
-            $GUROBI_INSTALLER = "Gurobi-10.0.3-win64.msi"
-            Invoke-WebRequest -Uri "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER" -OutFile "C:\$GUROBI_INSTALLER"
+            $GUROBI_INSTALLER = "Gurobi-12.0.1-win64.msi"
+            Invoke-WebRequest -Uri "https://packages.gurobi.com/12.0/$GUROBI_INSTALLER" -OutFile "C:\$GUROBI_INSTALLER"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", "C:\$GUROBI_INSTALLER" -Wait
             Remove-Item "C:\$GUROBI_INSTALLER"
-            Move-Item -Path ".\gurobi1003" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
+            Move-Item -Path ".\gurobi1201" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
             # Update the system PATH to ensure the SMS++ exe can correctly locate the gurobi*.dll file
-            Update-EnvironmentVariables -oldPattern "C:\gurobi1003" -newValue $GUROBI_ROOT
+            Update-EnvironmentVariables -oldPattern "C:\gurobi1201" -newValue $GUROBI_ROOT
         }
         Write-Host " done."
     }
@@ -375,10 +375,10 @@ if ($OS -eq "Win32NT")
             # Use sed `/old/c\new` to replace the configuration line
             sed -i '/--without-gurobi/c\
               --with-gurobi\
-              --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib\
+              --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
               --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
               --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-              --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi100.lib' portfile.cmake
+              --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
 
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
         }
