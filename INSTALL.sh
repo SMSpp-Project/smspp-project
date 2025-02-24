@@ -137,11 +137,11 @@ EOL
     CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      GUROBI_INSTALLER="gurobi10.0.3_linux64.tar.gz"
-      curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
+      GUROBI_INSTALLER="gurobi12.0.1_linux64.tar.gz"
+      curl -O "https://packages.gurobi.com/12.0/$GUROBI_INSTALLER"
       tar -xvf "$GUROBI_INSTALLER"
       rm "$GUROBI_INSTALLER"
-      mv ./gurobi1003 "$GUROBI_ROOT"
+      mv ./gurobi1201 "$GUROBI_ROOT"
       export GUROBI_HOME="${GUROBI_ROOT}/linux64"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
@@ -284,7 +284,7 @@ EOL
       else
         osi_build_flags+=(
           "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi100"
+          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi120"
           "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
         )
       fi
@@ -465,11 +465,11 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      GUROBI_INSTALLER="gurobi10.0.3_macos_universal2.pkg"
-      curl -O "https://packages.gurobi.com/10.0/$GUROBI_INSTALLER"
+      GUROBI_INSTALLER="gurobi12.0.1_macos_universal2.pkg"
+      curl -O "https://packages.gurobi.com/12.0/$GUROBI_INSTALLER"
       sudo installer -pkg "$GUROBI_INSTALLER" -target /
       rm "$GUROBI_INSTALLER"
-      sudo mv /Library/gurobi1003 "$GUROBI_ROOT"
+      sudo mv /Library/gurobi1201 "$GUROBI_ROOT"
       export GUROBI_HOME="${GUROBI_ROOT}/macos_universal2"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
@@ -599,7 +599,7 @@ install_on_macos() {
       else
         osi_build_flags+=(
           "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi100"
+          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi120"
           "--disable-gurobi-libcheck"
           "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
         )
