@@ -177,7 +177,7 @@ EOL
       cmake -S . -B build
       cmake --build build
       cmake --install build
-      cd ..
+      cd "$SCIP_ROOT"
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX=${SCIP_ROOT}"
         "-DAUTOBUILD=ON"
@@ -499,7 +499,7 @@ install_on_macos() {
       cmake -S . -B build
       cmake --build build
       cmake --install build
-      cd ..
+      cd "$SCIP_ROOT"
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX=${SCIP_ROOT}"
         "-DAUTOBUILD=ON"
