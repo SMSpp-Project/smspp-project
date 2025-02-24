@@ -174,7 +174,7 @@ EOL
       # Install PaPILO
       git clone https://github.com/scipopt/papilo.git
       cd papilo
-      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}"/papilo
+      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}/papilo"
       cmake --build build
       cmake --install build
       cd "$SCIP_ROOT"
@@ -496,7 +496,7 @@ install_on_macos() {
       # Install PaPILO
       git clone https://github.com/scipopt/papilo.git
       cd papilo
-      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}"/papilo
+      cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}/papilo"
       cmake --build build
       cmake --install build
       cd "$SCIP_ROOT"
