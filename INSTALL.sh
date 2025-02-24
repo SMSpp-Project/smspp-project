@@ -177,6 +177,7 @@ EOL
       cmake -S . -B build
       cmake --build build
       cmake --install build
+      cd ..
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX=${SCIP_ROOT}"
         #"-DAUTOBUILD=ON"
@@ -492,10 +493,18 @@ install_on_macos() {
       rm "$SCIP_INSTALLER.tgz"
       mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
       cd "$SCIP_ROOT"
+      # Install PaPILO
+      git clone https://github.com/scipopt/papilo.git
+      cd papilo
+      cmake -S . -B build
+      cmake --build build
+      cmake --install build
+      cd ..
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX=${SCIP_ROOT}"
         "-DAUTOBUILD=ON"
         "-DZIMPL=OFF"
+        "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
         "-Wno-dev"
       )
       # Build SCIP with CPLEX
