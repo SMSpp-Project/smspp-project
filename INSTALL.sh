@@ -180,7 +180,6 @@ EOL
       cd ..
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX=${SCIP_ROOT}"
-        #"-DAUTOBUILD=ON"
         "-DZIMPL=OFF"
         "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
         "-Wno-dev"
@@ -502,7 +501,6 @@ install_on_macos() {
       cd ..
       scip_build_flags=(
         "-DCMAKE_INSTALL_PREFIX=${SCIP_ROOT}"
-        "-DAUTOBUILD=ON"
         "-DZIMPL=OFF"
         "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
         "-Wno-dev"
