@@ -185,19 +185,6 @@ EOL
         "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
         "-Wno-dev"
       )
-      # Build SCIP with Gurobi, 1st preference
-      if [ "$install_gurobi" -ne 0 ]; then
-        scip_build_flags+=(
-          "-DLPS=grb"
-          "-DGUROBI_DIR=${GUROBI_ROOT}"
-        )
-      # Build SCIP with CPLEX, 2nd preference
-      elif [ "$install_cplex" -ne 0 ]; then
-        scip_build_flags+=(
-          "-DLPS=cpx"
-          "-DCPLEX_DIR=${CPLEX_ROOT}"
-        )
-      fi # otherwise, use SOPLEX by default
       cmake -S . -B build "${scip_build_flags[@]}"
       cmake --build build
       cmake --install build
@@ -515,19 +502,6 @@ install_on_macos() {
         "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
         "-Wno-dev"
       )
-      # Build SCIP with Gurobi, 1st preference
-      if [ "$install_gurobi" -ne 0 ]; then
-        scip_build_flags+=(
-          "-DLPS=grb"
-          "-DGUROBI_DIR=${GUROBI_ROOT}"
-        )
-      # Build SCIP with CPLEX, 2nd preference
-      elif [ "$install_cplex" -ne 0 ]; then
-        scip_build_flags+=(
-          "-DLPS=cpx"
-          "-DCPLEX_DIR=${CPLEX_ROOT}"
-        )
-      fi # otherwise, use SOPLEX by default
       cmake -S . -B build "${scip_build_flags[@]}"
       cmake --build build
       cmake --install build
