@@ -477,8 +477,8 @@ install_on_macos() {
       # Fix non-default installation
       if [ "$INSTALL_ROOT" != "/Library" ]; then
         GUROBI_VERSION=$(ls "${GUROBI_HOME}/lib" | grep -E '^libgurobi[0-9]+\.dylib$' | sed -E 's/^libgurobi([0-9]+)\.dylib$/\1/' | head -n1)
-        install_name_tool -id "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" libgurobi"${GUROBI_VERSION}".dylib
-        codesign -s - -f "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" libgurobi"${GUROBI_VERSION}".dylib
+        install_name_tool -id "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib"
+        codesign -s - -f "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" "libgurobi${GUROBI_VERSION}.dylib"
       fi
     else
       echo "Gurobi already installed."
