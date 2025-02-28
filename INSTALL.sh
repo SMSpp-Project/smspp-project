@@ -282,9 +282,10 @@ EOL
       if [ "$install_gurobi" -eq 0 ]; then
         osi_build_flags+=("--without-gurobi")
       else
+        GUROBI_VERSION=$(ls "${GUROBI_ROOT}/linux64/lib" | grep -E '^libgurobi[0-9]+\.so$' | sed -E 's/^libgurobi([0-9]+)\.so$/\1/' | head -n1)
         osi_build_flags+=(
           "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi120"
+          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi${GUROBI_VERSION}"
           "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
         )
       fi
@@ -473,6 +474,12 @@ install_on_macos() {
       export GUROBI_HOME="${GUROBI_ROOT}/macos_universal2"
       export PATH="${PATH}:${GUROBI_HOME}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+      # Fix non-default installation
+      if [ "$INSTALL_ROOT" != "/Library" ]; then
+        GUROBI_VERSION=$(ls "${GUROBI_HOME}/lib" | grep -E '^libgurobi[0-9]+\.dylib$' | sed -E 's/^libgurobi([0-9]+)\.dylib$/\1/' | head -n1)
+        install_name_tool -id "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" libgurobi"${GUROBI_VERSION}".dylib
+        codesign -s - -f "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" libgurobi"${GUROBI_VERSION}".dylib
+      fi
     else
       echo "Gurobi already installed."
     fi
@@ -597,9 +604,10 @@ install_on_macos() {
       if [ "$install_gurobi" -eq 0 ]; then
         osi_build_flags+=("--without-gurobi")
       else
+        GUROBI_VERSION=$(ls "${GUROBI_ROOT}/macos_universal2/lib" | grep -E '^libgurobi[0-9]+\.dylib$' | sed -E 's/^libgurobi([0-9]+)\.dylib$/\1/' | head -n1)
         osi_build_flags+=(
           "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi120"
+          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi${GUROBI_VERSION}"
           "--disable-gurobi-libcheck"
           "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
         )
