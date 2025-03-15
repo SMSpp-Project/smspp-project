@@ -260,7 +260,7 @@ static bool SolveBoth( void )
 {
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
-  auto Slvr1 = dynamic_cast< CDASolver *>(
+  auto Slvr1 = dynamic_cast< CDASolver * >(
 			       TestBlock->get_registered_solvers().front() );
   if( ! Slvr1 ) {
    cout << "Error! First solver registred to TestBlock not a CDASolver";
@@ -303,7 +303,7 @@ static bool SolveBoth( void )
    }
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
-  auto Slvr2 = dynamic_cast< CDASolver *>(
+  auto Slvr2 = dynamic_cast< CDASolver * >(
 			       TestBlock->get_registered_solvers().back() );
   if( ! Slvr2 ) {
    cout << "Error! Last solver registred to TestBlock not a CDASolver";
