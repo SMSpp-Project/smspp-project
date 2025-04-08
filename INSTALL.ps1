@@ -285,7 +285,7 @@ if ($OS -eq "Win32NT")
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     '-DCMAKE_BUILD_TYPE=Debug' `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-            & cmake '--build' 'build' '--config' 'Debug'
+            & cmake '--build' 'build' '--config' 'Debug' '-j'
             & cmake '--install' 'build' '--config' 'Debug'
             # Build Release
             & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
@@ -293,7 +293,7 @@ if ($OS -eq "Win32NT")
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     '-DCMAKE_BUILD_TYPE=Release' `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-            & cmake '--build' 'build' '--config' 'Release'
+            & cmake '--build' 'build' '--config' 'Release' '-j'
             & cmake '--install' 'build' '--config' 'Release'
             # Define the possible paths
             $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
