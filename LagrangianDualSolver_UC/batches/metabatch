@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# usage: metabatch < par file > < log file >
+#        < par file > = BlockSolverConfig file, default BSPar.txt
+#        < log file > = name of log file, default log.txt
+#
+# runs all the instances
+# by default uses no BlockSolverConfig (BSPar.txt) and sends to log.txt
+
+# command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
+
+if [ $# -gt 0 ]; then
+   par=$1
+else
+   par=BSPar.txt
+fi
+if [ $# -gt 1 ]; then
+   mlf=$2
+else
+   mlf=log.txt
+fi
+
+# run academic instances
+./batches/batch-acad $par $mlf
+
+# run plan4res instances
+./batches/batch-p4r $par $mlf
+
+# run energy community instances
+./batches/batch-ec $par $mlf
+
+# the end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

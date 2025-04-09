@@ -1,34 +1,57 @@
 #!/usr/bin/env bash
-
+#
+# usage: batch_p4r < par file > < log file >
+#        < par file > = BlockSolverConfig file, default BSPar-2S.txt
+#        < log file > = name of log file, default no log
+#
+# runs all the plan4res public instances
+#
+# for LagranngianDualSolver + BundleSolver:
 # correct value of tStar: 1e-2
 # correct value of dblCtOff: 0.1
 
-#1D_1Z_DP_1SS_10TU
-#1D_1Z_DP_1SS_151TU
-#1D_1Z_DP_3SS_151TU
-#1D_19Z_D_1230TU_11SS_12STS_52RES
-#1D_19Z_DP_1230TU_11SS_12STS_52RES
-#1W_1Z_DP_1SS_10TU
-#1W_1Z_DP_1SS_151TU
-#1W_1Z_DP_3SS_151TU
-#1W_3Z_D_4SS_383TU_2STS_9RES
-#1W_3Z_DP_4SS_383TU_2STS_9RES
-#1W_19Z_DP_1230TU_11SS_12STS_52RES
-#1W_19Z_D_1230TU_11SS_12STS_52RES
+# command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
-LDS_UC_test=${1:-./LDS_UC_test}
+if [ $# -gt 0 ]; then
+   par=$1
+else
+   par=BSPar-2S.txt
+fi
+if [ $# -gt 1 ]; then
+   mlf=$2
+fi
+
+# run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 for what in ../../UCBlock/netCDF_files/plan4res-data/FirstSetofInstances/*.nc4 \
             ../../UCBlock/netCDF_files/plan4res-data/SecondSetofInstances/*.nc4 \
             ../../UCBlock/netCDF_files/plan4res-data/TestUC/1D_1Z_DP_1SS_10TU/*.nc4; do
 
-  printf "[$what]: "
+    if [ -z "$par" ]; then
+      if [ -z "$mlf" ]; then
+        printf "[$what]: "
+      else
+        printf "[$what]: " >> $mlf
+      fi
+    else
+      if [ -z "$mlf" ]; then
+        printf "[$what $par]: "
+      else
+        printf "[$what $par]: " >> $mlf
+      fi
+    fi
 
-  "$LDS_UC_test" $what
+    if [ -z "$mlf" ]; then
+      ./LDS_UC_test $what $par
+    else
+      ./LDS_UC_test $what $par >> $mlf
+    fi
 
-  retVal=$?
-  if [ $retVal -ne 0 ]; then
-    exit 1
-  fi
+    retVal=$?
+    if [ $retVal -ne 0 ]; then
+      exit 1
+    fi
 
 done
+
+# the end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

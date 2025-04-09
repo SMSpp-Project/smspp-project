@@ -262,8 +262,8 @@ static bool SolveBoth( void ) {
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
-    std::cout << "Solver1 (" << fixd << time1 << ", "
-	 << Slvr1->get_elapsed_iterations() << ") = ";
+    std::cout << fixd << time1 << "\t" << Slvr1->get_elapsed_iterations()
+	      << "\t";
     PrintResults( hs1st , rtrn1st , fo1st );
     std::cout << std::endl;
    #endif
