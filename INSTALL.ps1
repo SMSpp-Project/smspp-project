@@ -337,7 +337,7 @@ if ($OS -eq "Win32NT")
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                         '-DCMAKE_BUILD_TYPE=Debug' `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-                & cmake '--build' 'build' '--config' 'Debug'
+                & cmake '--build' 'build' '--config' 'Debug' '-j'
                 & cmake '--install' 'build' '--config' 'Debug'
                 # Build Release
                 & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
@@ -345,7 +345,7 @@ if ($OS -eq "Win32NT")
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                         '-DCMAKE_BUILD_TYPE=Release' `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-                & cmake '--build' 'build' '--config' 'Release'
+                & cmake '--build' 'build' '--config' 'Release' '-j'
                 & cmake '--install' 'build' '--config' 'Release'
             }
             else
@@ -457,7 +457,7 @@ if (-not $withoutSMSpp)
             '-Wno-dev'
     # run cmake-gui
     Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait # select submodules, then Configure and Generate the build files
-    & cmake '--build' 'build/Debug' '--config' 'Debug'
+    & cmake '--build' 'build/Debug' '--config' 'Debug' '-j'
     & cmake '--install' 'build/Debug' '--config' 'Debug'
     #Set-Location "build/Debug"
     #& ctest -V -C Debug
@@ -472,7 +472,7 @@ if (-not $withoutSMSpp)
             '-Wno-dev'
     # run cmake-gui
     Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait # select submodules, then Configure and Generate the build files
-    & cmake '--build' 'build/Release' '--config' 'Release'
+    & cmake '--build' 'build/Release' '--config' 'Release' '-j'
     & cmake '--install' 'build/Release' '--config' 'Release'
     #Set-Location "build/Release"
     #& ctest -V -C Release
