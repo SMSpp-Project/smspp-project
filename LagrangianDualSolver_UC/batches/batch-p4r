@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# usage: batch_p4r < par file > < log file >
+# usage: batch_p4r < exe file > < par file > < log file >
+#        < exe file > = path of the executable file, default LDS_UC_test
 #        < par file > = BlockSolverConfig file, default BSPar-2S.txt
 #        < log file > = name of log file, default no log
 #
@@ -12,13 +13,15 @@
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
-if [ $# -gt 0 ]; then
-   par=$1
+LDS_UC_test=${1:-./LDS_UC_test}
+
+if [ $# -gt 1 ]; then
+   par=$2
 else
    par=BSPar-2S.txt
 fi
-if [ $# -gt 1 ]; then
-   mlf=$2
+if [ $# -gt 2 ]; then
+   mlf=$3
 fi
 
 # run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -42,9 +45,9 @@ for what in ../../UCBlock/netCDF_files/plan4res-data/FirstSetofInstances/*.nc4 \
     fi
 
     if [ -z "$mlf" ]; then
-      ./LDS_UC_test $what $par
+      "$LDS_UC_test" $what $par
     else
-      ./LDS_UC_test $what $par >> $mlf
+      "$LDS_UC_test" $what $par >> $mlf
     fi
 
     retVal=$?

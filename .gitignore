@@ -16,6 +16,7 @@ compare_formulations/compare_formulations
 LagBFunction/LagBFunction_test
 LagrangianDualSolver_Box/LDS_Box_test
 LagrangianDualSolver_UC/LDS_UC_test
+LagrangianDualSolver_UC/log.txt
 LagrangianDualSolver_MMCF/LDS_MMCF_test
 LukFiBlock/LukFi_test
 MCF_MILP/MCF_MILP_test

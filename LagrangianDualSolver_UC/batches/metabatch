@@ -20,13 +20,15 @@ else
    mlf=log.txt
 fi
 
+exe=./LDS_UC_test
+
 # run academic instances
-./batches/batch-acad $par $mlf
+./batches/batch-acad $exe $par $mlf
 
 # run plan4res instances
-./batches/batch-p4r $par $mlf
+./batches/batch-p4r $exe $par $mlf
 
 # run energy community instances
-./batches/batch-ec $par $mlf
+./batches/batch-ec $exe $par $mlf
 
 # the end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
