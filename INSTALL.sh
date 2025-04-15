@@ -175,7 +175,7 @@ EOL
       git clone https://github.com/scipopt/papilo.git
       cd papilo
       cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}/papilo"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       cd "$SCIP_ROOT"
       scip_build_flags=(
@@ -186,7 +186,7 @@ EOL
         "-Wno-dev"
       )
       cmake -S . -B build "${scip_build_flags[@]}"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
@@ -209,7 +209,7 @@ EOL
       git clone https://github.com/ERGO-Code/HiGHS.git
       cd HiGHS
       cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${HiGHS_ROOT}/lib' > /etc/ld.so.conf.d/highs.conf"
@@ -225,7 +225,7 @@ EOL
         if [ "$LOCAL" != "$REMOTE" ]; then
           git pull
           cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-          cmake --build build -j
+          cmake --build build -j"${MAX_JOBS}"
           cmake --install build
         else
           echo "HiGHS already up to date."
@@ -309,7 +309,7 @@ EOL
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
@@ -326,7 +326,7 @@ EOL
                 -DBUILD_PYTHON=OFF \
                 -DBUILD_TEST=OFF \
                 -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-          cmake --build build -j
+          cmake --build build -j"${MAX_JOBS}"
           cmake --install build
           mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
         else
@@ -492,7 +492,7 @@ install_on_macos() {
       git clone https://github.com/scipopt/papilo.git
       cd papilo
       cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}/papilo"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       cd "$SCIP_ROOT"
       scip_build_flags=(
@@ -503,7 +503,7 @@ install_on_macos() {
         "-Wno-dev"
       )
       cmake -S . -B build "${scip_build_flags[@]}"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
       export PATH="${PATH}:${SCIP_ROOT}/bin"
@@ -524,7 +524,7 @@ install_on_macos() {
       git clone https://github.com/ERGO-Code/HiGHS.git
       cd HiGHS
       cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
       export PATH="${PATH}:${HiGHS_ROOT}/bin"
@@ -537,7 +537,7 @@ install_on_macos() {
       if [ "$LOCAL" != "$REMOTE" ]; then
         git pull
         cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-        cmake --build build -j
+        cmake --build build -j"${MAX_JOBS}"
         cmake --install build
       else
         echo "HiGHS already up to date."
@@ -614,7 +614,7 @@ install_on_macos() {
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
@@ -630,7 +630,7 @@ install_on_macos() {
               -DBUILD_PYTHON=OFF \
               -DBUILD_TEST=OFF \
               -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-        cmake --build build -j
+        cmake --build build -j"${MAX_JOBS}"
         cmake --install build
         sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
       else
@@ -656,6 +656,9 @@ install_smspp=${install_smspp:-1}
 
 # Default value for installation root
 install_root=""
+
+# Default value for the maximum number of jobs is nproc if not already defined
+MAX_JOBS=${MAX_JOBS:-$(nproc)}
 
 # Parse command line arguments
 for arg in "$@"
@@ -808,7 +811,7 @@ if [ "$install_smspp" -eq 1 ]; then
   # Check if the script is being executed on a server without display or interactive terminal
   if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
     # no way to use ccmake interactively to choose submodules, so build it all
-    cmake --build build -j
+    cmake --build build -j"${MAX_JOBS}"
     cmake --install build
     #cd build
     #ctest -V
@@ -819,7 +822,7 @@ if [ "$install_smspp" -eq 1 ]; then
     wait $! # wait for ccmake to finish
     CCMAKE_EXIT_CODE=$?
     if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
-      cmake --build build -j
+      cmake --build build -j"${MAX_JOBS}"
       cmake --install build
       #cd build
       #ctest -V
