@@ -9,6 +9,8 @@ if (NOT hasParent)
     find_package(MILPSolver)
 endif ()
 
+find_package(CPLEX)
+
 # ----- Subdirectories ------------------------------------------------------ #
 add_subdirectory(MMCFClass)
 add_subdirectory(gen/Mnetgen)
@@ -45,7 +47,8 @@ add_dependencies(run_mnetgen mnetgen)
 
 # ----- Tests --------------------------------------------------------------- #
 if (TARGET SMS++::MMCFBlock AND
-    TARGET MMCFClass)
+    TARGET MMCFClass AND
+    CPLEX_FOUND)
 
     add_executable(MMCF_test main.cpp)
     target_link_libraries(MMCF_test PRIVATE
