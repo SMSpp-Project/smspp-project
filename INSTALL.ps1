@@ -6,6 +6,7 @@
     This script performs the installation of SMS++ and all its dependencies.
     If not already present, it clones the smspp-project repositories, then builds and installs them.
 
+    You can use the `-installRoot=<your-custom-path>` option to specify your SMS++ custom installation root.
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
@@ -32,11 +33,11 @@
     .EXAMPLES
     If you are inside the cloned repository:
 
-        .\INSTALL.ps1 -without<some-dependency>
+        .\INSTALL.ps1 -installRoot=<your-custom-path> without<some-dependency>
 
     If you have not yet cloned the SMS++ repository, you can run the script directly:
 
-        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -without<some-dependency>
+        & ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -installRoot=<your-custom-path> -without<some-dependency>
 
 #>
 
@@ -50,6 +51,13 @@ param(
     [switch]$withoutCoinOr,
     [switch]$withoutSMSpp
 )
+
+# Check if installRoot is null or empty, and if so, assign a default value
+if (-not $installRoot) {
+    $installRoot = "C:\"
+}
+# Remove trailing backslash from installRoot if present
+$installRoot = $installRoot.TrimEnd('\')
 
 # Default value for the maximum number of jobs is the number of logical processors if not already defined
 $MAX_JOBS = $env:MAX_JOBS
@@ -435,7 +443,7 @@ else
 if (-not $withoutSMSpp)
 {
     Write-Host "Compiling SMSpp..."
-    $SMSPP_ROOT = "C:\smspp-project"
+    $SMSPP_ROOT = "$installRoot\smspp-project"
 
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT)
