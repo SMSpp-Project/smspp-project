@@ -49,7 +49,8 @@ param(
     [switch]$withoutHiGHS,
     [switch]$withoutStOpt,
     [switch]$withoutCoinOr,
-    [switch]$withoutSMSpp
+    [switch]$withoutSMSpp,
+    [switch]$installRoot
 )
 
 # Check if installRoot is null or empty, and if so, assign a default value
