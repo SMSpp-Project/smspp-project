@@ -54,11 +54,14 @@ param(
 )
 
 # Check if installRoot is null or empty, and if so, assign a default value
-if (-not $installRoot) {
+if (-not $installRoot)
+{
     $installRoot = "C:\"
 }
-# Remove trailing backslash from installRoot if present
-$installRoot = $installRoot.TrimEnd('\')
+else # Remove trailing backslash from installRoot if present
+{
+    $installRoot = $installRoot.TrimEnd('\')
+}
 
 # Default value for the maximum number of jobs is the number of logical processors if not already defined
 $MAX_JOBS = $env:MAX_JOBS
