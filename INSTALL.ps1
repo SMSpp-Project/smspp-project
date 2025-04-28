@@ -41,7 +41,7 @@
 
 #>
 
-# Default value indicating if CPLEX should be installed
+# Default values indicating if dependencies should be installed
 param(
     [switch]$withoutCplex,
     [switch]$withoutGurobi,
@@ -440,8 +440,8 @@ else
 if (-not $withoutSMSpp)
 {
     Write-Host "Compiling SMSpp..."
+    Write-Host "SMSPP_ROOT is set to: $installRoot"
     $SMSPP_ROOT = Join-Path $installRoot "smspp-project"
-    Write-Host "SMSPP_ROOT is set to: $SMSPP_ROOT"
 
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT)
