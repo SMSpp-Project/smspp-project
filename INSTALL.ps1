@@ -441,6 +441,7 @@ if (-not $withoutSMSpp)
 {
     Write-Host "Compiling SMSpp..."
     $SMSPP_ROOT = Join-Path $installRoot "smspp-project"
+    Write-Host "SMSPP_ROOT is set to: $SMSPP_ROOT"
 
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT)
