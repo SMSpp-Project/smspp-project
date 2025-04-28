@@ -22,7 +22,11 @@ if (MSVC)
 endif ()
 
 # ----- Project definition and configuration -------------------------------- #
-project("The SMS++ Project")
+project(SMS++_project
+		VERSION 0.4.0
+		DESCRIPTION "The SMS++ Project"
+		HOMEPAGE_URL https://gitlab.com/smspp-project
+		LANGUAGES C CXX)
 
 # This file can contain custom settings.
 # Use it as an alternative to specify CMake variables manually with -D.
