@@ -50,18 +50,11 @@ param(
     [switch]$withoutStOpt,
     [switch]$withoutCoinOr,
     [switch]$withoutSMSpp,
-    [string]$installRoot
+    [string]$installRoot = "C:\" # Default to C:\ if not provided
 )
 
-# Check if installRoot is null or empty, and if so, assign a default value
-if (-not $installRoot)
-{
-    $installRoot = "C:\"
-}
-else # Remove trailing backslash from installRoot if present
-{
-    $installRoot = $installRoot.TrimEnd('\')
-}
+# Remove trailing backslash from installRoot if present
+$installRoot = $installRoot.TrimEnd('\')
 
 # Default value for the maximum number of jobs is the number of logical processors if not already defined
 $MAX_JOBS = $env:MAX_JOBS
@@ -447,7 +440,7 @@ else
 if (-not $withoutSMSpp)
 {
     Write-Host "Compiling SMSpp..."
-    $SMSPP_ROOT = "$installRoot\smspp-project"
+    $SMSPP_ROOT = Join-Path $installRoot "smspp-project"
 
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT)
