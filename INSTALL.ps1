@@ -293,7 +293,7 @@ if ($OS -eq "Win32NT")
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     '-DCMAKE_BUILD_TYPE=Debug' `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-            & cmake '--build' 'build' '--config' 'Debug' "-j$MAX_JOBS"
+            & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Debug'
             # Build Release
             & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
@@ -301,7 +301,7 @@ if ($OS -eq "Win32NT")
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     '-DCMAKE_BUILD_TYPE=Release' `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-            & cmake '--build' 'build' '--config' 'Release' "-j$MAX_JOBS"
+            & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
             # Define the possible paths
             $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
@@ -345,7 +345,7 @@ if ($OS -eq "Win32NT")
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                         '-DCMAKE_BUILD_TYPE=Debug' `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-                & cmake '--build' 'build' '--config' 'Debug' "-j$MAX_JOBS"
+                & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Debug'
                 # Build Release
                 & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
@@ -353,7 +353,7 @@ if ($OS -eq "Win32NT")
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                         '-DCMAKE_BUILD_TYPE=Release' `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-                & cmake '--build' 'build' '--config' 'Release' "-j$MAX_JOBS"
+                & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
             }
             else
@@ -465,7 +465,7 @@ if (-not $withoutSMSpp)
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
     Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait # select submodules, then Configure and Generate the build files
-    & cmake '--build' 'build/Debug' '--config' 'Debug' "-j$MAX_JOBS"
+    & cmake '--build' 'build/Debug' '--config' 'Debug' "-j $MAX_JOBS"
     & cmake '--install' 'build/Debug' '--config' 'Debug'
     #Set-Location "build/Debug"
     #& ctest -V -C Debug
@@ -480,7 +480,7 @@ if (-not $withoutSMSpp)
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
     Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait # select submodules, then Configure and Generate the build files
-    & cmake '--build' 'build/Release' '--config' 'Release' "-j$MAX_JOBS"
+    & cmake '--build' 'build/Release' '--config' 'Release' "-j $MAX_JOBS"
     & cmake '--install' 'build/Release' '--config' 'Release'
     #Set-Location "build/Release"
     #& ctest -V -C Release
