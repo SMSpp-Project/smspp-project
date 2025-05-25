@@ -978,21 +978,23 @@ int main( int argc , char **argv )
   // if LagBFunctions are treated as not-easy, load once and for all the
   // ComputeConfig containing the BlockSolverConfig that will be used to
   // have the appropriate Solver attached to them
-  ComputeConfig * hLBFC = nullptr;
-  if( nt && ( ! HasEasy ) ) {
-   auto cfg = Configuration::deserialize( "HardLBFTPPar.txt" );
-   if( ! ( hLBFC = dynamic_cast< ComputeConfig * >( cfg ) ) ) {
-    cout << "error loading Configuration file for hard LagBFunction" << endl;
-    delete( cfg );
-    exit( 1 );
-    }
+  auto cfg = Configuration::deserialize( ( nt && ( ! HasEasy ) ) ?
+					 "LBFTPPar-Hard.txt" :
+					 "LBFTPPar-Easy.txt" );
+  auto LBFC = dynamic_cast< ComputeConfig * >( cfg );
+  if( ! LBFC ) {
+   cout << "error loading Configuration file for "
+	<< ( ( nt && ( ! HasEasy ) ) ? "hard" : "easy" )
+	<< " LagBFunction" << endl;
+   delete( cfg );
+   exit( 1 );
    }
 
   for( Index p = 0 ; p < Index( nt ) ; ++p ) {
    // for all transportation sub-Block- - - - - - - - - - - - - - - - - - - -
-   Index nzc = GenerateCosts();        // generate random costs
-   GenerateSupplies();                 // generate random supplies == demands
-   Index nic = GenerateCapacities();   // generate random capacities
+   Index nzc = GenerateCosts();       // generate random costs
+   GenerateSupplies();                // generate random supplies == demands
+   Index nic = GenerateCapacities();  // generate random capacities
 
    #if( LOG_LEVEL >= 5 )
     cout << "T[ " << p << " ] = " << endl;
@@ -1213,12 +1215,7 @@ int main( int argc , char **argv )
    // construct the LagBFunction, passing it the inner Block
    auto LBF = new LagBFunction( IBNDOp );
 
-   // if appropriate, Configure it; note that the ComputeConfig has "no
-   // movable parts", i.e., it is not affected by being set (as opposed
-   // to what would happen if it contained a :BlockConfig), and therefore
-   // it can be re-used for all the LagBFunctions without clone()-ing
-   if( hLBFC )
-    LBF->set_ComputeConfig( hLBFC );
+   LBF->set_ComputeConfig( LBFC );  // ComputeConfig-ure it
 
    // construct the dual pairs
    LagBFunction::v_dual_pair lp( nvar );
@@ -1256,7 +1253,7 @@ int main( int argc , char **argv )
 
    }  // end( for( p ) )
 
-  delete( hLBFC );
+  delete( LBFC );
   }
 
  // define bound constraints- - - - - - - - - - - - - - - - - - - - - - - - -
