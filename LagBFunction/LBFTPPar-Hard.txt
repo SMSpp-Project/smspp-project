@@ -18,10 +18,10 @@ ComputeConfig     # exact type of the Configuration object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-0  # number of integer parameters
+1  # number of integer parameters
 
 # now all the integer parameters
-# [none]
+intPushCostToOwner	0
 
 0  # number of integer parameters
 
