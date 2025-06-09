@@ -107,36 +107,35 @@ if ($OS -eq "Win32NT")
 
     Write-Host "Starting the installation process on Windows..."
 
-    # Attempt to locate Visual Studio installation using vswhere
-    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-    if (Test-Path $vswherePath) {
-        $vsInstallPath = & "$vswherePath" -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-    } else {
-        Write-Host "vswhere not found. Skipping Visual Studio auto-detection."
-        $vsInstallPath = $null
+    # Attempt to locate an existing Visual Studio installation using vswhere (must have C++ tools)
+    if (-not (Get-Command vswhere -ErrorAction SilentlyContinue)) {
+        Write-Error "vswhere is not available in PATH. Cannot detect Visual Studio installation."
+        exit 1
     }
+
+    $vsInstallPath = vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 
     if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
         Write-Host "Using existing Visual Studio installation at $vsInstallPath"
         & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
     } else {
-        # Install Visual Studio (English language pack) with the "Desktop Development with C++"
-        Write-Host "Installing Microsoft Visual Studio compiler (select `"Desktop Development with C++`")..."
+        Write-Host "No suitable Visual Studio installation found. Installing Community Edition with C++ tools..."
+
         $VISUAL_STUDIO_INSTALLER = "C:\VisualStudioSetup.exe"
         Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/downloadVS.aspx?sku=community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030:108d217f1e244b9aa0326ce9a131978a" -OutFile $VISUAL_STUDIO_INSTALLER
         Start-Process -FilePath $VISUAL_STUDIO_INSTALLER -Wait
         Remove-Item $VISUAL_STUDIO_INSTALLER
 
-        if (Test-Path $vswherePath) {
-            $vsInstallPath = & "$vswherePath" -latest -property installationPath
-            if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
-                & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
-            }
+        # Re-check installation path after install
+        $vsInstallPath = vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
+            Write-Host "Visual Studio successfully installed at $vsInstallPath"
+            & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+        } else {
+            Write-Error "Failed to install or detect Visual Studio with required components."
+            exit 1
         }
     }
-
-    # Load the developer PowerShell for Visual Studio
-    & "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
 
     # Install basic requirements using Chocolatey
     Write-Host "Installing basic requirements..."
