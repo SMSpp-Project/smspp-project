@@ -107,14 +107,32 @@ if ($OS -eq "Win32NT")
 
     Write-Host "Starting the installation process on Windows..."
 
-    # Install Visual Studio (English language pack) with the "Desktop Development with C++"
-    if (-not (Test-Path "C:\Program Files\Microsoft Visual Studio"))
-    {
+    # Attempt to locate Visual Studio installation using vswhere
+    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (Test-Path $vswherePath) {
+        $vsInstallPath = & "$vswherePath" -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    } else {
+        Write-Host "vswhere not found. Skipping Visual Studio auto-detection."
+        $vsInstallPath = $null
+    }
+
+    if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
+        Write-Host "Using existing Visual Studio installation at $vsInstallPath"
+        & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+    } else {
+        # Install Visual Studio (English language pack) with the "Desktop Development with C++"
         Write-Host "Installing Microsoft Visual Studio compiler (select `"Desktop Development with C++`")..."
         $VISUAL_STUDIO_INSTALLER = "C:\VisualStudioSetup.exe"
         Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/downloadVS.aspx?sku=community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030:108d217f1e244b9aa0326ce9a131978a" -OutFile $VISUAL_STUDIO_INSTALLER
         Start-Process -FilePath $VISUAL_STUDIO_INSTALLER -Wait
         Remove-Item $VISUAL_STUDIO_INSTALLER
+
+        if (Test-Path $vswherePath) {
+            $vsInstallPath = & "$vswherePath" -latest -property installationPath
+            if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
+                & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+            }
+        }
     }
 
     # Load the developer PowerShell for Visual Studio
