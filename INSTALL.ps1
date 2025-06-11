@@ -463,6 +463,9 @@ if (-not $withoutSMSpp)
     Write-Host "Compiling SMSpp..."
     $SMSPP_ROOT = "$installRoot\smspp-project"
 
+    # Detect if this is a non-interactive environment (e.g., CI runner)
+    $isInteractive = $Host.UI.RawUI -ne $null -and $Host.Name -ne 'ServerRemoteHost'
+
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT)
     {
@@ -473,7 +476,12 @@ if (-not $withoutSMSpp)
     else
     {
         Write-Host "Repository not found locally. Cloning SMSpp..."
-        git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+        if (-not $isInteractive) {
+            # no way to use cmake-gui interactively to choose submodules, so download all
+            git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+        } else {
+            git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
+        }
         Set-Location $SMSPP_ROOT
     }
 
@@ -485,7 +493,10 @@ if (-not $withoutSMSpp)
             '-Wno-dev' #`
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
-    Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait # select submodules, then Configure and Generate the build files
+    if ($isInteractive) {
+        # select submodules, then Configure and Generate the build files
+        Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait
+    }
     & cmake '--build' 'build/Debug' '--config' 'Debug' "-j $MAX_JOBS"
     & cmake '--install' 'build/Debug' '--config' 'Debug'
     #Set-Location "build/Debug"
@@ -500,7 +511,10 @@ if (-not $withoutSMSpp)
             '-Wno-dev' #`
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
-    Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait # select submodules, then Configure and Generate the build files
+    if ($isInteractive) {
+        # select submodules, then Configure and Generate the build files
+        Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait
+    }
     & cmake '--build' 'build/Release' '--config' 'Release' "-j $MAX_JOBS"
     & cmake '--install' 'build/Release' '--config' 'Release'
     #Set-Location "build/Release"
