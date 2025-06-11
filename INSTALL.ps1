@@ -207,13 +207,11 @@ if ($OS -eq "Win32NT")
     Write-Host "Installing Boost libraries..."
     .\vcpkg install boost --triplet x64-windows
     $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
-    if (Test-Path $msmpiInstaller) {
-        Write-Host "Found Microsoft MPI installer. Running..."
-        Start-Process -FilePath $msmpiInstaller -Wait
-    } else {
-        Write-Warning "Microsoft MPI installer not found. Installing development headers only via vcpkg."
-        .\vcpkg install msmpi --triplet x64-windows
+    if (-not (Test-Path $msmpiInstaller)) {
+        Write-Host "Downloading Microsoft MPI installer..."
+        Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
     }
+    Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
