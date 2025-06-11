@@ -81,14 +81,12 @@ function Update-EnvironmentVariables
     $envVars = [System.Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::Machine)
 
     # Iterate over each environment variable
-    foreach ($envVar in $envVars.GetEnumerator())
-    {
+    foreach ($envVar in $envVars.GetEnumerator()) {
         $envVarName = $envVar.Key
         $envVarValue = $envVar.Value
 
         # Check if the environment variable value contains the old pattern
-        if ($envVarValue -match $escapedPattern)
-        {
+        if ($envVarValue -match $escapedPattern) {
             # Replace the old pattern with the new value
             $newEnvVarValue = $envVarValue -replace $escapedPattern, $newValue
             # Update the environment variable
@@ -140,8 +138,7 @@ if ($OS -eq "Win32NT")
     # Install basic requirements using Chocolatey
     Write-Host "Installing basic requirements..."
     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-    if (-not (Test-Path "C:\ProgramData\chocolatey"))
-    {
+    if (-not (Test-Path "C:\ProgramData\chocolatey")) {
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
@@ -155,46 +152,36 @@ if ($OS -eq "Win32NT")
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
-    if (-not (Test-Path $env:VCPKG_ROOT))
-    {
+    if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
         .\bootstrap-vcpkg.bat
-    }
-    else
-    {
+    } else {
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
-        if (.\vcpkg list | Select-String -Pattern "^stopt\b") # stopt is installed
-        {
+        if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
             Set-Location $STOPT_VCPKG_REGISTRY
             git remote update
             $local = git rev-parse "@"
             $remote = git rev-parse "@{u}"
-            if ($local -eq $remote) # stopt is latest
-            {
+            if ($local -eq $remote) { # stopt is latest
                 git pull
                 Set-Location $env:VCPKG_ROOT
                 # upgrade all other packages ignoring stopt
                 .\vcpkg list | ForEach-Object {
                     $package = ($_ -split '\s+')[0] # first column
-                    if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]')
-                    {
+                    if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]') {
                         .\vcpkg upgrade $package --no-dry-run
                     }
                 }
-            }
-            else # new stopt version is available
-            {
+            } else { # new stopt version is available
                 Set-Location $env:VCPKG_ROOT
                 .\vcpkg remove stopt # remove the old stopt version before upgrade
                 .\vcpkg upgrade --no-dry-run # upgrade all other packages
                 .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows # install the new stopt version
             }
-        }
-        else
-        {
+        } else {
             .\vcpkg upgrade --no-dry-run
         }
     }
@@ -206,12 +193,14 @@ if ($OS -eq "Win32NT")
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
     .\vcpkg install boost --triplet x64-windows
-    $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
-    if (-not (Test-Path $msmpiInstaller)) {
-        Write-Host "Downloading Microsoft MPI installer..."
-        Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
+    if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
+        $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
+        if (-not (Test-Path $msmpiInstaller)) {
+            Write-Host "Downloading Microsoft MPI installer..."
+            Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
+        }
+        Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     }
-    Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
@@ -223,12 +212,10 @@ if ($OS -eq "Win32NT")
     .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX
-    if (-not $withoutCplex)
-    {
+    if (-not $withoutCplex) {
         Write-Host "Installing CPLEX..." -NoNewline
         $CPLEX_ROOT = "C:\IBM\ILOG\CPLEX_Studio"
-        if (-not (Test-Path $CPLEX_ROOT))
-        {
+        if (-not (Test-Path $CPLEX_ROOT)) {
             Set-Location "C:\"
             $CPLEX_INSTALLER = "C:\cplex_studio2211.win_x86_64.exe"
             # the CPLEX_URL is always given by the same prefix, i.e.:
@@ -236,8 +223,7 @@ if ($OS -eq "Win32NT")
             # the id code suffix in the Drive sharing link, i.e.:
             # https://drive.google.com/file/d/ 1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta /view?usp=sharing
             $CPLEX_URL = "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta"
-            if ((Invoke-WebRequest -Uri $CPLEX_URL -SessionVariable session).Content -match 'name="uuid" value="([^"]+)"')
-            {
+            if ((Invoke-WebRequest -Uri $CPLEX_URL -SessionVariable session).Content -match 'name="uuid" value="([^"]+)"') {
                 Start-BitsTransfer -Source "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$matches[1]" -Destination $CPLEX_INSTALLER
                 Start-Process -FilePath $CPLEX_INSTALLER -Wait
                 Remove-Item $CPLEX_INSTALLER
@@ -247,9 +233,7 @@ if ($OS -eq "Win32NT")
                 Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
                 # Update the system PATH to ensure the SMS++ exe can correctly locate the cplex*.dll file
                 Update-EnvironmentVariables -oldPattern "C:\Program Files\IBM\ILOG\CPLEX_Studio2211" -newValue $CPLEX_ROOT
-            }
-            else
-            {
+            } else {
                 Write-Host "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
                 exit 1
             }
@@ -258,12 +242,10 @@ if ($OS -eq "Win32NT")
     }
 
     # Install Gurobi
-    if (-not $withoutGurobi)
-    {
+    if (-not $withoutGurobi) {
         Write-Host "Installing Gurobi..." -NoNewline
         $GUROBI_ROOT = "C:\gurobi"
-        if (-not (Test-Path $GUROBI_ROOT))
-        {
+        if (-not (Test-Path $GUROBI_ROOT)) {
             Set-Location "C:\"
             $GUROBI_INSTALLER = "Gurobi-12.0.1-win64.msi"
             Invoke-WebRequest -Uri "https://packages.gurobi.com/12.0/$GUROBI_INSTALLER" -OutFile "C:\$GUROBI_INSTALLER"
@@ -277,12 +259,10 @@ if ($OS -eq "Win32NT")
     }
 
     # Install SCIP
-    if (-not $withoutSCIP)
-    {
+    if (-not $withoutSCIP) {
         Write-Host "Installing SCIP..." -NoNewline
         $SCIP_ROOT = "C:\Program Files\SCIPOptSuite"
-        if (-not (Test-Path $SCIP_ROOT))
-        {
+        if (-not (Test-Path $SCIP_ROOT)) {
             Set-Location "C:\"
             $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
             Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile "C:\$SCIP_INSTALLER"
@@ -296,12 +276,10 @@ if ($OS -eq "Win32NT")
     }
 
     # Install HiGHS
-    if (-not $withoutHiGHS)
-    {
+    if (-not $withoutHiGHS) {
         Write-Host "Installing HiGHS..." -NoNewline
         $HiGHS_ROOT = "C:\HiGHS"
-        if (-not (Test-Path $HiGHS_ROOT))
-        {
+        if (-not (Test-Path $HiGHS_ROOT)) {
             Write-Host "" # new line
             git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
             Set-Location $HiGHS_ROOT
@@ -333,29 +311,23 @@ if ($OS -eq "Win32NT")
             elseif (Test-Path $releasePath2) { $releasePath2 }
             else { Write-Host "No valid path found for HiGHS Release"; exit 1 }
             # Check if paths are already in the current Path
-            if ($env:Path -notcontains $releasePath)
-            {
+            if ($env:Path -notcontains $releasePath) {
                 [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$releasePath", [System.EnvironmentVariableTarget]::Machine)
             }
-            if ($env:Path -notcontains $debugPath)
-            {
+            if ($env:Path -notcontains $debugPath) {
                 [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$debugPath", [System.EnvironmentVariableTarget]::Machine)
             }
-            if ($env:Path -notcontains $binPath)
-            {
+            if ($env:Path -notcontains $binPath) {
                 [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$binPath", [System.EnvironmentVariableTarget]::Machine)
             }
             Write-Host "Highs Paths added to the Path"
-        }
-        else
-        {
+        } else {
             Write-Host " done." # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix and uncomment the following code
             <#Set-Location $HiGHS_ROOT
             git remote update
             $local = git rev-parse "@"
             $remote = git rev-parse "@{u}"
-            if ($local -ne $remote) # HiGHS is not latest
-            {
+            if ($local -ne $remote) { # HiGHS is not latest
                 git pull
                 Write-Host "" # new line
                 # Build Debug
@@ -374,9 +346,7 @@ if ($OS -eq "Win32NT")
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
-            }
-            else
-            {
+            } else {
                 Write-Host " done."
             }#>
         }
@@ -384,14 +354,12 @@ if ($OS -eq "Win32NT")
     }
 
     # Install COIN-OR CoinUtils
-    if (-not $withoutCoinOr)
-    {
+    if (-not $withoutCoinOr) {
         Write-Host "Installing COIN-OR CoinUtils..."
         Set-Location $env:VCPKG_ROOT
         .\vcpkg install coinutils blas lapack --triplet x64-windows
 
-        if (-not $withoutGurobi)
-        {
+        if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
 
             Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
@@ -410,8 +378,7 @@ if ($OS -eq "Win32NT")
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
         }
 
-        if (-not $withoutCplex)
-        {
+        if (-not $withoutCplex) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
 
             Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
@@ -437,8 +404,7 @@ if ($OS -eq "Win32NT")
     }
 
     # Setup vcpkg for StOpt installation
-    if (-not $withoutStOpt)
-    {
+    if (-not $withoutStOpt) {
         Write-Host "Setting up vcpkg for StOpt installation..."
         Set-Location "C:\"
         git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
@@ -465,14 +431,11 @@ if (-not $withoutSMSpp)
     $isInteractive = $Host.UI.RawUI -ne $null -and $Host.Name -ne 'ServerRemoteHost'
 
     # Check if the SMSpp repository already exists
-    if (Test-Path $SMSPP_ROOT)
-    {
+    if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
         Write-Host "SMSpp already exists. Pulling latest changes..."
         git pull
-    }
-    else
-    {
+    } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
         if (-not $isInteractive) {
             # no way to use cmake-gui interactively to choose submodules, so download all
