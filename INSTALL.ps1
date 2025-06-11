@@ -50,6 +50,7 @@ param(
     [switch]$withoutStOpt,
     [switch]$withoutCoinOr,
     [switch]$withoutSMSpp,
+    [switch]$nonInteractive,
     [string]$installRoot = "C:\" # Default if not provided
 )
 
@@ -427,9 +428,6 @@ if (-not $withoutSMSpp)
     Write-Host "Compiling SMSpp..."
     $SMSPP_ROOT = "$installRoot\smspp-project"
 
-    # Detect if this is a non-interactive environment (e.g., CI runner)
-    $isInteractive = $Host.UI.RawUI -ne $null -and $Host.Name -ne 'ServerRemoteHost'
-
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
@@ -437,7 +435,7 @@ if (-not $withoutSMSpp)
         git pull
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
-        if (-not $isInteractive) {
+        if ($nonInteractive) {
             # no way to use cmake-gui interactively to choose submodules, so download all
             git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
         } else {
@@ -454,7 +452,7 @@ if (-not $withoutSMSpp)
             '-Wno-dev' #`
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
-    if ($isInteractive) {
+    if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
         Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait
     }
@@ -472,7 +470,7 @@ if (-not $withoutSMSpp)
             '-Wno-dev' #`
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
-    if ($isInteractive) {
+    if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
         Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait
     }
