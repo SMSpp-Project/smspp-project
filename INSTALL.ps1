@@ -92,7 +92,7 @@ function Update-EnvironmentVariables
             $newEnvVarValue = $envVarValue -replace $escapedPattern, $newValue
             # Update the environment variable
             [System.Environment]::SetEnvironmentVariable($envVarName, $newEnvVarValue, [System.EnvironmentVariableTarget]::Machine)
-            Write-Host "Updated $envVarName"
+            Write-Host "Updated $envVarName in the system Path"
         }
     }
     Write-Host "All relevant environment variables have been updated."
@@ -322,7 +322,7 @@ if ($OS -eq "Win32NT")
             if ($env:Path -notcontains $binPath) {
                 [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$binPath", [System.EnvironmentVariableTarget]::Machine)
             }
-            Write-Host "Highs Paths added to the Path"
+            Write-Host "Added Highs to the system Path"
         } else {
             Write-Host " done." # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix and uncomment the following code
             <#Set-Location $HiGHS_ROOT
@@ -480,4 +480,13 @@ if (-not $withoutSMSpp)
     #Set-Location "build/Release"
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
+
+    $SMSPP_BIN_RELEASE = "$SMSPP_ROOT\Release\bin"
+    $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+
+    if ($systemPath -notlike "*$SMSPP_BIN_RELEASE*") {
+        $newPath = "$SMSPP_BIN_RELEASE;$systemPath"
+        [System.Environment]::SetEnvironmentVariable("Path", $newPath, [System.EnvironmentVariableTarget]::Machine)
+        Write-Host "Added SMSpp Release to the system Path"
+    }
 }
