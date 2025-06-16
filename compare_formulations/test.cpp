@@ -35,6 +35,8 @@
 
 #include <iomanip>
 
+#include <chrono>
+
 #include "RBlockConfig.h"
 
 #include "BlockSolverConfig.h"

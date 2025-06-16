@@ -105,6 +105,8 @@
 
 #include <iomanip>
 
+#include <chrono>
+
 #include <random>
 
 #include "BlockSolverConfig.h"
