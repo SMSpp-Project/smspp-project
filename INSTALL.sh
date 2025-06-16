@@ -490,7 +490,7 @@ install_on_macos() {
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar -xzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
-      mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
+      sudo mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
       cd "$SCIP_ROOT"
       # Install PaPILO
       git clone https://github.com/scipopt/papilo.git
@@ -736,8 +736,14 @@ case "$OS" in
   fi
   ;;
 "Darwin")
-  INSTALL_ROOT="${install_root:-/Library}"
-  SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
+  # Check if the user has sudo access
+  if [ -w /Library ]; then
+    INSTALL_ROOT="${install_root:-/Library}"
+    SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
+  else
+    INSTALL_ROOT="${install_root:-${HOME}}"
+    SMSPP_ROOT="${HOME}/smspp-project"
+  fi
   install_on_macos
   ;;
 *)
