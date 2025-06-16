@@ -493,7 +493,7 @@ install_on_macos() {
       mv ./"$SCIP_INSTALLER" "$SCIP_ROOT"
       cd "$SCIP_ROOT"
       # Install PaPILO
-      sudo git clone https://github.com/scipopt/papilo.git
+      git clone https://github.com/scipopt/papilo.git
       cd papilo
       cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SCIP_ROOT}/papilo"
       cmake --build build -j "${MAX_JOBS}"
@@ -525,7 +525,7 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
     if [ ! -d "$HiGHS_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      sudo git clone https://github.com/ERGO-Code/HiGHS.git
+      git clone https://github.com/ERGO-Code/HiGHS.git
       cd HiGHS
       cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build -j "${MAX_JOBS}"
@@ -611,7 +611,7 @@ install_on_macos() {
     if [ ! -d "$StOpt_ROOT" ]; then
       brew install zlib
       cd "$INSTALL_ROOT"
-      sudo git clone https://gitlab.com/stochastic-control/StOpt.git
+      git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
       sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
@@ -760,9 +760,9 @@ if [ "$install_smspp" -eq 1 ]; then
     # Check if the script is being executed on a server without display or interactive terminal
     if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
       # no way to use ccmake interactively to choose submodules, so download it all
-      sudo git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     else
-      sudo git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     fi
     cd "$SMSPP_ROOT"
   fi
