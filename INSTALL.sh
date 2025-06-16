@@ -40,6 +40,8 @@
 #
 #             wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
 #
+#     Notice that on macOS all the previous commands should be run **without** the `sudo`.
+#
 # ------------------------------------------------------------------------------
 
 cleanup_on_error() {
