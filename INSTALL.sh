@@ -844,4 +844,16 @@ if [ "$install_smspp" -eq 1 ]; then
       exit 1
     fi
   fi
+
+  # Export SMSpp paths
+  export PATH="${SMSPP_ROOT}/bin:$PATH"
+  if [ "$OS" == "Linux" ]; then
+    export LD_LIBRARY_PATH="${SMSPP_ROOT}/lib:$LD_LIBRARY_PATH"
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      sh -c "echo '${SMSPP_ROOT}/lib' > /etc/ld.so.conf.d/smspp.conf"
+      ldconfig
+    fi
+  elif [ "$OS" == "Darwin" ]; then
+    export DYLD_LIBRARY_PATH="${SMSPP_ROOT}/lib:$DYLD_LIBRARY_PATH"
+  fi
 fi
