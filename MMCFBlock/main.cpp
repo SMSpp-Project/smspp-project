@@ -152,7 +152,7 @@ int main( int argc , char **argv )
   exit( 1 );
   }
 
- Solver * slvr = (MMCFb->get_registered_solvers()).front();
+ Solver * slvr = ( MMCFb->get_registered_solvers() ).front();
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

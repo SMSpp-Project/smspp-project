@@ -97,7 +97,7 @@ int solve_with_BundleSolver( std::filesystem::path file_path ,
  lpbsc->apply( inner_block );
  lpbsc->clear();
 
- auto inner_block_solver = (inner_block->get_registered_solvers()).front();
+ auto inner_block_solver = ( inner_block->get_registered_solvers() ).front();
  //inner_block_solver->set_par( MILPSolver::strOutputFile , "lp.txt" )
 
  auto block = build_CWL_block_with_Benders_decomposition
@@ -148,7 +148,7 @@ int solve_with_MILPSolver( std::filesystem::path file_path ,
  lpbsc->apply( block );
  lpbsc->clear();
 
- auto solver = (block->get_registered_solvers()).front();
+ auto solver = ( block->get_registered_solvers() ).front();
  auto status = solver->compute();
  if( solver->has_var_solution() )
   *solution_value = solver->get_var_value();

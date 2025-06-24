@@ -365,7 +365,7 @@ static bool SolveFirst( void )
 {
  try {
   // solve the LPBlock- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * slvrLP = (LPBlock->get_registered_solvers()).front();
+  Solver * slvrLP = ( LPBlock->get_registered_solvers() ).front();
   rtrnfirstLP = slvrLP->compute( false );
   hsfirstLP = ( ( rtrnfirstLP >= Solver::kOK ) && ( rtrnfirstLP < Solver::kError ) )
               || ( rtrnfirstLP == Solver::kLowPrecision );
@@ -408,7 +408,7 @@ static bool SolveSecond( void )
 {
  try {
   // solve the LPBlock- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * slvrLP = (secondLPBlock->get_registered_solvers()).front();
+  Solver * slvrLP = ( secondLPBlock->get_registered_solvers() ).front();
   rtrnsecondLP = slvrLP->compute( false );
   hssecondLP = ( ( rtrnsecondLP >= Solver::kOK ) && ( rtrnsecondLP < Solver::kError ) )
               || ( rtrnsecondLP == Solver::kLowPrecision );
@@ -637,7 +637,7 @@ int main( int argc , char **argv )
 
  // write the .mps / .lp file which will be then read again from another 
  // AbstractBlock and resolved.
- ((LPBlock->get_registered_solvers()).front())->set_par(
+ ( ( LPBlock->get_registered_solvers() ).front() )->set_par(
                             MILPSolver::strOutputFile , output_name );
 
  // first solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -716,7 +716,7 @@ int main( int argc , char **argv )
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // write the .lp file which can be then compared with the previous one
- ((secondLPBlock->get_registered_solvers()).front())->set_par(
+ ( ( secondLPBlock->get_registered_solvers() ).front() )->set_par(
 	                         MILPSolver::strOutputFile , "SecondLPBlock.lp" );
 
  // second solver call - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -926,7 +926,7 @@ int main( int argc , char **argv )
 
     // write the .mps / .lp file which will be then read again from another 
     // AbstractBlock and resolved.
-    ((LPBlock->get_registered_solvers()).front())->set_par(
+    ( ( LPBlock->get_registered_solvers() ).front() )->set_par(
                                 MILPSolver::strOutputFile , rep_name );
 
     // finally, re-solve the problems with the first solver - - - - - - - - - - -
@@ -990,7 +990,7 @@ int main( int argc , char **argv )
     // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // write the .lp file which can be then compared with the previous one
-    ((secondLPBlock->get_registered_solvers()).front())->set_par(
+    ( ( secondLPBlock->get_registered_solvers() ).front() )->set_par(
                                 MILPSolver::strOutputFile , "SecondLPBlock-" + 
                                 std::to_string( rep ) + ".lp" );
 

@@ -77,7 +77,7 @@ int main( int argc , char **argv )
  bsc->apply( sLukFi );
  bsc->clear();
 
- auto slvr = (sLukFi->get_registered_solvers()).front();
+ auto slvr = ( sLukFi->get_registered_solvers() ).front();
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

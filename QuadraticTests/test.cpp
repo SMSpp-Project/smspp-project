@@ -146,7 +146,7 @@ static bool SolveModel( bool is_found , double opt_value )
 {
  try {
   // solve the LPBlock- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  Solver * slvrLP = (LPBlock->get_registered_solvers()).front();
+  Solver * slvrLP = ( LPBlock->get_registered_solvers() ).front();
   int rtrnLP = slvrLP->compute( false );
   bool hsLP = ( ( rtrnLP >= Solver::kOK ) && ( rtrnLP < Solver::kError ) )
               || ( rtrnLP == Solver::kLowPrecision );
@@ -282,7 +282,7 @@ int main( int argc , char **argv )
 
  // Solve the continuous relaxation, if required
  if( type == 'C' )
-  ((LPBlock->get_registered_solvers()).front())->set_par(
+  ( ( LPBlock->get_registered_solvers() ).front() )->set_par(
 	                         MILPSolver::intRelaxIntVars , 1 );
 
  // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
@@ -290,7 +290,7 @@ int main( int argc , char **argv )
  // write the .lp of the model loaded in order to compare it with the
  // previous one
  #if( LOG_LEVEL >= 1 )
-    ((LPBlock->get_registered_solvers()).front())->set_par(
+    ( ( LPBlock->get_registered_solvers() ).front() )->set_par(
 	                         MILPSolver::strOutputFile , "Read_Model.lp" );
  #endif
 

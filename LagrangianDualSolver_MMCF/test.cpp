@@ -456,7 +456,7 @@ int main( int argc , char **argv )
 
  #if( LOG_LEVEL >= 2 )
   #if( LOG_ON_COUT )
-   ((TestBlock->get_registered_solvers()).back())->set_log( &cout );
+   ( ( TestBlock->get_registered_solvers() ).back() )->set_log( &cout );
   #else
    ofstream LOGFile( logF , ofstream::out );
    if( ! LOGFile.is_open() )
@@ -464,7 +464,7 @@ int main( int argc , char **argv )
    else {
     LOGFile.setf( ios::scientific, ios::floatfield );
     LOGFile << setprecision( 10 );
-    ((TestBlock->get_registered_solvers()).back())->set_log( &LOGFile );
+    ( ( TestBlock->get_registered_solvers() ).back() )->set_log( &LOGFile );
     }
   #endif
  #endif
@@ -521,7 +521,7 @@ int main( int argc , char **argv )
   // if verbose, print out stuff- - - - - - - - - - - - - - - - - - - - - - -
 
   #if( LOG_LEVEL >= 3 )
-   ((LPBlock->get_registered_solvers()).front())->set_par(
+   ( ( LPBlock->get_registered_solvers() ).front() )->set_par(
 		                     MILPSolver::strOutputFile , "LPBlock-" +
 		                     std::to_string( rep ) + ".lp" );
   #endif

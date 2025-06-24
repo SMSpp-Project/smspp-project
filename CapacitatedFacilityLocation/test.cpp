@@ -777,8 +777,8 @@ int main( int argc , char **argv )
 
  #if( LOG_LEVEL >= 2 )
   #if( LOG_ON_COUT )
-   ((B1->get_registered_solvers()).front())->set_log( &cout );
-   ((B2->get_registered_solvers()).front())->set_log( &cout );
+   ( ( B1->get_registered_solvers() ).front() )->set_log( &cout );
+   ( ( B2->get_registered_solvers() ).front() )->set_log( &cout );
   #else
    ofstream LOGFile1( "log1.txt" , ofstream::out );
    if( ! LOGFile1.is_open() )
@@ -786,7 +786,7 @@ int main( int argc , char **argv )
    else {
     LOGFile1.setf( ios::scientific, ios::floatfield );
     LOGFile1 << setprecision( 10 );
-    ((B1->get_registered_solvers()).front())->set_log( & LOGFile1 );
+    ( ( B1->get_registered_solvers() ).front() )->set_log( & LOGFile1 );
     }
 
    ofstream LOGFile2( "log2.txt" , ofstream::out );
@@ -795,7 +795,7 @@ int main( int argc , char **argv )
    else {
     LOGFile2.setf( ios::scientific, ios::floatfield );
     LOGFile2 << setprecision( 10 );
-    ((B2->get_registered_solvers()).front())->set_log( & LOGFile2 );
+    ( ( B2->get_registered_solvers() ).front() )->set_log( & LOGFile2 );
     }
   #endif
  #endif

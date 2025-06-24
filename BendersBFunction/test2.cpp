@@ -646,7 +646,7 @@ void test( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -747,7 +747,7 @@ void test2( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -840,7 +840,7 @@ void test3( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -933,7 +933,7 @@ void test4( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1023,7 +1023,7 @@ void test5( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1118,7 +1118,7 @@ void test6( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1209,7 +1209,7 @@ void test7( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1296,7 +1296,7 @@ void test8( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1395,7 +1395,7 @@ void test9( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
@@ -1495,7 +1495,7 @@ void test10( bool invert ) {
  lpbsc->apply( lp );
  lpbsc->clear();
 
- auto solver = ( lp->get_registered_solvers()).front();
+ auto solver = ( lp->get_registered_solvers() ).front();
  assert( solver->compute() == Solver::kOK );
  assert( solver->has_var_solution() );
  auto optimal_value = solver->get_var_value();
