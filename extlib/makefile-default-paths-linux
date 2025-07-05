@@ -51,5 +51,6 @@ StOpt_ROOT = /opt/StOpt
 CoinUtils_ROOT = /opt/coin-or
 Osi_ROOT = /opt/coin-or
 Clp_ROOT = /opt/coin-or
+FastFlow_ROOT = /opt/fastflow
 
 #################### End of makefile-default-paths-linux #####################

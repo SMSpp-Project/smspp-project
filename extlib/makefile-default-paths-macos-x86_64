@@ -52,5 +52,6 @@ StOpt_ROOT = /Library/StOpt
 CoinUtils_ROOT = /Library/coin-or
 Osi_ROOT = /Library/coin-or
 Clp_ROOT = /Library/coin-or
+FastFlow_ROOT = /Library/fastflow
 
 ################ End of makefile-default-paths-macos-x86_64 ##################
