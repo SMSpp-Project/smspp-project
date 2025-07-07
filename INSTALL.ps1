@@ -286,20 +286,15 @@ if ($OS -eq "Win32NT")
             git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
             Set-Location $HiGHS_ROOT
             git checkout v1.6.0 # TODO remove in the future when the "fatal error LNK1241: linker generated manifest res" will be fix
-            # Build Debug
+            # Configure once using multi-config
             & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
                     '-DFAST_BUILD=ON' `
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                    '-DCMAKE_BUILD_TYPE=Debug' `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Debug'
             # Build Release
-            & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
-                    '-DFAST_BUILD=ON' `
-                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                    '-DCMAKE_BUILD_TYPE=Release' `
-                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
             & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
             # Define the possible paths
@@ -332,20 +327,15 @@ if ($OS -eq "Win32NT")
             if ($local -ne $remote) { # HiGHS is not latest
                 git pull
                 Write-Host "" # new line
-                # Build Debug
+                # Configure once using multi-config
                 & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
                         '-DFAST_BUILD=ON' `
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                        '-DCMAKE_BUILD_TYPE=Debug' `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                # Build Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Debug'
                 # Build Release
-                & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
-                        '-DFAST_BUILD=ON' `
-                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                        '-DCMAKE_BUILD_TYPE=Release' `
-                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
             } else {
@@ -445,48 +435,44 @@ if (-not $withoutSMSpp)
         Set-Location $SMSPP_ROOT
     }
 
-    # Build SMSpp Debug
-    & cmake -S . -B 'build/Debug' -G 'Visual Studio 17 2022' `
-            "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Debug" `
-            '-DCMAKE_BUILD_TYPE=Debug' `
+    $BUILD_DIR = "$SMSPP_ROOT\build"
+    $INSTALL_DIR = "$SMSPP_ROOT\install"
+
+    # Configure once using multi-config
+    & cmake -S . -B $BUILD_DIR -G 'Visual Studio 17 2022' `
+            "-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR" `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
             '-Wno-dev' #`
             #'-DBUILD_SHARED_LIBS=ON'
     # run cmake-gui
     if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
-        Start-Process -FilePath "cmake-gui" -ArgumentList "build/Debug" -Wait
+        Start-Process -FilePath "cmake-gui" -ArgumentList $BUILD_DIR -Wait
     }
-    & cmake '--build' 'build/Debug' '--config' 'Debug' "-j $MAX_JOBS"
-    & cmake '--install' 'build/Debug' '--config' 'Debug'
-    #Set-Location "build/Debug"
+
+    # Build Debug
+    & cmake '--build' $BUILD_DIR '--config' 'Debug' "-j $MAX_JOBS"
+    & cmake '--install' $BUILD_DIR '--config' 'Debug'
+    #Set-Location "$BUILD_DIR"
     #& ctest -V -C Debug
     #Set-Location $SMSPP_ROOT
 
-    # Build SMSpp Release
-    & cmake -S . -B 'build/Release' -G 'Visual Studio 17 2022' `
-            "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT/Release" `
-            '-DCMAKE_BUILD_TYPE=Release' `
-            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            '-Wno-dev' #`
-            #'-DBUILD_SHARED_LIBS=ON'
-    # run cmake-gui
-    if (-not $nonInteractive) {
-        # select submodules, then Configure and Generate the build files
-        Start-Process -FilePath "cmake-gui" -ArgumentList "build/Release" -Wait
-    }
-    & cmake '--build' 'build/Release' '--config' 'Release' "-j $MAX_JOBS"
-    & cmake '--install' 'build/Release' '--config' 'Release'
-    #Set-Location "build/Release"
+    # Build Release
+    & cmake '--build' $BUILD_DIR '--config' 'Release' "-j $MAX_JOBS"
+    & cmake '--install' $BUILD_DIR '--config' 'Release'
+    #Set-Location "$BUILD_DIR"
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
 
-    $SMSPP_BIN_RELEASE = "$SMSPP_ROOT\Release\bin"
+    $SMSPP_BIN_RELEASE = "$INSTALL_DIR\bin\Release"
+    $SMSPP_BIN_DEBUG = "$INSTALL_DIR\bin\Debug"
     $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
 
-    if ($systemPath -notlike "*$SMSPP_BIN_RELEASE*") {
-        $newPath = "$SMSPP_BIN_RELEASE;$systemPath"
-        [System.Environment]::SetEnvironmentVariable("Path", $newPath, [System.EnvironmentVariableTarget]::Machine)
-        Write-Host "Added SMSpp Release to the system Path"
+    foreach ($binPath in @($SMSPP_BIN_RELEASE, $SMSPP_BIN_DEBUG)) {
+        if ($systemPath -notlike "*$binPath*") {
+            $systemPath = "$binPath;$systemPath"
+        }
     }
+    [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
+    Write-Host "Added SMSpp Debug and Release to the system Path"
 }
