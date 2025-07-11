@@ -9,7 +9,7 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 # ----- Policies ------------------------------------------------------------ #
 # Introduced in CMake 3.15 to handle MSVC_RUNTIME_LIBRARY
