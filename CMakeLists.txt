@@ -14,11 +14,11 @@ cmake_minimum_required(VERSION 3.16)
 # ----- Policies ------------------------------------------------------------ #
 # Introduced in CMake 3.15 to handle MSVC_RUNTIME_LIBRARY
 # See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
-if (MSVC)
+if (MSVC AND NOT BUILD_SHARED_LIBS)
 	if (POLICY CMP0091)
 		cmake_policy(SET CMP0091 NEW)
-		set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 	endif ()
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
 
 # ----- Project definition and configuration -------------------------------- #
