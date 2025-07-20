@@ -11,17 +11,6 @@
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.16)
 
-# ----- Policies ------------------------------------------------------------ #
-# Introduced in CMake 3.15 to handle CMAKE_MSVC_RUNTIME_LIBRARY
-# See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
-if (MSVC AND NOT BUILD_SHARED_LIBS)
-	if (POLICY CMP0091)
-		cmake_policy(SET CMP0091 NEW)
-	endif ()
-	# Using static MSVC runtime /MT in Release and /MTd in Debug
-	set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_SOURCE_DIR}/cmake/StaticRuntimeOverride.cmake")
-endif ()
-
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project
 		VERSION 0.4.0
