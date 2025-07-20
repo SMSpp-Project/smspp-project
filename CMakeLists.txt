@@ -18,7 +18,8 @@ if (MSVC AND NOT BUILD_SHARED_LIBS)
 	if (POLICY CMP0091)
 		cmake_policy(SET CMP0091 NEW)
 	endif ()
-	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	# Using static MSVC runtime /MT in Release and /MTd in Debug
+	set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_SOURCE_DIR}/cmake/StaticRuntimeOverride.cmake")
 endif ()
 
 # ----- Project definition and configuration -------------------------------- #
