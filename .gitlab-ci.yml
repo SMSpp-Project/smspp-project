@@ -35,8 +35,8 @@ release_job:
     - echo "# Release $CI_COMMIT_TAG" >> release-artifacts/release_notes.md
     - echo "## Commits since $previous_tag:" >> release-artifacts/release_notes.md
     - git shortlog "${previous_tag}..${CI_COMMIT_TAG}" | sed 's/^./    &/' >> release-artifacts/release_notes.md
-    - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/netCDF_files' --exclude='UCBlock/LP_files' -czf release-artifacts/source-${CI_COMMIT_TAG}.tar.gz .
-    - zip -r release-artifacts/source-${CI_COMMIT_TAG}.zip . -x "release-artifacts/*" "*/.*" "UCBlock/netCDF_files/*" "UCBlock/LP_files/*"
+    - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/netCDF_files' --exclude='tools/ucblock_solver/data' --exclude='UCBlock/LP_files' -czf release-artifacts/source-${CI_COMMIT_TAG}.tar.gz .
+    - zip -r release-artifacts/source-${CI_COMMIT_TAG}.zip . -x "release-artifacts/*" "*/.*" "UCBlock/netCDF_files/*" "UCBlock/LP_files/*" "tools/ucblock_solver/data/*"
     - release-cli create --name "Release $CI_COMMIT_TAG" \
       --tag-name "$CI_COMMIT_TAG" \
       --description "$(cat release-artifacts/release_notes.md)" \
