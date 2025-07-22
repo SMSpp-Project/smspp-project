@@ -244,7 +244,7 @@ EOL
     CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
     CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q coinor-libcoinutils-dev libbz2-dev liblapack-dev libopenblas-dev
+      apt-get install -y -q coinor-libcoinutils-dev libbz2-dev
     fi
     if [ ! -d "$CoinOr_ROOT" ]; then
       cd "$INSTALL_ROOT"
@@ -559,7 +559,7 @@ install_on_macos() {
     CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
     CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ ! -d "$CoinOr_ROOT" ]; then
-      brew install coinutils lapack openblas
+      brew install coinutils
       cd "$INSTALL_ROOT"
       curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
       chmod u+x coinbrew
