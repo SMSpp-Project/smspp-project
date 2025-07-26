@@ -36,7 +36,8 @@ release_job:
     - apk add --no-cache git tar zip bzip2
     - echo "Creating GitLab Release..."
     - echo $RELEASE_TOKEN
-    - glab auth login --hostname $GITLAB_HOST --token $RELEASE_TOKEN
+    - echo $GITLAB_HOST
+    - glab auth login --hostname gitlab.com --token $RELEASE_TOKEN
     - glab auth status
     - glab release create "$CI_COMMIT_TAG" \
         --tag-name "$CI_COMMIT_TAG" \
