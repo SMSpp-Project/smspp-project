@@ -48,9 +48,7 @@ release_job:
     - git shortlog "${previous_tag}..${CI_COMMIT_TAG}" | sed 's/^./    &/' >> release-artifacts/release_notes.md
     - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/netCDF_files' --exclude='tools/ucblock_solver/data' --exclude='UCBlock/LP_files' --exclude='.git*' --exclude='CapacitatedFacilityLocationBlock/data' --exclude='MCFBlock/data' -czvf release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz .
     - ls -lh release-artifacts
-    - glab release create "$CI_COMMIT_TAG" -F release-artifacts/release_notes.md
-    - glab release upload "$CI_COMMIT_TAG" release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz --assets-links='[{"name": "Source code", "url":"https://gitlab.com/davide-f/smspp-project/-/archive/${$CI_COMMIT_TAG}/smspp-project-${$CI_COMMIT_TAG}.tar.gz", "link_type": "other", "direct_asset_path": "path/to/file"}]'
-
+    - glab release create "$CI_COMMIT_TAG" -F release-artifacts/release_notes.md "release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz#Source code (tar.gz)#package"
   artifacts:
     paths:
       - release-artifacts/
