@@ -37,7 +37,7 @@ release_job:
     - echo "Creating GitLab Release..."
     - echo $RELEASE_TOKEN
     - echo $GITLAB_HOST
-    - glab auth login --hostname gitlab.com --token $RELEASE_TOKEN --api_protocol https --git_protocol https
+    - glab auth login --hostname gitlab.com --token $RELEASE_TOKEN --api-protocol https --git-protocol https
     - glab auth status
     - glab release create "$CI_COMMIT_TAG" \
         --tag-name "$CI_COMMIT_TAG" \
