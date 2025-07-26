@@ -7,10 +7,6 @@ stages:
   - deploy
   - release
 
-variables:
-  GITLAB_TOKEN: $RELEASE_TOKEN
-  CI_COMMIT_TAG: 0.4.31
-
 pages:
   stage: deploy
   script:
