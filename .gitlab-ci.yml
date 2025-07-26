@@ -48,3 +48,6 @@ release_job:
   artifacts:
     paths:
       - release-artifacts/
+  only:
+    - master
+    - develop
