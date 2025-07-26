@@ -40,7 +40,6 @@ release_job:
     - glab auth login --hostname gitlab.com --token $RELEASE_TOKEN --api-protocol https --git-protocol https
     - glab auth status
     - glab release create "$CI_COMMIT_TAG" \
-        --tag-name "$CI_COMMIT_TAG" \
         --title "Version $CI_COMMIT_TAG"
     # - git submodule sync --recursive
     # - git submodule update --init --recursive
