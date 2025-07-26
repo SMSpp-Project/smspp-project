@@ -27,7 +27,9 @@ pages:
 
 release_job:
   stage: release
-  image: registry.gitlab.com/gitlab-org/cli:latest
+  image:
+      name: registry.gitlab.com/gitlab-org/cli:latest
+      entrypoint: [""]
   # rules:
   #   - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
   script:
