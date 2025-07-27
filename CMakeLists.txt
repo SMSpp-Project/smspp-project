@@ -11,6 +11,22 @@
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.16)
 
+# ----- Policies ------------------------------------------------------------ #
+# Introduced in CMake 3.15 to handle CMAKE_MSVC_RUNTIME_LIBRARY
+# See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
+if (MSVC)
+	if (POLICY CMP0091)
+		cmake_policy(SET CMP0091 NEW)
+	endif ()
+	if (BUILD_SHARED_LIBS)
+		# Using dynamic MSVC runtime /MD in Release and /MDd in Debug
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
+	else ()
+		# Using static MSVC runtime /MT in Release and /MTd in Debug
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	endif ()
+endif ()
+
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project
 		VERSION 0.4.0
