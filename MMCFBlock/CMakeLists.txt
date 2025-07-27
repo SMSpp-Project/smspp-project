@@ -17,6 +17,26 @@ add_subdirectory(gen/Mnetgen)
 
 # ----- Custom commands and targets ----------------------------------------- #
 
+# Download Canad.tgz from GitLab Package Registry if it doesn't exist
+set(CANAD_URL "https://gitlab.com/api/v4/projects/15602443/packages/generic/Canad/latest/Canad.tgz")
+set(CANAD_ARCHIVE ${CMAKE_CURRENT_SOURCE_DIR}/gen/Canad.tgz)
+set(CANAD_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/download_canad.cmake)
+
+file(WRITE ${CANAD_SCRIPT} "
+file(DOWNLOAD \"${CANAD_URL}\" \"${CANAD_ARCHIVE}\" SHOW_PROGRESS)
+")
+
+add_custom_command(
+        OUTPUT ${CANAD_ARCHIVE}
+        COMMAND ${CMAKE_COMMAND} -E echo "Downloading Canad.tgz from GitLab Package Registry..."
+        COMMAND ${CMAKE_COMMAND} -P ${CANAD_SCRIPT}
+        COMMENT "Downloading Canad.tgz"
+        VERBATIM
+)
+
+add_custom_target(download_Canad
+        DEPENDS ${CANAD_ARCHIVE})
+
 # Custom command to run gen/batch with the mnetgen exe if the .generated file does not exist
 if (UNIX)
     add_custom_command(
@@ -25,7 +45,8 @@ if (UNIX)
             COMMAND echo > ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen
             COMMENT "Running mnetgen"
-            VERBATIM)
+            VERBATIM
+            DEPENDS download_Canad)
 elseif (WIN32)
     add_custom_command(
             OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
@@ -35,7 +56,8 @@ elseif (WIN32)
             COMMAND echo > ${CMAKE_CURRENT_SOURCE_DIR}/data/Mnetgen/.generated
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen
             COMMENT "Running mnetgen"
-            VERBATIM)
+            VERBATIM
+            DEPENDS download_Canad)
 endif ()
 
 # Create custom targets to run the nc4 generation

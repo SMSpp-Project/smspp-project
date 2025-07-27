@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DATADIR=../../UCBlock/data/1UC_Data
+DATADIR=../../UCBlock/data/nc4/1UC_Data
 
 wchg=7
 #iter=0
