@@ -30,6 +30,7 @@ Write-Read/writeandread_test
 
 # large data test files
 MMCFBlock/data/*
+MMCFBlock/gen/Canad.tgz
 
 # BundleSolver log files
 *.bn
