@@ -14,10 +14,10 @@ NAME = mnetgen
 LIB = -lm
 
 # switches
-SW = -O -w -std=c++17
+SW = -O -w
 
 # compiler
-CC = clang++
+CC = g++
 
 # default target- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
