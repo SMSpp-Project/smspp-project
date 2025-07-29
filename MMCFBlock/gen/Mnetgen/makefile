@@ -14,7 +14,7 @@ NAME = mnetgen
 LIB = -lm
 
 # switches
-SW = -O -w
+SW = -O -w -std=c++17
 
 # compiler
 CC = clang++

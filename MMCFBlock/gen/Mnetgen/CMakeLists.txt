@@ -6,7 +6,6 @@
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # ----- mnetgen ------------------------------------------------------------- #
-set_source_files_properties(mnetgen.C PROPERTIES LANGUAGE CXX)
 add_executable(mnetgen mnetgen.C)
 
 # ----- Install instructions ------------------------------------------------ #
