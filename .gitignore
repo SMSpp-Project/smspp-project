@@ -30,7 +30,6 @@ Write-Read/writeandread_test
 
 # large data test files
 MMCFBlock/data/*
-LagrangianDualSolver_MMCF/data/*
 
 # BundleSolver log files
 *.bn
