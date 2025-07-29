@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+# --------------------------------------------------------------------------- #
+# Script to upload a file to GitLab Package Registry (single version: latest) #
+#                                                                             #
+# Prerequisites:                                                              #
+#   Generate a GitLab Personal Access Token (PAT) with the `api` scope at:    #
+#     https://gitlab.com/-/user_settings/personal_access_tokens               #
+#                                                                             #
+#   You can configure the token in two ways:                                  #
+#                                                                             #
+#   Option 1: Setting GITLAB_TOKEN env var (temporary)                        #
+#                                                                             #
+#          $ export GITLAB_TOKEN=glpat-xxxxxxxxxxxxxxxxxxxx                   #
+#                                                                             #
+#   Option 2: Using `glab` (GitLab CLI, permanent) from your git repo         #
+#                                                                             #
+#          $ glab auth login                                                  #
+#          $ glab config set token glpat-xxxxxxxxxxxxxxxxxxxx                 #
+#                                                                             #
+# This script will try to read the token from glab automatically if           #
+# GITLAB_TOKEN is not set.                                                    #
+#                                                                             #
+# Usage:                                                                      #
+#                                                                             #
+#          $ bash upload-to-gitlab.sh <path/to/your-file>                     #
+#                                                                             #
+#                                Donato Meoli                                 #
+#                         Dipartimento di Informatica                         #
+#                             Universita' di Pisa                             #
+# --------------------------------------------------------------------------- #
+
+set -e
+
+# Configuration
+VERSION="latest"
+
+# Check argument
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <file_to_upload>"
+  exit 1
+fi
+
+LOCAL_FILE="$1"
+
+if [[ ! -f "$LOCAL_FILE" ]]; then
+  echo "ERROR: File '$LOCAL_FILE' not found."
+  exit 1
+fi
+
+# Extract project name from path (first folder, lowercase)
+PROJECT_DIR=$(echo "$LOCAL_FILE" | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')
+PROJECT_PATH="smspp/$PROJECT_DIR"
+ENCODED_PATH=$(echo -n "$PROJECT_PATH" | sed 's/\//%2F/g')
+
+# Extract filename from path
+FILE_NAME=$(basename "$LOCAL_FILE")
+# Remove extensions for package name
+PACKAGE_NAME=$(echo "$FILE_NAME" | sed -E 's/(\.[a-zA-Z0-9]+)+$//')
+
+# Try to load token from env or glab config
+if [[ -z "$GITLAB_TOKEN" ]]; then
+  if command -v glab &> /dev/null; then
+    GITLAB_TOKEN=$(glab config get token 2>/dev/null | head -n1)
+  fi
+fi
+
+if [[ -z "$GITLAB_TOKEN" ]]; then
+  echo "ERROR: GITLAB_TOKEN is not set and not found in glab config."
+  echo "You must either:"
+  echo "  1. export GITLAB_TOKEN=glpat-xxxxxxxxxxxxxxxxxxxx"
+  echo "  2. or configure glab with: glab config set token glpat-xxxxxxxxxxxxxxxxxxxx"
+  exit 1
+fi
+
+PROJECT_ID=$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+  "https://gitlab.com/api/v4/projects/$ENCODED_PATH" | jq -r .id)
+
+if [[ -z "$PROJECT_ID" || "$PROJECT_ID" == "null" ]]; then
+  echo "ERROR: Failed to retrieve PROJECT_ID for '$PROJECT_PATH'"
+  exit 1
+fi
+
+# Check if package with same name/version exists
+echo "Checking if a package named '$PACKAGE_NAME' with version '$VERSION' exists..."
+EXISTING_ID=$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+  "https://gitlab.com/api/v4/projects/$PROJECT_ID/packages?package_type=generic" \
+  | jq -r ".[] | select(.name==\"$PACKAGE_NAME\" and .version==\"$VERSION\") | .id")
+
+# If found, delete it
+if [[ -n "$EXISTING_ID" ]]; then
+  echo "Existing package found (ID: $EXISTING_ID). Deleting it..."
+  curl -s --request DELETE \
+       --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+       "https://gitlab.com/api/v4/projects/$PROJECT_ID/packages/$EXISTING_ID"
+  echo "Previous package deleted."
+else
+  echo "No previous package found with version 'latest'."
+fi
+
+# Upload new package file
+echo "Uploading $LOCAL_FILE to GitLab Package Registry..."
+
+UPLOAD_URL="https://gitlab.com/api/v4/projects/$PROJECT_ID/packages/generic/$PACKAGE_NAME/$VERSION/$FILE_NAME"
+
+curl --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+     --upload-file "$LOCAL_FILE" \
+     "$UPLOAD_URL"
+
+echo
+echo "Upload complete."
+echo "Download URL:"
+echo "$UPLOAD_URL"

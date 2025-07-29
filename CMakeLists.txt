@@ -25,7 +25,6 @@ if (MSVC)
 		# Using static MSVC runtime /MT in Release and /MTd in Debug
 		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 	endif ()
-	message(STATUS "MSVC Runtime: ${CMAKE_MSVC_RUNTIME_LIBRARY}")
 endif ()
 
 # ----- Project definition and configuration -------------------------------- #
