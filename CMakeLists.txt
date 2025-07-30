@@ -214,8 +214,7 @@ macro(init_submodule name)
 	if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}/CMakeLists.txt")
 		execute_process(
 				COMMAND git submodule update --init --recursive ${name}
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		)
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 	endif ()
 endmacro()
 
