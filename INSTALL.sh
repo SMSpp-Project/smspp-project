@@ -429,6 +429,8 @@ install_on_macos() {
         mkdir -p "$TEMP_DIR"
         # Extract directly into the temporary directory
         sudo unzip "$CPLEX_INSTALLER" -d "$TEMP_DIR"
+        # Remove macOS quarantine attribute to allow execution of unsigned app
+        xattr -r -d com.apple.quarantine "${TEMP_DIR}/${CPLEX_NAME}.app"
         # Launch the installer
         sudo "${TEMP_DIR}/${CPLEX_NAME}.app/Contents/MacOS/${CPLEX_NAME}" &
         wait $! # wait for the installer to finish
