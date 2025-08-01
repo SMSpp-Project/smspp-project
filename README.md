@@ -204,8 +204,11 @@ curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -
 wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path>
 ```
 
-if not specified, the default installation root path is `/opt` for Linux (or
-`$HOME` if the current user is not sudoer), and `/Library` for macOS.
+The `sudo` option in the Linux script assumes that the current user is a
+sudoer, in which case the default installation root path is `/opt`.
+If the user is not a sudoer, `sudo` should not be added and the default
+installation root path is `$HOME`. For macOS, `sudo` should never be used
+and the default installation root path is `/Library`.
 
 If you do not want to install some SMS++ dependency, you can run:
 
