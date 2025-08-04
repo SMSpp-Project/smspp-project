@@ -185,6 +185,8 @@ EOL
         "-DAUTOBUILD=ON"
         "-DZIMPL=OFF"
         "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
+        "-DTBB=ON"
+        "-DOPENMP=ON"
         "-Wno-dev"
       )
       cmake -S . -B build "${scip_build_flags[@]}"
@@ -508,6 +510,8 @@ install_on_macos() {
         "-DAUTOBUILD=ON"
         "-DZIMPL=OFF"
         "-DPAPILO_DIR=${SCIP_ROOT}/papilo"
+        "-DTBB=ON"
+        "-DOPENMP=ON"
         "-Wno-dev"
       )
       cmake -S . -B build "${scip_build_flags[@]}"
