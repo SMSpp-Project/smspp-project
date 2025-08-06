@@ -435,14 +435,13 @@ if (-not $withoutSMSpp)
     }
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
-    $INSTALL_DIR = "$SMSPP_ROOT\install"
 
     # Configure once using multi-config
     & cmake -S . -B $BUILD_DIR -G 'Visual Studio 17 2022' `
-            "-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR" `
+            "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            '-Wno-dev' #`
-            #'-DBUILD_SHARED_LIBS=ON'
+            "-DBUILD_SHARED_LIBS=ON" `
+            '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
@@ -463,8 +462,8 @@ if (-not $withoutSMSpp)
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
 
-    $SMSPP_BIN_RELEASE = "$INSTALL_DIR\bin\Release"
-    $SMSPP_BIN_DEBUG = "$INSTALL_DIR\bin\Debug"
+    $SMSPP_BIN_RELEASE = "$SMSPP_ROOT\bin\Release"
+    $SMSPP_BIN_DEBUG = "$SMSPP_ROOT\bin\Debug"
     $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
 
     foreach ($binPath in @($SMSPP_BIN_RELEASE, $SMSPP_BIN_DEBUG)) {
