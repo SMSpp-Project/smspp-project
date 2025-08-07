@@ -28,8 +28,6 @@ option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 if (WIN32 AND BUILD_SHARED_LIBS)
 	# Enable automatic symbol export introduced in CMake 3.4
 	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "Force export of all symbols on Windows")
-	# Output folder for dll files
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
 endif ()
 
 # Disable linker manifest on MSVC to avoid conflicts
