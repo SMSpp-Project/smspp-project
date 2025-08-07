@@ -18,13 +18,6 @@ if (MSVC)
 	if (POLICY CMP0091)
 		cmake_policy(SET CMP0091 NEW)
 	endif ()
-	if (BUILD_SHARED_LIBS)
-		# Using dynamic MSVC runtime /MD in Release and /MDd in Debug
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
-	else ()
-		# Using static MSVC runtime /MT in Release and /MTd in Debug
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-	endif ()
 endif ()
 
 # ----- Project definition and configuration -------------------------------- #
@@ -44,10 +37,19 @@ option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 if (WIN32 AND BUILD_SHARED_LIBS)
 	# Enable automatic symbol export introduced in CMake 3.4
 	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "Force export of all symbols on Windows")
+	# Output folder for dll files
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif ()
 
-# Disable linker manifest on MSVC to avoid conflicts
 if (MSVC)
+	if (BUILD_SHARED_LIBS)
+		# Using dynamic MSVC runtime /MD in Release and /MDd in Debug
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
+	else ()
+		# Using static MSVC runtime /MT in Release and /MTd in Debug
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	endif ()
+	# Disable linker manifest on MSVC to avoid conflicts
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
 endif ()
 
