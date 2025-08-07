@@ -11,15 +11,6 @@
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.16)
 
-# ----- Policies ------------------------------------------------------------ #
-# Introduced in CMake 3.15 to handle CMAKE_MSVC_RUNTIME_LIBRARY
-# See: https://cmake.org/cmake/help/latest/policy/CMP0091.html
-if (MSVC)
-	if (POLICY CMP0091)
-		cmake_policy(SET CMP0091 NEW)
-	endif ()
-endif ()
-
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project
 		VERSION 0.4.0
@@ -38,18 +29,11 @@ if (WIN32 AND BUILD_SHARED_LIBS)
 	# Enable automatic symbol export introduced in CMake 3.4
 	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "Force export of all symbols on Windows")
 	# Output folder for dll files
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${CMAKE_RUNTIME_BINDIR})
 endif ()
 
+# Disable linker manifest on MSVC to avoid conflicts
 if (MSVC)
-	if (BUILD_SHARED_LIBS)
-		# Using dynamic MSVC runtime /MD in Release and /MDd in Debug
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-	else ()
-		# Using static MSVC runtime /MT in Release and /MTd in Debug
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
-	endif ()
-	# Disable linker manifest on MSVC to avoid conflicts
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
 endif ()
 
