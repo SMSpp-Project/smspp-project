@@ -462,15 +462,14 @@ if (-not $withoutSMSpp)
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
 
-    $SMSPP_BIN_RELEASE = "$SMSPP_ROOT\bin\Release"
-    $SMSPP_BIN_DEBUG = "$SMSPP_ROOT\bin\Debug"
+    $SMSPP_BIN = "$SMSPP_ROOT\bin"
     $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
 
-    foreach ($binPath in @($SMSPP_BIN_RELEASE, $SMSPP_BIN_DEBUG)) {
-        if ($systemPath -notlike "*$binPath*") {
-            $systemPath = "$binPath;$systemPath"
-        }
+    if ($systemPath -notlike "*$SMSPP_BIN*") {
+        $systemPath = "$SMSPP_BIN;$systemPath"
+        [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
+        Write-Host "Added SMSpp bin to the system Path"
+    } else {
+        Write-Host "SMSpp bin is already in the system Path"
     }
-    [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-    Write-Host "Added SMSpp Debug and Release to the system Path"
 }
