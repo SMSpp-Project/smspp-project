@@ -44,10 +44,10 @@ endif ()
 if (MSVC)
 	if (BUILD_SHARED_LIBS)
 		# Using dynamic MSVC runtime /MD in Release and /MDd in Debug
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 	else ()
 		# Using static MSVC runtime /MT in Release and /MTd in Debug
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 	endif ()
 	# Disable linker manifest on MSVC to avoid conflicts
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
