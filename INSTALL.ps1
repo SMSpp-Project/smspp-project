@@ -296,27 +296,6 @@ if ($OS -eq "Win32NT")
             # Build Release
             & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
-            # Define the possible paths
-            $debugPath1 = "$HiGHS_ROOT\build\DEBUG\bin"; $debugPath2 = "$HiGHS_ROOT\build\bin\Debug"
-            $releasePath1 = "$HiGHS_ROOT\build\RELEASE\bin"; $releasePath2 = "$HiGHS_ROOT\build\bin\Release"
-            # Use an inline if-like construct to assign the paths with error handling
-            $debugPath = if (Test-Path $debugPath1) { $debugPath1 }
-            elseif (Test-Path $debugPath2) { $debugPath2 }
-            else { Write-Host "No valid path found for HiGHS Debug"; exit 1 }
-            $releasePath = if (Test-Path $releasePath1) { $releasePath1 }
-            elseif (Test-Path $releasePath2) { $releasePath2 }
-            else { Write-Host "No valid path found for HiGHS Release"; exit 1 }
-            # Check if paths are already in the current Path
-            if ($env:Path -notcontains $releasePath) {
-                [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$releasePath", [System.EnvironmentVariableTarget]::Machine)
-            }
-            if ($env:Path -notcontains $debugPath) {
-                [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$debugPath", [System.EnvironmentVariableTarget]::Machine)
-            }
-            if ($env:Path -notcontains $binPath) {
-                [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$binPath", [System.EnvironmentVariableTarget]::Machine)
-            }
-            Write-Host "Added Highs to the system Path"
         } else {
             Write-Host " done."
             Set-Location $HiGHS_ROOT
@@ -340,6 +319,17 @@ if ($OS -eq "Win32NT")
             } else {
                 Write-Host " done."
             }
+        }
+        # Add HiGHS to the system PATH
+        $HIGHS_BIN = "$HiGHS_ROOT\bin"
+        $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+
+        if ($systemPath -notlike "*$HIGHS_BIN*") {
+            $systemPath = "$HIGHS_BIN;$systemPath"
+            [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
+            Write-Host "Added HiGHS bin to the system Path"
+        } else {
+            Write-Host "HiGHS bin is already in the system Path"
         }
         Set-Location "C:\"
     }
@@ -448,12 +438,12 @@ if (-not $withoutSMSpp)
         Start-Process -FilePath "cmake-gui" -ArgumentList $BUILD_DIR -Wait
     }
 
-    # Build Debug
+    <## Build Debug
     & cmake '--build' $BUILD_DIR '--config' 'Debug' "-j $MAX_JOBS"
     & cmake '--install' $BUILD_DIR '--config' 'Debug'
     #Set-Location "$BUILD_DIR"
     #& ctest -V -C Debug
-    #Set-Location $SMSPP_ROOT
+    #Set-Location $SMSPP_ROOT#>
 
     # Build Release
     & cmake '--build' $BUILD_DIR '--config' 'Release' "-j $MAX_JOBS"
@@ -462,6 +452,7 @@ if (-not $withoutSMSpp)
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
 
+    # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"
     $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
 
