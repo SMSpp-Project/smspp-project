@@ -323,7 +323,6 @@ if ($OS -eq "Win32NT")
         # Add HiGHS to the system PATH
         $HIGHS_BIN = "$HiGHS_ROOT\bin"
         $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
-
         if ($systemPath -notlike "*$HIGHS_BIN*") {
             $systemPath = "$HIGHS_BIN;$systemPath"
             [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
@@ -455,7 +454,6 @@ if (-not $withoutSMSpp)
     # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"
     $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
-
     if ($systemPath -notlike "*$SMSPP_BIN*") {
         $systemPath = "$SMSPP_BIN;$systemPath"
         [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
