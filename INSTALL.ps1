@@ -286,7 +286,7 @@ if ($OS -eq "Win32NT")
             git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
             Set-Location $HiGHS_ROOT
             # Configure once using multi-config
-            & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
+            & cmake -S . -B 'build' `
                     '-DFAST_BUILD=ON' `
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -306,7 +306,7 @@ if ($OS -eq "Win32NT")
                 git pull
                 Write-Host "" # new line
                 # Configure once using multi-config
-                & cmake -S . -B 'build' -G 'Visual Studio 17 2022' `
+                & cmake -S . -B 'build' `
                         '-DFAST_BUILD=ON' `
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -426,10 +426,10 @@ if (-not $withoutSMSpp)
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
     # Configure once using multi-config
-    & cmake -S . -B $BUILD_DIR -G 'Visual Studio 17 2022' `
+    & cmake -S . -B $BUILD_DIR `
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            "-DBUILD_SHARED_LIBS=ON" `
+            '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
