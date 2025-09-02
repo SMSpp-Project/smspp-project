@@ -234,7 +234,7 @@ static double rndfctr( void )
 // is the same as the probability of being 1 / p < 1, while with the
 // remaining probability 1 / 3 returns a random number in [ - 2 , - 0.5 ]
 // with an analogous property; in other words, it tries to keep the
-// modified numbers, on average, of the the same order of magnitude of the
+// modified numbers, on average, of the same order of magnitude of the
 // original ones even after being modified very many times, while flipping
 // their sign once in three calls
 
