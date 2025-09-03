@@ -195,6 +195,12 @@ if ($OS -eq "Win32NT")
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
 
+    # Remove any existing Boost packages (e.g., 1.88.0) to avoid version conflicts
+    Set-Location $env:VCPKG_ROOT
+    $boostPkgs = & .\vcpkg list | Where-Object { $_ -match '^boost' } | ForEach-Object { ($_ -split '\s+')[0] }
+    foreach ($p in $boostPkgs) {
+        & .\vcpkg remove $p --recurse --triplet x64-windows
+    }
     # --- PIN Boost to exactly 1.86.0 via manifest mode (boost only) ---
     $VCPKG_MAN_ROOT = Join-Path $env:VCPKG_ROOT "manifests-boost-186"
     if (-not (Test-Path $VCPKG_MAN_ROOT)) {
