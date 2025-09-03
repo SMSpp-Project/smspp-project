@@ -194,54 +194,7 @@ if ($OS -eq "Win32NT")
 
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
-
-    # Remove any existing Boost packages (e.g., 1.88.0) to avoid version conflicts
-    Set-Location $env:VCPKG_ROOT
-    $boostPkgs = & .\vcpkg list | Where-Object { $_ -match '^boost' } | ForEach-Object { ($_ -split '\s+')[0] }
-    foreach ($p in $boostPkgs) {
-        & .\vcpkg remove $p --recurse --triplet x64-windows
-    }
-    # --- PIN Boost to exactly 1.86.0 via manifest mode (boost only) ---
-    $VCPKG_MAN_ROOT = Join-Path $env:VCPKG_ROOT "manifests-boost-186"
-    if (-not (Test-Path $VCPKG_MAN_ROOT)) {
-        New-Item -ItemType Directory -Force -Path $VCPKG_MAN_ROOT | Out-Null
-    }
-
-    # vcpkg.json: declare only boost and force the exact version 1.86.0
-    @'
-{
-  "name": "smspp-boost-186",
-  "version": "0.0.1",
-  "dependencies": [
-    "boost"
-  ],
-  "overrides": [
-    { "name": "boost", "version": "1.86.0" }
-  ]
-}
-'@ | Set-Content (Join-Path $VCPKG_MAN_ROOT "vcpkg.json") -Encoding ASCII
-
-    # vcpkg-configuration.json: use current HEAD as baseline
-    # (ok as long as the baseline contains boost 1.86.0)
-    $BASELINE = (git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    @"
-{
-  "default-registry": {
-    "kind": "git",
-    "repository": "https://github.com/microsoft/vcpkg",
-    "baseline": "$BASELINE"
-  }
-}
-"@ | Set-Content (Join-Path $VCPKG_MAN_ROOT "vcpkg-configuration.json") -Encoding ASCII
-
-    Write-Host "Installing Boost 1.86.0 via vcpkg manifest..."
-    & (Join-Path $env:VCPKG_ROOT "vcpkg.exe") install `
-   --triplet x64-windows `
-   --x-manifest-root=$VCPKG_MAN_ROOT `
-   --clean-after-build
-    # --- END manifest pin ---
-
-    # .\vcpkg install boost --triplet x64-windows
+    .\vcpkg install boost --triplet x64-windows
     if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
         $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
         if (-not (Test-Path $msmpiInstaller)) {
