@@ -194,7 +194,7 @@ if ($OS -eq "Win32NT")
 
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
-    .\vcpkg install boost --triplet x64-windows
+    .\vcpkg install boost@1.86.0  --triplet x64-windows
     if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
         $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
         if (-not (Test-Path $msmpiInstaller)) {
