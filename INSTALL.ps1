@@ -154,38 +154,42 @@ if ($OS -eq "Win32NT")
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
+    # Switch the vcpkg registry to the previous official release (2025.07.25),
+    # where Boost was still 1.86.x. We checkout the release tag in detached HEAD.
+    $VCPKG_REGISTRY_TAG = "2025.07.25"
+
     if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
-        Set-Location $env:VCPKG_ROOT
-        .\bootstrap-vcpkg.bat
-    } else {
-        Set-Location $env:VCPKG_ROOT
-        git pull
-        .\bootstrap-vcpkg.bat
-        if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
-            Set-Location $STOPT_VCPKG_REGISTRY
-            git remote update
-            $local = git rev-parse "@"
-            $remote = git rev-parse "@{u}"
-            if ($local -eq $remote) { # stopt is latest
-                git pull
-                Set-Location $env:VCPKG_ROOT
-                # upgrade all other packages ignoring stopt
-                .\vcpkg list | ForEach-Object {
-                    $package = ($_ -split '\s+')[0] # first column
-                    if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]') {
-                        .\vcpkg upgrade $package --no-dry-run
-                    }
+    }
+
+    Set-Location $env:VCPKG_ROOT
+    git fetch origin --tags --prune
+    git checkout --detach "tags/$VCPKG_REGISTRY_TAG"
+    .\bootstrap-vcpkg.bat
+
+    if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
+        Set-Location $STOPT_VCPKG_REGISTRY
+        git remote update
+        $local = git rev-parse "@"
+        $remote = git rev-parse "@{u}"
+        if ($local -eq $remote) { # stopt is latest
+            git pull
+            Set-Location $env:VCPKG_ROOT
+            # upgrade all other packages ignoring stopt
+            .\vcpkg list | ForEach-Object {
+                $package = ($_ -split '\s+')[0] # first column
+                if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]') {
+                    .\vcpkg upgrade $package --no-dry-run
                 }
-            } else { # new stopt version is available
-                Set-Location $env:VCPKG_ROOT
-                .\vcpkg remove stopt # remove the old stopt version before upgrade
-                .\vcpkg upgrade --no-dry-run # upgrade all other packages
-                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows # install the new stopt version
             }
-        } else {
-            .\vcpkg upgrade --no-dry-run
+        } else { # new stopt version is available
+            Set-Location $env:VCPKG_ROOT
+            .\vcpkg remove stopt # remove the old stopt version before upgrade
+            .\vcpkg upgrade --no-dry-run # upgrade all other packages
+            .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows # install the new stopt version
         }
+    } else {
+        .\vcpkg upgrade --no-dry-run
     }
 
     # Install basic requirements with vcpkg
