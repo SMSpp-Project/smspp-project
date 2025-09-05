@@ -154,40 +154,22 @@ if ($OS -eq "Win32NT")
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
-    $BOOST_TARGET_VERSION = "1.86.0"
-    $PIN_VCPKG = $true   # we are pinning vcpkg to a specific commit that contains Boost 1.86.0
-
     if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
-    }
-
-    Set-Location $env:VCPKG_ROOT
-    git fetch --all --tags
-
-    # If you want to pass a specific commit from outside, set $vcpkgCommit before this block.
-    # Otherwise auto-discover a commit that contains Boost 1.86.0 in versions/b-/boost.json
-    if (-not (Get-Variable vcpkgCommit -Scope Script -ErrorAction SilentlyContinue) -or [string]::IsNullOrWhiteSpace($vcpkgCommit)) {
-        $vcpkgCommit = (git log -n 1 -S '"version-string": "'+$BOOST_TARGET_VERSION+'"' --format=%H -- "versions/b-/boost.json").Trim()
-        if (-not $vcpkgCommit) {
-            Write-Error "Could not find a vcpkg commit containing Boost $BOOST_TARGET_VERSION in versions/b-/boost.json."
-            exit 1
-        }
-    }
-
-    Write-Host "Checking out vcpkg @ $vcpkgCommit (contains Boost $BOOST_TARGET_VERSION)…"
-    git checkout $vcpkgCommit
-    .\bootstrap-vcpkg.bat
-
-    # If StOpt is installed, keep your existing logic but avoid global upgrades while pinned
-    if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
-        Set-Location $STOPT_VCPKG_REGISTRY
-        git remote update
-        $local = git rev-parse "@"
-        $remote = git rev-parse "@{u}"
-        if ($local -eq $remote) { # stopt is latest
-            git pull
-            Set-Location $env:VCPKG_ROOT
-            if (-not $PIN_VCPKG) {
+        Set-Location $env:VCPKG_ROOT
+        .\bootstrap-vcpkg.bat
+    } else {
+        Set-Location $env:VCPKG_ROOT
+        git pull
+        .\bootstrap-vcpkg.bat
+        if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
+            Set-Location $STOPT_VCPKG_REGISTRY
+            git remote update
+            $local = git rev-parse "@"
+            $remote = git rev-parse "@{u}"
+            if ($local -eq $remote) { # stopt is latest
+                git pull
+                Set-Location $env:VCPKG_ROOT
                 # upgrade all other packages ignoring stopt
                 .\vcpkg list | ForEach-Object {
                     $package = ($_ -split '\s+')[0] # first column
@@ -195,18 +177,13 @@ if ($OS -eq "Win32NT")
                         .\vcpkg upgrade $package --no-dry-run
                     }
                 }
-            }
-        } else { # new stopt version is available
-            Set-Location $env:VCPKG_ROOT
-            if (-not $PIN_VCPKG) {
+            } else { # new stopt version is available
+                Set-Location $env:VCPKG_ROOT
                 .\vcpkg remove stopt # remove the old stopt version before upgrade
                 .\vcpkg upgrade --no-dry-run # upgrade all other packages
+                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows # install the new stopt version
             }
-            # reinstall stopt from overlay (this is safe even when pinned)
-            .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
-        }
-    } else {
-        if (-not $PIN_VCPKG) {
+        } else {
             .\vcpkg upgrade --no-dry-run
         }
     }
