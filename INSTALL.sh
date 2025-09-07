@@ -723,14 +723,13 @@ case "$OS" in
   if [ -f /etc/os-release ]; then
     . /etc/os-release
     if [ "$ID" = "ubuntu" ] || [ "$ID" = "debian" ]; then
+      INSTALL_ROOT="${install_root:-/opt}"
       # Check if the user has sudo access
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
-        INSTALL_ROOT="${install_root:-/opt}"
         SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       else
         HAS_SUDO=0
-        INSTALL_ROOT="${install_root:-${HOME}}"
         SMSPP_ROOT="${HOME}/smspp-project"
       fi
       install_on_linux
@@ -744,12 +743,11 @@ case "$OS" in
   fi
   ;;
 "Darwin")
+  INSTALL_ROOT="${install_root:-/Library}"
   # Check if the user has sudo access
   if [ -w /Library ]; then
-    INSTALL_ROOT="${install_root:-/Library}"
     SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   else
-    INSTALL_ROOT="${install_root:-${HOME}}"
     SMSPP_ROOT="${HOME}/smspp-project"
   fi
   install_on_macos
