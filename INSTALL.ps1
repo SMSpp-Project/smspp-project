@@ -157,8 +157,10 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
+        git fetch --tags
+        git checkout "2025.07.25"
         .\bootstrap-vcpkg.bat
-    } else {
+    } <#else {
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
@@ -186,7 +188,7 @@ if ($OS -eq "Win32NT")
         } else {
             .\vcpkg upgrade --no-dry-run
         }
-    }
+    }#>
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
