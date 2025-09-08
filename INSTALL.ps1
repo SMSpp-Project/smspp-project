@@ -66,6 +66,7 @@ if (-not $MAX_JOBS) {
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
+# TODO remove when stopt will be available in the official vcpkg repository
 $STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry"
 
 function Update-EnvironmentVariables
@@ -162,6 +163,7 @@ if ($OS -eq "Win32NT")
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
+        # TODO remove when stopt will be available on the official vcpkg repository
         if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
             Set-Location $STOPT_VCPKG_REGISTRY
             git remote update
