@@ -157,8 +157,6 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
-        git fetch --tags # TODO remove when boost 1.90 will be available
-        git checkout "edc84ff66e6262a9f7565c28eb76577aeab9c5aa" # TODO remove when boost 1.90 will be available
         .\bootstrap-vcpkg.bat
     } <#else { # TODO uncomment when boost 1.90 will be available
         Set-Location $env:VCPKG_ROOT
@@ -196,7 +194,8 @@ if ($OS -eq "Win32NT")
 
     # Install Boost libraries
     Write-Host "Installing Boost libraries..."
-    .\vcpkg install boost --triplet x64-windows
+    # TODO uncomment when boost 1.90 will be available
+    #.\vcpkg install boost --triplet x64-windows
     if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
         $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
         if (-not (Test-Path $msmpiInstaller)) {
@@ -205,7 +204,8 @@ if ($OS -eq "Win32NT")
         }
         Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     }
-    .\vcpkg install boost-mpi --triplet x64-windows
+    # TODO uncomment when boost 1.90 will be available
+    #.\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
     Write-Host "Installing Eigen..."
@@ -424,6 +424,43 @@ if (-not $withoutSMSpp)
         }
         Set-Location $SMSPP_ROOT
     }
+
+    # TODO remove from here..
+    # Rationale: keep vcpkg registry updated while forcing Boost 1.86.0 for all used components.
+    Set-Location $env:VCPKG_ROOT
+    $builtinBaseline = (git rev-parse HEAD).Trim()
+    Set-Location $SMSPP_ROOT
+
+    $vcpkgJson = @"
+{
+  "name": "smspp-env",
+  "version-string": "1.0.0",
+  "builtin-baseline": "$builtinBaseline",
+  "dependencies": [
+    "zlib",
+    "bzip2",
+    "pthreads",
+    "getopt",
+    "eigen3",
+    "netcdf-cxx4",
+
+    "boost",
+    "boost-mpi"
+  ],
+  "overrides": [
+    { "name": "boost",                 "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-mpi",             "version": "1.86.0", "port-version": 0 }
+  ]
+}
+"@
+    Set-Content -Path "$SMSPP_ROOT\vcpkg.json" -Value $vcpkgJson -Encoding UTF8
+
+    # Enable manifest/versions explicitly for clarity
+    $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
+
+    # Pre-resolve manifest dependencies for x64-windows
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows
+    # TODO ... to here, when boost 1.90 will be available
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
