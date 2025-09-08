@@ -165,6 +165,10 @@ if (BUILD_MMCFBlock)
 	set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
 endif ()
 
+if (BUILD_StochasticBlock)
+	set(BUILD_CapacitatedFacilityLocationBlock ON) # Requires CapacitatedFacilityLocationBlock
+endif ()
+
 if (BUILD_CapacitatedFacilityLocationBlock)
 	set(BUILD_MCFBlock ON) # Requires MCFBlock
 	set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
