@@ -460,7 +460,7 @@ if ($OS -eq "Win32NT")
         # Enable manifest features explicitly
         $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
         Set-Location $SMSPP_ROOT
-        & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt
+        & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --feature-flags=manifests,versions,registries
         Set-Location "C:\"
     }
 
