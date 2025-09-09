@@ -159,9 +159,9 @@ if ($OS -eq "Win32NT")
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
         .\bootstrap-vcpkg.bat
-    } <#else { # TODO uncomment when boost 1.90 will be available
+    } else {
         Set-Location $env:VCPKG_ROOT
-        git pull
+        <#git pull # TODO uncomment when boost 1.90 will be available
         .\bootstrap-vcpkg.bat
         # TODO remove when stopt will be available on the official vcpkg repository
         if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
@@ -187,8 +187,8 @@ if ($OS -eq "Win32NT")
             }
         } else {
             .\vcpkg upgrade --no-dry-run
-        }
-    }#>
+        }#>
+    }
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
