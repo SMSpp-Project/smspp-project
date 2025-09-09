@@ -217,6 +217,42 @@ if ($OS -eq "Win32NT")
     Write-Host "Installing NetCDF..."
     .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
+    # TODO remove from here..
+    # Enable vcpkg manifest/versions globally (harmless if repeated)
+    $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
+    # Ensure project root exists for manifest
+    $SMSPP_ROOT_FOR_MANIFEST = "$installRoot\smspp-project"
+    if (-not (Test-Path $SMSPP_ROOT_FOR_MANIFEST)) {
+        New-Item -ItemType Directory -Path $SMSPP_ROOT_FOR_MANIFEST | Out-Null
+    }
+    # Pin manifest to current builtin baseline of C:\vcpkg
+    Set-Location $env:VCPKG_ROOT
+    $builtinBaseline = (git rev-parse HEAD).Trim()
+    Set-Location $SMSPP_ROOT_FOR_MANIFEST
+    $vcpkgJsonEarly = @"
+{
+  "name": "smspp-env",
+  "version-string": "1.0.0",
+  "builtin-baseline": "$builtinBaseline",
+  "dependencies": [
+    "zlib",
+    "bzip2",
+    "pthreads",
+    "getopt",
+    "eigen3",
+    "netcdf-cxx4",
+    "boost",
+    "boost-mpi"
+  ],
+  "overrides": [
+    { "name": "boost",                 "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-mpi",             "version": "1.86.0", "port-version": 0 }
+  ]
+}
+"@
+    Set-Content -Path "$SMSPP_ROOT_FOR_MANIFEST\vcpkg.json" -Value $vcpkgJsonEarly -Encoding UTF8
+    # TODO ... to here, when boost 1.90 will be available
+
     # Install CPLEX
     if (-not $withoutCplex) {
         Write-Host "Installing CPLEX..." -NoNewline
@@ -392,8 +428,15 @@ if ($OS -eq "Win32NT")
         Write-Host "Setting up vcpkg for StOpt installation..."
         Set-Location "C:\"
         git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
-        Set-Location $env:VCPKG_ROOT
-        .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
+        $SMSPP_ROOT = "$installRoot\smspp-project"
+        if (-not (Test-Path $SMSPP_ROOT)) {
+            Write-Host "ERROR: Project root not found at $SMSPP_ROOT. Cannot run manifest install for StOpt."
+            exit 1
+        }
+        # Enable manifest features explicitly
+        $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
+        Set-Location $SMSPP_ROOT
+        & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt
         Set-Location "C:\"
     }
 
@@ -427,42 +470,8 @@ if (-not $withoutSMSpp)
         Set-Location $SMSPP_ROOT
     }
 
-    # TODO remove from here..
-    # Rationale: keep vcpkg registry updated while forcing Boost 1.86.0 for all used components.
-    Set-Location $env:VCPKG_ROOT
-    $builtinBaseline = (git rev-parse HEAD).Trim()
-    Set-Location $SMSPP_ROOT
-
-    $vcpkgJson = @"
-{
-  "name": "smspp-env",
-  "version-string": "1.0.0",
-  "builtin-baseline": "$builtinBaseline",
-  "dependencies": [
-    "zlib",
-    "bzip2",
-    "pthreads",
-    "getopt",
-    "eigen3",
-    "netcdf-cxx4",
-
-    "boost",
-    "boost-mpi"
-  ],
-  "overrides": [
-    { "name": "boost",                 "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-mpi",             "version": "1.86.0", "port-version": 0 }
-  ]
-}
-"@
-    Set-Content -Path "$SMSPP_ROOT\vcpkg.json" -Value $vcpkgJson -Encoding UTF8
-
-    # Enable manifest/versions explicitly for clarity
+    # Enable manifest/versions explicitly for clarity (harmless if repeated)
     $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
-
-    # Pre-resolve manifest dependencies for x64-windows
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows
-    # TODO ... to here, when boost 1.90 will be available
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
