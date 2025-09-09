@@ -160,6 +160,8 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
+        git fetch --tags # TODO remove when boost 1.90 will be available
+        git checkout "edc84ff66e6262a9f7565c28eb76577aeab9c5aa" # TODO remove when boost 1.90 will be available
         .\bootstrap-vcpkg.bat
     } else {
         Set-Location $env:VCPKG_ROOT
@@ -578,7 +580,7 @@ if ($OS -eq "Win32NT")
     # Install vcpkg dependencies
     Write-Host "Installing all vcpkg dependencies via manifest..."
     Set-Location $env:VCPKG_ROOT
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --feature-flags=manifests,versions,registries
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --feature-flags=manifests,versions,registries --no-binarycaching
 
     # Setup vcpkg for StOpt installation
     if (-not $withoutStOpt) {
@@ -593,7 +595,7 @@ if ($OS -eq "Win32NT")
         # Enable manifest features explicitly
         $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
         Set-Location $SMSPP_ROOT
-        & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --feature-flags=manifests,versions,registries
+        & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --feature-flags=manifests,versions,registries --no-binarycaching
         Set-Location "C:\"
     }
 
