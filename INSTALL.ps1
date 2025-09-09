@@ -66,6 +66,8 @@ if (-not $MAX_JOBS) {
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
+$SMSPP_ENV = Join-Path $installRoot "smspp-env"
+
 # TODO remove when stopt will be available in the official vcpkg repository
 $STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry"
 
@@ -191,13 +193,12 @@ if ($OS -eq "Win32NT")
     }
 
     # Install basic requirements with vcpkg
-    Write-Host "Installing basic requirements with vcpkg..."
-    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
+    # Write-Host "Installing basic requirements with vcpkg..."
+    # .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
 
-    # Install Boost libraries
-    Write-Host "Installing Boost libraries..."
-    # TODO uncomment when boost 1.90 will be available
-    #.\vcpkg install boost --triplet x64-windows
+    # Install Boost libraries (handled via manifest with overrides to 1.86.0)
+    # Write-Host "Installing Boost libraries..."
+    # .\vcpkg install boost --triplet x64-windows
     if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
         $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
         if (-not (Test-Path $msmpiInstaller)) {
@@ -206,30 +207,29 @@ if ($OS -eq "Win32NT")
         }
         Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     }
-    # TODO uncomment when boost 1.90 will be available
-    #.\vcpkg install boost-mpi --triplet x64-windows
+    # .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
-    Write-Host "Installing Eigen..."
-    .\vcpkg install eigen3 --triplet x64-windows
+    # Write-Host "Installing Eigen..."
+    # .\vcpkg install eigen3 --triplet x64-windows
 
     # Install NetCDF
-    Write-Host "Installing NetCDF..."
-    .\vcpkg install netcdf-cxx4 --triplet x64-windows
+    # Write-Host "Installing NetCDF..."
+    # .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
-    # TODO remove from here..
-    # Enable vcpkg manifest/versions globally
     $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
-    # Ensure project root exists for manifest
-    $SMSPP_ROOT_FOR_MANIFEST = "$installRoot\smspp-project"
-    if (-not (Test-Path $SMSPP_ROOT_FOR_MANIFEST)) {
-        New-Item -ItemType Directory -Path $SMSPP_ROOT_FOR_MANIFEST | Out-Null
+
+    # Ensure manifest root exists
+    if (-not (Test-Path $SMSPP_ENV)) {
+        New-Item -ItemType Directory -Path $SMSPP_ENV | Out-Null
     }
+
     # Pin manifest to current builtin baseline of C:\vcpkg
     Set-Location $env:VCPKG_ROOT
     $builtinBaseline = (git rev-parse HEAD).Trim()
-    Set-Location $SMSPP_ROOT_FOR_MANIFEST
-    $vcpkgJsonEarly = @"
+
+    Set-Location $SMSPP_ENV
+    $vcpkgJsonUnified = @"
 {
   "name": "smspp-env",
   "version-string": "1.0.0",
@@ -241,17 +241,27 @@ if ($OS -eq "Win32NT")
     "getopt",
     "eigen3",
     "netcdf-cxx4",
+    "coin-or-osi",
+    "coin-or-clp",
+    "glpk",
+    "coinutils",
     "boost",
     "boost-mpi"
   ],
   "overrides": [
-    { "name": "boost",                 "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-mpi",             "version": "1.86.0", "port-version": 0 }
+    { "name": "boost",                "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-chrono",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-system",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-timer",          "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-serialization",  "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-random",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-log",            "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-multi-array",    "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-mpi",            "version": "1.86.0", "port-version": 0 }
   ]
 }
 "@
-    Set-Content -Path "$SMSPP_ROOT_FOR_MANIFEST\vcpkg.json" -Value $vcpkgJsonEarly -Encoding UTF8
-    # TODO ... to here, when boost 1.90 will be available
+    Set-Content -Path "$SMSPP_ENV\vcpkg.json" -Value $vcpkgJsonUnified -Encoding UTF8
 
     # Install CPLEX
     if (-not $withoutCplex) {
@@ -375,9 +385,9 @@ if ($OS -eq "Win32NT")
 
     # Install COIN-OR CoinUtils
     if (-not $withoutCoinOr) {
-        Write-Host "Installing COIN-OR CoinUtils..."
-        Set-Location $env:VCPKG_ROOT
-        .\vcpkg install coinutils --triplet x64-windows
+        # Write-Host "Installing COIN-OR CoinUtils..."
+        # Set-Location $env:VCPKG_ROOT
+        # .\vcpkg install coinutils --triplet x64-windows
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
@@ -417,11 +427,15 @@ if ($OS -eq "Win32NT")
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
         }
 
-        # Install COIN-OR Osi/Clp
-        Write-Host "Installing COIN-OR Osi/Clp..."
-        Set-Location $env:VCPKG_ROOT
-        .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
+        # Write-Host "Installing COIN-OR Osi/Clp..."
+        # Set-Location $env:VCPKG_ROOT
+        # .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
     }
+
+    # Install vcpkg dependencies
+    Write-Host "Installing all vcpkg dependencies via manifest..."
+    Set-Location $env:VCPKG_ROOT
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV"
 
     # Setup vcpkg for StOpt installation
     if (-not $withoutStOpt) {
