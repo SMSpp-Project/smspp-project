@@ -250,14 +250,24 @@ if ($OS -eq "Win32NT")
   ],
   "overrides": [
     { "name": "boost",                "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-atomic",         "version": "1.86.0", "port-version": 0 },
     { "name": "boost-chrono",         "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-system",         "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-timer",          "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-serialization",  "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-random",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-container",      "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-date-time",      "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-filesystem",     "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-iostreams",      "version": "1.86.0", "port-version": 0 },
     { "name": "boost-log",            "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-log-setup",      "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-math",           "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-mpi",            "version": "1.86.0", "port-version": 0 },
     { "name": "boost-multi-array",    "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-mpi",            "version": "1.86.0", "port-version": 0 }
+    { "name": "boost-program-options","version": "1.86.0", "port-version": 0 },
+    { "name": "boost-random",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-regex",          "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-serialization",  "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-system",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-thread",         "version": "1.86.0", "port-version": 0 },
+    { "name": "boost-timer",          "version": "1.86.0", "port-version": 0 }
   ]
 }
 "@
@@ -435,7 +445,7 @@ if ($OS -eq "Win32NT")
     # Install vcpkg dependencies
     Write-Host "Installing all vcpkg dependencies via manifest..."
     Set-Location $env:VCPKG_ROOT
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV"
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --feature-flags=manifests,versions,registries
 
     # Setup vcpkg for StOpt installation
     if (-not $withoutStOpt) {
