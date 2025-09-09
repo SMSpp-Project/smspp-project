@@ -218,7 +218,7 @@ if ($OS -eq "Win32NT")
     .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # TODO remove from here..
-    # Enable vcpkg manifest/versions globally (harmless if repeated)
+    # Enable vcpkg manifest/versions globally
     $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
     # Ensure project root exists for manifest
     $SMSPP_ROOT_FOR_MANIFEST = "$installRoot\smspp-project"
@@ -469,9 +469,6 @@ if (-not $withoutSMSpp)
         }
         Set-Location $SMSPP_ROOT
     }
-
-    # Enable manifest/versions explicitly for clarity (harmless if repeated)
-    $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
