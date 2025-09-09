@@ -66,9 +66,6 @@ if (-not $MAX_JOBS) {
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
-$SMSPP_ENV = Join-Path $installRoot "smspp-env"
-
-# TODO remove when stopt will be available in the official vcpkg repository
 $STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry"
 
 function Update-EnvironmentVariables
@@ -163,11 +160,10 @@ if ($OS -eq "Win32NT")
         git fetch --tags # TODO remove when boost 1.90 will be available
         git checkout "edc84ff66e6262a9f7565c28eb76577aeab9c5aa" # TODO remove when boost 1.90 will be available
         .\bootstrap-vcpkg.bat
-    } else {
+    } <#else { # TODO uncomment when boost 1.90 will be available
         Set-Location $env:VCPKG_ROOT
-        <#git pull # TODO uncomment when boost 1.90 will be available
+        git pull
         .\bootstrap-vcpkg.bat
-        # TODO remove when stopt will be available on the official vcpkg repository
         if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
             Set-Location $STOPT_VCPKG_REGISTRY
             git remote update
@@ -191,16 +187,16 @@ if ($OS -eq "Win32NT")
             }
         } else {
             .\vcpkg upgrade --no-dry-run
-        }#>
-    }
+        }
+    }#>
 
     # Install basic requirements with vcpkg
-    # Write-Host "Installing basic requirements with vcpkg..."
-    # .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
+    Write-Host "Installing basic requirements with vcpkg..."
+    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
 
-    # Install Boost libraries (handled via manifest with overrides to 1.86.0)
-    # Write-Host "Installing Boost libraries..."
-    # .\vcpkg install boost --triplet x64-windows
+    # Install Boost libraries
+    Write-Host "Installing Boost libraries..."
+    .\vcpkg install boost --triplet x64-windows
     if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
         $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
         if (-not (Test-Path $msmpiInstaller)) {
@@ -209,54 +205,15 @@ if ($OS -eq "Win32NT")
         }
         Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     }
-    # .\vcpkg install boost-mpi --triplet x64-windows
+    .\vcpkg install boost-mpi --triplet x64-windows
 
     # Install Eigen
-    # Write-Host "Installing Eigen..."
-    # .\vcpkg install eigen3 --triplet x64-windows
+    Write-Host "Installing Eigen..."
+    .\vcpkg install eigen3 --triplet x64-windows
 
     # Install NetCDF
-    # Write-Host "Installing NetCDF..."
-    # .\vcpkg install netcdf-cxx4 --triplet x64-windows
-
-    $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
-
-    # Ensure manifest root exists
-    if (-not (Test-Path $SMSPP_ENV)) {
-        New-Item -ItemType Directory -Path $SMSPP_ENV | Out-Null
-    }
-
-    # Pin manifest to current builtin baseline of C:\vcpkg
-    Set-Location $env:VCPKG_ROOT
-    $builtinBaseline = (git rev-parse HEAD).Trim()
-
-    Set-Location $SMSPP_ENV
-    $vcpkgJsonUnified = @"
-{
-  "name": "smspp-env",
-  "version-string": "1.0.0",
-  "builtin-baseline": "$builtinBaseline",
-  "dependencies": [
-    "zlib",
-    "bzip2",
-    "pthreads",
-    "getopt",
-    "eigen3",
-    "netcdf-cxx4",
-    "coin-or-osi",
-    "coin-or-clp",
-    "glpk",
-    "coinutils",
-    "boost",
-    "boost-mpi"
-  ],
-  "overrides": [
-    { "name": "boost",                   "version": "1.86.0", "port-version": 0 },
-    { "name": "boost-mpi",               "version": "1.86.0", "port-version": 0 }
-  ]
-}
-"@
-    Set-Content -Path "$SMSPP_ENV\vcpkg.json" -Value $vcpkgJsonUnified -Encoding UTF8
+    Write-Host "Installing NetCDF..."
+    .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX
     if (-not $withoutCplex) {
@@ -380,9 +337,9 @@ if ($OS -eq "Win32NT")
 
     # Install COIN-OR CoinUtils
     if (-not $withoutCoinOr) {
-        # Write-Host "Installing COIN-OR CoinUtils..."
-        # Set-Location $env:VCPKG_ROOT
-        # .\vcpkg install coinutils --triplet x64-windows
+        Write-Host "Installing COIN-OR CoinUtils..."
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install coinutils --triplet x64-windows
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
@@ -422,32 +379,21 @@ if ($OS -eq "Win32NT")
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
         }
 
-        # Write-Host "Installing COIN-OR Osi/Clp..."
-        # Set-Location $env:VCPKG_ROOT
-        # .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
+        # Install COIN-OR Osi/Clp
+        Write-Host "Installing COIN-OR Osi/Clp..."
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
     }
 
-    # Install vcpkg dependencies
-    Write-Host "Installing all vcpkg dependencies via manifest..."
-    Set-Location $env:VCPKG_ROOT
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --feature-flags=manifests,versions,registries --no-binarycaching
-
-    # Setup vcpkg for StOpt installation
+    <## Setup vcpkg for StOpt installation
     if (-not $withoutStOpt) {
         Write-Host "Setting up vcpkg for StOpt installation..."
         Set-Location "C:\"
         git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
-        $SMSPP_ROOT = "$installRoot\smspp-project"
-        if (-not (Test-Path $SMSPP_ROOT)) {
-            Write-Host "ERROR: Project root not found at $SMSPP_ROOT. Cannot run manifest install for StOpt."
-            exit 1
-        }
-        # Enable manifest features explicitly
-        $env:VCPKG_FEATURE_FLAGS = "manifests,versions,registries"
-        Set-Location $SMSPP_ROOT
-        & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root="$SMSPP_ENV" --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --feature-flags=manifests,versions,registries --no-binarycaching
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
         Set-Location "C:\"
-    }
+    }#>
 
     Write-Host "Installation completed successfully on Windows."
 }
