@@ -433,11 +433,13 @@ if (-not $withoutSMSpp)
 
     # Install vcpkg dependencies
     Write-Host "Installing all vcpkg dependencies via manifest..."
+    $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
+    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
+    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
+    $manifestJson.'builtin-baseline' = $Baseline
+    $manifestJson | ConvertTo-Json -Depth 5 | Set-Content $ManifestPath -Encoding UTF8
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows  `
-                                          --x-manifest-root "$SMSPP_ROOT" `
-                                          --builtin-baseline $(git -C $env:VCPKG_ROOT rev-parse HEAD) `
-                                          --clean-after-build
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root "$SMSPP_ROOT" --clean-after-build
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
