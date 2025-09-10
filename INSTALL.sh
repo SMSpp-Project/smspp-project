@@ -62,7 +62,7 @@ install_on_linux() {
     # Update packages and install basic requirements
     echo "Updating system and installing basic requirements..."
     apt-get update -q
-    apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl xterm
+    apt-get install -y -q build-essential clang cmake cmake-curses-gui git curl
 
     # Install Boost libraries
     echo "Installing Boost libraries..."
@@ -381,7 +381,7 @@ install_on_macos() {
 
   # Install basic requirements
   echo "Installing basic requirements..."
-  brew install bash cmake git xterm
+  brew install bash cmake git
 
   # Install OpenMP
   echo "Installing OpenMP..."
@@ -769,13 +769,7 @@ if [ "$install_smspp" -eq 1 ]; then
     git pull
   else
     echo "Repository not found locally. Cloning SMSpp..."
-    # Check if the script is being executed on a server without display or interactive terminal
-    if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
-      # no way to use ccmake interactively to choose submodules, so download it all
-      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    else
-      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    fi
+    git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     cd "$SMSPP_ROOT"
   fi
 
@@ -824,29 +818,17 @@ if [ "$install_smspp" -eq 1 ]; then
 
   # Build SMSpp
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -DBUILD_SHARED_LIBS=ON -Wno-dev
-  # Check if the script is being executed on a server without display or interactive terminal
-  if [ -z "$DISPLAY" ] || [ ! -t 1 ]; then
-    # no way to use ccmake interactively to choose submodules, so build it all
+  ( cd build && ccmake .. )
+  CCMAKE_EXIT_CODE=$?
+  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build build -j "${MAX_JOBS}"
     cmake --install build
     #cd build
     #ctest -V
     #cd "$SMSPP_ROOT"
   else
-    # run ccmake in a xterm subshell to allow interaction
-    xterm -e ccmake build & # select submodules, then Configure and Generate the build files
-    wait $! # wait for ccmake to finish
-    CCMAKE_EXIT_CODE=$?
-    if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
-      cmake --build build -j "${MAX_JOBS}"
-      cmake --install build
-      #cd build
-      #ctest -V
-      #cd "$SMSPP_ROOT"
-    else
-      echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-      exit 1
-    fi
+    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+    exit 1
   fi
 
   # Export SMSpp paths
