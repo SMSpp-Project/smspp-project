@@ -8,6 +8,7 @@
     "getopt",
     "boost",
     "boost-mpi",
+    "msmpi",
     "eigen3",
     "netcdf-cxx4",
     "coinutils",

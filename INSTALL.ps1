@@ -150,17 +150,6 @@ if ($OS -eq "Win32NT")
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
 
-    # Install MPI
-    Write-Host "Installing MPI..."
-    if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
-        $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
-        if (-not (Test-Path $msmpiInstaller)) {
-            Write-Host "Downloading Microsoft MPI installer..."
-            Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
-        }
-        Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
-    }
-
     # Install vcpkg
     Write-Host "Installing vcpkg..."
     if (-not (Test-Path $env:VCPKG_ROOT)) {
