@@ -818,8 +818,10 @@ if [ "$install_smspp" -eq 1 ]; then
 
   # Build SMSpp
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -DBUILD_SHARED_LIBS=ON -Wno-dev
-  ( cd build && ccmake .. )
+  cd build
+  ccmake ..
   CCMAKE_EXIT_CODE=$?
+  cd ..
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build build -j "${MAX_JOBS}"
     cmake --install build
