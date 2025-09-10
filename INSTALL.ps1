@@ -166,6 +166,7 @@ if ($OS -eq "Win32NT")
     # Install vcpkg dependencies
     Write-Host "Installing all vcpkg dependencies via manifest..."
     $EarlyManifestRoot = "C:\"
+    $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
     # Download vcpkg.json from the smspp-project repository
     $ManifestPath = Join-Path $EarlyManifestRoot 'vcpkg.json'
     $rawUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
@@ -175,10 +176,11 @@ if ($OS -eq "Win32NT")
     $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
     $manifestJson.'builtin-baseline' = $Baseline
     $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
-    # Enable manifests/registries and run vcpkg install
+    # Enable manifests/registries and run vcpkg install with an explicit install root
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
     & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
                                           --x-manifest-root "$EarlyManifestRoot" `
+                                          --x-install-root "$InstallRootOverride" `
                                           --clean-after-build
     # Clean up the temporary manifest
     Remove-Item $ManifestPath
