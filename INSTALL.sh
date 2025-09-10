@@ -819,7 +819,12 @@ if [ "$install_smspp" -eq 1 ]; then
   # Build SMSpp
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -DBUILD_SHARED_LIBS=ON -Wno-dev
   cd build
-  ccmake ..
+  # Ensure TERM is set to something ncurses can handle
+  if [ -z "${TERM:-}" ] || [ "$TERM" = "dumb" ]; then
+    export TERM=xterm
+  fi
+  # Run ccmake attached to the real terminal (so keyboard input works)
+  ccmake .. < /dev/tty > /dev/tty 2>&1
   CCMAKE_EXIT_CODE=$?
   cd ..
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
