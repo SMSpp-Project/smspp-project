@@ -434,7 +434,10 @@ if (-not $withoutSMSpp)
     # Install vcpkg dependencies
     Write-Host "Installing all vcpkg dependencies via manifest..."
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root "$SMSPP_ROOT" --clean-after-build
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows  `
+                                          --x-manifest-root "$SMSPP_ROOT" `
+                                          --builtin-baseline $(git -C $env:VCPKG_ROOT rev-parse HEAD) `
+                                          --clean-after-build
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
