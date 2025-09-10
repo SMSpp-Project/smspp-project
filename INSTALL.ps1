@@ -281,19 +281,6 @@ if ($OS -eq "Win32NT")
         Set-Location "C:\"
     }
 
-    # Install vcpkg
-    Write-Host "Installing vcpkg..."
-    if (-not (Test-Path $env:VCPKG_ROOT)) {
-        git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
-        Set-Location $env:VCPKG_ROOT
-        .\bootstrap-vcpkg.bat
-    } else {
-        Set-Location $env:VCPKG_ROOT
-        git pull
-        .\bootstrap-vcpkg.bat
-        .\vcpkg upgrade --no-dry-run
-    }
-
     # Configure COIN-OR Osi
     if (-not $withoutCoinOr) {
         Write-Host "Configuring COIN-OR Osi..."
