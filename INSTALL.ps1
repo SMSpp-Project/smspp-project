@@ -150,26 +150,8 @@ if ($OS -eq "Win32NT")
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
 
-    # Install vcpkg
-    Write-Host "Installing vcpkg..."
-    if (-not (Test-Path $env:VCPKG_ROOT)) {
-        git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
-        Set-Location $env:VCPKG_ROOT
-        .\bootstrap-vcpkg.bat
-    } else {
-        Set-Location $env:VCPKG_ROOT
-        git pull
-        .\bootstrap-vcpkg.bat
-        .\vcpkg upgrade --no-dry-run
-    }
-
-    # Install basic requirements with vcpkg
-    Write-Host "Installing basic requirements with vcpkg..."
-    .\vcpkg install zlib bzip2 pthreads getopt --triplet x64-windows
-
-    # Install Boost libraries
-    Write-Host "Installing Boost libraries..."
-    .\vcpkg install boost --triplet x64-windows
+    # Install MPI
+    Write-Host "Installing MPI..."
     if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
         $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
         if (-not (Test-Path $msmpiInstaller)) {
@@ -178,15 +160,6 @@ if ($OS -eq "Win32NT")
         }
         Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
     }
-    .\vcpkg install boost-mpi --triplet x64-windows
-
-    # Install Eigen
-    Write-Host "Installing Eigen..."
-    .\vcpkg install eigen3 --triplet x64-windows
-
-    # Install NetCDF
-    Write-Host "Installing NetCDF..."
-    .\vcpkg install netcdf-cxx4 --triplet x64-windows
 
     # Install CPLEX
     if (-not $withoutCplex) {
@@ -308,11 +281,23 @@ if ($OS -eq "Win32NT")
         Set-Location "C:\"
     }
 
-    # Install COIN-OR CoinUtils
-    if (-not $withoutCoinOr) {
-        Write-Host "Installing COIN-OR CoinUtils..."
+    # Install vcpkg
+    Write-Host "Installing vcpkg..."
+    if (-not (Test-Path $env:VCPKG_ROOT)) {
+        git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
-        .\vcpkg install coinutils --triplet x64-windows
+        .\bootstrap-vcpkg.bat
+    } else {
+        Set-Location $env:VCPKG_ROOT
+        git pull
+        .\bootstrap-vcpkg.bat
+        .\vcpkg upgrade --no-dry-run
+    }
+
+    # Configure COIN-OR Osi
+    if (-not $withoutCoinOr) {
+        Write-Host "Configuring COIN-OR Osi..."
+        Set-Location $env:VCPKG_ROOT
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
@@ -330,6 +315,7 @@ if ($OS -eq "Win32NT")
               --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
               --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
 
+            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
         }
 
@@ -349,13 +335,9 @@ if ($OS -eq "Win32NT")
                 --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
                 --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
 
+            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
         }
-
-        # Install COIN-OR Osi/Clp
-        Write-Host "Installing COIN-OR Osi/Clp..."
-        Set-Location $env:VCPKG_ROOT
-        .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
     }
 
     # Install StOpt
@@ -448,6 +430,11 @@ if (-not $withoutSMSpp)
         }
         Set-Location $SMSPP_ROOT
     }
+
+    # Install vcpkg dependencies
+    Write-Host "Installing all vcpkg dependencies via manifest..."
+    $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root "$SMSPP_ROOT" --clean-after-build
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
