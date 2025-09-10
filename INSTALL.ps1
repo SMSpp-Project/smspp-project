@@ -210,9 +210,9 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
-    # Configure COIN-OR Osi
+    # Install COIN-OR
     if (-not $withoutCoinOr) {
-        Write-Host "Configuring COIN-OR Osi..."
+        Write-Host "Installing COIN-OR CoinUtils..."
         Set-Location $env:VCPKG_ROOT
         .\vcpkg install coinutils --triplet x64-windows
 
@@ -232,7 +232,6 @@ if ($OS -eq "Win32NT")
               --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
               --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
 
-            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
         }
 
@@ -252,9 +251,13 @@ if ($OS -eq "Win32NT")
                 --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
                 --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
 
-            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
         }
+
+        # Install COIN-OR Osi/Clp
+        Write-Host "Installing COIN-OR Osi/Clp..."
+        Set-Location $env:VCPKG_ROOT
+        .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
     }
 
     # Install SCIP
