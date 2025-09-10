@@ -214,6 +214,7 @@ if ($OS -eq "Win32NT")
     if (-not $withoutCoinOr) {
         Write-Host "Configuring COIN-OR Osi..."
         Set-Location $env:VCPKG_ROOT
+        .\vcpkg install coinutils --triplet x64-windows
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."

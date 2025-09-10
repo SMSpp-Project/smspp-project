@@ -16,5 +16,11 @@
     "coin-or-clp",
     "glpk"
   ],
-  "builtin-baseline": "HEAD"
+  "builtin-baseline": "HEAD",
+  "overrides": [
+    {
+      "name": "boost",
+      "version": "1.86.0"
+    }
+  ]
 }
