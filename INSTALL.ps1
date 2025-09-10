@@ -163,6 +163,27 @@ if ($OS -eq "Win32NT")
         .\vcpkg upgrade --no-dry-run
     }
 
+    # Install vcpkg dependencies
+    Write-Host "Installing all vcpkg dependencies via manifest..."
+    $EarlyManifestRoot = "C:\"
+    # Download vcpkg.json from the smspp-project repository
+    $ManifestPath = Join-Path $EarlyManifestRoot 'vcpkg.json'
+    $rawUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
+    Invoke-WebRequest -Uri $rawUrl -OutFile $ManifestPath
+    # Update builtin-baseline to match the current vcpkg commit
+    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
+    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
+    $manifestJson.'builtin-baseline' = $Baseline
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
+    # Enable manifests/registries and run vcpkg install
+    $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
+                                          --x-manifest-root "$EarlyManifestRoot" `
+                                          --clean-after-build
+    # Clean up the temporary manifest
+    Remove-Item $ManifestPath
+    Set-Location "C:\"
+
     # Install CPLEX
     if (-not $withoutCplex) {
         Write-Host "Installing CPLEX..." -NoNewline
@@ -341,6 +362,7 @@ if ($OS -eq "Win32NT")
             Write-Host "" # new line
             git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
             Set-Location $StOpt_ROOT
+            mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
             & cmake -S . -B 'build' `
                     '-DBUILD_PYTHON=OFF' `
@@ -354,6 +376,7 @@ if ($OS -eq "Win32NT")
             # Build Release
             & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
+            mv "C:\doc" $StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
         } else {
             Write-Host " done."
             Set-Location $StOpt_ROOT
@@ -363,6 +386,7 @@ if ($OS -eq "Win32NT")
             if ($local -ne $remote) { # StOpt is not latest
                 git pull
                 Write-Host "" # new line
+                mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
                 # Re-configure once using multi-config
                 & cmake -S . -B 'build' `
                         '-DBUILD_PYTHON=OFF' `
@@ -376,6 +400,7 @@ if ($OS -eq "Win32NT")
                 # Rebuild Release
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
+                mv "C:\doc" $StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
             } else {
                 Write-Host "StOpt already up to date."
             }
@@ -423,16 +448,6 @@ if (-not $withoutSMSpp)
         }
         Set-Location $SMSPP_ROOT
     }
-
-    # Install vcpkg dependencies
-    Write-Host "Installing all vcpkg dependencies via manifest..."
-    $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
-    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
-    $manifestJson.'builtin-baseline' = $Baseline
-    $manifestJson | ConvertTo-Json -Depth 5 | Set-Content $ManifestPath -Encoding UTF8
-    $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows --x-manifest-root "$SMSPP_ROOT" --clean-after-build
 
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
