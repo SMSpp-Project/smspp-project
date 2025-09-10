@@ -371,7 +371,8 @@ if ($OS -eq "Win32NT")
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
                     "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
-                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+                    '-Wno-dev'
             # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Debug'
@@ -393,6 +394,7 @@ if ($OS -eq "Win32NT")
                         '-DBUILD_TEST=OFF' `
                         "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+                        '-Wno-dev'
                 # Rebuild Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Debug'
