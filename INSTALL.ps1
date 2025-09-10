@@ -208,6 +208,52 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
+    # Configure COIN-OR Osi
+    if (-not $withoutCoinOr) {
+        Write-Host "Configuring COIN-OR Osi..."
+        Set-Location $env:VCPKG_ROOT
+
+        if (-not $withoutGurobi) {
+            Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
+
+            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
+
+            # Backup the original portfile.cmake
+            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+
+            # Use sed `/old/c\new` to replace the configuration line
+            sed -i '/--without-gurobi/c\
+              --with-gurobi\
+              --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
+              --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
+              --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
+              --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
+
+            Set-Location $env:VCPKG_ROOT
+            Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+        }
+
+        if (-not $withoutCplex) {
+            Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
+
+            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
+
+            # Backup the original portfile.cmake
+            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+
+            # Use sed `/old/c\new` to replace the configuration line
+            sed -i '/--without-cplex/c\
+                --with-cplex\
+                --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
+                --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+                --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+                --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+
+            Set-Location $env:VCPKG_ROOT
+            Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
+        }
+    }
+
     # Install SCIP
     if (-not $withoutSCIP) {
         Write-Host "Installing SCIP..." -NoNewline
@@ -279,52 +325,6 @@ if ($OS -eq "Win32NT")
             Write-Host "HiGHS bin is already in the system Path"
         }
         Set-Location "C:\"
-    }
-
-    # Configure COIN-OR Osi
-    if (-not $withoutCoinOr) {
-        Write-Host "Configuring COIN-OR Osi..."
-        Set-Location $env:VCPKG_ROOT
-
-        if (-not $withoutGurobi) {
-            Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
-
-            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
-
-            # Backup the original portfile.cmake
-            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
-
-            # Use sed `/old/c\new` to replace the configuration line
-            sed -i '/--without-gurobi/c\
-              --with-gurobi\
-              --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
-              --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
-              --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-              --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
-
-            Set-Location $env:VCPKG_ROOT
-            Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
-        }
-
-        if (-not $withoutCplex) {
-            Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
-
-            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
-
-            # Backup the original portfile.cmake
-            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
-
-            # Use sed `/old/c\new` to replace the configuration line
-            sed -i '/--without-cplex/c\
-                --with-cplex\
-                --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
-                --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-                --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-                --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
-
-            Set-Location $env:VCPKG_ROOT
-            Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
-        }
     }
 
     # Install StOpt
