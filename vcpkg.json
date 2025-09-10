@@ -19,11 +19,11 @@
   "overrides": [
     {
       "name": "boost",
-      "version": "1.86"
+      "version": "1.86.0"
     },
     {
       "name": "boost-mpi",
-      "version": "1.86"
+      "version": "1.86.0"
     }
   ]
 }
