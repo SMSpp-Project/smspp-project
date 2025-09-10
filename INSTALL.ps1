@@ -155,15 +155,13 @@ if ($OS -eq "Win32NT")
     if (-not (Test-Path $env:VCPKG_ROOT)) {
         git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
         Set-Location $env:VCPKG_ROOT
-        git fetch --tags # TODO remove when boost 1.90 will be available
-        git checkout "edc84ff66e6262a9f7565c28eb76577aeab9c5aa" # TODO remove when boost 1.90 will be available
         .\bootstrap-vcpkg.bat
-    } <#else { # TODO uncomment when boost 1.90 will be available
+    } else {
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
         .\vcpkg upgrade --no-dry-run
-    }#>
+    }
 
     # Install basic requirements with vcpkg
     Write-Host "Installing basic requirements with vcpkg..."
