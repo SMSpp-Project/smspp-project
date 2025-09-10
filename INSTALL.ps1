@@ -66,8 +66,6 @@ if (-not $MAX_JOBS) {
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
-$STOPT_VCPKG_REGISTRY = "C:\vcpkg-registry"
-
 function Update-EnvironmentVariables
 {
     param (
@@ -164,30 +162,7 @@ if ($OS -eq "Win32NT")
         Set-Location $env:VCPKG_ROOT
         git pull
         .\bootstrap-vcpkg.bat
-        if (.\vcpkg list | Select-String -Pattern "^stopt\b") { # stopt is installed
-            Set-Location $STOPT_VCPKG_REGISTRY
-            git remote update
-            $local = git rev-parse "@"
-            $remote = git rev-parse "@{u}"
-            if ($local -eq $remote) { # stopt is latest
-                git pull
-                Set-Location $env:VCPKG_ROOT
-                # upgrade all other packages ignoring stopt
-                .\vcpkg list | ForEach-Object {
-                    $package = ($_ -split '\s+')[0] # first column
-                    if ($package -notlike "*stopt*" -and $package -notmatch '\[.*\]') {
-                        .\vcpkg upgrade $package --no-dry-run
-                    }
-                }
-            } else { # new stopt version is available
-                Set-Location $env:VCPKG_ROOT
-                .\vcpkg remove stopt # remove the old stopt version before upgrade
-                .\vcpkg upgrade --no-dry-run # upgrade all other packages
-                .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows # install the new stopt version
-            }
-        } else {
-            .\vcpkg upgrade --no-dry-run
-        }
+        .\vcpkg upgrade --no-dry-run
     }#>
 
     # Install basic requirements with vcpkg
@@ -307,7 +282,7 @@ if ($OS -eq "Win32NT")
             if ($local -ne $remote) { # HiGHS is not latest
                 git pull
                 Write-Host "" # new line
-                # Configure once using multi-config
+                # Re-configure once using multi-config
                 & cmake -S . -B 'build' `
                         '-DFAST_BUILD=ON' `
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
@@ -385,15 +360,64 @@ if ($OS -eq "Win32NT")
         .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
     }
 
-    <## Setup vcpkg for StOpt installation
+    # Install StOpt
     if (-not $withoutStOpt) {
-        Write-Host "Setting up vcpkg for StOpt installation..."
+        Write-Host "Installing StOpt..." -NoNewline
+        $StOpt_ROOT = "C:\StOpt"
+        if (-not (Test-Path $StOpt_ROOT)) {
+            Write-Host "" # new line
+            git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
+            Set-Location $StOpt_ROOT
+            # Configure once using multi-config
+            & cmake -S . -B 'build' `
+                    '-DBUILD_PYTHON=OFF' `
+                    '-DBUILD_TEST=OFF' `
+                    "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
+                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            # Build Debug
+            & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
+            & cmake '--install' 'build' '--config' 'Debug'
+            # Build Release
+            & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
+            & cmake '--install' 'build' '--config' 'Release'
+        } else {
+            Write-Host " done."
+            Set-Location $StOpt_ROOT
+            git remote update
+            $local  = git rev-parse "@"
+            $remote = git rev-parse "@{u}"
+            if ($local -ne $remote) { # StOpt is not latest
+                git pull
+                Write-Host "" # new line
+                # Re-configure once using multi-config
+                & cmake -S . -B 'build' `
+                        '-DBUILD_PYTHON=OFF' `
+                        '-DBUILD_TEST=OFF' `
+                        "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
+                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+                # Rebuild Debug
+                & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
+                & cmake '--install' 'build' '--config' 'Debug'
+                # Rebuild Release
+                & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
+                & cmake '--install' 'build' '--config' 'Release'
+            } else {
+                Write-Host "StOpt already up to date."
+            }
+            Set-Location "C:\"
+        }
+        # Add StOpt to the system PATH
+        $STOPT_BIN = "$StOpt_ROOT\bin"
+        $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+        if ($systemPath -notlike "*$STOPT_BIN*") {
+            $systemPath = "$STOPT_BIN;$systemPath"
+            [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
+            Write-Host "Added StOpt bin to the system Path"
+        } else {
+            Write-Host "StOpt bin is already in the system Path"
+        }
         Set-Location "C:\"
-        git clone https://gitlab.com/stochastic-control/vcpkg-registry.git
-        Set-Location $env:VCPKG_ROOT
-        .\vcpkg install stopt --overlay-ports=$STOPT_VCPKG_REGISTRY\ports\stopt --triplet x64-windows
-        Set-Location "C:\"
-    }#>
+    }
 
     Write-Host "Installation completed successfully on Windows."
 }
