@@ -469,6 +469,7 @@ if (-not $withoutSMSpp)
     & cmake -S . -B $BUILD_DIR `
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            '-DVCPKG_MANIFEST_INSTALL=OFF' `
             '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
