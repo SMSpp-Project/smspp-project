@@ -231,11 +231,14 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
-    # Install COIN-OR
+    # Configure COIN-OR Osi
     if (-not $withoutCoinOr) {
-        Write-Host "Installing COIN-OR CoinUtils..."
+        Write-Host "Configuring COIN-OR Osi..."
+        Write-Host "" # new line
         Set-Location $env:VCPKG_ROOT
-        .\vcpkg install coinutils --triplet x64-windows
+
+        # Rebuild flag: set to $true only if we modify the portfile in one of the branches below
+        $RebuildCoinOrOsi = $false
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
@@ -247,11 +250,14 @@ if ($OS -eq "Win32NT")
 
             # Use sed `/old/c\new` to replace the configuration line
             sed -i '/--without-gurobi/c\
-              --with-gurobi\
-              --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
-              --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
-              --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-              --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
+                --with-gurobi\
+                --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
+                --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
+                --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
+                --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
+
+            # Mark for rebuild because we changed the portfile
+            $RebuildCoinOrOsi = $true
 
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
         }
@@ -272,13 +278,19 @@ if ($OS -eq "Win32NT")
                 --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
                 --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
 
+            # Mark for rebuild because we changed the portfile
+            $RebuildCoinOrOsi = $true
+
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
         }
 
-        # Install COIN-OR Osi/Clp
-        Write-Host "Installing COIN-OR Osi/Clp..."
-        Set-Location $env:VCPKG_ROOT
-        .\vcpkg install coin-or-osi coin-or-clp glpk --triplet x64-windows
+        # Re-install COIN-OR Osi only if we actually modified the portfile
+        if ($RebuildCoinOrOsi) {
+            Write-Host "Re-installing COIN-OR Osi..."
+            Set-Location $env:VCPKG_ROOT
+            .\vcpkg install coin-or-osi --triplet x64-windows
+        }
+        Write-Host " done."
     }
 
     # Install SCIP
