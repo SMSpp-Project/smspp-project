@@ -290,7 +290,7 @@ if ($OS -eq "Win32NT")
             Write-Host "Re-installing COIN-OR Osi..."
             Set-Location $env:VCPKG_ROOT
             .\vcpkg remove coin-or-osi --triplet x64-windows --recurse
-            .\vcpkg install coin-or-osi --triplet x64-windows --no-binarycaching --clean-after-build
+            .\vcpkg install coin-or-osi coin-or-clp --triplet x64-windows --no-binarycaching --clean-after-build
         }
         Write-Host " done."
     }
