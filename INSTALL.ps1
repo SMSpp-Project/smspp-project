@@ -251,12 +251,10 @@ if ($OS -eq "Win32NT")
         # Rebuild flag: set to $true only if we modify the portfile in one of the branches below
         $RebuildCoinOrOsi = $false
 
-        $OverlayPorts = "$env:VCPKG_ROOT\ports\coin-or-osi"
-
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
 
-            Set-Location $OverlayPorts
+            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
 
             # Backup the original portfile.cmake
             #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
@@ -279,7 +277,7 @@ if ($OS -eq "Win32NT")
         if (-not $withoutCplex) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
 
-            Set-Location $OverlayPorts
+            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
 
             # Backup the original portfile.cmake
             #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
@@ -319,7 +317,6 @@ if ($OS -eq "Win32NT")
             & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
                                                   --x-manifest-root "$FullManifestRoot" `
                                                   --x-install-root "$InstallRootOverride" `
-                                                  --overlay-ports "$OverlayPorts" `
                                                   --no-binarycaching `
                                                   --clean-after-build
             # Clean up the temporary manifest
