@@ -164,7 +164,7 @@ if ($OS -eq "Win32NT")
     }
 
     # Install vcpkg dependencies
-    Write-Host "Installing all vcpkg dependencies via manifest..."
+    Write-Host "Installing vcpkg dependencies via manifest..."
     $EarlyManifestRoot = "C:\"
     $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
     # Download vcpkg.json from the smspp-project repository
@@ -175,13 +175,23 @@ if ($OS -eq "Win32NT")
     $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
     $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
     $manifestJson.'builtin-baseline' = $Baseline
+    # Temporarily drop coin-or-osi and coin-or-clp from dependencies (we'll build them later after port tweaks)
+    $depsToSkip = @('coin-or-osi','coin-or-clp')
+    if ($manifestJson.PSObject.Properties.Name -contains 'dependencies' -and $manifestJson.dependencies) {
+        $filtered = @()
+        foreach ($dep in $manifestJson.dependencies) {
+            $name = if ($dep -is [string]) { $dep } else { $dep.name }
+            if ($depsToSkip -notcontains $name) { $filtered += $dep }
+        }
+        $manifestJson.dependencies = $filtered
+    }
     $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
     # Enable manifests/registries and run vcpkg install with an explicit install root
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
     & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
-                                          --x-manifest-root "$EarlyManifestRoot" `
-                                          --x-install-root "$InstallRootOverride" `
-                                          --clean-after-build
+                                      --x-manifest-root "$EarlyManifestRoot" `
+                                      --x-install-root "$InstallRootOverride" `
+                                      --clean-after-build
     # Clean up the temporary manifest
     Remove-Item $ManifestPath
     Set-Location "C:\"
@@ -469,7 +479,7 @@ if (-not $withoutSMSpp)
     & cmake -S . -B $BUILD_DIR `
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            '-DVCPKG_MANIFEST_INSTALL=OFF' `
+            "-DVCPKG_INSTALLED_DIR=$env:VCPKG_ROOT/installed" `
             '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
