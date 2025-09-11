@@ -352,7 +352,7 @@ if ($OS -eq "Win32NT")
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
             } else {
-                Write-Host " done."
+                Write-Host "HiGHS already up to date."
             }
         }
         # Add HiGHS to the system PATH
