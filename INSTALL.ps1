@@ -210,7 +210,7 @@ if ($OS -eq "Win32NT")
         .\vcpkg upgrade --no-dry-run
     }
 
-    # Install COIN-OR CoinUtils
+    # Install COIN-OR CoinUtils with custom configuration
     if (-not $withoutCoinOr) {
         Write-Host "Installing COIN-OR CoinUtils..."
         Set-Location $env:VCPKG_ROOT
@@ -221,18 +221,14 @@ if ($OS -eq "Win32NT")
 
             Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
 
-            # Backup the original portfile.cmake
-            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
-            if (-not (Test-Path "portfile.cmake.bak")) { Copy-Item "portfile.cmake" "portfile.cmake.bak" }
-
             # Replace the line containing --without-gurobi with a multiline with-* block
             $osiText = Get-Content -Raw -Path "portfile.cmake"
             $replacementGRB = @"
         --with-gurobi
-        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
+        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi100.lib
         --with-gurobi-incdir=C:/gurobi/win64/include
         --with-gurobi-cflags=-IC:/gurobi/win64/include
-        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
+        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi100.lib
 "@.Trim()
             $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
             Set-Content -Path "portfile.cmake" -Value $osiText -NoNewline
@@ -245,10 +241,6 @@ if ($OS -eq "Win32NT")
             Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
 
             Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
-
-            # Backup the original portfile.cmake
-            #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
-            if (-not (Test-Path "portfile.cmake.bak")) { Copy-Item "portfile.cmake" "portfile.cmake.bak" }
 
             # Replace the line containing --without-cplex with a multiline with-* block
             $osiText = Get-Content -Raw -Path "portfile.cmake"
