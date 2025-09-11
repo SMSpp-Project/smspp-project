@@ -236,7 +236,6 @@ if ($OS -eq "Win32NT")
     # Configure COIN-OR Osi
     if (-not $withoutCoinOr) {
         Write-Host "Configuring COIN-OR Osi..."
-        Write-Host "" # new line
         Set-Location $env:VCPKG_ROOT
 
         # Rebuild flag: set to $true only if we modify the portfile in one of the branches below
@@ -290,8 +289,8 @@ if ($OS -eq "Win32NT")
         if ($RebuildCoinOrOsi) {
             Write-Host "Re-installing COIN-OR Osi..."
             Set-Location $env:VCPKG_ROOT
-            .\vcpkg remove coin-or-osi:x64-windows
-            .\vcpkg install coin-or-osi:x64-windows --no-binarycaching --clean-after-build
+            .\vcpkg remove coin-or-osi --triplet x64-windows --recurse
+            .\vcpkg install coin-or-osi --triplet x64-windows --no-binarycaching --clean-after-build
         }
         Write-Host " done."
     }
