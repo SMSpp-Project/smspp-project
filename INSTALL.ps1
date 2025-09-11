@@ -189,9 +189,9 @@ if ($OS -eq "Win32NT")
     # Enable manifests/registries and run vcpkg install with an explicit install root
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
     & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
-                                      --x-manifest-root "$EarlyManifestRoot" `
-                                      --x-install-root "$InstallRootOverride" `
-                                      --clean-after-build
+                                          --x-manifest-root "$EarlyManifestRoot" `
+                                          --x-install-root "$InstallRootOverride" `
+                                          --clean-after-build
     # Clean up the temporary manifest
     Remove-Item $ManifestPath
     Set-Location "C:\"
@@ -298,9 +298,11 @@ if ($OS -eq "Win32NT")
         # Re-install COIN-OR Osi only if we actually modified the portfile
         if ($RebuildCoinOrOsi) {
             Write-Host "Re-installing COIN-OR Osi..."
-            Set-Location $env:VCPKG_ROOT
-            .\vcpkg remove coin-or-osi --triplet x64-windows --recurse
-            .\vcpkg install coin-or-osi coin-or-clp --triplet x64-windows --no-binarycaching --clean-after-build
+            & "$env:VCPKG_ROOT\vcpkg.exe" remove coin-or-osi --triplet x64-windows --recurse
+            & "$env:VCPKG_ROOT\vcpkg.exe" install coin-or-osi coin-or-clp --triplet x64-windows `
+                                                                          --x-install-root "$InstallRootOverride" `
+                                                                          --no-binarycaching `
+                                                                          --clean-after-build
         }
         Write-Host " done."
     }
@@ -480,6 +482,7 @@ if (-not $withoutSMSpp)
             "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
             "-DVCPKG_INSTALLED_DIR=$env:VCPKG_ROOT/installed" `
+            "-DVCPKG_MANIFEST_INSTALL=OFF" `
             '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
