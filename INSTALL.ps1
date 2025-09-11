@@ -163,37 +163,51 @@ if ($OS -eq "Win32NT")
         .\vcpkg upgrade --no-dry-run
     }
 
-    # Install vcpkg dependencies
+    # Install vcpkg dependencies (two-step manifest: early w/o osi/clp, then full later)
     Write-Host "Installing vcpkg dependencies via manifest..."
-    $EarlyManifestRoot = "C:\"
+
     $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
-    # Download vcpkg.json from the smspp-project repository
-    $ManifestPath = Join-Path $EarlyManifestRoot 'vcpkg.json'
+    $ManifestsBase       = "C:\_manifests"
+    $EarlyManifestRoot   = Join-Path $ManifestsBase "early"
+    $FullManifestRoot    = Join-Path $ManifestsBase "full"
+
+    # Prepare temp roots
+    New-Item -ItemType Directory -Force -Path $EarlyManifestRoot | Out-Null
+    New-Item -ItemType Directory -Force -Path $FullManifestRoot  | Out-Null
+
+    # Download full manifest
+    $FullManifestPath = Join-Path $FullManifestRoot 'vcpkg.json'
     $rawUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
-    Invoke-WebRequest -Uri $rawUrl -OutFile $ManifestPath
-    # Update builtin-baseline to match the current vcpkg commit
+    Invoke-WebRequest -Uri $rawUrl -OutFile $FullManifestPath
+
+    # Sync builtin-baseline with current vcpkg commit
     $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
-    $manifestJson.'builtin-baseline' = $Baseline
-    # Temporarily drop coin-or-osi and coin-or-clp from dependencies (we'll build them later after port tweaks)
+    $fullJson = Get-Content $FullManifestPath -Raw | ConvertFrom-Json
+    $fullJson.'builtin-baseline' = $Baseline
+    $fullJson | ConvertTo-Json -Depth 10 | Set-Content $FullManifestPath -Encoding UTF8
+
+    # Create early manifest by filtering out coin-or-osi and coin-or-clp
+    $EarlyManifestPath = Join-Path $EarlyManifestRoot 'vcpkg.json'
+    $earlyJson = $fullJson | ConvertTo-Json -Depth 10 | ConvertFrom-Json  # deep clone via JSON
     $depsToSkip = @('coin-or-osi','coin-or-clp')
-    if ($manifestJson.PSObject.Properties.Name -contains 'dependencies' -and $manifestJson.dependencies) {
+    if ($earlyJson.PSObject.Properties.Name -contains 'dependencies' -and $earlyJson.dependencies) {
         $filtered = @()
-        foreach ($dep in $manifestJson.dependencies) {
+        foreach ($dep in $earlyJson.dependencies) {
             $name = if ($dep -is [string]) { $dep } else { $dep.name }
             if ($depsToSkip -notcontains $name) { $filtered += $dep }
         }
-        $manifestJson.dependencies = $filtered
+        $earlyJson.dependencies = $filtered
     }
-    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
-    # Enable manifests/registries and run vcpkg install with an explicit install root
+    $earlyJson | ConvertTo-Json -Depth 10 | Set-Content $EarlyManifestPath -Encoding UTF8
+
+    # Enable manifests/registries and run early install into the vcpkg tree
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
     & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
                                           --x-manifest-root "$EarlyManifestRoot" `
                                           --x-install-root "$InstallRootOverride" `
                                           --clean-after-build
-    # Clean up the temporary manifest
-    Remove-Item $ManifestPath
+
+    # Keep both manifests for the later full install
     Set-Location "C:\"
 
     # Install CPLEX
@@ -270,6 +284,7 @@ if ($OS -eq "Win32NT")
             # Mark for rebuild because we changed the portfile
             $RebuildCoinOrOsi = $true
 
+            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
         }
 
@@ -292,21 +307,19 @@ if ($OS -eq "Win32NT")
             # Mark for rebuild because we changed the portfile
             $RebuildCoinOrOsi = $true
 
+            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
         }
 
         # Re-install COIN-OR Osi only if we actually modified the portfile
         if ($RebuildCoinOrOsi) {
-            Write-Host "Re-installing COIN-OR Osi..."
-            $env:VCPKG_FEATURE_FLAGS = "registries" # no manifests here
-            $env:VCPKG_MANIFEST_MODE = "OFF"
-            & "$env:VCPKG_ROOT\vcpkg.exe" remove coin-or-osi --triplet x64-windows --recurse
-            & "$env:VCPKG_ROOT\vcpkg.exe" install coin-or-osi coin-or-clp --triplet x64-windows `
-                                                                          --x-install-root "$InstallRootOverride" `
-                                                                          --no-binarycaching `
-                                                                          --clean-after-build
-            $env:VCPKG_FEATURE_FLAGS = "manifests,registries" # restore previous value
-            $env:VCPKG_MANIFEST_MODE = "ON"
+            Write-Host "Installing COIN-OR Osi/Clp..."
+            $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
+            & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
+                                                  --x-manifest-root "$FullManifestRoot" `
+                                                  --x-install-root "$InstallRootOverride" `
+                                                  --no-binarycaching `
+                                                  --clean-after-build
         }
         Write-Host " done."
     }
