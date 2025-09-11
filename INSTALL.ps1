@@ -145,7 +145,7 @@ if ($OS -eq "Win32NT")
         refreshenv
     }
     choco feature disable -n=showDownloadProgress
-    choco install git sed wget -y --limit-output
+    choco install git wget -y --limit-output
     choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
@@ -223,14 +223,19 @@ if ($OS -eq "Win32NT")
 
             # Backup the original portfile.cmake
             #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+            if (-not (Test-Path "portfile.cmake.bak")) { Copy-Item "portfile.cmake" "portfile.cmake.bak" }
 
-            # Use sed `/old/c\new` to replace the configuration line
-            sed -i '/--without-gurobi/c\
-        --with-gurobi\
-        --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
-        --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
-        --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-        --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
+            # Replace the line containing --without-gurobi with a multiline with-* block
+            $osiText = Get-Content -Raw -Path "portfile.cmake"
+            $replacementGRB = @"
+        --with-gurobi
+        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
+        --with-gurobi-incdir=C:/gurobi/win64/include
+        --with-gurobi-cflags=-IC:/gurobi/win64/include
+        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
+"@.Trim()
+            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
+            Set-Content -Path "portfile.cmake" -Value $osiText -NoNewline
 
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
             Set-Location $env:VCPKG_ROOT
@@ -243,14 +248,19 @@ if ($OS -eq "Win32NT")
 
             # Backup the original portfile.cmake
             #Copy-Item -Path "portfile.cmake" -Destination "portfile.cmake.bak"
+            if (-not (Test-Path "portfile.cmake.bak")) { Copy-Item "portfile.cmake" "portfile.cmake.bak" }
 
-            # Use sed `/old/c\new` to replace the configuration line
-            sed -i '/--without-cplex/c\
-        --with-cplex\
-        --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
-        --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-        --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-        --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+            # Replace the line containing --without-cplex with a multiline with-* block
+            $osiText = Get-Content -Raw -Path "portfile.cmake"
+            $replacementCPX = @"
+        --with-cplex
+        --with-cplex-lib=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
+        --with-cplex-incdir=C:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
+        --with-cplex-cflags=-IC:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
+        --with-cplex-lflags=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
+"@.Trim()
+            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
+            Set-Content -Path "portfile.cmake" -Value $osiText -NoNewline
 
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
             Set-Location $env:VCPKG_ROOT
