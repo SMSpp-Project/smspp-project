@@ -251,11 +251,11 @@ if ($OS -eq "Win32NT")
 
             # Use sed `/old/c\new` to replace the configuration line
             sed -i '/--without-gurobi/c\
-                --with-gurobi\
-                --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
-                --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
-                --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
-                --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
+        --with-gurobi\
+        --with-gurobi-lib=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib\
+        --with-gurobi-incdir=C:\\\/gurobi\\\/win64\\\/include\
+        --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
+        --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
 
             # Mark for rebuild because we changed the portfile
             $RebuildCoinOrOsi = $true
@@ -273,11 +273,11 @@ if ($OS -eq "Win32NT")
 
             # Use sed `/old/c\new` to replace the configuration line
             sed -i '/--without-cplex/c\
-                --with-cplex\
-                --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
-                --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-                --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
-                --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
+        --with-cplex\
+        --with-cplex-lib=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib\
+        --with-cplex-incdir=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+        --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
+        --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
 
             # Mark for rebuild because we changed the portfile
             $RebuildCoinOrOsi = $true
