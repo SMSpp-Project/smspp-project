@@ -471,7 +471,6 @@ if (-not $withoutSMSpp)
             "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
             "-DVCPKG_INSTALLED_DIR=$env:VCPKG_ROOT/installed" `
             "-DVCPKG_MANIFEST_INSTALL=OFF" `
-            '-DBUILD_SHARED_LIBS=ON' `
             '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {

@@ -812,7 +812,7 @@ if [ "$install_smspp" -eq 1 ]; then
   fi
 
   # Build SMSpp
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -DBUILD_SHARED_LIBS=ON -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
   cd build
   # Ensure TERM is set to something ncurses can handle
   if [ -z "${TERM:-}" ] || [ "$TERM" = "dumb" ]; then
