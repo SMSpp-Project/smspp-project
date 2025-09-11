@@ -163,39 +163,6 @@ if ($OS -eq "Win32NT")
         .\vcpkg upgrade --no-dry-run
     }
 
-    # Install vcpkg dependencies
-    Write-Host "Installing vcpkg dependencies via manifest..."
-    $EarlyManifestRoot = "C:\"
-    $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
-    # Download vcpkg.json from the smspp-project repository
-    $EarlyManifestPath = Join-Path $EarlyManifestRoot 'vcpkg.json'
-    $JsonUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
-    Invoke-WebRequest -Uri $JsonUrl -OutFile $EarlyManifestPath
-    # Update builtin-baseline to match the current vcpkg commit
-    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    $manifestJson = Get-Content $EarlyManifestPath -Raw | ConvertFrom-Json
-    $manifestJson.'builtin-baseline' = $Baseline
-    # Temporarily drop coin-or-osi and coin-or-clp from dependencies (we'll build them later after port tweaks)
-    $depsToSkip = @('coin-or-osi','coin-or-clp')
-    if ($manifestJson.PSObject.Properties.Name -contains 'dependencies' -and $manifestJson.dependencies) {
-        $filtered = @()
-        foreach ($dep in $manifestJson.dependencies) {
-            $name = if ($dep -is [string]) { $dep } else { $dep.name }
-            if ($depsToSkip -notcontains $name) { $filtered += $dep }
-        }
-        $manifestJson.dependencies = $filtered
-    }
-    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $EarlyManifestPath -Encoding UTF8
-    # Enable manifests/registries and run vcpkg install with an explicit install root
-    $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
-                                          --x-manifest-root "$EarlyManifestRoot" `
-                                          --x-install-root "$InstallRootOverride" `
-                                          --clean-after-build
-    # Clean up the temporary manifest
-    Remove-Item $EarlyManifestPath
-    Set-Location "C:\"
-
     # Install CPLEX
     if (-not $withoutCplex) {
         Write-Host "Installing CPLEX..." -NoNewline
@@ -243,13 +210,11 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
-    # Configure COIN-OR Osi
+    # Install COIN-OR CoinUtils
     if (-not $withoutCoinOr) {
-        Write-Host "Configuring COIN-OR Osi..."
+        Write-Host "Installing COIN-OR CoinUtils..."
         Set-Location $env:VCPKG_ROOT
-
-        # Rebuild flag: set to $true only if we modify the portfile in one of the branches below
-        $RebuildCoinOrOsi = $false
+        & "$env:VCPKG_ROOT\vcpkg.exe" install coinutils --triplet x64-windows
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
@@ -267,11 +232,8 @@ if ($OS -eq "Win32NT")
         --with-gurobi-cflags=-IC:\\\/gurobi\\\/win64\\\/include\
         --with-gurobi-lflags=C:\\\/gurobi\\\/win64\\\/lib\\\/gurobi120.lib' portfile.cmake
 
-            # Mark for rebuild because we changed the portfile
-            $RebuildCoinOrOsi = $true
-
-            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+            Set-Location $env:VCPKG_ROOT
         }
 
         if (-not $withoutCplex) {
@@ -290,41 +252,48 @@ if ($OS -eq "Win32NT")
         --with-cplex-cflags=-IC:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/include\\\/ilcplex\
         --with-cplex-lflags=C:\\\/IBM\\\/ILOG\\\/CPLEX_Studio\\\/cplex\\\/lib\\\/x64_windows_msvc14\\\/stat_mda\\\/cplex2211.lib' portfile.cmake
 
-            # Mark for rebuild because we changed the portfile
-            $RebuildCoinOrOsi = $true
-
-            Set-Location $env:VCPKG_ROOT
             Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
+            Set-Location $env:VCPKG_ROOT
         }
 
-        # Re-install COIN-OR Osi only if we actually modified the portfile
-        if ($RebuildCoinOrOsi) {
-            Write-Host "Installing COIN-OR Osi/Clp via manifest..."
-            $FullManifestRoot = "C:\"
-            $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
-            # Download vcpkg.json from the smspp-project repository
-            $FullManifestPath = Join-Path $FullManifestRoot 'vcpkg.json'
-            $JsonUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
-            Invoke-WebRequest -Uri $JsonUrl -OutFile $FullManifestPath
-            # Update builtin-baseline to match the current vcpkg commit
-            $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-            $manifestJson = Get-Content $FullManifestPath -Raw | ConvertFrom-Json
-            $manifestJson.'builtin-baseline' = $Baseline
-            $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $FullManifestPath -Encoding UTF8
-            # Enable manifests/registries and run vcpkg install with an explicit install root
-            $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-            $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-            & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
-                                                  --x-manifest-root "$FullManifestRoot" `
-                                                  --x-install-root "$InstallRootOverride" `
-                                                  --no-binarycaching `
-                                                  --clean-after-build
-            # Clean up the temporary manifest
-            Remove-Item $FullManifestPath
-            Set-Location "C:\"
-        }
-        Write-Host " done."
+        # Install COIN-OR Osi/Clp
+        Write-Host "Installing COIN-OR Osi/Clp..."
+        & "$env:VCPKG_ROOT\vcpkg.exe" install coin-or-osi coin-or-clp glpk --triplet x64-windows
+        Set-Location "C:\"
     }
+
+    # Install vcpkg dependencies
+    Write-Host "Installing vcpkg dependencies via manifest..."
+    $EarlyManifestRoot = "C:\"
+    $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
+    # Download vcpkg.json from the smspp-project repository
+    $EarlyManifestPath = Join-Path $EarlyManifestRoot 'vcpkg.json'
+    $JsonUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
+    Invoke-WebRequest -Uri $JsonUrl -OutFile $EarlyManifestPath
+    # Update builtin-baseline to match the current vcpkg commit
+    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
+    $manifestJson = Get-Content $EarlyManifestPath -Raw | ConvertFrom-Json
+    $manifestJson.'builtin-baseline' = $Baseline
+    # Temporarily drop coin-or-osi and coin-or-clp from dependencies (we'll build them later after port tweaks)
+    $depsToSkip = @('coin-utils','coin-or-osi','coin-or-clp')
+    if ($manifestJson.PSObject.Properties.Name -contains 'dependencies' -and $manifestJson.dependencies) {
+        $filtered = @()
+        foreach ($dep in $manifestJson.dependencies) {
+            $name = if ($dep -is [string]) { $dep } else { $dep.name }
+            if ($depsToSkip -notcontains $name) { $filtered += $dep }
+        }
+        $manifestJson.dependencies = $filtered
+    }
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $EarlyManifestPath -Encoding UTF8
+    # Enable manifests/registries and run vcpkg install with an explicit install root
+    $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
+    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
+                                          --x-manifest-root "$EarlyManifestRoot" `
+                                          --x-install-root "$InstallRootOverride" `
+                                          --clean-after-build
+    # Clean up the temporary manifest
+    Remove-Item $EarlyManifestPath
+    Set-Location "C:\"
 
     # Install SCIP
     if (-not $withoutSCIP) {
