@@ -745,7 +745,7 @@ case "$OS" in
 "Darwin")
   INSTALL_ROOT="${install_root:-/Library}"
   # Check if the user has sudo access
-  if [ -w /Library ]; then
+  if [ "$(id -u)" -eq 0 ] || sudo -n true 2>/dev/null; then
     SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   else
     SMSPP_ROOT="${HOME}/smspp-project"
