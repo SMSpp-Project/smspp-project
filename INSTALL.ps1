@@ -299,12 +299,14 @@ if ($OS -eq "Win32NT")
         if ($RebuildCoinOrOsi) {
             Write-Host "Re-installing COIN-OR Osi..."
             $env:VCPKG_FEATURE_FLAGS = "registries" # no manifests here
+            $env:VCPKG_MANIFEST_MODE = "OFF"
             & "$env:VCPKG_ROOT\vcpkg.exe" remove coin-or-osi --triplet x64-windows --recurse
             & "$env:VCPKG_ROOT\vcpkg.exe" install coin-or-osi coin-or-clp --triplet x64-windows `
                                                                           --x-install-root "$InstallRootOverride" `
                                                                           --no-binarycaching `
                                                                           --clean-after-build
             $env:VCPKG_FEATURE_FLAGS = "manifests,registries" # restore previous value
+            $env:VCPKG_MANIFEST_MODE = "ON"
         }
         Write-Host " done."
     }
