@@ -63,9 +63,6 @@ if (-not $MAX_JOBS) {
     $MAX_JOBS = (Get-CimInstance Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
 }
 
-# Set the VCPKG_ROOT environment variable
-$env:VCPKG_ROOT = "C:\vcpkg"
-
 function Update-EnvironmentVariables
 {
     param (
@@ -197,93 +194,6 @@ if ($OS -eq "Win32NT")
         Write-Host " done."
     }
 
-    # Install vcpkg
-    Write-Host "Installing vcpkg..."
-    if (-not (Test-Path $env:VCPKG_ROOT)) {
-        git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
-        Set-Location $env:VCPKG_ROOT
-        .\bootstrap-vcpkg.bat
-    } else {
-        Set-Location $env:VCPKG_ROOT
-        git pull
-        .\bootstrap-vcpkg.bat
-        .\vcpkg upgrade --no-dry-run
-    }
-
-    # Configure COIN-OR Osi
-    if (-not $withoutCoinOr) {
-        Write-Host "Configuring COIN-OR Osi..."
-
-        # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
-        $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
-        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
-        New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
-
-        # Copy the original port as a base for our overlay
-        Copy-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'ports\coin-or-osi\*') $OverlayPort
-
-        # Edit the portfile INSIDE THE OVERLAY (never touch the builtin port directly)
-        $portfile = Join-Path $OverlayPort 'portfile.cmake'
-        $osiText  = Get-Content -Raw -Path $portfile
-
-        if (-not $withoutGurobi) {
-            Write-Host "Applying Gurobi interface changes to overlay portfile.cmake..."
-            # Replace the line containing --without-gurobi with a multi-line --with-gurobi block
-            $replacementGRB = @"
-        --with-gurobi
-        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
-        --with-gurobi-incdir=C:/gurobi/win64/include
-        --with-gurobi-cflags=-IC:/gurobi/win64/include
-        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
-"@.Trim()
-            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
-            Write-Host "Overlay portfile updated for Gurobi."
-        }
-
-        if (-not $withoutCplex) {
-            Write-Host "Applying CPLEX interface changes to overlay portfile.cmake..."
-            # Replace the line containing --without-cplex with a multi-line --with-cplex block
-            $replacementCPX = @"
-        --with-cplex
-        --with-cplex-lib=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
-        --with-cplex-incdir=C:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-cflags=-IC:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-lflags=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
-"@.Trim()
-            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
-            Write-Host "Overlay portfile updated for CPLEX."
-        }
-        Set-Content -Path $portfile -Value $osiText -NoNewline
-        Set-Location "C:\"
-    }
-
-    # Install vcpkg dependencies
-    Write-Host "Installing vcpkg dependencies via manifest..."
-    $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
-    # Download vcpkg.json from the smspp-project repository
-    $ManifestPath = Join-Path $env:VCPKG_ROOT 'vcpkg.json'
-    $JsonUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
-    Invoke-WebRequest -Uri $JsonUrl -OutFile $ManifestPath
-    # Update builtin-baseline to match the current vcpkg commit
-    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
-    $manifestJson.'builtin-baseline' = $Baseline
-    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
-    # Enable manifests/registries and run vcpkg install with an explicit install root
-    $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
-    # If we created an overlay above, pass it to vcpkg so it uses our modified port.
-    # Also clear binary sources to avoid picking a cached binary built from the unmodified port.
-    $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
-    $overlayArg = @()
-    if (Test-Path $OverlayRoot) { $overlayArg = @('--overlay-ports', $OverlayRoot) }
-    & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
-                                          --x-manifest-root "$env:VCPKG_ROOT" `
-                                          --x-install-root "$InstallRootOverride" `
-                                          @overlayArg `
-                                          --binarysource=clear `
-                                          --clean-after-build
-    Set-Location "C:\"
-
     # Install SCIP
     if (-not $withoutSCIP) {
         Write-Host "Installing SCIP..." -NoNewline
@@ -312,8 +222,7 @@ if ($OS -eq "Win32NT")
             # Configure once using multi-config
             & cmake -S . -B 'build' `
                     '-DFAST_BUILD=ON' `
-                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT"
             # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Debug'
@@ -332,8 +241,7 @@ if ($OS -eq "Win32NT")
                 # Re-configure once using multi-config
                 & cmake -S . -B 'build' `
                         '-DFAST_BUILD=ON' `
-                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT"
                 # Build Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Debug'
@@ -371,7 +279,6 @@ if ($OS -eq "Win32NT")
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
                     "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
-                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
                     '-Wno-dev'
             # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
@@ -384,7 +291,7 @@ if ($OS -eq "Win32NT")
             Write-Host " done."
             Set-Location $StOpt_ROOT
             git remote update
-            $local  = git rev-parse "@"
+            $local = git rev-parse "@"
             $remote = git rev-parse "@{u}"
             if ($local -ne $remote) { # StOpt is not latest
                 git pull
@@ -395,7 +302,6 @@ if ($OS -eq "Win32NT")
                         '-DBUILD_PYTHON=OFF' `
                         '-DBUILD_TEST=OFF' `
                         "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
-                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
                         '-Wno-dev'
                 # Rebuild Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
@@ -452,15 +358,71 @@ if (-not $withoutSMSpp)
         Set-Location $SMSPP_ROOT
     }
 
+    # Configure vcpkg
+    $VCPKG_DIR = Join-Path $SMSPP_ROOT 'vcpkg'
+    if (-not (Test-Path $VCPKG_DIR)) {
+        git clone https://github.com/microsoft/vcpkg.git $VCPKG_DIR
+        & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
+    }
+
+    # Configure COIN-OR Osi
+    if (-not $withoutCoinOr) {
+        Write-Host "Configuring COIN-OR Osi..."
+
+        # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
+        $OverlayRoot = Join-Path "$SMSPP_ROOT\vcpkg" 'overlays\ports'
+        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
+        New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
+
+        # Copy the original port as a base for our overlay
+        Copy-Item -Recurse -Force (Join-Path "$SMSPP_ROOT\vcpkg" 'ports\coin-or-osi\*') $OverlayPort
+
+        # Edit the portfile INSIDE THE OVERLAY (never touch the builtin port directly)
+        $portfile = Join-Path $OverlayPort 'portfile.cmake'
+        $osiText = Get-Content -Raw -Path $portfile
+
+        if (-not $withoutGurobi) {
+            Write-Host "Applying Gurobi interface changes to overlay portfile.cmake..."
+            # Replace the line containing --without-gurobi with a multi-line --with-gurobi block
+            $replacementGRB = @"
+        --with-gurobi
+        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
+        --with-gurobi-incdir=C:/gurobi/win64/include
+        --with-gurobi-cflags=-IC:/gurobi/win64/include
+        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
+"@.Trim()
+            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
+            Write-Host "Overlay portfile updated for Gurobi."
+        }
+
+        if (-not $withoutCplex) {
+            Write-Host "Applying CPLEX interface changes to overlay portfile.cmake..."
+            # Replace the line containing --without-cplex with a multi-line --with-cplex block
+            $replacementCPX = @"
+        --with-cplex
+        --with-cplex-lib=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
+        --with-cplex-incdir=C:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
+        --with-cplex-cflags=-IC:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
+        --with-cplex-lflags=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
+"@.Trim()
+            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
+            Write-Host "Overlay portfile updated for CPLEX."
+        }
+        Set-Content -Path $portfile -Value $osiText -NoNewline
+        Set-Location $SMSPP_ROOT
+    }
+
     $BUILD_DIR = "$SMSPP_ROOT\build"
 
     # Configure once using multi-config
+    $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
+    $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
+    if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
+    $env:VCPKG_INSTALLED_DIR = Join-Path $SMSPP_ROOT 'vcpkg_installed' # keep installs in repo
     & cmake -S . -B $BUILD_DIR `
-            "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
-            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            "-DVCPKG_INSTALLED_DIR=$env:VCPKG_ROOT/installed" `
-            "-DVCPKG_MANIFEST_INSTALL=OFF" `
-            '-Wno-dev'
+        "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
+        "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_DIR\scripts\buildsystems\vcpkg.cmake" `
+        '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
