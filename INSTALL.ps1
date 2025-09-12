@@ -225,10 +225,10 @@ if ($OS -eq "Win32NT")
             $osiText = Get-Content -Raw -Path "portfile.cmake"
             $replacementGRB = @"
         --with-gurobi
-        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi100.lib
+        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
         --with-gurobi-incdir=C:/gurobi/win64/include
         --with-gurobi-cflags=-IC:/gurobi/win64/include
-        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi100.lib
+        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
 "@.Trim()
             $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
             Set-Content -Path "portfile.cmake" -Value $osiText -NoNewline
