@@ -425,10 +425,9 @@ if (-not $withoutSMSpp)
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
-    $env:VCPKG_INSTALLED_DIR = Join-Path $SMSPP_ROOT 'vcpkg_installed' # keep installs in repo
     & cmake -S . -B $BUILD_DIR `
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
-        "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_DIR\scripts\buildsystems\vcpkg.cmake" `
+        "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" `
         '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
