@@ -366,6 +366,7 @@ if (-not $withoutSMSpp)
     }
 
     # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
+    $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
     $Baseline = (& git -C $VCPKG_DIR rev-parse HEAD).Trim()
     $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
     $manifestJson.'builtin-baseline' = $Baseline
