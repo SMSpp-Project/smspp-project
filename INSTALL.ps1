@@ -427,7 +427,6 @@ if (-not $withoutSMSpp)
     if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
     & cmake -S . -B $BUILD_DIR `
         "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
-        "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" `
         '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
