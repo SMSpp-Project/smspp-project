@@ -260,7 +260,7 @@ if ($OS -eq "Win32NT")
 
         # Install COIN-OR Osi/Clp
         Write-Host "Installing COIN-OR Osi/Clp..."
-        & "$env:VCPKG_ROOT\vcpkg.exe" install coin-or-osi coin-or-clp glpk --triplet x64-windows
+        & "$env:VCPKG_ROOT\vcpkg.exe" install coin-or-osi coin-or-clp --triplet x64-windows
         Set-Location "C:\"
     }
 

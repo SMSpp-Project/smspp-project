@@ -13,8 +13,7 @@
     "netcdf-cxx4",
     "coinutils",
     "coin-or-osi",
-    "coin-or-clp",
-    "glpk"
+    "coin-or-clp"
   ],
   "builtin-baseline": "HEAD"
 }
