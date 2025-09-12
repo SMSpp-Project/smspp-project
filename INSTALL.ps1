@@ -419,30 +419,28 @@ if (-not $withoutSMSpp)
         Set-Location $SMSPP_ROOT
     }
 
-    $BUILD_DIR = "$SMSPP_ROOT\build"
-
     # Configure once using multi-config
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
-    & cmake -S . -B $BUILD_DIR "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
+    & cmake -S . -B 'build' "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
-        Start-Process -FilePath "cmake-gui" -ArgumentList $BUILD_DIR -Wait
+        Start-Process -FilePath "cmake-gui" -ArgumentList 'build' -Wait
     }
 
     <## Build Debug
-    & cmake '--build' $BUILD_DIR '--config' 'Debug' "-j $MAX_JOBS"
-    & cmake '--install' $BUILD_DIR '--config' 'Debug'
-    #Set-Location "$BUILD_DIR"
+    & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
+    & cmake '--install' 'build' '--config' 'Debug'
+    #Set-Location 'build'
     #& ctest -V -C Debug
     #Set-Location $SMSPP_ROOT#>
 
     # Build Release
-    & cmake '--build' $BUILD_DIR '--config' 'Release' "-j $MAX_JOBS"
-    & cmake '--install' $BUILD_DIR '--config' 'Release'
-    #Set-Location "$BUILD_DIR"
+    & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
+    & cmake '--install' 'build' '--config' 'Release'
+    #Set-Location 'build'
     #& ctest -V -C Release
     #Set-Location $SMSPP_ROOT
 
