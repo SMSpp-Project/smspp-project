@@ -254,10 +254,6 @@ if ($OS -eq "Win32NT")
             Write-Host "Overlay portfile updated for CPLEX."
         }
         Set-Content -Path $portfile -Value $osiText -NoNewline
-        # (Optional but recommended) Ensure no stale binary package is reused
-        & "$env:VCPKG_ROOT\vcpkg.exe" remove coin-or-osi:x64-windows --recurse 2>$null
-        Remove-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'buildtrees\coin-or-osi') -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'packages\coin-or-osi_x64-windows') -ErrorAction SilentlyContinue
         Set-Location "C:\"
     }
 
