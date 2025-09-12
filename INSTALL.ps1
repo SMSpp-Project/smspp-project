@@ -214,13 +214,21 @@ if ($OS -eq "Win32NT")
     if (-not $withoutCoinOr) {
         Write-Host "Configuring COIN-OR Osi..."
 
+        # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
+        $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
+        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
+        New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
+
+        # Copy the original port as a base for our overlay
+        Copy-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'ports\coin-or-osi\*') $OverlayPort
+
+        # Edit the portfile INSIDE THE OVERLAY (never touch the builtin port directly)
+        $portfile = Join-Path $OverlayPort 'portfile.cmake'
+        $osiText  = Get-Content -Raw -Path $portfile
+
         if (-not $withoutGurobi) {
-            Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
-
-            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
-
-            # Replace the line containing --without-gurobi with a multiline with-* block
-            $osiText = Get-Content -Raw -Path "portfile.cmake"
+            Write-Host "Applying Gurobi interface changes to overlay portfile.cmake..."
+            # Replace the line containing --without-gurobi with a multi-line --with-gurobi block
             $replacementGRB = @"
         --with-gurobi
         --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
@@ -229,18 +237,12 @@ if ($OS -eq "Win32NT")
         --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
 "@.Trim()
             $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
-            Set-Content -Path "portfile.cmake" -Value $osiText -NoNewline
-
-            Write-Host "COIN-OR Osi portfile modified for Gurobi interface."
+            Write-Host "Overlay portfile updated for Gurobi."
         }
 
         if (-not $withoutCplex) {
-            Write-Host "Modifying COIN-OR Osi portfile.cmake for CPLEX interface..."
-
-            Set-Location "$env:VCPKG_ROOT\ports\coin-or-osi"
-
-            # Replace the line containing --without-cplex with a multiline with-* block
-            $osiText = Get-Content -Raw -Path "portfile.cmake"
+            Write-Host "Applying CPLEX interface changes to overlay portfile.cmake..."
+            # Replace the line containing --without-cplex with a multi-line --with-cplex block
             $replacementCPX = @"
         --with-cplex
         --with-cplex-lib=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
@@ -249,34 +251,41 @@ if ($OS -eq "Win32NT")
         --with-cplex-lflags=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
 "@.Trim()
             $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
-            Set-Content -Path "portfile.cmake" -Value $osiText -NoNewline
-
-            Write-Host "COIN-OR Osi portfile modified for CPLEX interface."
+            Write-Host "Overlay portfile updated for CPLEX."
         }
+        Set-Content -Path $portfile -Value $osiText -NoNewline
+        # (Optional but recommended) Ensure no stale binary package is reused
+        & "$env:VCPKG_ROOT\vcpkg.exe" remove coin-or-osi:x64-windows --recurse 2>$null
+        Remove-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'buildtrees\coin-or-osi') -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'packages\coin-or-osi_x64-windows') -ErrorAction SilentlyContinue
         Set-Location "C:\"
     }
 
     # Install vcpkg dependencies
     Write-Host "Installing vcpkg dependencies via manifest..."
-    $ManifestRoot = "C:\"
     $InstallRootOverride = Join-Path $env:VCPKG_ROOT 'installed'
     # Download vcpkg.json from the smspp-project repository
-    $EarlyManifestPath = Join-Path $ManifestRoot 'vcpkg.json'
+    $ManifestPath = Join-Path $env:VCPKG_ROOT 'vcpkg.json'
     $JsonUrl = 'https://gitlab.com/smspp/smspp-project/-/raw/develop/vcpkg.json'
-    Invoke-WebRequest -Uri $JsonUrl -OutFile $EarlyManifestPath
+    Invoke-WebRequest -Uri $JsonUrl -OutFile $ManifestPath
     # Update builtin-baseline to match the current vcpkg commit
     $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    $manifestJson = Get-Content $EarlyManifestPath -Raw | ConvertFrom-Json
+    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
     $manifestJson.'builtin-baseline' = $Baseline
-    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $EarlyManifestPath -Encoding UTF8
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
     # Enable manifests/registries and run vcpkg install with an explicit install root
     $env:VCPKG_FEATURE_FLAGS = "manifests,registries"
+    # If we created an overlay above, pass it to vcpkg so it uses our modified port.
+    # Also clear binary sources to avoid picking a cached binary built from the unmodified port.
+    $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
+    $overlayArg = @()
+    if (Test-Path $OverlayRoot) { $overlayArg = @('--overlay-ports', $OverlayRoot) }
     & "$env:VCPKG_ROOT\vcpkg.exe" install --triplet x64-windows `
-                                          --x-manifest-root "$ManifestRoot" `
+                                          --x-manifest-root "$env:VCPKG_ROOT" `
                                           --x-install-root "$InstallRootOverride" `
+                                          @overlayArg `
+                                          --binarysource=clear `
                                           --clean-after-build
-    # Clean up the temporary manifest
-    Remove-Item $EarlyManifestPath
     Set-Location "C:\"
 
     # Install SCIP
