@@ -365,6 +365,12 @@ if (-not $withoutSMSpp)
         & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
     }
 
+    # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
+    $Baseline = (& git -C $VCPKG_DIR rev-parse HEAD).Trim()
+    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
+    $manifestJson.'builtin-baseline' = $Baseline
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
+
     # Configure COIN-OR Osi
     if (-not $withoutCoinOr) {
         Write-Host "Configuring COIN-OR Osi..."
