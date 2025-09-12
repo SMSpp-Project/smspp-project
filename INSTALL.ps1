@@ -210,11 +210,9 @@ if ($OS -eq "Win32NT")
         .\vcpkg upgrade --no-dry-run
     }
 
-    # Install COIN-OR CoinUtils with custom configuration
+    # Configure COIN-OR Osi
     if (-not $withoutCoinOr) {
-        Write-Host "Installing COIN-OR CoinUtils..."
-        Set-Location $env:VCPKG_ROOT
-        & "$env:VCPKG_ROOT\vcpkg.exe" install coinutils --triplet x64-windows
+        Write-Host "Configuring COIN-OR Osi..."
 
         if (-not $withoutGurobi) {
             Write-Host "Modifying COIN-OR Osi portfile.cmake for Gurobi interface..."
