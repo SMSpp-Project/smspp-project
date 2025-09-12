@@ -321,7 +321,7 @@ if ($OS -eq "Win32NT")
         if ($systemPath -notlike "*$STOPT_BIN*") {
             $systemPath = "$STOPT_BIN;$systemPath"
             [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-            Write-Host "Added StOpt bin to the system Path"
+            Write-Host "Added StOpt bin to the system Path."
         } else {
             Write-Host "StOpt bin is already in the system Path."
         }
@@ -450,7 +450,7 @@ if (-not $withoutSMSpp)
     if ($systemPath -notlike "*$SMSPP_BIN*") {
         $systemPath = "$SMSPP_BIN;$systemPath"
         [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-        Write-Host "Added SMSpp bin to the system Path"
+        Write-Host "Added SMSpp bin to the system Path."
     } else {
         Write-Host "SMSpp bin is already in the system Path."
     }
