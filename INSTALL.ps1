@@ -425,9 +425,7 @@ if (-not $withoutSMSpp)
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
-    & cmake -S . -B $BUILD_DIR `
-        "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" `
-        '-Wno-dev'
+    & cmake -S . -B $BUILD_DIR "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
