@@ -87,7 +87,7 @@ function Update-EnvironmentVariables
             $newEnvVarValue = $envVarValue -replace $escapedPattern, $newValue
             # Update the environment variable
             [System.Environment]::SetEnvironmentVariable($envVarName, $newEnvVarValue, [System.EnvironmentVariableTarget]::Machine)
-            Write-Host "Updated $envVarName in the system Path"
+            Write-Host "Updated $envVarName in the system Path."
         }
     }
     Write-Host "All relevant environment variables have been updated."
@@ -260,7 +260,7 @@ if ($OS -eq "Win32NT")
             [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
             Write-Host "Added HiGHS bin to the system Path"
         } else {
-            Write-Host "HiGHS bin is already in the system Path"
+            Write-Host "HiGHS bin is already in the system Path."
         }
         Set-Location "C:\"
     }
@@ -323,7 +323,7 @@ if ($OS -eq "Win32NT")
             [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
             Write-Host "Added StOpt bin to the system Path"
         } else {
-            Write-Host "StOpt bin is already in the system Path"
+            Write-Host "StOpt bin is already in the system Path."
         }
         Set-Location "C:\"
     }
@@ -451,6 +451,6 @@ if (-not $withoutSMSpp)
         [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
         Write-Host "Added SMSpp bin to the system Path"
     } else {
-        Write-Host "SMSpp bin is already in the system Path"
+        Write-Host "SMSpp bin is already in the system Path."
     }
 }
