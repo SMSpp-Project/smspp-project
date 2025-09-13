@@ -833,8 +833,7 @@ if [ "$install_smspp" -eq 1 ]; then
     exit 1
   fi
 
-  # Export SMSpp paths
-  export PATH="${SMSPP_ROOT}/bin:$PATH"
+  # Export SMSpp lib path
   if [ "$OS" == "Linux" ]; then
     export LD_LIBRARY_PATH="${SMSPP_ROOT}/lib:$LD_LIBRARY_PATH"
     if [ "$HAS_SUDO" -eq 1 ]; then
@@ -844,4 +843,21 @@ if [ "$install_smspp" -eq 1 ]; then
   elif [ "$OS" == "Darwin" ]; then
     export DYLD_LIBRARY_PATH="${SMSPP_ROOT}/lib:$DYLD_LIBRARY_PATH"
   fi
+
+  # Export SMSpp bin path
+  SMSPP_BIN="$SMSPP_ROOT/bin"
+  CURRENT_SHELL=$(basename "$SHELL")
+  if [ "$CURRENT_SHELL" = "zsh" ]; then
+    RC_FILE="$HOME/.zshrc"
+  else # default is bash
+    RC_FILE="$HOME/.bashrc"
+  fi
+  # Eventually remove old SMSPP_BIN path
+  if [ -f "$RC_FILE" ]; then
+    sed -i.bak "\|$SMSPP_BIN|d" "$RC_FILE"
+  fi
+  # Add the new SMSPP_BIN path
+  echo "export PATH=\"$SMSPP_BIN:\$PATH\"" >> "$RC_FILE"
+  echo ">> Added SMSpp bin path in $RC_FILE."
+  . "$RC_FILE"
 fi
