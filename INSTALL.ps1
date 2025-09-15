@@ -63,6 +63,9 @@ if (-not $MAX_JOBS) {
     $MAX_JOBS = (Get-CimInstance Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
 }
 
+# Set the VCPKG_ROOT environment variable
+$env:VCPKG_ROOT = "C:\vcpkg"
+
 function Update-EnvironmentVariables
 {
     param (
@@ -147,6 +150,32 @@ if ($OS -eq "Win32NT")
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
 
+    # Install vcpkg
+    Write-Host "Installing vcpkg..."
+    if (-not (Test-Path $env:VCPKG_ROOT)) {
+        git clone https://github.com/microsoft/vcpkg.git $env:VCPKG_ROOT
+        Set-Location $env:VCPKG_ROOT
+        .\bootstrap-vcpkg.bat
+    } else {
+        Set-Location $env:VCPKG_ROOT
+        git pull
+        .\bootstrap-vcpkg.bat
+        .\vcpkg upgrade --no-dry-run
+    }
+    $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
+
+    # Install Microsoft MPI
+    if (-not (Test-Path "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe")) {
+        Write-Host "Installing Microsoft MPI..."
+        $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
+        if (-not (Test-Path $msmpiInstaller)) {
+            Write-Host "Downloading Microsoft MPI installer..."
+            Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
+        }
+        Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
+        Write-Host " done."
+    }
+
     # Install CPLEX
     if (-not $withoutCplex) {
         Write-Host "Installing CPLEX..." -NoNewline
@@ -222,7 +251,8 @@ if ($OS -eq "Win32NT")
             # Configure once using multi-config
             & cmake -S . -B 'build' `
                     '-DFAST_BUILD=ON' `
-                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT"
+                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
             # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Debug'
@@ -241,7 +271,8 @@ if ($OS -eq "Win32NT")
                 # Re-configure once using multi-config
                 & cmake -S . -B 'build' `
                         '-DFAST_BUILD=ON' `
-                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT"
+                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
+                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                 # Build Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Debug'
@@ -269,33 +300,18 @@ if ($OS -eq "Win32NT")
     if (-not $withoutStOpt) {
         Write-Host "Installing StOpt..." -NoNewline
         $StOpt_ROOT = "C:\StOpt"
-        $VCPKG_DIR = Join-Path $StOpt_ROOT 'vcpkg'
-        $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
-        $env:CMAKE_TOOLCHAIN_FILE  = Join-Path $VCPKG_DIR 'scripts\buildsystems\vcpkg.cmake'
         if (-not (Test-Path $StOpt_ROOT)) {
             Write-Host "" # new line
             # Configure vcpkg
             git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
             Set-Location $StOpt_ROOT
-            if (-not (Test-Path $VCPKG_DIR)) {
-                git clone https://github.com/microsoft/vcpkg.git $VCPKG_DIR
-                & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
-            }
-            # Install MPI
-            if (-not (Test-Path "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe")) {
-                $msmpiInstaller = Join-Path $VCPKG_DIR 'downloads\msmpisetup-10.1.12498.exe'
-                if (-not (Test-Path $msmpiInstaller)) {
-                    Write-Host "Downloading Microsoft MPI installer..."
-                    Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
-                }
-                Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
-            }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
             & cmake -S . -B 'build' `
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
                     "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
+                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                     '-Wno-dev'
             # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
@@ -319,6 +335,7 @@ if ($OS -eq "Win32NT")
                         '-DBUILD_PYTHON=OFF' `
                         '-DBUILD_TEST=OFF' `
                         "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
+                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                         '-Wno-dev'
                 # Rebuild Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
