@@ -283,7 +283,7 @@ if ($OS -eq "Win32NT")
             }
             # Install MPI
             if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
-                $msmpiInstaller = "$VCPKG_DIR\downloads\msmpisetup-10.1.12498.exe"
+                $msmpiInstaller = Join-Path $VCPKG_DIR 'downloads\msmpisetup-10.1.12498.exe'
                 if (-not (Test-Path $msmpiInstaller)) {
                     Write-Host "Downloading Microsoft MPI installer..."
                     Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
