@@ -274,11 +274,21 @@ if ($OS -eq "Win32NT")
         $env:CMAKE_TOOLCHAIN_FILE  = Join-Path $VCPKG_DIR 'scripts\buildsystems\vcpkg.cmake'
         if (-not (Test-Path $StOpt_ROOT)) {
             Write-Host "" # new line
+            # Configure vcpkg
             git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
             Set-Location $StOpt_ROOT
             if (-not (Test-Path $VCPKG_DIR)) {
                 git clone https://github.com/microsoft/vcpkg.git $VCPKG_DIR
                 & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
+            }
+            # Install MPI
+            if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
+                $msmpiInstaller = "$VCPKG_DIR\downloads\msmpisetup-10.1.12498.exe"
+                if (-not (Test-Path $msmpiInstaller)) {
+                    Write-Host "Downloading Microsoft MPI installer..."
+                    Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
+                }
+                Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
             }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
