@@ -303,7 +303,6 @@ if ($OS -eq "Win32NT")
                 }
                 $msmpiInstaller = Join-Path $downloadsDir 'msmpisetup-10.1.12498.exe'
                 if (-not (Test-Path $msmpiInstaller)) {
-                    Write-Host "Downloading Microsoft MPI installer..."
                     $msmpiUrl = "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe"
                     Invoke-WebRequest -Uri $msmpiUrl -OutFile $msmpiInstaller
                 }
@@ -454,6 +453,7 @@ if (-not $withoutSMSpp)
             $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
             Write-Host "Overlay portfile updated for CPLEX."
         }
+
         Set-Content -Path $portfile -Value $osiText -NoNewline
         Set-Location $SMSPP_ROOT
     }
