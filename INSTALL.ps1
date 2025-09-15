@@ -164,18 +164,6 @@ if ($OS -eq "Win32NT")
     }
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
 
-    # Install Microsoft MPI
-    if (-not (Test-Path "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe")) {
-        Write-Host "Installing Microsoft MPI..."
-        $msmpiInstaller = "$env:VCPKG_ROOT\downloads\msmpisetup-10.1.12498.exe"
-        if (-not (Test-Path $msmpiInstaller)) {
-            Write-Host "Downloading Microsoft MPI installer..."
-            Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile $msmpiInstaller
-        }
-        Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
-        Write-Host " done."
-    }
-
     # Install CPLEX
     if (-not $withoutCplex) {
         Write-Host "Installing CPLEX..." -NoNewline
@@ -246,6 +234,7 @@ if ($OS -eq "Win32NT")
         $HiGHS_ROOT = "C:\HiGHS"
         if (-not (Test-Path $HiGHS_ROOT)) {
             Write-Host "" # new line
+            & "$env:VCPKG_ROOT\vcpkg.exe" install zlib --triplet x64-windows
             git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
             Set-Location $HiGHS_ROOT
             # Configure once using multi-config
@@ -305,6 +294,22 @@ if ($OS -eq "Win32NT")
             # Configure vcpkg
             git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
             Set-Location $StOpt_ROOT
+            # Install Microsoft MPI
+            if (-not (Test-Path "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe")) {
+                Write-Host "Installing Microsoft MPI..."
+                $downloadsDir = Join-Path $env:VCPKG_ROOT 'downloads'
+                if (-not (Test-Path $downloadsDir)) {
+                    New-Item -ItemType Directory -Force -Path $downloadsDir | Out-Null
+                }
+                $msmpiInstaller = Join-Path $downloadsDir 'msmpisetup-10.1.12498.exe'
+                if (-not (Test-Path $msmpiInstaller)) {
+                    Write-Host "Downloading Microsoft MPI installer..."
+                    $msmpiUrl = "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe"
+                    Invoke-WebRequest -Uri $msmpiUrl -OutFile $msmpiInstaller
+                }
+                Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
+                Write-Host " done."
+            }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
             & cmake -S . -B 'build' `
