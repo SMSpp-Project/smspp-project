@@ -396,16 +396,9 @@ if (-not $withoutSMSpp)
         Set-Location $SMSPP_ROOT
     }
 
-    # Configure vcpkg
-    $VCPKG_DIR = Join-Path $SMSPP_ROOT 'vcpkg'
-    if (-not (Test-Path $VCPKG_DIR)) {
-        git clone https://github.com/microsoft/vcpkg.git $VCPKG_DIR
-        & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
-    }
-
     # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
     $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
-    $Baseline = (& git -C $VCPKG_DIR rev-parse HEAD).Trim()
+    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
     $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
     $manifestJson.'builtin-baseline' = $Baseline
     $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
@@ -462,7 +455,7 @@ if (-not $withoutSMSpp)
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
-    $env:CMAKE_TOOLCHAIN_FILE = "$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake"
+    $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     & cmake -S . -B 'build' "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
