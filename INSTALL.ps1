@@ -275,6 +275,7 @@ if ($OS -eq "Win32NT")
             Set-Location $StOpt_ROOT
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
+            $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
             & cmake -S . -B 'build' `
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
