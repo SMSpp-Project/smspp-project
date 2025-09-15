@@ -269,14 +269,19 @@ if ($OS -eq "Win32NT")
     if (-not $withoutStOpt) {
         Write-Host "Installing StOpt..." -NoNewline
         $StOpt_ROOT = "C:\StOpt"
+        $VCPKG_DIR = Join-Path $StOpt_ROOT 'vcpkg'
+        $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
+        $env:CMAKE_TOOLCHAIN_FILE  = Join-Path $VCPKG_DIR 'scripts\buildsystems\vcpkg.cmake'
         if (-not (Test-Path $StOpt_ROOT)) {
             Write-Host "" # new line
             git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
             Set-Location $StOpt_ROOT
+            if (-not (Test-Path $VCPKG_DIR)) {
+                git clone https://github.com/microsoft/vcpkg.git $VCPKG_DIR
+                & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
+            }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
-            $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
-            $env:CMAKE_TOOLCHAIN_FILE = "$StOpt_ROOT/vcpkg/scripts/buildsystems/vcpkg.cmake"
             & cmake -S . -B 'build' `
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
