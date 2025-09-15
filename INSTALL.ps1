@@ -142,7 +142,7 @@ if ($OS -eq "Win32NT")
         refreshenv
     }
     choco feature disable -n=showDownloadProgress
-    choco install git wget -y --limit-output
+    choco install git wget zlib -y --limit-output
     choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
