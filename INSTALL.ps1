@@ -282,7 +282,7 @@ if ($OS -eq "Win32NT")
                 & (Join-Path $VCPKG_DIR 'bootstrap-vcpkg.bat')
             }
             # Install MPI
-            if (-not (Test-Path "C:\Program Files\Microsoft MPI")) {
+            if (-not (Test-Path "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe")) {
                 $msmpiInstaller = Join-Path $VCPKG_DIR 'downloads\msmpisetup-10.1.12498.exe'
                 if (-not (Test-Path $msmpiInstaller)) {
                     Write-Host "Downloading Microsoft MPI installer..."
