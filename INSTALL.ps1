@@ -238,7 +238,7 @@ if ($OS -eq "Win32NT")
             git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
             Set-Location $HiGHS_ROOT
             # Configure once using multi-config
-            & cmake -S . -B 'build' `
+            & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
                     '-DFAST_BUILD=ON' `
                     "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                     "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -258,7 +258,7 @@ if ($OS -eq "Win32NT")
                 git pull
                 Write-Host "" # new line
                 # Re-configure once using multi-config
-                & cmake -S . -B 'build' `
+                & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
                         '-DFAST_BUILD=ON' `
                         "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
                         "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -311,7 +311,7 @@ if ($OS -eq "Win32NT")
             }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
-            & cmake -S . -B 'build' `
+            & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
                     "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
@@ -335,7 +335,7 @@ if ($OS -eq "Win32NT")
                 Write-Host "" # new line
                 mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
                 # Re-configure once using multi-config
-                & cmake -S . -B 'build' `
+                & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
                         '-DBUILD_PYTHON=OFF' `
                         '-DBUILD_TEST=OFF' `
                         "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
@@ -456,7 +456,7 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-    & cmake -S . -B 'build' "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
+    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
     # run cmake-gui
     if (-not $nonInteractive) {
         # select submodules, then Configure and Generate the build files
