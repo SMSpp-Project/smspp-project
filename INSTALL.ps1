@@ -163,6 +163,10 @@ if ($OS -eq "Win32NT")
         .\vcpkg upgrade --no-dry-run
     }
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
+    $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
+    if (-not (Test-Path $OverlayRoot)) {
+        New-Item -ItemType Directory -Force -Path $OverlayRoot | Out-Null
+    }
 
     # Install CPLEX
     if (-not $withoutCplex) {
@@ -408,7 +412,6 @@ if (-not $withoutSMSpp)
         Write-Host "Configuring COIN-OR Osi..."
 
         # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
-        $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
         $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
         New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
 
@@ -452,9 +455,8 @@ if (-not $withoutSMSpp)
     }
 
     # Configure once using multi-config
-    $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
-    if (Test-Path $OverlayRoot) { $env:VCPKG_OVERLAY_PORTS = $OverlayRoot } # only if overlay exists
+    $env:VCPKG_OVERLAY_PORTS = $OverlayRoot
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
     # run cmake-gui
