@@ -408,12 +408,12 @@ if (-not $withoutSMSpp)
         Write-Host "Configuring COIN-OR Osi..."
 
         # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
-        $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
+        $OverlayRoot = Join-Path "$SMSPP_ROOT\vcpkg" 'overlays\ports'
         $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
         New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
 
         # Copy the original port as a base for our overlay
-        Copy-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'ports\coin-or-osi\*') $OverlayPort
+        Copy-Item -Recurse -Force (Join-Path "$SMSPP_ROOT\vcpkg" 'ports\coin-or-osi\*') $OverlayPort
 
         # Edit the portfile INSIDE THE OVERLAY (never touch the builtin port directly)
         $portfile = Join-Path $OverlayPort 'portfile.cmake'
