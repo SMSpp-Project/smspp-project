@@ -190,7 +190,7 @@ if ($OS -eq "Win32NT")
 
     # Install CPLEX
     if (-not $withoutCplex) {
-        Write-Host "Installing CPLEX..." -NoNewline
+        Write-Host "Installing CPLEX..."
         $CPLEX_ROOT = "C:\IBM\ILOG\CPLEX_Studio"
         if (-not (Test-Path $CPLEX_ROOT)) {
             Set-Location "C:\"
@@ -215,12 +215,12 @@ if ($OS -eq "Win32NT")
                 exit 1
             }
         }
-        Write-Host " done."
+        Write-Host "... CPLEX installed succesfully."
     }
 
     # Install Gurobi
     if (-not $withoutGurobi) {
-        Write-Host "Installing Gurobi..." -NoNewline
+        Write-Host "Installing Gurobi..."
         $GUROBI_ROOT = "C:\gurobi"
         if (-not (Test-Path $GUROBI_ROOT)) {
             Set-Location "C:\"
@@ -232,12 +232,12 @@ if ($OS -eq "Win32NT")
             # Update the system PATH to ensure the SMS++ exe can correctly locate the gurobi*.dll file
             Update-EnvironmentVariables -oldPattern "C:\gurobi1201" -newValue $GUROBI_ROOT
         }
-        Write-Host " done."
+        Write-Host "... Gurobi installed succesfully."
     }
 
     # Install SCIP
     if (-not $withoutSCIP) {
-        Write-Host "Installing SCIP..." -NoNewline
+        Write-Host "Installing SCIP..."
         $SCIP_ROOT = "C:\Program Files\SCIPOptSuite"
         if (-not (Test-Path $SCIP_ROOT)) {
             Set-Location "C:\"
@@ -249,12 +249,12 @@ if ($OS -eq "Win32NT")
             # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
             Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
         }
-        Write-Host " done."
+        Write-Host "... SCIP installed succesfully."
     }
 
     # Install HiGHS
     if (-not $withoutHiGHS) {
-        Write-Host "Installing HiGHS..." -NoNewline
+        Write-Host "Installing HiGHS..."
         $HiGHS_ROOT = "C:\HiGHS"
         if (-not (Test-Path $HiGHS_ROOT)) {
             Write-Host "" # new line
@@ -272,8 +272,8 @@ if ($OS -eq "Win32NT")
             # Build Release
             & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
+            Write-Host "... HiGHS installed succesfully."
         } else {
-            Write-Host " done."
             Set-Location $HiGHS_ROOT
             git remote update
             $local = git rev-parse "@"
@@ -292,8 +292,9 @@ if ($OS -eq "Win32NT")
                 # Build Release
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
+                Write-Host "... HiGHS updated succesfully."
             } else {
-                Write-Host "HiGHS already up to date."
+                Write-Host "... HiGHS already up to date."
             }
         }
         # Add HiGHS to the system PATH
@@ -311,7 +312,7 @@ if ($OS -eq "Win32NT")
 
     # Install StOpt
     if (-not $withoutStOpt) {
-        Write-Host "Installing StOpt..." -NoNewline
+        Write-Host "Installing StOpt..."
         $StOpt_ROOT = "C:\StOpt"
         if (-not (Test-Path $StOpt_ROOT)) {
             Write-Host "" # new line
@@ -331,7 +332,7 @@ if ($OS -eq "Win32NT")
                     Invoke-WebRequest -Uri $msmpiUrl -OutFile $msmpiInstaller
                 }
                 Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
-                Write-Host " done."
+                Write-Host "... Microsoft MPI installed succesfully."
             }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
@@ -348,8 +349,8 @@ if ($OS -eq "Win32NT")
             & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
             mv "C:\doc" $StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+            Write-Host "... StOpt installed succesfully."
         } else {
-            Write-Host " done."
             Set-Location $StOpt_ROOT
             git remote update
             $local = git rev-parse "@"
@@ -372,8 +373,9 @@ if ($OS -eq "Win32NT")
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
                 mv "C:\doc" $StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+                Write-Host "... StOpt updated succesfully."
             } else {
-                Write-Host "StOpt already up to date."
+                Write-Host "... StOpt already up to date."
             }
             Set-Location "C:\"
         }
