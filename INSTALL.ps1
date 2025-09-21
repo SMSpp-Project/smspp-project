@@ -511,4 +511,7 @@ if (-not $withoutSMSpp)
     } else {
         Write-Host "SMSpp bin is already in the system Path."
     }
+
+    Set-Location "C:\"
+    refreshenv
 }
