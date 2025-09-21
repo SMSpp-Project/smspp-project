@@ -104,18 +104,26 @@ if ($OS -eq "Win32NT")
 
     Write-Host "Starting the installation process on Windows..."
 
-    # Attempt to locate an existing Visual Studio installation using vswhere (must have C++ tools)
-    if (-not (Get-Command vswhere -ErrorAction SilentlyContinue)) {
-        Write-Error "vswhere is not available in PATH. Cannot detect Visual Studio installation."
-        exit 1
+    # Attempt to locate an existing Visual Studio installation (must have C++ tools).
+    # If not found (or vswhere not available), download & install VS Community, then re-check.
+
+    # Try to find vswhere (either in PATH or in the default installer folder)
+    $vswhereCmd = Get-Command vswhere -ErrorAction SilentlyContinue
+    if (-not $vswhereCmd) {
+        $defaultVswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+        if (Test-Path $defaultVswhere) {
+            $vswhereCmd = $defaultVswhere
+        }
     }
 
-    $vsInstallPath = vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    # If we have vswhere, query for an installation with C++ tools
+    $vsInstallPath = $null
+    if ($vswhereCmd) {
+        $vsInstallPath = & $vswhereCmd -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    }
 
-    if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
-        Write-Host "Using existing Visual Studio installation at $vsInstallPath"
-        & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
-    } else {
+    # If not found, install VS Community with your existing bootstrapper flow
+    if (-not $vsInstallPath -or -not (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
         Write-Host "No suitable Visual Studio installation found. Installing Community Edition with C++ tools..."
 
         $VISUAL_STUDIO_INSTALLER = "C:\VisualStudioSetup.exe"
@@ -123,15 +131,27 @@ if ($OS -eq "Win32NT")
         Start-Process -FilePath $VISUAL_STUDIO_INSTALLER -Wait
         Remove-Item $VISUAL_STUDIO_INSTALLER
 
-        # Re-check installation path after install
-        $vsInstallPath = vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-        if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
-            Write-Host "Visual Studio successfully installed at $vsInstallPath"
-            & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
-        } else {
-            Write-Error "Failed to install or detect Visual Studio with required components."
-            exit 1
+        # After install, try again to find vswhere and query the installation path
+        $vswhereCmd = Get-Command vswhere -ErrorAction SilentlyContinue
+        if (-not $vswhereCmd) {
+            $defaultVswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+            if (Test-Path $defaultVswhere) {
+                $vswhereCmd = $defaultVswhere
+            }
         }
+
+        if ($vswhereCmd) {
+            $vsInstallPath = & $vswhereCmd -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        }
+    }
+
+    # Final check and activation of the developer environment
+    if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
+        Write-Host "Using Visual Studio installation at $vsInstallPath"
+        & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+    } else {
+        Write-Error "Failed to detect Visual Studio with required C++ components after installation."
+        exit 1
     }
 
     # Install basic requirements using Chocolatey
