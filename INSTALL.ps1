@@ -489,17 +489,11 @@ if (-not $withoutSMSpp)
 
     <## Build Debug
     & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
-    & cmake '--install' 'build' '--config' 'Debug'
-    #Set-Location 'build'
-    #& ctest -V -C Debug
-    #Set-Location $SMSPP_ROOT#>
+    & cmake '--install' 'build' '--config' 'Debug'#>
 
     # Build Release
     & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
     & cmake '--install' 'build' '--config' 'Release'
-    #Set-Location 'build'
-    #& ctest -V -C Release
-    #Set-Location $SMSPP_ROOT
 
     # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"

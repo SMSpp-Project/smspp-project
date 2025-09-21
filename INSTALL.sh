@@ -825,9 +825,6 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
     cmake --build build -j "${MAX_JOBS}"
     cmake --install build
-    #cd build
-    #ctest -V
-    #cd "$SMSPP_ROOT"
   else
     echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
     exit 1
