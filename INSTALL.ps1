@@ -276,11 +276,11 @@ if ($OS -eq "Win32NT")
             }
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
+            $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
             & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
                     '-DBUILD_PYTHON=OFF' `
                     '-DBUILD_TEST=OFF' `
                     "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
-                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
                     '-Wno-dev'
             # Build Debug
             & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
@@ -300,11 +300,11 @@ if ($OS -eq "Win32NT")
                 Write-Host "" # new line
                 mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
                 # Re-configure once using multi-config
+                $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                 & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
                         '-DBUILD_PYTHON=OFF' `
                         '-DBUILD_TEST=OFF' `
                         "-DCMAKE_INSTALL_PREFIX=$StOpt_ROOT" `
-                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
                         '-Wno-dev'
                 # Rebuild Debug
                 & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
