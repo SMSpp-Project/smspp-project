@@ -2,18 +2,19 @@
   "name": "smspp",
   "version": "0.4.0",
   "dependencies": [
-    "zlib",
-    "bzip2",
-    "pthreads",
-    "getopt",
     "boost",
     "boost-mpi",
-    "msmpi",
-    "eigen3",
-    "netcdf-cxx4",
-    "coinutils",
+    "bzip2",
+    "coin-or-clp",
     "coin-or-osi",
-    "coin-or-clp"
+    "coinutils",
+    "eigen3",
+    "getopt",
+    "highs",
+    "msmpi",
+    "netcdf-cxx4",
+    "pthreads",
+    "zlib"
   ],
   "builtin-baseline": "HEAD"
 }

@@ -10,7 +10,6 @@
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
-    You can use the `-withoutHiGHS` option to skip the installation of HiGHS.
     You can use the `-withoutStOpt` option to skip the installation of StOpt.
     You can use the `-withoutCoinOr` option to skip the installation of COIN-OR.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
@@ -46,7 +45,6 @@ param(
     [switch]$withoutCplex,
     [switch]$withoutGurobi,
     [switch]$withoutSCIP,
-    [switch]$withoutHiGHS,
     [switch]$withoutStOpt,
     [switch]$withoutCoinOr,
     [switch]$withoutSMSpp,
@@ -250,64 +248,6 @@ if ($OS -eq "Win32NT")
             Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
         }
         Write-Host "... SCIP installed succesfully."
-    }
-
-    # Install HiGHS
-    if (-not $withoutHiGHS) {
-        Write-Host "Installing HiGHS..."
-        $HiGHS_ROOT = "C:\HiGHS"
-        if (-not (Test-Path $HiGHS_ROOT)) {
-            Write-Host "" # new line
-            & "$env:VCPKG_ROOT\vcpkg.exe" install zlib --triplet x64-windows
-            git clone https://github.com/ERGO-Code/HiGHS.git $HiGHS_ROOT
-            Set-Location $HiGHS_ROOT
-            # Configure once using multi-config
-            & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
-                    '-DFAST_BUILD=ON' `
-                    "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-            # Build Debug
-            & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
-            & cmake '--install' 'build' '--config' 'Debug'
-            # Build Release
-            & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
-            & cmake '--install' 'build' '--config' 'Release'
-            Write-Host "... HiGHS installed succesfully."
-        } else {
-            Set-Location $HiGHS_ROOT
-            git remote update
-            $local = git rev-parse "@"
-            $remote = git rev-parse "@{u}"
-            if ($local -ne $remote) { # HiGHS is not latest
-                git pull
-                Write-Host "" # new line
-                # Re-configure once using multi-config
-                & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
-                        '-DFAST_BUILD=ON' `
-                        "-DCMAKE_INSTALL_PREFIX=$HiGHS_ROOT" `
-                        "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-                # Build Debug
-                & cmake '--build' 'build' '--config' 'Debug' "-j $MAX_JOBS"
-                & cmake '--install' 'build' '--config' 'Debug'
-                # Build Release
-                & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
-                & cmake '--install' 'build' '--config' 'Release'
-                Write-Host "... HiGHS updated succesfully."
-            } else {
-                Write-Host "... HiGHS already up to date."
-            }
-        }
-        # Add HiGHS to the system PATH
-        $HIGHS_BIN = "$HiGHS_ROOT\bin"
-        $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
-        if ($systemPath -notlike "*$HIGHS_BIN*") {
-            $systemPath = "$HIGHS_BIN;$systemPath"
-            [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-            Write-Host "Added HiGHS bin to the system Path"
-        } else {
-            Write-Host "HiGHS bin is already in the system Path."
-        }
-        Set-Location "C:\"
     }
 
     # Install StOpt
