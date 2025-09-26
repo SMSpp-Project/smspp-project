@@ -11,7 +11,6 @@
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
     You can use the `-withoutStOpt` option to skip the installation of StOpt.
-    You can use the `-withoutCoinOr` option to skip the installation of COIN-OR.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
 
     .AUTHOR
@@ -46,7 +45,6 @@ param(
     [switch]$withoutGurobi,
     [switch]$withoutSCIP,
     [switch]$withoutStOpt,
-    [switch]$withoutCoinOr,
     [switch]$withoutSMSpp,
     [switch]$nonInteractive,
     [string]$installRoot = "C:\" # Default if not provided
