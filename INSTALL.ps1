@@ -46,7 +46,6 @@ param(
     [switch]$withoutSCIP,
     [switch]$withoutStOpt,
     [switch]$withoutSMSpp,
-    [switch]$nonInteractive,
     [string]$installRoot = "C:\" # Default if not provided
 )
 
@@ -165,6 +164,13 @@ if ($OS -eq "Win32NT")
     choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
     refreshenv
+
+    # Detect cmake-gui availability
+    $cmakeGuiCmd = Get-Command cmake-gui -ErrorAction SilentlyContinue
+    if (-not $cmakeGuiCmd) {
+        $cmakeGuiCmd = Get-Command "cmake-gui.exe" -ErrorAction SilentlyContinue
+    }
+    $HAS_CMAKE_GUI = $null -ne $cmakeGuiCmd
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
@@ -351,7 +357,7 @@ if (-not $withoutSMSpp)
         git pull
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
-        if ($nonInteractive) {
+        if (-not $HAS_CMAKE_GUI) {
             # no way to use cmake-gui interactively to choose submodules, so download all
             git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
         } else {
@@ -368,10 +374,10 @@ if (-not $withoutSMSpp)
     $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
 
     # Configure COIN-OR Osi
-    if (-not $withoutCoinOr) {
-        Write-Host "Configuring COIN-OR Osi..."
+    Write-Host "Configuring COIN-OR Osi..."
 
-        # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
+    # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
+    if ((-not $withoutCplex) -or (-not $withoutGurobi)) {
         $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
         New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
 
@@ -411,18 +417,23 @@ if (-not $withoutSMSpp)
         }
 
         Set-Content -Path $portfile -Value $osiText -NoNewline
-        Set-Location $SMSPP_ROOT
+        $env:VCPKG_OVERLAY_PORTS = $OverlayRoot
+    } else {
+        Remove-Item Env:\VCPKG_OVERLAY_PORTS -ErrorAction SilentlyContinue
+        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
+        if (Test-Path $OverlayPort) { Remove-Item -Recurse -Force $OverlayPort }
     }
+
+    Set-Location $SMSPP_ROOT
 
     # Configure once using multi-config
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
-    $env:VCPKG_OVERLAY_PORTS = $OverlayRoot
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
     # run cmake-gui
-    if (-not $nonInteractive) {
+    if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
-        Start-Process -FilePath "cmake-gui" -ArgumentList 'build' -Wait
+        Start-Process -FilePath $cmakeGuiCmd.Source -ArgumentList 'build' -Wait
     }
 
     <## Build Debug
