@@ -354,7 +354,7 @@ if (-not $withoutSMSpp)
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
         Write-Host "SMSpp already exists. Pulling latest changes..."
-        git pull
+        git pull --recurse-submodules
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
         if (-not $HAS_CMAKE_GUI) {

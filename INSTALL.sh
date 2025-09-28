@@ -761,7 +761,7 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ -d "$SMSPP_ROOT" ]; then
     cd "$SMSPP_ROOT"
     echo "SMSpp already exists. Pulling latest changes..."
-    git pull
+    git pull --recurse-submodules
   else
     echo "Repository not found locally. Cloning SMSpp..."
     git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
