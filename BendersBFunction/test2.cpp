@@ -66,8 +66,8 @@ BlockSolverConfig * build_solver_config
 
  std::ifstream config_file( config_file_path );
  if( ! config_file.is_open() )
-  throw std::invalid_argument( "BendersBFunction test: Error: cannot open "
-                               "configuration file " + config_file_path );
+  throw( std::invalid_argument( "BendersBFunction test: Error: cannot open "
+                                "configuration file " + config_file_path ) );
 
  auto bsc = new BlockSolverConfig;
  config_file >> ( * bsc );
