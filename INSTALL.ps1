@@ -444,7 +444,7 @@ if (-not $withoutSMSpp)
     & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
     & cmake '--install' 'build' '--config' 'Release'
 
-    # Add SMSpp to the system PATH
+    <## Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"
     $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
     if ($systemPath -notlike "*$SMSPP_BIN*") {
@@ -456,5 +456,5 @@ if (-not $withoutSMSpp)
     }
 
     Set-Location "C:\"
-    refreshenv
+    refreshenv#>
 }
