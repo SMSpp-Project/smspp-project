@@ -811,24 +811,29 @@ if [ "$install_smspp" -eq 1 ]; then
     fi
   fi
 
-  # Build SMSpp
+  # Configure SMSpp
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
-  cd build
-  # Ensure TERM is set to something ncurses can handle
-  if [ -z "${TERM:-}" ] || [ "$TERM" = "dumb" ]; then
-    export TERM=xterm
+
+  # If a TTY is available (local usage), run ccmake; otherwise skip interactive step (CI)
+  if [ -t 0 ] && [ -t 1 ]; then
+    cd build
+    # Ensure TERM is set to something ncurses can handle
+    if [ -z "${TERM:-}" ] || [ "$TERM" = "dumb" ]; then
+      export TERM=xterm
+    fi
+    # Run ccmake attached to the real terminal (so keyboard input works)
+    ccmake .. < /dev/tty > /dev/tty 2>&1
+    CCMAKE_EXIT_CODE=$?
+    cd ..
+    if [ $CCMAKE_EXIT_CODE -ne 0 ]; then
+      echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+      exit 1
+    fi
   fi
-  # Run ccmake attached to the real terminal (so keyboard input works)
-  ccmake .. < /dev/tty > /dev/tty 2>&1
-  CCMAKE_EXIT_CODE=$?
-  cd ..
-  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
-    cmake --build build -j "${MAX_JOBS}"
-    cmake --install build
-  else
-    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-    exit 1
-  fi
+
+  # Build and install SMSpp
+  cmake --build build -j "${MAX_JOBS}"
+  cmake --install build
 
   # Export SMSpp lib path
   if [ "$OS" == "Linux" ]; then
