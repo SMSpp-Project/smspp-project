@@ -85,7 +85,7 @@ install_on_linux() {
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
     CPLEX_ROOT="${INSTALL_ROOT}/ibm/ILOG/CPLEX_Studio"
-    CURRENT_INSTALL_FOLDER="${INSTALL_ROOT}ibm"
+    CURRENT_INSTALL_FOLDER="${INSTALL_ROOT}/ibm"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
       CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
@@ -315,7 +315,7 @@ EOL
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${StOpt_ROOT}/lib' > /etc/ld.so.conf.d/stopt.conf"
@@ -336,7 +336,7 @@ EOL
                 -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
           cmake --build build -j "${MAX_JOBS}"
           cmake --install build
-          mv "${INSTALL_ROOT}/doc" StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+          mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
         else
           echo "StOpt already up to date."
         fi
@@ -385,7 +385,7 @@ install_on_macos() {
 
   # Install OpenMP
   echo "Installing OpenMP..."
-  brew install open-mpi
+  brew install libomp
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
@@ -628,7 +628,7 @@ install_on_macos() {
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+      sudo mv /Library/doc "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
     else
       cd "$StOpt_ROOT"
@@ -644,7 +644,7 @@ install_on_macos() {
               -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
         cmake --build build -j "${MAX_JOBS}"
         cmake --install build
-        sudo mv /Library/doc StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
+        sudo mv /Library/doc "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       else
         echo "StOpt already up to date."
       fi
@@ -669,8 +669,16 @@ install_smspp=${install_smspp:-1}
 # Default value for installation root
 install_root=""
 
-# Default value for the maximum number of jobs is nproc if not already defined
-MAX_JOBS=${MAX_JOBS:-$(nproc)}
+# Default value for the maximum number of jobs
+if [ -z "${MAX_JOBS:-}" ]; then
+  if command -v nproc >/dev/null 2>&1; then
+    MAX_JOBS=$(nproc)
+  elif [ "$(uname)" = "Darwin" ]; then
+    MAX_JOBS=$(sysctl -n hw.ncpu)
+  else
+    MAX_JOBS=1
+  fi
+fi
 
 # Parse command line arguments
 for arg in "$@"
@@ -764,7 +772,13 @@ if [ "$install_smspp" -eq 1 ]; then
     git pull --recurse-submodules
   else
     echo "Repository not found locally. Cloning SMSpp..."
-    git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    # Check if the script is not being executed on a server without display or interactive terminal
+    if [ -t 1 ] && [ -z "${CI:-}" ]; then
+      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    else
+      # no way to use ccmake interactively to choose submodules, so download it all
+      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
+    fi
     cd "$SMSPP_ROOT"
   fi
 
@@ -813,21 +827,27 @@ if [ "$install_smspp" -eq 1 ]; then
 
   # Build SMSpp
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
-  cd build
-  # Ensure TERM is set to something ncurses can handle
-  if [ -z "${TERM:-}" ] || [ "$TERM" = "dumb" ]; then
-    export TERM=xterm
-  fi
-  # Run ccmake attached to the real terminal (so keyboard input works)
-  ccmake .. < /dev/tty > /dev/tty 2>&1
-  CCMAKE_EXIT_CODE=$?
-  cd ..
-  if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+  # Check if the script is not being executed on a server without display or interactive terminal
+  if [ -t 1 ] && [ -z "${CI:-}" ]; then
+    cd build
+    # Ensure TERM is set to something ncurses can handle
+    if [ -z "${TERM:-}" ] || [ "$TERM" = "dumb" ]; then
+      export TERM=xterm
+    fi
+    # Run ccmake attached to the real terminal (so keyboard input works)
+    ccmake .. < /dev/tty > /dev/tty 2>&1
+    CCMAKE_EXIT_CODE=$?
+    cd ..
+    if [ $CCMAKE_EXIT_CODE -eq 0 ]; then
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+    else
+      echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
+      exit 1
+    fi
+  else
     cmake --build build -j "${MAX_JOBS}"
     cmake --install build
-  else
-    echo "ccmake fails with exit code $CCMAKE_EXIT_CODE."
-    exit 1
   fi
 
   # Export SMSpp lib path
