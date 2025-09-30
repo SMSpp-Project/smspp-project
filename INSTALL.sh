@@ -246,7 +246,7 @@ EOL
     CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
     CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q coinor-libcoinutils-dev libbz2-dev
+      apt-get install -y -q libbz2-dev
     fi
     if [ ! -d "$CoinOr_ROOT" ]; then
       cd "$INSTALL_ROOT"
@@ -308,7 +308,7 @@ EOL
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
-      mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+      mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
@@ -329,7 +329,7 @@ EOL
         # if the repository is not up to date
         if [ "$LOCAL" != "$REMOTE" ]; then
           git pull
-          mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}"  # TODO remove when the doc bug in StOpt will be fixed
+          mv ./doc "${INSTALL_ROOT}"  # TODO remove when the doc bug in StOpt will be fixed
           cmake -S . -B build \
                 -DBUILD_PYTHON=OFF \
                 -DBUILD_TEST=OFF \
@@ -565,7 +565,6 @@ install_on_macos() {
     CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
     CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ ! -d "$CoinOr_ROOT" ]; then
-      brew install coinutils
       cd "$INSTALL_ROOT"
       curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
       chmod u+x coinbrew
@@ -621,7 +620,7 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
-      sudo mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+      sudo mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
@@ -637,7 +636,7 @@ install_on_macos() {
       # if the repository is not up to date
       if [ "$LOCAL" != "$REMOTE" ]; then
         git pull
-        sudo mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+        sudo mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
         cmake -S . -B build \
               -DBUILD_PYTHON=OFF \
               -DBUILD_TEST=OFF \
@@ -732,6 +731,7 @@ case "$OS" in
     . /etc/os-release
     if [ "$ID" = "ubuntu" ] || [ "$ID" = "debian" ]; then
       INSTALL_ROOT="${install_root:-/opt}"
+      mkdir -p "$INSTALL_ROOT"
       # Check if the user has sudo access
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
@@ -751,7 +751,15 @@ case "$OS" in
   fi
   ;;
 "Darwin")
-  INSTALL_ROOT="${install_root:-/Library}"
+  # Check if the user has sudo access
+  if sudo -n true 2>/dev/null; then
+    HAS_SUDO=1
+    INSTALL_ROOT="${install_root:-/Library}"
+  else
+    HAS_SUDO=0
+    INSTALL_ROOT="${install_root:-$HOME}"
+  fi
+  mkdir -p "$INSTALL_ROOT"
   SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   install_on_macos
   ;;
