@@ -308,7 +308,7 @@ EOL
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
-      mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+      mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
@@ -329,7 +329,7 @@ EOL
         # if the repository is not up to date
         if [ "$LOCAL" != "$REMOTE" ]; then
           git pull
-          mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
+          mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}"  # TODO remove when the doc bug in StOpt will be fixed
           cmake -S . -B build \
                 -DBUILD_PYTHON=OFF \
                 -DBUILD_TEST=OFF \
@@ -441,7 +441,7 @@ install_on_macos() {
           sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
           sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
-          export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}/static_pic"
+          export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}"
           export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/${OSX_ARCH}/static_pic"
         else
           echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
@@ -621,14 +621,14 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
-      sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
+      sudo mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      sudo mv /Library/doc "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
+      sudo mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
     else
       cd "$StOpt_ROOT"
@@ -637,14 +637,14 @@ install_on_macos() {
       # if the repository is not up to date
       if [ "$LOCAL" != "$REMOTE" ]; then
         git pull
-        sudo mv "${StOpt_ROOT}/doc" /Library # TODO remove when the doc bug in StOpt will be fixed
+        sudo mv "${StOpt_ROOT}/doc" "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
         cmake -S . -B build \
               -DBUILD_PYTHON=OFF \
               -DBUILD_TEST=OFF \
               -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
         cmake --build build -j "${MAX_JOBS}"
         cmake --install build
-        sudo mv /Library/doc "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
+        sudo mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       else
         echo "StOpt already up to date."
       fi
@@ -770,6 +770,8 @@ if [ "$install_smspp" -eq 1 ]; then
     cd "$SMSPP_ROOT"
     echo "SMSpp already exists. Pulling latest changes..."
     git pull --recurse-submodules
+    git submodule sync --recursive
+    git submodule update --init --recursive
   else
     echo "Repository not found locally. Cloning SMSpp..."
     # Check if the script is not being executed on a server without display or interactive terminal
@@ -780,6 +782,8 @@ if [ "$install_smspp" -eq 1 ]; then
       git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     fi
     cd "$SMSPP_ROOT"
+    git submodule sync --recursive
+    git submodule update --init --recursive
   fi
 
   # If the installation root is not the default one, update the makefile-paths
