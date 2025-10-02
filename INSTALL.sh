@@ -734,7 +734,7 @@ case "$OS" in
       mkdir -p "$INSTALL_ROOT"
       # Check if the user has sudo access and the script is not being executed
       # on a server without display or interactive terminal
-      if [ sudo -n true 2>/dev/null] && [ [ -t 1 ] && [ -z "${CI:-}" ] ]; then
+      if sudo -n true 2>/dev/null && [ -t 1 ] && [ -z "${CI:-}" ]; then
         HAS_SUDO=1
         SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       else
@@ -754,7 +754,7 @@ case "$OS" in
 "Darwin")
   # Check if the user has sudo access and the script is not being executed
   # on a server without display or interactive terminal
-  if [ sudo -n true 2>/dev/null] && [ [ -t 1 ] && [ -z "${CI:-}" ] ]; then
+  if sudo -n true 2>/dev/null && [ -t 1 ] && [ -z "${CI:-}" ]; then
     HAS_SUDO=1
     INSTALL_ROOT="${install_root:-/Library}"
   else
