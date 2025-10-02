@@ -751,14 +751,7 @@ case "$OS" in
   fi
   ;;
 "Darwin")
-  # Check if the user has sudo access
-  if sudo -n true 2>/dev/null; then
-    HAS_SUDO=1
-    INSTALL_ROOT="${install_root:-/Library}"
-  else
-    HAS_SUDO=0
-    INSTALL_ROOT="${install_root:-$HOME}"
-  fi
+  INSTALL_ROOT="${install_root:-$HOME}"
   mkdir -p "$INSTALL_ROOT"
   SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
   install_on_macos
