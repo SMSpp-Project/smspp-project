@@ -66,7 +66,7 @@ install_on_linux() {
 
     # Install Boost libraries
     echo "Installing Boost libraries..."
-    apt-get install -y -q libboost-dev
+    apt-get install -y -q libboost-dev libboost-random-dev
 
     # Install OpenMP
     echo "Installing OpenMP..."
@@ -302,7 +302,7 @@ EOL
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
     CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q zlib1g-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
+      apt-get install -y -q zlib1g-dev libboost-timer-dev libboost-mpi-dev
     fi
     if [ ! -d "$StOpt_ROOT" ]; then
       cd "$INSTALL_ROOT"
