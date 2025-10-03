@@ -66,7 +66,7 @@ install_on_linux() {
 
     # Install Boost libraries
     echo "Installing Boost libraries..."
-    apt-get install -y -q libboost-dev libboost-system-dev libboost-timer-dev libboost-mpi-dev libboost-random-dev
+    apt-get install -y -q libboost-dev libboost-timer-dev libboost-mpi-dev
 
     # Install OpenMP
     echo "Installing OpenMP..."
