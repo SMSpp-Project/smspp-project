@@ -66,7 +66,7 @@ install_on_linux() {
 
     # Install Boost libraries
     echo "Installing Boost libraries..."
-    apt-get install -y -q libboost-dev libboost-timer-dev libboost-mpi-dev
+    apt-get install -y -q libboost-dev
 
     # Install OpenMP
     echo "Installing OpenMP..."
@@ -302,7 +302,7 @@ EOL
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
     CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q zlib1g-dev
+      apt-get install -y -q zlib1g-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
     fi
     if [ ! -d "$StOpt_ROOT" ]; then
       cd "$INSTALL_ROOT"
@@ -389,7 +389,7 @@ install_on_macos() {
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
-  brew install boost boost-mpi
+  brew install boost
 
   # Install Eigen
   echo "Installing Eigen..."
@@ -616,7 +616,7 @@ install_on_macos() {
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
     CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ ! -d "$StOpt_ROOT" ]; then
-      brew install zlib
+      brew install zlib boost-mpi
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
