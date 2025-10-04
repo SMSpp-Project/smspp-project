@@ -732,9 +732,8 @@ case "$OS" in
     if [ "$ID" = "ubuntu" ] || [ "$ID" = "debian" ]; then
       INSTALL_ROOT="${install_root:-/opt}"
       mkdir -p "$INSTALL_ROOT"
-      # Check if the user has sudo access and the script is not being executed
-      # on a server without display or interactive terminal
-      if sudo -n true 2>/dev/null && [ -t 1 ] && [ -z "${CI:-}" ]; then
+      # Check if the user has sudo access
+      if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
         SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       else
