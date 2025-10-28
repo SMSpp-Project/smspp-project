@@ -13,7 +13,7 @@
 #                                                                             #
 #    Build this with:                                                         #
 #                                                                             #
-#        $ sudo docker build -t registry.gitlab.com/smspp/smspp-project .     #
+#        $ docker build -t registry.gitlab.com/smspp/smspp-project .          #
 #                                                                             #
 #    Upload with:                                                             #
 #                                                                             #
