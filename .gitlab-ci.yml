@@ -27,7 +27,7 @@ release_job:
       name: registry.gitlab.com/gitlab-org/cli:latest
       entrypoint: [""]
   rules:
-    - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
+    - if: $CI_COMMIT_TAG && ($CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop")               # Run this job when a tag is created on develop or master
   script:
     - apk add --no-cache git tar zip bzip2
     - echo "Creating GitLab Release..."
@@ -48,6 +48,3 @@ release_job:
   artifacts:
     paths:
       - release-artifacts/
-  only:
-    - master
-    - develop
