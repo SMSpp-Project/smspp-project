@@ -40,10 +40,10 @@
 
 # define the macros to be exported- - - - - - - - - - - - - - - - - - - - - -
 
-Boost_ROOT = /usr
-Eigen3_ROOT = /usr
-netCDF_ROOT = /usr
-netCDFCxx_ROOT = /usr
+Boost_ROOT = /opt/homebrew
+Eigen3_ROOT = /opt/homebrew
+netCDF_ROOT = /opt/homebrew
+netCDFCxx_ROOT = /opt/homebrew
 CPLEX_ROOT = /Applications/CPLEX_Studio
 SCIP_ROOT = /Library/scip
 GUROBI_ROOT = /Library/gurobi
