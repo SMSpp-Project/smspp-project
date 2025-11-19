@@ -1,9 +1,8 @@
 ##############################################################################
-##################### makefile-default-paths-macos-arm64 #####################
+######################## makefile-default-paths-macos ########################
 ##############################################################################
 #                                                                            #
-#   makefile with the default locations for dependencies for macOS with the  #
-#   new arm64 architecture                                                   #
+#   makefile with the default locations for dependencies for macOS           #
 #                                                                            #
 #   Input: in principle none, as the external libraries usually have some    #
 #          absolute path; however, $(SMS++SDR) = the directory where the     #
@@ -54,4 +53,4 @@ Osi_ROOT = /Library/coin-or
 Clp_ROOT = /Library/coin-or
 FastFlow_ROOT = /Library/fastflow
 
-################# End of makefile-default-paths-macos-arm64 ##################
+#################### End of makefile-default-paths-macos #####################

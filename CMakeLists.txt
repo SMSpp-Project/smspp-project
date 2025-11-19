@@ -125,11 +125,7 @@ endif ()
 # according to the specific OS
 if (UNIX)
 	if (APPLE)
-		if (ARCH STREQUAL "arm64") # Apple Silicon MX arch
-			makefile_macros_to_cmake(extlib/makefile-default-paths-macos-arm64)
-		else () # Intel arch
-			makefile_macros_to_cmake(extlib/makefile-default-paths-macos-x86_64)
-		endif ()
+		makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
 	else ()
 		makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
 	endif ()

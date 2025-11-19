@@ -366,12 +366,12 @@ if (-not $withoutSMSpp)
         Set-Location $SMSPP_ROOT
     }
 
-    # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
+    <## Update builtin-baseline in vcpkg.json to match the current vcpkg commit
     $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
     $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
     $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
     $manifestJson.'builtin-baseline' = $Baseline
-    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8#>
 
     # Configure COIN-OR Osi
     Write-Host "Configuring COIN-OR Osi..."
