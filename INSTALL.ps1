@@ -170,7 +170,7 @@ if ($OS -eq "Win32NT")
     if (-not $cmakeGuiCmd) {
         $cmakeGuiCmd = Get-Command "cmake-gui.exe" -ErrorAction SilentlyContinue
     }
-    $HAS_CMAKE_GUI = $null -ne $cmakeGuiCmd
+    $HAS_CMAKE_GUI = ($null -ne $cmakeGuiCmd) -and (-not ($env:CI -eq "true"))
 
     # Install vcpkg
     Write-Host "Installing vcpkg..."
