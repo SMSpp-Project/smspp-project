@@ -20,7 +20,7 @@ SW_DEBUG_ASAN = -g3 -glldb -fno-inline $(COMMON_SW) -fsanitize=undefined -fsanit
 # production switches with address sanitizer
 SW_RELEASE_ASAN = -O3 $(COMMON_SW) -DNDEBUG -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
 # production switches
-SW_RELEASE = -O3 $(COMMON_SW) -DNDEBUG
+SW_RELEASE = -O3 $(COMMON_SW) -DNDEBUG -Wno-deprecated-declarations
 
 # compiler
 CC = clang++

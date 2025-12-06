@@ -107,6 +107,11 @@ The following tests are provided:
   `SCIPMILPSolver`), as well as for some of the mechanics of the SMS++
   core library.
 
+- [`QuadraticTests`](QuadraticTests), a tester which provides very
+  comprehensive tests for any `CDASolver` able to handle Quadratic Programs
+  (such as `MILPSolver` and its derived classes`CPXMILPSolver` ,
+  `SCIPMILPSolver` , `GRBMILPSolver` and `HiGHSMILPSolver`).
+
 - [`ThermalUnitBlock_Solver`](ThermalUnitBlock_Solver), a tester for the
   `ThermalUnitDPSolver` specialised Dynamic Programming `:Solver` for
   `ThermalUnitBlock` as compared with a `:MILPSolver` on some of the (many)
