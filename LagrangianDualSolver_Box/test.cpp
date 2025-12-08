@@ -19,7 +19,11 @@
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * \copyright &copy; by Antonio Frangioni
+ * \author Luca Mencarelli \n
+ *         Dipartimento di Informatica \n
+ *         Universita' di Pisa \n
+ *
+ * \copyright &copy; by Antonio Frangioni, Luca Mencarelli
  */
 /*--------------------------------------------------------------------------*/
 /*-------------------------------- MACROS ----------------------------------*/
@@ -43,6 +47,15 @@
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
+
+/*--------------------------------------------------------------------------*/
+// if nonzero, the 2nd Solver attached to the Block is assumed to be a
+// PrimalProximalHeur solver using the BundleSolver as the "inner" solver
+
+#define ProxHeur 1
+
+// 0 = LagrangianDualSolver
+// 1 = PrimalProximalHeur
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the 1st Solver attached to the AbstractBlock is detached
@@ -198,22 +211,46 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
-static void set_bounds( BoxConstraint & b )
+static void set_bounds1( FRowConstraint & b )
 {
  // the upper bound is taken in [ 0 , 2 ] and the lower bound in [ -2 , 0 ]
  // so that they do not contrast, 0 is always feasible and it never is
  // unbounded
 
  b.set_lhs( - 2 * dis( rg ) );
+ b.set_rhs( Inf<double>() );
+ }
+
+static void set_bounds2( FRowConstraint & b )
+{
+ // the upper bound is taken in [ 0 , 2 ] and the lower bound in [ -2 , 0 ]
+ // so that they do not contrast, 0 is always feasible and it never is
+ // unbounded
+
+ b.set_lhs( -Inf<double>() );
  b.set_rhs( 2 * dis( rg ) );
  }
 
 /*--------------------------------------------------------------------------*/
 
-static void set_bounds( ColVariable & x , BoxConstraint & b )
+static void set_bounds1( ColVariable & x , FRowConstraint & b )
 {
- b.set_variable( & x );
- set_bounds( b );
+ ///!b.set_variable( & x );
+ LinearFunction::v_coeff_pair v_var;
+ v_var.push_back( std::make_pair( &x , 1.0 ));
+ set_bounds1( b );
+ LinearFunction* Funct = new LinearFunction( std::move( v_var ));
+ b.set_function( Funct );
+ }
+
+static void set_bounds2( ColVariable & x , FRowConstraint & b )
+{
+ ///!b.set_variable( & x );
+ LinearFunction::v_coeff_pair v_var;
+ v_var.push_back( std::make_pair( &x , 1.0 ));
+ set_bounds2( b );
+ LinearFunction* Funct = new LinearFunction( std::move( v_var ));
+ b.set_function( Funct );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -271,15 +308,21 @@ static AbstractBlock * construct_son( void )
  // set the Variable in the BoxBlock
  BoxBlock->add_static_variable( *x , "x" );
 
- // construct the OneVarConstraint
- auto box = new std::vector< BoxConstraint >( nvar );
+auto box1 = new std::vector< FRowConstraint >( nvar );
+ auto box2 = new std::vector< FRowConstraint >( nvar );
 
- auto boxit = box->begin();
+ auto boxit1 = box1->begin();
  for( auto & xi : *x )
-  set_bounds( xi , *(boxit++) );
+  set_bounds1( xi , *(boxit1++) );
+
+ auto boxit2 = box2->begin();
+ for( auto & xi : *x )
+  set_bounds2( xi , *(boxit2++) );
 
  // set the OneVarConstraint in the BoxBlock
- BoxBlock->add_static_constraint( *box , "box" );
+ ///!BoxBlock->add_static_constraint( *box , "box" );
+ BoxBlock->add_static_constraint( *box1 , "box1" );
+ BoxBlock->add_static_constraint( *box2 , "box2" );
 
  // construct the Objective
  auto obj = new FRealObjective();
@@ -367,11 +410,25 @@ static bool SolveBoth( void )
   // value (lower bound if you minimise, upper bound if you maximise)
   double fo2nd = -INF;
   if( hs2nd )
+  #if(ProxHeur == 1)
+   fo2nd = minobj ? Slvr2->get_ub() : Slvr2->get_lb();
+  #else 
    fo2nd = minobj ? Slvr2->get_lb() : Slvr2->get_ub();
+  #endif
 
+  #if(ProxHeur == 1)
+  double diff;
+  if( minobj )
+   diff = fo2nd - fo1st;
+  else
+   diff = fo1st - fo2nd;
+  
+  if( hs2nd && ( isinf( fo2nd ) || ( diff >= -1e-2 ) ) ) {
+  #else
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 1e-5 *
 			  max( double( 1 ) , max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
+  #endif
    LOG1( "OK(f)" << endl );
    return( true );
    }
@@ -501,7 +558,11 @@ int main( int argc , char **argv )
  minobj = ( dis( rg ) < 0.5 );
  // choosing whether lin or quad: toss a(n unbiased, two-sided) coin
  //!!isquad = false;
- isquad = ( dis( rg ) < 0.5 );
+ #if(ProxHeur == 1)
+  isquad = true;
+ #else
+  isquad = ( dis( rg ) < 0.5 );
+ #endif
 
  #if( LOG_LEVEL >= 1 )
   if( minobj ) cout << "min"; else cout << "max";
@@ -577,7 +638,11 @@ int main( int argc , char **argv )
 
  BlockSolverConfig * bsc;
  {
+ #if(ProxHeur == 0)
   auto c = Configuration::deserialize( "BSPar.txt" );
+ #else
+  auto c = Configuration::deserialize( "ProxHeur.txt" );
+ #endif
   bsc = dynamic_cast< BlockSolverConfig * >( c );
   if( ! bsc ) {
    cerr << "Error: configuration file not a BlockSolverConfig" << endl;
@@ -639,13 +704,22 @@ int main( int argc , char **argv )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " bounds - " );
 
-    auto box = BoxBlock->get_static_constraint_v< BoxConstraint >( "box" );
-    assert( box );
+    auto box1 = BoxBlock->get_static_constraint_v< FRowConstraint >( "box1" );
+    auto box2 = BoxBlock->get_static_constraint_v< FRowConstraint >( "box2" );
+    assert( box1 );
+    assert( box2 );
     const double prob = double( tochange ) / double( nvar );
 
-    for( auto & bi : *box )
+    for( auto & bi : *box1 )
      if( dis( rg ) <= prob ) {
-      set_bounds( bi );
+      set_bounds1( bi );
+      if( ! --tochange )
+       break;
+      }
+
+    for( auto & bi : *box2 )
+     if( dis( rg ) <= prob ) {
+      set_bounds2( bi );
       if( ! --tochange )
        break;
       }
@@ -815,7 +889,7 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // apply() the clear()-ed BlockSolverConfig to cleanup Solver
- bsc->apply( TestBlock );
+ //!bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
  delete( bsc );

@@ -30,7 +30,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 // -1 = no log at all, not even pass/fail
 // 0 = only pass/fail
 // 1 = result of each test
@@ -51,6 +51,15 @@
  #define LOG1( x )
  #define CLOG1( y , x )
 #endif
+
+/*--------------------------------------------------------------------------*/
+// if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
+// PrimalProximalHeur solver using the BundleSolver as the "inner" solver
+
+#define ProxHeur 0
+
+// 0 = LagrangianDualSolver
+// 1 = PrimalProximalHeur
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
@@ -259,8 +268,9 @@ static bool SolveBoth( void ) {
                    && ( rtrn1st != Solver::kUnbounded )
                    && ( rtrn1st != Solver::kInfeasible ) )
                  || ( rtrn1st == Solver::kLowPrecision ) );
+  
   // the Lagrangian Dual computes lower bounds, so that's what we compare
-  double fo1st = Slvr1->get_lb();
+  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
@@ -293,12 +303,21 @@ static bool SolveBoth( void ) {
                    && ( rtrn2nd != Solver::kUnbounded )
                    && ( rtrn2nd != Solver::kInfeasible ) )
                  || ( rtrn2nd == Solver::kLowPrecision ) );
+  #if(ProxHeur == 1)
+  // the PrimalProximal computes upper bounds, so that's what we compare
+  double fo2nd = Slvr1->get_ub();
+  #else
   // the Lagrangian Dual computes lower bounds, so that's what we compare
   double fo2nd = Slvr2->get_lb();
+  #endif
 
+  #if(ProxHeur == 1)
+  if( hs2nd && ( fo1st - fo2nd <= 1e-5 ) ) {
+  #else
   if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
 						  abs( fo2nd ) ) ) ) ) {
+  #endif
    LOG1( "OK(f)" << std::endl );
    return( true );
    }
@@ -782,7 +801,7 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // apply() the clear()-ed BlockSolverConfig to cleanup Solver
- bsc->apply( TestBlock );
+ //!bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
  delete( bsc );
