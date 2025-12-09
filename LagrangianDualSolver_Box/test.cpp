@@ -382,7 +382,7 @@ static bool SolveBoth( void )
    if( wchg & 32 ) {  // a Lagrangian heuristic 
     fo2nd = minobj ? Slvr2->get_ub() : Slvr2->get_lb();
     double diff = minobj ? ( fo2nd - fo1st ) : ( fo1st - fo2nd );
-    OKfo = diff >= 0;
+    OKfo = diff >= -1e-5;
     }
    else {             // a Lagrangian bound
     fo2nd = minobj ? Slvr2->get_lb() : Slvr2->get_ub();
