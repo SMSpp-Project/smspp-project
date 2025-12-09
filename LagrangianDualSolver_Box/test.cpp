@@ -203,46 +203,22 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
-static void set_bounds1( FRowConstraint & b )
+static void set_bounds( BoxConstraint & b )
 {
  // the upper bound is taken in [ 0 , 2 ] and the lower bound in [ -2 , 0 ]
  // so that they do not contrast, 0 is always feasible and it never is
  // unbounded
 
  b.set_lhs( - 2 * dis( rg ) );
- b.set_rhs( Inf<double>() );
- }
-
-static void set_bounds2( FRowConstraint & b )
-{
- // the upper bound is taken in [ 0 , 2 ] and the lower bound in [ -2 , 0 ]
- // so that they do not contrast, 0 is always feasible and it never is
- // unbounded
-
- b.set_lhs( -Inf<double>() );
  b.set_rhs( 2 * dis( rg ) );
  }
 
 /*--------------------------------------------------------------------------*/
 
-static void set_bounds1( ColVariable & x , FRowConstraint & b )
+static void set_bounds( ColVariable & x , BoxConstraint & b )
 {
- ///!b.set_variable( & x );
- LinearFunction::v_coeff_pair v_var;
- v_var.push_back( std::make_pair( &x , 1.0 ));
- set_bounds1( b );
- LinearFunction* Funct = new LinearFunction( std::move( v_var ));
- b.set_function( Funct );
- }
-
-static void set_bounds2( ColVariable & x , FRowConstraint & b )
-{
- ///!b.set_variable( & x );
- LinearFunction::v_coeff_pair v_var;
- v_var.push_back( std::make_pair( &x , 1.0 ));
- set_bounds2( b );
- LinearFunction* Funct = new LinearFunction( std::move( v_var ));
- b.set_function( Funct );
+ b.set_variable( & x );
+ set_bounds( b );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -300,21 +276,15 @@ static AbstractBlock * construct_son( void )
  // set the Variable in the BoxBlock
  BoxBlock->add_static_variable( *x , "x" );
 
-auto box1 = new std::vector< FRowConstraint >( nvar );
- auto box2 = new std::vector< FRowConstraint >( nvar );
+ // construct the OneVarConstraint
+ auto box = new std::vector< BoxConstraint >( nvar );
 
- auto boxit1 = box1->begin();
+ auto boxit = box->begin();
  for( auto & xi : *x )
-  set_bounds1( xi , *(boxit1++) );
-
- auto boxit2 = box2->begin();
- for( auto & xi : *x )
-  set_bounds2( xi , *(boxit2++) );
+  set_bounds( xi , *(boxit++) );
 
  // set the OneVarConstraint in the BoxBlock
- ///!BoxBlock->add_static_constraint( *box , "box" );
- BoxBlock->add_static_constraint( *box1 , "box1" );
- BoxBlock->add_static_constraint( *box2 , "box2" );
+ BoxBlock->add_static_constraint( *box , "box" );
 
  // construct the Objective
  auto obj = new FRealObjective();
@@ -698,22 +668,13 @@ int main( int argc , char **argv )
    if( Index tochange = min( nvar , Index( dis( rg ) * n_change ) ) ) {
     LOG1( "changed " << tochange << " bounds - " );
 
-    auto box1 = BoxBlock->get_static_constraint_v< FRowConstraint >( "box1" );
-    auto box2 = BoxBlock->get_static_constraint_v< FRowConstraint >( "box2" );
-    assert( box1 );
-    assert( box2 );
+    auto box = BoxBlock->get_static_constraint_v< BoxConstraint >( "box" );
+    assert( box );
     const double prob = double( tochange ) / double( nvar );
 
-    for( auto & bi : *box1 )
+    for( auto & bi : *box )
      if( dis( rg ) <= prob ) {
-      set_bounds1( bi );
-      if( ! --tochange )
-       break;
-      }
-
-    for( auto & bi : *box2 )
-     if( dis( rg ) <= prob ) {
-      set_bounds2( bi );
+      set_bounds( bi );
       if( ! --tochange )
        break;
       }
