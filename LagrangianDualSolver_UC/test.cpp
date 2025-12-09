@@ -56,11 +56,6 @@
 // if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
 // PrimalProximalHeur solver using the BundleSolver as the "inner" solver
 
-#define ProxHeur 0
-
-// 0 = LagrangianDualSolver
-// 1 = PrimalProximalHeur
-
 /*--------------------------------------------------------------------------*/
 // if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
 // LagrangianDualSolver using the BundleSolver as the "inner" solver;
@@ -163,6 +158,8 @@ Block * TestBlock;         // the [UC]Block that is solved
 
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
+
+bool ProxHeur;            // 0 = LagrangianDualSolver, 1 = PrimalProximalHeur
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -303,21 +300,25 @@ static bool SolveBoth( void ) {
                    && ( rtrn2nd != Solver::kUnbounded )
                    && ( rtrn2nd != Solver::kInfeasible ) )
                  || ( rtrn2nd == Solver::kLowPrecision ) );
-  #if(ProxHeur == 1)
-  // the PrimalProximal computes upper bounds, so that's what we compare
-  double fo2nd = Slvr1->get_ub();
-  #else
-  // the Lagrangian Dual computes lower bounds, so that's what we compare
-  double fo2nd = Slvr2->get_lb();
-  #endif
+  double fo2nd;
+  if( ProxHeur )
+    // the PrimalProximal computes upper bounds, so that's what we compare
+    fo2nd = Slvr1->get_ub();
+  else
+    // the Lagrangian Dual computes lower bounds, so that's what we compare
+    fo2nd = Slvr2->get_lb();
 
-  #if(ProxHeur == 1)
-  if( hs2nd && ( fo1st - fo2nd <= 1e-5 ) ) {
-  #else
-  if( hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
+  bool condition;
+
+  if( ProxHeur )
+    condition = hs2nd && ( fo1st - fo2nd <= 1e-5 );
+  else
+    condition = hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
 			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
-						  abs( fo2nd ) ) ) ) ) {
-  #endif
+						  abs( fo2nd ) ) ) );
+
+  if( condition ){
+
    LOG1( "OK(f)" << std::endl );
    return( true );
    }
@@ -403,11 +404,13 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
 	     !!*/
-  case( 3 ): break;
-  case( 2 ): break;
-  default: std::cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
+  case( 3 ) : argv[ 2 ] == "ProxHeur" or argv[ 3 ] == "ProxHeur-2S" ? ProxHeur = true : ProxHeur = false;
+  break;
+  default: std::cerr << "Usage: " << argv[ 0 ] << "UC-file BSC-file 0/1"
 		<< std::endl <<
 	   "       BSC-file: BlockSolverConfig description [BSPar.txt]"
+     << std::endl <<
+     "       0 = LagrangianDualSolver 1 = PrimalProximalHeur"
 	        << std::endl;
     /*!!
 	   " UC file [BSC file seed wchg #rounds #chng %chng]"
