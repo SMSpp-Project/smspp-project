@@ -883,7 +883,7 @@ int main( int argc , char **argv )
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  // apply() the clear()-ed BlockSolverConfig to cleanup Solver
- //!bsc->apply( TestBlock );
+ bsc->apply( TestBlock );
 
  // then delete the BlockSolverConfig
  delete( bsc );
