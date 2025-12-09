@@ -1,8 +1,8 @@
-# batch for running the tests with LagrangianDualSolver
+# batch for running the tests with PrimalProximalHeur
 #!/usr/bin/env bash
 
-what=15
-#iter=10
+what = 63
+iter=40
 
 LDS_Box_test=${1:-./LDS_Box_test}
 
@@ -12,13 +12,9 @@ for nvar in 2 10 50; do
     for dens in 0.05 0.1; do
       for (( seed = 7 ; seed < 13 ; seed++ )); do
 
-        if [ -z "$iter" ]; then
-          printf "[$seed $what $nvar $nson $dens]: "
-        else
-          printf "[$seed $what $nvar $nson $dens $iter]: "
-        fi
+        printf "[$seed $what $nvar $nson $dens $iter]: "
 
-        "$LDS_Box_test" $seed $what $nvar $nson $dens $iter
+        "$LDS_Box_test" $seed $what $nvar $nson $dens $iter ProxHeur.txt
 
         # ordinarily one would stop with any error, but experience shows that
         # a few errors arise from numerical difficulties in Cplex, which is
