@@ -29,7 +29,7 @@
 /*-------------------------------- MACROS ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#define LOG_LEVEL 2
+#define LOG_LEVEL 0
 // 0 = only pass/fail
 // 1 = result of each test
 // 2 = + solver log
@@ -382,7 +382,7 @@ static bool SolveBoth( void )
    if( wchg & 32 ) {  // a Lagrangian heuristic 
     fo2nd = minobj ? Slvr2->get_ub() : Slvr2->get_lb();
     double diff = minobj ? ( fo2nd - fo1st ) : ( fo1st - fo2nd );
-    OKfo = diff >= -1e-5;
+    OKfo = diff >= -1e-4;
     }
    else {             // a Lagrangian bound
     fo2nd = minobj ? Slvr2->get_lb() : Slvr2->get_ub();

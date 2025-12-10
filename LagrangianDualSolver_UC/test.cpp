@@ -54,15 +54,11 @@
 
 /*--------------------------------------------------------------------------*/
 // if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
-// PrimalProximalHeur solver using the BundleSolver as the "inner" solver
-
-/*--------------------------------------------------------------------------*/
-// if nonzero, the 2nd Solver attached to the UCBlock is assumed to be a
-// LagrangianDualSolver using the BundleSolver as the "inner" solver;
-// parameters from the BlockSolverConfig are read and set so that, if
-// "easy components" are used, all UnitBlock that are ThermalUnitBlock or
-// HydroSystemUnitBlock are attached an appropriate Solver, whereas all
-// other inner Block are treated as "easy components"
+// LagrangianDualSolver (or PrimalProximalHeur) using [Parallel]BundleSolver
+// as the "inner" solver; parameters from the BlockSolverConfig are read and
+// set so that, if "easy components" are used, all UnitBlock that are
+// ThermalUnitBlock or HydroSystemUnitBlock are attached an appropriate
+// Solver, whereas all other inner Block are treated as "easy components"
 
 #define USE_BundleSolver 1
 
@@ -159,7 +155,8 @@ Block * TestBlock;         // the [UC]Block that is solved
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 
-bool ProxHeur;            // 0 = LagrangianDualSolver, 1 = PrimalProximalHeur
+bool ProxHeur = false;     // false = LagrangianDualSolver
+                           // true = PrimalProximalHeur
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -300,27 +297,29 @@ static bool SolveBoth( void ) {
                    && ( rtrn2nd != Solver::kUnbounded )
                    && ( rtrn2nd != Solver::kInfeasible ) )
                  || ( rtrn2nd == Solver::kLowPrecision ) );
-  double fo2nd;
-  if( ProxHeur )
-    // the PrimalProximal computes upper bounds, so that's what we compare
+  double fo2nd =  -INF;
+
+  if( hs1st && hs2nd ) {
+   bool OK;
+   if( ProxHeur ) {
+    // the PrimalProximal computes upper bounds, so that's what we compare;
+    // besides, the condition is "fo2nd >= fo1st"
     fo2nd = Slvr1->get_ub();
-  else
-    // the Lagrangian Dual computes lower bounds, so that's what we compare
+    OK = ( fo1st - fo2nd <= 1e-5 );
+    }
+   else {
+    // the Lagrangian Dual computes lower bounds, so that's what we compare;
+    // besides, the condition is "fo2nd == fo1st"
     fo2nd = Slvr2->get_lb();
+    OK =  ( std::abs( fo1st - fo2nd ) <= 
+	    2e-6 * std::max( double( 1 ) , std::max( abs( fo1st ) ,
+						     abs( fo2nd ) ) ) );
+    }
 
-  bool condition;
-
-  if( ProxHeur )
-    condition = hs2nd && ( fo1st - fo2nd <= 1e-5 );
-  else
-    condition = hs1st && hs2nd && ( abs( fo1st - fo2nd ) <= 2e-6 *
-			  std::max( double( 1 ) , std::max( abs( fo1st ) ,
-						  abs( fo2nd ) ) ) );
-
-  if( condition ){
-
-   LOG1( "OK(f)" << std::endl );
-   return( true );
+   if( OK ) {
+    LOG1( "OK(f)" << std::endl );
+    return( true );
+    }
    }
 
   if( ( rtrn1st == Solver::kInfeasible ) &&
@@ -400,17 +399,15 @@ int main( int argc , char **argv )
   case( 8 ): Str2Sthg( argv[ 7 ] , p_change );
   case( 7 ): Str2Sthg( argv[ 6 ] , n_change );
   case( 6 ): Str2Sthg( argv[ 5 ] , n_repeat );
-  case( 3 ): Str2Sthg( argv[ 2 ] , wchg );
-  case( 2 ): Str2Sthg( argv[ 1 ] , seed );
-             break;
-	     !!*/
-  case( 3 ) : argv[ 2 ] == "ProxHeur" or argv[ 3 ] == "ProxHeur-2S" ? ProxHeur = true : ProxHeur = false;
-  break;
-  default: std::cerr << "Usage: " << argv[ 0 ] << "UC-file BSC-file 0/1"
-		<< std::endl <<
+  !!*/
+  case( 4 ): Str2Sthg( argv[ 3 ] , ProxHeur );
+  case( 3 ): 
+  case( 2 ): break;
+  default: std::cerr << "Usage: " << argv[ 0 ] << " UC-file [BSC-file ws]"
+		     << std::endl <<
 	   "       BSC-file: BlockSolverConfig description [BSPar.txt]"
-     << std::endl <<
-     "       0 = LagrangianDualSolver 1 = PrimalProximalHeur"
+		     << std::endl <<
+           "       ws: 0 = LagrangianDualSolver, 1 = PrimalProximalHeur [0]"
 	        << std::endl;
     /*!!
 	   " UC file [BSC file seed wchg #rounds #chng %chng]"

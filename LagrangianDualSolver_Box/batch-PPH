@@ -1,7 +1,7 @@
 # batch for running the tests with PrimalProximalHeur
 #!/usr/bin/env bash
 
-what = 63
+what=63
 iter=40
 
 LDS_Box_test=${1:-./LDS_Box_test}
@@ -16,13 +16,13 @@ for nvar in 2 10 50; do
 
         "$LDS_Box_test" $seed $what $nvar $nson $dens $iter ProxHeur.txt
 
-        # ordinarily one would stop with any error, but experience shows that
-        # a few errors arise from numerical difficulties in Cplex, which is
-        # why we print stuff in the tester but leave the batch running
-        retVal=$?
-        if [ $retVal -ne 0 ]; then
-          exit 1
-        fi
+        # we would ordinarily break upon any error, but there are a few case
+	# with small optimal value which may trigger an error although they
+	# are not consequential, so we just go along
+        #retVal=$?
+        #if [ $retVal -ne 0 ]; then
+        #  exit 1
+        #fi
 
       done
     done

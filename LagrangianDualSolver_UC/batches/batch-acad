@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# usage: batch_acad < exe file > < par file > < log file >
-#        < exe file > = path of the executable file, default LDS_UC_test
+# usage: batch_acad < par file >  < solver > < log file >
 #        < par file > = BlockSolverConfig file, default BSPar-2S.txt
+#        < solver > = 0 or 1, default 0
 #        < log file > = name of log file, default no log
 #
 # runs all pure thermal and hydrothermal academic instances
@@ -12,15 +12,20 @@
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
-LDS_UC_test=${1:-./LDS_UC_test}
+exe=./LDS_UC_test
 
-if [ $# -gt 1 ]; then
-   par=$2
+if [ $# -gt 0 ]; then
+   par=$1
 else
    par=BSPar-2S.txt
 fi
+if [ $# -gt 1 ]; then
+   slv=$2
+else
+   slv=0
+fi
 if [ $# -gt 2 ]; then
-   mlf=$3
+   mlf=$4
 fi
 
 #  pure thermal academic instances- - - - - - - - - - - - - - - - - - - - - -
@@ -32,24 +37,12 @@ for size in 10 20 50 75 100 200; do
 
     what=${DATADIR}/${size}_0_${seed}_w.nc4
 
-    if [ -z "$par" ]; then
-      if [ -z "$mlf" ]; then
-        printf "[$what]: "
-      else
-        printf "[$what]: " >> $mlf
-      fi
-    else
-      if [ -z "$mlf" ]; then
-        printf "[$what $par]: "
-      else
-        printf "[$what $par]: " >> $mlf
-      fi
-    fi
-
     if [ -z "$mlf" ]; then
-      "$LDS_UC_test" $what $par
+       printf "[$what $par $slv]: "
+       "$exe" $what $par $slv
     else
-      "$LDS_UC_test" $what $par >> $mlf
+       printf "[$what $par $slv]: " >> $mlf
+       "$exe" $what $par $slv >> $mlf
     fi
 
     retVal=$?
@@ -69,24 +62,12 @@ for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
 
     what=${DATADIR}/${size}_${seed}_w.nc4
 
-    if [ -z "$par" ]; then
-      if [ -z "$mlf" ]; then
-        printf "[$what]: "
-      else
-        printf "[$what]: " >> $mlf
-      fi
-    else
-      if [ -z "$mlf" ]; then
-        printf "[$what $par]: "
-      else
-        printf "[$what $par]: " >> $mlf
-      fi
-    fi
-
     if [ -z "$mlf" ]; then
-      "$LDS_UC_test" $what $par
+       printf "[$what $par $slv]: "
+       "$exe" $what $par $slv
     else
-      "$LDS_UC_test" $what $par >> $mlf
+       printf "[$what $par $slv]: " >> $mlf
+       "$exe" $what $par $slv >> $mlf
     fi
 
     retVal=$?
