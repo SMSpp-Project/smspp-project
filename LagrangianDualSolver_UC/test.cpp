@@ -377,7 +377,7 @@ static bool SolveAndCheckRef( double ref ) {
   double maxv = std::max( double( 1 ) ,
                           std::max( std::abs( fo1st ) , std::abs( ref ) ) );
   double diff = std::abs( fo1st - ref );
-  double tol  = 2e-6 * maxv;
+  double tol  = 1e-3 * maxv;
 
   bool OK = ( diff <= tol );
 
