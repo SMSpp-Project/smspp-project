@@ -155,6 +155,12 @@ Block * TestBlock;         // the [UC]Block that is solved
 std::mt19937 rg;           // base random generator
 std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 
+// if true, the objective value of the (only) Solver attached to the Block
+// is compared against a reference value passed on the command line
+
+bool UseRefObjective = false;
+double RefObjective = 0.0;
+
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
@@ -337,6 +343,66 @@ static bool SolveBoth( void ) {
  }
 
 /*--------------------------------------------------------------------------*/
+
+static bool SolveAndCheckRef( double ref ) {
+ try {
+  // solve with the 1st (and only) Solver- - - - - - - - - - - - - - - - - - -
+  #if( LOG_LEVEL >= 1 )
+   auto start = std::chrono::system_clock::now();
+  #endif
+  Solver * Slvr1 = TestBlock->get_registered_solvers().front();
+  int rtrn1st = Slvr1->compute( false );
+  #if( LOG_LEVEL >= 1 )
+   auto end = std::chrono::system_clock::now();
+   std::chrono::duration< double > elapsed = end - start;
+   auto time1 = elapsed.count();
+  #endif
+  bool hs1st = ( ( ( rtrn1st >= Solver::kOK ) && ( rtrn1st < Solver::kError )
+                   && ( rtrn1st != Solver::kUnbounded )
+                   && ( rtrn1st != Solver::kInfeasible ) )
+                 || ( rtrn1st == Solver::kLowPrecision ) );
+
+  if( ! hs1st ) {
+   #if( LOG_LEVEL >= 1 )
+    std::cout << "Solver returned code " << rtrn1st << std::endl;
+   #endif
+   return( false );
+   }
+
+  // get the objective value- - - - - - - - - - - - - - - - - - - - - - - - -
+  double fo1st = Slvr1->get_lb();
+
+  // compare with reference objective- - - - - - - - - - - - - - - - - - - - -
+
+  double maxv = std::max( double( 1 ) ,
+                          std::max( std::abs( fo1st ) , std::abs( ref ) ) );
+  double diff = std::abs( fo1st - ref );
+  double tol  = 2e-6 * maxv;
+
+  bool OK = ( diff <= tol );
+
+  #if( LOG_LEVEL >= 1 )
+   std::cout << fixd << time1 << "\t" << Slvr1->get_elapsed_iterations()
+             << "\t";
+   PrintResults( hs1st , rtrn1st , fo1st );
+   std::cout << " ~ Ref = " << def << ref
+             << " (|diff| = " << def << diff
+             << ( OK ? ", OK" : ", KO" ) << ")" << std::endl;
+  #endif
+
+  return( OK );
+  }
+ catch( std::exception &e ) {
+  std::cerr << e.what() << std::endl;
+  exit( 1 );
+  }
+ catch(...) {
+  std::cerr << "Error: unknown exception thrown" << std::endl;
+  exit( 1 );
+  }
+ }
+
+/*--------------------------------------------------------------------------*/
 /// Custom terminate function to print the exception message
 
 void smspp_terminate( void ) {
@@ -384,6 +450,13 @@ int main( int argc , char **argv )
   case( 2 ): Str2Sthg( argv[ 1 ] , seed );
              break;
 	     !!*/
+  case( 4 ):
+   // argv[ 1 ] = UC-file
+   // argv[ 2 ] = BSC-file
+   // argv[ 3 ] = reference objective value
+   Str2Sthg( argv[ 3 ] , RefObjective );
+   UseRefObjective = true;
+   break;
   case( 3 ): break;
   case( 2 ): break;
   default: std::cerr << "Usage: " << argv[ 0 ] << "UC-file [BSC-file]"
@@ -700,7 +773,14 @@ int main( int argc , char **argv )
 
  LOG1( "First call: " );
 
- bool AllPassed = SolveBoth();
+ bool AllPassed;
+
+ if( UseRefObjective )
+  // single Solver checked against reference objective
+   AllPassed = SolveAndCheckRef( RefObjective );
+ else
+  // original behaviour: compare two Solvers, if present
+   AllPassed = SolveBoth();
 
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -769,13 +849,15 @@ int main( int argc , char **argv )
      !!*/
 
  #if( LOG_LEVEL >= 0 )
-  if( TestBlock->get_registered_solvers().size() > 1 ) {
-   // tests only make sense if more than one Solver is attached
+  if( UseRefObjective ||
+      ( TestBlock->get_registered_solvers().size() > 1 ) ) {
+   // tests only make sense if more than one Solver is attached, unless
+   // a reference objective value is provided
    if( AllPassed )
     std::cout << GREEN( All tests passed!! ) << std::endl;
    else
     std::cout << RED( Shit happened!! ) << std::endl;
-   }
+      }
  #endif
 
  // destroy the Block - - - - - - - - - - - - - - - - - - - - - - - - - - - -
