@@ -824,22 +824,24 @@ INPUT                  = doxygen/mainpage.md \
                          ./CONTRIBUTING.md \
                          ./LICENSE \
                          BinaryKnapsackBlock/include \
-                         BundleSolver \
+                         BundleSolver/include \
                          BundleSolver/NDOFiOracle/Bundle/MPSolver.h \
                          BundleSolver/NDOFiOracle/MPTester \
                          BundleSolver/NDOFiOracle/NDOSlver \
                          BundleSolver/NDOFiOracle/OSIMPSolver \
                          BundleSolver/NDOFiOracle/QPPnltMP \
-                         CapacitatedFacilityLocationBlock \
+                         CapacitatedFacilityLocationBlock/include \
                          InvestmentBlock/include \
-                         LagrangianDualSolver \
-                         LukFiBlock \
+                         LagrangianDualSolver/include \
+			 LEMONSolver/include \
+                         LukFiBlock/include \
                          MCFBlock/include \
                          MILPSolver/include \
-                         MMCFBlock \
+                         MMCFBlock/include \
                          SDDPBlock/include \
                          SMS++/include \
                          StochasticBlock/include \
+			 TwoStageStochasticBlock/include \
                          UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files
