@@ -50,8 +50,8 @@ several complex projects, such as:
   tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
   the more demanding energy models
 
-Furthermore, the use of `SMS++` is planned for several other projects; two
-recently accepted ones are
+Furthermore, the use of `SMS++` is planned for several other projects; a
+recently accepted one is
 
 - The CETPartnership "Manoeuvre", where a methodology will be developed for
   linking `SMS++` with the global energy model
@@ -87,7 +87,9 @@ Watch this space for more details and news as they become available.
   an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
   Warehouse Location (CWL) problem, primarily intended as a "didactic"
-  implementation for showing some of the features of `SMS++`.
+  implementation for showing some of the features of `SMS++`. However, it is
+  also used as the support for scenario reduction techniques in
+  `StochasticBlock` (see below).
 
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
@@ -104,7 +106,9 @@ Watch this space for more details and news as they become available.
   [StochasticBlock](https://gitlab.com/smspp/stochasticblock).
   
 - [LagrangianDualSolver](https://gitlab.com/smspp/lagrangiandualsolver), a
-  "generic" Lagrangian-based Solver for `Block` with appropriate structure.
+  "generic" Lagrangian-based Solver for `Block` with appropriate structure,
+  also used to provide an implementation of the Primal Proximal Heuristic
+  Lagrangian-based math-heuristic.
 
 - [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple `Block` defining
   several test functions from the literature for NonDifferentiable
@@ -151,12 +155,13 @@ Watch this space for more details and news as they become available.
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   `StochasticBlock` "meta-Block" that takes *any* "deterministic" `Block` and
   "makes it stochastic" by allowing to change some of its data in a very
-  general and abstract way (using the `SMS++` "methods factory").
-
-- [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
-  Unit Commitment problems: the general `UCBlock` "root" class, several
-  `Block` for specific generating units (`UnitBlock`) and interconnect
-  networks (`NetworkBlock`), with some specialized `Solver`.
+  general and abstract way (using the `SMS++` "methods factory"). It also
+  defines a `ScenarioGenerator` module that provides a general interface for
+  generating scenario data (in the form that `StochasticBlock` uses) and its
+  `DiscreteScenarioSet` implementation for the special case of discrete
+  distributions (finite sets of scenarios). The latter also implements a
+  general support for *scenario reduction* techniques via integration with the
+  `CapacitatedFacilityLocationBlock` (and solvers therein).
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (`Block` and/or
@@ -168,6 +173,21 @@ Watch this space for more details and news as they become available.
   and solve them) and that require elements (`Block` and/or `Solver`) from
   different subprojects so that they are better not included in any specific
   subproject.
+
+- [TwoStageStochasticBlock](https://gitlab.com/smspp/twostagestochasticblock),
+  a `:Block` that represents a two-stage stochastic programming problem
+  contained in its inner `Block`. It currently supports the "Lagrangian
+  version" of the formulation by building the explicit form of the two-stage
+  stochastic problem by with N copies of the inner deterministic `Block` (one
+  per scenario) and adding non-anticipativity constraints to ensure first-stage
+  variables are the same across all scenarios, but it will eventually be
+  extended to the "Benders' version".
+
+- [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
+  Unit Commitment problems: the general `UCBlock` "root" class, several
+  `Block` for specific generating units (`UnitBlock`) and interconnect
+  networks (`NetworkBlock`), with some specialized `Solver`.
+
 
 
 ## Getting started
