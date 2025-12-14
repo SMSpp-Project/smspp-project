@@ -31,9 +31,7 @@ release_job:
   script:
     - apk add --no-cache git tar zip bzip2
     - echo "Creating GitLab Release..."
-    - echo $RELEASE_TOKEN
-    - echo $GITLAB_HOST
-    - glab auth login --hostname gitlab.com --token $RELEASE_TOKEN --api-protocol https --git-protocol https
+    - glab auth login --hostname gitlab.com --token $ANTONIO_PERSONAL_ACCESS_TOKEN --api-protocol https --git-protocol https
     - glab auth status
     - git submodule sync --recursive
     - git submodule update --init --recursive
