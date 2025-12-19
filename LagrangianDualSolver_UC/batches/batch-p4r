@@ -4,6 +4,7 @@
 #        < par file > = BlockSolverConfig file, default BSPar-2S.txt
 #        < solver > = 0 or 1, default 0
 #        < log file > = name of log file, default no log
+#        < exe file > = path of the executable file, default LDS_UC_test
 #
 # runs all the plan4res public instances
 #
@@ -12,8 +13,6 @@
 # correct value of dblCtOff: 0.1
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
-
-exe=./LDS_UC_test
 
 if [ $# -gt 0 ]; then
    par=$1
@@ -27,6 +26,11 @@ else
 fi
 if [ $# -gt 2 ]; then
    mlf=$3
+fi
+if [ $# -gt 3 ]; then
+   exe=$4
+else
+   exe=./LDS_UC_test
 fi
 
 # run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -

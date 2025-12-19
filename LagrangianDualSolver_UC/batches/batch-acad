@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# usage: batch_acad < par file >  < solver > < log file >
+# usage: batch_acad < par file >  < solver > < log file > < exe file >
 #        < par file > = BlockSolverConfig file, default BSPar-2S.txt
 #        < solver > = 0 or 1, default 0
 #        < log file > = name of log file, default no log
+#        < exe file > = path of the executable file, default LDS_UC_test
 #
 # runs all pure thermal and hydrothermal academic instances
 #
@@ -12,7 +13,6 @@
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
-exe=./LDS_UC_test
 
 if [ $# -gt 0 ]; then
    par=$1
@@ -25,8 +25,14 @@ else
    slv=0
 fi
 if [ $# -gt 2 ]; then
-   mlf=$4
+   mlf=$3
 fi
+if [ $# -gt 3 ]; then
+   exe=$4
+else
+   exe=./LDS_UC_test
+fi
+
 
 #  pure thermal academic instances- - - - - - - - - - - - - - - - - - - - - -
 

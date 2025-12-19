@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# usage: metabatch < par file > < solver > < log file >
+# usage: metabatch < par file > < solver > < log file > < exe file >
 #        < par file > = BlockSolverConfig file, default BSPar.txt
 #        < solver > = 0 or 1, default 0
 #        < log file > = name of log file, default none
+#        < exe file > = path of the executable file, default none
 #
 # runs all the instances
 
@@ -20,16 +21,19 @@ else
    slv=0
 fi
 if [ $# -gt 2 ]; then
-   mlf=$2
+   mlf=$3
+fi
+if [ $# -gt 3 ]; then
+   exe=$4
 fi
 
 # run academic instances
-./batches/batch-acad $par $mlf $slv
+./batches/batch-acad $par $mlf $slv $exe
 
 # run plan4res instances
-./batches/batch-p4r $par $mlf $slv
+./batches/batch-p4r $par $mlf $slv $exe
 
 # run energy community instances
-./batches/batch-ec $par $mlf $slv
+./batches/batch-ec $par $mlf $slv $exe
 
 # the end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
