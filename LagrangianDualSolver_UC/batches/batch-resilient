@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# usage: batch-resilient < par file > < log file > < exe file >
+# usage: batch-resilient < exe file > < par file > < log file >
+#        < exe file > = path of the executable file, default LDS_UC_test
 #        < par file > = BlockSolverConfig file, default BSPar.txt
 #        < log file > = name of log file, default no log
-#        < exe file > = path of the executable file, default LDS_UC_test
 #
 # runs all the energy community instances and checks that the PyPsa objective
 # value matches the given reference one
@@ -11,17 +11,17 @@
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
 if [ $# -gt 0 ]; then
-   par=$1
+   exe=$1
+else
+   exe=./LDS_UC_test
+fi
+if [ $# -gt 1 ]; then
+   par=$2
 else
    par=BSPar.txt
 fi
-if [ $# -gt 1 ]; then
-   mlf=$2
-fi
 if [ $# -gt 2 ]; then
-   exe=$3
-else
-   exe=./LDS_UC_test
+   mlf=$3
 fi
 
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -

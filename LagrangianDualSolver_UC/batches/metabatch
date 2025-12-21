@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 #
-# usage: metabatch < par file > < solver > < log file > < exe file >
+# usage: metabatch < par file > < exe file > < log file >
 #        < par file > = BlockSolverConfig file, default BSPar.txt
-#        < solver > = 0 or 1, default 0
+#        < exe file > = path of the executable file, default ./LDS_UC_test
 #        < log file > = name of log file, default none
-#        < exe file > = path of the executable file, default none
 #
-# runs all the instances
+# runs all the instances with < solver > == 0 (LagrangianDualSolver)
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -16,24 +15,22 @@ else
    par=BSPar-2S.txt
 fi
 if [ $# -gt 1 ]; then
-   slv=$2
+   exe=$2
 else
-   slv=0
+   exe=./LDS_UC_test
 fi
 if [ $# -gt 2 ]; then
    mlf=$3
 fi
-if [ $# -gt 3 ]; then
-   exe=$4
-fi
+slv=0
 
 # run academic instances
-./batches/batch-acad $par $mlf $slv $exe
+./batches/batch-acad $exe $par $slv $mlf
 
 # run plan4res instances
-./batches/batch-p4r $par $mlf $slv $exe
+./batches/batch-p4r $exe $par $slv $mlf
 
 # run energy community instances
-./batches/batch-ec $par $mlf $slv $exe
+./batches/batch-ec $exe $par $slv $mlf
 
 # the end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
