@@ -11,7 +11,7 @@
 # (typically using ThermalUnitDPSolver, although a :MILPSolver would
 # be a less efficient option)
 #
-# for LagranngianDualSolver + BundleSolver:
+# for LagrangianDualSolver + BundleSolver:
 # correct value of tStar: 1e+0
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -

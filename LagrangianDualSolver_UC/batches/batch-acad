@@ -8,7 +8,7 @@
 #
 # runs all pure thermal and hydrothermal academic instances
 #
-# for LagranngianDualSolver + BundleSolver:
+# for LagrangianDualSolver + BundleSolver:
 # correct value of tStar: 1e+0
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
