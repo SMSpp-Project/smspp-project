@@ -37,6 +37,8 @@ fi
 
 # small thermal academic instances- - - - - - - - - - - - - - - - - - - - - -
 
+DATADIR=../../UCBlock/data/nc4/UC_Data/T-Ramp
+
 for size in 10 20 50; do
   for (( seed = 1 ; seed < 6 ; seed++ )); do
 
