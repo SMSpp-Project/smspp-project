@@ -81,15 +81,6 @@ intLogVerb      	 0    # log verbosity of the MILPSolver
 intRelaxIntVars 	 0    # nonzero if the continuous relaxation is solved
 intCutSepPar         7    # separate user cuts + lazy constraints
 
-## All specific CPLEX parameter (uncomment based on 2nd Solver)
-#CPXPARAM_Threads    1
-#CPX_PARAM_MIPCBREDLP 0
-#CPX_PARAM_PRELINEAR  0
-#CPX_PARAM_REDUCE     1
-
-## All specific GUROBI parameter (uncomment based on 2nd Solver)
-#Threads             1
-
 0 # number of double parameters
 
 # now all the double parameters
