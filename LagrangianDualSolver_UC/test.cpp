@@ -250,7 +250,13 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
-static bool SolveBoth( void )
+static bool SolveBoth( double * out_fo1st = nullptr ,
+                       bool   * out_hs1st = nullptr
+#if( LOG_LEVEL >= 1 )
+                     , double * out_time1 = nullptr ,
+                       long   * out_it1 = nullptr
+#endif
+                     )
 {
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
@@ -272,9 +278,16 @@ static bool SolveBoth( void )
                    && ( rtrn1st != Solver::kUnbounded )
                    && ( rtrn1st != Solver::kInfeasible ) )
                  || ( rtrn1st == Solver::kLowPrecision ) );
-  
-  // the Lagrangian Dual computes lower bounds, so that's what we compare
-  double fo1st = hs1st ? Slvr1->get_var_value() : -INF;
+
+  // objective value of the 1st Solver (used also for reference check)
+  double fo1st = hs1st ? Slvr1->get_lb() : -INF;
+
+  if( out_fo1st ) *out_fo1st = fo1st;
+  if( out_hs1st ) *out_hs1st = hs1st;
+#if( LOG_LEVEL >= 1 )
+  if( out_time1 ) *out_time1 = time1;
+  if( out_it1 )   *out_it1 = Slvr1->get_elapsed_iterations();
+#endif
 
   if( TestBlock->get_registered_solvers().size() == 1 ) {
    #if( LOG_LEVEL >= 1 )
@@ -283,7 +296,7 @@ static bool SolveBoth( void )
     PrintResults( hs1st , rtrn1st , fo1st );
     std::cout << std::endl;
    #endif
-   return( true );
+   return( hs1st );
    }
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
@@ -307,14 +320,14 @@ static bool SolveBoth( void )
                    && ( rtrn2nd != Solver::kUnbounded )
                    && ( rtrn2nd != Solver::kInfeasible ) )
                  || ( rtrn2nd == Solver::kLowPrecision ) );
-  double fo2nd =  -INF;
+  double fo2nd = -INF;
 
   if( hs1st && hs2nd ) {
    bool OK;
    if( ProxHeur ) {
     // the PrimalProximal computes upper bounds, so that's what we compare;
     // besides, the condition is "fo2nd >= fo1st"
-    fo2nd = Slvr1->get_ub();
+    fo2nd = Slvr2->get_ub();
     OK = ( fo1st - fo2nd <= 1e-5 );
     }
    else {
@@ -401,7 +414,7 @@ static bool SolveAndCheckRef( double ref )
   double maxv = std::max( double( 1 ) ,
                           std::max( std::abs( fo1st ) , std::abs( ref ) ) );
   double diff = std::abs( fo1st - ref );
-  double tol  = 1e-3 * maxv;
+  double tol = 1e-3 * maxv;
 
   bool OK = ( diff <= tol );
 
@@ -424,6 +437,34 @@ static bool SolveAndCheckRef( double ref )
   std::cerr << "Error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
+ }
+
+/*--------------------------------------------------------------------------*/
+
+static bool CheckRefValue( double fo , double ref
+#if( LOG_LEVEL >= 1 )
+                         , double time1 , long iters
+#endif
+                         )
+{
+ double maxv = std::max( double( 1 ) ,
+                         std::max( std::abs( fo ) , std::abs( ref ) ) );
+ double diff = std::abs( fo - ref );
+ double tol = 1e-3 * maxv;
+
+ bool OK = ( diff <= tol );
+
+#if( LOG_LEVEL >= 1 )
+ std::cout << fixd << time1 << "\t" << iters << "\t";
+ // here we mimic SolveAndCheckRef output style as much as possible
+ std::cout.setf( std::ios::scientific, std::ios::floatfield );
+ std::cout << def << fo;
+ std::cout << " ~ Ref = " << def << ref
+           << " (|diff| = " << def << diff
+           << ( OK ? ", OK" : ", KO" ) << ")" << std::endl;
+#endif
+
+ return( OK );
  }
 
 /*--------------------------------------------------------------------------*/
@@ -773,7 +814,7 @@ int main( int argc , char **argv )
    }
   }
 
- // open log-file - - - - - - - - - - -  - - - - - - - - - - - - - - - - - -
+ // open log-file- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  #if( LOG_LEVEL >= 2 )
@@ -799,11 +840,41 @@ int main( int argc , char **argv )
 
  bool AllPassed;
 
- if( std::isnan( RefObjective ) )
-  // standard behaviour: compare two Solvers, if present
-  AllPassed = SolveBoth();
- else  // single Solver checked against reference objective
-  AllPassed = SolveAndCheckRef( RefObjective );
+ if( TestBlock->get_registered_solvers().size() > 1 ) {
+  double fo1st = -INF;
+  bool hs1st = false;
+#if( LOG_LEVEL >= 1 )
+  double time1 = 0.0;
+  long it1 = 0;
+  AllPassed = SolveBoth( &fo1st , &hs1st , &time1 , &it1 );
+#else
+  AllPassed = SolveBoth( &fo1st , &hs1st );
+#endif
+
+  // optional additional check against reference objective
+  if( ! std::isnan( RefObjective ) ) {
+   if( hs1st ) {
+#if( LOG_LEVEL >= 1 )
+    AllPassed &= CheckRefValue( fo1st , RefObjective , time1 , it1 );
+#else
+    // no printing, but still check
+    double maxv = std::max( double( 1 ) ,
+                            std::max( std::abs( fo1st ) ,
+                                      std::abs( RefObjective ) ) );
+    AllPassed &= ( std::abs( fo1st - RefObjective ) <= 1e-3 * maxv );
+#endif
+   }
+   else
+    AllPassed = false;
+  }
+ }
+ else {
+  // single-solver case: keep old behavior
+  if( std::isnan( RefObjective ) )
+   AllPassed = SolveBoth();          // will just solve the only solver
+  else
+   AllPassed = SolveAndCheckRef( RefObjective );
+ }
 
  // main loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

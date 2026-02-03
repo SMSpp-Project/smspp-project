@@ -29,17 +29,52 @@ if [ $# -gt 3 ]; then
    mlf=$4
 fi
 
+# reference objective values dictionary - - - - - - - - - - - - - - - - - - -
+# each entry: [ filename ] = EnergyCommunity.jl objective value
+# (see more at https://github.com/SPSUnipi/EnergyCommunity.jl)
+# filenames must match exactly the .nc files in the current directory
+
+declare -A REF_OBJ
+
+#REF_OBJ[EC_CO_Test.nc4]=3.5077963e+06
+#REF_OBJ[EC_CO_Test_NB.nc4]=3.5077963e+06
+
+#REF_OBJ[EC_CO_Test_TUB.nc4]=3.4742840e+06
+#REF_OBJ[EC_CO_Test_TUB_NB.nc4]=3.4742840e+06
+
+#REF_OBJ[EC_NA_Test.nc4]=4.1773642e+06
+#REF_OBJ[EC_NA_Test_NB.nc4]=4.1773642e+06
+
+#REF_OBJ[EC_NC_Test.nc4]=3.7349463e+06
+#REF_OBJ[EC_NC_Test_NB.nc4]=3.7349463e+06
+
+#REF_OBJ[EC_NC_Test_TUB.nc4]=3.7016024e+06
+#REF_OBJ[EC_NC_Test_TUB_NB.nc4]=3.7016024e+06
+
 # run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 for what in ../../UCBlock/data/nc4/EC_Data/EC_CO_*.nc4 \
             ../../UCBlock/data/nc4/EC_Data/EC_NC_*.nc4; do
 
+    # skip if pattern did not match any file
+    if [ ! -f "$what" ]; then
+      continue
+    fi
+
+    base=$(basename "$what")
+    ref=${REF_OBJ[$base]}
+
+    #if [ -z "$ref" ]; then
+    #  echo "No reference objective defined for file: $base"
+    #  exit 1
+    #fi
+
     if [ -z "$mlf" ]; then
-       printf "[$what $par $slv]: "
-       "$exe" $what $par $slv
+       printf "[$what $par $slv $ref]: "
+       "$exe" $what $par $slv $ref
     else
-       printf "[$what $par $slv]: " >> $mlf
-       "$exe" $what $par $slv >> $mlf
+       printf "[$what $par $slv $ref]: " >> $mlf
+       "$exe" $what $par $slv $ref >> $mlf
     fi
 
     retVal=$?
