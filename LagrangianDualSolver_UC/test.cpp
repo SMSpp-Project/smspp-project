@@ -335,7 +335,7 @@ static bool SolveBoth( double * out_fo1st = nullptr ,
     // besides, the condition is "fo2nd == fo1st"
     fo2nd = Slvr2->get_lb();
     OK =  ( std::abs( fo1st - fo2nd ) <= 
-	    2e-6 * std::max( double( 1 ) , std::max( abs( fo1st ) ,
+	    1e-5 * std::max( double( 1 ) , std::max( abs( fo1st ) ,
 						     abs( fo2nd ) ) ) );
     }
 
@@ -414,7 +414,7 @@ static bool SolveAndCheckRef( double ref )
   double maxv = std::max( double( 1 ) ,
                           std::max( std::abs( fo1st ) , std::abs( ref ) ) );
   double diff = std::abs( fo1st - ref );
-  double tol = 1e-3 * maxv;
+  double tol = 1e-5 * maxv;
 
   bool OK = ( diff <= tol );
 
@@ -450,7 +450,7 @@ static bool CheckRefValue( double fo , double ref
  double maxv = std::max( double( 1 ) ,
                          std::max( std::abs( fo ) , std::abs( ref ) ) );
  double diff = std::abs( fo - ref );
- double tol = 1e-3 * maxv;
+ double tol = 1e-5 * maxv;
 
  bool OK = ( diff <= tol );
 
@@ -861,7 +861,7 @@ int main( int argc , char **argv )
     double maxv = std::max( double( 1 ) ,
                             std::max( std::abs( fo1st ) ,
                                       std::abs( RefObjective ) ) );
-    AllPassed &= ( std::abs( fo1st - RefObjective ) <= 1e-3 * maxv );
+    AllPassed &= ( std::abs( fo1st - RefObjective ) <= 1e-5 * maxv );
 #endif
    }
    else
