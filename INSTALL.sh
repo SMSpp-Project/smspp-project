@@ -385,7 +385,7 @@ install_on_macos() {
 
   # Install OpenMP
   echo "Installing OpenMP..."
-  brew install open-mpi
+  brew install open-mpi libomp
 
   # Install Boost libraries
   echo "Installing Boost libraries..."
