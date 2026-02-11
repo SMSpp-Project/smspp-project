@@ -770,7 +770,6 @@ case "$OS" in
   ;;
 esac
 
-install_smspp=1
 # Skip installation of SMSpp if --without-smspp is specified
 if [ "$install_smspp" -eq 1 ]; then
   echo "Compiling SMSpp..."
