@@ -364,6 +364,22 @@ if ($OS -eq "Win32NT")
             if (-not (Test-Path $downloadsDir)) {
                 New-Item -ItemType Directory -Force -Path $downloadsDir | Out-Null
             }
+            # Optional: ensure the correct installer exists (use vcpkg downloads if present, otherwise download it)
+            $msmpiInstaller = Get-ChildItem -Path $downloadsDir -Filter "msmpisetup-$expectedMsmpiVersion*.exe" -ErrorAction SilentlyContinue |
+                    Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            if (-not $msmpiInstaller) {
+                Write-Host "Expected MS-MPI installer not found in vcpkg downloads. Downloading..."
+                $msmpiInstallerPath = Join-Path $downloadsDir "msmpisetup-$expectedMsmpiVersion.exe"
+                # This is the same CDN url vcpkg used in your log for .52 (runtime setup)
+                $msmpiUrl = "https://download.microsoft.com/download/7/2/7/72731ebb-b63c-4170-ade7-836966263a8f/msmpisetup.exe"
+                Invoke-WebRequest -Uri $msmpiUrl -OutFile $msmpiInstallerPath
+            }
+            else {
+                $msmpiInstallerPath = $msmpiInstaller.FullName
+            }
+            # This enforces the expected version:
+            # - If not installed -> install
+            # - If installed but different version -> uninstall old + install new
             Write-Host "Ensuring Microsoft MPI version $expectedMsmpiVersion..."
             Ensure-MsMpiVersion -ExpectedVersion $expectedMsmpiVersion -VcpkgDownloadsDir $downloadsDir
             Write-Host "... Microsoft MPI is aligned with expected version $expectedMsmpiVersion."
