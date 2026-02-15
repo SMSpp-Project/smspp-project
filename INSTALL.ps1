@@ -91,6 +91,99 @@ function Update-EnvironmentVariables
     Write-Host "All relevant environment variables have been updated."
 }
 
+function Get-MsMpiInstalledInfo {
+    $uninstallRoots = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+
+    $items = foreach ($root in $uninstallRoots) {
+        Get-ItemProperty $root -ErrorAction SilentlyContinue |
+                Where-Object {
+                    $_.DisplayName -match 'Microsoft MPI' -or $_.DisplayName -match 'MS-MPI'
+                }
+    }
+
+    # Prefer runtime / redistributable if present, otherwise take the first match
+    $runtime = $items |
+            Where-Object { $_.DisplayName -match 'Redistributable|Runtime' } |
+            Sort-Object DisplayVersion -Descending |
+            Select-Object -First 1
+    if ($runtime) { return $runtime }
+    return ($items | Select-Object -First 1)
+}
+
+function Uninstall-ProgramSilent([string]$uninstallString) {
+    if (-not $uninstallString) { return $false }
+
+    # Typical values:
+    #   MsiExec.exe /I{GUID}  or  MsiExec.exe /X{GUID}
+    #   "C:\...\uninstall.exe" /uninstall ...
+    $cmd = $uninstallString.Trim()
+
+    if ($cmd -match 'MsiExec\.exe') {
+        # Ensure we are uninstalling (use /X) and make it quiet
+        $cmd = [regex]::Replace($cmd, '(?i)/i\{', '/X{')
+        $cmd = [regex]::Replace($cmd, '(?i)\s/([i])\s', ' /X ')
+
+        if ($cmd -notmatch '/X') {
+            # fallback: if it doesn't contain /I or /X, leave it as-is
+        }
+
+        # Append quiet flags if not present
+        if ($cmd -notmatch '/qn') { $cmd += ' /qn' }
+        if ($cmd -notmatch 'REBOOT=ReallySuppress') { $cmd += ' REBOOT=ReallySuppress' }
+
+        Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd" -Wait -NoNewWindow
+        return $true
+    }
+
+    # Non-MSI uninstaller: try to run it quietly
+    Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd /quiet /norestart" -Wait -NoNewWindow
+    return $true
+}
+
+function Ensure-MsMpiVersion {
+    param(
+        [Parameter(Mandatory=$true)][string]$ExpectedVersion,
+        [Parameter(Mandatory=$true)][string]$VcpkgDownloadsDir
+    )
+
+    $installed = Get-MsMpiInstalledInfo
+    $installedVersion = if ($installed) { $installed.DisplayVersion } else { $null }
+
+    if ($installed -and $installedVersion -eq $ExpectedVersion) {
+        Write-Host "Microsoft MPI already installed with expected version $ExpectedVersion."
+        return
+    }
+
+    if ($installed) {
+        Write-Host "Microsoft MPI installed version is $installedVersion, expected $ExpectedVersion. Uninstalling..."
+        $uninstallCmd = $installed.QuietUninstallString
+        if (-not $uninstallCmd) { $uninstallCmd = $installed.UninstallString }
+
+        $ok = Uninstall-ProgramSilent -uninstallString $uninstallCmd
+        if (-not $ok) {
+            throw "Could not determine a working uninstall command for Microsoft MPI. Uninstall manually and rerun."
+        }
+        Write-Host "Uninstall completed."
+    } else {
+        Write-Host "Microsoft MPI not found. Installing..."
+    }
+
+    # Pick the exact installer already downloaded by vcpkg (best option)
+    $candidate = Get-ChildItem -Path $VcpkgDownloadsDir -Filter "msmpisetup-$ExpectedVersion*.exe" -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+    if (-not $candidate) {
+        throw "Expected MS-MPI installer not found in $VcpkgDownloadsDir. Run vcpkg once (so it downloads it), or place it there."
+    }
+
+    Write-Host "Installing Microsoft MPI from: $($candidate.FullName)"
+    Start-Process -FilePath $candidate.FullName -ArgumentList "-unattend","-force" -Wait
+    Write-Host "Microsoft MPI installed successfully (expected $ExpectedVersion)."
+}
+
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
 if ($OS -eq "Win32NT")
@@ -263,21 +356,18 @@ if ($OS -eq "Win32NT")
             # Configure vcpkg
             git clone https://gitlab.com/stochastic-control/StOpt.git $StOpt_ROOT
             Set-Location $StOpt_ROOT
-            # Install Microsoft MPI
-            if (-not (Test-Path "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe")) {
-                Write-Host "Installing Microsoft MPI..."
-                $downloadsDir = Join-Path $env:VCPKG_ROOT 'downloads'
-                if (-not (Test-Path $downloadsDir)) {
-                    New-Item -ItemType Directory -Force -Path $downloadsDir | Out-Null
-                }
-                $msmpiInstaller = Join-Path $downloadsDir 'msmpisetup-10.1.12498.exe'
-                if (-not (Test-Path $msmpiInstaller)) {
-                    $msmpiUrl = "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe"
-                    Invoke-WebRequest -Uri $msmpiUrl -OutFile $msmpiInstaller
-                }
-                Start-Process -FilePath $msmpiInstaller -ArgumentList "-unattend", "-force" -Wait
-                Write-Host "... Microsoft MPI installed succesfully."
+
+            # Install / Upgrade Microsoft MPI
+            $expectedMsmpiVersion = "10.1.12498.52"
+            Write-Host "Checking Microsoft MPI installation..."
+            $downloadsDir = Join-Path $env:VCPKG_ROOT 'downloads'
+            if (-not (Test-Path $downloadsDir)) {
+                New-Item -ItemType Directory -Force -Path $downloadsDir | Out-Null
             }
+            Write-Host "Ensuring Microsoft MPI version $expectedMsmpiVersion..."
+            Ensure-MsMpiVersion -ExpectedVersion $expectedMsmpiVersion -VcpkgDownloadsDir $downloadsDir
+            Write-Host "... Microsoft MPI is aligned with expected version $expectedMsmpiVersion."
+
             mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
             $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
