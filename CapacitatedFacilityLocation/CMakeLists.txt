@@ -34,10 +34,21 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
         target_link_libraries(CFL_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
+    if (WIN32 AND BUILD_SHARED_LIBS)
+        # copy runtime DLLs next to the exe after build
+        add_custom_command(TARGET CFL_test POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:CFL_test>
+                $<TARGET_FILE_DIR:CFL_test>
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying runtime DLLs next to CFL_test.exe"
+        )
+    endif()
+
     # Create a test fixture to generate .nc4 files by running run_txt2nc4.
     # This test will build and run the run_txt2nc4 target
     add_test(NAME run_txt2nc4
-             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_txt2nc4)
+             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target txt2nc4)
     # Mark run_txt2nc4 as a fixture that sets up "txt2nc4_generated"
     set_tests_properties(run_txt2nc4 PROPERTIES FIXTURES_SETUP txt2nc4_generated)
 
@@ -61,8 +72,7 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
         # Make each batch test require the txt2nc4_generated fixture
-        set_tests_properties(CFL_test/${BATCH_NAME}
-                             PROPERTIES FIXTURES_REQUIRED txt2nc4_generated)
+        set_tests_properties(CFL_test/${BATCH_NAME} PROPERTIES FIXTURES_REQUIRED txt2nc4_generated)
     endforeach ()
 endif ()
 

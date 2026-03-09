@@ -28,6 +28,17 @@ if (TARGET SMS++::UCBlock)
         target_link_libraries(LDS_UC_test PRIVATE SMS++::MILPSolver)
     endif ()
 
+    if (WIN32 AND BUILD_SHARED_LIBS)
+        # copy runtime DLLs next to the exe after build
+        add_custom_command(TARGET LDS_UC_test POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:LDS_UC_test>
+                $<TARGET_FILE_DIR:LDS_UC_test>
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying runtime DLLs next to LDS_UC_test.exe"
+        )
+    endif()
+
     # Create a test fixture to generate .nc4 files by running extract_nc4uc.
     # This test will build and run the extract_nc4uc target
     add_test(NAME extract_nc4uc
@@ -57,8 +68,7 @@ if (TARGET SMS++::UCBlock)
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
         # Make each batch test require the data_extracted fixture
-        set_tests_properties(LDS_UC_test/${BATCH_NAME}
-                PROPERTIES FIXTURES_REQUIRED data_extracted)
+        set_tests_properties(LDS_UC_test/${BATCH_NAME} PROPERTIES FIXTURES_REQUIRED data_extracted)
     endforeach ()
 endif ()
 

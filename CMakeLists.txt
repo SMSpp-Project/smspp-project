@@ -38,9 +38,7 @@ include(CTest)
 # may wrongly appear unused, and by default the linker does not include them,
 # so we have to force the linking.
 if (BUILD_SHARED_LIBS)
-    if (MSVC)
-        add_link_options("/OPT:NOREF")
-    else () # Unix
+    if (UNIX)
         if (APPLE)
             add_link_options("-Wl,-dead_strip_dylibs")
         else ()

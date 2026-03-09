@@ -23,6 +23,17 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(MCF_MILP_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
+    if (WIN32 AND BUILD_SHARED_LIBS)
+        # copy runtime DLLs next to the exe after build
+        add_custom_command(TARGET MCF_MILP_test POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:MCF_MILP_test>
+                $<TARGET_FILE_DIR:MCF_MILP_test>
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying runtime DLLs next to MCF_MILP_test.exe"
+        )
+    endif()
+
     # Create a test fixture to generate .nc4 files by running run_dmx2nc4.
     # This test will build and run the run_dmx2nc4 target
     add_test(NAME run_dmx2nc4

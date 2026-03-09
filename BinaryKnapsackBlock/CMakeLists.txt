@@ -20,6 +20,17 @@ if (TARGET SMS++::BinaryKnapsackBlock)
                               SMS++::MILPSolver)
     endif ()
 
+    if (WIN32 AND BUILD_SHARED_LIBS)
+        # copy runtime DLLs next to the exe after build
+        add_custom_command(TARGET BinaryKnapsackBlock_test POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:BinaryKnapsackBlock_test>
+                $<TARGET_FILE_DIR:BinaryKnapsackBlock_test>
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying runtime DLLs next to BinaryKnapsackBlock_test.exe"
+        )
+    endif()
+
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
     foreach (BATCH_FILE ${BATCH_FILES})

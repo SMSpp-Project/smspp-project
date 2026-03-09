@@ -39,13 +39,12 @@ using namespace SMSpp_di_unipi_it;
 const char *const logF = "log.bn";
 
 /*--------------------------------------------------------------------------*/
-/*--------------------------------- Main -----------------------------------*/
+/*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
 /// Custom terminate function to print the exception message
 
 void smspp_terminate( void ) {
-
  std::cerr << "Uncaught exception in executing SMS++:\n";
  try {
   std::rethrow_exception( std::current_exception() );
@@ -59,6 +58,8 @@ void smspp_terminate( void ) {
  std::abort(); // or exit(1)
 }
 
+/*--------------------------------------------------------------------------*/
+/*--------------------------------- Main -----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
 int main( int argc , char **argv )

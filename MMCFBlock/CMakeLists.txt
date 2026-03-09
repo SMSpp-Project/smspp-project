@@ -65,6 +65,17 @@ if (TARGET SMS++::MMCFBlock AND
         target_link_libraries(MMCF_test PRIVATE SMS++::MILPSolver)
     endif ()
 
+    if (WIN32 AND BUILD_SHARED_LIBS)
+        # copy runtime DLLs next to the exe after build
+        add_custom_command(TARGET MMCF_test POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:MMCF_test>
+                $<TARGET_FILE_DIR:MMCF_test>
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying runtime DLLs next to MMCF_test.exe"
+        )
+    endif()
+
     # Create a test fixture to generate files by running run_mnetgen.
     # This test will build and run the run_mnetgen target
     add_test(NAME run_mnetgen
@@ -89,8 +100,7 @@ if (TARGET SMS++::MMCFBlock AND
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
         # Make each batch test require the mnetgen_generated fixture
-        set_tests_properties(MMCF_test/${BATCH_NAME}
-                             PROPERTIES FIXTURES_REQUIRED mnetgen_generated)
+        set_tests_properties(MMCF_test/${BATCH_NAME} PROPERTIES FIXTURES_REQUIRED mnetgen_generated)
     endforeach ()
 endif ()
 

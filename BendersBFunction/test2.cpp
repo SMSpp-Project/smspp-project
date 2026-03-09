@@ -1639,7 +1639,7 @@ void smspp_terminate( void ) {
 
 /*--------------------------------------------------------------------------*/
 
-int main( int argc, char ** argv )
+int main( int argc , char ** argv )
 {
  // override the default terminate handler to print the exception message
  std::set_terminate( smspp_terminate );
