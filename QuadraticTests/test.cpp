@@ -218,7 +218,6 @@ static bool SolveModel( bool is_found , double opt_value )
 /// Custom terminate function to print the exception message
 
 void smspp_terminate( void ) {
-
  std::cerr << "Uncaught exception in executing SMS++:\n";
  try {
   std::rethrow_exception( std::current_exception() );
