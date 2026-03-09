@@ -535,7 +535,7 @@ if (-not $withoutSMSpp)
     # Configure once using multi-config
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
+    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-DBUILD_SHARED_LIBS=ON' '-Wno-dev'
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
