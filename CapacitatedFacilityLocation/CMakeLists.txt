@@ -48,7 +48,7 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
     # Create a test fixture to generate .nc4 files by running run_txt2nc4.
     # This test will build and run the run_txt2nc4 target
     add_test(NAME run_txt2nc4
-             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target txt2nc4)
+             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_txt2nc4)
     # Mark run_txt2nc4 as a fixture that sets up "txt2nc4_generated"
     set_tests_properties(run_txt2nc4 PROPERTIES FIXTURES_SETUP txt2nc4_generated)
 
