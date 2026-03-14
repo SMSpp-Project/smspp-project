@@ -28,15 +28,14 @@ if (TARGET SMS++::UCBlock)
         target_link_libraries(LDS_UC_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    if (WIN32 AND BUILD_SHARED_LIBS)
+    if (WIN32 AND BUILD_SHARED_LIBS AND NOT DEFINED ENV{CONDA_BUILD})
         # copy runtime DLLs next to the exe after build
         add_custom_command(TARGET LDS_UC_test POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:LDS_UC_test>
-                $<TARGET_FILE_DIR:LDS_UC_test>
-                COMMAND_EXPAND_LISTS
-                COMMENT "Copying runtime DLLs next to LDS_UC_test.exe"
-        )
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           $<TARGET_RUNTIME_DLLS:LDS_UC_test>
+                           $<TARGET_FILE_DIR:LDS_UC_test>
+                           COMMAND_EXPAND_LISTS
+                           COMMENT "Copying runtime DLLs next to LDS_UC_test.exe")
     endif()
 
     # Create a test fixture to generate .nc4 files by running extract_nc4uc.

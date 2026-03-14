@@ -34,15 +34,14 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
         target_link_libraries(CFL_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
-    if (WIN32 AND BUILD_SHARED_LIBS)
+    if (WIN32 AND BUILD_SHARED_LIBS AND NOT DEFINED ENV{CONDA_BUILD})
         # copy runtime DLLs next to the exe after build
         add_custom_command(TARGET CFL_test POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:CFL_test>
-                $<TARGET_FILE_DIR:CFL_test>
-                COMMAND_EXPAND_LISTS
-                COMMENT "Copying runtime DLLs next to CFL_test.exe"
-        )
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           $<TARGET_RUNTIME_DLLS:CFL_test>
+                           $<TARGET_FILE_DIR:CFL_test>
+                           COMMAND_EXPAND_LISTS
+                           COMMENT "Copying runtime DLLs next to CFL_test.exe")
     endif()
 
     # Create a test fixture to generate .nc4 files by running run_txt2nc4.

@@ -24,15 +24,14 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(BendersBFunction_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    if (WIN32 AND BUILD_SHARED_LIBS)
+    if (WIN32 AND BUILD_SHARED_LIBS AND NOT DEFINED ENV{CONDA_BUILD})
         # copy runtime DLLs next to the exe after build
         add_custom_command(TARGET BendersBFunction_test POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:BendersBFunction_test>
-                $<TARGET_FILE_DIR:BendersBFunction_test>
-                COMMAND_EXPAND_LISTS
-                COMMENT "Copying runtime DLLs next to BendersBFunction_test.exe"
-        )
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           $<TARGET_RUNTIME_DLLS:BendersBFunction_test>
+                           $<TARGET_FILE_DIR:BendersBFunction_test>
+                           COMMAND_EXPAND_LISTS
+                           COMMENT "Copying runtime DLLs next to BendersBFunction_test.exe")
     endif()
 
     add_executable(BendersBFunction_test2 test2.cpp)
@@ -45,15 +44,14 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::MILPSolver)
     endif ()
 
-    if (WIN32 AND BUILD_SHARED_LIBS)
+    if (WIN32 AND BUILD_SHARED_LIBS AND NOT DEFINED ENV{CONDA_BUILD})
         # copy runtime DLLs next to the exe after build
         add_custom_command(TARGET BendersBFunction_test2 POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:BendersBFunction_test2>
-                $<TARGET_FILE_DIR:BendersBFunction_test2>
-                COMMAND_EXPAND_LISTS
-                COMMENT "Copying runtime DLLs next to BendersBFunction_test2.exe"
-        )
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           $<TARGET_RUNTIME_DLLS:BendersBFunction_test2>
+                           $<TARGET_FILE_DIR:BendersBFunction_test2>
+                           COMMAND_EXPAND_LISTS
+                           COMMENT "Copying runtime DLLs next to BendersBFunction_test2.exe")
     endif()
 
     add_test(NAME BendersBFunction_test2

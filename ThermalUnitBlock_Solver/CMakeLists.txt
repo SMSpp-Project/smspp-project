@@ -18,15 +18,14 @@ if (TARGET SMS++::UCBlock)
         target_link_libraries(TUDPS_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    if (WIN32 AND BUILD_SHARED_LIBS)
+    if (WIN32 AND BUILD_SHARED_LIBS AND NOT DEFINED ENV{CONDA_BUILD})
         # copy runtime DLLs next to the exe after build
         add_custom_command(TARGET TUDPS_test POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:TUDPS_test>
-                $<TARGET_FILE_DIR:TUDPS_test>
-                COMMAND_EXPAND_LISTS
-                COMMENT "Copying runtime DLLs next to TUDPS_test.exe"
-        )
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           $<TARGET_RUNTIME_DLLS:TUDPS_test>
+                           $<TARGET_FILE_DIR:TUDPS_test>
+                           COMMAND_EXPAND_LISTS
+                           COMMENT "Copying runtime DLLs next to TUDPS_test.exe")
     endif()
 
     # Add a test for each batch file
