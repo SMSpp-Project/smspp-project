@@ -874,20 +874,29 @@ if [ "$install_smspp" -eq 1 ]; then
     export DYLD_LIBRARY_PATH="${SMSPP_ROOT}/lib:$DYLD_LIBRARY_PATH"
   fi
 
-  # Export SMSpp bin path
+  # Export SMSpp paths
   SMSPP_BIN="$SMSPP_ROOT/bin"
+  SMSPP_LIB="$SMSPP_ROOT/lib"
   CURRENT_SHELL=$(basename "$SHELL")
   if [ "$CURRENT_SHELL" = "zsh" ]; then
     RC_FILE="$HOME/.zshrc"
   else # default is bash
     RC_FILE="$HOME/.bashrc"
   fi
-  # Eventually remove old SMSPP_BIN path
+
+  # Eventually remove old SMSPP_BIN and SMSPP_LIB paths
   if [ -f "$RC_FILE" ]; then
     sed -i.bak "\|$SMSPP_BIN|d" "$RC_FILE"
+    sed -i.bak "\|$SMSPP_LIB|d" "$RC_FILE"
   fi
-  # Add the new SMSPP_BIN path
+
+  # Add the new SMSpp bin path
   echo "export PATH=\"$SMSPP_BIN:\$PATH\"" >> "$RC_FILE"
   echo ">> Added SMSpp bin path in $RC_FILE."
+
+  # Add the new SMSpp lib path
+  echo "export LD_LIBRARY_PATH=\"$SMSPP_LIB:\$LD_LIBRARY_PATH\"" >> "$RC_FILE"
+  echo ">> Added SMSpp lib path in $RC_FILE."
+
   . "$RC_FILE"
 fi
