@@ -884,7 +884,7 @@ if [ "$install_smspp" -eq 1 ]; then
     RC_FILE="$HOME/.bashrc"
   fi
 
-  # Eventually remove old SMSPP_BIN and SMSPP_LIB paths
+  # Eventually remove old SMSPP_BIN / SMSPP_LIB paths
   if [ -f "$RC_FILE" ]; then
     sed -i.bak "\|$SMSPP_BIN|d" "$RC_FILE"
     sed -i.bak "\|$SMSPP_LIB|d" "$RC_FILE"
@@ -895,8 +895,17 @@ if [ "$install_smspp" -eq 1 ]; then
   echo ">> Added SMSpp bin path in $RC_FILE."
 
   # Add the new SMSpp lib path
-  echo "export LD_LIBRARY_PATH=\"$SMSPP_LIB:\$LD_LIBRARY_PATH\"" >> "$RC_FILE"
-  echo ">> Added SMSpp lib path in $RC_FILE."
+  if [ "$OS" == "Linux" ]; then
+    echo "export LD_LIBRARY_PATH=\"$SMSPP_LIB:\$LD_LIBRARY_PATH\"" >> "$RC_FILE"
+        echo ">> Added SMSpp LD_LIBRARY_PATH in $RC_FILE."
+        export LD_LIBRARY_PATH="$SMSPP_LIB:$LD_LIBRARY_PATH"
+  elif [ "$OS" == "Darwin" ]; then
+    echo "export DYLD_LIBRARY_PATH=\"$SMSPP_LIB:\$DYLD_LIBRARY_PATH\"" >> "$RC_FILE"
+    echo ">> Added SMSpp DYLD_LIBRARY_PATH in $RC_FILE."
+    export DYLD_LIBRARY_PATH="$SMSPP_LIB:$DYLD_LIBRARY_PATH"
+  fi
 
-  . "$RC_FILE"
+  # Apply to current session as well
+  export PATH="$SMSPP_BIN:$PATH"
+  echo ">> Environment updated for current session."
 fi
