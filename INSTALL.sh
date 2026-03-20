@@ -897,8 +897,8 @@ if [ "$install_smspp" -eq 1 ]; then
   # Add the new SMSpp lib path
   if [ "$OS" == "Linux" ]; then
     echo "export LD_LIBRARY_PATH=\"$SMSPP_LIB:\$LD_LIBRARY_PATH\"" >> "$RC_FILE"
-        echo ">> Added SMSpp LD_LIBRARY_PATH in $RC_FILE."
-        export LD_LIBRARY_PATH="$SMSPP_LIB:$LD_LIBRARY_PATH"
+    echo ">> Added SMSpp LD_LIBRARY_PATH in $RC_FILE."
+    export LD_LIBRARY_PATH="$SMSPP_LIB:$LD_LIBRARY_PATH"
   elif [ "$OS" == "Darwin" ]; then
     echo "export DYLD_LIBRARY_PATH=\"$SMSPP_LIB:\$DYLD_LIBRARY_PATH\"" >> "$RC_FILE"
     echo ">> Added SMSpp DYLD_LIBRARY_PATH in $RC_FILE."
@@ -908,4 +908,7 @@ if [ "$install_smspp" -eq 1 ]; then
   # Apply to current session as well
   export PATH="$SMSPP_BIN:$PATH"
   echo ">> Environment updated for current session."
+
+  echo ">> To apply in current terminal run:"
+  echo "   source $RC_FILE"
 fi
