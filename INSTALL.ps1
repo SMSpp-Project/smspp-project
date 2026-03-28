@@ -7,6 +7,7 @@
     If not already present, it clones the smspp-project repositories, then builds and installs them.
 
     You can use the `-installRoot <your-custom-path>` option to specify your SMS++ custom installation root.
+    You can use the `-updatevcpkg` option to update the builtin-baseline in vcpkg.json.
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
@@ -46,6 +47,7 @@ param(
     [switch]$withoutSCIP,
     [switch]$withoutStOpt,
     [switch]$withoutSMSpp,
+    [switch]$updatevcpkg,
     [string]$installRoot = "C:\" # Default if not provided
 )
 
@@ -473,11 +475,13 @@ if (-not $withoutSMSpp)
     }
 
     # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
-    $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
-    $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
-    $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
-    $manifestJson.'builtin-baseline' = $Baseline
-    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
+    if ($updatevcpkg) {
+        $ManifestPath = Join-Path $SMSPP_ROOT 'vcpkg.json'
+        $Baseline = (& git -C $env:VCPKG_ROOT rev-parse HEAD).Trim()
+        $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
+        $manifestJson.'builtin-baseline' = $Baseline
+        $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
+    }
 
     # Configure COIN-OR Osi
     Write-Host "Configuring COIN-OR Osi..."
