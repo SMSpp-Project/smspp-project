@@ -23,15 +23,7 @@ if (TARGET SMS++::LukFiBlock)
         target_link_libraries(LukFi_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    if (WIN32 AND BUILD_SHARED_LIBS AND NOT DEFINED ENV{CONDA_BUILD})
-        # copy runtime DLLs next to the exe after build
-        add_custom_command(TARGET LukFi_test POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                           $<TARGET_RUNTIME_DLLS:LukFi_test>
-                           $<TARGET_FILE_DIR:LukFi_test>
-                           COMMAND_EXPAND_LISTS
-                           COMMENT "Copying runtime DLLs next to LukFi_test.exe")
-    endif()
+    smspp_install(LukFi_test)
 endif ()
 
 # --------------------------------------------------------------------------- #
