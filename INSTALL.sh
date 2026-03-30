@@ -839,7 +839,7 @@ if [ "$install_smspp" -eq 1 ]; then
   fi
 
   # Build SMSpp
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -DBUILD_SHARED_LIBS=ON -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
   # Check if the script is not being executed on a server without display or interactive terminal
   if [ -t 1 ] && [ -z "${CI:-}" ]; then
     cd build

@@ -23,7 +23,7 @@
 #set(CMAKE_BUILD_TYPE "Debug")
 
 # Shared or static libraries
-#set(BUILD_SHARED_LIBS ON)
+set(BUILD_SHARED_LIBS ON)
 
 # Export packages from build tree (so they are found without installing them)
 set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
