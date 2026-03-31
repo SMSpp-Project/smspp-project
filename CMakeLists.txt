@@ -75,7 +75,7 @@ function(smspp_install target_name)
                 POST_EXCLUDE_REGEXES
                 ".*[\\/]system32[\\/].*"
                 ".*[\\/]windows[\\/].*"
-                ".*[\\/]build[\\/].*\\.dll")
+                ".*[\\/]build[\\/]tests[\\/].*\\.dll$")
     else ()
         # On other platforms, or Windows with static builds, performs a standard
         # installation of the executable without additional runtime dependency
