@@ -16,9 +16,6 @@ if (TARGET SMS++::MILPSolver)
     target_link_libraries(quad_test PRIVATE SMS++::MILPSolver)
 endif ()
 
-install(TARGETS quad_test
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 # Add a test for each batch file
 file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/batchCL_C"
                       "${CMAKE_CURRENT_SOURCE_DIR}/batches/batchCL_I"

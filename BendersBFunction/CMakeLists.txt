@@ -24,9 +24,6 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(BendersBFunction_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    install(TARGETS BendersBFunction_test
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
     add_executable(BendersBFunction_test2 test2.cpp)
 
     if (TARGET SMS++::BundleSolver)
@@ -36,9 +33,6 @@ if (TARGET SMS++::MCFBlock)
     if (TARGET SMS++::MILPSolver)
         target_link_libraries(BendersBFunction_test2 PRIVATE SMS++::MILPSolver)
     endif ()
-
-    install(TARGETS BendersBFunction_test2
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     add_test(NAME BendersBFunction_test2
              COMMAND BendersBFunction_test2 "BundlePar-cwl.txt"

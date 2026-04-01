@@ -18,9 +18,6 @@ if (TARGET SMS++::UCBlock)
         target_link_libraries(TUDPS_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    install(TARGETS TUDPS_test
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/*"
                           "${CMAKE_CURRENT_SOURCE_DIR}/cuts/*")

@@ -16,9 +16,6 @@ if (TARGET SMS++::MILPSolver)
     target_link_libraries(BoxSolver_test PRIVATE SMS++::MILPSolver)
 endif ()
 
-install(TARGETS BoxSolver_test
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 # Add a test for each batch file
 file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
 foreach (BATCH_FILE ${BATCH_FILES})

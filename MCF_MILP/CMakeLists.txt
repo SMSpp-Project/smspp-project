@@ -23,9 +23,6 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(MCF_MILP_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
-    install(TARGETS MCF_MILP_test
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
     # Create a test fixture to generate .nc4 files by running run_dmx2nc4.
     # This test will build and run the run_dmx2nc4 target
     add_test(NAME run_dmx2nc4
