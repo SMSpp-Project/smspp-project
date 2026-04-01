@@ -63,6 +63,28 @@ if (-not $MAX_JOBS) {
 # Set the VCPKG_ROOT environment variable
 $env:VCPKG_ROOT = "C:\vcpkg"
 
+function Add-ToSystemPath
+{
+    param(
+        [Parameter(Mandatory=$true)][string]$PathToAdd
+    )
+
+    if (-not (Test-Path $PathToAdd)) {
+        Write-Host "Path not found, skipping: $PathToAdd"
+        return
+    }
+
+    $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+
+    if ($systemPath -notlike "*$PathToAdd*") {
+        $systemPath = "$PathToAdd;$systemPath"
+        [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
+        Write-Host "Added to system Path: $PathToAdd"
+    } else {
+        Write-Host "Already in system Path: $PathToAdd"
+    }
+}
+
 function Update-EnvironmentVariables
 {
     param (
@@ -432,15 +454,7 @@ if ($OS -eq "Win32NT")
             Set-Location "C:\"
         }
         # Add StOpt to the system PATH
-        $STOPT_BIN = "$StOpt_ROOT\bin"
-        $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
-        if ($systemPath -notlike "*$STOPT_BIN*") {
-            $systemPath = "$STOPT_BIN;$systemPath"
-            [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-            Write-Host "Added StOpt bin to the system Path."
-        } else {
-            Write-Host "StOpt bin is already in the system Path."
-        }
+        Add-ToSystemPath -PathToAdd "$StOpt_ROOT\bin"
         Set-Location "C:\"
     }
 
@@ -554,17 +568,12 @@ if (-not $withoutSMSpp)
     & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
     & cmake '--install' 'build' '--config' 'Release'
 
-    <## Add SMSpp to the system PATH
+    # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"
-    $systemPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
-    if ($systemPath -notlike "*$SMSPP_BIN*") {
-        $systemPath = "$SMSPP_BIN;$systemPath"
-        [System.Environment]::SetEnvironmentVariable("Path", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-        Write-Host "Added SMSpp bin to the system Path."
-    } else {
-        Write-Host "SMSpp bin is already in the system Path."
-    }
+    Add-ToSystemPath -PathToAdd $SMSPP_BIN
 
-    Set-Location "C:\"
-    refreshenv#>
+    $VCPKG_BIN = Join-Path $SMSPP_ROOT "build\vcpkg_installed\x64-windows\bin"
+    Add-ToSystemPath -PathToAdd $VCPKG_BIN
+
+    refreshenv
 }
