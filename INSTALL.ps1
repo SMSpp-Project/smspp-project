@@ -572,7 +572,7 @@ if (-not $withoutSMSpp)
     $SMSPP_BIN = "$SMSPP_ROOT\bin"
     Add-ToSystemPath -PathToAdd $SMSPP_BIN
 
-    $VCPKG_BIN = Join-Path $SMSPP_ROOT "build\vcpkg_installed\x64-windows\bin"
+    $VCPKG_BIN = Join-Path $SMSPP_ROOT "build\vcpkg_installed\$env:VCPKG_TARGET_TRIPLET\bin"
     Add-ToSystemPath -PathToAdd $VCPKG_BIN
 
     refreshenv
