@@ -21,7 +21,8 @@ if (TARGET SMS++::MILPSolver)
     target_link_libraries(PolyhedralFunctionBlock_test PRIVATE SMS++::MILPSolver)
 endif ()
 
-smspp_install(PolyhedralFunctionBlock_test)
+install(TARGETS PolyhedralFunctionBlock_test
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Add a test for each batch file
 file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")

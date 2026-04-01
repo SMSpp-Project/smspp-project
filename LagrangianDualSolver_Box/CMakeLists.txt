@@ -24,7 +24,8 @@ if (TARGET SMS++::LagrangianDualSolver)
         target_link_libraries(LDS_Box_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    smspp_install(LDS_Box_test)
+    install(TARGETS LDS_Box_test
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")

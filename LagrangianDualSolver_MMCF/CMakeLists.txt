@@ -33,7 +33,8 @@ if (TARGET SMS++::MMCFBlock)
         target_link_libraries(LDS_MMCF_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
-    smspp_install(LDS_MMCF_test)
+    install(TARGETS LDS_MMCF_test
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch"

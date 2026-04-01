@@ -20,7 +20,8 @@ if (TARGET SMS++::BinaryKnapsackBlock)
                               SMS++::MILPSolver)
     endif ()
 
-    smspp_install(BinaryKnapsackBlock_test)
+    install(TARGETS BinaryKnapsackBlock_test
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")

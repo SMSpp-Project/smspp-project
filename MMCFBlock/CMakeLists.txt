@@ -65,7 +65,8 @@ if (TARGET SMS++::MMCFBlock AND
         target_link_libraries(MMCF_test PRIVATE SMS++::MILPSolver)
     endif ()
 
-    smspp_install(MMCF_test)
+    install(TARGETS MMCF_test
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     # Create a test fixture to generate files by running run_mnetgen.
     # This test will build and run the run_mnetgen target
