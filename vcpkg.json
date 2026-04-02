@@ -24,7 +24,9 @@
         "kind": "git",
         "repository": "https://gitlab.com/stochastic-control/stopt-vcpkg-registry-with-python.git",
         "baseline": "b1c4b10ee58fad9b2f60b40c8ffd04cf10fabbdf",
-        "packages": [ "stopt" ]
+        "packages": [
+          "stopt"
+        ]
       }
     ]
   }
