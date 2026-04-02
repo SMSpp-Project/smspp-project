@@ -308,14 +308,12 @@ EOL
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
-      mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${StOpt_ROOT}/lib' > /etc/ld.so.conf.d/stopt.conf"
@@ -329,14 +327,12 @@ EOL
         # if the repository is not up to date
         if [ "$LOCAL" != "$REMOTE" ]; then
           git pull
-          mv ./doc "${INSTALL_ROOT}"  # TODO remove when the doc bug in StOpt will be fixed
           cmake -S . -B build \
                 -DBUILD_PYTHON=OFF \
                 -DBUILD_TEST=OFF \
                 -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
           cmake --build build -j "${MAX_JOBS}"
           cmake --install build
-          mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
         else
           echo "StOpt already up to date."
         fi
@@ -620,14 +616,12 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       git clone https://gitlab.com/stochastic-control/StOpt.git
       cd StOpt
-      sudo mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      sudo mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       cd "$INSTALL_ROOT"
     else
       cd "$StOpt_ROOT"
@@ -636,14 +630,12 @@ install_on_macos() {
       # if the repository is not up to date
       if [ "$LOCAL" != "$REMOTE" ]; then
         git pull
-        sudo mv ./doc "${INSTALL_ROOT}" # TODO remove when the doc bug in StOpt will be fixed
         cmake -S . -B build \
               -DBUILD_PYTHON=OFF \
               -DBUILD_TEST=OFF \
               -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
         cmake --build build -j "${MAX_JOBS}"
         cmake --install build
-        sudo mv "${INSTALL_ROOT}/doc" "$StOpt_ROOT" # TODO remove when the doc bug in StOpt will be fixed
       else
         echo "StOpt already up to date."
       fi

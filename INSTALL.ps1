@@ -408,7 +408,6 @@ if ($OS -eq "Win32NT")
             Ensure-MsMpiVersion -ExpectedVersion $expectedMsmpiVersion -VcpkgDownloadsDir $downloadsDir
             Write-Host "... Microsoft MPI is aligned with expected version $expectedMsmpiVersion."
 
-            mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
             # Configure once using multi-config
             $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
             & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
@@ -422,7 +421,6 @@ if ($OS -eq "Win32NT")
             # Build Release
             & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
             & cmake '--install' 'build' '--config' 'Release'
-            mv "C:\doc" $StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
             Write-Host "... StOpt installed succesfully."
         } else {
             Set-Location $StOpt_ROOT
@@ -432,7 +430,6 @@ if ($OS -eq "Win32NT")
             if ($local -ne $remote) { # StOpt is not latest
                 git pull
                 Write-Host "" # new line
-                mv .\doc "C:\" # TODO remove when the doc bug in StOpt will be fixed
                 # Re-configure once using multi-config
                 $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                 & cmake -S . -B 'build' -G "Visual Studio 17 2022" `
@@ -446,7 +443,6 @@ if ($OS -eq "Win32NT")
                 # Rebuild Release
                 & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
                 & cmake '--install' 'build' '--config' 'Release'
-                mv "C:\doc" $StOpt_ROOT # TODO remove when the doc bug in StOpt will be fixed
                 Write-Host "... StOpt updated succesfully."
             } else {
                 Write-Host "... StOpt already up to date."
