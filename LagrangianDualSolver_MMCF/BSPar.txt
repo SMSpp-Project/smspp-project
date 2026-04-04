@@ -84,10 +84,15 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-26 # number of integer parameters
+28 # number of integer parameters
 
 # now all the integer parameters
+# first those of LagrangianDualSolver proper
 int_InnerS_WVarSCfg  0  # use first Configuration in the "cache"
+int_LDSlv_iBCopy     0   # 1 if sub-Block must be R3B-copied
+intPushCostToOwner   0   # the value of intPushCostToOwner for the LagBF
+
+# then those of BundleSolver as its inner Solver
 #intDoEasy  15      # do not do easy components even for LagBFunction
 intDoEasy  0      # do not do easy components even for LagBFunction
 intMaxIter 10000  # MaxIter, max number of iterations for each call
@@ -127,7 +132,9 @@ intQPmp2   0      # MxRmv, how many variables can be removed from the base at ea
 
 # OSIMPSolver's parameters :- - - - - - - - - - - - - - - - - - - - - - - - -
 
-intOSImp1  1      # Osi(Cpx/Grb)Solver algorithm (0 = auto (default), 1 = primal, 2 = dual, 3 = network, 4 = barrier, 5 = sifting, 6 = concurrent)
+intOSImp1  1      # Osi(Cpx/Grb)Solver algorithm (0 = auto (default), 
+                  # 1 = primal, 2 = dual, 3 = network, 4 = barrier,
+                  # 5 = sifting, 6 = concurrent)
 intOSImp2  1      # pre-processing (reduction)
 intOSImp3  0      # threads
 intRstAlg  2      # parameter to handle the reset of the algorithm
