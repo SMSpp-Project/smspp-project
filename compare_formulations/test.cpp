@@ -7,8 +7,28 @@
  * This main loads a Block twice. Then it Block-Config-ure each copy with a
  * different BlockConfig taken by two different files, assumed to produce
  * two different formulations of the same problem. Then it attaches two
- * identical Solver to the two copies of the Block (by using the same
- * BlockSolverConfig), solve both and compare the results.
+ * Solver to the two copies of the Block (ideally identical, but this should
+ * be irrelevant), solve both and compare the results.
+ *
+ * Also, a special "meta-configuration" mode is supported for both the
+ * BlockConfig and BlockSolverConfig: if the specified Configuration is not
+ * really a BlockConfig / BlockSolverConfig but rather a
+ *
+ *   SimpleConfiguration< std::map< std::string , Configuration * > >
+ *
+ * then this is interpreted as "the BlockConfig / BlockSolverConfig that
+ * are to be apply()-ed to the Block / all its sub-Block that have that
+ * specific classname()". That is, if the SimpleConfiguration< ... >
+ * contains, say,
+ *
+ *    { { "UCBlock" , < pointer to BC1 > } ,
+ *      { "DCNetworkBlock" , < pointer to BC2 > } }
+ *
+ * then the Block is scanned, and all its sub-Block (possibly, itself) that
+ * are UCBlock are BlockConfig-ured with (a clone() to) BC1 while all the its
+ * sub-Block (...) that are DCNetworkBlock are BlockConfig-ured with (...)
+ * BC2; analogously for the BlockSolverConfig (except there is no need for
+ * clone()-ing).
  *
  * \author Antonio Frangioni \n
  *         Dipartimento di Informatica \n
@@ -84,6 +104,114 @@ static void PrintResults( bool hs , int rtrn , double fo )
 
 /*--------------------------------------------------------------------------*/
 
+void b_config_Block( Block * block , Configuration * b_config ,
+		     const std::string & fn )
+{
+ // std::list rather than std::vector since it's built by push_back and
+ // only trasversed head-to-tail
+ std::list< Block * > BFS;
+
+ // handle the special case of a "meta" BlockConfig
+ if( auto * mb =
+     dynamic_cast< SimpleConfiguration< std::map< std::string ,
+                                                  Configuration * > >
+                                        * >( b_config ) ) {
+
+  // construct the list of all Block inside block
+  BFS.push_back( block );
+  for( auto bit = BFS.begin() ; bit != BFS.end() ; ++bit )
+   for( auto el : (*bit)->get_nested_Blocks() )
+    BFS.push_back( el );
+
+  auto & map = mb->f_value;
+
+  // now BlockConfig-ure all Block whose classname() matches
+  for( auto b : BFS )
+   if( auto bcit = map.find( b->classname() ); bcit != map.end() ) {
+    if( auto bc = dynamic_cast< BlockConfig * >( bcit->second ) ) {
+     auto cbc = bc->clone();
+     cbc->apply( b );
+     delete cbc;
+     }
+    else {
+     std::cerr << "Error: meta-Configuration for :Block " << bcit->first
+	       << " in file " << fn << " is not a BlockConfig" << std::endl;
+     exit( 1 );
+     }
+    }
+
+  return;  // all done
+  }
+
+ if( auto * bc = dynamic_cast< BlockConfig * >( b_config ) ) {
+  bc->apply( block );  // just apply() it
+  return;              // all done
+  }
+
+ std::cerr << "Error: " << fn
+	   << " does not contain a valid [meta]BlockConfig" << std::endl;
+ exit( 1 );
+
+ }  // end( b_config_Block )
+
+/*--------------------------------------------------------------------------*/
+
+void s_config_Block( Block * block , Configuration * s_config ,
+		     const std::string & fn = "" )
+{
+ // std::list rather than std::vector since it's built by push_back and
+ // only trasversed head-to-tail
+ std::list< Block * > BFS;
+
+ // handle the special case of a "meta" BlockSolverConfig
+ if( auto * mb =
+     dynamic_cast< SimpleConfiguration< std::map< std::string ,
+                                                  Configuration * > >
+                                        * >( s_config ) ) {
+
+  // construct the list of all Block inside block
+  BFS.push_back( block );
+  for( auto bit = BFS.begin() ; bit != BFS.end() ; ++bit )
+   for( auto el : (*bit)->get_nested_Blocks() )
+    BFS.push_back( el );
+
+  auto & map = mb->f_value;
+
+  // now BlockSolverConfig-ure all Block whose classname() matches
+  for( auto b : BFS )
+   if( auto bcit = map.find( b->classname() ); bcit != map.end() ) {
+    if( auto bsc = dynamic_cast< BlockSolverConfig * >( bcit->second ) )
+     bsc->apply( b );
+    else {
+     std::cerr << "Error: meta-Configuration for :Block " << bcit->first
+	       << " in file " << fn << " is not a BlockSolverConfig"
+	       << std::endl;
+     exit( 1 );
+     }
+    }
+
+  // finally, clear() all the BlockSolverConfig for final cleanup
+  for( auto & el : map )
+   (el.second)->clear();
+
+  return;  // all done
+  }
+
+ if( auto * bsc = dynamic_cast< BlockSolverConfig * >( s_config ) ) {
+  bsc->apply( block );  // just apply() it
+  bsc->clear();         // clear() it for final cleanup
+  return;               // all done
+  }
+
+ std::cerr << "Error: " << fn
+	   << " does not contain a valid [meta]BlockSolverConfig"
+	   << std::endl;
+ exit( 1 );
+
+ }  // end( s_config_Block )
+
+/*--------------------------------------------------------------------------*/
+
 static bool SolveBoth( void ) 
 {
  try {
@@ -103,7 +231,8 @@ static bool SolveBoth( void )
   std::chrono::duration< double > elapsed = end - start;
  
   std::cout.setf( std::ios::scientific, std::ios::floatfield );
-  std::cout << std::setprecision( 2 ) << elapsed.count() << " - " << std::flush;
+  std::cout << std::setprecision( 2 ) << elapsed.count() << " - "
+	    << std::flush;
 
   // solve with the 2nd Solver- - - - - - - - - - - - - - - - - - - - - - - -
   auto Slvr2 = Block2->get_registered_solvers().front();
@@ -167,15 +296,16 @@ void smspp_terminate( void ) {
  std::cerr << "Uncaught exception in executing SMS++:\n";
  try {
   std::rethrow_exception( std::current_exception() );
- }
+  }
  catch( const std::exception & e ) {
   std::cerr << "\tException type: " << typeid( e ).name() << "\n";
   std::cerr << "\tException message: " << e.what() << "\n";
- } catch( ... ) {
+  }
+ catch( ... ) {
   std::cerr << "\tUnknown exception" << std::endl;
- }
+  }
  std::abort(); // or exit(1)
-}
+ }
 
 /*--------------------------------------------------------------------------*/
 
@@ -188,12 +318,17 @@ int main( int argc , char **argv )
 
  if( argc < 2 ) {
   std::cerr << "Usage: " << argv[ 0 ]
-       << " block_filename [cfg_1_filename cfg_1_filename]" << std::endl
-       << "       default: RBlockConfig1.txt RBlockConfig1.txt" << std::endl;
+	    << " block_filename [BlockConfig1 BlockConfig2 "
+	    << "BlockSolverConfig1 BlockSolverConfig1]"
+	    << std::endl
+	    << "       default filenames: RBlockConfig1.txt RBlockConfig1.txt"
+	    << " BSCfg1.txt BSCfg2.txt" << std::endl
+	    << "       (if BSCfg1 is given but BSCfg2 is not, they are "
+	    << "the same)"  << std::endl;
   return( 1 );  
   }
 
- // load both Block out of the same netCDF file- - - - - - - - - - - - - - - - 
+ // load both Block out of the same netCDF file- - - - - - - - - - - - - - - -
 
  Block1 = Block::deserialize( argv[ 1 ] );
  if( ! Block1 ) {
@@ -206,51 +341,52 @@ int main( int argc , char **argv )
 
  // load two BlockConfig from file- - - - - - - - - - - - - - - - - - - - - -
 
- auto cfg1 = dynamic_cast< BlockConfig * >(
-	     Configuration::deserialize( argc >= 3 ? argv[ 2 ]
-					           : "RBlockConfig1.txt" ) );
+ std::string fn1 = argc >= 3 ? argv[ 2 ] : "RBlockConfig1.txt";
+ auto cfg1 = Configuration::deserialize( fn1 );
  if( ! cfg1 ) {
-  std::cerr << "error: cannot load BlockConfig 1" << std::endl;
+  std::cerr << "error: cannot load BlockConfig " << fn1 << std::endl;
   return( 1 );
   }
 
- cfg1->apply( Block1 );
+ b_config_Block( Block1 , cfg1 , fn1 );
  delete( cfg1 );
- 
- auto cfg2 = dynamic_cast< BlockConfig * >(
-	     Configuration::deserialize( argc >= 4 ? argv[ 3 ]
-					           : "RBlockConfig2.txt" ) );
+
+ std::string fn2 = argc >= 4 ? argv[ 3 ] : "RBlockConfig2.txt";
+ auto cfg2 = Configuration::deserialize( fn2 );
  if( ! cfg2 ) {
-  std::cerr << "error: cannot load BlockConfig 2" << std::endl;
+  std::cerr << "error: cannot load BlockConfig " << fn2 << std::endl;
   return( 1 );
   }
 
- cfg2->apply( Block2 );
+ b_config_Block( Block2 , cfg2 , fn2 );
  delete( cfg2 );
 
- // attach two identical Solver to both Block - - - - - - - - - - - - - - - -
- // do that via a BlockSolverConfig
+ // load two BlockSolverConfig from file- - - - - - - - - - - - - - - - - - -
 
- auto c = Configuration::deserialize( "BSCfg.txt" );
- auto bsc = dynamic_cast< BlockSolverConfig * >( c );
- if( ! bsc ) {
-  std::cerr << "error: BSCfg.txt does not contain a BlockSolverConfig"
-            << std::endl;
-  exit( 1 );
+ fn1 = argc >= 5 ? argv[ 4 ] : "BSCfg1.txt";
+ if( ! ( cfg1 = Configuration::deserialize( fn1 ) ) ) {
+  std::cerr << "error: cannot load BlockSolverConfig " << fn1 << std::endl;
+  return( 1 );
   }
 
- bsc->apply( Block1 );
-
+ s_config_Block( Block1 , cfg1 , fn1 );
  if( Block1->get_registered_solvers().empty() ) {
   std::cerr << "Error: no Solver registered to Block1" << std::endl;
   exit( 1 );
   }
 
- bsc->apply( Block2 );
- // this reasonably should not fail ...
+ fn2 = argc >= 6 ? argv[ 5 ] : ( argc >= 5 ? fn1 : "BSCfg2.txt" );
+ if( ! ( cfg2 = Configuration::deserialize( fn2 ) ) ) {
+  std::cerr << "error: cannot load BlockSolverConfig " << fn2  << std::endl;
+  return( 1 );
+  }
 
- bsc->clear();  
-  
+ s_config_Block( Block2 , cfg2 , fn2 );
+ if( Block2->get_registered_solvers().empty() ) {
+  std::cerr << "Error: no Solver registered to Block2" << std::endl;
+  exit( 1 );
+  }
+
  // solve- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  auto ok = SolveBoth();
@@ -261,13 +397,13 @@ int main( int argc , char **argv )
 
  // clean - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
- bsc->apply( Block1 );
+ s_config_Block( Block1 , cfg1 );  // cfg1 has been clear()-ed before
  delete( Block1 );
+ delete( cfg1 );
 
- bsc->apply( Block2 );
+ s_config_Block( Block2 , cfg2 );  // cfg2 has been clear()-ed before
  delete( Block2 );
-
- delete( bsc );
+ delete( cfg2 );
 
  return( ok ? 0 : 1 );
  }
