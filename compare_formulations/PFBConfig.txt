@@ -1,8 +1,9 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - -HSUBConfig.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - PFBConfig.txt - - - - - - - - - - - - - - -
 #
-# A txt description of a BlockConfig for all the HydroSystemUnitBlock of a
-# UCBlock setting the formulation to "linearised"
+# A txt description of a BlockConfig for all the PolyhedralFunctionBlock
+# (typically, inside the HydroSystemUnitBlock) of a UCBlock, setting the
+# formulation to "linearised"
 #
 #   Antonio Frangioni
 #
@@ -44,5 +45,5 @@ SimpleConfiguration<int>
 *  # none
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - END HSUBConfig.txt- - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - END PFBConfig.txt - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
