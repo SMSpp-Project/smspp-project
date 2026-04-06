@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSCfg.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - BSCfg2.txt- - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for any Block that can be solved
 # by a :MILPSolver
@@ -54,10 +54,10 @@ intCutSepPar        7    # separate user cuts + lazy constraints
 # now all the double parameters
 # [none]
 
-0 # number of string parameters
+1 # number of string parameters
 
 # now all the string parameters
-#strOutputFile	uc.lp
+strOutputFile	uc2.lp
 
 0 # number of vector-of-int parameters
 
@@ -82,5 +82,5 @@ intCutSepPar        7    # separate user cuts + lazy constraints
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSCfg.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - END BSCfg2.txt- - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

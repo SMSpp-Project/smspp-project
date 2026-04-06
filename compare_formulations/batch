@@ -9,8 +9,10 @@ set=resilient-data/tmp_smspp_*.nc
 
 for what in ../../UCBlock/data/nc4/$set; do
 
-    printf "[$what MetaConfig1.txt MetaConfig2.txt BSCfg.txt]: "
-    ./compare_formulations $what MetaConfig1.txt MetaConfig2.txt BSCfg.txt
+    arg='MetaConfig1.txt MetaConfig2.txt BSCfg1.txt BSCfg2.txt'
+
+    printf "[$what $arg]: "
+    ./compare_formulations $what $arg
 
     retVal=$?
     if [ $retVal -ne 0 ]; then
