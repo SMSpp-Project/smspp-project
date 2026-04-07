@@ -23,6 +23,8 @@ if (TARGET SMS++::MCFBlock)
         target_link_libraries(MCF_MILP_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
+    smspp_install(MCF_MILP_test)
+
     # Create a test fixture to generate .nc4 files by running run_dmx2nc4.
     # This test will build and run the run_dmx2nc4 target
     add_test(NAME run_dmx2nc4

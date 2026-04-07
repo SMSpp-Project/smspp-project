@@ -28,6 +28,8 @@ if (TARGET SMS++::UCBlock)
         target_link_libraries(LDS_UC_test PRIVATE SMS++::MILPSolver)
     endif ()
 
+    smspp_install(LDS_UC_test)
+
     # Create a test fixture to generate .nc4 files by running extract_nc4uc.
     # This test will build and run the extract_nc4uc target
     add_test(NAME extract_nc4uc

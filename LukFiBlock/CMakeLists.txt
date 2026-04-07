@@ -22,6 +22,8 @@ if (TARGET SMS++::LukFiBlock)
     if (TARGET SMS++::MILPSolver)
         target_link_libraries(LukFi_test PRIVATE SMS++::MILPSolver)
     endif ()
+
+    smspp_install(LukFi_test)
 endif ()
 
 # --------------------------------------------------------------------------- #

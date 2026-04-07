@@ -34,6 +34,8 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
         target_link_libraries(CFL_test PRIVATE SMS++::LEMONSolver)
     endif ()
 
+    smspp_install(CFL_test)
+
     # Create a test fixture to generate .nc4 files by running run_txt2nc4.
     # This test will build and run the run_txt2nc4 target
     add_test(NAME run_txt2nc4

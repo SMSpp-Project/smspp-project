@@ -21,6 +21,8 @@ if (TARGET SMS++::MILPSolver)
     target_link_libraries(LagBFunction_test PRIVATE SMS++::MILPSolver)
 endif ()
 
+smspp_install(LagBFunction_test)
+
 # Add a test for each batch file
 file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
 foreach (BATCH_FILE ${BATCH_FILES})
