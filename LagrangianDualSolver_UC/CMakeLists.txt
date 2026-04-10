@@ -30,12 +30,12 @@ if (TARGET SMS++::UCBlock)
 
     smspp_install(LDS_UC_test)
 
-    # Create a test fixture to generate .nc4 files by running extract_nc4uc.
-    # This test will build and run the extract_nc4uc target
-    add_test(NAME extract_nc4uc
-             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target extract_nc4uc)
-    # Mark extract_nc4uc as a fixture that sets up "data_extracted"
-    set_tests_properties(extract_nc4uc PROPERTIES FIXTURES_SETUP data_extracted)
+    # Create a test fixture to generate .nc4 files by running extract_uc_nc4.
+    # This test will build and run the extract_uc_nc4 target
+    add_test(NAME extract_uc_nc4
+             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target extract_uc_nc4)
+    # Mark extract_uc_nc4 as a fixture that sets up "data_extracted"
+    set_tests_properties(extract_uc_nc4 PROPERTIES FIXTURES_SETUP data_extracted)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/batch-acad"

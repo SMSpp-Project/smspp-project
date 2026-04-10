@@ -97,6 +97,7 @@ add_subdirectory(LagrangianDualSolver_MMCF)
 
 add_subdirectory(LagrangianDualSolver_UC)
 add_subdirectory(ThermalUnitBlock_Solver)
+add_subdirectory(InvestmentBlock)
 
 add_subdirectory(LukFiBlock)
 

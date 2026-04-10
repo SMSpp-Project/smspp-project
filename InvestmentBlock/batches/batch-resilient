@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+#
+# usage: batch-resilient < exe file > < par file > < log file >
+#        < exe file > = path of the executable file, default LDS_UC_test
+#        < par file > = BlockSolverConfig file, default BSPar.txt
+#        < log file > = name of log file, default no log
+#
+# runs all the energy community instances and checks that the PyPsa objective
+# value matches the given reference one
+
+# command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
+
+if [ $# -gt 0 ]; then
+   exe=$1
+else
+   exe=./LDS_UC_test
+fi
+if [ $# -gt 1 ]; then
+   par=$2
+else
+   par=BSPar-2S-EASY.txt
+fi
+if [ $# -gt 2 ]; then
+   mlf=$3
+fi
+
+# reference objective values dictionary - - - - - - - - - - - - - - - - - - -
+# each entry: [ filename ] = PyPsa objective value
+# filenames must match exactly the .nc files in the current directory
+
+declare -A REF_OBJ
+
+REF_OBJ[tmp_smspp_inv_1n_1c_1g_ext.nc]=4.128132458e+09
+REF_OBJ[tmp_smspp_inv_2n_1c_1g_1b_ext.nc]=4.018666798e+09
+
+# run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+for what in ../../InvestmentBlock/data/nc4/resilient-data/tmp_smspp_*.nc; do
+
+    # skip if pattern did not match any file
+    if [ ! -f "$what" ]; then
+      continue
+    fi
+
+    base=$(basename "$what")
+    ref=${REF_OBJ[$base]}
+
+    if [ -z "$ref" ]; then
+      echo "No reference objective defined for file: $base"
+      exit 1
+    fi
+
+    if [ -z "$mlf" ]; then
+      printf "[$what $par 0 $ref]: "
+      "$exe" $what $par 0 $ref
+    else
+      printf "[$what $par 0 $ref]: " >> $mlf
+      "$exe" $what $par 0 $ref >> $mlf
+    fi
+
+    retVal=$?
+    if [ $retVal -ne 0 ]; then
+      exit 1
+    fi
+
+done
+
+# the end - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
