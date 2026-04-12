@@ -120,7 +120,7 @@ void b_config_Block( Block * block , Configuration * b_config ,
   // construct the list of all Block inside block
   BFS.push_back( block );
   for( auto bit = BFS.begin() ; bit != BFS.end() ; ++bit )
-   for( auto el : (*bit)->get_nested_Blocks() )
+   for( auto el : ( *bit )->get_nested_Blocks() )
     BFS.push_back( el );
 
   auto & map = mb->f_value;
@@ -172,7 +172,7 @@ void s_config_Block( Block * block , Configuration * s_config ,
   // construct the list of all Block inside block
   BFS.push_back( block );
   for( auto bit = BFS.begin() ; bit != BFS.end() ; ++bit )
-   for( auto el : (*bit)->get_nested_Blocks() )
+   for( auto el : ( *bit )->get_nested_Blocks() )
     BFS.push_back( el );
 
   auto & map = mb->f_value;
