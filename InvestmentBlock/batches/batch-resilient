@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
-# usage: batch-resilient < exe file > < par file > < log file >
-#        < exe file > = path of the executable file, default LDS_UC_test
-#        < par file > = BlockSolverConfig file, default BSPar.txt
+# usage: batch-resilient < exe file > < bpar file > < spar file > < log file >
+#        < exe file > = path of the executable file, default InvestmentBlock_test
+#        < bpar file > = BlockConfig file, default MetaConfig1.txt
+#        < spar file > = BlockSolverConfig file, default BSPar.txt
 #        < log file > = name of log file, default no log
 #
 # runs all the energy community instances and checks that the PyPsa objective
@@ -13,15 +14,20 @@
 if [ $# -gt 0 ]; then
    exe=$1
 else
-   exe=./LDS_UC_test
+   exe=./InvestmentBlock_test
 fi
 if [ $# -gt 1 ]; then
-   par=$2
+   bpar=$2
 else
-   par=BSPar-2S-EASY.txt
+   bpar=MetaConfig1.txt
 fi
 if [ $# -gt 2 ]; then
-   mlf=$3
+   spar=$3
+else
+   spar=BSPar-2S-EASY.txt
+fi
+if [ $# -gt 3 ]; then
+   mlf=$4
 fi
 
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -
@@ -30,12 +36,17 @@ fi
 
 declare -A REF_OBJ
 
-REF_OBJ[tmp_smspp_inv_1n_1c_1g_ext.nc]=4.128132458e+09
-REF_OBJ[tmp_smspp_inv_2n_1c_1g_1b_ext.nc]=4.018666798e+09
+REF_OBJ[smspp_1n_1c_1gext.nc]=4.055269613e+09
+REF_OBJ[smspp_2n_1c_1gext_1bext_2l.nc]=3.887187461e+09
+REF_OBJ[smspp_2n_1c_1gext_1bext_2lext.nc]=7.034743762e+08
+REF_OBJ[smspp_2n_2c_1g_1lext.nc]=6.720604306e+09
+REF_OBJ[smspp_3n_3c_1gext_1h_1bext_2l.nc]=2.907246492e+09
+REF_OBJ[smspp_inv_1n_1c_1g_ext.nc]=4.128132458e+09
+REF_OBJ[smspp_inv_2n_1c_1g_1b_ext.nc]=4.018666798e+09
 
 # run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-for what in ../../InvestmentBlock/data/nc4/resilient-data/tmp_smspp_*.nc; do
+for what in ../../InvestmentBlock/data/nc4/resilient-data/smspp_*.nc; do
 
     # skip if pattern did not match any file
     if [ ! -f "$what" ]; then
@@ -51,11 +62,11 @@ for what in ../../InvestmentBlock/data/nc4/resilient-data/tmp_smspp_*.nc; do
     fi
 
     if [ -z "$mlf" ]; then
-      printf "[$what $par 0 $ref]: "
-      "$exe" $what $par 0 $ref
+      printf "[$what $bpar $spar 0 $ref]: "
+      "$exe" $what $bpar $spar 0 $ref
     else
-      printf "[$what $par 0 $ref]: " >> $mlf
-      "$exe" $what $par 0 $ref >> $mlf
+      printf "[$what $bpar $spar 0 $ref]: " >> $mlf
+      "$exe" $what $bpar $spar 0 $ref >> $mlf
     fi
 
     retVal=$?

@@ -112,6 +112,9 @@
 #include <chrono>
 #include <cmath>
 #include <limits>
+#include <list>
+
+#include "RBlockConfig.h"
 
 #include <BatteryUnitBlock.h>
 #include <BendersBlock.h>
@@ -474,22 +477,26 @@ void process_my_args( int argc , char ** argv ) {
  }
 
  // Support the batch invocation:
- //   test <nc-file> <solver-config> 0 <ref-objective>
+ //   test <nc-file> <block-config> <solver-config> 0 <ref-objective>
  //
- // Semantics aligned with the UCBlock tester:
- // - if more than one solver is registered, compare solver 1 vs solver 2
- // - if a reference objective is provided, also compare solver 1 vs reference
- // - if only one solver is registered, compare solver 1 vs reference only
+ // Semantics:
+ // - load the InvestmentBlock from <nc-file>
+ // - apply <block-config> as external BlockConfig
+ // - apply <solver-config> as external BlockSolverConfig
+ // - if a reference objective is provided, compare the first solver to it
  //
  // This branch is taken only when the first argument is not an option.
  if( argv[ 1 ][ 0 ] != '-' ) {
   filename = std::string( argv[ 1 ] );
 
   if( argc >= 3 )
-   sconf_file = std::string( argv[ 2 ] );
+   bconf_file = std::string( argv[ 2 ] );
 
-  if( argc >= 5 )
-   RefObjective = std::stod( argv[ 4 ] );
+  if( argc >= 4 )
+   sconf_file = std::string( argv[ 3 ] );
+
+  if( argc >= 6 )
+   RefObjective = std::stod( argv[ 5 ] );
 
   return;
  }
@@ -1047,6 +1054,114 @@ void set_log( SDDPBlock * sddp_block , std::ostream * output_stream ) {
     solver->set_log( output_stream );
  }
 }
+
+/*--------------------------------------------------------------------------*/
+
+void b_config_Block( Block * block , Configuration * b_config ,
+		     const std::string & fn )
+{
+ // std::list rather than std::vector since it's built by push_back and
+ // only trasversed head-to-tail
+ std::list< Block * > BFS;
+
+ // handle the special case of a "meta" BlockConfig
+ if( auto * mb =
+     dynamic_cast< SimpleConfiguration< std::map< std::string ,
+                                                  Configuration * > >
+                                        * >( b_config ) ) {
+
+  // construct the list of all Block inside block
+  BFS.push_back( block );
+  for( auto bit = BFS.begin() ; bit != BFS.end() ; ++bit )
+   for( auto el : ( *bit )->get_nested_Blocks() )
+    BFS.push_back( el );
+
+  auto & map = mb->f_value;
+
+  // now BlockConfig-ure all Block whose classname() matches
+  for( auto b : BFS )
+   if( auto bcit = map.find( b->classname() ); bcit != map.end() ) {
+    if( auto bc = dynamic_cast< BlockConfig * >( bcit->second ) ) {
+     auto cbc = bc->clone();
+     cbc->apply( b );
+     delete cbc;
+     }
+    else {
+     std::cerr << "Error: meta-Configuration for :Block " << bcit->first
+	       << " in file " << fn << " is not a BlockConfig" << std::endl;
+     exit( 1 );
+     }
+    }
+
+  return;  // all done
+  }
+
+ if( auto * bc = dynamic_cast< BlockConfig * >( b_config ) ) {
+  bc->apply( block );  // just apply() it
+  return;              // all done
+  }
+
+ std::cerr << "Error: " << fn
+	   << " does not contain a valid [meta]BlockConfig" << std::endl;
+ exit( 1 );
+
+}  // end( b_config_Block )
+
+/*--------------------------------------------------------------------------*/
+
+void s_config_Block( Block * block , Configuration * s_config ,
+		     const std::string & fn = "" )
+{
+ // std::list rather than std::vector since it's built by push_back and
+ // only trasversed head-to-tail
+ std::list< Block * > BFS;
+
+ // handle the special case of a "meta" BlockSolverConfig
+ if( auto * mb =
+     dynamic_cast< SimpleConfiguration< std::map< std::string ,
+                                                  Configuration * > >
+                                        * >( s_config ) ) {
+
+  // construct the list of all Block inside block
+  BFS.push_back( block );
+  for( auto bit = BFS.begin() ; bit != BFS.end() ; ++bit )
+   for( auto el : ( *bit )->get_nested_Blocks() )
+    BFS.push_back( el );
+
+  auto & map = mb->f_value;
+
+  // now BlockSolverConfig-ure all Block whose classname() matches
+  for( auto b : BFS )
+   if( auto bcit = map.find( b->classname() ); bcit != map.end() ) {
+    if( auto bsc = dynamic_cast< BlockSolverConfig * >( bcit->second ) )
+     bsc->apply( b );
+    else {
+     std::cerr << "Error: meta-Configuration for :Block " << bcit->first
+	       << " in file " << fn << " is not a BlockSolverConfig"
+	       << std::endl;
+     exit( 1 );
+     }
+    }
+
+  // finally, clear() all the BlockSolverConfig for final cleanup
+  for( auto & el : map )
+   (el.second)->clear();
+
+  return;  // all done
+  }
+
+ if( auto * bsc = dynamic_cast< BlockSolverConfig * >( s_config ) ) {
+  bsc->apply( block );  // just apply() it
+  bsc->clear();         // clear() it for final cleanup
+  return;               // all done
+  }
+
+ std::cerr << "Error: " << fn
+	   << " does not contain a valid [meta]BlockSolverConfig"
+	   << std::endl;
+ exit( 1 );
+
+}  // end( s_config_Block )
 
 /*--------------------------------------------------------------------------*/
 
@@ -1654,24 +1769,24 @@ void config_Lagrangian_dual( BlockSolverConfig * sddp_solver_config ,
 void process_block_file( const netCDF::NcFile & file ) {
  auto blocks = file.getGroups();
 
- // BlockConfig
- auto given_block_config = get_blockconfig( bconf_file );
-
- BlockConfig * block_config = nullptr;
- if( given_block_config ) {
-  block_config = given_block_config->clone();
-  block_config->clear();
+ // Load BlockConfig from file, if provided
+ Configuration * given_block_config = nullptr;
+ if( ! bconf_file.empty() ) {
+  given_block_config = Configuration::deserialize( bconf_file );
+  if( ! given_block_config ) {
+   std::cerr << "error: cannot load BlockConfig " << bconf_file
+             << std::endl;
+   exit( 1 );
+  }
  }
 
- // BlockSolverConfig
- auto solver_config = get_blocksolverconfig( sconf_file );
+ // Load BlockSolverConfig from file
+ Configuration * solver_config = Configuration::deserialize( sconf_file );
  if( ! solver_config ) {
-  std::cerr << "The Solver configuration is not valid." << std::endl;
+  std::cerr << "error: cannot load BlockSolverConfig " << sconf_file
+            << std::endl;
   exit( 1 );
  }
-
- auto cleared_solver_config = solver_config->clone();
- cleared_solver_config->clear();
 
  // For each Block descriptor
  for( auto block_description : blocks ) {
@@ -1679,7 +1794,7 @@ void process_block_file( const netCDF::NcFile & file ) {
   auto block_type_att = block_description.second.getAtt( "type" );
   if( block_type_att.isNull() ) {
    std::cerr << "The netCDF attribute 'type' was not found in the netCDF "
-    << "group " << block_description.second.getName() << std::endl;
+             << "group " << block_description.second.getName() << std::endl;
    exit( 1 );
   }
 
@@ -1688,8 +1803,8 @@ void process_block_file( const netCDF::NcFile & file ) {
 
   if( block_type != "InvestmentBlock" ) {
    std::cerr << "The Block in the netCDF file " << block_type << " is "
-    << block_type << ", but it must be an InvestmentBlock"
-    << std::endl;
+             << block_type << ", but it must be an InvestmentBlock"
+             << std::endl;
    exit( 1 );
   }
 
@@ -1704,14 +1819,15 @@ void process_block_file( const netCDF::NcFile & file ) {
    auto block = dynamic_cast< UCBlock * >( block_ );
    if( ! block ) {
     std::cerr << "The sub-Block of the InvestmentBlock is not a UCBlock."
-     << std::endl;
+              << std::endl;
     exit( 1 );
    }
   }
 
-  // Configure the UCBlock
-  if( given_block_config )
-   given_block_config->apply( investment_block );
+  // Configure the Block
+  if( given_block_config ) {
+   b_config_Block( investment_block , given_block_config , bconf_file );
+  }
   else {
    for( auto block_ : investment_function->get_nested_Blocks() ) {
     auto block = dynamic_cast< UCBlock * >( block_ );
@@ -1739,16 +1855,15 @@ void process_block_file( const netCDF::NcFile & file ) {
   const auto uc_solver_config_filename = "uc_solverconfig.txt";
 
   auto ucblock_solver_config =
-   get_blocksolverconfig( uc_solver_config_filename );
+   Configuration::deserialize( uc_solver_config_filename );
 
   if( ! ucblock_solver_config ) {
-   std::cerr << "File " << uc_solver_config_filename << " was not found or "
-    << "its Configuration is invalid." << std::endl;
+   std::cerr << "error: cannot load BlockSolverConfig "
+             << uc_solver_config_filename << std::endl;
    exit( 1 );
   }
 
   // Construct the ComputeConfig for the InvestmentFunction
-
   ComputeConfig investment_function_config;
 
   investment_function_config.f_extra_Configuration =
@@ -1759,15 +1874,18 @@ void process_block_file( const netCDF::NcFile & file ) {
   investment_function->set_ComputeConfig( &investment_function_config );
 
   // Possibly set the initial point
-
   set_initial_point( investment_block );
 
   // Finally, apply the Solver configuration
+  s_config_Block( investment_block , solver_config , sconf_file );
 
-  solver_config->apply( investment_block );
+  if( investment_block->get_registered_solvers().empty() ) {
+   std::cerr << "Error: no Solver registered to InvestmentBlock"
+             << std::endl;
+   exit( 1 );
+  }
 
   // Set the output stream for the log of the inner Solvers
-
   for( auto block : investment_function->get_nested_Blocks() ) {
    for( auto solver : block->get_registered_solvers() )
     if( solver )
@@ -1777,24 +1895,14 @@ void process_block_file( const netCDF::NcFile & file ) {
   // Solve
   AllPassed &= test_investment_solvers( investment_block );
 
-  // Destroy the InvestmentBlock and the Configurations
-
-  if( block_config )
-   block_config->apply( investment_block );
-  if( ! given_block_config ) {
-   delete block_config;
-   block_config = nullptr;
-  }
-
-  cleared_solver_config->apply( investment_block );
+  // Cleanup solver attachments/configurations
+  s_config_Block( investment_block , solver_config );
 
   delete investment_block;
  }
 
- delete block_config;
  delete given_block_config;
  delete solver_config;
- delete cleared_solver_config;
 }
 
 /*--------------------------------------------------------------------------*/
