@@ -35,6 +35,9 @@ Write-Read/writeandread_test
 MMCFBlock/data/*
 MMCFBlock/gen/Canad.tgz
 
+# data directories
+InvestmentBlock/investment_candidates.txt
+
 # BundleSolver log files
 *.bn
 

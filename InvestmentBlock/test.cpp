@@ -2152,18 +2152,19 @@ void process_block_file( const netCDF::NcFile & file ) {
     configure_Blocks( block , relax_integrality ,
                       is_using_lagrangian_dual_solver );
    }
+  }
 
-   if( reformulate_variable_bounds ) {
-    // Since BundleSolver cannot currently handle general bounds on the
-    // variables of the form l <= x <= u, we create a BlockConfig to instruct
-    // the InvestmentBlock to reformulate the bound constraints by replacing
-    // l <= x <= u by 0 <= x <= u - l.
-    auto config = new BlockConfig;
-    config->f_static_constraints_Configuration =
-     new SimpleConfiguration< int >( 1 );
+  if( reformulate_variable_bounds ) {
+   // Since BundleSolver cannot currently handle general bounds on the
+   // variables of the form l <= x <= u, we create a BlockConfig to instruct
+   // the InvestmentBlock to reformulate the bound constraints by replacing
+   // l <= x <= u by 0 <= x <= u - l.
+   auto config = new BlockConfig;
+   config->f_static_constraints_Configuration =
+    new SimpleConfiguration< int >( 1 );
 
-    investment_block->set_BlockConfig( config );
-   }
+   config->apply( investment_block );
+   delete config;
   }
 
   // Configure the Solver
