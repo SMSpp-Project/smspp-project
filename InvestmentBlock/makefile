@@ -16,6 +16,9 @@ NAME = IB_test
 # basic directory
 DIR = .
 
+# common stuff
+include ../makefile_common
+
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -
 # if a module is not used in the current configuration, just comment out the
 # corresponding include line
