@@ -2167,7 +2167,6 @@ void process_block_file( const netCDF::NcFile & file ) {
   }
 
   // Configure the Solver
-
   // TODO This config file must be indicated in some appropriate way.
   const auto uc_solver_config_filename = "BSCfg1.txt";
 

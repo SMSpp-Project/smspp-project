@@ -24,7 +24,7 @@ fi
 if [ $# -gt 2 ]; then
    spar=$3
 else
-   spar=BSPar-2S-EASY.txt
+   spar=BSPar.txt
 fi
 if [ $# -gt 3 ]; then
    mlf=$4
