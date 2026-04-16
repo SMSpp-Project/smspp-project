@@ -103,9 +103,17 @@
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
-#include "common_utils.h"
-
+#include <getopt.h>
 #include <filesystem>
+#include <cerrno>
+#include <cstdlib>
+#include <exception>
+#include <typeinfo>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <functional>
+#include <map>
 #include <iomanip>
 #include <iostream>
 #include <queue>
@@ -114,17 +122,18 @@
 #include <limits>
 #include <list>
 
-#include "RBlockConfig.h"
+#include <Block.h>
+#include <BlockSolverConfig.h>
+#include <CDASolver.h>
+#include <Solution.h>
 
 #include <BatteryUnitBlock.h>
 #include <BendersBlock.h>
-#include <BlockSolverConfig.h>
 #include <HydroSystemUnitBlock.h>
 #include <IntermittentUnitBlock.h>
 #include <NetworkBlock.h>
 #include <SDDPBlock.h>
 #include <StochasticBlock.h>
-#include <SDDPGreedySolver.h>
 #include <SDDPSolver.h>
 #include <SlackUnitBlock.h>
 #include <ThermalUnitBlock.h>
@@ -142,6 +151,306 @@
 /*--------------------------------------------------------------------------*/
 
 using namespace SMSpp_di_unipi_it;
+
+/*--------------------------------------------------------------------------*/
+/*------------------------------ FUNCTIONS ---------------------------------*/
+/*--------------------------------------------------------------------------*/
+
+// Globals formerly provided by common_utils
+
+std::string docopt_desc {};
+
+std::string filename {};
+std::string bconf_file {};
+std::string sconf_file {};
+std::string state_in_file {};
+std::string state_out_file {};
+std::string block_prefix {};
+std::string conf_prefix {};
+std::string exe {};
+std::string sol_input {};
+std::string sol_output {};
+std::string sol_cfg_file {};
+
+bool output_solution = false;
+bool sol_verbose = false;
+bool writeprob = false;
+bool dryrun = false;
+
+int verbosity_level = 0;
+
+// default short command-line options
+std::string short_opts = "a:B:b:p:S:c:on:I:O:C:Dv:h";
+
+// default long command-line options
+std::vector< option > long_opts = {
+ { "help"            , no_argument       , nullptr , 'h' } ,
+ { "save-state"      , required_argument , nullptr , 'a' } ,
+ { "blockcfg"        , required_argument , nullptr , 'B' } ,
+ { "load-state"      , required_argument , nullptr , 'b' } ,
+ { "prefix"          , required_argument , nullptr , 'p' } ,
+ { "solvercfg"       , required_argument , nullptr , 'S' } ,
+ { "configdir"       , required_argument , nullptr , 'c' } ,
+ { "output-solution" , no_argument       , nullptr , 'o' } ,
+ { "nc4problem"      , required_argument , nullptr , 'n' } ,
+ { "inputsol"        , required_argument , nullptr , 'I' } ,
+ { "outputsol"       , required_argument , nullptr , 'O' } ,
+ { "outsolcfg"       , required_argument , nullptr , 'C' } ,
+ { "dryrun"          , no_argument       , nullptr , 'D' } ,
+ { "verbose"         , optional_argument , nullptr , 'v' } ,
+ { nullptr           , no_argument       , nullptr , 0 }
+};
+
+std::string help =
+ "  -h, --help                      print this help\n"
+ "  -a, --save-state <file>         save State of the Solver\n"
+ "  -B, --blockcfg <file>           Block Configuration\n"
+ "  -b, --load-state <file>         load State for the Solver\n"
+ "  -p, --prefix <path>             the prefix for all Block filenames\n"
+ "  -S, --solvercfg <file>          Solver Configuration\n"
+ "  -c, --configdir <path>          the prefix for all Config filenames\n"
+ "  -I, --inputsol <file>           input Solution\n"
+ "  -O, --outputsol <file>          output Solution\n"
+ "  -C, --outsolcfg <file>          output Solution Configuration\n"
+ "  -o, --output-solution           output the solutions\n"
+ "  -n, --nc4problem <file>         write nc4 problem on file\n"
+ "  -D, --dryrun                    skip the compute() call\n"
+ "  -v, --verbose[=N]               verbose output (0 = silent, 1 = basic, 2 = debug)\n";
+
+/*--------------------------------------------------------------------------*/
+
+inline std::string normalize_prefix( const std::string & prefix )
+{
+ if( prefix.empty() )
+  return( prefix );
+
+ std::filesystem::path p( prefix );
+ p = p.lexically_normal();
+
+ auto s = p.string();
+ if( s.empty() )
+  return( s );
+
+ if( ( s.back() != '/' ) && ( s.back() != '\\' ) )
+  s += std::filesystem::path::preferred_separator;
+
+ return( s );
+}
+
+/*--------------------------------------------------------------------------*/
+
+inline std::string resolve_with_prefix( const std::string & prefix ,
+                                        const std::string & name )
+{
+ if( name.empty() )
+  return( name );
+
+ std::filesystem::path p( name );
+ if( p.is_absolute() )
+  return( p.lexically_normal().string() );
+
+ if( prefix.empty() )
+  return( p.lexically_normal().string() );
+
+ return( ( std::filesystem::path( prefix ) / p ).lexically_normal().string() );
+}
+
+/*--------------------------------------------------------------------------*/
+
+inline std::string get_filename( const std::string & fullpath )
+{
+ std::size_t found = fullpath.find_last_of( "/\\" );
+ return( fullpath.substr( found + 1 ) );
+}
+
+/*--------------------------------------------------------------------------*/
+
+inline long get_long_option( char * end = nullptr )
+{
+ errno = 0;
+ long option = std::strtol( optarg , &end , 10 );
+ if( ( ! optarg ) || ( ( option = std::strtol( optarg , &end , 10 ) ) ,
+                       ( errno || ( end && *end ) ) ) )
+  option = -1;
+ return( option );
+}
+
+/*--------------------------------------------------------------------------*/
+
+int read_open_netCDF( netCDF::NcFile & f , std::string fn )
+{
+ fn = resolve_with_prefix( block_prefix , fn );
+
+ try {
+  f.open( fn , netCDF::NcFile::read );
+ }
+ catch( netCDF::exceptions::NcException & ) {
+  std::cerr << exe << ": cannot open nc4 file " << fn << std::endl;
+  exit( 1 );
+ }
+
+ netCDF::NcGroupAtt gtype = f.getAtt( "SMS++_file_type" );
+ if( gtype.isNull() ) {
+  std::cerr << exe << ": " << fn << " is not an SMS++ nc4 file" << std::endl;
+  exit( 1 );
+ }
+
+ int type;
+ gtype.getValues( &type );
+
+ if( ( type != eProbFile ) && ( type != eBlockFile ) ) {
+  std::cerr << exe << ": " << fn << " is not a valid SMS++ file" << std::endl;
+  exit( 1 );
+ }
+
+ return( type );
+}
+
+/*--------------------------------------------------------------------------*/
+
+void docopt( void )
+{
+ std::cout << docopt_desc << std::endl;
+ std::cout << "Usage:" << std::endl
+           << "  " << exe << " [options] <file>" << std::endl
+           << "  " << exe << " -h | --help" << std::endl << std::endl
+           << "Options:"  << std::endl << help << std::endl;
+}
+
+/*--------------------------------------------------------------------------*/
+
+bool process_standard_arg( int opt )
+{
+ switch( opt ) {
+  case 'a': state_out_file = std::string( optarg ); break;
+  case 'B': bconf_file = std::string( optarg ); break;
+  case 'b': state_in_file = std::string( optarg ); break;
+  case 'p': {
+   block_prefix = normalize_prefix( std::string( optarg ) );
+   Block::set_filename_prefix( std::string( block_prefix ) );
+   break;
+  }
+  case 'S': sconf_file = std::string( optarg ); break;
+  case 'c': conf_prefix = normalize_prefix( std::string( optarg ) ); break;
+  case 'o': output_solution = true; break;
+  case 'I': sol_input = std::string( optarg ); break;
+  case 'O': sol_output = std::string( optarg ); break;
+  case 'C': sol_cfg_file = std::string( optarg ); break;
+  case 'n': writeprob = true; break;
+  case 'D': dryrun = true; break;
+  case 'v': {
+   sol_verbose = true;
+   verbosity_level = optarg ? std::atoi( optarg ) : 1;
+   break;
+  }
+  case 'h': docopt(); exit( 0 );
+  case '?':
+  default:  return( false );
+ }
+ return( true );
+}
+
+/*--------------------------------------------------------------------------*/
+
+void smspp_terminate( void )
+{
+ std::cerr << "Uncaught exception in executing SMS++:\n";
+ try {
+  std::rethrow_exception( std::current_exception() );
+ }
+ catch( const std::exception & e ) {
+  std::cerr << "\tException type: " << typeid( e ).name() << "\n";
+  std::cerr << "\tException message: " << e.what() << "\n";
+ }
+ catch( ... ) {
+  std::cerr << "\tUnknown exception" << std::endl;
+ }
+ std::abort();
+}
+
+/*--------------------------------------------------------------------------*/
+
+void get_initial_Solution( Block * block )
+{
+ if( sol_input.empty() )
+  return;
+
+ if( auto initsol = Solution::deserialize( sol_input ) ) {
+  initsol->write( block );
+  delete initsol;
+ }
+ else
+  std::cout << "Warning: input Solution " << sol_input << " invalid"
+            << std::endl;
+}
+
+/*--------------------------------------------------------------------------*/
+
+void get_initial_State( Solver * solver )
+{
+ if( state_in_file.empty() )
+  return;
+
+ try {
+  auto state = State::deserialize( state_in_file );
+  solver->put_State( *state );
+  delete state;
+ }
+ catch( netCDF::exceptions::NcException & ) {
+  std::cout << "Warning: State file " << state_in_file
+            << " could not be loaded" << std::endl;
+ }
+ catch( const std::exception & e ) {
+  std::cout << "Warning: error " << e.what()
+            << " occurred while loading the Solver State" << std::endl;
+ }
+}
+
+/*--------------------------------------------------------------------------*/
+
+void write_final_Solution( Block * block , Configuration * cfg = nullptr ,
+                           bool replace = false )
+{
+ if( sol_output.empty() )
+  return;
+
+ Configuration * outsolcfg = cfg;
+ if( ( ! outsolcfg ) && ( ! sol_cfg_file.empty() ) )
+  if( ! ( outsolcfg = Configuration::deserialize(
+          resolve_with_prefix( conf_prefix , sol_cfg_file ) ) ) )
+   std::cout << "Warning: output Solution Configuration "
+             << sol_cfg_file << " invalid" << std::endl;
+
+ if( auto sol = block->get_Solution( outsolcfg , false ) ) {
+  sol->serialize( sol_output , replace );
+  delete sol;
+ }
+ else
+  std::cout << "Warning: output Solution empty" << std::endl;
+
+ if( ! cfg )
+  delete outsolcfg;
+}
+
+/*--------------------------------------------------------------------------*/
+
+void write_final_State( Solver * solver , bool replace = false )
+{
+ if( state_out_file.empty() )
+  return;
+
+ try {
+  solver->serialize_State( state_out_file , replace );
+ }
+ catch( netCDF::exceptions::NcException & ) {
+  std::cout << "Warning: State file " << state_out_file
+            << " could not be opened" << std::endl;
+ }
+ catch( const std::exception & e ) {
+  std::cout << "Warning: error " << e.what()
+            << " occurred while saving the Solver State" << std::endl;
+ }
+}
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------- GLOBALS ----------------------------------*/
@@ -498,6 +807,10 @@ void process_my_args( int argc , char ** argv ) {
   if( argc >= 6 )
    RefObjective = std::stod( argv[ 5 ] );
 
+  bconf_file = resolve_with_prefix( conf_prefix , bconf_file );
+  sconf_file = resolve_with_prefix( conf_prefix , sconf_file );
+  sol_cfg_file = resolve_with_prefix( conf_prefix , sol_cfg_file );
+
   return;
  }
 
@@ -542,6 +855,10 @@ void process_my_args( int argc , char ** argv ) {
    << "Try " << exe << "' --help' for more information" << std::endl;
   exit( 1 );
  }
+
+ bconf_file = resolve_with_prefix( conf_prefix , bconf_file );
+ sconf_file = resolve_with_prefix( conf_prefix , sconf_file );
+ sol_cfg_file = resolve_with_prefix( conf_prefix , sol_cfg_file );
 } // end( process_my_args )
 
 /*--------------------------------------------------------------------------*/
@@ -1058,7 +1375,7 @@ void set_log( SDDPBlock * sddp_block , std::ostream * output_stream ) {
 /*--------------------------------------------------------------------------*/
 
 void b_config_Block( Block * block , Configuration * b_config ,
-		     const std::string & fn )
+                     const std::string & fn )
 {
  // std::list rather than std::vector since it's built by push_back and
  // only trasversed head-to-tail
@@ -1085,24 +1402,24 @@ void b_config_Block( Block * block , Configuration * b_config ,
      auto cbc = bc->clone();
      cbc->apply( b );
      delete cbc;
-     }
+    }
     else {
      std::cerr << "Error: meta-Configuration for :Block " << bcit->first
-	       << " in file " << fn << " is not a BlockConfig" << std::endl;
+               << " in file " << fn << " is not a BlockConfig" << std::endl;
      exit( 1 );
-     }
     }
+   }
 
   return;  // all done
-  }
+ }
 
  if( auto * bc = dynamic_cast< BlockConfig * >( b_config ) ) {
   bc->apply( block );  // just apply() it
   return;              // all done
-  }
+ }
 
  std::cerr << "Error: " << fn
-	   << " does not contain a valid [meta]BlockConfig" << std::endl;
+           << " does not contain a valid [meta]BlockConfig" << std::endl;
  exit( 1 );
 
 }  // end( b_config_Block )
@@ -1110,7 +1427,7 @@ void b_config_Block( Block * block , Configuration * b_config ,
 /*--------------------------------------------------------------------------*/
 
 void s_config_Block( Block * block , Configuration * s_config ,
-		     const std::string & fn = "" )
+                     const std::string & fn = "" )
 {
  // std::list rather than std::vector since it's built by push_back and
  // only trasversed head-to-tail
@@ -1137,28 +1454,28 @@ void s_config_Block( Block * block , Configuration * s_config ,
      bsc->apply( b );
     else {
      std::cerr << "Error: meta-Configuration for :Block " << bcit->first
-	       << " in file " << fn << " is not a BlockSolverConfig"
-	       << std::endl;
+               << " in file " << fn << " is not a BlockSolverConfig"
+               << std::endl;
      exit( 1 );
-     }
     }
+   }
 
   // finally, clear() all the BlockSolverConfig for final cleanup
   for( auto & el : map )
    (el.second)->clear();
 
   return;  // all done
-  }
+ }
 
  if( auto * bsc = dynamic_cast< BlockSolverConfig * >( s_config ) ) {
   bsc->apply( block );  // just apply() it
   bsc->clear();         // clear() it for final cleanup
   return;               // all done
-  }
+ }
 
  std::cerr << "Error: " << fn
-	   << " does not contain a valid [meta]BlockSolverConfig"
-	   << std::endl;
+           << " does not contain a valid [meta]BlockSolverConfig"
+           << std::endl;
  exit( 1 );
 
 }  // end( s_config_Block )
@@ -1852,14 +2169,16 @@ void process_block_file( const netCDF::NcFile & file ) {
   // Configure the Solver
 
   // TODO This config file must be indicated in some appropriate way.
-  const auto uc_solver_config_filename = "uc_solverconfig.txt";
+  const auto uc_solver_config_filename = "BSCfg1.txt";
 
   auto ucblock_solver_config =
-   Configuration::deserialize( uc_solver_config_filename );
+   Configuration::deserialize(
+    resolve_with_prefix( conf_prefix , uc_solver_config_filename ) );
 
   if( ! ucblock_solver_config ) {
    std::cerr << "error: cannot load BlockSolverConfig "
-             << uc_solver_config_filename << std::endl;
+             << resolve_with_prefix( conf_prefix , uc_solver_config_filename )
+             << std::endl;
    exit( 1 );
   }
 

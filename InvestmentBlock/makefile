@@ -16,9 +16,6 @@ NAME = IB_test
 # basic directory
 DIR = .
 
-# common stuff
-include ../makefile_common
-
 # define & include the necessary modules- - - - - - - - - - - - - - - - - - -
 # if a module is not used in the current configuration, just comment out the
 # corresponding include line
@@ -45,16 +42,10 @@ include $(LgDSLVSDR)/makefile
 #MILPSSDR = ../../MILPSolver
 #include $(MILPSSDR)/makefile-c
 
-# common_utils stuff
-CMMNUDIR = ../../tools/block_solver
-CMMNUOBJ = $(DIR)/common_utils.o
-CMMNUH = $(CMMNUDIR)/common_utils.h
-CMMNUINC = -I$(CMMNUDIR)
-
 # main module (linking phase) - - - - - - - - - - - - - - - - - - - - - - - -
 
 # object files
-MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(InvsBkOBJ) $(CMMNUOBJ)
+MOBJ =  $(BNDSLVOBJ) $(LgDSLVOBJ) $(InvsBkOBJ)
 
 # libraries
 MLIB =  $(BNDSLVLIB) $(LgDSLVLIB) $(InvsBkLIB)
@@ -65,18 +56,14 @@ $(DIR)/$(NAME): $(MOBJ) $(DIR)/test.o
 # dependencies: every .o from its .cpp + every recursively included .h- - - -
 
 # include directives
-MINC =  $(BNDSLVINC) $(LgDSLVINC) $(InvsBkINC) $(CMMNUINC)
+MINC =  $(BNDSLVINC) $(LgDSLVINC) $(InvsBkINC)
 
 # includes
-MH =    $(BNDSLVH) $(LgDSLVH) $(InvsBkH) $(CMMNUH)
+MH =    $(BNDSLVH) $(LgDSLVH) $(InvsBkH)
 
 # compile command
 
 $(DIR)/test.o: $(DIR)/test.cpp $(MH)
 	$(CC) -c $(DIR)/test.cpp -o $@ $(MINC) $(SW)
-
-$(CMMNUOBJ): $(CMMNUH) $(SMS++H) $(CMMNUDIR)/common_utils.cpp
-	$(CC) -c $(CMMNUDIR)/common_utils.cpp -o $@ $(CMMNUINC) \
-	$(SMS++INC) $(SW)
 
 ############################ End of makefile #################################
