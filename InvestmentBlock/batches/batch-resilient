@@ -36,13 +36,13 @@ fi
 
 declare -A REF_OBJ
 
-REF_OBJ[smspp_1n_1c_1gext.nc]=4.055269613e+09
-REF_OBJ[smspp_2n_1c_1gext_1bext_2l.nc]=3.887187461e+09
-REF_OBJ[smspp_2n_1c_1gext_1bext_2lext.nc]=7.034743762e+08
-REF_OBJ[smspp_2n_2c_1g_1lext.nc]=6.720604306e+09
-REF_OBJ[smspp_3n_3c_1gext_1h_1bext_2l.nc]=2.907246492e+09
-REF_OBJ[smspp_inv_1n_1c_1g_ext.nc]=4.128132458e+09
-REF_OBJ[smspp_inv_2n_1c_1g_1b_ext.nc]=4.018666798e+09
+REF_OBJ[smspp_1n_1c_1gext.nc]=3.969365408e+08
+REF_OBJ[smspp_2n_1c_1gext_1bext_2l.nc]=4.116252931e+08
+REF_OBJ[smspp_2n_1c_1gext_1bext_2lext.nc]=9.019791121e+07
+REF_OBJ[smspp_2n_2c_1g_1lext.nc]=6.626444342e+08
+REF_OBJ[smspp_3n_3c_1gext_1h_1bext_2l.nc]=5.983456337e+08
+REF_OBJ[smspp_inv_1n_1c_1g_ext.nc]=4.109344639e+08
+REF_OBJ[smspp_inv_2n_1c_1g_1b_ext.nc]=4.168985026e+08
 
 # run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
