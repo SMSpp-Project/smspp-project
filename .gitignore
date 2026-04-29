@@ -664,3 +664,6 @@ TSWLatexianTemp*
 
 # VScode
 .vscode/*
+
+# Claude
+CLAUDE.md
