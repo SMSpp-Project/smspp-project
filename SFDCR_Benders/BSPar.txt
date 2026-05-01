@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSPar-2S.txt- - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - -BSPar.txt- - - - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a UCBlock to be solved by two
 # different Solver: a :MILPSolver and a LagrangianDualSolver using a
@@ -63,5 +63,5 @@ ComputeConfig # exact type of the ComputeConfig object
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSPar-2S.txt- - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - -BSPar.txt- - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
