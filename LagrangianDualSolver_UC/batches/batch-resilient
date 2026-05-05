@@ -24,6 +24,13 @@ if [ $# -gt 2 ]; then
    mlf=$3
 fi
 
+# All resilient instances are pure-LD subproblems on a single ECNetworkBlock-
+# like component: BundleSolver requires intDoEasy=0. If the metabatch passed
+# in the standard `BSPar-2S.txt` (intDoEasy=1) it would raise
+# "BundleSolver: all components are easy, this is no supported" — translate
+# to the EASY variant here.
+par=$(echo "$par" | sed 's/BSPar-2S\.txt$/BSPar-2S-EASY.txt/')
+
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -
 # each entry: [ filename ] = PyPsa objective value
 # filenames must match exactly the .nc files in the current directory
