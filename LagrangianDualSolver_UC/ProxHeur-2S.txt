@@ -1,5 +1,5 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - BSPar.txt - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - -ProxHeur-2S.txt- - - - - - - - - - - - - - -
 #
 # A txt description of a BlockSolverConfig for a Block to be solved by two
 # different Solver: a *MILPSolver and a LagrangianDualSolver using a
@@ -16,7 +16,10 @@ BlockSolverConfig     # exact type of the Configuration object
 
 2 # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
-GRBMILPSolver	     # name of 1st Solver
+#CPXMILPSolver 			# name of 1st Solver
+GRBMILPSolver 			# name of 1st Solver
+#SCIPMILPSolver 	    # name of 1st Solver
+#HiGHSMILPSolver 		# name of 1st Solver
 PrimalProximalHeur   # name of 2nd Solver
 
 2  # number of ComputeConfig in this BlockSolverConfig
@@ -85,7 +88,7 @@ ComputeConfig # exact type of the ComputeConfig object
 intDoEasy    1    # do easy components for (some) LagBFunction
 intMaxIter   1    # max number of iterations for each call
 intMaxThread 1	  # MaxThread, max number of new tasks to spawn
-intLogVerb   3    #log verbosity of main Bundle algorithm
+intLogVerb   3    # log verbosity of main Bundle algorithm
 intWZNorm   2     # which norm to use in the norm-based stopping condition
 intBPar1   20     # discard items when they have been useless for <this> iterations
 intBPar2  100     # max bundle size per component
@@ -97,7 +100,7 @@ intMnSSC    0     # min number of consecutive SS with the same t for a t increas
 intMnNSC    1     # min number of consecutive NS with the same t for a t decrease
 inttSPar1  12     # long-term t-strategy (0 = none, 4 = soft, 8 = hard, 12 = balancing)
 intMaxNrEvls 2    # maximum number of function evaluations at each iteration
-intMPName  15     # MP solver: 0 = QPP, 7 = Cplex with quadratic stabilization
+intMPName  15     # MP solver: 0 = QPP, 7 = Cplex/Gurobi with quadratic stabilization
                   # + 8 = check for duplicate linearizations
 
 # QPPenalty's parameters :- - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -170,5 +173,5 @@ str_LagBF_BSCfg     LPBSCfg.txt           # BlockSolverConfig for the LagBFuncti
 # end of BlockSolverConfig- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# - - - - - - - - - - - - - - - - END BSPar.txt - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - -END ProxHeur-2S.txt- - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

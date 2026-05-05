@@ -14,7 +14,7 @@ BlockSolverConfig     # exact type of the Configuration object
 
 1  # the BlockSolverConfig is a "differential" one
 
-2  # number of (the names of) Solver in this BlockSolverConfig
+2 # number of (the names of) Solver in this BlockSolverConfig
 # now all the names of the Solver - - - - - - - - - - - - - - - - - - - - - -
 CPXMILPSolver 			# name of 1st Solver
 #GRBMILPSolver 			# name of 1st Solver
@@ -22,7 +22,7 @@ CPXMILPSolver 			# name of 1st Solver
 #HiGHSMILPSolver 		# name of 1st Solver
 LagrangianDualSolver    # name of 2nd Solver
 
-2  # number of ComputeConfig in this BlockSolverConfig
+2 # number of ComputeConfig in this BlockSolverConfig
 
 # now all the ComputeConfig
 # 1st ComputeConfig - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +33,7 @@ ComputeConfig # exact type of the ComputeConfig object
 1  # f_diff == 0 ==> all non-provided parameters are set to the default value
    # f_diff == 1 ==> all non-provided parameters are not changed
 
-3  # number of integer parameters
+3 # number of integer parameters
 
 # now all the integer parameters
 intLogVerb          0    # log verbosity of the MILPSolver
@@ -48,7 +48,7 @@ intCutSepPar        7    # separate user cuts + lazy constraints
 0 # number of string parameters
 
 # now all the string parameters
-#strOutputFile	uc.lp
+# [none]
 
 0 # number of vector-of-int parameters
 
