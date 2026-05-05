@@ -43,10 +43,10 @@ for size in 10 20 50 75 100 200; do
 
     if [ -z "$mlf" ]; then
        printf "[$what $par $slv]: "
-       "$exe" $what $par $slv
+       "$exe" "$what" "$par" "$slv"
     else
-       printf "[$what $par $slv]: " >> $mlf
-       "$exe" $what $par $slv >> $mlf
+       printf "[$what $par $slv]: " >> "$mlf"
+       "$exe" "$what" "$par" "$slv" >> "$mlf"
     fi
 
     retVal=$?
@@ -68,10 +68,10 @@ for size in 20_10 50_20 75_35 100_50 150_75 200_100; do
 
     if [ -z "$mlf" ]; then
        printf "[$what $par $slv]: "
-       "$exe" $what $par $slv
+       "$exe" "$what" "$par" "$slv"
     else
-       printf "[$what $par $slv]: " >> $mlf
-       "$exe" $what $par $slv >> $mlf
+       printf "[$what $par $slv]: " >> "$mlf"
+       "$exe" "$what" "$par" "$slv" >> "$mlf"
     fi
 
     retVal=$?

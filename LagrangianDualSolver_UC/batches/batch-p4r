@@ -39,10 +39,10 @@ for what in ../../UCBlock/data/nc4/plan4res-data/FirstSetofInstances/*.nc4; do
 
     if [ -z "$mlf" ]; then
        printf "[$what $par $slv]: "
-       "$exe" $what $par $slv
+       "$exe" "$what" "$par" "$slv"
     else
-       printf "[$what $par $slv]: " >> $mlf
-       "$exe" $what $par $slv >> $mlf
+       printf "[$what $par $slv]: " >> "$mlf"
+       "$exe" "$what" "$par" "$slv" >> "$mlf"
     fi
 
     retVal=$?

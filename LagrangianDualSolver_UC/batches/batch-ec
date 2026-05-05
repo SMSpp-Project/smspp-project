@@ -83,10 +83,10 @@ for what in ../../UCBlock/data/nc4/EC_Data/EC_CO_*.nc4 \
 
     if [ -z "$mlf" ]; then
        printf "[$what $cur_par $slv $ref]: "
-       "$exe" $what $cur_par $slv $ref
+       "$exe" "$what" "$cur_par" "$slv" "$ref"
     else
-       printf "[$what $cur_par $slv $ref]: " >> $mlf
-       "$exe" $what $cur_par $slv $ref >> $mlf
+       printf "[$what $cur_par $slv $ref]: " >> "$mlf"
+       "$exe" "$what" "$cur_par" "$slv" "$ref" >> "$mlf"
     fi
 
     retVal=$?

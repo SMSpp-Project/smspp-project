@@ -62,10 +62,10 @@ for what in ../../UCBlock/data/nc4/resilient-data/smspp_*.nc; do
 
     if [ -z "$mlf" ]; then
       printf "[$what $par 0 $ref]: "
-      "$exe" $what $par 0 $ref
+      "$exe" "$what" "$par" 0 "$ref"
     else
-      printf "[$what $par 0 $ref]: " >> $mlf
-      "$exe" $what $par 0 $ref >> $mlf
+      printf "[$what $par 0 $ref]: " >> "$mlf"
+      "$exe" "$what" "$par" 0 "$ref" >> "$mlf"
     fi
 
     retVal=$?
