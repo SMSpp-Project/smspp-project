@@ -51,13 +51,13 @@ if (TARGET SMS++::TwoStageStochasticBlock)
                              "${BATCH_FILE}" "$<TARGET_FILE:TSSB_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
-        # Re-use the same `data_extracted` fixture set up by
+        # Re-use the same `uc_data_extracted` fixture set up by
         # tests/LagrangianDualSolver_UC/CMakeLists.txt: it builds the
         # extract_uc_nc4 target which produces the EC nc4 files used here.
         # CTest fixtures are global, so referencing it from a different
         # subdirectory just adds a dependency without redefining the test.
         set_tests_properties(TSSB_test/${BATCH_NAME}
-                             PROPERTIES FIXTURES_REQUIRED data_extracted)
+                             PROPERTIES FIXTURES_REQUIRED uc_data_extracted)
     endforeach ()
 endif ()
 

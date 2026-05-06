@@ -41,7 +41,8 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
     add_test(NAME run_txt2nc4
              COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_txt2nc4)
     # Mark run_txt2nc4 as a fixture that sets up "txt2nc4_generated"
-    set_tests_properties(run_txt2nc4 PROPERTIES FIXTURES_SETUP txt2nc4_generated)
+    set_tests_properties(run_txt2nc4
+                         PROPERTIES FIXTURES_SETUP txt2nc4_generated)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES #"${CMAKE_CURRENT_SOURCE_DIR}/batch" # TODO uncomment when it will be fixed
@@ -63,7 +64,8 @@ if (TARGET SMS++::CapacitatedFacilityLocationBlock)
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
         # Make each batch test require the txt2nc4_generated fixture
-        set_tests_properties(CFL_test/${BATCH_NAME} PROPERTIES FIXTURES_REQUIRED txt2nc4_generated)
+        set_tests_properties(CFL_test/${BATCH_NAME}
+                             PROPERTIES FIXTURES_REQUIRED txt2nc4_generated)
     endforeach ()
 endif ()
 

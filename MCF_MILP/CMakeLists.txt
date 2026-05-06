@@ -30,7 +30,8 @@ if (TARGET SMS++::MCFBlock)
     add_test(NAME run_dmx2nc4
              COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_dmx2nc4)
     # Mark run_dmx2nc4 as a fixture that sets up "dmx2nc4_generated"
-    set_tests_properties(run_dmx2nc4 PROPERTIES FIXTURES_SETUP dmx2nc4_generated)
+    set_tests_properties(run_dmx2nc4
+                         PROPERTIES FIXTURES_SETUP dmx2nc4_generated)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")

@@ -29,8 +29,9 @@ if (TARGET SMS++::InvestmentBlock)
     # This test will build and run the extract_investment_nc4 target
     add_test(NAME extract_investment_nc4
              COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target extract_investment_nc4)
-    # Mark extract_investment_nc4 as a fixture that sets up "data_extracted"
-    set_tests_properties(extract_investment_nc4 PROPERTIES FIXTURES_SETUP data_extracted)
+    # Mark extract_investment_nc4 as a fixture that sets up "investment_data_extracted"
+    set_tests_properties(extract_investment_nc4
+                         PROPERTIES FIXTURES_SETUP investment_data_extracted)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batches/batch-resilient")
@@ -48,8 +49,9 @@ if (TARGET SMS++::InvestmentBlock)
                      "${BATCH_FILE}" "$<TARGET_FILE:InvestmentBlock_test>"
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
-        # Make each batch test require the data_extracted fixture
-        set_tests_properties(InvestmentBlock_test/${BATCH_NAME} PROPERTIES FIXTURES_REQUIRED data_extracted)
+        # Make each batch test require the investment_data_extracted fixture
+        set_tests_properties(InvestmentBlock_test/${BATCH_NAME}
+                             PROPERTIES FIXTURES_REQUIRED investment_data_extracted)
     endforeach ()
 endif ()
 

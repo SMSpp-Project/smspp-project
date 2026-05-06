@@ -72,7 +72,8 @@ if (TARGET SMS++::MMCFBlock AND
     add_test(NAME run_mnetgen
              COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target run_mnetgen)
     # Mark run_mnetgen as a fixture that sets up "mnetgen_generated"
-    set_tests_properties(run_mnetgen PROPERTIES FIXTURES_SETUP mnetgen_generated)
+    set_tests_properties(run_mnetgen
+                         PROPERTIES FIXTURES_SETUP mnetgen_generated)
 
     # Add a test for each batch file
     file(GLOB BATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/batch")
@@ -91,7 +92,8 @@ if (TARGET SMS++::MMCFBlock AND
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         endif ()
         # Make each batch test require the mnetgen_generated fixture
-        set_tests_properties(MMCF_test/${BATCH_NAME} PROPERTIES FIXTURES_REQUIRED mnetgen_generated)
+        set_tests_properties(MMCF_test/${BATCH_NAME}
+                             PROPERTIES FIXTURES_REQUIRED mnetgen_generated)
     endforeach ()
 endif ()
 
