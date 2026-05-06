@@ -33,7 +33,6 @@ par=$(echo "$par" | sed 's/BSPar-2S\.txt$/BSPar-2S-EASY.txt/')
 
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -
 # each entry: [ filename ] = PyPsa objective value
-# filenames must match exactly the .nc files in the current directory
 
 declare -A REF_OBJ
 

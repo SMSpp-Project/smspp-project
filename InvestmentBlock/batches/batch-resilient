@@ -32,7 +32,6 @@ fi
 
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -
 # each entry: [ filename ] = PyPsa objective value
-# filenames must match exactly the .nc files in the current directory
 
 declare -A REF_OBJ
 

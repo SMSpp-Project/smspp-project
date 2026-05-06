@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 #
 # usage: batch-ec < exe file > < par file > < solver > < log file >
-#        < exe file > = path of the executable file, default LDS_UC_test
+#        < exe file > = path of the executable file, default TSSB_test
 #        < par file > = BlockSolverConfig file, default BSPar-2S.txt
 #        < solver > = 0 or 1, default 0
 #        < log file > = name of log file, default no log
 #
-# runs all the deterministic energy community instances and checks that the
-# EnergyCommunity.jl objective value matches the given reference one
+# runs all the stochastic energy community instances and checks that the
+# EnergyCommunity.jl@stochastic objective value matches the given reference one
 
 # command line parameter setup- - - - - - - - - - - - - - - - - - - - - - - -
 
 if [ $# -gt 0 ]; then
    exe=$1
 else
-   exe=./LDS_UC_test
+   exe=./TSSB_test
 fi
 if [ $# -gt 1 ]; then
    par=$2
@@ -31,8 +31,9 @@ if [ $# -gt 3 ]; then
 fi
 
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -
-# each entry: [ filename ] = EnergyCommunity.jl objective value
-# (see more at https://github.com/SPSUnipi/EnergyCommunity.jl).
+# each entry: [ filename ] = EnergyCommunity.jl@stochastic objective value
+# (see more at https://github.com/SPSUnipi/EnergyCommunity.jl, branch
+# `stochastic`).
 # The values come from the test harness in
 # UCBlock/tools/csv2netCDF/test_instance_with_EC_jl.jl run on the same
 # YAMLs csv2nc4.jl produced these .nc4 from. The "no thermal" and "no
@@ -42,26 +43,26 @@ fi
 
 declare -A REF_OBJ
 
-REF_OBJ[EC_CO_Test.nc4]=3.5077963e+06
-REF_OBJ[EC_CO_Test_NB.nc4]=3.5077963e+06
+REF_OBJ[TSSB_EC_CO_Test.nc4]=3.5846051e+06
+REF_OBJ[TSSB_EC_CO_Test_NB.nc4]=3.5846051e+06
 
-REF_OBJ[EC_CO_Test_TUB.nc4]=3.4740810e+06
-REF_OBJ[EC_CO_Test_TUB_NB.nc4]=3.4740810e+06
+REF_OBJ[TSSB_EC_CO_Test_TUB.nc4]=3.5517689e+06
+REF_OBJ[TSSB_EC_CO_Test_TUB_NB.nc4]=3.5517689e+06
 
-REF_OBJ[EC_NA_Test.nc4]=4.1773642e+06
-REF_OBJ[EC_NA_Test_NB.nc4]=4.1773642e+06
+REF_OBJ[TSSB_EC_NA_Test.nc4]=4.0280923e+06
+REF_OBJ[TSSB_EC_NA_Test_NB.nc4]=4.0280923e+06
 
-REF_OBJ[EC_NC_Test.nc4]=3.7349463e+06
-REF_OBJ[EC_NC_Test_NB.nc4]=3.7349463e+06
+REF_OBJ[TSSB_EC_NC_Test.nc4]=3.8131215e+06
+REF_OBJ[TSSB_EC_NC_Test_NB.nc4]=3.8131215e+06
 
-REF_OBJ[EC_NC_Test_TUB.nc4]=3.6997394e+06
-REF_OBJ[EC_NC_Test_TUB_NB.nc4]=3.6997394e+06
+REF_OBJ[TSSB_EC_NC_Test_TUB.nc4]=3.7765015e+06
+REF_OBJ[TSSB_EC_NC_Test_TUB_NB.nc4]=3.7765015e+06
 
 # run all the instances - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-for what in ../../UCBlock/data/nc4/EC_Data/EC_CO_*.nc4 \
-            ../../UCBlock/data/nc4/EC_Data/EC_NA_*.nc4 \
-            ../../UCBlock/data/nc4/EC_Data/EC_NC_*.nc4; do
+for what in ../../UCBlock/data/nc4/EC_Data/TSSB_EC_CO_*.nc4 \
+            ../../UCBlock/data/nc4/EC_Data/TSSB_EC_NA_*.nc4 \
+            ../../UCBlock/data/nc4/EC_Data/TSSB_EC_NC_*.nc4; do
 
     # skip if pattern did not match any file
     if [ ! -f "$what" ]; then
@@ -83,8 +84,8 @@ for what in ../../UCBlock/data/nc4/EC_Data/EC_CO_*.nc4 \
     # — which have UnitBlock components that BundleSolver can keep "hard" —
     # use the BSPar passed in.
     case "$base" in
-      EC_NA_*) cur_par=$(echo "$par" | sed 's/BSPar-2S\.txt$/BSPar-2S-EASY.txt/') ;;
-      *)       cur_par=$par ;;
+      TSSB_EC_NA_*) cur_par=$(echo "$par" | sed 's/BSPar-2S\.txt$/BSPar-2S-EASY.txt/') ;;
+      *)            cur_par=$par ;;
     esac
 
     if [ -z "$mlf" ]; then
