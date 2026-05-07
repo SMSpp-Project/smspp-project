@@ -102,11 +102,8 @@
 /*--------------------------------------------------------------------------*/
 
 #include <sstream>
-
 #include <iomanip>
-
 #include <chrono>
-
 #include <random>
 
 #include "BlockSolverConfig.h"
@@ -158,16 +155,17 @@ std::uniform_real_distribution<> dis( 0.0 , 1.0 );
 // if not-NaN, the objective value of the (only) Solver attached to the Block
 // is compared against a reference value passed on the command line
 
-double RefObjective = std::numeric_limits<double>::quiet_NaN();
+double RefObjective = std::numeric_limits< double >::quiet_NaN();
+
 bool ProxHeur = false;     // false = LagrangianDualSolver
-                           // true = PrimalProximalHeur
+                           // true  = PrimalProximalHeur
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
 /*--------------------------------------------------------------------------*/
 
 template< class T >
-static void Str2Sthg( const char* const str , T &sthg ) {
+static void Str2Sthg( const char * const str , T & sthg ) {
  std::istringstream( str ) >> sthg;
  }
 
@@ -235,7 +233,7 @@ static inline std::ostream & fixd( std::ostream & os )
 static void PrintResults( bool hs , int rtrn , double fo )
 {
  if( hs ) {
-  std::cout.setf( std::ios::scientific, std::ios::floatfield );
+  std::cout.setf( std::ios::scientific , std::ios::floatfield );
   std::cout << def << fo;
   }
  else
@@ -261,7 +259,7 @@ static bool SolveBoth( double * out_fo1st = nullptr ,
  try {
   // solve with the 1st Solver- - - - - - - - - - - - - - - - - - - - - - - -
   #if( LOG_LEVEL >= 1 )
-    auto start = std::chrono::system_clock::now();
+   auto start = std::chrono::system_clock::now();
   #endif
   Solver * Slvr1 = TestBlock->get_registered_solvers().front();
   #if DETACH_1ST
@@ -334,9 +332,9 @@ static bool SolveBoth( double * out_fo1st = nullptr ,
     // the Lagrangian Dual computes lower bounds, so that's what we compare;
     // besides, the condition is "fo2nd == fo1st"
     fo2nd = Slvr2->get_lb();
-    OK =  ( std::abs( fo1st - fo2nd ) <= 
-	    1e-5 * std::max( double( 1 ) , std::max( abs( fo1st ) ,
-						     abs( fo2nd ) ) ) );
+    OK = ( std::abs( fo1st - fo2nd ) <=
+	    1e-5 * std::max( double( 1 ) , std::max( std::abs( fo1st ) ,
+						     std::abs( fo2nd ) ) ) );
     }
 
    if( OK ) {
@@ -372,7 +370,7 @@ static bool SolveBoth( double * out_fo1st = nullptr ,
   std::cerr << e.what() << std::endl;
   exit( 1 );
   }
- catch(...) {
+ catch( ... ) {
   std::cerr << "Error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
@@ -429,11 +427,11 @@ static bool SolveAndCheckRef( double ref )
 
   return( OK );
   }
- catch( std::exception &e ) {
+ catch( std::exception & e ) {
   std::cerr << e.what() << std::endl;
   exit( 1 );
   }
- catch(...) {
+ catch( ... ) {
   std::cerr << "Error: unknown exception thrown" << std::endl;
   exit( 1 );
   }
@@ -488,7 +486,7 @@ void smspp_terminate( void )
 
 /*--------------------------------------------------------------------------*/
 
-int main( int argc , char **argv )
+int main( int argc , char ** argv )
 {
  // override the default terminate handler to print the exception message
  std::set_terminate( smspp_terminate );

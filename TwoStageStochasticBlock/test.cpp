@@ -102,16 +102,10 @@ Block * TestBlock;  // the TwoStageStochasticBlock that is solved
 
 double RefObjective = std::numeric_limits< double >::quiet_NaN();
 
-// relative tolerance used to compare the solved objective value to
-// RefObjective; the EnergyCommunity.jl@stochastic reference values come
-// from a slightly different numerical pipeline so this is looser than
-// the solver-vs-solver tolerance below (which keeps using 1e-5).
-
-const double RefTolerance = 1e-2;
+const double RefTolerance = 1e-5;
 
 bool ProxHeur = false;     // false = LagrangianDualSolver
-                           // true  = PrimalProximalHeur (currently unused;
-                           //          kept for CLI symmetry with LDS_UC)
+                           // true  = PrimalProximalHeur
 
 /*--------------------------------------------------------------------------*/
 /*------------------------------ FUNCTIONS ---------------------------------*/
@@ -371,7 +365,7 @@ void smspp_terminate( void )
  catch( ... ) {
   std::cerr << "\tUnknown exception" << std::endl;
   }
- std::abort();
+ std::abort();  // or exit(1)
  }
 
 /*--------------------------------------------------------------------------*/

@@ -87,7 +87,7 @@ int_LDSlv_iBCopy     0   # 1 if sub-Block must be R3B-copied
 intPushCostToOwner   1   # the value of intPushCostToOwner for the LagBF
 
 # then those of BundleSolver as its inner Solver
-intDoEasy 	 1      # do easy components for (some) LagBFunction
+intDoEasy 	 0      # do easy components for (some) LagBFunction
 intMaxIter 	 10000  # max number of iterations for each call
 intMaxThread 1	    # MaxThread, max number of new tasks to spawn
 intLogVerb  0     # log verbosity of main Bundle algorithm
@@ -155,8 +155,8 @@ dblCtOff   0.01   # cut-off factor for pricing in MinQuad
 # now all the string parameters
 #str_LDSlv_ISName   ParallelBundleSolver  # the inner Solver used by LagrangianDualSolver
 str_LDSlv_ISName    BundleSolver          # the inner Solver used by LagrangianDualSolver
-str_LagBF_BSCfg     LPBSCfg.txt           # BlockSolverConfig for the LagBFunctions
-#str_LagBF_BSCfg    BSCfg.txt   	  # BlockSolverConfig for the LagBFunctions
+#str_LagBF_BSCfg     LPBSCfg.txt           # BlockSolverConfig for the LagBFunctions
+str_LagBF_BSCfg    BSCfg.txt   	  # BlockSolverConfig for the LagBFunctions
 # not needed if intDoEasy >= 1 && USE_BundleSolver > 0, this is done "by hand"
 
 0 # number of vector-of-int parameters

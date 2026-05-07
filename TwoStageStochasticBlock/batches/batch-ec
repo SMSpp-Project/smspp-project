@@ -31,7 +31,7 @@ if [ $# -gt 3 ]; then
 fi
 
 # reference objective values dictionary - - - - - - - - - - - - - - - - - - -
-# each entry: [ filename ] = EnergyCommunity.jl@stochastic objective value
+# each entry: [ filename ] = | EnergyCommunity.jl@stochastic objective value |
 # (see more at https://github.com/SPSUnipi/EnergyCommunity.jl, branch
 # `stochastic`).
 # The values come from the test harness in
@@ -39,7 +39,7 @@ fi
 # YAMLs csv2nc4.jl produced these .nc4 from. The "no thermal" and "no
 # asset" variants are obtained by passing --no-thermal / --no-asset to
 # that script, which fixes the corresponding x_us decisions to 0 in
-# EnergyCommunity.jl.
+# EnergyCommunity.jl@stochastic.
 
 declare -A REF_OBJ
 
@@ -77,23 +77,12 @@ for what in ../../UCBlock/data/nc4/EC_Data/TSSB_EC_CO_*.nc4 \
       exit 1
     fi
 
-    # Pure-load (no-asset) instances only contain ECNetworkBlock subblocks,
-    # all "easy" for BundleSolver: a BSPar with intDoEasy=1 raises
-    # "no non-ECNetworkBlock candidate block to set as a `hard` component".
-    # Force the EASY variant (intDoEasy=0) for those, while CO/NC instances
-    # — which have UnitBlock components that BundleSolver can keep "hard" —
-    # use the BSPar passed in.
-    case "$base" in
-      TSSB_EC_NA_*) cur_par=$(echo "$par" | sed 's/BSPar-2S\.txt$/BSPar-2S-EASY.txt/') ;;
-      *)            cur_par=$par ;;
-    esac
-
     if [ -z "$mlf" ]; then
-       printf "[$what $cur_par $slv $ref]: "
-       "$exe" "$what" "$cur_par" "$slv" "$ref"
+       printf "[$what $par $slv $ref]: "
+       "$exe" "$what" "$par" "$slv" "$ref"
     else
-       printf "[$what $cur_par $slv $ref]: " >> "$mlf"
-       "$exe" "$what" "$cur_par" "$slv" "$ref" >> "$mlf"
+       printf "[$what $par $slv $ref]: " >> "$mlf"
+       "$exe" "$what" "$par" "$slv" "$ref" >> "$mlf"
     fi
 
     retVal=$?
