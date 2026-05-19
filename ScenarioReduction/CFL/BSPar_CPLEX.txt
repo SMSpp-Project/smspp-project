@@ -1,0 +1,22 @@
+# BSPar_CPLEX.txt
+# BlockSolverConfig using CPXMILPSolver (CPLEX)
+# Used for: Full TSS solving, Reduced TSS solving, CSSC sub-problems
+BlockSolverConfig
+1
+1
+CPXMILPSolver
+1
+ComputeConfig
+1
+4
+intLogVerb                    0
+intRelaxIntVars               0
+CPXPARAM_Threads              4
+CPXPARAM_MIP_Display          0
+1
+dblMaxTime                    3600
+0
+0
+0
+0
+*

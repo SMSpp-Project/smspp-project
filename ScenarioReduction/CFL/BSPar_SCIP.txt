@@ -1,0 +1,19 @@
+# BSPar_SCIP.txt
+# BlockSolverConfig using SCIPMILPSolver (SCIP)
+BlockSolverConfig
+1
+1
+SCIPMILPSolver
+1
+ComputeConfig
+1
+2
+intLogVerb              0
+intRelaxIntVars         0
+1
+dblMaxTime              3600
+0
+0
+0
+0
+*
