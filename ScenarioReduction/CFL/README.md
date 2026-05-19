@@ -50,10 +50,6 @@ tests/ScenarioReduction/CFL/
 ├── CFLScenarioGenerator.cpp
 ├── CMakeLists.txt
 ├── run_experiments.sh
-├── BSPar_CPLEX.txt
-├── BSPar_HiGHS.txt
-├── BSPar_GRB.txt
-└── BSPar_SCIP.txt
 ```
 
 Scenario files and results are written to the build directory:
