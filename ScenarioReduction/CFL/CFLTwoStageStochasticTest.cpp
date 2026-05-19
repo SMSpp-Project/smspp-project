@@ -3,11 +3,10 @@
 /*--------------------------------------------------------------------------*/
 /** @file
  * Solves the full Two-Stage Stochastic Capacitated Facility Location problem
- * using all N scenarios, without any scenario reduction.
+ * using all N scenarios, without any scenario reduction
  *
  * Usage:
  *   ./cfl_full_tss -i cap41.nc4 -n 50 -v 1
- *   ./cfl_full_tss -i cap41.nc4 -f cap41_scenarios.nc4 -n 50 -c BSPar1_CSSC.txt -v 1
  *
  * \author Minh Duc Pham
  *         Dipartimento di Informatica,
