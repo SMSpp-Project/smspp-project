@@ -1,0 +1,95 @@
+# MkDocs configuration for the web build of the SMS++ User Manual.
+# Usage (from the manual/build/ directory):
+#     mkdocs serve -f mkdocs.yml      # local preview at http://127.0.0.1:8000
+#     mkdocs build -f mkdocs.yml      # static site into manual/build/site/
+#
+# docs_dir points at the manual root so that index.md, chapters/, and
+# figures/ are all visible; relative image links (../figures/NAME.svg)
+# resolve correctly from the chapter files.
+
+site_name: SMS++ — A User Manual
+site_description: A user manual for SMS++ 0.6.0, the C++ framework for structured optimization.
+site_author: Antonio Frangioni
+docs_dir: ..
+# site_dir must live OUTSIDE docs_dir (which is the manual root); write the
+# generated static site as a sibling of manual/.
+site_dir: ../../manual-site
+use_directory_urls: false
+
+# docs_dir is the manual root, which also holds files that are not manual
+# pages; keep them out of the generated site.
+exclude_docs: |
+  build/
+  OUTLINE.md
+  model.html
+  SMS++-manual.pdf
+  .DS_Store
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js
+  - build/katex-init.js
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css
+
+nav:
+  - Front matter: index.md
+  - Part I — Foundations:
+      - 1. Introduction: chapters/01-introduction.md
+      - 2. Installation and first build: chapters/02-installation.md
+      - 3. The mental model: chapters/03-mental-model.md
+  - Part II — Concepts and Idioms:
+      - 4. Block: chapters/04-block.md
+      - 5. Variable, Constraint, Objective: chapters/05-variable-constraint-objective.md
+      - 6. Solver: chapters/06-solver.md
+      - 7. Physical vs Abstract representation: chapters/07-physical-abstract.md
+      - 8. Modification and the Janus discipline: chapters/08-modification-janus.md
+      - 9. Solution: chapters/09-solution.md
+      - 10. R3Block: chapters/10-r3block.md
+      - 11. Configuration: chapters/11-configuration.md
+      - 12. Sub-Block and recursive flow: chapters/12-sub-block.md
+      - 13. The Function family: chapters/13-function-family.md
+      - 14. LagBFunction and BendersBFunction: chapters/14-lag-benders-bfunction.md
+      - 15. The methods factory: chapters/15-methods-factory.md
+      - 16. Change: chapters/16-change.md
+      - 17. Parallel and asynchronous computation: chapters/17-parallel.md
+      - 18. Factories and netCDF serialisation: chapters/18-factories-netcdf.md
+  - Part III — End-to-end Recipes:
+      - R1. Min-Cost Flow: chapters/R1-mcf.md
+      - R2. Reoptimizing a Binary Knapsack: chapters/R2-knapsack-reopt.md
+      - R3. CFL three ways: chapters/R3-cfl-three-ways.md
+      - R4. CFL via Lagrangian: chapters/R4-cfl-lagrangian.md
+      - R5. CFL via Benders: chapters/R5-cfl-benders.md
+  - Part IV — Developer's Guide:
+      - A. Writing a new :Block: chapters/A-writing-block.md
+      - B. Writing a new :Solver: chapters/B-writing-solver.md
+      - C. Writing a new :Modification / :Change: chapters/C-writing-modification.md
+      - D. Concept-to-Block map: chapters/D-concept-block-map.md
+  - Back matter:
+      - Glossary: chapters/Y-glossary.md
+      - Bibliography: chapters/Z-bibliography.md

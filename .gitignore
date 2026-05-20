@@ -47,6 +47,8 @@ CLAUDE.md
 
 # --- CMake --------------------------------------------------
 build/
+# but admit the config of the manual
+!manual/build/
 cmake-build-*/
 CMakeCache.txt
 CMakeFiles/

@@ -77,11 +77,10 @@ Watch this space for more details and news as they become available.
 A complete user manual for SMS++ lives in [`manual/`](manual/), in two forms:
 
 - **PDF** - single, print-ready file: **[SMS++ - A User Manual (PDF)](manual/SMS++-manual.pdf)**
-- **Web** - one page per chapter, with search: read the sources starting from
-  [`manual/index.md`](manual/index.md), or browse the published site at
-  <https://smspp.gitlab.io/smspp-project/manual/> (once deployed via GitLab Pages).
 
-Both forms are generated from the same Markdown sources
+- **Web**: <https://smspp.gitlab.io/smspp-project/manual/>
+
+Both forms are generated from the same Markdown sources in manual/chapters.
 
 
 ## Current projects

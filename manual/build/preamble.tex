@@ -1,0 +1,66 @@
+% preamble.tex — LaTeX header includes for the Pandoc PDF build.
+% This file is injected via include-in-header, i.e. AFTER Pandoc's own
+% highlighting macros, so the redefinitions of Shaded/shadecolor below
+% deliberately override the defaults.
+
+% --- Page geometry: narrow margins (1cm sides, 2cm top/bottom). ----------
+\usepackage[a4paper,top=2cm,bottom=2cm,left=2cm,right=2cm,
+            includehead,headsep=8pt]{geometry}
+\usepackage{microtype}
+
+% --- Numbering: the Markdown headings already carry manual numbers (1.1,
+% 4.2, ...) for the web build, so suppress LaTeX's automatic section and
+% chapter numbering to avoid the doubled "2.1 1.1 ..." effect. Figures are
+% then numbered continuously (1, 2, 3, ...) rather than per (unnumbered)
+% chapter.
+\setcounter{secnumdepth}{-1}
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter}
+
+% --- Figures scale to the text width rather than overflow. ---------------
+\usepackage{graphicx}
+\setkeys{Gin}{width=0.85\linewidth,keepaspectratio}
+\makeatletter
+\renewcommand{\fps@figure}{htbp}
+\makeatother
+
+% --- Breakable URLs and inline code, so long paths/links do not run past
+% the right margin. (Inline code gets \allowbreak hints from break-code.lua;
+% xurl makes \url/\href break at any character.)
+\usepackage{xurl}
+
+% --- Code blocks: wrap long lines, and frame them on a light background so
+% they stand out from the surrounding prose instead of washing into it. ---
+\usepackage{fvextra}
+\fvset{breaklines=true,breakanywhere=true,fontsize=\small}
+
+\usepackage{framed}
+\usepackage{xcolor}
+\definecolor{shadecolor}{RGB}{244,244,248}   % very light blue-grey
+\definecolor{codeframe}{gray}{0.55}
+\setlength{\FrameSep}{5pt}
+\renewenvironment{Shaded}{%
+  \def\FrameCommand{\fboxsep=\FrameSep \fcolorbox{codeframe}{shadecolor}}%
+  \MakeFramed{\advance\hsize-\width \FrameRestore}}%
+ {\endMakeFramed}
+
+% --- A discreet running header. ------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small SMS++ — A User Manual}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.2pt}
+\setlength{\headheight}{14pt}
+
+% --- A few mathematical/relational Unicode symbols appear in inline code
+% and ASCII diagrams (e.g. "Ax <= b" written with the glyph). Map them so
+% the default pdflatex engine can typeset them in text and verbatim alike.
+\DeclareUnicodeCharacter{2264}{\ensuremath{\le}}      % <=
+\DeclareUnicodeCharacter{2265}{\ensuremath{\ge}}      % >=
+\DeclareUnicodeCharacter{221E}{\ensuremath{\infty}}   % infinity
+\DeclareUnicodeCharacter{2208}{\ensuremath{\in}}      % element of
+\DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}} % ->
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}        % minus sign
+\DeclareUnicodeCharacter{2026}{\ldots}                % ellipsis
+\DeclareUnicodeCharacter{25CF}{\textbullet}           % black circle
