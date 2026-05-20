@@ -16,6 +16,10 @@ pages:
     - if [ "$CI_COMMIT_BRANCH" == "develop" ]; then git submodule foreach --recursive "git checkout develop || git checkout master"; fi
     - doxygen doxygen/Doxyfile
     - mv doc/html/ public/
+    # --- User Manual (MkDocs) served at /smspp-project/manual/ ---
+    - apk add --no-cache python3 py3-pip
+    - pip install --no-cache-dir --break-system-packages mkdocs-material
+    - mkdocs build -f manual/build/mkdocs.yml -d "$CI_PROJECT_DIR/public/manual"
   artifacts:
     paths:
       - public
