@@ -106,7 +106,7 @@ Options:
 - `--verbose`: Set verbosity level (0-2)
 - `--timeout`: Timeout for validation (seconds)
 
-### Step 3: Run Scenario Reduction Test
+### Step 3: Run Tests
 
 #### Heuristic scenario reduction
 
@@ -121,6 +121,17 @@ Options:
 
 Available methods via `-m`: `baseline`, `dupacova`, `bestfit`, `firstfit`.
 
+By default the executable solves both the full TSS (N scenarios) and the
+reduced TSS (K scenarios) and prints a comparison. To skip the full TSS solve
+(e.g. when `Full_Obj` is already known from `cfl_full_tss`), pass
+`--skip-full`:
+
+```bash
+./cfl_scenario_reduction_test \
+    -i cap41.nc4 -f scenarios/CFL/cap41_scenarios.nc4 \
+    -n 50 -r 5 -m dupacova -c BSPar_CPLEX.txt -v 1 --skip-full
+```
+
 #### CSSC scenario reduction
 
 ```bash
@@ -132,7 +143,13 @@ Available methods via `-m`: `baseline`, `dupacova`, `bestfit`, `firstfit`.
 
 CSSC uses `-k` (not `-r`) for the number of reduced scenarios. It solves an
 internal MILP, so it is slower than heuristic methods but typically achieves
-a smaller optimality gap.
+a smaller optimality gap. The `--skip-full` flag is also supported:
+
+```bash
+./cfl_cssc_test \
+    -i cap41.nc4 -f scenarios/CFL/cap41_scenarios.nc4 \
+    -n 50 -k 5 -c BSPar_CPLEX.txt -v 1 --skip-full
+```
 
 #### Full Two Stage Stochastic (reference baseline)
 
@@ -147,8 +164,20 @@ a smaller optimality gap.
 
 ### run_experiments.sh
 
-Runs each `(instance, N, K, method)` combination once. The full TSS is solved
-**once per (instance, N)** and reused across all methods for a fair comparison.
+Runs each `(instance, N, K, method)` combination once. The script follows
+this execution order for a fair and efficient comparison:
+
+```
+for each (instance, N):
+    Step 1: CFLScenarioGenerator   generate scenario file once
+    Step 2: cfl_full_tss           solve full TSS once → Full_Obj
+    Step 3: for each (K, method):
+                 cfl_*_test --skip-full   solve reduced TSS only
+```
+
+The full TSS is solved **once per (instance, N)** and its objective is reused
+across all methods and K values. Each reduction method uses `--skip-full` to
+avoid redundant full solves, ensuring a fair and consistent comparison.
 
 ```bash
 cd <build-dir>/tests/ScenarioReduction/CFL
@@ -222,12 +251,12 @@ Generated scenarios are saved as `DiscreteScenarioSet` in netCDF format:
 Results are saved to a CSV file with one row per `(instance, N, K, method)`
 combination:
 
-- `Full_Obj`: objective value of the full TSS problem (N scenarios)
+- `Full_Obj`: objective value of the full TSS problem (N scenarios), solved
+  once per (instance, N) by `cfl_full_tss` and shared across all methods
 - `Reduced_Obj`: objective value of the reduced TSS problem (K scenarios)
 - `Gap_Pct`: relative gap between full and reduced objectives (%)
 - `Red_us`: time to solve the reduced TSS problem (µs)
 - `RedAlgo_us`: time to run the reduction algorithm itself (µs)
-
 
 ## Scenario Characteristics
 

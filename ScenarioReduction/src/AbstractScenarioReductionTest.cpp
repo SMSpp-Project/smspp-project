@@ -53,7 +53,8 @@ AbstractScenarioReductionTest::AbstractScenarioReductionTest( ) {
  config->set_par( std::string( "intUseShuffle" ) , 0 );  // bool as int
  config->set_par( std::string( "intSaveResults" ) , 0 ); // bool as int
  config->set_par( std::string( "intLoadResults" ) , 0 ); // bool as int
- config->set_par( std::string( "intComputeVPI" ) , 0 );  // bool as int
+ config->set_par( std::string( "intComputeVPI" ) , 0 );
+ config->set_par( std::string( "intSkipFull" ) , 0 );  // bool as int
 
  // Test-specific string parameters
  config->set_par( std::string( "strReductionMethod" ) , std::string(
@@ -113,8 +114,9 @@ int AbstractScenarioReductionTest::run( int argc , char * argv[] ) {
   // Load the base problem instance and scenarios
   load( );
 
-  // Solve stochastic problem with the full set of scenarios
-  solve_stochastic_problem( );
+  // Solve full TSS (skip if --skip-full is set)
+  if( ! get_int_config( "intSkipFull" ) )
+   solve_stochastic_problem( );
 
   // Optionally - compute anticipative solution with full scenarios
   solve_anticipative( );
@@ -329,6 +331,9 @@ void AbstractScenarioReductionTest::parse_arguments( int argc , char * argv[] )
    config->set_par( std::string("intLoadResults") , 1 );
   }
   // VPI option
+  else if( arg == "--skip-full" ) {
+   config->set_par( std::string("intSkipFull") , 1 );
+  }
   else if( arg == "-p" || arg == "--vpi" ) {
    config->set_par( std::string("intComputeVPI") , 1 );
   }

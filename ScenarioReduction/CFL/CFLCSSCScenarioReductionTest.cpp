@@ -4,19 +4,6 @@
 /** @file
  * Test CSSC scenario reduction on Two-Stage Stochastic CFL.
  *
- * Key insight: CSSCScenarioReductionSolver needs TWO CFL blocks:
- *
- *   (A) base_cfl: real CFL (nf facilities x nc customers)
- *       Used to build TwoStageStochasticBlock for solving.
- *       Wrapped in StochasticBlock so CSSC Step 1 can inject scenarios.
- *
- *   (B) sr_cfl: N×N square CFL for scenario reduction bookkeeping
- *       NCustomers = N (= nb_atoms), NFacilities = K (= nb_reduced)
- *       Required by set_Block() type check and refresh_cached_data().
- *
- * Usage:
- *   ./cfl_cssc_test -i cap41.nc4 -n 20 -k 5 -v 1
- *
  * \author Minh Duc Pham
  *         Dipartimento di Informatica, 
  *         Universita' di Pisa
@@ -54,6 +41,7 @@ struct Config {
  int    full_scenarios = 0;
  int    reduced_k      = 5;
  int    verbose        = 1;
+ bool   skip_full      = false;
 };
 
 Config parse_args( int argc , char * argv[] ) {
@@ -67,6 +55,7 @@ Config parse_args( int argc , char * argv[] ) {
   else if( a=="-n"&&i+1<argc )    cfg.full_scenarios = stoi(argv[++i]);
   else if( a=="-k"&&i+1<argc )    cfg.reduced_k      = stoi(argv[++i]);
   else if( a=="-v"&&i+1<argc )    cfg.verbose        = stoi(argv[++i]);
+  else if( a=="--skip-full" )       cfg.skip_full      = true;
   else { cerr<<"Unknown: "<<a<<"\n"; exit(1); }
  }
  if( cfg.instance_path.empty() ){ cerr<<"Error: -i required\n"; exit(1); }
@@ -192,14 +181,20 @@ int main( int argc , char * argv[] ) {
   if(cfg.verbose>=1)
    cout<<"  N="<<N<<", K="<<K<<", dim="<<dss->get_scenario_size()<<"\n\n";
 
-  // 3. Solve FULL TSS
-  if(cfg.verbose>=1) cout<<"[3/6] Solving full TSS ("<<N<<" scenarios)\n";
-  auto tss_full=build_tss(base_cfl,dss.get(),nf,nc,cfg.verbose);
-  auto [obj_full,t_full,ok_full]=solve_tss(tss_full.get(),cfg.solver_config);
-  if(!ok_full) throw runtime_error("Full solve failed");
-  if(cfg.verbose>=1)
-   cout<<"  Objective = "<<fixed<<setprecision(2)<<obj_full
-       <<"  ("<<t_full<<" us)\n\n";
+  double obj_full = 0.0;
+  long long t_full = 0;
+  if( !cfg.skip_full ) {
+   // 3. Solve FULL TSS
+    if(cfg.verbose>=1) cout<<"[3/6] Solving full TSS ("<<N<<" scenarios)\n";
+    auto tss_full=build_tss(base_cfl,dss.get(),nf,nc,cfg.verbose);
+    auto [_obj,_t,ok_full]=solve_tss(tss_full.get(),cfg.solver_config);
+    obj_full=_obj; t_full=_t;
+    if(!ok_full) throw runtime_error("Full solve failed");
+    if(cfg.verbose>=1)
+     cout<<"  Objective = "<<fixed<<setprecision(2)<<obj_full
+         <<"  ("<<t_full<<" us)\n\n";
+
+  }
 
   // 4. CSSC reduction
   if(cfg.verbose>=1)
@@ -333,20 +328,25 @@ int main( int argc , char * argv[] ) {
        <<"  ("<<t_red<<" us)\n\n";
 
   // 6. Report
-  double diff=abs(obj_red-obj_full);
-  double gap=diff/abs(obj_full)*100.0;
-  double speedup=(double)t_full/max(1LL,t_red);
-
   cout<<"[6/6] Results\n"
       <<"  N = "<<N<<"  K = "<<K<<"\n\n"
       <<"  Timing\n"
-      <<"    CSSC reduction : "<<t_cssc<<" us\n"
-      <<"    Full solve     : "<<t_full<<" us\n"
-      <<"    Reduced solve  : "<<t_red<<" us  (speedup "<<fixed<<setprecision(1)<<speedup<<"x)\n\n"
-      <<"  Objectives\n"
-      <<"    Full    : "<<fixed<<setprecision(2)<<obj_full<<"\n"
-      <<"    Reduced : "<<fixed<<setprecision(2)<<obj_red<<"\n"
-      <<"    Gap     : "<<setprecision(2)<<diff<<" ("<<gap<<"%)\n\n";
+      <<"    CSSC reduction : "<<t_cssc<<" us\n";
+  if( !cfg.skip_full )
+   cout<<"    Full solve     : "<<t_full<<" us\n";
+  cout<<"    Reduced solve  : "<<t_red<<" us";
+  if( !cfg.skip_full )
+   cout<<"  (speedup "<<fixed<<setprecision(1)<<(double)t_full/max(1LL,t_red)<<"x)";
+  cout<<"\n\n  Objectives\n";
+  if( !cfg.skip_full ) {
+   double diff=abs(obj_red-obj_full);
+   double gap=diff/abs(obj_full)*100.0;
+   cout<<"    Full    : "<<fixed<<setprecision(2)<<obj_full<<"\n"
+       <<"    Reduced : "<<fixed<<setprecision(2)<<obj_red<<"\n"
+       <<"    Gap     : "<<setprecision(2)<<diff<<" ("<<gap<<"%)\n\n";
+  } else {
+   cout<<"    Reduced : "<<fixed<<setprecision(2)<<obj_red<<"\n\n";
+  }
 
   // skip explicit delete, OS reclaims memory on exit
   // (avoids double-free from complex ownership between stoch/sr_cfl/base_cfl)
