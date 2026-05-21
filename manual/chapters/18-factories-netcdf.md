@@ -1,4 +1,4 @@
-# 18. Factories and netCDF serialisation
+# 18. Factories and netCDF serialisation {#ch-18}
 
 [Source: `SMS++/include/SMSTypedefs.h` (factory macros),
 `Block.h`, `Configuration.h`, `Solution.h`, `Change.h`]
@@ -8,9 +8,9 @@ manual without being treated head-on: the *class-name factories*
 that let an object be created from a string, and the *netCDF
 serialisation* that lets a whole `Block` tree be written to and
 read from disk. This chapter covers both, and discharges the
-promise of §15.7 about the linker.
+promise of [§15.7](15-methods-factory.md#sec-15-7) about the linker.
 
-## 18.1 The class-name factories
+## 18.1 The class-name factories {#sec-18-1}
 
 Five of the framework's base classes carry a *factory*: a static
 map from a class name (a `std::string`) to a constructor for that
@@ -29,7 +29,7 @@ makes it possible to read "the inner `Block` is a `UCBlock`", or
 `BinaryKnapsackBlockRngdChange`" from a configuration file or a
 netCDF group and *build the right object* without the reading code
 having any compile-time dependency on the concrete type. It is the
-companion of the *methods* factory of Chapter 15: that one
+companion of the *methods* factory of [Chapter 15](15-methods-factory.md#ch-15): that one
 *mutates* an existing object by method name, this one *creates*
 objects by class name.
 
@@ -45,12 +45,12 @@ A concrete class joins its factory through two macros
   constructor takes no argument, or
   `SMSpp_insert_in_factory_cpp_1( ClassName );` if it takes one
   (e.g. a `:Block`, whose constructor takes the father `Block*` —
-  this is why `MCFBlock.cpp` uses the `_1` form, §4.5). *Template*
+  this is why `MCFBlock.cpp` uses the `_1` form, [§4.5](04-block.md#sec-4-5)). *Template*
   classes use the `_t` variants
   (`SMSpp_insert_in_factory_cpp_0_t` / `_1_t`), which add the
   `template<>` specialisation the compiler requires; this is
   exactly the case of the `SimpleConfiguration<T>` family of
-  Chapter 11, whose instantiations (e.g. `SimpleConfiguration<
+  [Chapter 11](11-configuration.md#ch-11), whose instantiations (e.g. `SimpleConfiguration<
   int >`) are registered with a `_t` macro. If the class name
   contains commas (a template instantiation with more than one
   parameter), it is wrapped in extra parentheses so the
@@ -62,12 +62,12 @@ member. When the program starts, the `_initializer`'s constructor
 runs and does two things: it registers the class in the factory of
 its base, **and** it calls the class's `static_initialization()`
 method — which is exactly where the methods-factory registrations
-of Chapter 15 belong. So the two factory systems are wired up by
+of [Chapter 15](15-methods-factory.md#ch-15) belong. So the two factory systems are wired up by
 the same one-time static initialisation.
 
-## 18.2 The dark side, discharged: factories versus the linker
+## 18.2 The dark side, discharged: factories versus the linker {#sec-18-2}
 
-This is the mechanism §15.7 warned about, now in full.
+This is the mechanism [§15.7](15-methods-factory.md#sec-15-7) warned about, now in full.
 
 The registration code lives inside the static `_initializer` of a
 translation unit, and *nothing in the rest of the program
@@ -113,7 +113,7 @@ types by name at runtime; the manual flags it because the symptom
 ("not present in factory") is mystifying until one knows the
 cause.
 
-## 18.3 Why netCDF
+## 18.3 Why netCDF {#sec-18-3}
 
 SMS++ serialises `Block`s, `Configuration`s, `Solution`s,
 `State`s and `Change`s to
@@ -144,9 +144,9 @@ by NASA's
 — offers a richer interactive exploration of the file's groups and
 arrays.
 
-## 18.4 The dark side of netCDF: groups are not free
+## 18.4 The dark side of netCDF: groups are not free {#sec-18-4}
 
-netCDF buys the structural fit of §18.3 at a price that users must
+netCDF buys the structural fit of [§18.3](18-factories-netcdf.md#sec-18-3) at a price that users must
 know about: **creating a file with a very large number of groups
 is inefficient — in fact, very inefficient.** netCDF groups are
 designed to be a moderate-cardinality organising device, not a
@@ -191,7 +191,7 @@ encoding by hand. This is an inherent limitation of the chosen
 file format rather than of SMS++'s design, but it currently has to
 be addressed case by case.
 
-## 18.5 The serialisation contract
+## 18.5 The serialisation contract {#sec-18-5}
 
 Serialisation is symmetric and recursive. On the writing side,
 `serialize(netCDF::NcGroup&)` writes the object into the given
@@ -209,17 +209,17 @@ object of the right concrete type, and then calls that object's
 *virtual* `deserialize` to fill it in. This is why the factory and
 the serialisation are inseparable: deserialising an object of a
 type not known at compile time *requires* the class-name factory
-of §18.1 to turn the stored `"type"` string into the right object.
+of [§18.1](18-factories-netcdf.md#sec-18-1) to turn the stored `"type"` string into the right object.
 
 The same `"type"`-tag-plus-factory pattern is what lets a
-`Configuration` file name an `RBlockSolverConfig` (Chapter 11), a
+`Configuration` file name an `RBlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)), a
 serialised solution name a `CapacitatedFacilityLocationSolution`
-(Chapter 9), and a shipped `Change` name a
-`BinaryKnapsackBlockRngdChange` (Chapter 16): in every case the
+([Chapter 9](09-solution.md#ch-9)), and a shipped `Change` name a
+`BinaryKnapsackBlockRngdChange` ([Chapter 16](16-change.md#ch-16)): in every case the
 reader constructs the right concrete object from the stored class
 name, with no compile-time knowledge of the type.
 
-## 18.6 Idioms
+## 18.6 Idioms {#sec-18-6}
 
 **Register every concrete class in its factory.** A `:Block`,
 `:Solver`, `:Configuration`, `:Solution` or `:Change` that is
@@ -232,7 +232,7 @@ first.** The error almost never means a missing registration in
 the source; it means the registering translation unit was
 optimised away. Reach for `SMSpp_ensure_load(ClassName)` (with the
 header included) as the targeted fix, or the linker flags of
-§18.2 as the blunt one.
+[§18.2](18-factories-netcdf.md#sec-18-2) as the blunt one.
 
 **Serialise the tree, not the pieces.** Because `serialize` /
 `deserialize` recurse, a whole `Block` tree (with its

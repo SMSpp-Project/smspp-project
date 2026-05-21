@@ -1,4 +1,4 @@
-# 14. LagBFunction and BendersBFunction
+# 14. LagBFunction and BendersBFunction {#ch-14}
 
 [Source: `SMS++/include/LagBFunction.h`, `BendersBFunction.h`,
 `LagrangianDualSolver/include/LagrangianDualSolver.h`;
@@ -9,12 +9,12 @@ their own chapter. Each is *simultaneously* a `Block` and a
 `C05Function`: it wraps a single inner `Block` and presents that
 inner `Block`, evaluated, as a first-order function of some outer
 `Variable`s. They are the components that turn the abstract idea
-"the value of a function is the optimum of a sub-problem" (§13.2)
+"the value of a function is the optimum of a sub-problem" ([§13.2](13-function-family.md#sec-13-2))
 into reusable building blocks, and they are the engines behind
-Lagrangian decomposition (Recipe R4) and Benders decomposition
-(Recipe R5).
+Lagrangian decomposition ([Recipe R4](R4-cfl-lagrangian.md#rec-R4)) and Benders decomposition
+([Recipe R5](R5-cfl-benders.md#rec-R5)).
 
-## 14.1 Two hybrids, one pattern
+## 14.1 Two hybrids, one pattern {#sec-14-1}
 
 [`LagBFunction`](https://smspp.gitlab.io/smspp-project/d2/df7/class_s_m_spp__di__unipi__it_1_1_lag_b_function.html)
 and
@@ -35,13 +35,13 @@ The pattern both follow is the same:
   just calling the inner `Solver`'s `compute()`";
 - the **linearization** of the function at that point is read off
   the inner `Block`'s primal and/or dual solution, exactly as in
-  the Lagrangian example of §13.2;
+  the Lagrangian example of [§13.2](13-function-family.md#sec-13-2);
 - the hybrid maintains **pools of primal / dual `Solution`s** of
   $(B)$, one per linearization, so that the surrounding
   cutting-plane / bundle / Benders method can reoptimize;
 - any **change in $(B)$** is translated into the corresponding
   change of function value and pool entries, and surfaced as a
-  `C05FunctionMod` (Chapter 8, Chapter 13) to whoever is solving
+  `C05FunctionMod` ([Chapter 8](08-modification-janus.md#ch-8), [Chapter 13](13-function-family.md#ch-13)) to whoever is solving
   the outer problem.
 
 Because the inner `Block` may be "almost any" `Block`, and is
@@ -49,7 +49,7 @@ solved by "almost any" `:Solver`, these two classes give a generic
 way to build the two most important decomposition functions over
 *arbitrary* structured sub-problems.
 
-## 14.2 `LagBFunction`: the Lagrangian function of a `Block`
+## 14.2 `LagBFunction`: the Lagrangian function of a `Block` {#sec-14-2}
 
 `LagBFunction` represents the Lagrangian function of its inner
 `Block` $(B)$ with respect to a chosen set of *linear* terms.
@@ -84,7 +84,7 @@ $\varphi$ in sync as $(B)$ changes. It is not supposed to have any
 
 ### Reoptimization: mapping inner `Modification`s to `FunctionMod*`
 
-`LagBFunction` is where the reoptimization vocabulary of §13.3
+`LagBFunction` is where the reoptimization vocabulary of [§13.3](13-function-family.md#sec-13-3)
 earns its keep. When the inner `Block` $(B)$ changes — a cost in
 its objective, a bound in one of its constraints, a `Variable`
 added or removed — a `Modification` is issued by $(B)$, and
@@ -128,17 +128,17 @@ inner solutions corresponding to the optimal multipliers, which is
 Lagrangian duality.
 
 **The running example.** CFL in the Knapsack Formulation
-(Chapter 12) is exactly a `Block` of this shape: a master carrying
+([Chapter 12](12-sub-block.md#ch-12)) is exactly a `Block` of this shape: a master carrying
 only the customer-satisfaction linking constraints, over
 `f_n_facilities` `BinaryKnapsackBlock` sub-`Block`s. Attaching a
 `LagrangianDualSolver` to it dualises the linking constraints,
 leaving one Lagrangian knapsack per facility — each a
 `LagBFunction` over a `BinaryKnapsackBlock`, solved by a
-`DPBinaryKnapsackSolver`. Recipe R4 develops this end to end, and
+`DPBinaryKnapsackSolver`. [Recipe R4](R4-cfl-lagrangian.md#rec-R4) develops this end to end, and
 shows how the derived `PrimalProximalHeur` turns the convexified
 primal solution into a feasible one.
 
-## 14.3 `BendersBFunction`: the value function of a `Block`
+## 14.3 `BendersBFunction`: the value function of a `Block` {#sec-14-3}
 
 `BendersBFunction` represents the *value function* of its inner
 `Block` $(B)$ as a function of outer `Variable`s that enter the
@@ -171,7 +171,7 @@ Like `LagBFunction`, `BendersBFunction` has no `Variable` or
 generic `:Solver` on $(B)$, and maintains the linearization pools.
 
 It also maps changes in its inner `Block` $(B)$ into the
-`FunctionMod*` types of §13.3, with the same reoptimization
+`FunctionMod*` types of [§13.3](13-function-family.md#sec-13-3), with the same reoptimization
 intent described for `LagBFunction` above. **At version 0.6.0,
 however, the `BendersBFunction` translation is more limited than
 `LagBFunction`'s**: fewer kinds of inner change are mapped to the
@@ -182,19 +182,19 @@ gap, not a design one, and it is expected to be narrowed in future
 revisions; the underlying mechanism is the same.
 
 **The running example.** CFL in the Benders Formulation
-(§3.5) is built on exactly this: the master carries the design
+([§3.5](03-mental-model.md#sec-3-5)) is built on exactly this: the master carries the design
 `Variable`s $y$ and a single epigraphic `Variable` $v$; the
 transportation sub-problem $\varphi(y)$ is a hidden `MCFBlock`
-(the very flow relaxation of Chapter 10) wrapped in a
+(the very flow relaxation of [Chapter 10](10-r3block.md#ch-10)) wrapped in a
 `BendersBFunction`. As the master MILP visits design points $\hat
 y$, a user-cut / lazy callback evaluates the `BendersBFunction` —
 one MCF solve — and emits either an optimality cut (from the dual)
 or a feasibility cut (from the Farkas ray, in the feasibility-cuts
-sub-variant). Recipe R5 develops this end to end.
+sub-variant). [Recipe R5](R5-cfl-benders.md#rec-R5) develops this end to end.
 
 `BendersBFunction` is also the component that produces the cuts in
 an `SDDPBlock`: there, the Benders cuts generated at each stage are
-accumulated into a `PolyhedralFunction` (§13.4) representing the
+accumulated into a `PolyhedralFunction` ([§13.4](13-function-family.md#sec-13-4)) representing the
 recourse-cost approximation of the following stage.
 
 **Status — planned.** A `BendersDecompositionSolver` that would
@@ -206,7 +206,7 @@ today because the cuts are emitted on demand by the master MILP's
 user-cut callback driving `generate_dynamic_constraints()`, which
 does not depend on that future `:Solver`.
 
-## 14.4 Why "almost any `Block`, almost any `Solver`"
+## 14.4 Why "almost any `Block`, almost any `Solver`" {#sec-14-4}
 
 The power of these two hybrids is that the inner `Block` $(B)$ is
 not constrained to be of any particular type, and the `:Solver`
@@ -222,7 +222,7 @@ SMS++ express *multi-level, heterogeneous, nested* decompositions
 programming at the leaves — by composing these components, each
 indifferent to what the others are.
 
-## 14.5 Idioms
+## 14.5 Idioms {#sec-14-5}
 
 **Do not build a `LagBFunction` by hand if a
 `LagrangianDualSolver` will do.** For a `Block` with the
@@ -237,7 +237,7 @@ hybrids evaluate their inner `Block` with a `:Solver` that must be
 attached and configured. For a `BendersBFunction` whose inner
 `Block` is "hidden" (as in CFL/BenForm), the inner `:Solver` is
 configured through the `f_extra_Configuration` of the outer
-`Block` (§11.6); forgetting it is the most common setup mistake.
+`Block` ([§11.6](11-configuration.md#sec-11-6)); forgetting it is the most common setup mistake.
 
 **Expect a bound and a convexified / fractional solution, not the
 integer optimum.** A `LagBFunction`-based dual gives a bound and a

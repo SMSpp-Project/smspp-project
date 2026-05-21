@@ -1,4 +1,4 @@
-# Recipe R1 — Solving a Min-Cost Flow instance
+# [Recipe R1](R1-mcf.md#rec-R1) — Solving a Min-Cost Flow instance {#rec-R1}
 
 > **Counterpart in the source tree:** `MCFBlock/test/test.cpp`.
 > The program below is a didactic distillation of that tester; the
@@ -16,14 +16,14 @@ a `Block`, attaches a `Solver`, and reads a solution.
 
 ## Concepts used
 
-- `Block` construction and `load(...)` — Chapter 4.
-- `Solver` attachment, `compute()`, `sol_type` — Chapter 6.
+- `Block` construction and `load(...)` — [Chapter 4](04-block.md#ch-4).
+- `Solver` attachment, `compute()`, `sol_type` — [Chapter 6](06-solver.md#ch-6).
 - Physical vs abstract representation (why the `MILPSolver`
-  variant needs `generate_*`) — Chapter 7.
+  variant needs `generate_*`) — [Chapter 7](07-physical-abstract.md#ch-7).
 - Reading the solution through the `Block`'s physical accessors —
-  Chapter 9.
+  [Chapter 9](09-solution.md#ch-9).
 - (Variation) selecting the solver through a `BlockSolverConfig` —
-  Chapter 11.
+  [Chapter 11](11-configuration.md#ch-11).
 
 ## The code
 
@@ -95,31 +95,31 @@ int main()
 ## Walk-through
 
 - The five arrays are the *physical* representation of the
-  min-cost flow instance (Chapter 7): start/end node of each arc,
+  min-cost flow instance ([Chapter 7](07-physical-abstract.md#ch-7)): start/end node of each arc,
   arc capacities, arc costs, node deficits. `load(...)` copies
-  them into the `MCFBlock` (Chapter 4); recall its idiosyncratic
+  them into the `MCFBlock` ([Chapter 4](04-block.md#ch-4)); recall its idiosyncratic
   parameter order, ending nodes before starting nodes.
 - `new MCFSolver< MCFSimplex >()` constructs the specialised
   solver, templated on the classical primal-simplex MCFClass
   algorithm; `register_Solver` enrols it on the `MCFBlock`
-  (Chapter 6). Registration does *not* transfer ownership of the
+  ([Chapter 6](06-solver.md#ch-6)). Registration does *not* transfer ownership of the
   pointer; the `deleteold = true` flag on `unregister_Solver` is
   what asks the framework to `delete` it at the end.
 - `solver->compute()` runs the algorithm and returns an
-  `sol_type` (Chapter 6, §6.3); `kOK` means an optimal solution
+  `sol_type` ([Chapter 6](06-solver.md#ch-6), [§6.3](06-solver.md#sec-6-3)); `kOK` means an optimal solution
   was found.
 - The solution is read *through the `MCFBlock`*, not through the
-  solver (the convention of §6.9 and Chapter 9):
+  solver (the convention of [§6.9](06-solver.md#sec-6-9) and [Chapter 9](09-solution.md#ch-9)):
   `get_objective_value()`, `get_x(...)` for the primal flows, and
   `get_pi(...)` for the dual node potentials. `get_rc(...)` would
   give the arc reduced costs; together the three are the natural
   primal–dual data of a min-cost flow, exactly what an
-  `MCFSolution` would store (§9.5).
+  `MCFSolution` would store ([§9.5](09-solution.md#sec-9-5)).
 - Note that this program never calls `generate_abstract_*()`: the
   specialised `MCFSolver` reads the physical representation
   directly and needs no abstract `Variable`s or `Constraint`s.
   (The flows are nonetheless deposited into the always-materialised
-  abstract `Variable`s as well — the §7.6 "half-baked" caveat —
+  abstract `Variable`s as well — the [§7.6](07-physical-abstract.md#sec-7-6) "half-baked" caveat —
   but the recommended way to read them is the physical accessor
   used here.)
 
@@ -166,23 +166,23 @@ representation, which must therefore be built first:
 
 The optimal value is the same (8); the solver is slower on this
 trivial instance but works on any `:Block` that can expose an
-abstract representation. This is the swap promised in §6.2 and
-§6.9.
+abstract representation. This is the swap promised in [§6.2](06-solver.md#sec-6-2) and
+[§6.9](06-solver.md#sec-6-9).
 
 **Select the solver from a configuration file.** Rather than
 hard-coding the choice of solver in the program, the idiomatic
 SMS++ way is to read a `BlockSolverConfig` from a text file
-(Chapter 11) and `apply()` it to the `MCFBlock`. The same
+([Chapter 11](11-configuration.md#ch-11)) and `apply()` it to the `MCFBlock`. The same
 executable then solves with `MCFSolver`, `CPXMILPSolver`, or any
 other registered `:Solver` purely by editing the configuration
-file — no recompilation. Recipe R3 uses exactly this pattern to
+file — no recompilation. [Recipe R3](R3-cfl-three-ways.md#rec-R3) uses exactly this pattern to
 solve a CFL problem three different ways with one executable.
 
 **Reoptimize after a data change.** Change an arc cost with
-`mcf.chg_cost(NewCost, arc)` (Chapter 8) and call `compute()`
+`mcf.chg_cost(NewCost, arc)` ([Chapter 8](08-modification-janus.md#ch-8)) and call `compute()`
 again: the `MCFSolver` reoptimizes from its previous state rather
 than starting over. This is the first taste of the reoptimization
-theme that Recipes R2 and R4 develop further.
+theme that Recipes [R2](R2-knapsack-reopt.md#rec-R2) and [R4](R4-cfl-lagrangian.md#rec-R4) develop further.
 ```cpp
  mcf.chg_cost( 1.0 , 2 );    // arc 2 becomes cheaper still
  solver->compute();          // warm restart

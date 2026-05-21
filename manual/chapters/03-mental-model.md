@@ -1,4 +1,4 @@
-# 3. The mental model
+# 3. The mental model {#ch-3}
 
 Before turning to the precise definitions of Part II, this chapter
 gives a high-level picture of the SMS++ framework. Its goal is to
@@ -9,7 +9,7 @@ running examples used throughout the manual fit into this picture.
 None of what follows is rigorous in the sense of Part II; everything
 will be made precise there.
 
-## 3.1 Block: a sub-problem with semantics
+## 3.1 Block: a sub-problem with semantics {#sec-3-1}
 
 The cornerstone of SMS++ is the abstract class
 [`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html).
@@ -35,9 +35,9 @@ are meaningful for it. A user of the framework who wants to *solve*
 an instance of that problem class typically does not write a new
 `:Block`; the existing `:Block` of the relevant class is used and
 configured. A user who wants to *introduce a new problem class*
-writes a new `:Block`; this is the topic of Appendix A.
+writes a new `:Block`; this is the topic of [Appendix A](A-writing-block.md#app-A).
 
-## 3.2 Solver: anything that can compute on a Block
+## 3.2 Solver: anything that can compute on a Block {#sec-3-2}
 
 Once a `Block` carries an instance, the framework needs an algorithm
 to compute on it. In SMS++ the role is played by
@@ -57,10 +57,10 @@ same time. A specialised `:Solver` is one written for a specific
 the price is that it works only for that one `:Block`. A
 general-purpose `:Solver` knows nothing about the specific structure
 but can handle a large family of `:Block` through the abstract
-representation (Section 3.3). The two coexist: the user picks, at
+representation ([Section 3.3](03-mental-model.md#sec-3-3)). The two coexist: the user picks, at
 configuration time, which `:Solver` is attached to a given `:Block`.
 Switching from one to the other is usually a one-line change to a
-configuration file (Chapter 11), with no change to user code.
+configuration file ([Chapter 11](11-configuration.md#ch-11)), with no change to user code.
 
 Any concrete `:Solver` exposes a uniform interface, regardless of how
 it works internally. It accepts integer / double / string parameters;
@@ -72,7 +72,7 @@ yields one or more solutions of the problem, primal and (where it
 makes sense) dual. The `Solver` interface, in this sense, is the
 *lingua franca* of SMS++.
 
-## 3.3 Two representations of the same model
+## 3.3 Two representations of the same model {#sec-3-3}
 
 A `Block` represents a mathematical model. SMS++ allows the same
 `Block` to expose two distinct representations of that model, which
@@ -130,7 +130,7 @@ them is attached. The methods that build them are
 `generate_dynamic_variables()`,
 `generate_dynamic_constraints()`,
 `generate_objective()`. Each accepts a `Configuration` that gates
-optional parts of the construction. Chapter 7 makes this precise.
+optional parts of the construction. [Chapter 7](07-physical-abstract.md#ch-7) makes this precise.
 
 > **Status — under development.** In the current implementation the
 > `Variable`s of the abstract representation are an exception to the
@@ -152,13 +152,13 @@ optional parts of the construction. Chapter 7 makes this precise.
 > attached to a specialised `:Solver` only will be able to skip
 > constructing the abstract `Variable`s altogether. This is one of
 > several examples in the manual where the API is not yet fully
-> settled (see also Chapter 16 on `Change`).
+> settled (see also [Chapter 16](16-change.md#ch-16) on `Change`).
 
 Keeping the two representations in sync, when one is modified
 through one face and a `:Solver` is reading the other, is non-trivial
-and is the topic of Chapter 8 (the *Janus discipline*).
+and is the topic of [Chapter 8](08-modification-janus.md#ch-8) (the *Janus discipline*).
 
-## 3.4 The lifecycle of a Block
+## 3.4 The lifecycle of a Block {#sec-3-4}
 
 A `Block` typically goes through five stages along its lifetime:
 *build*, *configure*, *attach*, *solve*, *modify*. After the first
@@ -202,7 +202,7 @@ framework's internal machinery exists to make them efficient.
   starts with that list of pending `Modification`s; if the
   `:Solver` is able to reoptimize, it does so.
 
-## 3.5 The three running examples
+## 3.5 The three running examples {#sec-3-5}
 
 Three concrete `:Block` are used throughout the manual to make the
 concepts tangible. Each is introduced briefly here and revisited in
@@ -260,7 +260,7 @@ example of a *natively-implemented* specialised `:Solver`.
 plus the `Rngd` and `Sbst` variants). Through it the manual will
 introduce: the methods factory, the `Solution` class as a
 Block-specific object, and the `Change` concept that complements
-`Modification` (Chapter 16).
+`Modification` ([Chapter 16](16-change.md#ch-16)).
 
 ### `CapacitatedFacilityLocationBlock` — a non-leaf Block with multiple formulations
 
@@ -311,7 +311,7 @@ hybrids that wrap an inner `Block`, the
 and the derived `PrimalProximalHeur`, and the user-cut callback
 pattern of `MILPSolver` for Benders cuts.
 
-## 3.6 How Part II reuses the three running examples
+## 3.6 How Part II reuses the three running examples {#sec-3-6}
 
 Part II — *Concepts and Idioms* — introduces one concept per chapter,
 in an order that ensures every concept is defined before it is used.
@@ -320,7 +320,7 @@ example, API outline, idioms) and uses one of the three running
 examples to instantiate the concept under discussion. The three
 examples are chosen so that they collectively exercise every major
 SMS++ concept once; the reader who has worked through Part II should
-be ready to write a new `:Block` (Appendix A) or to assemble one of
+be ready to write a new `:Block` ([Appendix A](A-writing-block.md#app-A)) or to assemble one of
 the Recipes in Part III.
 
 A small but useful summary table appears at the end of the manual as

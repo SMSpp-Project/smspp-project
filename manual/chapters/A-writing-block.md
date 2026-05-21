@@ -1,4 +1,4 @@
-# Appendix A — Writing a new `:Block`
+# [Appendix A](A-writing-block.md#app-A) — Writing a new `:Block` {#app-A}
 
 This appendix walks through the construction of a new `:Block`
 from scratch. The running example is a deliberately small
@@ -12,7 +12,7 @@ fit in an appendix.
 > not a production class. The aim is to show the *process* of
 > writing a minimum-viable `:Block`, i.e. the steps A.1–A.7 below.
 > The optional pieces (a custom `:Solution`, an `R3Block`, a
-> `:Change` family) are sketched in §A.8 but not developed.
+> `:Change` family) are sketched in [§A.8](A-writing-block.md#sec-A-8) but not developed.
 
 The Bin Packing problem: given $n$ items of sizes $s_0, \dots,
 s_{n-1}$ and bins of identical capacity $C$, pack every item into a
@@ -20,16 +20,16 @@ bin so that no bin's contents exceed $C$, using as few bins as
 possible. Since no more than $n$ bins are ever needed, we cap the
 number of bins at $m = n$.
 
-## A.1 The "physical" representation and a choice of "abstract" one
+## A.1 The "physical" representation and a choice of "abstract" one {#sec-A-1}
 
-A useful first distinction (Chapter 7) is that the *physical*
+A useful first distinction ([Chapter 7](07-physical-abstract.md#ch-7)) is that the *physical*
 representation is not really *chosen*: it is dictated by the
 semantics of the problem — the data that defines an instance and
 that a specialised solver reads directly. What is genuinely a
 *design decision* is the *abstract* representation, because a given
 problem admits many equivalent mathematical formulations and the
 `:Block` author picks one (or, as `MCFBlock` and CFL do, makes the
-choice configurable, §7.3).
+choice configurable, [§7.3](07-physical-abstract.md#sec-7-3)).
 
 For Bin Packing the physical representation is dictated and tiny:
 the number of items $n$, the capacity $C$, and the vector of sizes
@@ -50,11 +50,11 @@ representation has two `ColVariable` groups — `x`, a
 `FRowConstraint` groups (assignment and capacity), and one
 `FRealObjective`.
 
-## A.2 The class skeleton and factory registration
+## A.2 The class skeleton and factory registration {#sec-A-2}
 
 A concrete `:Block` derives from `Block`, takes an optional father
 in its constructor, and registers itself in the `Block` factory
-(Chapter 18):
+([Chapter 18](18-factories-netcdf.md#ch-18)):
 
 ```cpp
 // BinPackingBlock.h
@@ -139,8 +139,8 @@ SMSpp_insert_in_factory_cpp_1( BinPackingBlock );   // ctor takes 1 arg
 The `SMSpp_insert_in_factory_cpp_1` macro (the `_1` because the
 constructor takes one optional argument, the father) registers the
 class so that `Block::new_Block("BinPackingBlock")` works, and runs
-the class's `static_initialization()` at start-up (Chapter 18,
-§18.1; mind the linker caveat of §18.2).
+the class's `static_initialization()` at start-up ([Chapter 18](18-factories-netcdf.md#ch-18),
+[§18.1](18-factories-netcdf.md#sec-18-1); mind the linker caveat of [§18.2](18-factories-netcdf.md#sec-18-2)).
 
 The non-trivial destructor deserves a word, because it follows a
 framework convention that is easy to miss. A `Constraint` (like any
@@ -167,10 +167,10 @@ left to the compiler, a `ColVariable` might be destroyed while a
 `Function` still held a pointer to it, leaving a dangling
 reference.)
 
-## A.3 `load()` and the physical representation
+## A.3 `load()` and the physical representation {#sec-A-3}
 
 `load()` simply copies the data and, if any `:Solver` is already
-attached, issues the "nuclear" `NBModification` (§4.6) to tell it
+attached, issues the "nuclear" `NBModification` ([§4.6](04-block.md#sec-4-6)) to tell it
 the instance has been replaced wholesale:
 
 ```cpp
@@ -186,13 +186,13 @@ void BinPackingBlock::load( Index n , double C , std::vector< double > sizes )
 ```
 
 At this point the `BinPackingBlock` is fully usable by a
-*specialised* solver (Appendix B) that reads `f_n`, `f_C`, `v_s`
+*specialised* solver ([Appendix B](B-writing-solver.md#app-B)) that reads `f_n`, `f_C`, `v_s`
 directly. The abstract representation does not exist yet.
 
-## A.4 Generating the abstract representation
+## A.4 Generating the abstract representation {#sec-A-4}
 
 The three `generate_*` overrides build the abstract face on demand
-(Chapter 7). `generate_abstract_variables()` materialises the
+([Chapter 7](07-physical-abstract.md#ch-7)). `generate_abstract_variables()` materialises the
 `ColVariable` groups, declaring each binary:
 
 ```cpp
@@ -215,7 +215,7 @@ void BinPackingBlock::generate_abstract_variables( Configuration * )
 `generate_abstract_constraints()` builds the assignment and
 capacity rows, each an `FRowConstraint` carrying a linear
 `Function`. A `Configuration` could gate which groups are built
-(as `MCFBlock` and CFL do, §7.3); here we build both:
+(as `MCFBlock` and CFL do, [§7.3](07-physical-abstract.md#sec-7-3)); here we build both:
 
 ```cpp
 void BinPackingBlock::generate_abstract_constraints( Configuration * )
@@ -280,27 +280,27 @@ void BinPackingBlock::generate_objective( Configuration * )
 ```
 
 Two things to read off these snippets. First, the linear
-expressions are `LinearFunction` objects (Chapter 13), built from a
+expressions are `LinearFunction` objects ([Chapter 13](13-function-family.md#ch-13)), built from a
 `LinearFunction::v_coeff_pair` — a vector of
 `(ColVariable * , Coefficient)` pairs — plus a constant term;
 ownership of each `new LinearFunction(...)` passes to the
 `FRowConstraint` / `FRealObjective` that receives it via
-`set_function()`, §5.7. Second, every `set_*` here is passed
+`set_function()`, [§5.7](05-variable-constraint-objective.md#sec-5-7). Second, every `set_*` here is passed
 `eNoMod`: the abstract representation is being built for the first
 time, so there is nothing to notify — no `Modification` need (or
-should) be issued (§8.3). The deliberate ordering of the capacity
+should) be issued ([§8.3](08-modification-janus.md#sec-8-3)). The deliberate ordering of the capacity
 row's terms (the $n$ item coefficients first, then the single
-$-C y_j$ term) is what lets `chg_size` (§A.5) and the
-abstract-stream decoding in `add_Modification` (§A.6) address
+$-C y_j$ term) is what lets `chg_size` ([§A.5](A-writing-block.md#sec-A-5)) and the
+abstract-stream decoding in `add_Modification` ([§A.6](A-writing-block.md#sec-A-6)) address
 coefficient $k$ as "the $x_{k j}$ term".
 
-## A.5 A `chg_*()` method and its `Modification`
+## A.5 A `chg_*()` method and its `Modification` {#sec-A-5}
 
 A `:Block` author exposes mutators for the data that may change.
 `chg_size` changes one item's size in the physical representation
 and, when the abstract representation exists, mirrors the change
 there — issuing the appropriate `Modification`s on each face
-(Chapter 8). Giving it one of the methods-factory shapes (§15.3)
+([Chapter 8](08-modification-janus.md#ch-8)). Giving it one of the methods-factory shapes ([§15.3](15-methods-factory.md#sec-15-3))
 would also let it be called by name; here the single-item form:
 
 ```cpp
@@ -332,11 +332,11 @@ void BinPackingBlock::chg_size( double new_size , Index item ,
 ```
 
 The `BinPackingBlockMod` is the `:Block`-specific physical
-`Modification` defined in Appendix C.
+`Modification` defined in [Appendix C](C-writing-modification.md#app-C).
 
-## A.6 `add_Modification()`: catching abstract changes
+## A.6 `add_Modification()`: catching abstract changes {#sec-A-6}
 
-The Janus discipline (Chapter 8, §8.4) requires that a change made
+The Janus discipline ([Chapter 8](08-modification-janus.md#ch-8), [§8.4](08-modification-janus.md#sec-8-4)) requires that a change made
 through the *abstract* face be reflected in the physical one. The
 `:Block` does this by overriding `add_Modification()` to intercept
 the abstract `Modification`s whose `concerns_Block()` is `true`,
@@ -410,22 +410,22 @@ void BinPackingBlock::guts_of_add_Modification( c_p_Mod mod , ChnlName chnl )
 
 Two honest caveats. First, *failing loud* is deliberate: a `:Block`
 is free to support only some abstract changes and to throw for the
-rest, exactly as `MCFBlock` does for arc add/remove (§8.4).
+rest, exactly as `MCFBlock` does for arc add/remove ([§8.4](08-modification-janus.md#sec-8-4)).
 Second, a subtlety peculiar to this formulation: the size $s_i$ is
 *shared* across all $m$ capacity rows, but the abstract face
 exposes it as $m$ independent coefficients. When the change arrives
 on a single row $j^{\star}$, `fold` calls `chg_size` with `eDryRun`,
-which (by the guard added in §A.5) updates only the physical
+which (by the guard added in [§A.5](A-writing-block.md#sec-A-5)) updates only the physical
 $v_s$ and the originating row, leaving the sibling rows momentarily
 stale. A production-grade `BinPackingBlock` would either reject
 per-row coefficient edits outright or re-propagate the new size to
 all $m$ rows; the minimal example shows the mechanism on the row
 that changed and flags the consequence rather than hiding it.
 
-## A.7 `is_feasible()` on the physical representation
+## A.7 `is_feasible()` on the physical representation {#sec-A-7}
 
 Finally, `is_feasible()` checks a candidate solution. Written on
-the *physical* representation it is cheap (§7.5): read each item's
+the *physical* representation it is cheap ([§7.5](07-physical-abstract.md#sec-7-5)): read each item's
 bin assignment from the abstract `x` variables (or from wherever
 the solution lives), and verify that every item is assigned to
 exactly one bin and that no bin exceeds capacity.
@@ -450,44 +450,44 @@ bool BinPackingBlock::is_feasible( bool useabstract , Configuration * )
 }
 ```
 
-The `useabstract` flag (§7.5) would select an
+The `useabstract` flag ([§7.5](07-physical-abstract.md#sec-7-5)) would select an
 alternative path that walks the `FRowConstraint`s and calls their
 `feasible()`; for a leaf `:Block` like this the physical check
 above is the one a specialised solver wants.
 
-## A.8 Optional pieces (sketched)
+## A.8 Optional pieces (sketched) {#sec-A-8}
 
-A minimum-viable `:Block` ends at §A.7. A "complete" `:Block`
+A minimum-viable `:Block` ends at [§A.7](A-writing-block.md#sec-A-7). A "complete" `:Block`
 typically adds, each only when the use case calls for it:
 
-- a `:Solution` (Chapter 9) — a `BinPackingSolution` storing the
+- a `:Solution` ([Chapter 9](09-solution.md#ch-9)) — a `BinPackingSolution` storing the
   per-item bin assignment, so a solution can be saved, restored
   and combined without going through the abstract `Variable`s;
-- an `R3Block` (Chapter 10) — at least the trivial copy, via
+- an `R3Block` ([Chapter 10](10-r3block.md#ch-10)) — at least the trivial copy, via
   `get_R3_Block` plus `map_back_solution` / `map_forward_solution`;
-- a `:Change` family (Chapter 16) — for serialisable / undoable
-  edits; **Status — beta** (Appendix C).
+- a `:Change` family ([Chapter 16](16-change.md#ch-16)) — for serialisable / undoable
+  edits; **Status — beta** ([Appendix C](C-writing-modification.md#app-C)).
 
 None of these is required to have a working, solver-attachable
 `:Block`; they are the difference between a teaching example and a
 production module.
 
-## A.9 Checklist
+## A.9 Checklist {#sec-A-9}
 
 To recapitulate, a minimum-viable `:Block` needs:
 
 1. a class deriving from `Block`, with a father-taking constructor
-   and the `SMSpp_insert_in_factory_h` / `_cpp_k` macros (§A.2,
-   Chapter 18);
+   and the `SMSpp_insert_in_factory_h` / `_cpp_k` macros ([§A.2](A-writing-block.md#sec-A-2),
+   [Chapter 18](18-factories-netcdf.md#ch-18));
 2. the physical representation as member data, populated by
    `load()` / `deserialize()`, issuing `NBModification` on reload
-   (§A.3);
+   ([§A.3](A-writing-block.md#sec-A-3));
 3. the `generate_abstract_*()` overrides building the abstract
-   face on demand (§A.4);
+   face on demand ([§A.4](A-writing-block.md#sec-A-4));
 4. `chg_*()` mutators issuing physical (and, where relevant,
-   abstract) `Modification`s (§A.5);
+   abstract) `Modification`s ([§A.5](A-writing-block.md#sec-A-5));
 5. `add_Modification()` catching abstract changes and keeping the
-   physical face in sync, or throwing for unsupported ones (§A.6);
+   physical face in sync, or throwing for unsupported ones ([§A.6](A-writing-block.md#sec-A-6));
 6. `is_feasible()` (and, for an optimisation `:Block`,
    `get_objective_sense()` and valid bounds) on the physical
-   representation (§A.7).
+   representation ([§A.7](A-writing-block.md#sec-A-7)).

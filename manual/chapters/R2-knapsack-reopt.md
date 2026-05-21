@@ -1,4 +1,4 @@
-# Recipe R2 — Reoptimizing a Binary Knapsack
+# [Recipe R2](R2-knapsack-reopt.md#rec-R2) — Reoptimizing a Binary Knapsack {#rec-R2}
 
 > **Counterpart in the source tree:**
 > `tests/BinaryKnapsackBlock/test.cpp`, which exercises the same
@@ -11,16 +11,16 @@ Solve a small knapsack with the specialised
 `DPBinaryKnapsackSolver`; then change the data *incrementally* and
 re-solve, letting the solver *reoptimize* from its previous state
 rather than starting over. This is the smallest illustration of
-SMS++'s pervasive reoptimization theme (Chapters 8 and 13).
+SMS++'s pervasive reoptimization theme (Chapters [8](08-modification-janus.md#ch-8) and [13](13-function-family.md#ch-13)).
 
 ## Concepts used
 
-- `Block` construction and `load(...)` — Chapter 4.
-- A *native* specialised `Solver` — Chapter 6.
-- `Modification` from a physical `chg_*()` change — Chapter 8.
+- `Block` construction and `load(...)` — [Chapter 4](04-block.md#ch-4).
+- A *native* specialised `Solver` — [Chapter 6](06-solver.md#ch-6).
+- `Modification` from a physical `chg_*()` change — [Chapter 8](08-modification-janus.md#ch-8).
 - Reoptimization, and what a solver may reuse across a change —
-  Chapter 13.
-- (Variation) the `Change` family — Chapter 16.
+  [Chapter 13](13-function-family.md#ch-13).
+- (Variation) the `Change` family — [Chapter 16](16-change.md#ch-16).
 
 ## The code
 
@@ -74,14 +74,14 @@ int main()
   requires the *weights* to be integer — they are — while
   capacity and profits may be real.
 - `DPBinaryKnapsackSolver` is a *native* SMS++ specialised solver
-  (Chapter 6): a dynamic-programming recursion over the items, no
+  ([Chapter 6](06-solver.md#ch-6)): a dynamic-programming recursion over the items, no
   external dependency. It reads the physical representation, so —
   as in R1 — no `generate_abstract_*()` call is needed, and the
   solution is read back through the `Block`'s accessors
   `get_objective_value()` / `get_x(i)`.
 - `chg_profit(8.0, 2)` changes the profit of item 2 in the
   physical representation and issues the corresponding
-  `BinaryKnapsackBlockMod` (Chapter 8). Because the solver is
+  `BinaryKnapsackBlockMod` ([Chapter 8](08-modification-janus.md#ch-8)). Because the solver is
   registered, it receives the `Modification` in its pending list.
 - The second `compute()` consumes that one `Modification` and
   **reoptimizes**: a single-profit change does not invalidate the
@@ -91,8 +91,8 @@ int main()
   (`DPBinaryKnapsackSolver.h`) governing how aggressively it
   reoptimizes. This is the recipe-scale instance of the
   reoptimization theme that, at scale, lets a `BundleSolver`
-  reuse its bundle across changes to an inner `Block` (Chapter 13,
-  Recipe R4).
+  reuse its bundle across changes to an inner `Block` ([Chapter 13](13-function-family.md#ch-13),
+  [Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
 
 ## Expected output
 
@@ -113,11 +113,11 @@ objective = 9 ; x = (0,0,1,1)
 (and the analogous `chg_weights`) change a contiguous interval or
 an arbitrary subset of items in one call, issuing a single
 `Rngd` / `Sbst` `Modification` that the solver can react to as a
-unit (Chapter 8). `chg_capacity(newC)` changes the knapsack
+unit ([Chapter 8](08-modification-janus.md#ch-8)). `chg_capacity(newC)` changes the knapsack
 capacity.
 
 **Apply the change as a `Change` (beta) instead.** Because
-`BinaryKnapsackBlock` ships a `Change` family (Chapter 16), the
+`BinaryKnapsackBlock` ships a `Change` family ([Chapter 16](16-change.md#ch-16)), the
 same edit can be expressed as a `BinaryKnapsackBlockRngdChange`,
 `apply()`-ed with `doUndo = true` to obtain the inverse, the
 modified block explored, and the change rolled back with the
@@ -128,7 +128,7 @@ simpler. **Status — beta.**
 
 **Change the data by name, through the methods factory.**
 `BinaryKnapsackBlock` registers `chg_weights`, `chg_profits` and
-`chg_capacity` in the methods factory (Chapter 15), so the same
+`chg_capacity` in the methods factory ([Chapter 15](15-methods-factory.md#ch-15)), so the same
 edit made above through the concrete type can also be issued by
 *string name* on a base `Block*`:
 

@@ -1,6 +1,6 @@
-# 1. Introduction
+# 1. Introduction {#ch-1}
 
-## 1.1 What SMS++ is
+## 1.1 What SMS++ is {#sec-1-1}
 
 SMS++ is a C++-20 software framework for *structured* mathematical
 optimization, designed primarily for researchers and practitioners who
@@ -60,7 +60,7 @@ it can (reoptimizing, if possible). The framework guarantees that a
 change made via either representation produces the appropriate
 `Modification` for the other representation too; we call this the
 **Janus discipline**, and it is one of the central ideas of SMS++
-(Chapter 8). A new, complementary concept, `Change`, augments the
+([Chapter 8](08-modification-janus.md#ch-8)). A new, complementary concept, `Change`, augments the
 `Modification` notification with the data needed to *apply* the
 change to a different copy of the `Block` and, if requested, to
 *undo* it. **Status — beta**: only a small number of `:Change` classes
@@ -73,13 +73,13 @@ through the `R3Block` mechanism: a `Block` can produce another
 `Block` that represents an equivalent reformulation, a relaxation, or
 a restriction of itself, with explicit support for moving solutions
 and `Modification`s between the original and the reformulation
-(Chapter 10). It supports *configuration* through the recursive
-`BlockConfig` / `BlockSolverConfig` machinery (Chapter 11), and
+([Chapter 10](10-r3block.md#ch-10)). It supports *configuration* through the recursive
+`BlockConfig` / `BlockSolverConfig` machinery ([Chapter 11](11-configuration.md#ch-11)), and
 *coarse-grained parallel computation* through recursive locks,
-asynchronous compute methods, and Solver checkpointing (Chapter 17).
+asynchronous compute methods, and Solver checkpointing ([Chapter 17](17-parallel.md#ch-17)).
 It serialises `Block`s, `Solution`s, `Configuration`s and `Change`s
 to netCDF, a binary hierarchical file format that maps naturally onto
-the nested structure of a `Block` tree (Chapter 18).
+the nested structure of a `Block` tree ([Chapter 18](18-factories-netcdf.md#ch-18)).
 
 Existing concrete `:Block` classes in the public modules of the
 project cover, among others, min-cost flow (`MCFBlock`),
@@ -106,7 +106,7 @@ This manual focuses on the framework, not on the catalogue. Three
 because together they exercise every major concept of SMS++ while
 remaining small enough to fit in a manual.
 
-## 1.2 What SMS++ is not
+## 1.2 What SMS++ is not {#sec-1-2}
 
 It is useful to clarify a number of things that SMS++ *is not*, so
 that the reader can decide quickly whether the framework fits the
@@ -154,9 +154,9 @@ the
 [`MILPSolver`](https://smspp.gitlab.io/smspp-project/d7/d97/class_s_m_spp__di__unipi__it_1_1_m_i_l_p_solver.html)
 family); `MCFClass` and LEMON for min-cost flow; StOpt for
 stochastic dual dynamic programming. The user chooses which of these
-external dependencies to install (Chapter 2).
+external dependencies to install ([Chapter 2](02-installation.md#ch-2)).
 
-## 1.3 Audience and prerequisites
+## 1.3 Audience and prerequisites {#sec-1-3}
 
 This manual addresses three audiences, listed in decreasing order of
 specificity.
@@ -178,7 +178,7 @@ understand the framework deeply enough to make the design decisions
 that come with a new `:Block` — what is "physical", what is
 "abstract", which `:Modification` to issue, what shape of `:Solution`
 to produce — and is well served by reading the entire manual, with
-particular attention to Part II (concepts) and Appendix A (writing a
+particular attention to Part II (concepts) and [Appendix A](A-writing-block.md#app-A) (writing a
 new `:Block`).
 
 A **tertiary** audience consists of *sophisticated end users* who
@@ -194,29 +194,29 @@ for); familiarity with **CMake** and, for the developer-loop
 workflow, with classical **Make**; a working installation of a C++-20
 compiler (recent `gcc`, `clang`, or MSVC); and at least an
 operational understanding of the optimization paradigms that the
-`:Block` of interest implicates. For Recipes R4 and R5 in Part III,
+`:Block` of interest implicates. For Recipes [R4](R4-cfl-lagrangian.md#rec-R4) and [R5](R5-cfl-benders.md#rec-R5) in Part III,
 basic familiarity with Lagrangian and Benders decomposition is
 assumed.
 
-## 1.4 How to read this manual
+## 1.4 How to read this manual {#sec-1-4}
 
 The manual is organised in four parts plus front matter and back
 matter; the rationale for the architecture is given here so that the
 reader can plan the reading sequence that best suits their needs.
 
-**Part I — Foundations** (Chapters 1–3) sets the stage. Chapter 1 is
-this introduction. Chapter 2 covers installation and the first build;
+**Part I — Foundations** (Chapters [1](01-introduction.md#ch-1)–[3](03-mental-model.md#ch-3)) sets the stage. [Chapter 1](01-introduction.md#ch-1) is
+this introduction. [Chapter 2](02-installation.md#ch-2) covers installation and the first build;
 it is deliberately short because the
 [SMS++ Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home) and
 the umbrella project's `README.md` are the authoritative source for
-the detailed steps. Chapter 3 is the *mental model* chapter: it
+the detailed steps. [Chapter 3](03-mental-model.md#ch-3) is the *mental model* chapter: it
 introduces the high-level picture of `Block`, `Solver`, the two
 representations, the lifecycle of a `Block`, and the three running
 examples. A reader who reads only Part I should leave with a coherent
 picture of what SMS++ is, even if not yet able to write code against
 it.
 
-**Part II — Concepts and Idioms** (Chapters 4–18) is the core of the
+**Part II — Concepts and Idioms** (Chapters [4](04-block.md#ch-4)–[18](18-factories-netcdf.md#ch-18)) is the core of the
 manual. Each chapter introduces one concept, defines it precisely,
 locates it in the source tree and the Doxygen reference, and
 illustrates it with a short, compilable snippet that uses one of the
@@ -235,9 +235,9 @@ with Benders cuts emitted via a user-cut callback. Each recipe is
 three to five pages, lists the concepts used, gives the full code,
 walks through it line by line, and reports expected output.
 
-**Part IV — Developer's Guide** (Appendices A–C) is the manual for
+**Part IV — Developer's Guide** (Appendices [A](A-writing-block.md#app-A)–[C](C-writing-modification.md#app-C)) is the manual for
 *extending* the framework: writing a new `:Block`, a new `:Solver`, a
-new `:Modification` or a new `:Change`. Appendix A develops a small
+new `:Modification` or a new `:Change`. [Appendix A](A-writing-block.md#app-A) develops a small
 but complete `BinPackingBlock` from scratch as a pedagogical example.
 
 A pragmatic reader who already knows the concepts and just wants a
@@ -247,7 +247,7 @@ the reader can drill back into Part II only as needed. Conversely, a
 reader who wants a complete picture should read in order, and use
 the Recipes as the runnable counterparts of the concepts.
 
-## 1.5 Relation to the Doxygen reference and to the SMS++ Wiki
+## 1.5 Relation to the Doxygen reference and to the SMS++ Wiki {#sec-1-5}
 
 This manual is one of three sources of documentation for SMS++, each
 with a specific role.
@@ -271,7 +271,7 @@ authoritative source for *installation, build, customisation and
 troubleshooting* instructions: how to fetch the umbrella project and
 its sub-modules, how to configure CMake, how to enable optional
 external solver interfaces, how to deal with platform-specific
-issues. Chapter 2 of this manual gives a brief overview of the build
+issues. [Chapter 2](02-installation.md#ch-2) of this manual gives a brief overview of the build
 system; for the details, the Wiki is the reference.
 
 This **manual** is the third complement. Its scope is the *concepts
@@ -287,7 +287,7 @@ manual comes third. We have tried to keep all three consistent at the
 version covered (0.6.0), but in case of discrepancy the reader is
 invited to file an issue against the umbrella project.
 
-## 1.6 A note on style
+## 1.6 A note on style {#sec-1-6}
 
 A few stylistic choices that recur throughout the manual are worth
 stating upfront.
@@ -321,5 +321,5 @@ We **mark beta and planned features explicitly**. The reader should
 never have to guess whether a feature can be relied upon in a
 production codebase; the manual will say so.
 
-With these preliminaries out of the way, Chapter 2 turns to the
+With these preliminaries out of the way, [Chapter 2](02-installation.md#ch-2) turns to the
 practical question of how to fetch SMS++ and build it.

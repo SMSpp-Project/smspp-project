@@ -1,28 +1,28 @@
-# Appendix C — Writing a new `:Modification` / `:Change`
+# [Appendix C](C-writing-modification.md#app-C) — Writing a new `:Modification` / `:Change` {#app-C}
 
 The last appendix covers the two notification/edit objects a new
 `:Block` author may need to define: a `:Modification` (always, if
 the `:Block` supports any change at all) and, optionally, a
 `:Change` (for serialisable / undoable / transmissible edits). The
-running example continues with `BinPackingBlock` (Appendix A).
+running example continues with `BinPackingBlock` ([Appendix A](A-writing-block.md#app-A)).
 
-## C.1 Why a `:Block` needs its own `:Modification`s
+## C.1 Why a `:Block` needs its own `:Modification`s {#sec-C-1}
 
 A `:Block` that exposes any `chg_*()` mutator must, when the change
 happens and a `:Solver` is listening, tell that `:Solver` *what*
-changed (Chapter 8). The base `Modification` hierarchy already
+changed ([Chapter 8](08-modification-janus.md#ch-8)). The base `Modification` hierarchy already
 covers the generic cases — `NBModification` for a wholesale
-`load()` (§4.6), the abstract-stream `C05FunctionMod` /
+`load()` ([§4.6](04-block.md#sec-4-6)), the abstract-stream `C05FunctionMod` /
 `VariableMod` / `RowConstraintMod` for changes made through the
 abstract face — but a *physical* change to a `:Block`'s own data
 that a specialised `:Solver` should react to needs a
 `:Block`-specific `:Modification` carrying the description of that
 change.
 
-## C.2 Naming and structure conventions
+## C.2 Naming and structure conventions {#sec-C-2}
 
 SMS++ follows consistent naming for `:Block`-specific
-`Modification`s (Chapter 8, §8.2):
+`Modification`s ([Chapter 8](08-modification-janus.md#ch-8), [§8.2](08-modification-janus.md#sec-8-2)):
 
 - `<Block>Mod` — the base class for that `:Block`'s physical
   `Modification`s (e.g. `MCFBlockMod`, `BinaryKnapsackBlockMod`);
@@ -36,7 +36,7 @@ SMS++ follows consistent naming for `:Block`-specific
 A physical `:Modification` derives from `Modification` (not from
 `AModification`); its `concerns_Block()` is `false`, because the
 change in the `:Block` has already happened by the time the object
-is constructed (§8.3). It carries just enough to let a `:Solver`
+is constructed ([§8.3](08-modification-janus.md#sec-8-3)). It carries just enough to let a `:Solver`
 identify what changed — for `BinPackingBlock`, the index (or range,
 or subset) of the items whose size was modified:
 
@@ -63,22 +63,22 @@ class BinPackingBlockMod : public Modification
 
 A `RngdMod` / `SbstMod` would carry a `Range` / `Subset` instead of
 a single index, mirroring the `Rngd` / `Sbst` shapes of the methods
-factory (§15.3). This is the object `BinPackingBlock::chg_size`
-issued in §A.5.
+factory ([§15.3](15-methods-factory.md#sec-15-3)). This is the object `BinPackingBlock::chg_size`
+issued in [§A.5](A-writing-block.md#sec-A-5).
 
-## C.3 Registering with the factory
+## C.3 Registering with the factory {#sec-C-3}
 
 A plain `:Modification` does not generally need to be in a factory
 (it is constructed by the `:Block`, dispatched, consumed, and
-deallocated when the last holder releases its `shared_ptr`, §8.1).
+deallocated when the last holder releases its `shared_ptr`, [§8.1](08-modification-janus.md#sec-8-1)).
 It is `:Change` and the serialisable objects that need the
 class-name factory. A `:Modification` that *does* need to be
 reconstructed from netCDF would use the same
-`SMSpp_insert_in_factory_*` macros as everything else (Chapter 18).
+`SMSpp_insert_in_factory_*` macros as everything else ([Chapter 18](18-factories-netcdf.md#ch-18)).
 
-## C.4 Defining a `:Change` (optional)
+## C.4 Defining a `:Change` (optional) {#sec-C-4}
 
-> **Status — beta.** The `Change` mechanism (Chapter 16) is in
+> **Status — beta.** The `Change` mechanism ([Chapter 16](16-change.md#ch-16)) is in
 > `develop` and its interface may change. Add a `:Change` family
 > only when the use case calls for serialisable, transmissible, or
 > undoable edits (a distributed solver, a move-based search).
@@ -119,25 +119,25 @@ class BinPackingBlockRngdChange : public Change
 SMSpp_insert_in_factory_cpp_0( BinPackingBlockRngdChange );
 ```
 
-The essential points (Chapter 16): `apply()` enacts the change
+The essential points ([Chapter 16](16-change.md#ch-16)): `apply()` enacts the change
 through the `:Block`'s own `chg_*()` interface (so the `:Change`
 can support at most what the `:Block` supports), optionally returns
 an UndoChange when `doUndo` is set, and the class is factory- and
 netCDF-registered so it can be reconstructed from a serialised
 description on another process or at a later time. A `:Change` that
 cannot cheaply build its inverse simply declines to support undo
-for those cases (§16.2).
+for those cases ([§16.2](16-change.md#sec-16-2)).
 
-## C.5 Checklist
+## C.5 Checklist {#sec-C-5}
 
 - Define a `<Block>Mod` (and `Rngd` / `Sbst` variants as needed)
   deriving from `Modification`, carrying the description of a
-  physical change, with `concerns_Block() == false` (§C.2). Issue
-  it from the corresponding `chg_*()` mutator (§A.5).
+  physical change, with `concerns_Block() == false` ([§C.2](C-writing-modification.md#sec-C-2)). Issue
+  it from the corresponding `chg_*()` mutator ([§A.5](A-writing-block.md#sec-A-5)).
 - Rely on the framework's existing abstract-stream `Modification`s
   (`C05FunctionMod`, `VariableMod`, ...) for changes made through
   the abstract face; intercept and mirror them in
-  `add_Modification()` (§A.6).
+  `add_Modification()` ([§A.6](A-writing-block.md#sec-A-6)).
 - Add a `:Change` family **only** if serialisable / transmissible /
   undoable edits are needed; register it in the factory and
   implement `apply()` (with optional undo), `serialize()`,

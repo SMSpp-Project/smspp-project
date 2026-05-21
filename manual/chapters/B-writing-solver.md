@@ -1,13 +1,13 @@
-# Appendix B — Writing a new `:Solver`
+# [Appendix B](B-writing-solver.md#app-B) — Writing a new `:Solver` {#app-B}
 
 This appendix shows how to write a new `:Solver`, using a trivial
-first-fit greedy heuristic for the `BinPackingBlock` of Appendix A
+first-fit greedy heuristic for the `BinPackingBlock` of [Appendix A](A-writing-block.md#app-A)
 as the worked example. As there, the code is illustrative rather
 than production-grade.
 
-## B.1 `Solver` versus `CDASolver`
+## B.1 `Solver` versus `CDASolver` {#sec-B-1}
 
-The first choice is the base class (Chapter 6):
+The first choice is the base class ([Chapter 6](06-solver.md#ch-6)):
 
 - derive from `Solver` for a `:Solver` that produces *primal*
   solutions only;
@@ -19,18 +19,18 @@ The first choice is the base class (Chapter 6):
 A greedy Bin Packing heuristic produces a feasible assignment and
 no dual information, so it derives from `Solver`.
 
-## B.2 The `compute()` contract
+## B.2 The `compute()` contract {#sec-B-2}
 
 `compute(bool changedvars)` is the heart of a `:Solver`
-(Chapter 6, §6.3). Its obligations:
+([Chapter 6](06-solver.md#ch-6), [§6.3](06-solver.md#sec-6-3)). Its obligations:
 
 - run the algorithm and return an `sol_type`. An *exact* solver
   returns `kOK` / `kUnbounded` / `kInfeasible` when it concludes;
   a *heuristic* one that finds a feasible solution but cannot
   prove optimality returns `kLowPrecision`; resource-limited stops
   return `kStopTime` / `kStopIter`; unrecoverable errors return a
-  value $\ge$ `kError` (§6.3).
-- honour `changedvars` (§6.1): with `false`, the caller guarantees
+  value $\ge$ `kError` ([§6.3](06-solver.md#sec-6-3)).
+- honour `changedvars` ([§6.1](06-solver.md#sec-6-1)): with `false`, the caller guarantees
   the relevant `Variable` values are unchanged since the last call,
   so the `:Solver` may resume; with `true` it must assume they may
   have changed. (A one-shot heuristic can simply ignore the hint
@@ -38,44 +38,44 @@ no dual information, so it derives from `Solver`.
 - record the solution so that it can later be read. A `:Solver`
   deposits its solution into the `Block` — for a `:Block` with
   abstract `Variable`s, by writing their values; the user then
-  reads it through the `Block` (§6.9).
+  reads it through the `Block` ([§6.9](06-solver.md#sec-6-9)).
 
-## B.3 Parameters
+## B.3 Parameters {#sec-B-3}
 
-A `:Solver` inherits the parameter machinery of §6.4
+A `:Solver` inherits the parameter machinery of [§6.4](06-solver.md#sec-6-4)
 (`set_par` / `get_par` over integer / double / string slots:
 `intMaxIter`, `dblMaxTime`, ...) and may extend it with its own
 enum values. A simple heuristic may need none and can rely on the
 defaults; a `:Solver` that does add parameters extends
 `int_par_type_S` / `dbl_par_type_S` past their `...LastAlgPar`
 sentinels, exactly as `DPBinaryKnapsackSolver` adds `dblReopt`
-(Recipe R2).
+([Recipe R2](R2-knapsack-reopt.md#rec-R2)).
 
-## B.4 Reacting to `Modification`s
+## B.4 Reacting to `Modification`s {#sec-B-4}
 
 The framework fills the `:Solver`'s pending list with the
-`Modification`s issued since it was attached (Chapter 8). A
+`Modification`s issued since it was attached ([Chapter 8](08-modification-janus.md#ch-8)). A
 `:Solver` consumes that list at the start of `compute()` and reacts:
 an exact, reoptimizing solver uses the fine-grained information to
-warm-start (Chapter 13); a one-shot heuristic may simply note "the
+warm-start ([Chapter 13](13-function-family.md#ch-13)); a one-shot heuristic may simply note "the
 data changed, recompute from scratch", clearing the list. Either
 way, the `:Solver` is responsible for emptying its own list.
 
-## B.5 Optional: `compute_async` and `State`
+## B.5 Optional: `compute_async` and `State` {#sec-B-5}
 
 `compute_async()` comes for free from `ThinComputeInterface`
-(§17.2); a `:Solver` only needs to ensure its `compute()` is
+([§17.2](17-parallel.md#sec-17-2)); a `:Solver` only needs to ensure its `compute()` is
 thread-safe with respect to the `Block` (the recursive locking of
-§17.1). A `:Solver` with meaningful internal state implements
+[§17.1](17-parallel.md#sec-17-1)). A `:Solver` with meaningful internal state implements
 `get_State()` / `put_State()` for checkpointing and warm-starting
-(§17.3); one without — like the greedy heuristic — returns
+([§17.3](17-parallel.md#sec-17-3)); one without — like the greedy heuristic — returns
 `nullptr` and pays nothing.
 
-## B.6 Worked example: a first-fit heuristic for `BinPackingBlock`
+## B.6 Worked example: a first-fit heuristic for `BinPackingBlock` {#sec-B-6}
 
 The heuristic reads the physical representation of the
 `BinPackingBlock` (the sizes and capacity, through the accessors of
-§A.2), places each item into the first bin that has room (opening a
+[§A.2](A-writing-block.md#sec-A-2)), places each item into the first bin that has room (opening a
 new bin when none does), and deposits the resulting assignment into
 the `Block`. It also computes a cheap *lower* bound — no packing can
 use fewer than $\lceil (\sum_i s_i) / C \rceil$ bins — alongside the
@@ -162,7 +162,7 @@ SMSpp_insert_in_factory_cpp_0( FirstFitBPSolver );  // ctor takes 0 args
 ```
 
 The `set_assignment` helper the solver calls is the `Block`-side
-method declared in §A.2. It is worth seeing in full, because it
+method declared in [§A.2](A-writing-block.md#sec-A-2). It is worth seeing in full, because it
 makes a point that is easy to gloss over: the *compact* (physical)
 form of a solution and the *abstract* form generally have very
 different shapes, and translating between them is real work the
@@ -205,19 +205,19 @@ A few points to read off:
   cheap lower bound matches the bins actually used — the greedy
   solution is then *provably* optimal — and `kLowPrecision` when it
   does not, honestly signalling a feasible but not proven-optimal
-  solution (§6.3). The two bounds are exposed separately through the
+  solution ([§6.3](06-solver.md#sec-6-3)). The two bounds are exposed separately through the
   inherited `get_lb()` / `get_ub()`.
 - the solution is written *into the `Block`* through `set_assignment`,
   which keeps both the compact physical solution and the abstract
   `x` / `y` values, so the user can read it back through the `Block`
-  in either form, as for any `:Solver` (§6.9).
+  in either form, as for any `:Solver` ([§6.9](06-solver.md#sec-6-9)).
 - `SMSpp_insert_in_factory_cpp_0` (zero-argument constructor)
   registers the `:Solver` so it can be named in a
-  `BlockSolverConfig` (Chapter 11) — and so it is subject to the
-  linker caveat of §18.2.
+  `BlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)) — and so it is subject to the
+  linker caveat of [§18.2](18-factories-netcdf.md#sec-18-2).
 
 This heuristic is intentionally minimal: no parameters, no dual
 information, no reoptimization, no async state. It is a complete,
 attachable `:Solver` nonetheless — enough to make a
-`BinPackingBlock` solvable, which (as Chapter 2, §2.4 noted) is the
+`BinPackingBlock` solvable, which (as [Chapter 2](02-installation.md#ch-2), [§2.4](02-installation.md#sec-2-4) noted) is the
 precondition for testing the `:Block` at all.

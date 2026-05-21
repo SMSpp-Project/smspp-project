@@ -118,34 +118,34 @@ reference; the SMS++ Wiki.
 ## Table of contents (high-level)
 
 * **Part I — Foundations.**
-    * Chapter 1. Introduction.
-    * Chapter 2. Installation and first build.
-    * Chapter 3. The mental model.
+    * [Chapter 1](chapters/01-introduction.md#ch-1). Introduction.
+    * [Chapter 2](chapters/02-installation.md#ch-2). Installation and first build.
+    * [Chapter 3](chapters/03-mental-model.md#ch-3). The mental model.
 * **Part II — Concepts and Idioms.**
-    * Chapter 4. Block.
-    * Chapter 5. Variable, Constraint, Objective.
-    * Chapter 6. Solver.
-    * Chapter 7. Physical vs Abstract representation.
-    * Chapter 8. Modification and the Janus discipline.
-    * Chapter 9. Solution.
-    * Chapter 10. R3Block: Reformulation, Relaxation, Restriction.
-    * Chapter 11. Configuration.
-    * Chapter 12. Sub-Block and the recursive flow of Modifications.
-    * Chapter 13. The Function family.
-    * Chapter 14. LagBFunction and BendersBFunction.
-    * Chapter 15. The methods factory.
-    * Chapter 16. Change.
-    * Chapter 17. Parallel and asynchronous computation.
-    * Chapter 18. Factories and netCDF serialisation.
+    * [Chapter 4](chapters/04-block.md#ch-4). Block.
+    * [Chapter 5](chapters/05-variable-constraint-objective.md#ch-5). Variable, Constraint, Objective.
+    * [Chapter 6](chapters/06-solver.md#ch-6). Solver.
+    * [Chapter 7](chapters/07-physical-abstract.md#ch-7). Physical vs Abstract representation.
+    * [Chapter 8](chapters/08-modification-janus.md#ch-8). Modification and the Janus discipline.
+    * [Chapter 9](chapters/09-solution.md#ch-9). Solution.
+    * [Chapter 10](chapters/10-r3block.md#ch-10). R3Block: Reformulation, Relaxation, Restriction.
+    * [Chapter 11](chapters/11-configuration.md#ch-11). Configuration.
+    * [Chapter 12](chapters/12-sub-block.md#ch-12). Sub-Block and the recursive flow of Modifications.
+    * [Chapter 13](chapters/13-function-family.md#ch-13). The Function family.
+    * [Chapter 14](chapters/14-lag-benders-bfunction.md#ch-14). LagBFunction and BendersBFunction.
+    * [Chapter 15](chapters/15-methods-factory.md#ch-15). The methods factory.
+    * [Chapter 16](chapters/16-change.md#ch-16). Change.
+    * [Chapter 17](chapters/17-parallel.md#ch-17). Parallel and asynchronous computation.
+    * [Chapter 18](chapters/18-factories-netcdf.md#ch-18). Factories and netCDF serialisation.
 * **Part III — End-to-end Recipes.**
-    * Recipe R1. Solving a Min-Cost Flow instance.
-    * Recipe R2. Reoptimizing a Binary Knapsack.
-    * Recipe R3. CFL three ways: cuts / MCF relaxation / Lagrangian.
-    * Recipe R4. CFL via Lagrangian decomposition with `PrimalProximalHeur`.
-    * Recipe R5. CFL via Benders cuts with a user-cut callback.
+    * [Recipe R1](chapters/R1-mcf.md#rec-R1). Solving a Min-Cost Flow instance.
+    * [Recipe R2](chapters/R2-knapsack-reopt.md#rec-R2). Reoptimizing a Binary Knapsack.
+    * [Recipe R3](chapters/R3-cfl-three-ways.md#rec-R3). CFL three ways: cuts / MCF relaxation / Lagrangian.
+    * [Recipe R4](chapters/R4-cfl-lagrangian.md#rec-R4). CFL via Lagrangian decomposition with `PrimalProximalHeur`.
+    * [Recipe R5](chapters/R5-cfl-benders.md#rec-R5). CFL via Benders cuts with a user-cut callback.
 * **Part IV — Developer's Guide (Appendix).**
-    * Appendix A. Writing a new `:Block`.
-    * Appendix B. Writing a new `:Solver`.
-    * Appendix C. Writing a new `:Modification` / `:Change`.
+    * [Appendix A](chapters/A-writing-block.md#app-A). Writing a new `:Block`.
+    * [Appendix B](chapters/B-writing-solver.md#app-B). Writing a new `:Solver`.
+    * [Appendix C](chapters/C-writing-modification.md#app-C). Writing a new `:Modification` / `:Change`.
 
 Bibliography, glossary, and index follow.

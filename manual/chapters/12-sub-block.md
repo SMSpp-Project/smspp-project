@@ -1,25 +1,25 @@
-# 12. Sub-Block and the recursive flow of Modifications
+# 12. Sub-Block and the recursive flow of Modifications {#ch-12}
 
 [Source: `SMS++/include/Block.h`;
 `CapacitatedFacilityLocationBlock/include/CapacitatedFacilityLocationBlock.h`,
 `BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
 
-Chapter 4 introduced the `Block` tree in the abstract; Chapter 5
-fixed the composition rule for `Objective`s; Chapter 8 described
+[Chapter 4](04-block.md#ch-4) introduced the `Block` tree in the abstract; [Chapter 5](05-variable-constraint-objective.md#ch-5)
+fixed the composition rule for `Objective`s; [Chapter 8](08-modification-janus.md#ch-8) described
 how `Modification`s travel. This chapter draws those threads
 together into the single picture of a *recursive `Block` tree* and
 makes explicit the consequences for data, for solving, and for
 concurrency.
 
-## 12.1 The recursive Block tree
+## 12.1 The recursive Block tree {#sec-12-1}
 
 A `Block` may contain any number of sub-`Block`s, each of which may
 in turn contain its own sub-`Block`s, to any depth. The structure
 is a tree: every `Block` has at most one father (the root has
 none), and the sub-`Block`s of a given `Block` are held in its
-`v_Block` vector of pointers (§4.4).
+`v_Block` vector of pointers ([§4.4](04-block.md#sec-4-4)).
 
-The defining restriction (§4.3) is that **sub-`Block`s are always
+The defining restriction ([§4.3](04-block.md#sec-4-3)) is that **sub-`Block`s are always
 static**: their number and their concrete types are fixed once the
 parent `Block` has been built and cannot change afterwards. There
 is no "dynamic sub-`Block`" analogous to dynamic `Variable`s or
@@ -30,7 +30,7 @@ with a fixed set of sub-`Block`s some of which are "switched off"
 particular the locking and the `Modification` routing described
 below.
 
-## 12.2 How a model is split across the tree
+## 12.2 How a model is split across the tree {#sec-12-2}
 
 The point of the tree is that a structured model is *decomposed*
 across it: each sub-`Block` carries the part of the model that is
@@ -41,8 +41,8 @@ Two composition rules, already stated in earlier chapters, make
 the tree add up to a single coherent model:
 
 - **`Variable`s** of a sub-`Block` are, conceptually, also
-  `Variable`s of the parent (§4.1).
-- **`Objective`s** sum up the tree (§5.4): the overall objective
+  `Variable`s of the parent ([§4.1](04-block.md#sec-4-1)).
+- **`Objective`s** sum up the tree ([§5.4](05-variable-constraint-objective.md#sec-5-4)): the overall objective
   of a `Block` is its own `Objective` plus the `Objective`s of all
   its sub-`Block`s, recursively. A parent that carries no
   `Objective` of its own still has a well-defined overall
@@ -79,10 +79,10 @@ expresses the coupling lives wherever the modeller chose to place
 the linking `Constraint`s — most often, but not necessarily, in
 the common parent.
 
-## 12.3 The recursive flow of Modifications
+## 12.3 The recursive flow of Modifications {#sec-12-3}
 
 A `:Solver` attached to a `Block` is responsible for solving the
-*entire* sub-tree rooted at that `Block` (§6.1). It follows that
+*entire* sub-tree rooted at that `Block` ([§6.1](06-solver.md#sec-6-1)). It follows that
 such a `:Solver` must be told about changes occurring *anywhere*
 in that sub-tree, not only in the `Block` it is directly attached
 to.
@@ -94,22 +94,22 @@ with any `Block` along that chain** — the issuing `Block` itself
 and every one of its ancestors. A change deep in a leaf
 sub-`Block` therefore reaches a `:Solver` attached to the root,
 because the root is an ancestor of the leaf, and equally any
-`:Solver` attached to any intermediate `Block` between the two. The "anyone listening" cache `f_at` (§8.7) records,
+`:Solver` attached to any intermediate `Block` between the two. The "anyone listening" cache `f_at` ([§8.7](08-modification-janus.md#sec-8-7)) records,
 at each `Block`, whether any ancestor has a `:Solver` registered,
 so that a `Block` whose sub-tree no one is solving does not waste
 effort constructing `Modification`s.
 
 Conversely, a `:Solver` attached to a sub-`Block` is *not* told
 about changes happening in the parent or in sibling sub-`Block`s
-(they are above or outside its sub-tree, §6.1). This is what makes
+(they are above or outside its sub-tree, [§6.1](06-solver.md#sec-6-1)). This is what makes
 it sound to attach a specialised `:Solver` to a single leaf
 sub-`Block` while a different `:Solver` solves the whole tree from
 the root: each sees exactly the changes relevant to its own
 responsibility.
 
-## 12.4 Locking propagates down the tree
+## 12.4 Locking propagates down the tree {#sec-12-4}
 
-Concurrency control (Chapter 17) is also recursive. Acquiring a
+Concurrency control ([Chapter 17](17-parallel.md#ch-17)) is also recursive. Acquiring a
 write lock on a `Block` with `lock()` automatically locks all of
 its sub-`Block`s, recursively (`lock_sub_block`); the analogous
 `read_lock()` / `read_lock_sub_block` acquire shared read locks
@@ -119,21 +119,21 @@ sub-tree, so to obtain exclusive access it must lock the whole
 sub-tree, not just the root of it.
 
 This recursive locking is also what underpins the immediacy
-guarantee of §8.4: an abstract change to a `Block` is performed
+guarantee of [§8.4](08-modification-janus.md#sec-8-4): an abstract change to a `Block` is performed
 while the `Block` is locked, hence while its entire sub-tree is
 locked, so no concurrent mutation can be interleaved between the
 change and the `Block`'s reaction to it.
 
-## 12.5 Inline example: CFL in the Knapsack Formulation
+## 12.5 Inline example: CFL in the Knapsack Formulation {#sec-12-5}
 
 The Knapsack Formulation (KskForm) of
 `CapacitatedFacilityLocationBlock` is the canonical small example
 of a non-trivial tree. Selected by setting
 `f_static_variables_Configuration` to `SimpleConfiguration<int>(1)`
-(§11.8), it makes the CFL `Block` grow `f_n_facilities`
+([§11.8](11-configuration.md#sec-11-8)), it makes the CFL `Block` grow `f_n_facilities`
 sub-`Block`s, each a
 [`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html),
-one per facility. The split is exactly as §12.2 describes:
+one per facility. The split is exactly as [§12.2](12-sub-block.md#sec-12-2) describes:
 
 - each sub-`BinaryKnapsackBlock` carries the capacity constraint
   of one facility and that facility's transportation/design
@@ -185,7 +185,7 @@ int main()
 }
 ```
 
-The example is exactly the configuration that Recipe R4 solves
+The example is exactly the configuration that [Recipe R4](R4-cfl-lagrangian.md#rec-R4) solves
 with a `LagrangianDualSolver`: the solver attached to the root
 `cfl` dualises the linking constraints, leaving the per-facility
 knapsacks as independent sub-problems, each solvable by a
@@ -194,10 +194,10 @@ recursive `Modification` flow is what keeps that arrangement
 correct: a change to a facility's data, wherever it is made,
 reaches the root solver that needs to know about it.
 
-## 12.6 Idioms
+## 12.6 Idioms {#sec-12-6}
 
 **Prefer coupling in the parent and locality in the children —
-but know that this is a guideline, not a rule.** As §12.2 made
+but know that this is a guideline, not a rule.** As [§12.2](12-sub-block.md#sec-12-2) made
 precise, the framework imposes *no* restriction on where a
 `Constraint` lives relative to the `Variable`s it references: any
 `Constraint` may reference any `Variable`, anywhere in the tree.

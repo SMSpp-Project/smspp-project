@@ -1,17 +1,17 @@
-# 7. Physical vs Abstract representation
+# 7. Physical vs Abstract representation {#ch-7}
 
 [Source: `SMS++/include/Block.h`, `MCFBlock/include/MCFBlock.h`,
 `BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
 
-This chapter makes precise what Chapter 3 introduced informally:
+This chapter makes precise what [Chapter 3](03-mental-model.md#ch-3) introduced informally:
 a `Block` carries two representations of the same mathematical model
 and the framework's machinery is designed to let both coexist
 without forcing the user to pick one. It also closes the
 "`Variable`s are always materialised" caveat already flagged in
-§3.3, by stating the current limitation precisely and indicating
+[§3.3](03-mental-model.md#sec-3-3), by stating the current limitation precisely and indicating
 the direction the API is intended to take.
 
-## 7.1 Two faces of the same model
+## 7.1 Two faces of the same model {#sec-7-1}
 
 A concrete `:Block` exposes its model along two complementary
 faces.
@@ -34,7 +34,7 @@ fixed-cost vector and the transportation-cost matrix.
 The **abstract** representation, sometimes called the *syntactic*
 representation, is the same model expressed as the explicit
 `Variable`s, `Constraint`s and `Objective` introduced in
-Chapter 5: it is the form a general-purpose solver would expect.
+[Chapter 5](05-variable-constraint-objective.md#ch-5): it is the form a general-purpose solver would expect.
 For `MCFBlock` the abstract representation consists of one
 `std::vector< ColVariable >` of size `NArcs` for the arc flows,
 one `std::vector< FRowConstraint >` of size `NStaticNodes` (and
@@ -47,21 +47,21 @@ linear `Function` for the total flow cost. The latter two groups
 are constructed only when needed: the `LB0Constraint`s are skipped
 when all capacities are infinite, and the `Objective` shape can
 be tuned between "dense" and "sparse" by an option (cf.
-`generate_objective()` in §7.3).
+`generate_objective()` in [§7.3](07-physical-abstract.md#sec-7-3)).
 
 The two representations refer to the same model and are
 *conceptually equivalent*: a feasible solution in one is a
 feasible solution in the other, with the same objective value, up
 to numerical tolerance.
 
-## 7.2 Why two representations
+## 7.2 Why two representations {#sec-7-2}
 
 The reason for keeping both faces around is that different
 `:Solver`s have different needs.
 
 A *specialised* `:Solver` written for a specific `:Block` knows
 the problem and reads the physical representation directly. The
-`MCFSolver< MCFC >` of Chapter 6, for instance, hands the seven
+`MCFSolver< MCFC >` of [Chapter 6](06-solver.md#ch-6), for instance, hands the seven
 arrays of `MCFBlock` to an underlying `MCFClass` algorithm; it
 does not look at the abstract representation at all. The
 specialised path is typically the fastest one and the cheapest
@@ -82,10 +82,10 @@ Having only the physical face would lock out general-purpose
 gains of specialisation. SMS++ keeps both faces around and lets
 the user pick, on a per-`Solver` basis, which one to consume.
 
-## 7.3 On-demand construction of the abstract representation
+## 7.3 On-demand construction of the abstract representation {#sec-7-3}
 
 The physical representation exists as soon as the `:Block` has
-been loaded (cf. §4.5). The abstract representation, by contrast,
+been loaded (cf. [§4.5](04-block.md#sec-4-5)). The abstract representation, by contrast,
 is *built on demand*: a `:Block` does not pay the cost of
 constructing it until a `:Solver` that needs it is attached. The
 construction is triggered by five virtual methods that every
@@ -113,12 +113,12 @@ bound is already encoded in the `ColVariable`s' `kNonNegative`
 type); see `MCFBlock.h:506-571`. `CapacitatedFacilityLocationBlock`
 goes further and uses the `Configuration*` of
 `generate_abstract_variables` to select one of the four
-formulations described in §3.5; see
+formulations described in [§3.5](03-mental-model.md#sec-3-5); see
 `CapacitatedFacilityLocationBlock.h:472-625`.
 
 When the same `Configuration` parameters need to be applied across
 a whole `Block` tree, the recursive `[C/O/R]BlockConfig` family of
-Chapter 11 is the supported way to do it; it carries the
+[Chapter 11](11-configuration.md#ch-11) is the supported way to do it; it carries the
 `Configuration` for `generate_abstract_variables`,
 `generate_abstract_constraints`, `generate_dynamic_*`,
 `generate_objective`, plus a few other slots, and propagates them
@@ -126,13 +126,13 @@ recursively into the sub-`Block`s.
 
 The user-facing rule is simple: if only specialised `:Solver`s
 are attached, the abstract representation need not be constructed
-at all (with the caveat in §7.6 below); as soon as a `:Solver`
+at all (with the caveat in [§7.6](07-physical-abstract.md#sec-7-6) below); as soon as a `:Solver`
 that reads the abstract face is attached, the corresponding
 `generate_*` methods are called once and the abstract face becomes
 populated. The two faces are then kept in sync by the mechanisms
-of Chapter 8.
+of [Chapter 8](08-modification-janus.md#ch-8).
 
-## 7.4 The lifetime of the abstract representation
+## 7.4 The lifetime of the abstract representation {#sec-7-4}
 
 Once constructed, the abstract representation lives for as long as
 the `:Block` lives, with two exceptions.
@@ -140,7 +140,7 @@ the `:Block` lives, with two exceptions.
 First, a `:Block` may be *reset* by another `load(...)` call (or
 by `deserialize(...)`), which replaces the problem instance
 wholesale. The framework convention is that `load(...)` issues a
-single `NBModification` (the "nuclear option" of §4.6) to every
+single `NBModification` (the "nuclear option" of [§4.6](04-block.md#sec-4-6)) to every
 listening `:Solver`, and the abstract representation is rebuilt
 the next time it is needed. The `:Block`'s `generate_*` methods
 are *not* called automatically; they are called when a `:Solver`
@@ -153,10 +153,10 @@ through the dedicated `add_dynamic_variable`,
 `remove_dynamic_variable`, `add_dynamic_constraint`,
 `remove_dynamic_constraint` operations. These are the support for
 column generation and row generation; they issue dedicated
-`Modification`s (`BlockModAdd` / `BlockModRmv`, see Chapter 8) and
+`Modification`s (`BlockModAdd` / `BlockModRmv`, see [Chapter 8](08-modification-janus.md#ch-8)) and
 are consumed by `:Solver`s that know how to handle them.
 
-## 7.5 Feasibility and optimality checks across both faces
+## 7.5 Feasibility and optimality checks across both faces {#sec-7-5}
 
 Three closely related virtual methods on the `Block` class
 encapsulate the duality between the two representations:
@@ -199,9 +199,9 @@ dual solutions to have been written into the appropriate
 `Variable`s and `Constraint`s, which in turn requires the
 abstract representation to carry both groups.
 
-## 7.6 Status — under development: the half-baked `Solution`
+## 7.6 Status — under development: the half-baked `Solution` {#sec-7-6}
 
-The framing of §7.1, "two faces coexist and neither is privileged",
+The framing of [§7.1](07-physical-abstract.md#sec-7-1), "two faces coexist and neither is privileged",
 is not, at version 0.6.0, a faithful description of the
 implementation: it is the framing we are working towards.
 
@@ -235,18 +235,18 @@ Under that scheme a `:Block` attached to a specialised `:Solver`
 only would be able to skip the `generate_abstract_variables()`
 step entirely, the `Solver` would hand back a `:Block`-specific
 `Solution` (such as `MCFSolution`; full discussion in
-Chapter 9) at the end of `compute()`, and the `Block` would
+[Chapter 9](09-solution.md#ch-9)) at the end of `compute()`, and the `Block` would
 absorb it into its physical representation without intermediation.
 
 The above is one of several places where the SMS++ public API is
 not yet fully settled at version 0.6.0; the convention adopted by
 the manual is to flag such places with **Status — under
 development** and to let the reader know that user code written
-today should not assume the asymmetry will persist. Chapter 9
+today should not assume the asymmetry will persist. [Chapter 9](09-solution.md#ch-9)
 returns to this point with the corresponding `Solution`-side
 discussion.
 
-## 7.7 Idioms
+## 7.7 Idioms {#sec-7-7}
 
 **Build the abstract representation lazily.** User code does not
 need to call `generate_abstract_*()` and `generate_objective()`
@@ -269,7 +269,7 @@ two.
 
 **Treat the abstract `Variable`s as the solution channel, not the
 problem definition.** Until the API is reworked along the lines
-of §7.6, the abstract `Variable`s of a `:Block` are best thought
+of [§7.6](07-physical-abstract.md#sec-7-6), the abstract `Variable`s of a `:Block` are best thought
 of as "the place where the `:Solver` writes the solution", not as
 "the syntactic spelling of the problem". When the abstract face
 of a `:Block` is needed in full (e.g. for an `:MILPSolver` to
