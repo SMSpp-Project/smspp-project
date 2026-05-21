@@ -1,4 +1,4 @@
-# Recipe R3 — CFL three ways: cuts / MCF relaxation / Lagrangian
+# [Recipe R3](R3-cfl-three-ways.md#rec-R3) — CFL three ways: cuts / MCF relaxation / Lagrangian {#rec-R3}
 
 > **Counterpart in the source tree:**
 > `tests/CapacitatedFacilityLocation/` — one executable
@@ -19,11 +19,11 @@ strategies, selected entirely by configuration.
 ## Concepts used
 
 - `R3Block`: producing a relaxation and keeping it in sync —
-  Chapter 10 (and `UpdateSolver`).
+  [Chapter 10](10-r3block.md#ch-10) (and `UpdateSolver`).
 - `Configuration`: `BlockConfig` to pick the formulation,
-  `BlockSolverConfig` to pick the solver — Chapter 11.
-- Sub-`Block` decomposition (the KskForm tree) — Chapter 12.
-- `LagBFunction` / `LagrangianDualSolver` — Chapter 14.
+  `BlockSolverConfig` to pick the solver — [Chapter 11](11-configuration.md#ch-11).
+- Sub-`Block` decomposition (the KskForm tree) — [Chapter 12](12-sub-block.md#ch-12).
+- `LagBFunction` / `LagrangianDualSolver` — [Chapter 14](14-lag-benders-bfunction.md#ch-14).
 
 ## The pattern
 
@@ -82,16 +82,16 @@ trade-off:
 
 - **`cuts/`** — a `:MILPSolver` on the natural formulation, with
   the strong forcing constraints $x_{ij} \le y_i$ separated on
-  demand (Chapter 12 mentioned this dynamic-constraint group). A
+  demand ([Chapter 12](12-sub-block.md#ch-12) mentioned this dynamic-constraint group). A
   strong bound, at the highest per-solve cost.
-- **`MCF/`** — the `MCFBlock` flow relaxation of §10.5, solved by
+- **`MCF/`** — the `MCFBlock` flow relaxation of [§10.5](10-r3block.md#sec-10-5), solved by
   a network-specialised `MCFSolver`. The weakest bound and the
   most fractional solution, but obtained extremely fast.
 - **`LD/`** — the Knapsack formulation solved by
   `LagrangianDualSolver`: the master's customer-satisfaction
   constraints are dualised, leaving one `LagBFunction` per
   facility (over its `BinaryKnapsackBlock` sub-`Block`), driven by
-  a `BundleSolver` (Chapters 12, 14, Recipe R4). A strong bound
+  a `BundleSolver` (Chapters [12](12-sub-block.md#ch-12), [14](14-lag-benders-bfunction.md#ch-14), [Recipe R4](R4-cfl-lagrangian.md#rec-R4)). A strong bound
   and a good convexified solution, at a cost between the other
   two.
 
@@ -114,12 +114,12 @@ genuinely *weaker* one.
   asks `get_R3_Block` to produce — *a copy of `B1`* in the `cuts/`
   and `LD/` cases (so that `B2` can be configured into a different
   *formulation* and solved without disturbing `B1`), or an
-  *`MCFBlock` flow relaxation* in the `MCF/` case (§10.5).
+  *`MCFBlock` flow relaxation* in the `MCF/` case ([§10.5](10-r3block.md#sec-10-5)).
 - The two `set_BlockConfig` calls decide the *formulation*: in
   `cuts/`, `B2` is the natural MILP with the strong cuts enabled;
   in `LD/`, `B2` is the Knapsack formulation, which grows the
-  per-facility `BinaryKnapsackBlock` sub-`Block` tree of Chapter
-  12; in `MCF/`, `B2` is already an `MCFBlock` and needs no
+  per-facility `BinaryKnapsackBlock` sub-`Block` tree of [Chapter
+  12](12-sub-block.md#ch-12); in `MCF/`, `B2` is already an `MCFBlock` and needs no
   formulation choice.
 - The two `BlockSolverConfig`s decide the *solver*. Switching the
   whole strategy is a matter of pointing the driver at a different
@@ -127,7 +127,7 @@ genuinely *weaker* one.
 - The `UpdateSolver` registered on `B1` is what makes the
   slope-scaling loop work: when the loop nudges `B1`'s facility
   costs, the change is `map_forward`-ed to `B2` automatically
-  (Chapter 10), so the relaxation stays faithful to the (modified)
+  ([Chapter 10](10-r3block.md#ch-10)), so the relaxation stays faithful to the (modified)
   problem without any explicit re-synchronisation.
 - `map_back_solution(B2, r3bc)` brings `B2`'s (relaxation)
   solution back into `B1`, where the heuristic reads it.
@@ -158,7 +158,7 @@ relaxation, is what makes the two numbers differ.
 
 To recover the equivalence *exactly*, set `intRelaxIntVars == 2`
 in the `CPXMILPSolver`'s `ComputeConfig` (in `cuts/BSPar2.txt`):
-in that mode (`MILPSolver.h`, §6.4) the back-end solves the
+in that mode (`MILPSolver.h`, [§6.4](06-solver.md#sec-6-4)) the back-end solves the
 problem *as a pure LP* — no MIP presolve — and `MILPSolver` itself
 drives the cut-separation loop, calling
 `generate_dynamic_constraints()` after each LP solve. With MIP
@@ -184,8 +184,8 @@ adjust `B1`'s costs, repeat. With the `MCF/` or `LD/` relaxation
 this produces a feasible CFL solution (an *upper* bound) to set
 against the lower bound, all from the one driver.
 
-**Go to Lagrangian + heuristic, or to Benders.** Recipe R4 takes
+**Go to Lagrangian + heuristic, or to Benders.** [Recipe R4](R4-cfl-lagrangian.md#rec-R4) takes
 the `LD/` configuration further, adding `PrimalProximalHeur` to
-turn the convexified solution into a feasible one; Recipe R5
+turn the convexified solution into a feasible one; [Recipe R5](R5-cfl-benders.md#rec-R5)
 solves the *same* CFL by the Benders formulation instead. Both are
 reached, again, by changing configuration rather than code.

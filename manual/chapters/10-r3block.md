@@ -1,10 +1,10 @@
-# 10. R3Block: Reformulation, Relaxation, Restriction
+# 10. R3Block: Reformulation, Relaxation, Restriction {#ch-10}
 
 [Source: `SMS++/include/Block.h` (R3 Block methods),
 `UpdateSolver.h`;
 `CapacitatedFacilityLocationBlock/include/CapacitatedFacilityLocationBlock.h`]
 
-## 10.1 Concept
+## 10.1 Concept {#sec-10-1}
 
 A central design objective of SMS++ is that a model may need to be
 *transformed* for algorithmic reasons, producing a different
@@ -32,11 +32,11 @@ general R3 Block. A concrete `:Block` that wishes to support one
 must implement it explicitly — there is no automatic mechanism
 ("forget 'auto' here", as the slide decks put it).
 
-## 10.2 Why an R3 Block, and not a copy of the `Variable`s
+## 10.2 Why an R3 Block, and not a copy of the `Variable`s {#sec-10-2}
 
 The need for a dedicated mechanism, rather than "just copy the
 relevant `Variable`s and `Constraint`s", comes straight from the
-identity rule of §4.2: the *name* of a `Variable` is its memory
+identity rule of [§4.2](04-block.md#sec-4-2): the *name* of a `Variable` is its memory
 address, so a copy of a `Variable` is, necessarily, a *different*
 `Variable`. An R3 Block therefore lives in its own, fresh set of
 `Variable`s and `Constraint`s, entirely disjoint from those of the
@@ -52,7 +52,7 @@ a small family of *mapping* methods that move solution and
 modification information back and forth between an original `Block`
 and one of its R3 Blocks.
 
-## 10.3 The R3 Block API
+## 10.3 The R3 Block API {#sec-10-3}
 
 All of the following are virtual methods of `Block`; a concrete
 `:Block` overrides the ones it chooses to support and leaves the
@@ -125,7 +125,7 @@ allocate the right concrete type otherwise; `Block.h:4761-4775`.)
 ### Dynamic `Variable`s and `Constraint`s in an R3 Block
 
 A subtlety worth stating explicitly concerns *dynamic*
-`Constraint`s and `Variable`s (§4.3), because their semantics
+`Constraint`s and `Variable`s ([§4.3](04-block.md#sec-4-3)), because their semantics
 interacts with R3 Blocks in a way that is easy to get wrong.
 
 A dynamic `Constraint` is conceptually "there even when it is not
@@ -160,7 +160,7 @@ supports — and `map_back_solution` is, accordingly, allowed to do
 a *best-effort* job when the R3 Block holds dynamic components the
 original has not (yet) generated.
 
-## 10.4 The trivial case: the copy
+## 10.4 The trivial case: the copy {#sec-10-4}
 
 The simplest R3 Block is the **copy** (clone): a new `Block` of
 the same type, holding the same data, in its own fresh
@@ -177,7 +177,7 @@ For `MCFBlock`, `get_R3_Block(nullptr)` produces a copy
 move the flows, potentials and reduced costs between the two,
 with a `solc` selecting "primal only" / "dual only" / "both".
 
-## 10.5 The non-trivial case: CFL's MCF flow relaxation
+## 10.5 The non-trivial case: CFL's MCF flow relaxation {#sec-10-5}
 
 The instructive R3 Block is the one offered by
 `CapacitatedFacilityLocationBlock`: besides the copy, it can
@@ -209,9 +209,8 @@ cost, absorbs any unmet demand and so guarantees feasibility.
 This same construction does double duty in the framework: it is
 the user-visible R3 Block described here, *and* it is the
 internal engine of the "Benders friendly" formulation of CFL
-(BenForm, §3.5), where the `MCFBlock` is wrapped in a
-`BendersBFunction` to produce Benders cuts (Chapter 14, Recipe
-R5). A single, carefully written `get_R3_Block` thus pays off
+(BenForm, [§3.5](03-mental-model.md#sec-3-5)), where the `MCFBlock` is wrapped in a
+`BendersBFunction` to produce Benders cuts ([Chapter 14](14-lag-benders-bfunction.md#ch-14), [Recipe R5](R5-cfl-benders.md#rec-R5)). A single, carefully written `get_R3_Block` thus pays off
 twice.
 
 `CapacitatedFacilityLocationBlock` implements
@@ -221,7 +220,7 @@ twice.
 MCF relaxation is not implemented — the relaxation is a one-way
 target in that respect).
 
-## 10.6 Keeping an R3 Block in sync: `UpdateSolver`
+## 10.6 Keeping an R3 Block in sync: `UpdateSolver` {#sec-10-6}
 
 When an algorithm holds both an original `Block` and one of its R3
 Blocks and changes the original, the R3 Block must be updated to
@@ -243,7 +242,7 @@ through unchanged; restrict to `Modification`s concerning the
 `concerns_Block()`), and the `issuePMod` / `issueAMod` values to
 pass on to the mapping methods (`UpdateSolver.h:79-129`).
 
-The canonical idiom — used verbatim in the CFL test (Recipe R3) —
+The canonical idiom — used verbatim in the CFL test ([Recipe R3](R3-cfl-three-ways.md#rec-R3)) —
 is: build the original `Block`, produce its R3 Block via
 `get_R3_Block`, register an `UpdateSolver` on the original
 pointing at the R3 Block, and from then on simply mutate the
@@ -253,7 +252,7 @@ relaxation faithful to the model it relaxes while the model
 changes underneath it (as in a slope-scaling or
 branch-and-bound loop).
 
-## 10.7 Inline example: a CFL flow relaxation kept in sync
+## 10.7 Inline example: a CFL flow relaxation kept in sync {#sec-10-7}
 
 ```cpp
 #include "CapacitatedFacilityLocationBlock.h"
@@ -305,12 +304,12 @@ The salient points: `get_R3_Block` returns an independent
 `cfl`; and the `UpdateSolver` removes the need to manually
 forward each cost change — a `chg_cost` on `cfl` reaches the
 `MCFBlock` through `map_forward_Modification` without any explicit
-call. Recipe R3 develops this into a complete, runnable program
+call. [Recipe R3](R3-cfl-three-ways.md#rec-R3) develops this into a complete, runnable program
 and compares it with the alternative of using a
 `CapacitatedFacilityLocationBlock` R3 Block solved by a
 `:MILPSolver` or by a `LagrangianDualSolver`.
 
-## 10.8 Idioms
+## 10.8 Idioms {#sec-10-8}
 
 **Pass the same `Configuration` to `get_R3_Block` and to every
 mapping call.** The `Block` uses `r3bc` to know which R3 Block it

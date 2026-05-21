@@ -1,10 +1,10 @@
-# 11. Configuration
+# 11. Configuration {#ch-11}
 
 [Source: `SMS++/include/Configuration.h`, `Block.h` (`BlockConfig`),
 `RBlockConfig.h`, `BlockSolverConfig.h`,
 `ThinComputeInterface.h` (`ComputeConfig`)]
 
-## 11.1 Concept
+## 11.1 Concept {#sec-11-1}
 
 Almost every behaviour of a `Block` and of a `Solver` that is not
 fixed by the problem instance is controlled by a
@@ -18,12 +18,12 @@ from a text file, or `[de]serialize`-d to netCDF, and it mirrors
 the tree structure of the `Block` it configures.
 
 The chapters so far have used `Configuration` objects in passing —
-to select a CFL formulation (§3.5, §7.3), to gate the construction
-of `MCFBlock`'s bound constraints (§7.3), to select an R3 Block
-(§10.5), to pick which part of a `Solution` to keep (§9.1). This
+to select a CFL formulation ([§3.5](03-mental-model.md#sec-3-5), [§7.3](07-physical-abstract.md#sec-7-3)), to gate the construction
+of `MCFBlock`'s bound constraints ([§7.3](07-physical-abstract.md#sec-7-3)), to select an R3 Block
+([§10.5](10-r3block.md#sec-10-5)), to pick which part of a `Solution` to keep ([§9.1](09-solution.md#sec-9-1)). This
 chapter gives the systematic treatment.
 
-## 11.2 `SimpleConfiguration<T>`
+## 11.2 `SimpleConfiguration<T>` {#sec-11-2}
 
 The simplest concrete `Configuration` is the template
 [`SimpleConfiguration<T>`](https://smspp.gitlab.io/smspp-project/d9/d88/class_s_m_spp__di__unipi__it_1_1_simple_configuration.html),
@@ -37,8 +37,8 @@ a perfectly good `Configuration` carrying a list of sub-configurations.
 where a `:Block` needs "one number" to gate a decision. The four
 formulations of `CapacitatedFacilityLocationBlock` are selected by
 a `SimpleConfiguration< int >` whose `f_value` is the bit-mask
-`wf` (§3.5); the sparsity option of `MCFBlock`'s objective is a
-`SimpleConfiguration< double >`; the R3 Block selector of §10.5 is
+`wf` ([§3.5](03-mental-model.md#sec-3-5)); the sparsity option of `MCFBlock`'s objective is a
+`SimpleConfiguration< double >`; the R3 Block selector of [§10.5](10-r3block.md#sec-10-5) is
 a `SimpleConfiguration< int >`. Each `:Block` documents the exact
 type and meaning it expects.
 
@@ -49,7 +49,7 @@ recur as the way to configure a *whole `Block` tree* at once:
   *positional* list: the i-th element configures the i-th
   sub-`Block` (this is, for instance, the form `get_R3_Block`
   accepts to pass a distinct sub-configuration to each inner
-  `Block`, §10.3). Its drawback is that the caller must know the
+  `Block`, [§10.3](10-r3block.md#sec-10-3)). Its drawback is that the caller must know the
   exact position of each `Block` in the tree.
 - `SimpleConfiguration< std::map< std::string , Configuration * > >`
   — a *non-positional*, by-name alternative that is far more
@@ -64,7 +64,7 @@ recur as the way to configure a *whole `Block` tree* at once:
   idiom to reach for when configuring a large or
   programmatically-built tree.
 
-## 11.3 `BlockConfig` and the `[C/O/R]` family
+## 11.3 `BlockConfig` and the `[C/O/R]` family {#sec-11-3}
 
 A
 [`BlockConfig`](https://smspp.gitlab.io/smspp-project/d6/d34/class_s_m_spp__di__unipi__it_1_1_block_config.html)
@@ -88,7 +88,7 @@ exposes. Its fields (`Block.h:8516-8525`) are:
   `get_Solution()` keeps;
 - `f_extra_Configuration` — a `:Block`-specific catch-all (used,
   for instance, by `CapacitatedFacilityLocationBlock` in BenForm
-  to configure the hidden `BendersBFunction`; §11.6).
+  to configure the hidden `BendersBFunction`; [§11.6](11-configuration.md#sec-11-6)).
 
 A `BlockConfig` carries a `f_diff` flag indicating whether it is a
 *differential* configuration — one that changes only the slots it
@@ -104,10 +104,10 @@ The first is recursion. The second is the configuration of the
 `ComputeConfig` of the `Objective` and of individual
 `Constraint`s. This second capability is worth dwelling on,
 because it is easy to confuse with the named slots above. Recall
-(§5.1) that `Objective` and `Constraint` both derive from
+([§5.1](05-variable-constraint-objective.md#sec-5-1)) that `Objective` and `Constraint` both derive from
 `ThinComputeInterface`: their value / satisfaction must be
 `compute()`-d, and that computation may in principle need its own
-parameters — i.e. a `ComputeConfig` (§11.5). This is rare, if it
+parameters — i.e. a `ComputeConfig` ([§11.5](11-configuration.md#sec-11-5)). This is rare, if it
 happens at all, in the current `:Block` catalogue, because the
 `Objective`s and `Constraint`s in use are cheap to evaluate; but
 it *can* arise for a `Constraint` or `Objective` whose value is
@@ -160,13 +160,13 @@ variant; to touch only this `Block`, use the non-`R` one; to act
 only on the objective, only on the constraints, or on both, pick
 the `O`, `C`, or `OC` prefix accordingly.
 
-## 11.4 `BlockSolverConfig` and `RBlockSolverConfig`
+## 11.4 `BlockSolverConfig` and `RBlockSolverConfig` {#sec-11-4}
 
 While a `BlockConfig` configures the *model*, a
 [`BlockSolverConfig`](https://smspp.gitlab.io/smspp-project/d1/de4/class_s_m_spp__di__unipi__it_1_1_block_solver_config.html)
 configures the *solving*: it specifies which `:Solver`(s) are
 registered with a `Block` and, for each, the `ComputeConfig` (the
-solver parameters, §11.5) to apply. Applying a `BlockSolverConfig`
+solver parameters, [§11.5](11-configuration.md#sec-11-5)) to apply. Applying a `BlockSolverConfig`
 to a `Block` registers the listed `:Solver`s; clearing it
 unregisters them. This is the object that makes "switching solver
 is a one-line change" literally true: the choice of `:Solver` is a
@@ -179,25 +179,25 @@ to be applied to the sub-`Block`s, recursively. This is how a
 whole `Block` tree gets its `:Solver`s attached in one operation —
 for instance, a `LagrangianDualSolver` on the master and a
 `DPBinaryKnapsackSolver` on each leaf sub-`Block` of CFL/KskForm
-(Recipe R4).
+([Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
 
-## 11.5 `ComputeConfig`
+## 11.5 `ComputeConfig` {#sec-11-5}
 
 A
 [`ComputeConfig`](https://smspp.gitlab.io/smspp-project/da/daf/class_s_m_spp__di__unipi__it_1_1_compute_config.html)
 configures any `ThinComputeInterface` — so any `Solver`, but also
 any `Function` or other computing object. It bundles the integer,
-double and string parameters introduced in §6.4 (`intMaxIter`,
+double and string parameters introduced in [§6.4](06-solver.md#sec-6-4) (`intMaxIter`,
 `dblMaxTime`, `dblRelAcc`, ...) into one serialisable object,
 plus an optional "extra" `Configuration` for object-specific
 settings. A `BlockSolverConfig` holds one `ComputeConfig` per
 `:Solver` it manages; `Solver::set_ComputeConfig(ComputeConfig*)`
 applies one directly.
 
-## 11.6 The `f_extra_Configuration` escape hatch
+## 11.6 The `f_extra_Configuration` escape hatch {#sec-11-6}
 
 Most of a `Block`'s configurable behaviour fits the named slots of
-§11.3. For the cases that do not, `BlockConfig` carries
+[§11.3](11-configuration.md#sec-11-3). For the cases that do not, `BlockConfig` carries
 `f_extra_Configuration`, a slot whose meaning is entirely
 `:Block`-specific.
 
@@ -220,7 +220,7 @@ whose first element is the R3-Block configuration of the inner
 is logically part of the `Block` but structurally outside its
 sub-`Block` tree.
 
-## 11.7 Loading and serialising
+## 11.7 Loading and serialising {#sec-11-7}
 
 A `Configuration` (of any of the above kinds) can be:
 
@@ -228,7 +228,7 @@ A `Configuration` (of any of the above kinds) can be:
 - loaded from a text file with `Configuration::load(std::istream&)`
   — the form used by the configuration files shipped in the
   `tests/` directories (the `BPar*.txt`, `BSPar*.txt` files of the
-  CFL tests, Recipe R3 / R4 / R5);
+  CFL tests, [Recipe R3](R3-cfl-three-ways.md#rec-R3) / R4 / R5);
 - `[de]serialize`-d to / from a netCDF group, like every other
   first-class SMS++ object.
 
@@ -236,9 +236,9 @@ The factory `Configuration::new_Configuration(...)` reconstructs
 the right concrete `:Configuration` from a class name, which is
 what lets a text or netCDF file specify, say, an
 `RBlockSolverConfig` without the reading code knowing the type at
-compile time (Chapter 18).
+compile time ([Chapter 18](18-factories-netcdf.md#ch-18)).
 
-## 11.8 Inline example: selecting a CFL formulation and a solver
+## 11.8 Inline example: selecting a CFL formulation and a solver {#sec-11-8}
 
 ```cpp
 #include "CapacitatedFacilityLocationBlock.h"
@@ -281,11 +281,11 @@ sub-`Block`s), while the `BlockSolverConfig` decides *how it is
 solved* (here, by whatever `:Solver` `BSPar-LDS.txt` names).
 Changing the formulation is a one-line change to the
 `SimpleConfiguration<int>` value; changing the solver is a change
-to the text file. Recipe R3 shows the same `CFL_test` executable
+to the text file. [Recipe R3](R3-cfl-three-ways.md#rec-R3) shows the same `CFL_test` executable
 producing three completely different solution strategies purely by
 swapping the configuration files.
 
-## 11.9 Idioms
+## 11.9 Idioms {#sec-11-9}
 
 **Separate model configuration from solver configuration.**
 `BlockConfig` answers "what model"; `BlockSolverConfig` answers

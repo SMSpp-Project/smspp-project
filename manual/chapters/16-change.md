@@ -1,4 +1,4 @@
-# 16. Change
+# 16. Change {#ch-16}
 
 > **Status — beta.** The `Change` concept is in `develop` but its
 > interface and semantics may change in incompatible ways. Only a
@@ -9,7 +9,7 @@
 [Source: `SMS++/include/Change.h`,
 `BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
 
-## 16.1 Concept
+## 16.1 Concept {#sec-16-1}
 
 A
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
@@ -17,7 +17,7 @@ is, like a `Modification`, an object that describes a change to a
 `Block`. The two are duals of each other in *time*
 (`Change.h:55-84`):
 
-- a `Modification` (Chapter 8) *notifies* of a change that **has
+- a `Modification` ([Chapter 8](08-modification-janus.md#ch-8)) *notifies* of a change that **has
   already occurred** in a `Block`, so that listening `:Solver`s
   can react;
 - a `Change` *represents* a change that **may be applied later**,
@@ -45,7 +45,7 @@ is `true` — returns an **UndoChange**: a freshly minted `:Change`
 that, applied to `block`, would restore it to the state it was in
 before (`Change.h:404-416`).
 
-## 16.2 Abstract and specific `Change`s
+## 16.2 Abstract and specific `Change`s {#sec-16-2}
 
 Like `Modification`s and `Block`s, `Change`s come in two flavours:
 
@@ -63,7 +63,7 @@ arbitrary change can be complicated or impossible, so a `:Change`
 that wants to guarantee an undo may restrict itself to the subset
 of changes it can reliably invert (`Change.h:74-84`).
 
-## 16.3 Why `Change` exists
+## 16.3 Why `Change` exists {#sec-16-3}
 
 ### Serialisation and distribution
 
@@ -78,7 +78,7 @@ a `Modification`,
 
 `Change` carries a class-name factory (`Change::new_Change(name)`,
 `Change::deserialize(NcGroup)`) of exactly the same kind as
-`Block`, `Solver` and `Solution` (Chapter 18), so a `:Change`
+`Block`, `Solver` and `Solution` ([Chapter 18](18-factories-netcdf.md#ch-18)), so a `:Change`
 read from a netCDF group is reconstructed as the right concrete
 type and then `apply()`-ed. This makes a `Change` something a
 `Modification` can never be: a portable, storable, *transmissible*
@@ -100,7 +100,7 @@ these are, at heart, "apply a move, explore, then undo or commit".
 If the move is a `Change`, the *search driver* need know nothing
 about the concrete `:Block`: it applies `Change`s and rolls them
 back, and the same driver works for any problem class that
-supplies the appropriate `:Change`s. The undo facility (§16.1) is
+supplies the appropriate `:Change`s. The undo facility ([§16.1](16-change.md#sec-16-1)) is
 what makes the roll-back free: an automatically-produced
 UndoChange restores the previous state wherever the `:Change`
 supports it.
@@ -113,7 +113,7 @@ that `:Solver` may be a *specialised* one, it can construct the
 branching `Change`s tailored not only to the structure of the
 problem but also to its own ability to **reoptimize efficiently**
 after the branch — choosing moves that its warm-start machinery
-(Chapter 13's reoptimization vocabulary) can absorb cheaply. The
+([Chapter 13](13-function-family.md#ch-13)'s reoptimization vocabulary) can absorb cheaply. The
 search driver, meanwhile, stays completely generic: it receives
 `Change`s from the relaxation `:Solver`, applies them to descend
 the tree, and uses the UndoChanges to backtrack, without any
@@ -123,7 +123,7 @@ branching `Change`s on the other — is one of the more ambitious
 uses the `Change` concept is meant to enable, and it is
 **currently under development**.
 
-## 16.4 The reference example: `BinaryKnapsackBlock`'s `Change`s
+## 16.4 The reference example: `BinaryKnapsackBlock`'s `Change`s {#sec-16-4}
 
 `BinaryKnapsackBlock` is the reference implementation of the
 `Change` family at version 0.6.0. It ships three specific
@@ -137,8 +137,8 @@ uses the `Change` concept is meant to enable, and it is
   arbitrary set of items),
 
 mirroring, on the `Change` side, the `Rngd` / `Sbst` distinction
-that the `Modification` family draws (Chapter 8) and that the
-methods factory draws (Chapter 15). Each carries the new data
+that the `Modification` family draws ([Chapter 8](08-modification-janus.md#ch-8)) and that the
+methods factory draws ([Chapter 15](15-methods-factory.md#ch-15)). Each carries the new data
 (weights, profits, capacity, fixings) for the items it covers, can
 be serialised to netCDF, applied to a `BinaryKnapsackBlock`, and —
 within the subset it supports — produce its UndoChange.
@@ -174,10 +174,10 @@ int main()
 }
 ```
 
-## 16.5 `Change` versus `Modification`: which to use
+## 16.5 `Change` versus `Modification`: which to use {#sec-16-5}
 
 For ordinary, in-process model edits — the bread-and-butter "change
-a cost, re-solve" of Chapters 8 and 10 — the `Modification`
+a cost, re-solve" of Chapters [8](08-modification-janus.md#ch-8) and [10](10-r3block.md#ch-10) — the `Modification`
 mechanism, driven by the `:Block`'s `chg_*()` methods, remains the
 right tool, and is the one the rest of this manual uses. `Change`
 is the right tool when one needs one of the things a `Modification`
@@ -191,6 +191,6 @@ cannot provide:
 
 Because the concept is **beta** and implemented for only a few
 `:Block`s, a `:Block` author should regard adding a `Change`
-family as an *optional* and forward-looking step (Appendix C), not
+family as an *optional* and forward-looking step ([Appendix C](C-writing-modification.md#app-C)), not
 a requirement; and a user should reach for `Change` only when one
 of the three needs above is actually present.

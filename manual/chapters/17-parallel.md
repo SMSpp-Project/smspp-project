@@ -1,4 +1,4 @@
-# 17. Parallel and asynchronous computation
+# 17. Parallel and asynchronous computation {#ch-17}
 
 [Source: `SMS++/include/Block.h` (locking),
 `ThinComputeInterface.h` (`compute_async`, `State`),
@@ -11,7 +11,7 @@ mechanisms that make such parallelism safe and efficient — locking,
 asynchronous evaluation, and solver state — and is candid about
 what is not yet handled.
 
-## 17.1 Locking a `Block`
+## 17.1 Locking a `Block` {#sec-17-1}
 
 Because several threads may want to read or modify the same
 `Block` tree, SMS++ provides a locking protocol on `Block`:
@@ -22,7 +22,7 @@ Because several threads may want to read or modify the same
   is **recursive over the tree**: locking a `Block` automatically
   locks all of its sub-`Block`s, recursively (`lock_sub_block`),
   because an entity that holds a `Block` must hold its whole
-  sub-tree to operate on it safely (Chapter 12).
+  sub-tree to operate on it safely ([Chapter 12](12-sub-block.md#ch-12)).
 - `unlock(owner)` releases it (and the sub-tree).
 - `read_lock()` / `read_unlock()` acquire and release a *shared*
   (read) lock; any number of concurrent readers are allowed, as
@@ -48,7 +48,7 @@ contenders is then guaranteed to succeed (`Block.h:1700-1714`).
 > with occasional writes should be aware of this.
 
 This same recursive locking underpins the immediacy guarantee of
-§8.4: an abstract change is applied while the `Block` (hence its
+[§8.4](08-modification-janus.md#sec-8-4): an abstract change is applied while the `Block` (hence its
 whole sub-tree) is locked, so no concurrent mutation can interleave
 between a change and the `Block`'s reaction to it.
 
@@ -80,7 +80,7 @@ delegated, do not corrupt the outer computation's invariants, and
 release what they should. The lent ID grants access; it does not
 grant good behaviour.
 
-## 17.2 Asynchronous computation
+## 17.2 Asynchronous computation {#sec-17-2}
 
 Any `ThinComputeInterface` — so any `Solver`, but also any
 `Function` such as a `LagBFunction` or `BendersBFunction` — can be
@@ -95,11 +95,11 @@ resolve.
 
 For this to be safe, a `:Solver`'s `compute()` must be
 *thread-safe* with respect to the `Block` it solves; the recursive
-locking of §17.1 — including the lent-ID mechanism above — is what
+locking of [§17.1](17-parallel.md#sec-17-1) — including the lent-ID mechanism above — is what
 makes that achievable when a `:Solver` delegates to inner
 `:Solver`s on sub-`Block`s.
 
-## 17.3 Solver `State` and checkpointing
+## 17.3 Solver `State` and checkpointing {#sec-17-3}
 
 A `ThinComputeInterface` may expose a
 [`State`](https://smspp.gitlab.io/smspp-project/d6/dff/class_s_m_spp__di__unipi__it_1_1_state.html)
@@ -133,9 +133,9 @@ into a (compatible) `:Solver`, which serves three purposes:
 A `:Solver` with no meaningful internal state simply returns
 `nullptr` from `get_State()`; the mechanism then costs nothing.
 
-## 17.4 Inline example: a parallel Lagrangian dual
+## 17.4 Inline example: a parallel Lagrangian dual {#sec-17-4}
 
-The Knapsack Formulation of CFL (Chapters 12, 14) decomposes into
+The Knapsack Formulation of CFL (Chapters [12](12-sub-block.md#ch-12), [14](14-lag-benders-bfunction.md#ch-14)) decomposes into
 one independent Lagrangian knapsack per facility; evaluating the
 Lagrangian function at a given multiplier vector means solving all
 of those knapsacks, which are independent and therefore
@@ -148,16 +148,16 @@ drives the bundle method as usual.
 
 From the user's point of view, switching from serial to parallel
 solution of the Lagrangian dual is, once again, a *configuration
-change*: the `BlockSolverConfig` (Chapter 11) names
+change*: the `BlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)) names
 `ParallelBundleSolver` instead of `BundleSolver`, and sets the
-number of threads. The decomposition structure (Chapter 12), the
-`LagBFunction`s (Chapter 14), the recursive locking (§17.1) and
-the asynchronous evaluation (§17.2) do the rest; the surrounding
+number of threads. The decomposition structure ([Chapter 12](12-sub-block.md#ch-12)), the
+`LagBFunction`s ([Chapter 14](14-lag-benders-bfunction.md#ch-14)), the recursive locking ([§17.1](17-parallel.md#sec-17-1)) and
+the asynchronous evaluation ([§17.2](17-parallel.md#sec-17-2)) do the rest; the surrounding
 user code does not change. This is the payoff the energy-system
 results in the slide decks rely on: thirty-seven scenarios solved
 on as many processes, each with a parallel bundle method inside.
 
-## 17.5 Idioms
+## 17.5 Idioms {#sec-17-5}
 
 **Lock the nearest common ancestor.** To operate atomically on a
 set of `Block`s, do not lock them one by one (risking a deadlock
@@ -187,6 +187,6 @@ block-diagonal structure that `LagrangianDualSolver` (and thus
 formulations do not, and no configuration switch can make a
 parallel bundle method apply to them. So the genuine lever for
 parallelism is often the *formulation*, chosen via the
-`BlockConfig` (Chapter 11), with the parallel `:Solver` selection
+`BlockConfig` ([Chapter 11](11-configuration.md#ch-11)), with the parallel `:Solver` selection
 in the `BlockSolverConfig` being the easy second step that the
 formulation has made possible.

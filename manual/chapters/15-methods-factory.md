@@ -1,9 +1,9 @@
-# 15. The methods factory
+# 15. The methods factory {#ch-15}
 
 [Source: `SMS++/include/Block.h` (methods factory),
 `BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
 
-The `Configuration` machinery of Chapter 11 can tell a `Block`
+The `Configuration` machinery of [Chapter 11](11-configuration.md#ch-11) can tell a `Block`
 *which* parts of its representation to build and *which* `:Solver`
 to attach, but it cannot, by itself, reach inside a `:Block` and
 *change its data* — change a weight, a cost, a capacity — without
@@ -13,7 +13,7 @@ generic driver (a configuration file, a scenario generator, a
 stochastic-block realiser) invoke a data-changing member function
 of an unknown `:Block` by *name*.
 
-## 15.1 The problem it solves
+## 15.1 The problem it solves {#sec-15-1}
 
 A `:Block`'s data-changing methods live in its *specialised*
 interface: `MCFBlock::chg_cost(...)`,
@@ -22,7 +22,7 @@ interface: `MCFBlock::chg_cost(...)`,
 requires a pointer of the concrete type and a compile-time
 dependency on that type. But much framework code is deliberately
 *type-agnostic*: a `StochasticBlock` that realises scenario data
-into "some inner `Block`" (Chapter 1) does not know, and should
+into "some inner `Block`" ([Chapter 1](01-introduction.md#ch-1)) does not know, and should
 not need to know, whether that inner `Block` is a `UCBlock`, a
 `CapacitatedFacilityLocationBlock`, or something written next
 year. It only knows that "the data to change is called such-and-
@@ -35,7 +35,7 @@ function that changes a `Block`*. With it, type-agnostic code can
 retrieve the function by name and call it on a base `Block*`,
 without ever naming the concrete `:Block` class.
 
-## 15.2 Adapter functions over a base `Block*`
+## 15.2 Adapter functions over a base `Block*` {#sec-15-2}
 
 The functions stored in the factory do **not** point directly to
 `:Block` member functions, because a member function pointer is
@@ -52,9 +52,9 @@ to a factory-compatible signature.
 The generic adapter signature carries, after the data arguments,
 the familiar two `ModParam`s (`issuePMod`, `issueAMod`) so that
 the factory-driven change participates in the Janus discipline of
-Chapter 8 exactly as a direct call would.
+[Chapter 8](08-modification-janus.md#ch-8) exactly as a direct call would.
 
-## 15.3 The six standard signature families
+## 15.3 The six standard signature families {#sec-15-3}
 
 To make the factory useful, the data-changing functions need a
 small, shared vocabulary of signatures, so that the factory is
@@ -97,7 +97,7 @@ the `MS_dbl_*` families and `close_arcs` / `open_arcs` in the
 `:Block` authors to give their data-changing methods one of these
 six shapes, precisely so they slot into the factory for free.
 
-## 15.4 `register_method`, `get_method`, `get_method_name`
+## 15.4 `register_method`, `get_method`, `get_method_name` {#sec-15-4}
 
 The three operations on the factory are:
 
@@ -119,7 +119,7 @@ adapter functions — useful when the `:Block` author did not
 anticipate a particular form of bulk change, or simply did not get
 around to registering one (`Block.h:5857-5874`).
 
-## 15.5 Inline example: changing weights by name
+## 15.5 Inline example: changing weights by name {#sec-15-5}
 
 ```cpp
 #include "BinaryKnapsackBlock.h"
@@ -166,14 +166,14 @@ carry — this is, indeed, how `StochasticBlock` pushes scenario
 data into an inner `:Block` without a compile-time dependency on
 its type.
 
-## 15.6 Relation to the class-name factories
+## 15.6 Relation to the class-name factories {#sec-15-6}
 
 The methods factory is one of two distinct factory mechanisms in
 SMS++, and they should not be confused:
 
 - the **methods factory** of this chapter maps a *method name* to
   a *function that changes an existing `Block`*;
-- the **class factories** of Chapter 18 map a *class name* to a
+- the **class factories** of [Chapter 18](18-factories-netcdf.md#ch-18) map a *class name* to a
   *constructor*, so that a `Block`, `Solver`, `Configuration`,
   `Solution` or `Change` of a type named in a file can be
   *created* without compile-time knowledge of the type
@@ -181,19 +181,19 @@ SMS++, and they should not be confused:
 
 Both rest on the same idea — defer a type decision to a runtime
 string — but one *constructs objects* while the other *mutates an
-existing one*. The `StochasticBlock` realiser mentioned in §15.1
+existing one*. The `StochasticBlock` realiser mentioned in [§15.1](15-methods-factory.md#sec-15-1)
 uses the methods factory to push scenario data into an inner
 `Block` it was handed; it would use the class factory if it had
 to *build* that inner `Block` from a serialised description.
 
-## 15.7 The dark side: registration versus the linker
+## 15.7 The dark side: registration versus the linker {#sec-15-7}
 
 SMS++'s insistence on selecting classes and methods at runtime
 from a string has a genuine *dark side*, worth stating plainly
 because it bites newcomers.
 
 The registration of a method (or of a class, in the factories of
-§15.6 and Chapter 18) is performed by code that runs at program
+[§15.6](15-methods-factory.md#sec-15-6) and [Chapter 18](18-factories-netcdf.md#ch-18)) is performed by code that runs at program
 *initialization* — typically a static initializer in the
 translation unit of the `:Block`. Crucially, that translation
 unit contains *no visible call* from the rest of the program: the
@@ -213,13 +213,13 @@ remove what is statically unreachable". Avoiding it requires some
 build-time care — forcing the linker to retain the relevant
 translation units even though it sees no reference to them. The
 mechanics (the linker flags and the SMS++ registration macros that
-make them work) are the subject of Chapter 18; here we only flag
+make them work) are the subject of [Chapter 18](18-factories-netcdf.md#ch-18); here we only flag
 the phenomenon, so that a reader who hits an inexplicable "not
 found in factory" error knows that the cause is almost always a
 translation unit the linker has optimised away, not a missing
 registration in the source.
 
-## 15.8 Idioms
+## 15.8 Idioms {#sec-15-8}
 
 **Give data-changing methods one of the six standard shapes.** A
 `:Block` author who writes `chg_*()` methods in the

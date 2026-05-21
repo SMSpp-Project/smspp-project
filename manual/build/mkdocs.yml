@@ -17,10 +17,18 @@ site_dir: ../../manual-site
 use_directory_urls: false
 
 # docs_dir is the manual root, which also holds files that are not manual
-# pages; keep them out of the generated site.
+# pages; keep them out of the generated site. NOTE: build/katex-init.js IS
+# needed at runtime (math rendering), so exclude build/ selectively rather
+# than wholesale.
 exclude_docs: |
-  build/
+  build/Makefile
+  build/*.yml
+  build/*.yaml
+  build/*.lua
+  build/*.tex
+  build/*.py
   OUTLINE.md
+  MAINTENANCE.md
   model.html
   SMS++-manual.pdf
   .DS_Store

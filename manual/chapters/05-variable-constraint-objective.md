@@ -1,11 +1,11 @@
-# 5. Variable, Constraint, Objective
+# 5. Variable, Constraint, Objective {#ch-5}
 
 [Source: `SMS++/include/Variable.h`, `ColVariable.h`, `Constraint.h`,
 `RowConstraint.h`, `OneVarConstraint.h`, `FRowConstraint.h`,
 `Objective.h`, `RealObjective.h`, `FRealObjective.h`,
 `LinearObjective.h`]
 
-## 5.1 Concept
+## 5.1 Concept {#sec-5-1}
 
 The three primitives that live inside a `Block` are
 [`Variable`](https://smspp.gitlab.io/smspp-project/df/d67/class_s_m_spp__di__unipi__it_1_1_variable.html),
@@ -15,7 +15,7 @@ and
 A `Block` contains, conceptually, any number of `Variable`s and
 `Constraint`s organised in *groups*, and at most one `Objective`.
 Together they constitute the *abstract representation* of the
-mathematical model carried by the `Block` (Chapter 7); when a
+mathematical model carried by the `Block` ([Chapter 7](07-physical-abstract.md#ch-7)); when a
 `Block` is solved by a general-purpose `:Solver`, this is what the
 `:Solver` reads.
 
@@ -24,7 +24,7 @@ All three classes share two architectural traits:
 - each instance **belongs to one `Block`** (its `f_Block` field
   points to the owning `Block`);
 - the *name* of an instance is its **memory address**, with the
-  consequence — discussed for `Block` in §4.2 — that an instance
+  consequence — discussed for `Block` in [§4.2](04-block.md#sec-4-2) — that an instance
   cannot be moved once constructed. Dynamic groups therefore live
   in `std::list`; static groups live in `std::vector` or
   `boost::multi_array` whose storage is allocated once and never
@@ -49,7 +49,7 @@ from common base classes:
 specified by derived classes, not by the base, and it has no
 notion of computation (only of being fixed or not).
 
-## 5.2 Variable
+## 5.2 Variable {#sec-5-2}
 
 The base class `Variable` makes very few assumptions:
 
@@ -104,7 +104,7 @@ inside the `ColVariable` itself, *not* `Constraint`s in the
 `Block`: this saves a substantial amount of memory in models where
 most variables are, say, simply non-negative or binary.
 
-## 5.3 Constraint
+## 5.3 Constraint {#sec-5-3}
 
 The base class `Constraint`, beyond what its base classes already
 provide, supports:
@@ -152,7 +152,7 @@ single variable. The class ships with several pre-defined refinements:
 (`x ∈ [0,1]`). The most common of these, `LB0Constraint`, encodes
 "`0 ≤ x ≤ ub`", and is the variant used by `MCFBlock` for the arc
 capacity constraints when the per-arc upper bound is not infinite
-(§4.5 and Chapter 7).
+([§4.5](04-block.md#sec-4-5) and [Chapter 7](07-physical-abstract.md#ch-7)).
 
 ### `FRowConstraint`
 
@@ -164,7 +164,7 @@ inside is set with `set_function(Function*)` and retrieved with
 `get_function()`. The framework takes ownership of the `Function*`
 passed to `set_function`: passing `nullptr` releases it.
 
-The `Function` family (Chapter 13) covers linear, quadratic, and
+The `Function` family ([Chapter 13](13-function-family.md#ch-13)) covers linear, quadratic, and
 polyhedral cases, plus the two specialised "`Block` + `Function`"
 hybrids `LagBFunction` and `BendersBFunction`. For a "row of a
 linear program" the standard combination is `FRowConstraint`
@@ -172,7 +172,7 @@ carrying a `Function` that evaluates a linear expression in
 `ColVariable`s, which is exactly what `MCFBlock` uses for its
 flow-conservation constraints.
 
-## 5.4 Objective
+## 5.4 Objective {#sec-5-4}
 
 The base class `Objective` adds two facts to its base classes:
 
@@ -210,7 +210,7 @@ A simpler `LinearObjective` exists for the case where the objective
 is a plain linear form in `ColVariable`s; it stores the
 coefficients directly without the `Function` indirection.
 
-## 5.5 Inline example: the abstract representation of `BinaryKnapsackBlock`
+## 5.5 Inline example: the abstract representation of `BinaryKnapsackBlock` {#sec-5-5}
 
 A reader who reaches this point may be tempted to construct a
 `Block`'s abstract representation by hand: instantiate a vector of
@@ -281,8 +281,8 @@ revision in a future release; for the moment, code that needs to
 look at the abstract representation of a `:Block` it does not know
 should go through the `:Block`'s own getters.
 
-The deliberately small `AbstractBlock` class (Chapter 1, also
-discussed in Chapter 4) is the converse case: a `Block` *without*
+The deliberately small `AbstractBlock` class ([Chapter 1](01-introduction.md#ch-1), also
+discussed in [Chapter 4](04-block.md#ch-4)) is the converse case: a `Block` *without*
 a problem class of its own, whose abstract representation *is*
 constructed by user code from the outside. `AbstractBlock` is the
 correct vehicle if the goal is to assemble a `Variable` /
@@ -290,11 +290,11 @@ correct vehicle if the goal is to assemble a `Variable` /
 loading a `.mps` or `.lp` file — and the construction patterns of
 this section are the canonical way to do so. The interested reader
 will find a worked example of an `AbstractBlock` built from
-scratch in Recipe R3 (where the MCF flow relaxation of CFLB is
-described) and a more systematic treatment in Appendix A, where a
+scratch in [Recipe R3](R3-cfl-three-ways.md#rec-R3) (where the MCF flow relaxation of CFLB is
+described) and a more systematic treatment in [Appendix A](A-writing-block.md#app-A), where a
 fresh `:Block` is developed from scratch.
 
-## 5.6 API outline
+## 5.6 API outline {#sec-5-6}
 
 | Class | Key methods |
 |---|---|
@@ -312,7 +312,7 @@ fresh `:Block` is developed from scratch.
 For the exhaustive list of public methods, see the corresponding
 Doxygen page of each class.
 
-## 5.7 Idioms
+## 5.7 Idioms {#sec-5-7}
 
 **Pointer-identity equality.** Anywhere a `Variable*` or a
 `Constraint*` appears, it is compared with `==`; two pointers
@@ -337,4 +337,4 @@ have no `Objective` of its own and still expose a non-trivial
 overall `Objective` made up entirely of those of its sub-`Block`s;
 this is the standard pattern for "master" `Block`s that only
 carry linking constraints, as in `CapacitatedFacilityLocationBlock`
-in the Knapsack Formulation (Chapter 12, Recipe R4).
+in the Knapsack Formulation ([Chapter 12](12-sub-block.md#ch-12), [Recipe R4](R4-cfl-lagrangian.md#rec-R4)).

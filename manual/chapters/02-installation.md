@@ -1,4 +1,4 @@
-# 2. Installation and first build
+# 2. Installation and first build {#ch-2}
 
 This chapter is deliberately short. The
 [SMS++ Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
@@ -8,7 +8,7 @@ follows is an orientation, plus the one idea — the two coexisting
 build systems — that a newcomer most needs to understand before
 consulting them.
 
-## 2.1 Dependencies
+## 2.1 Dependencies {#sec-2-1}
 
 The core SMS++ library requires a C++-20 compiler (a recent
 `g++`, `clang++`, or MSVC), [Boost](https://www.boost.org), the
@@ -39,7 +39,7 @@ invocations are in the project `README.md`; the Wiki's
 [requirements guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements)
 has the detail.
 
-## 2.2 The umbrella project and its modules
+## 2.2 The umbrella project and its modules {#sec-2-2}
 
 SMS++ is distributed as an *umbrella* project,
 [`smspp-project`](https://gitlab.com/smspp/smspp-project), whose
@@ -56,7 +56,7 @@ composite `:Block`s (`MCFBlock`, `BinaryKnapsackBlock`,
 `tests` and `tools` repositories. Cloning the umbrella (with its
 sub-modules) is the recommended way to obtain a coherent set.
 
-## 2.3 Two build systems, two use cases
+## 2.3 Two build systems, two use cases {#sec-2-3}
 
 SMS++ can be built either with [CMake](https://cmake.org) or with
 plain makefiles, and the choice is not arbitrary — the two suit
@@ -112,7 +112,7 @@ the supported way to point at them is to copy the right
 repository) and set the `*_ROOT` values there. This single file is
 read by both CMake and the makefiles.
 
-## 2.4 First smoke tests
+## 2.4 First smoke tests {#sec-2-4}
 
 A point worth understanding here is *why the tests are organised
 the way they are*. A `:Block` on its own is, in general, not very
@@ -123,8 +123,7 @@ that `:Block`s and `:Solver`s are independent). This is precisely
 why `tests/` is a **separate repository**: the testers that need
 both a `:Block` and a `:Solver` from different modules live there,
 not inside any one module. Among the running examples,
-`tests/CapacitatedFacilityLocation` is the one used by Recipes
-R3–R5.
+`tests/CapacitatedFacilityLocation` is the one used by Recipes [R3](R3-cfl-three-ways.md#rec-R3)–[R5](R5-cfl-benders.md#rec-R5).
 
 Some `:Block`s, however, *do* carry their own tester under a local
 `test/` directory — namely those that "come with a `:Solver`
@@ -134,11 +133,11 @@ attached" and so are self-contained: `MCFBlock` (with
 `SDDPBlock`. Building and running one of these is the quickest way
 to confirm that the toolchain, the dependencies and the paths are
 all in order. The `MCFBlock/test` tester — the runnable
-counterpart of Recipe R1 — is a good first target: it builds the
+counterpart of [Recipe R1](R1-mcf.md#rec-R1) — is a good first target: it builds the
 core, the `MCFBlock` module and the `MCFSolver`, loads a small flow
 instance, solves it, and checks the result.
 
-## 2.5 Troubleshooting
+## 2.5 Troubleshooting {#sec-2-5}
 
 Two failure modes are common enough to flag here, both covered in
 depth elsewhere in this manual or in the Wiki:
@@ -146,12 +145,12 @@ depth elsewhere in this manual or in the Wiki:
 - a runtime error of the form *"XXXX not present in YYYY
   factory"*, despite the class being in the source tree, is almost
   always the linker having optimised away a translation unit whose
-  only job was to register a class; §18.2 explains the cause and
+  only job was to register a class; [§18.2](18-factories-netcdf.md#sec-18-2) explains the cause and
   the fixes (linker flags or `SMSpp_ensure_load`).
 - a dependency that the build cannot find is almost always a
   `*_ROOT` path issue; copy `extlib/makefile-default-paths-<os>`
   to `extlib/makefile-paths` and correct the relevant value, as in
-  §2.3.
+  [§2.3](02-installation.md#sec-2-3).
 
 For anything beyond these, the
 [SMS++ Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)

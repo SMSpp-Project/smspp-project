@@ -1,10 +1,10 @@
-# 8. Modification and the Janus discipline
+# 8. Modification and the Janus discipline {#ch-8}
 
 [Source: `SMS++/include/Modification.h`, `Observer.h`,
 `MCFBlock/include/MCFBlock.h`]
 
 A `Block` and its abstract representation can both change after a
-`:Solver` has been attached to the `Block`. Chapter 6 introduced
+`:Solver` has been attached to the `Block`. [Chapter 6](06-solver.md#ch-6) introduced
 the *pending list* of `Modification`s through which the framework
 delivers such changes to a `:Solver`; this chapter makes the
 machinery precise. It also makes precise the principal idiom by
@@ -12,7 +12,7 @@ which a `:Block` keeps its physical and its abstract faces in
 sync — the **Janus discipline** — and the few `ModParam` knobs
 that the user has to dial the behaviour.
 
-## 8.1 Concept
+## 8.1 Concept {#sec-8-1}
 
 A
 [`Modification`](https://smspp.gitlab.io/smspp-project/d1/d3c/class_s_m_spp__di__unipi__it_1_1_modification.html)
@@ -47,7 +47,7 @@ called by the `:Block` (or by one of its `Variable` / `Constraint`
 / `Function` instances); the second is called by the framework
 on the `:Solver`'s behalf.
 
-## 8.2 The hierarchy of Modifications
+## 8.2 The hierarchy of Modifications {#sec-8-2}
 
 The `Modification` class is the abstract base. Its principal
 subclasses, all in `SMS++/include/Modification.h`, are:
@@ -71,7 +71,7 @@ subclasses, all in `SMS++/include/Modification.h`, are:
   issued by `Block::load(...)` and by `deserialize(...)` to
   signal that the entire `Block` has been re-loaded from scratch
   and any prior computation must be discarded. This is the
-  "nuclear option" of §4.6.
+  "nuclear option" of [§4.6](04-block.md#sec-4-6).
 - `GroupModification` (line 635) — a `GroupModification` bundles
   several `Modification`s into one logical unit. A receiving
   `:Solver` may either react to each sub-`Modification` in turn
@@ -103,7 +103,7 @@ Analogous Rngd / Sbst pairs exist for `BinaryKnapsackBlock`
 `CapacitatedFacilityLocationBlock` and most other concrete
 `:Block` classes.
 
-## 8.3 The two streams
+## 8.3 The two streams {#sec-8-3}
 
 There are two parallel streams of `Modification`s, both arriving
 at the same list inside each `:Solver`, distinguished by what they
@@ -129,7 +129,7 @@ dynamic `Constraint` is added or removed. These all descend from
 default. The `true` value of `concerns_Block()` is precisely the
 flag that tells the receiving `:Block` "*you* are also expected
 to react to this `Modification` by mutating your physical
-representation accordingly", as discussed in §8.4.
+representation accordingly", as discussed in [§8.4](08-modification-janus.md#sec-8-4).
 
 A general-purpose `:Solver` such as `:MILPSolver` consumes the
 abstract stream and is essentially indifferent to the physical
@@ -140,7 +140,7 @@ the abstract `Modification`s issued by a change that has produced
 both (because reacting to the same change twice would be
 incorrect).
 
-## 8.4 The Janus discipline
+## 8.4 The Janus discipline {#sec-8-4}
 
 A change to a `:Block`'s data may originate from either face:
 
@@ -190,7 +190,7 @@ need to see.
 When the change originates on the abstract face, the sequence of
 events at the `:Block` is precise and worth spelling out, because
 it is exactly the recipe a `:Block` author has to follow (see
-also Appendix A) and the canonical override scheme documented at
+also [Appendix A](A-writing-block.md#app-A)) and the canonical override scheme documented at
 `Block.h:5394-5402`:
 
 1. *Someone modifies the abstract representation* — a `Variable`
@@ -207,7 +207,7 @@ also Appendix A) and the canonical override scheme documented at
 4. *The (now `concerns_Block() == false`) abstract `Modification`
    is forwarded onwards* — to the `:Block`'s father and to the
    listening `:Solver`s — but only if there is anyone listening
-   (cf. §8.7).
+   (cf. [§8.7](08-modification-janus.md#sec-8-7)).
 
 The reaction in step 3 typically consists of calling one or more
 of the `:Block`'s own physical `chg_*()` mutators, with the two
@@ -236,7 +236,7 @@ A subtle but important property holds:
 > before it can be packed into any `GroupModification`.
 
 This matters. If the abstract `Modification` could be buffered —
-inserted into an open `GroupModification` (see §8.6) and only
+inserted into an open `GroupModification` (see [§8.6](08-modification-janus.md#sec-8-6)) and only
 delivered later, when the group is closed — then by the time the
 `:Block` finally "saw" it, the abstract representation could have
 undergone arbitrarily many further changes. The `Modification`
@@ -250,7 +250,7 @@ override sees the abstract `Modification` "naked" — *before* the
 base-class machinery packs it into any `GroupModification`, even
 when the `Modification` is being sent to a non-zero channel
 defined in the `:Block`. Moreover, an abstract change must be
-performed while the `:Block` is `lock()`-ed (Chapter 17), so no
+performed while the `:Block` is `lock()`-ed ([Chapter 17](17-parallel.md#ch-17)), so no
 other thread can be mutating it concurrently. The combined effect
 is that
 
@@ -281,7 +281,7 @@ with a descriptive message. The convention is that *failing loud*
 is the safe default; a `:Block` that wants to support a
 particular abstract change must do so explicitly.
 
-## 8.5 The four `ModParam` values
+## 8.5 The four `ModParam` values {#sec-8-5}
 
 Every mutator that may issue a `Modification` takes one or two
 `ModParam` arguments — `issueMod` for the physical
@@ -302,10 +302,10 @@ both default to `eModBlck`. They can also carry a *channel name*
 encoded in the upper bits (`Observer::make_par(iM, chnl)`), which
 is the mechanism for routing related `Modification`s to a specific
 channel so that they can be grouped; channels are the subject of
-§8.6. In normal use both parameters default to channel 0 and the
+[§8.6](08-modification-janus.md#sec-8-6). In normal use both parameters default to channel 0 and the
 channel machinery need not be touched.
 
-## 8.6 Channels and `GroupModification`
+## 8.6 Channels and `GroupModification` {#sec-8-6}
 
 So far every `Modification` has been treated as if it were
 dispatched the instant it is issued. That is the default, but it
@@ -381,7 +381,7 @@ mutates a `:Block`.
 
 ### The cost of batching
 
-The downside of batching is the very property that §8.4 showed to
+The downside of batching is the very property that [§8.4](08-modification-janus.md#sec-8-4) showed to
 be absent for the abstract `Modification` reaching its own
 `:Block`: when `Modification`s are buffered into a
 `GroupModification`, a `:Solver` may end up "seeing" many of them
@@ -394,11 +394,11 @@ time it processes a buffered `Modification`, the relevant
 `Variable`/`Constraint` may already have been further changed (or
 even, for dynamic ones, removed). This is exactly the complication
 that the "immediate delivery to the originating `:Block`"
-guarantee of §8.4 spares a `:Block` from — but a `:Solver` that
+guarantee of [§8.4](08-modification-janus.md#sec-8-4) spares a `:Block` from — but a `:Solver` that
 opts into channel batching does not get that guarantee for free,
 and must handle the accumulated group with the appropriate care.
 
-## 8.7 The "anyone listening" filter
+## 8.7 The "anyone listening" filter {#sec-8-7}
 
 A `:Block` with no `:Solver` attached and no `:Solver` attached
 to any ancestor is, by construction, silent: no one is listening
@@ -425,7 +425,7 @@ regardless of the registered `:Solver`s, to keep the two faces
 in sync). `MCFBlock` does exactly this; `BinaryKnapsackBlock`
 also has the analogous override.
 
-## 8.8 Inline example: a cost change in `MCFBlock`, observed from both faces
+## 8.8 Inline example: a cost change in `MCFBlock`, observed from both faces {#sec-8-8}
 
 The example below changes a cost in an `MCFBlock` via the
 physical interface, then via the abstract interface, and observes
@@ -521,7 +521,7 @@ The salient observations:
    being modified in bulk and the changes will be replayed
    later).
 
-## 8.9 Idioms
+## 8.9 Idioms {#sec-8-9}
 
 **Default to `eModBlck`.** The default value of `issueMod` and
 `issueAMod` is `eModBlck` for a reason: it is the safest. Anything
@@ -551,7 +551,7 @@ is to bundle them into a `GroupModification`. A `:Solver` may
 then react to the group as a unit, which is often more efficient
 than reacting to each component in turn.
 
-## 8.10 Forward reference to `Change`
+## 8.10 Forward reference to `Change` {#sec-8-10}
 
 The current `Modification` design has one notable limitation:
 `Modification`s carry enough information to *describe* a change
@@ -559,7 +559,7 @@ but not always enough to *replay* it on a different `:Block`, and
 they cannot in general be serialised in a form that survives an
 inter-process boundary. The
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
-concept (Chapter 16) is the framework's response: a `Change`
+concept ([Chapter 16](16-change.md#ch-16)) is the framework's response: a `Change`
 carries the data needed to apply the corresponding change to any
 copy of a `:Block`, can be `[de]serialize`-d to netCDF as a plain
 object, and (where the `:Block` chooses to support it) can be

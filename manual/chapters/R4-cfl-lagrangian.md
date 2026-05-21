@@ -1,8 +1,8 @@
-# Recipe R4 — CFL via Lagrangian decomposition with `PrimalProximalHeur`
+# [Recipe R4](R4-cfl-lagrangian.md#rec-R4) — CFL via Lagrangian decomposition with `PrimalProximalHeur` {#rec-R4}
 
 > **Counterpart in the source tree:**
 > `tests/CapacitatedFacilityLocation/LD/` (the `LD` configuration
-> folder of the `CFL_test` executable of Recipe R3).
+> folder of the `CFL_test` executable of [Recipe R3](R3-cfl-three-ways.md#rec-R3)).
 
 ## Goal
 
@@ -13,23 +13,23 @@ and obtain a strong lower bound together with a convexified primal
 solution. Then turn that convexified (fractional) solution into a
 *feasible* one by swapping in `PrimalProximalHeur` — a one-line
 configuration change. This recipe shows the decomposition machinery
-of Chapters 12 and 14 doing real work.
+of Chapters [12](12-sub-block.md#ch-12) and [14](14-lag-benders-bfunction.md#ch-14) doing real work.
 
 ## Concepts used
 
-- Sub-`Block` decomposition (the KskForm tree) — Chapter 12.
-- `LagBFunction` and `LagrangianDualSolver` — Chapter 14.
-- `BundleSolver` and the reoptimization vocabulary — Chapter 13.
-- `Configuration` (the formulation and solver choice) — Chapter 11.
+- Sub-`Block` decomposition (the KskForm tree) — [Chapter 12](12-sub-block.md#ch-12).
+- `LagBFunction` and `LagrangianDualSolver` — [Chapter 14](14-lag-benders-bfunction.md#ch-14).
+- `BundleSolver` and the reoptimization vocabulary — [Chapter 13](13-function-family.md#ch-13).
+- `Configuration` (the formulation and solver choice) — [Chapter 11](11-configuration.md#ch-11).
 
 ## What the configuration sets up
 
-The driver is the same `CFL_test` of Recipe R3; only the `LD/`
+The driver is the same `CFL_test` of [Recipe R3](R3-cfl-three-ways.md#rec-R3); only the `LD/`
 configuration files matter here. They arrange:
 
 - `BPar2.txt` puts the (R3-copy) CFL `Block` in the **Knapsack
-  formulation** (`SimpleConfiguration<int>` value `1`). As Chapter
-  12 described, this grows one `BinaryKnapsackBlock` sub-`Block`
+  formulation** (`SimpleConfiguration<int>` value `1`). As [Chapter
+  12](12-sub-block.md#ch-12) described, this grows one `BinaryKnapsackBlock` sub-`Block`
   per facility, leaving only the customer-satisfaction linking
   constraints $\sum_i X_{ij} = 1$ in the master.
 - `BSPar2.txt` attaches a single solver named
@@ -39,7 +39,7 @@ configuration files matter here. They arrange:
   problem solver, the `m1`/`m2`/`m3` serious/null-step thresholds,
   ...).
 
-What `LagrangianDualSolver` does with this (Chapter 14, §14.2):
+What `LagrangianDualSolver` does with this ([Chapter 14](14-lag-benders-bfunction.md#ch-14), [§14.2](14-lag-benders-bfunction.md#sec-14-2)):
 it stealthily builds a hidden `LagrangianDualBlock`, wraps each
 per-facility `BinaryKnapsackBlock` in a `LagBFunction` that
 dualises the linking constraints, and runs the inner `BundleSolver`
@@ -108,27 +108,27 @@ int main()
 
 ## Walk-through
 
-- The `BlockConfig` selects KskForm (§11.8); the
+- The `BlockConfig` selects KskForm ([§11.8](11-configuration.md#sec-11-8)); the
   `generate_abstract_*` calls build the per-facility
-  `BinaryKnapsackBlock` tree (§12.5). The
+  `BinaryKnapsackBlock` tree ([§12.5](12-sub-block.md#sec-12-5)). The
   `f_static_constraints_Configuration` of value `1` is what makes
   `generate_abstract_constraints()` build *only* the
   customer-satisfaction demand constraints in the master (the `wc`
-  bit-mask of §11.3 / §7.3): the facility-capacity constraints are
+  bit-mask of [§11.3](11-configuration.md#sec-11-3) / [§7.3](07-physical-abstract.md#sec-7-3)): the facility-capacity constraints are
   not generated at the master at all, because in KskForm they are
   the knapsack constraints of the `BinaryKnapsackBlock`
   sub-`Block`s. Omitting this — letting
   `generate_abstract_constraints()` build everything — would
   wrongly duplicate the capacity constraints at the master level.
 - `LagrangianDualSolver`, once attached, is a `CDASolver`
-  (Chapter 6): `compute()` solves the Lagrangian dual, and the
+  ([Chapter 6](06-solver.md#ch-6)): `compute()` solves the Lagrangian dual, and the
   bound is read with `get_valid_lower_bound()`, the convexified
   primal solution from the `Block`'s variables.
-- The reoptimization theme of Chapter 13 is what makes the inner
+- The reoptimization theme of [Chapter 13](13-function-family.md#ch-13) is what makes the inner
   loop efficient: as the `BundleSolver` moves the multipliers, the
   changes to each inner `BinaryKnapsackBlock` are mapped by its
   `LagBFunction` into the appropriate `FunctionMod*`, so the
-  bundle is reoptimized rather than rebuilt (§14.2).
+  bundle is reoptimized rather than rebuilt ([§14.2](14-lag-benders-bfunction.md#sec-14-2)).
 
 ## From a bound to a feasible solution: `PrimalProximalHeur`
 
@@ -136,7 +136,7 @@ int main()
 solution, which is generally **fractional** — not a feasible CFL
 solution. To obtain a feasible one,
 [`PrimalProximalHeur`](https://smspp.gitlab.io/smspp-project/d4/d41/class_s_m_spp__di__unipi__it_1_1_primal_proximal_heur.html)
-is a *drop-in derived solver* (§14.2): it derives from
+is a *drop-in derived solver* ([§14.2](14-lag-benders-bfunction.md#sec-14-2)): it derives from
 `LagrangianDualSolver`, so it sets up the same dual, and adds the
 Lagrangian-based primal-proximal heuristic on top — compute the
 convexified solution, round it, add a quadratic penalty
@@ -153,7 +153,7 @@ number of inner Lagrangian-dual iterations), in addition to all of
 On a typical CFL instance:
 
 - `LagrangianDualSolver` returns a *strong* lower bound — equal,
-  in theory, to the LP-with-strong-cuts bound of Recipe R3's
+  in theory, to the LP-with-strong-cuts bound of [Recipe R3](R3-cfl-three-ways.md#rec-R3)'s
   `cuts/` (the Dantzig–Wolfe equivalence noted there) — together
   with a convexified primal solution that is markedly *less
   fractional* than the `MCF/` relaxation's, but still not
@@ -173,7 +173,7 @@ the leaf `Block`s, not a change to the decomposition.
 
 **Go parallel.** Replacing `BundleSolver` with
 `ParallelBundleSolver` in the inner configuration evaluates the
-per-facility `LagBFunction`s concurrently (Chapter 17, §17.4) —
+per-facility `LagBFunction`s concurrently ([Chapter 17](17-parallel.md#ch-17), [§17.4](17-parallel.md#sec-17-4)) —
 the decomposition into independent knapsacks is exactly what makes
 this sound.
 
@@ -181,4 +181,4 @@ this sound.
 pressure against fidelity to the convexified solution; too small
 an $M$ may not round to anything feasible, too large an $M$ pins
 the solution to a possibly poor rounding. This is the heuristic's
-known sensitivity, flagged honestly in §14.2.
+known sensitivity, flagged honestly in [§14.2](14-lag-benders-bfunction.md#sec-14-2).

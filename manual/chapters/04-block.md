@@ -1,9 +1,9 @@
-# 4. Block
+# 4. Block {#ch-4}
 
 [Doxy: [`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html)]
 &nbsp; [Source: `SMS++/include/Block.h`]
 
-## 4.1 Concept
+## 4.1 Concept {#sec-4-1}
 
 The abstract class
 [`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html)
@@ -36,7 +36,7 @@ father's model: every `Variable` of the sub-`Block` is automatically
 a `Variable` of the father; the father's `Objective` is conceptually
 the sum of its own `Objective` and the `Objective`s of all its
 sub-`Block`s (with appropriate handling of opposite senses; see
-Chapter 5).
+[Chapter 5](05-variable-constraint-objective.md#ch-5)).
 
 The base class `Block` provides no problem-specific functionality.
 What a concrete `:Block` derived from it adds is, in essence:
@@ -54,7 +54,7 @@ What a concrete `:Block` derived from it adds is, in essence:
   `Modification` objects to inform any listening `:Solver` of the
   change.
 
-## 4.2 The identity rule
+## 4.2 The identity rule {#sec-4-2}
 
 A design decision that pervades the framework is that the *name* of
 a `Variable`, of a `Constraint`, and of any other object that may be
@@ -81,9 +81,9 @@ pointer (`p_Block = Block*`), and its sub-`Block`s are stored as a
 `std::vector` of pointers (`v_Block` of type `Vec_Block`). Copying a
 `Block` produces a different `Block`, not the same one; if two
 `Block`s must be kept "the same up to data", the `R3Block` mechanism
-(Chapter 10) is the supported way to do it.
+([Chapter 10](10-r3block.md#ch-10)) is the supported way to do it.
 
-## 4.3 Static versus dynamic
+## 4.3 Static versus dynamic {#sec-4-3}
 
 Three kinds of contents of a `Block` admit a static / dynamic
 distinction:
@@ -105,7 +105,7 @@ by a `Block`-specific name. Dynamic contents are the support for
 *column generation* (dynamic `Variable`s) and *row generation*
 (dynamic `Constraint`s).
 
-## 4.4 Structure of the class
+## 4.4 Structure of the class {#sec-4-4}
 
 The principal data members of `Block` are (with shortened types for
 brevity):
@@ -120,7 +120,7 @@ brevity):
 - a flag `f_at` that caches "is there any `:Solver` listening to
   this `Block` or to any of its ancestor `Block`s?";
 - machinery for concurrent access (`lock()`, `read_lock()`, an
-  owner thread id), discussed in Chapter 17;
+  owner thread id), discussed in [Chapter 17](17-parallel.md#ch-17);
 - a pointer to a `BlockConfig`, the `Configuration` object that
   controls the optional behaviour of the `Block`.
 
@@ -161,12 +161,12 @@ The full list of public methods, with their precise signatures and
 their detailed specification, is in
 [Doxy: `Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html).
 
-## 4.5 Inline example: constructing an `MCFBlock`
+## 4.5 Inline example: constructing an `MCFBlock` {#sec-4-5}
 
 The example below builds an `MCFBlock` from in-memory data. It is
 deliberately minimal: it neither constructs the abstract
 representation nor attaches a `:Solver`. Both will be added in
-Chapter 6 and in Recipe R1.
+[Chapter 6](06-solver.md#ch-6) and in [Recipe R1](R1-mcf.md#rec-R1).
 
 ```cpp
 #include "MCFBlock.h"
@@ -222,14 +222,14 @@ A few things are worth noticing.
   in `MCFBlock.cpp` (the `_1` indicates that the constructor takes
   one optional argument, the father pointer). Once registered, the
   class can be instantiated by name through the `Block` factory; see
-  Chapter 18 for the details.
+  [Chapter 18](18-factories-netcdf.md#ch-18) for the details.
 
 The same `MCFBlock` could equivalently have been built by reading a
 DIMACS-formatted text file (with `load(std::istream&)`) or a netCDF
 file (with `deserialize(netCDF::NcGroup&)`); both are documented
 forms of construction.
 
-## 4.6 Common idioms
+## 4.6 Common idioms {#sec-4-6}
 
 ### The "nuclear option" `NBModification`
 
@@ -241,7 +241,7 @@ problem instance wholesale. If a `:Solver` is already attached when
 "everything has changed; throw away whatever you have cached and
 start over". This is the only `Modification` that `load(...)` is
 allowed to issue, by convention; incremental changes to the data
-have their own dedicated `Modification` types (Chapter 8).
+have their own dedicated `Modification` types ([Chapter 8](08-modification-janus.md#ch-8)).
 
 The "nuclear option" is the safe default; it is meant to be used
 sparingly, because it prevents any form of reoptimization.
@@ -266,7 +266,7 @@ the base class returns the cached value; a concrete `:Block` may
 override `anyone_there()` to always return `true` when the abstract
 representation is currently constructed, because abstract
 `Modification`s must be issued anyway in order to keep the two
-representations in sync (Chapter 8).
+representations in sync ([Chapter 8](08-modification-janus.md#ch-8)).
 
 ### The `father` argument of the constructor
 
@@ -278,7 +278,7 @@ father's `v_Block`. This is the canonical way to assemble a `Block`
 tree from the leaves up; it is exemplified by
 `CapacitatedFacilityLocationBlock` in its Knapsack Formulation,
 which constructs its `BinaryKnapsackBlock` sub-`Block`s by passing
-itself as the father (Chapter 12).
+itself as the father ([Chapter 12](12-sub-block.md#ch-12)).
 
 ---
 

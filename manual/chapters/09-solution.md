@@ -1,10 +1,10 @@
-# 9. Solution
+# 9. Solution {#ch-9}
 
 [Source: `SMS++/include/Solution.h`, `ColVariableSolution.h`,
 `RowConstraintSolution.h`, `ColRowSolution.h`;
 `MCFBlock/include/MCFBlock.h` (`MCFSolution`)]
 
-## 9.1 Concept
+## 9.1 Concept {#sec-9-1}
 
 A
 [`Solution`](https://smspp.gitlab.io/smspp-project/d8/d63/class_s_m_spp__di__unipi__it_1_1_solution.html)
@@ -41,7 +41,7 @@ object will only ever store that part. Asking a `Solution` to
 `Block` does not currently have, e.g. dual values when the
 `Constraint`s have not been generated) is an error and throws.
 
-## 9.2 Whose `Block` a `Solution` belongs to
+## 9.2 Whose `Block` a `Solution` belongs to {#sec-9-2}
 
 A `Solution` is tightly bound to the `Block` that created it. It
 is an error — and throws an exception — to `read()` or `write()`
@@ -49,7 +49,7 @@ a `Solution` against the *wrong* `Block`. "Wrong" here means more
 than "wrong type": the safe contract is that a `Solution` is used
 only with the very `Block` that created it, or with a `Block`
 that is "identical" to it (for instance, a copy produced as an
-R3 Block; Chapter 10), or, at the very least, one that is
+R3 Block; [Chapter 10](10-r3block.md#ch-10)), or, at the very least, one that is
 "compatible" — same sizes in the relevant `Variable` /
 `Constraint` groups.
 
@@ -58,7 +58,7 @@ R3 Block; Chapter 10), or, at the very least, one that is
 allow such an exchange must say so explicitly in its own
 documentation, and the exchange must be used with care.
 
-## 9.3 Serialisation and combination
+## 9.3 Serialisation and combination {#sec-9-3}
 
 Beyond `read` / `write`, the base `Solution` interface provides:
 
@@ -70,7 +70,7 @@ Beyond `read` / `write`, the base `Solution` interface provides:
   (`Solution::new_Solution(name)`) reconstructs the correct
   `:Solution` type from the class name stored in the netCDF group,
   exactly as the `Block` and `Solver` factories do for their
-  respective hierarchies (Chapter 18).
+  respective hierarchies ([Chapter 18](18-factories-netcdf.md#ch-18)).
 - **Cloning**: `clone(bool empty)` produces a copy of the
   `Solution` (or an empty one of the same type and configuration,
   if `empty == true`).
@@ -80,7 +80,7 @@ Beyond `read` / `write`, the base `Solution` interface provides:
   — in particular *convex combinations* — of solutions of the same
   `Block`. Convex combinations are central to many optimisation
   techniques (the convexified primal solution produced by a
-  Lagrangian dual, for example; Chapter 14 and Recipe R4), which
+  Lagrangian dual, for example; [Chapter 14](14-lag-benders-bfunction.md#ch-14) and [Recipe R4](R4-cfl-lagrangian.md#rec-R4)), which
   is why the operation is part of the base interface.
 
 A caveat applies to `scale` / `sum`: not every `Solution` can be
@@ -93,7 +93,7 @@ the integrality. The base-class comments to `scale()` and
 general" `Solution` type when a combination would otherwise be
 impossible.
 
-## 9.4 The standard abstract `Solution`s
+## 9.4 The standard abstract `Solution`s {#sec-9-4}
 
 Three concrete `:Solution`s in the core library work off the
 *abstract* representation of a `Block` and are therefore reusable
@@ -114,7 +114,7 @@ These are the "default" `Solution`s: a `Block` that has not
 defined a `:Solution` of its own, but whose abstract
 representation fits one of these shapes, can use them directly.
 
-## 9.5 The `Block`-specific physical `Solution`s
+## 9.5 The `Block`-specific physical `Solution`s {#sec-9-5}
 
 A concrete `:Block` typically defines its own `:Solution` class
 that stores the solution in terms of the *physical*
@@ -136,9 +136,9 @@ A `Block`-specific physical `Solution` reads and writes the
 `Block`'s physical data directly, without needing the abstract
 representation to have been constructed. This is the property
 that makes it the right vehicle for the API change discussed in
-§9.7.
+[§9.7](09-solution.md#sec-9-7).
 
-## 9.6 Inline example: a CFL solution to netCDF and back
+## 9.6 Inline example: a CFL solution to netCDF and back {#sec-9-6}
 
 ```cpp
 #include "CapacitatedFacilityLocationBlock.h"
@@ -184,10 +184,10 @@ return type is the base `Solution*` for the usual reason that the
 the `Block`; and `scale` / `sum` combine solutions of the *same*
 `Block` — never of different ones.
 
-## 9.7 Status — under development: closing the half-baked `Solution`
+## 9.7 Status — under development: closing the half-baked `Solution` {#sec-9-7}
 
-This chapter is the natural home of the discussion opened in §3.3
-and continued in §7.6: the *intended* role of `Solution` in
+This chapter is the natural home of the discussion opened in [§3.3](03-mental-model.md#sec-3-3)
+and continued in [§7.6](07-physical-abstract.md#sec-7-6): the *intended* role of `Solution` in
 relation to the abstract `Variable`s.
 
 The relevant facts, restated here in full:
@@ -203,7 +203,7 @@ The relevant facts, restated here in full:
   materialised — even for a `Block` solved exclusively by a
   specialised `:Solver` that reads only the physical
   representation and would otherwise have no need for them. This
-  is the asymmetry flagged in §7.6: `Constraint`s and `Objective`
+  is the asymmetry flagged in [§7.6](07-physical-abstract.md#sec-7-6): `Constraint`s and `Objective`
   are genuinely on demand, but `Variable`s are not.
 
 The `Solution` machinery of this chapter is precisely what makes
@@ -218,14 +218,14 @@ communication channel; a `Block` attached to a specialised
 `generate_abstract_variables()` entirely, holding only the
 physical data and the `:Solution` that carries the result.
 
-The `Block`-specific physical `Solution`s of §9.5 are designed
+The `Block`-specific physical `Solution`s of [§9.5](09-solution.md#sec-9-5) are designed
 with exactly this in mind: each can read and write the `Block`'s
 physical data without touching the abstract representation, which
 is the prerequisite for letting a `Block` be solved, and its
 solution communicated, with no abstract `Variable`s in sight.
 
 Until that revision lands, the convention to follow in user code
-is the one stated in §7.7: treat the abstract `Variable`s as the
+is the one stated in [§7.7](07-physical-abstract.md#sec-7-7): treat the abstract `Variable`s as the
 present-day solution channel, read the solution back through the
 `Block`'s physical accessors or through a `Solution` object
 obtained from `get_Solution()`, and do not write code that
@@ -234,7 +234,7 @@ remains one of the clearest signs that the SMS++ public interface
 is not yet fully settled at version 0.6.0. **Status — under
 development.**
 
-## 9.8 API outline
+## 9.8 API outline {#sec-9-8}
 
 | Method | Purpose |
 |---|---|
@@ -252,7 +252,7 @@ solc, bool emptys)`: `solc` selects which part of the solution to
 keep (permanently), and `emptys == true` prepares the object
 without immediately reading a solution.
 
-## 9.9 Idioms
+## 9.9 Idioms {#sec-9-9}
 
 **Get the `Solution` from the `Block`, not from the `Solver`.**
 The canonical place to obtain a `Solution` is

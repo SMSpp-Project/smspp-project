@@ -1,4 +1,4 @@
-# 13. The Function family
+# 13. The Function family {#ch-13}
 
 [Source: `SMS++/include/Function.h`, `C05Function.h`,
 `C15Function.h`, `DQuadFunction.h`, `QuadFunction.h`,
@@ -8,13 +8,13 @@
 `FRowConstraint` (its left-hand side) and inside an
 `FRealObjective` (its value); they also stand on their own as the
 mathematical content of the two `Block`-and-`Function` hybrids of
-Chapter 14. This chapter describes the hierarchy and the one idea
+[Chapter 14](14-lag-benders-bfunction.md#ch-14). This chapter describes the hierarchy and the one idea
 that gives it its algorithmic power: the *linearization pools* of
 `C05Function`.
 
 ![The `Function` hierarchy: from the base `Function` through `C05Function` (first-order information) and `C15Function` (second-order information) down to the leaf implementations.](../figures/Function-doxy.svg)
 
-## 13.1 The base `Function`
+## 13.1 The base `Function` {#sec-13-1}
 
 A
 [`Function`](https://smspp.gitlab.io/smspp-project/d9/dd8/class_s_m_spp__di__unipi__it_1_1_function.html)
@@ -51,7 +51,7 @@ declare the structure it actually has.
 Two further facts about the base class are worth keeping in mind.
 
 First, a `Function` reports its `Modification`s to *one*
-`Observer` (Chapter 8) — typically the `FRowConstraint`,
+`Observer` ([Chapter 8](08-modification-janus.md#ch-8)) — typically the `FRowConstraint`,
 `FRealObjective`, or `Block` that contains it. A `Function` can
 also be evaluated *approximately*: a caller may accept lower
 and/or upper estimates of the value, provided they are accurate
@@ -70,11 +70,11 @@ added to or removed from the `Function`, the `Function` issues a
 observes and reacts to by registering / unregistering itself with
 that `Variable` (`Function.h:90-119`). The practical consequence
 for a user is that `Function`s are always handed to a carrier
-(`set_function(...)`, §5.3) that takes care of this; one does not
+(`set_function(...)`, [§5.3](05-variable-constraint-objective.md#sec-5-3)) that takes care of this; one does not
 normally hold a bare `Function` and expect it to maintain its own
 `Variable` dependencies.
 
-## 13.2 `C05Function`: first-order information and linearization pools
+## 13.2 `C05Function`: first-order information and linearization pools {#sec-13-2}
 
 [`C05Function`](https://smspp.gitlab.io/smspp-project/d3/de3/_c05_function_8h.html)
 extends `Function` with *first-order* information: not necessarily
@@ -94,7 +94,7 @@ optimal $u^*$ of the inner problem yields both $f(x) = cu^* +
 x(b - Au^*)$ and the linearization $(g, \alpha) = (b - Au^*,
 cu^*)$, which supports the graph of $f$ everywhere
 (`C05Function.h:96-133`). This is exactly the mechanism that
-`LagBFunction` exploits (Chapter 14).
+`LagBFunction` exploits ([Chapter 14](14-lag-benders-bfunction.md#ch-14)).
 
 `C05Function` organises linearizations into two **pools**:
 
@@ -120,11 +120,11 @@ cu^*)$, which supports the graph of $f$ everywhere
 
 The linearization machinery is supported by a family of
 `C05FunctionMod` `Modification`s (the abstract-stream
-`Modification`s of Chapter 8) that signal, in fine-grained ways,
+`Modification`s of [Chapter 8](08-modification-janus.md#ch-8)) that signal, in fine-grained ways,
 how a change in the function's data affects its value and its
 pools — the subject of the next section.
 
-## 13.3 Modifications, directionality, and reoptimization
+## 13.3 Modifications, directionality, and reoptimization {#sec-13-3}
 
 The `Function` family carries an unusually rich vocabulary for
 describing *how* a function has changed, and it does so for a
@@ -210,13 +210,13 @@ work survives a change, down to this fine distinction.
 This graduated vocabulary — exact shift vs monotone direction vs
 unpredictable; quasi-additive vs strongly quasi-additive — is the
 machinery that makes SMS++'s reoptimization possible in practice,
-and Chapter 14 shows it doing real work: `LagBFunction` maps the
+and [Chapter 14](14-lag-benders-bfunction.md#ch-14) shows it doing real work: `LagBFunction` maps the
 `Modification`s coming from its inner `Block` into precisely these
 `FunctionMod*` types, so that a `BundleSolver` driving the
 Lagrangian dual can reoptimize across changes to the inner
 problem.
 
-## 13.4 `C15Function`: second-order information
+## 13.4 `C15Function`: second-order information {#sec-13-4}
 
 [`C15Function`](https://smspp.gitlab.io/smspp-project/db/dbd/class_s_m_spp__di__unipi__it_1_1_c15_function.html)
 extends `C05Function` with *second-order* information — (partial)
@@ -226,7 +226,7 @@ catalogue, because the structure-exploiting methods that dominate
 SMS++ applications (bundle, Benders, SDDP) are first-order, but it
 is there for the second-order methods that need it.
 
-## 13.5 The "easy" leaf Functions
+## 13.5 The "easy" leaf Functions {#sec-13-5}
 
 For functions that have a simple closed algebraic form, evaluating
 them and producing their (trivial) linearizations costs essentially
@@ -237,7 +237,7 @@ nothing, and SMS++ provides concrete leaf classes with no overhead:
   that encodes a "row of a linear program" or inside an
   `FRealObjective` that encodes a linear objective; this is what
   `MCFBlock`, `BinaryKnapsackBlock` and the natural formulation of
-  CFL use for their constraints and objectives (Chapters 5, 7).
+  CFL use for their constraints and objectives (Chapters [5](05-variable-constraint-objective.md#ch-5), [7](07-physical-abstract.md#ch-7)).
 - [`DQuadFunction`](https://smspp.gitlab.io/smspp-project/d3/dc2/class_s_m_spp__di__unipi__it_1_1_d_quad_function.html)
   is a *separable* quadratic form (a sum of per-variable quadratic
   terms);
@@ -252,9 +252,9 @@ nothing, and SMS++ provides concrete leaf classes with no overhead:
   [`PolyhedralFunctionBlock`](https://smspp.gitlab.io/smspp-project/df/dcc/class_s_m_spp__di__unipi__it_1_1_polyhedral_function_block.html)
   wraps one as a `Block`. `PolyhedralFunction` is, for instance,
   where the Benders cuts produced inside an `SDDPBlock` are
-  accumulated (Chapter 14 mentions this in passing).
+  accumulated ([Chapter 14](14-lag-benders-bfunction.md#ch-14) mentions this in passing).
 
-## 13.6 Where the family points next
+## 13.6 Where the family points next {#sec-13-6}
 
 The two most consequential members of the family are not "leaf"
 functions at all but the hybrids that are *simultaneously* a
@@ -266,11 +266,11 @@ Each wraps an inner `Block` and turns it into a `C05Function`
 whose evaluation is the solution of that inner `Block`, and whose
 linearizations are produced from the inner `Block`'s primal / dual
 solutions — exactly the Lagrangian-function mechanism sketched in
-§13.2, made into a reusable component. They are the subject of
-Chapter 14, and the engines behind Recipes R4 (Lagrangian) and R5
+[§13.2](13-function-family.md#sec-13-2), made into a reusable component. They are the subject of
+[Chapter 14](14-lag-benders-bfunction.md#ch-14), and the engines behind [Recipes R4](R4-cfl-lagrangian.md#rec-R4) (Lagrangian) and R5
 (Benders).
 
-## 13.7 Idioms
+## 13.7 Idioms {#sec-13-7}
 
 **Hand a `Function` to a carrier; do not free-float it.** Because
 a `Function` does not register with its `Variable`s, the supported
