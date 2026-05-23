@@ -31,7 +31,7 @@
     .EXAMPLES
     If you are inside the cloned repository:
 
-        .\INSTALL.ps1 -installRoot <your-custom-path> without<some-dependency>
+        .\INSTALL.ps1 -installRoot <your-custom-path> -without<some-dependency>
 
     If you have not yet cloned the SMS++ repository, you can run the script directly:
 
@@ -331,7 +331,7 @@ if ($OS -eq "Win32NT")
                 exit 1
             }
         }
-        Write-Host "... CPLEX installed succesfully."
+        Write-Host "... CPLEX installed successfully."
     }
 
     # Install Gurobi
@@ -348,7 +348,7 @@ if ($OS -eq "Win32NT")
             # Update the system PATH to ensure the SMS++ exe can correctly locate the gurobi*.dll file
             Update-EnvironmentVariables -oldPattern "C:\gurobi1201" -newValue $GUROBI_ROOT
         }
-        Write-Host "... Gurobi installed succesfully."
+        Write-Host "... Gurobi installed successfully."
     }
 
     # Install SCIP
@@ -365,7 +365,7 @@ if ($OS -eq "Win32NT")
             # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
             Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
         }
-        Write-Host "... SCIP installed succesfully."
+        Write-Host "... SCIP installed successfully."
     }
 
     # Install / Upgrade Microsoft MPI
