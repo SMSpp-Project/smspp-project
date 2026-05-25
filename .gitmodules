@@ -1,51 +1,51 @@
-[submodule "SMS++"]
-	path = SMS++
-	url = https://gitlab.com/smspp/smspp.git
 [submodule "BinaryKnapsackBlock"]
 	path = BinaryKnapsackBlock
 	url = https://gitlab.com/smspp/binaryknapsackblock.git
-[submodule "CapacitatedFacilityLocationBlock"]
-	path = CapacitatedFacilityLocationBlock
-	url = https://gitlab.com/smspp/capacitatedfacilitylocationblock.git
-[submodule "UCBlock"]
-	path = UCBlock
-	url = https://gitlab.com/smspp/ucblock.git
-[submodule "MCFBlock"]
-	path = MCFBlock
-	url = https://gitlab.com/smspp/mcfblock.git
-[submodule "LEMONSolver"]
-	path = LEMONSolver
-	url = https://gitlab.com/smspp/lemonsolver.git
-[submodule "MMCFBlock"]
-	path = MMCFBlock
-	url = https://gitlab.com/smspp/mmcfblock.git
-[submodule "LukFiBlock"]
-	path = LukFiBlock
-	url = https://gitlab.com/smspp/lukfiblock.git
-[submodule "StochasticBlock"]
-	path = StochasticBlock
-	url = https://gitlab.com/smspp/stochasticblock.git
-[submodule "TwoStageStochasticBlock"]
-    path = TwoStageStochasticBlock
-    url = https://gitlab.com/smspp/twostagestochasticblock.git
-[submodule "SDDPBlock"]
-	path = SDDPBlock
-	url = https://gitlab.com/smspp/sddpblock.git
-[submodule "MILPSolver"]
-	path = MILPSolver
-	url = https://gitlab.com/smspp/milpsolver.git
 [submodule "BundleSolver"]
 	path = BundleSolver
 	url = https://gitlab.com/smspp/bundlesolver.git
-[submodule "LagrangianDualSolver"]
-	path = LagrangianDualSolver
-	url = https://gitlab.com/smspp/lagrangiandualsolver.git
+[submodule "CapacitatedFacilityLocationBlock"]
+	path = CapacitatedFacilityLocationBlock
+	url = https://gitlab.com/smspp/capacitatedfacilitylocationblock.git
 [submodule "InvestmentBlock"]
 	path = InvestmentBlock
 	url = https://gitlab.com/smspp/investmentblock.git
-[submodule "tools"]
-	path = tools
-	url = https://gitlab.com/smspp/tools.git
+[submodule "LagrangianDualSolver"]
+	path = LagrangianDualSolver
+	url = https://gitlab.com/smspp/lagrangiandualsolver.git
+[submodule "LEMONSolver"]
+	path = LEMONSolver
+	url = https://gitlab.com/smspp/lemonsolver.git
+[submodule "LukFiBlock"]
+	path = LukFiBlock
+	url = https://gitlab.com/smspp/lukfiblock.git
+[submodule "MCFBlock"]
+	path = MCFBlock
+	url = https://gitlab.com/smspp/mcfblock.git
+[submodule "MILPSolver"]
+	path = MILPSolver
+	url = https://gitlab.com/smspp/milpsolver.git
+[submodule "MMCFBlock"]
+	path = MMCFBlock
+	url = https://gitlab.com/smspp/mmcfblock.git
+[submodule "SDDPBlock"]
+	path = SDDPBlock
+	url = https://gitlab.com/smspp/sddpblock.git
+[submodule "SMS++"]
+	path = SMS++
+	url = https://gitlab.com/smspp/smspp.git
+[submodule "StochasticBlock"]
+	path = StochasticBlock
+	url = https://gitlab.com/smspp/stochasticblock.git
 [submodule "tests"]
 	path = tests
 	url = https://gitlab.com/smspp/tests.git
+[submodule "tools"]
+	path = tools
+	url = https://gitlab.com/smspp/tools.git
+[submodule "TwoStageStochasticBlock"]
+	path = TwoStageStochasticBlock
+	url = https://gitlab.com/smspp/twostagestochasticblock.git
+[submodule "UCBlock"]
+	path = UCBlock
+	url = https://gitlab.com/smspp/ucblock.git
