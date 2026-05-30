@@ -52,5 +52,6 @@ CoinUtils_ROOT = /opt/coin-or
 Osi_ROOT = /opt/coin-or
 Clp_ROOT = /opt/coin-or
 FastFlow_ROOT = /opt/fastflow
+Lemon_ROOT = /opt/lemon
 
 #################### End of makefile-default-paths-linux #####################

@@ -52,5 +52,6 @@ CoinUtils_ROOT = /Library/coin-or
 Osi_ROOT = /Library/coin-or
 Clp_ROOT = /Library/coin-or
 FastFlow_ROOT = /Library/fastflow
+Lemon_ROOT = /Library/lemon
 
 #################### End of makefile-default-paths-macos #####################
