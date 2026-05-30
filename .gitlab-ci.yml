@@ -44,7 +44,7 @@ release_job:
     - echo "# Release $CI_COMMIT_TAG" >> release-artifacts/release_notes.md
     - echo "## Commits since $previous_tag:" >> release-artifacts/release_notes.md
     - git shortlog "${previous_tag}..${CI_COMMIT_TAG}" | sed 's/^./    &/' >> release-artifacts/release_notes.md
-    - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/netCDF_files' --exclude='tools/ucblock_solver/data' --exclude='UCBlock/tools/mathpower2netCDF' --exclude='.git*' --exclude='CapacitatedFacilityLocationBlock/data' --exclude='MCFBlock/data' -czvf release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz .
+    - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/data' --exclude='UCBlock/tools/mathpower2netCDF' --exclude='.git*' --exclude='CapacitatedFacilityLocationBlock/data' --exclude='MCFBlock/data' -czvf release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz .
     - ls -lh release-artifacts
     - glab release create "$CI_COMMIT_TAG" -F release-artifacts/release_notes.md "release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz#Source code including submodules (tar.gz)#package"
   artifacts:
