@@ -271,9 +271,10 @@ according to the following options table:
 | `--without-cplex`  | `-withoutCplex`  | skip CPLEX installation   |
 | `--without-gurobi` | `-withoutGurobi` | skip Gurobi installation  |
 | `--without-scip`   | `-withoutScip`   | skip SCIP installation    |
-| `--without-highs`  | `-withoutHiGHS`  | skip HiGHS installation   |
-| `--without-stopt`  | `-withoutStOpt`  | skip StOpt installation   |
-| `--without-coinor` | `-withoutCoinOr` | skip COIN-OR installation |
+| `--without-highs`  | *(via vcpkg)*    | skip HiGHS installation   |
+| `--without-stopt`  | *(via vcpkg)*    | skip StOpt installation   |
+| `--without-lemon`  | *(via vcpkg)*    | skip LEMON installation   |
+| `--without-coinor` | *(via vcpkg)*    | skip COIN-OR installation |
 | `--without-smspp`  | `-withoutSMSpp`  | skip SMS++ installation   |
 
 Otherwise, if you are already inside the cloned repository, you can run the

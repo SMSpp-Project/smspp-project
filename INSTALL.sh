@@ -15,6 +15,7 @@
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
+#     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
@@ -81,8 +82,10 @@ install_on_linux() {
     apt-get install -y -q libnetcdf-c++4-dev
 
     # Install LEMON (graph library, used by LEMONSolver)
-    echo "Installing LEMON..."
-    apt-get install -y -q liblemon-dev
+    if [ "$install_lemon" -eq 1 ]; then
+      echo "Installing LEMON..."
+      apt-get install -y -q liblemon-dev
+    fi
   fi
 
   # Install CPLEX
@@ -402,24 +405,38 @@ install_on_macos() {
   # Install LEMON (graph library, used by LEMONSolver).
   # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
   # parser generator) and the community taps are unmaintained, so we use the
-  # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source if
-  # absent (Xcode Command Line Tools, installed above, are its only prereq).
-  echo "Installing LEMON..."
-  if ! command -v port >/dev/null 2>&1; then
-    echo "MacPorts not found. Bootstrapping from source..."
-    MACPORTS_SRC="${INSTALL_ROOT}/macports-base"
-    if [ ! -d "$MACPORTS_SRC" ]; then
-      git clone --depth 1 https://github.com/macports/macports-base.git "$MACPORTS_SRC"
+  # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source only
+  # when genuinely absent (Xcode Command Line Tools, installed above, are its
+  # only prereq); when LEMON is already present the whole step is skipped, so
+  # no recompilation and no sudo prompt on repeated runs.
+  if [ "$install_lemon" -eq 1 ]; then
+    echo "Installing LEMON..."
+    # Surface an already-installed MacPorts even if /opt/local/bin is off PATH
+    # (otherwise it would be re-bootstrapped from source on every run).
+    if ! command -v port >/dev/null 2>&1 && [ -x /opt/local/bin/port ]; then
+      export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
     fi
-    cd "$MACPORTS_SRC"
-    ./configure
-    make
-    sudo make install
-    # MacPorts installs into /opt/local; make port visible for the rest of run
-    export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-    sudo port -v selfupdate
+    if [ -d /opt/local/include/lemon ] || [ -d /usr/local/include/lemon ]; then
+      echo "LEMON already installed; skipping."
+    else
+      # Bootstrap MacPorts from source only when it is genuinely absent.
+      if ! command -v port >/dev/null 2>&1; then
+        echo "MacPorts not found. Bootstrapping from source..."
+        MACPORTS_SRC="${INSTALL_ROOT}/macports-base"
+        if [ ! -d "$MACPORTS_SRC" ]; then
+          git clone --depth 1 https://github.com/macports/macports-base.git "$MACPORTS_SRC"
+        fi
+        cd "$MACPORTS_SRC"
+        ./configure
+        make
+        sudo make install
+        # MacPorts installs into /opt/local; make port visible for the rest of run
+        export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
+        sudo port -v selfupdate
+      fi
+      sudo port install coinor-liblemon
+    fi
   fi
-  sudo port install coinor-liblemon
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
@@ -680,6 +697,7 @@ install_gurobi=${install_gurobi:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_stopt=${install_stopt:-1}
+install_lemon=${install_lemon:-1}
 install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
 
@@ -719,6 +737,10 @@ do
     ;;
     --without-stopt)
     install_stopt=0
+    shift
+    ;;
+    --without-lemon)
+    install_lemon=0
     shift
     ;;
     --without-coinor)

@@ -52,6 +52,7 @@ table below:
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                 |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                |
+| `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                |
 | `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation              |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation      |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
