@@ -11,6 +11,7 @@
     "eigen3",
     "getopt",
     "highs",
+    "liblemon",
     "msmpi",
     "netcdf-cxx4",
     "pthreads",

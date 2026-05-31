@@ -79,6 +79,10 @@ install_on_linux() {
     # Install NetCDF-C++
     echo "Installing NetCDF-C++..."
     apt-get install -y -q libnetcdf-c++4-dev
+
+    # Install LEMON (graph library, used by LEMONSolver)
+    echo "Installing LEMON..."
+    apt-get install -y -q liblemon-dev
   fi
 
   # Install CPLEX
@@ -394,6 +398,17 @@ install_on_macos() {
   # Install NetCDF
   echo "Installing NetCDF..."
   brew install hdf5 netcdf netcdf-cxx
+
+  # Install LEMON (graph library, used by LEMONSolver).
+  # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
+  # parser generator). We therefore use the maintained MacPorts port when
+  # available, otherwise the community Homebrew tap as a fallback.
+  echo "Installing LEMON..."
+  if command -v port >/dev/null 2>&1; then
+    sudo port install coinor-liblemon
+  else
+    brew install donn/lemon-graph/lemon-graph
+  fi
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
