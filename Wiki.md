@@ -45,16 +45,16 @@ prompt would block, so the script picks a user-writable location instead.
 To exclude one or more dependencies, append the matching flags from the
 table below:
 
-| Unix               | Windows           | Description                            |
-|--------------------|-------------------|----------------------------------------|
-| `--without-cplex`  | `-withoutCplex`   | skip CPLEX installation                |
-| `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation               |
-| `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                 |
-| `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                |
-| `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                |
-| `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                |
-| `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation              |
-| `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation      |
+| Unix               | Windows           | Description                              |
+|--------------------|-------------------|------------------------------------------|
+| `--without-cplex`  | `-withoutCplex`   | skip CPLEX installation                  |
+| `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation                 |
+| `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
+| `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
+| `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
+| `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
+| `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
+| `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
 > On Windows, HiGHS, StOpt and COIN-OR are pulled in unconditionally by

@@ -266,16 +266,17 @@ wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash
 
 according to the following options table:
 
-| Unix               | Windows          | Description               |
-|--------------------|------------------|---------------------------|
-| `--without-cplex`  | `-withoutCplex`  | skip CPLEX installation   |
-| `--without-gurobi` | `-withoutGurobi` | skip Gurobi installation  |
-| `--without-scip`   | `-withoutScip`   | skip SCIP installation    |
-| `--without-highs`  | *(via vcpkg)*    | skip HiGHS installation   |
-| `--without-stopt`  | *(via vcpkg)*    | skip StOpt installation   |
-| `--without-lemon`  | *(via vcpkg)*    | skip LEMON installation   |
-| `--without-coinor` | *(via vcpkg)*    | skip COIN-OR installation |
-| `--without-smspp`  | `-withoutSMSpp`  | skip SMS++ installation   |
+| Unix               | Windows           | Description                              |
+|--------------------|-------------------|------------------------------------------|
+| `--without-cplex`  | `-withoutCplex`   | skip CPLEX installation                  |
+| `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation                 |
+| `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
+| `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
+| `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
+| `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
+| `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
+| `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
+| *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
 Otherwise, if you are already inside the cloned repository, you can run the
 script via:
