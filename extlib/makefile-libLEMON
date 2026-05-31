@@ -27,8 +27,9 @@ libLEMONBSCDIR = $(subst $\",,$(LEMON_ROOT))
 
 ifeq ($(UNAME_S),Linux)
     libLEMONLIB = -L"$(libLEMONBSCDIR)/lib/x86_64-linux-gnu" -llemon
-else
-    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" -llemon
+endif
+ifeq ($(UNAME_S),Darwin)
+    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" -lemon
 endif
 libLEMONINC = -I"$(libLEMONBSCDIR)/include"
 
