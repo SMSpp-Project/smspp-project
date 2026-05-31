@@ -401,14 +401,25 @@ install_on_macos() {
 
   # Install LEMON (graph library, used by LEMONSolver).
   # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
-  # parser generator). We therefore use the maintained MacPorts port when
-  # available, otherwise the community Homebrew tap as a fallback.
+  # parser generator) and the community taps are unmaintained, so we use the
+  # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source if
+  # absent (Xcode Command Line Tools, installed above, are its only prereq).
   echo "Installing LEMON..."
-  if command -v port >/dev/null 2>&1; then
-    sudo port install coinor-liblemon
-  else
-    brew install donn/lemon-graph/lemon-graph
+  if ! command -v port >/dev/null 2>&1; then
+    echo "MacPorts not found. Bootstrapping from source..."
+    MACPORTS_SRC="${INSTALL_ROOT}/macports-base"
+    if [ ! -d "$MACPORTS_SRC" ]; then
+      git clone --depth 1 https://github.com/macports/macports-base.git "$MACPORTS_SRC"
+    fi
+    cd "$MACPORTS_SRC"
+    ./configure
+    make
+    sudo make install
+    # MacPorts installs into /opt/local; make port visible for the rest of run
+    export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
+    sudo port -v selfupdate
   fi
+  sudo port install coinor-liblemon
 
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then

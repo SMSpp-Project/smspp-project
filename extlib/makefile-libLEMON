@@ -1,0 +1,35 @@
+##############################################################################
+############################# makefile-libLEMON ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libLEMON                                                     #
+#                                                                            #
+#   Input:  $(LEMON_ROOT), the directory where LEMON is installed            #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libLEMONINC) = the -I$(include directories) for LEMON          #
+#           $(libLEMONLIB) = external libraries + -L< libdirs > for LEMON    #
+#                                                                            #
+#                             Antonio Frangioni                              #
+#                        Dipartimento di Informatica                         #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic LEMON directory without quotes, if any
+libLEMONBSCDIR = $(subst $\",,$(LEMON_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ifeq ($(UNAME_S),Linux)
+    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib/x86_64-linux-gnu" -llemon
+else
+    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" -llemon
+endif
+libLEMONINC = -I"$(libLEMONBSCDIR)/include"
+
+######################## End of makefile-libLEMON ############################
