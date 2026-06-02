@@ -49,3 +49,6 @@
 [submodule "UCBlock"]
 	path = UCBlock
 	url = https://gitlab.com/smspp/ucblock.git
+[submodule "vcpkg-registry"]
+	path = vcpkg-registry
+	url = https://gitlab.com/smspp/vcpkg-registry
