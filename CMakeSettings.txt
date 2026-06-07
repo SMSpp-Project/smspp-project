@@ -94,7 +94,12 @@ if (MSVC)
     # 201103L`, so without this flag those paths are skipped and the build fails
     # in ff/spin-lock.hpp, ff/utils.hpp, ff/dynqueue.hpp, ... (works on Linux
     # because GCC/Clang already report __cplusplus correctly).
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 /Zc:__cplusplus ${MSVC_DISABLED_WARNINGS_STR}")
+    # NOMINMAX prevents <windows.h> from defining the min()/max() function-like
+    # macros, which otherwise break every `std::min`/`std::max` call (FastFlow
+    # uses them in ff/parallel_for_internals.hpp). FastFlow does define NOMINMAX
+    # itself, but only inside ff/platforms/platform.h, i.e. too late if any other
+    # header pulled in <windows.h> first, so we define it globally and up front.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 /Zc:__cplusplus /DNOMINMAX ${MSVC_DISABLED_WARNINGS_STR}")
     add_link_options("/IGNORE:4006,4075,4088,4255")
 else () # Unix
     add_compile_options(
