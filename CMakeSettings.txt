@@ -60,6 +60,7 @@ if (MSVC)
                 # signed/unsigned mismatch
         "C4267" # 'var' : conversion from 'size_t' to 'type',
                 # possible loss of data
+        "C4324" # 'structure' : structure was padded due to alignment specifier
         "C4373" # 'function' : virtual function overrides 'base_function',
                 # previous versions of the compiler did not override when
                 # parameters only differed by const/volatile qualifiers
