@@ -41,6 +41,7 @@ set(Boost_NO_WARN_NEW_VERSIONS 1)
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
 if (MSVC)
     set(MSVC_DISABLED_WARNINGS_LIST
+        "C4005" # 'identifier' : macro redefinition
         "C4018" # 'expression' : signed/unsigned mismatch
         "C4057" # 'operator' : 'identifier1' indirection to
                 # slightly different base types from 'identifier2'
@@ -82,6 +83,8 @@ if (MSVC)
         "C4834" # discarding return value of function with 'nodiscard' attribute
         "C4858" # discarding return value: this call discards the return value
                 # of a function whose return type is marked [[nodiscard]]
+        "C4949" # pragma 'pragma' is meaningful only when compiled with
+                # '/clr[:option]'
         "C4996" # The POSIX name for this item is deprecated.
                 # Instead, use the ISO C and C++ conformant name
         "C5054" # operator 'operator' : deprecated between enumerations of
