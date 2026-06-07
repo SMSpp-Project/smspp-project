@@ -44,45 +44,57 @@ if (MSVC)
         "C4018" # 'expression' : signed/unsigned mismatch
         "C4057" # 'operator' : 'identifier1' indirection to
                 # slightly different base types from 'identifier2'
-        "C4060"
-        "C4065"
-        "C4068"
+        "C4060" # switch statement contains no 'case' or 'default' labels
+        "C4065" # switch statement contains 'default' but no 'case' labels
+        "C4068" # unknown pragma 'identifier'
         "C4100" # 'identifier' : unreferenced formal parameter
-        "C4101"
-        "C4102"
+        "C4101" # 'identifier' : unreferenced local variable
+        "C4102" # 'label' : unreferenced label
         "C4127" # conditional expression is constant
         "C4146" # unary minus operator applied to unsigned type,
                 # result still unsigned
-        "C4189"
+        "C4189" # 'identifier' : local variable is initialized but not referenced
         "C4244" # 'argument' : conversion from 'type1' to 'type2',
                 # possible loss of data
         "C4245" # 'conversion' : conversion from 'type1' to 'type2',
                 # signed/unsigned mismatch
         "C4267" # 'var' : conversion from 'size_t' to 'type',
                 # possible loss of data
-        "C4373"
+        "C4373" # 'function' : virtual function overrides 'base_function',
+                # previous versions of the compiler did not override when
+                # parameters only differed by const/volatile qualifiers
         "C4389" # 'operator' : signed/unsigned mismatch
-        "C4390"
-        "C4456"
-        "C4457"
-        "C4458"
-        "C4459"
-        "C4505"
-        "C4701"
-        "C4702"
-        "C4703"
+        "C4390" # ';' : empty controlled statement found; is this the intent?
+        "C4456" # declaration of 'identifier' hides previous local declaration
+        "C4457" # declaration of 'identifier' hides function parameter
+        "C4458" # declaration of 'identifier' hides class member
+        "C4459" # declaration of 'identifier' hides global declaration
+        "C4505" # 'function' : unreferenced function with internal linkage
+                # has been removed
+        "C4701" # potentially uninitialized local variable 'name' used
+        "C4702" # unreachable code
+        "C4703" # potentially uninitialized local pointer variable 'name' used
         "C4706" # assignment within conditional expression
-        "C4717"
-        "C4804"
-        "C4834"
-        "C4858"
+        "C4717" # 'function' : recursive on all control paths, function will
+                # cause runtime stack overflow
+        "C4804" # 'operation' : unsafe use of type 'bool' in operation
+        "C4834" # discarding return value of function with 'nodiscard' attribute
+        "C4858" # discarding return value: this call discards the return value
+                # of a function whose return type is marked [[nodiscard]]
         "C4996" # The POSIX name for this item is deprecated.
                 # Instead, use the ISO C and C++ conformant name
-        "C5054"
+        "C5054" # operator 'operator' : deprecated between enumerations of
+                # different types (C++20)
     )
     string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
     string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
+    # /Zc:__cplusplus forces MSVC to report the real value of the __cplusplus
+    # macro (by default it is stuck at 199711L even in /std:c++17 or /std:c++20
+    # mode). FastFlow guards all its C++11 code paths with `#if __cplusplus >=
+    # 201103L`, so without this flag those paths are skipped and the build fails
+    # in ff/spin-lock.hpp, ff/utils.hpp, ff/dynqueue.hpp, ... (works on Linux
+    # because GCC/Clang already report __cplusplus correctly).
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 /Zc:__cplusplus ${MSVC_DISABLED_WARNINGS_STR}")
     add_link_options("/IGNORE:4006,4075,4088,4255")
 else () # Unix
     add_compile_options(
