@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project
-        VERSION 0.5.0
+        VERSION 0.5.1
         DESCRIPTION "The SMS++ Project"
         HOMEPAGE_URL https://gitlab.com/smspp-project
         LANGUAGES C CXX)
