@@ -28,10 +28,16 @@ libStOptBSCDIR = $(subst $\",,$(StOpt_ROOT))
 ifeq ($(UNAME_S),Linux)
     libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners \
 	    -L"$(libStOptBSCDIR)/lib/x86_64-linux-gnu" -lboost_timer
+    # StOpt is built with MPI, hence whoever includes its headers (and the
+    # boost::mpi ones) needs the MPI headers too
+    libStOptINC = -I"$(libStOptBSCDIR)/include" \
+	    -I"$(libStOptBSCDIR)/include/geners" \
+	    -I"/usr/lib/x86_64-linux-gnu/openmpi/include"
 endif
 ifeq ($(UNAME_S),Darwin)
     libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners -lboost_timer
+    libStOptINC = -I"$(libStOptBSCDIR)/include" \
+	    -I"$(libStOptBSCDIR)/include/geners"
 endif
-libStOptINC = -I"$(libStOptBSCDIR)/include" -I"$(libStOptBSCDIR)/include/geners"
 
 ######################## End of makefile-libStOpt ############################
