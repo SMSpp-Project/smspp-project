@@ -63,6 +63,7 @@ smspp_option(BUILD_TwoStageStochasticBlock "Build TwoStageStochasticBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
+smspp_option(BUILD_BranchAndXSolver "Build BranchAndXSolver")
 smspp_option(BUILD_BundleSolver "Build BundleSolver")
 smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
 smspp_option(BUILD_LEMONSolver "Build LEMONSolver")
@@ -272,6 +273,12 @@ endif ()
 if (BUILD_MILPSolver)
     init_submodule(MILPSolver)
     add_subdirectory(MILPSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_BranchAndXSolver)
+    init_submodule(BranchAndXSolver)
+    add_subdirectory(BranchAndXSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 
