@@ -211,15 +211,21 @@ EOL
   fi
 
   # Install HiGHS
+  # HIPO=ON builds the HiPO interior point solver (HiGHS >= 1.14), which is
+  # the only HiGHS solver able to handle convex QPs reliably; it needs a
+  # system BLAS.
   if [ "$install_highs" -eq 1 ]; then
     echo "Installing HiGHS..."
     HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
     CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      apt-get install -y -q libopenblas-dev
+    fi
     if [ ! -d "$HiGHS_ROOT" ]; then
       cd "$INSTALL_ROOT"
       git clone https://github.com/ERGO-Code/HiGHS.git
       cd HiGHS
-      cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+      cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       if [ "$HAS_SUDO" -eq 1 ]; then
@@ -235,7 +241,7 @@ EOL
         # if the repository is not up to date
         if [ "$LOCAL" != "$REMOTE" ]; then
           git pull
-          cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+          cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
           cmake --build build -j "${MAX_JOBS}"
           cmake --install build
         else
@@ -566,6 +572,9 @@ install_on_macos() {
   fi
 
   # Install HiGHS
+  # HIPO=ON builds the HiPO interior point solver (HiGHS >= 1.14), which is
+  # the only HiGHS solver able to handle convex QPs reliably; on macOS the
+  # BLAS is the Accelerate framework, so no extra dependency is needed.
   if [ "$install_highs" -eq 1 ]; then
     echo "Installing HiGHS..."
     HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
@@ -574,7 +583,7 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       git clone https://github.com/ERGO-Code/HiGHS.git
       cd HiGHS
-      cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+      cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
@@ -587,7 +596,7 @@ install_on_macos() {
       # if the repository is not up to date
       if [ "$LOCAL" != "$REMOTE" ]; then
         git pull
-        cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+        cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
         cmake --build build -j "${MAX_JOBS}"
         cmake --install build
       else

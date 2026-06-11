@@ -39,13 +39,15 @@ libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 #   subdirs, and libraries are -L$(HiGHS_ROOT)/lib (/usr/local/lib);
 #   furthermore, HConfig.h has been moved with all the other .h
 # - or it has been built but not installed, and therefore includes are in
-#   $(HiGHS_ROOT)/src and subdirs, and libraries are -L$(HiGHS_ROOT)/build/lib;
+#   $(HiGHS_ROOT)/src and subdirs ($(HiGHS_ROOT)/highs since the sources
+#   were renamed upstream), and libraries are -L$(HiGHS_ROOT)/build/lib;
 #   furthermore, HConfig.h is in $(HiGHS_ROOT)/build
 # to tell the two cases we look if $(HiGHS_ROOT)/highs.pc.in exists
 
 ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
     libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
+	    -I"$(libHiGHSBSCDIR)/highs" -I"$(libHiGHSBSCDIR)/highs/interfaces" \
 	    -I"$(libHiGHSBSCDIR)/build" -I"$(libHiGHSBSCDIR)/include/highs"
 else
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/lib
