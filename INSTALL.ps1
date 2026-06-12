@@ -11,6 +11,7 @@
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
+    You can use the `-withoutLibtorch` option to skip the installation of libTorch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
 
     .AUTHOR
@@ -44,6 +45,7 @@ param(
     [switch]$withoutCplex,
     [switch]$withoutGurobi,
     [switch]$withoutSCIP,
+    [switch]$withoutLibtorch,
     [switch]$withoutSMSpp,
     [switch]$updatevcpkg,
     [string]$installRoot = "C:\" # Default if not provided
@@ -366,6 +368,23 @@ if ($OS -eq "Win32NT")
             Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
         }
         Write-Host "... SCIP installed successfully."
+    }
+
+    # Install libTorch
+    if (-not $withoutLibtorch) {
+        Write-Host "Installing libTorch..."
+        $Torch_ROOT = "C:\libtorch"
+        if (-not (Test-Path $Torch_ROOT)) {
+            Set-Location "C:\"
+            $LIBTORCH_VERSION = "2.5.1"
+            $LIBTORCH_INSTALLER = "libtorch-win-shared-with-deps-$LIBTORCH_VERSION%2Bcpu.zip"
+            Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/$LIBTORCH_INSTALLER" -OutFile "C:\libtorch.zip"
+            Expand-Archive -Path "C:\libtorch.zip" -DestinationPath "C:\" -Force
+            Remove-Item "C:\libtorch.zip"
+            # Update the system PATH to ensure the SMS++ exe can correctly locate the torch*.dll file
+            Add-ToSystemPath -PathToAdd "$Torch_ROOT\lib"
+        }
+        Write-Host "... libTorch installed successfully."
     }
 
     # Install / Upgrade Microsoft MPI

@@ -1,0 +1,34 @@
+##############################################################################
+############################ makefile-libTorch ###############################
+##############################################################################
+#                                                                            #
+#   makefile of libTorch                                                     #
+#                                                                            #
+#   Input:  $(Torch_ROOT), the directory where libTorch is installed        #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libTorchINC) = the -I$(include directories) for libTorch       #
+#           $(libTorchLIB) = external libraries + -L< libdirs > for libTorch #
+#                                                                            #
+#                             Antonio Frangioni                              #
+#                        Dipartimento di Informatica                         #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic libTorch directory without quotes, if any
+libTorchBSCDIR = $(subst $\",,$(Torch_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libTorchINC = -I"$(libTorchBSCDIR)/include" \
+	-I"$(libTorchBSCDIR)/include/torch/csrc/api/include"
+
+libTorchLIB = -L"$(libTorchBSCDIR)/lib" -ltorch -ltorch_cpu -lc10 \
+	-Wl,-rpath,"$(libTorchBSCDIR)/lib"
+
+######################### End of makefile-libTorch ###########################

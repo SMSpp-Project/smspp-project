@@ -53,5 +53,6 @@ CoinUtils_ROOT = /Library/coin-or
 Osi_ROOT = /Library/coin-or
 Clp_ROOT = /Library/coin-or
 FastFlow_ROOT = /Library/fastflow
+Torch_ROOT = /Library/libtorch
 
 #################### End of makefile-default-paths-macos #####################

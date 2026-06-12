@@ -15,6 +15,7 @@
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
+#     You can use the `--without-libtorch` option to skip the installation of libTorch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
@@ -351,6 +352,29 @@ EOL
         fi
         cd "$INSTALL_ROOT"
       fi
+    fi
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install libTorch
+  if [ "$install_libtorch" -eq 1 ]; then
+    echo "Installing libTorch..."
+    Torch_ROOT="${INSTALL_ROOT}/libtorch"
+    CURRENT_INSTALL_FOLDER=${Torch_ROOT}
+    if [ ! -d "$Torch_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      LIBTORCH_VERSION="2.5.1"
+      LIBTORCH_INSTALLER="libtorch-cxx11-abi-shared-with-deps-${LIBTORCH_VERSION}%2Bcpu.zip"
+      curl -O "https://download.pytorch.org/libtorch/cpu/$LIBTORCH_INSTALLER"
+      unzip -q "$LIBTORCH_INSTALLER" -d .
+      rm "$LIBTORCH_INSTALLER"
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${Torch_ROOT}/lib"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${Torch_ROOT}/lib' > /etc/ld.so.conf.d/libtorch.conf"
+        ldconfig
+      fi
+    else
+      echo "libTorch already installed."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -696,6 +720,29 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install libTorch
+  if [ "$install_libtorch" -eq 1 ]; then
+    echo "Installing libTorch..."
+    Torch_ROOT="${INSTALL_ROOT}/libtorch"
+    CURRENT_INSTALL_FOLDER=${Torch_ROOT}
+    if [ ! -d "$Torch_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      LIBTORCH_VERSION="2.5.1"
+      if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
+        LIBTORCH_INSTALLER="libtorch-macos-x86_64-${LIBTORCH_VERSION}.zip"
+      else # Apple Silicon MX arch
+        LIBTORCH_INSTALLER="libtorch-macos-arm64-${LIBTORCH_VERSION}.zip"
+      fi
+      curl -O "https://download.pytorch.org/libtorch/cpu/$LIBTORCH_INSTALLER"
+      unzip -q "$LIBTORCH_INSTALLER" -d .
+      rm "$LIBTORCH_INSTALLER"
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
+    else
+      echo "libTorch already installed."
+    fi
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   echo "Installation completed successfully on macOS."
 }
 
@@ -706,6 +753,7 @@ install_gurobi=${install_gurobi:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_stopt=${install_stopt:-1}
+install_libtorch=${install_libtorch:-1}
 install_lemon=${install_lemon:-1}
 install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
@@ -746,6 +794,10 @@ do
     ;;
     --without-stopt)
     install_stopt=0
+    shift
+    ;;
+    --without-libtorch)
+    install_libtorch=0
     shift
     ;;
     --without-lemon)
