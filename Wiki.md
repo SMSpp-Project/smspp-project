@@ -52,6 +52,7 @@ table below:
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
+| `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
@@ -59,9 +60,9 @@ table below:
 
 > On Windows, HiGHS, StOpt and COIN-OR are pulled in unconditionally by
 > vcpkg from the `vcpkg.json` manifest at configure time, so they don't
-> need (and don't have) a "skip" toggle. CPLEX, Gurobi and SCIP are
-> instead installed by `INSTALL.ps1` itself outside of vcpkg, hence the
-> per-solver opt-out flags above.
+> need (and don't have) a "skip" toggle. CPLEX, Gurobi, SCIP and Torch
+> are instead installed by `INSTALL.ps1` itself outside of vcpkg, hence
+> the per-dependency opt-out flags above.
 >
 > `-updatevcpkg` rewrites the `"builtin-baseline"` field in `vcpkg.json`
 > to the current `git rev-parse HEAD` of `C:\vcpkg`. Use it when your
@@ -225,6 +226,8 @@ Submodules add the following (nested) requirements:
         - [CoinUtils] (required by Clp and Osi);
         - [Clp], [Osi] (optional for NDOSolver/FiOracle, needed by BundleSolver);
         - [CPLEX] and/or [GUROBI] (optional Osi backends, used by BundleSolver).
+    - [Torch] (the PyTorch C++ API) — optional, required by (and only
+      by) BundleSolverML, which is built automatically when Torch is found.
 
 - [MCFBlock]
     - [MCFClass] — sub-project of MCFBlock, built with the umbrella by
@@ -235,8 +238,10 @@ Submodules add the following (nested) requirements:
     - [GUROBI] (minimum 10.0.0; INSTALL.sh pins **13.0.1**, INSTALL.ps1 pins **12.0.1**)
     - [SCIP] (minimum 7.0.0; INSTALL scripts pin **9.2.1**, INSTALL.ps1 pins **9.0.0**)
       together with [PaPILO](https://github.com/scipopt/papilo) and TBB
-    - [HiGHS] (minimum 1.5.3; INSTALL scripts build the latest `develop`
-      commit with `FAST_BUILD=ON`).
+    - [HiGHS] (minimum 1.5.3, or **1.14** for the HiPO interior-point
+      solver, the only HiGHS solver able to handle convex QPs reliably;
+      INSTALL scripts build the latest `develop` commit with
+      `FAST_BUILD=ON` and `HIPO=ON`).
 
 - [SDDPBlock]
     - [StOpt] which in turn requires
@@ -469,12 +474,18 @@ Build from source. Recommended default paths:
 - Linux: `/opt/HiGHS`;
 - Windows: `C:\HiGHS`.
 
+`HIPO=ON` builds the HiPO interior-point solver (HiGHS >= **1.14**), which
+is the only HiGHS solver able to handle convex QPs reliably. It needs a
+system BLAS: on Debian/Ubuntu install `libopenblas-dev`, on macOS the
+Accelerate framework is used, so no extra dependency is needed.
+
 ```sh
 git clone https://github.com/ERGO-Code/HiGHS.git
 cd HiGHS
 
 # Linux / macOS
-cmake -S . -B build -DFAST_BUILD=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS
+sudo apt install libopenblas-dev   # Linux only, needed by HiPO
+cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX=/opt/HiGHS
 cmake --build build -j$(nproc)
 sudo cmake --install build
 
@@ -621,6 +632,48 @@ cd C:\vcpkg
 vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-windows
 ```
 
+### Torch
+
+[Torch] (the PyTorch C++ API) is required by (and only by)
+BundleSolverML, which BundleSolver builds automatically when Torch is
+found. The INSTALL scripts pin the **2.5.1** CPU distribution.
+Recommended default paths:
+- macOS: `/Library/libtorch`;
+- Linux: `/opt/libtorch`;
+- Windows: `C:\libtorch`.
+
+```sh
+# Linux
+curl -O https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip
+sudo unzip -q libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip -d /opt
+
+# macOS (Intel)
+curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.5.1.zip
+unzip -q libtorch-macos-x86_64-2.5.1.zip -d /Library
+
+# macOS (Apple Silicon)
+curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
+unzip -q libtorch-macos-arm64-2.5.1.zip -d /Library
+```
+
+```powershell
+# Windows
+Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.5.1%2Bcpu.zip" -OutFile "C:\libtorch.zip"
+Expand-Archive -Path "C:\libtorch.zip" -DestinationPath "C:\" -Force
+Remove-Item "C:\libtorch.zip"
+```
+
+> **Linux note:** if Torch is not found at runtime:
+> ```sh
+> sudo sh -c "echo '/opt/libtorch/lib' > /etc/ld.so.conf.d/libtorch.conf"
+> sudo ldconfig
+> ```
+> `INSTALL.sh` writes this file automatically when run with sudo.
+>
+> **Windows note:** `INSTALL.ps1` adds `C:\libtorch\lib` to the system
+> `PATH` so that the SMS++ executables can locate the `torch*.dll` files.
+> When installing manually, do the same.
+
 ### MS-MPI (Windows only)
 
 SDDPBlock+StOpt require an MPI runtime. On Windows that's
@@ -692,6 +745,7 @@ Two paths, depending on how many modules you need:
    CoinUtils_ROOT = /opt/coin-or
    Osi_ROOT       = /opt/coin-or
    Clp_ROOT       = /opt/coin-or
+   Torch_ROOT     = /opt/libtorch
    ```
 
 4. Configure with CMake:
@@ -789,6 +843,7 @@ sudo sh -c "echo '${SCIP_ROOT}/lib'                          > /etc/ld.so.conf.d
 sudo sh -c "echo '${HiGHS_ROOT}/lib'                         > /etc/ld.so.conf.d/highs.conf"
 sudo sh -c "echo '${CoinOr_ROOT}/lib'                        > /etc/ld.so.conf.d/coin-or.conf"
 sudo sh -c "echo '${StOpt_ROOT}/lib'                         > /etc/ld.so.conf.d/stopt.conf"
+sudo sh -c "echo '${Torch_ROOT}/lib'                         > /etc/ld.so.conf.d/libtorch.conf"
 sudo sh -c "echo '${SMSPP_ROOT}/lib'                         > /etc/ld.so.conf.d/smspp.conf"
 sudo ldconfig
 ```
@@ -919,6 +974,7 @@ For project-level installation issues not covered by the
 [GUROBI]:              https://www.gurobi.com/
 [SCIP]:                https://scipopt.org/index.php
 [HiGHS]:               https://highs.dev/
+[Torch]:               https://pytorch.org/get-started/locally/
 
 [GCC]:                 https://gcc.gnu.org/
 [Clang]:               https://clang.llvm.org/

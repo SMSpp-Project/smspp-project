@@ -273,6 +273,7 @@ according to the following options table:
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
+| `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |

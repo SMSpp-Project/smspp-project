@@ -11,7 +11,7 @@
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
-    You can use the `-withoutLibtorch` option to skip the installation of libTorch.
+    You can use the `-withoutTorch` option to skip the installation of Torch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
 
     .AUTHOR
@@ -45,7 +45,7 @@ param(
     [switch]$withoutCplex,
     [switch]$withoutGurobi,
     [switch]$withoutSCIP,
-    [switch]$withoutLibtorch,
+    [switch]$withoutTorch,
     [switch]$withoutSMSpp,
     [switch]$updatevcpkg,
     [string]$installRoot = "C:\" # Default if not provided
@@ -370,9 +370,9 @@ if ($OS -eq "Win32NT")
         Write-Host "... SCIP installed successfully."
     }
 
-    # Install libTorch
-    if (-not $withoutLibtorch) {
-        Write-Host "Installing libTorch..."
+    # Install Torch
+    if (-not $withoutTorch) {
+        Write-Host "Installing Torch..."
         $Torch_ROOT = "C:\libtorch"
         if (-not (Test-Path $Torch_ROOT)) {
             Set-Location "C:\"
@@ -384,7 +384,7 @@ if ($OS -eq "Win32NT")
             # Update the system PATH to ensure the SMS++ exe can correctly locate the torch*.dll file
             Add-ToSystemPath -PathToAdd "$Torch_ROOT\lib"
         }
-        Write-Host "... libTorch installed successfully."
+        Write-Host "... Torch installed successfully."
     }
 
     # Install / Upgrade Microsoft MPI

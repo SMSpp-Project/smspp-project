@@ -15,7 +15,7 @@
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
-#     You can use the `--without-libtorch` option to skip the installation of libTorch.
+#     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
@@ -356,9 +356,9 @@ EOL
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install libTorch
-  if [ "$install_libtorch" -eq 1 ]; then
-    echo "Installing libTorch..."
+  # Install Torch
+  if [ "$install_torch" -eq 1 ]; then
+    echo "Installing Torch..."
     Torch_ROOT="${INSTALL_ROOT}/libtorch"
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
@@ -374,7 +374,7 @@ EOL
         ldconfig
       fi
     else
-      echo "libTorch already installed."
+      echo "Torch already installed."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -720,9 +720,9 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install libTorch
-  if [ "$install_libtorch" -eq 1 ]; then
-    echo "Installing libTorch..."
+  # Install Torch
+  if [ "$install_torch" -eq 1 ]; then
+    echo "Installing Torch..."
     Torch_ROOT="${INSTALL_ROOT}/libtorch"
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
@@ -738,7 +738,7 @@ install_on_macos() {
       rm "$LIBTORCH_INSTALLER"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
     else
-      echo "libTorch already installed."
+      echo "Torch already installed."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -753,7 +753,7 @@ install_gurobi=${install_gurobi:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_stopt=${install_stopt:-1}
-install_libtorch=${install_libtorch:-1}
+install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
 install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
@@ -796,8 +796,8 @@ do
     install_stopt=0
     shift
     ;;
-    --without-libtorch)
-    install_libtorch=0
+    --without-torch)
+    install_torch=0
     shift
     ;;
     --without-lemon)
