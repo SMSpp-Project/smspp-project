@@ -637,40 +637,45 @@ vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-
 [Torch] (the PyTorch C++ API) is required by (and only by)
 BundleSolverML, which BundleSolver builds automatically when Torch is
 found. The INSTALL scripts pin the **2.5.1** CPU distribution.
-Recommended default paths:
-- macOS: `/Library/libtorch`;
-- Linux: `/opt/libtorch`;
-- Windows: `C:\libtorch`.
+Recommended default paths (the archive unpacks as `libtorch`, renamed
+to the version-less `torch` by the scripts):
+- macOS: `/Library/torch`;
+- Linux: `/opt/torch`;
+- Windows: `C:\torch`.
 
 ```sh
 # Linux
 curl -O https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip
 sudo unzip -q libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip -d /opt
+sudo mv /opt/libtorch /opt/torch
 
 # macOS (Intel)
 curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.5.1.zip
 unzip -q libtorch-macos-x86_64-2.5.1.zip -d /Library
+mv /Library/libtorch /Library/torch
 
 # macOS (Apple Silicon)
 curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
 unzip -q libtorch-macos-arm64-2.5.1.zip -d /Library
+mv /Library/libtorch /Library/torch
 ```
 
 ```powershell
 # Windows
-Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.5.1%2Bcpu.zip" -OutFile "C:\libtorch.zip"
-Expand-Archive -Path "C:\libtorch.zip" -DestinationPath "C:\" -Force
-Remove-Item "C:\libtorch.zip"
+Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.5.1%2Bcpu.zip" -OutFile "C:\torch.zip"
+Expand-Archive -Path "C:\torch.zip" -DestinationPath "C:\" -Force
+Remove-Item "C:\torch.zip"
+Move-Item -Path "C:\libtorch" -Destination "C:\torch"
 ```
 
 > **Linux note:** if Torch is not found at runtime:
 > ```sh
-> sudo sh -c "echo '/opt/libtorch/lib' > /etc/ld.so.conf.d/libtorch.conf"
+> sudo sh -c "echo '/opt/torch/lib' > /etc/ld.so.conf.d/torch.conf"
 > sudo ldconfig
 > ```
 > `INSTALL.sh` writes this file automatically when run with sudo.
 >
-> **Windows note:** `INSTALL.ps1` adds `C:\libtorch\lib` to the system
+> **Windows note:** `INSTALL.ps1` adds `C:\torch\lib` to the system
 > `PATH` so that the SMS++ executables can locate the `torch*.dll` files.
 > When installing manually, do the same.
 
@@ -745,7 +750,7 @@ Two paths, depending on how many modules you need:
    CoinUtils_ROOT = /opt/coin-or
    Osi_ROOT       = /opt/coin-or
    Clp_ROOT       = /opt/coin-or
-   Torch_ROOT     = /opt/libtorch
+   Torch_ROOT     = /opt/torch
    ```
 
 4. Configure with CMake:
@@ -843,7 +848,7 @@ sudo sh -c "echo '${SCIP_ROOT}/lib'                          > /etc/ld.so.conf.d
 sudo sh -c "echo '${HiGHS_ROOT}/lib'                         > /etc/ld.so.conf.d/highs.conf"
 sudo sh -c "echo '${CoinOr_ROOT}/lib'                        > /etc/ld.so.conf.d/coin-or.conf"
 sudo sh -c "echo '${StOpt_ROOT}/lib'                         > /etc/ld.so.conf.d/stopt.conf"
-sudo sh -c "echo '${Torch_ROOT}/lib'                         > /etc/ld.so.conf.d/libtorch.conf"
+sudo sh -c "echo '${Torch_ROOT}/lib'                         > /etc/ld.so.conf.d/torch.conf"
 sudo sh -c "echo '${SMSPP_ROOT}/lib'                         > /etc/ld.so.conf.d/smspp.conf"
 sudo ldconfig
 ```

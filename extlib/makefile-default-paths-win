@@ -52,7 +52,7 @@ HiGHS_ROOT = C:/vcpkg/installed/x64-windows
 CoinUtils_ROOT = C:/vcpkg/installed/x64-windows
 Osi_ROOT = C:/vcpkg/installed/x64-windows
 Clp_ROOT = C:/vcpkg/installed/x64-windows
-Torch_ROOT = C:/libtorch
+Torch_ROOT = C:/torch
 
 VCPKG_ROOT = C:/vcpkg
 

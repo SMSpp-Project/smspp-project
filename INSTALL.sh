@@ -359,18 +359,20 @@ EOL
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
     echo "Installing Torch..."
-    Torch_ROOT="${INSTALL_ROOT}/libtorch"
+    Torch_ROOT="${INSTALL_ROOT}/torch"
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      LIBTORCH_VERSION="2.5.1"
-      LIBTORCH_INSTALLER="libtorch-cxx11-abi-shared-with-deps-${LIBTORCH_VERSION}%2Bcpu.zip"
-      curl -O "https://download.pytorch.org/libtorch/cpu/$LIBTORCH_INSTALLER"
-      unzip -q "$LIBTORCH_INSTALLER" -d .
-      rm "$LIBTORCH_INSTALLER"
+      TORCH_VERSION="2.5.1"
+      TORCH_INSTALLER="libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
+      curl -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
+      unzip -q "$TORCH_INSTALLER" -d .
+      rm "$TORCH_INSTALLER"
+      # the archive unpacks as libtorch, rename to the version-less torch
+      mv ./libtorch "$Torch_ROOT"
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${Torch_ROOT}/lib"
       if [ "$HAS_SUDO" -eq 1 ]; then
-        sh -c "echo '${Torch_ROOT}/lib' > /etc/ld.so.conf.d/libtorch.conf"
+        sh -c "echo '${Torch_ROOT}/lib' > /etc/ld.so.conf.d/torch.conf"
         ldconfig
       fi
     else
@@ -723,19 +725,21 @@ install_on_macos() {
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
     echo "Installing Torch..."
-    Torch_ROOT="${INSTALL_ROOT}/libtorch"
+    Torch_ROOT="${INSTALL_ROOT}/torch"
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      LIBTORCH_VERSION="2.5.1"
+      TORCH_VERSION="2.5.1"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
-        LIBTORCH_INSTALLER="libtorch-macos-x86_64-${LIBTORCH_VERSION}.zip"
+        TORCH_INSTALLER="libtorch-macos-x86_64-${TORCH_VERSION}.zip"
       else # Apple Silicon MX arch
-        LIBTORCH_INSTALLER="libtorch-macos-arm64-${LIBTORCH_VERSION}.zip"
+        TORCH_INSTALLER="libtorch-macos-arm64-${TORCH_VERSION}.zip"
       fi
-      curl -O "https://download.pytorch.org/libtorch/cpu/$LIBTORCH_INSTALLER"
-      unzip -q "$LIBTORCH_INSTALLER" -d .
-      rm "$LIBTORCH_INSTALLER"
+      curl -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
+      unzip -q "$TORCH_INSTALLER" -d .
+      rm "$TORCH_INSTALLER"
+      # the archive unpacks as libtorch, rename to the version-less torch
+      mv ./libtorch "$Torch_ROOT"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
     else
       echo "Torch already installed."
@@ -911,6 +915,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
       echo "Osi_ROOT = ${CoinOr_ROOT}"
       echo "Clp_ROOT = ${CoinOr_ROOT}"
+      echo "Torch_ROOT = ${Torch_ROOT}"
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
 

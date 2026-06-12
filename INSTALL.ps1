@@ -373,14 +373,16 @@ if ($OS -eq "Win32NT")
     # Install Torch
     if (-not $withoutTorch) {
         Write-Host "Installing Torch..."
-        $Torch_ROOT = "C:\libtorch"
+        $Torch_ROOT = "C:\torch"
         if (-not (Test-Path $Torch_ROOT)) {
             Set-Location "C:\"
-            $LIBTORCH_VERSION = "2.5.1"
-            $LIBTORCH_INSTALLER = "libtorch-win-shared-with-deps-$LIBTORCH_VERSION%2Bcpu.zip"
-            Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/$LIBTORCH_INSTALLER" -OutFile "C:\libtorch.zip"
-            Expand-Archive -Path "C:\libtorch.zip" -DestinationPath "C:\" -Force
-            Remove-Item "C:\libtorch.zip"
+            $TORCH_VERSION = "2.5.1"
+            $TORCH_INSTALLER = "libtorch-win-shared-with-deps-$TORCH_VERSION%2Bcpu.zip"
+            Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER" -OutFile "C:\torch.zip"
+            Expand-Archive -Path "C:\torch.zip" -DestinationPath "C:\" -Force
+            Remove-Item "C:\torch.zip"
+            # The archive unpacks as libtorch, rename to the version-less torch
+            Move-Item -Path "C:\libtorch" -Destination $Torch_ROOT -ErrorAction SilentlyContinue
             # Update the system PATH to ensure the SMS++ exe can correctly locate the torch*.dll file
             Add-ToSystemPath -PathToAdd "$Torch_ROOT\lib"
         }

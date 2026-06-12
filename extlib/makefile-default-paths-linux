@@ -53,6 +53,6 @@ CoinUtils_ROOT = /opt/coin-or
 Osi_ROOT = /opt/coin-or
 Clp_ROOT = /opt/coin-or
 FastFlow_ROOT = /opt/fastflow
-Torch_ROOT = /opt/libtorch
+Torch_ROOT = /opt/torch
 
 #################### End of makefile-default-paths-linux #####################
