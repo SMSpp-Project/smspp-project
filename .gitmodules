@@ -52,3 +52,6 @@
 [submodule "vcpkg-registry"]
 	path = vcpkg-registry
 	url = https://gitlab.com/smspp/vcpkg-registry
+[submodule "BranchAndXSolver"]
+	path = BranchAndXSolver
+	url = https://gitlab.com/smspp/branchandxsolver
