@@ -1,9 +1,6 @@
 [submodule "BinaryKnapsackBlock"]
 	path = BinaryKnapsackBlock
 	url = https://gitlab.com/smspp/binaryknapsackblock.git
-[submodule "BranchAndXSolver"]
-	path = BranchAndXSolver
-	url = https://gitlab.com/smspp/BranchAndXSolver
 [submodule "BundleSolver"]
 	path = BundleSolver
 	url = https://gitlab.com/smspp/bundlesolver.git
