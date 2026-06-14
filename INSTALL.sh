@@ -838,16 +838,16 @@ case "$OS" in
   if [ -f /etc/os-release ]; then
     . /etc/os-release
     if [ "$ID" = "ubuntu" ] || [ "$ID" = "debian" ]; then
-      INSTALL_ROOT="${install_root:-/opt}"
-      mkdir -p "$INSTALL_ROOT"
       # Check if the user has sudo access
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
-        SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
+        INSTALL_ROOT="${install_root:-/opt}"
       else
         HAS_SUDO=0
-        SMSPP_ROOT="${HOME}/smspp-project"
+        INSTALL_ROOT="${install_root:-$HOME}"
       fi
+      mkdir -p "$INSTALL_ROOT"
+      SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       install_on_linux
     else
       echo "This script supports Debian-based Linux distros only."
