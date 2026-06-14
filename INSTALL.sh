@@ -365,8 +365,7 @@ EOL
       cd "$INSTALL_ROOT"
       TORCH_VERSION="2.12.0"
       TORCH_INSTALLER="libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
-      # -L is required: download.pytorch.org redirects, and a plain
-      # curl -O would not follow it and would save an empty file
+      # -L follows download.pytorch.org's redirect
       curl -L -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
       unzip -q "$TORCH_INSTALLER" -d .
       rm "$TORCH_INSTALLER"
@@ -733,14 +732,11 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       TORCH_VERSION="2.12.0"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
-        # PyTorch stopped shipping prebuilt libtorch for macOS x86_64
-        # after 2.2.2, so on Intel Macs Torch (hence BSML) is skipped;
-        # build libtorch from source if you really need it
-        echo "No prebuilt libtorch for macOS x86_64; skipping Torch (BSML)."
+        # no prebuilt libtorch for macOS x86_64 past 2.2.2; Torch is optional
+        echo "No prebuilt libtorch for macOS x86_64; skipping Torch."
       else # Apple Silicon arch
         TORCH_INSTALLER="libtorch-macos-arm64-${TORCH_VERSION}.zip"
-        # -L is required: download.pytorch.org redirects, and a plain
-        # curl -O would not follow it and would save an empty file
+        # -L follows download.pytorch.org's redirect
         curl -L -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
         unzip -q "$TORCH_INSTALLER" -d .
         rm "$TORCH_INSTALLER"
