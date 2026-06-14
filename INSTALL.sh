@@ -105,7 +105,7 @@ install_on_linux() {
     echo "Installing NetCDF-C++..."
     apt-get install -y -q libnetcdf-c++4-dev
 
-    # Install LEMON (graph library, used by LEMONSolver)
+    # Install LEMON
     if [ "$install_lemon" -eq 1 ]; then
       echo "Installing LEMON..."
       apt-get install -y -q liblemon-dev
@@ -459,7 +459,7 @@ install_on_macos() {
   echo "Installing NetCDF..."
   brew install hdf5 netcdf netcdf-cxx
 
-  # Install LEMON (graph library, used by LEMONSolver).
+  # Install LEMON
   # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
   # parser generator) and the community taps are unmaintained, so we use the
   # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source only

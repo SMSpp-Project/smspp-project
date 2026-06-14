@@ -24,7 +24,7 @@ not needed:
   last two open-source);
 - `MCFSolver` wraps the legacy
   [MCFClass](https://github.com/frangio68/Min-Cost-Flow-Class)
-  algorithms, `LEMONSolver` wraps [LEMON](https://lemon.cs.elte.hu);
+  algorithms, `MCFLemonSolver` wraps [LEMON](https://lemon.cs.elte.hu);
 - `SDDPSolver` wraps the SDDP engine of the
   [StOpt](https://gitlab.com/stochastic-control/StOpt) project.
 

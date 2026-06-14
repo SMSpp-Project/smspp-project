@@ -833,7 +833,7 @@ INPUT                  = doxygen/mainpage.md \
                          CapacitatedFacilityLocationBlock/include \
                          InvestmentBlock/include \
                          LagrangianDualSolver/include \
-			 LEMONSolver/include \
+			             MCFLemonSolver/include \
                          LukFiBlock/include \
                          MCFBlock/include \
                          MILPSolver/include \
@@ -841,7 +841,7 @@ INPUT                  = doxygen/mainpage.md \
                          SDDPBlock/include \
                          SMS++/include \
                          StochasticBlock/include \
-			 TwoStageStochasticBlock/include \
+			             TwoStageStochasticBlock/include \
                          UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files

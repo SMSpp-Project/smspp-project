@@ -13,9 +13,9 @@
 [submodule "LagrangianDualSolver"]
 	path = LagrangianDualSolver
 	url = https://gitlab.com/smspp/lagrangiandualsolver.git
-[submodule "LEMONSolver"]
-	path = LEMONSolver
-	url = https://gitlab.com/smspp/lemonsolver.git
+[submodule "MCFLemonSolver"]
+	path = MCFLemonSolver
+	url = https://gitlab.com/smspp/mcflemonsolver.git
 [submodule "LukFiBlock"]
 	path = LukFiBlock
 	url = https://gitlab.com/smspp/lukfiblock.git

@@ -92,7 +92,7 @@ commitment in its many flavours (`UCBlock`, `ThermalUnitBlock`,
 `StochasticBlock`, `TwoStageStochasticBlock`), strategic investment
 (`InvestmentBlock`), and several others. Existing `:Solver` classes
 include wrappers to external libraries (`MCFSolver` wrapping
-`MCFClass`, `LEMONSolver` wrapping LEMON, the `MILPSolver` family
+`MCFClass`, `MCFLemonSolver` wrapping LEMON, the `MILPSolver` family
 wrapping CPLEX, Gurobi, HiGHS and SCIP, `SDDPSolver` wrapping StOpt),
 SMS++-native specialised solvers
 (`DPBinaryKnapsackSolver`, `ThermalUnitDPSolver`,
