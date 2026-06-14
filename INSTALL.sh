@@ -53,6 +53,29 @@ cleanup_on_error() {
   exit 1
 }
 
+# Resolve where a dependency lives (Linux only): reuse an existing install under
+# the default system root (DEFAULT_ROOT) if present, otherwise install it under
+# the writable INSTALL_ROOT. With an explicit --install-root the two roots
+# coincide, so no default-location probing happens and it is placed there.
+resolve_dep_root() {
+  if [ -d "${DEFAULT_ROOT}/$1" ]; then
+    echo "${DEFAULT_ROOT}/$1"
+  else
+    echo "${INSTALL_ROOT}/$1"
+  fi
+}
+
+# Extract a .zip archive ($1) into a destination directory ($2). unzip is not
+# installed on every system (and cannot be apt-installed without sudo) and GNU
+# tar cannot read zip, so fall back to python3, which is always available.
+extract_zip() {
+  if command -v unzip >/dev/null 2>&1; then
+    unzip -q "$1" -d "$2"
+  else
+    python3 -m zipfile -e "$1" "$2"
+  fi
+}
+
 # Function to install dependencies on Linux
 install_on_linux() {
   set -e  # Exit immediately if a command exits with a non-zero status
@@ -92,7 +115,7 @@ install_on_linux() {
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
-    CPLEX_ROOT="${INSTALL_ROOT}/ibm/ILOG/CPLEX_Studio"
+    CPLEX_ROOT="$(resolve_dep_root ibm/ILOG/CPLEX_Studio)"
     CURRENT_INSTALL_FOLDER="${INSTALL_ROOT}/ibm"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
@@ -143,7 +166,7 @@ EOL
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
     echo "Installing Gurobi..."
-    GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
+    GUROBI_ROOT="$(resolve_dep_root gurobi)"
     CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
     if [ ! -d "$GUROBI_ROOT" ]; then
       cd "$INSTALL_ROOT"
@@ -168,7 +191,7 @@ EOL
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
     echo "Installing SCIP..."
-    SCIP_ROOT="${INSTALL_ROOT}/scip"
+    SCIP_ROOT="$(resolve_dep_root scip)"
     CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
     if [ ! -d "$SCIP_ROOT" ]; then
       if [ "$HAS_SUDO" -eq 1 ]; then
@@ -217,7 +240,7 @@ EOL
   # system BLAS.
   if [ "$install_highs" -eq 1 ]; then
     echo "Installing HiGHS..."
-    HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
+    HiGHS_ROOT="$(resolve_dep_root HiGHS)"
     CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q libopenblas-dev
@@ -257,7 +280,7 @@ EOL
   # Install COIN-OR CoinUtils and Osi/Clp
   if [ "$install_coinor" -eq 1 ]; then
     echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
+    CoinOr_ROOT="$(resolve_dep_root coin-or)"
     CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q libbz2-dev
@@ -313,7 +336,7 @@ EOL
   # Install StOpt
   if [ "$install_stopt" -eq 1 ]; then
     echo "Installing StOpt..."
-    StOpt_ROOT="${INSTALL_ROOT}/StOpt"
+    StOpt_ROOT="$(resolve_dep_root StOpt)"
     CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q zlib1g-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
@@ -359,15 +382,16 @@ EOL
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
     echo "Installing Torch..."
-    Torch_ROOT="${INSTALL_ROOT}/torch"
+    Torch_ROOT="$(resolve_dep_root torch)"
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
       cd "$INSTALL_ROOT"
       TORCH_VERSION="2.12.0"
-      TORCH_INSTALLER="libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
+      TORCH_INSTALLER="libtorch-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
+      # -f fails on HTTP errors (no error page saved as a fake zip),
       # -L follows download.pytorch.org's redirect
-      curl -L -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
-      unzip -q "$TORCH_INSTALLER" -d .
+      curl -fL -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
+      extract_zip "$TORCH_INSTALLER" .
       rm "$TORCH_INSTALLER"
       # the archive unpacks as libtorch, rename to the version-less torch
       mv ./libtorch "$Torch_ROOT"
@@ -736,9 +760,10 @@ install_on_macos() {
         echo "No prebuilt libtorch for macOS x86_64; skipping Torch."
       else # Apple Silicon arch
         TORCH_INSTALLER="libtorch-macos-arm64-${TORCH_VERSION}.zip"
+        # -f fails on HTTP errors (no error page saved as a fake zip),
         # -L follows download.pytorch.org's redirect
-        curl -L -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
-        unzip -q "$TORCH_INSTALLER" -d .
+        curl -fL -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
+        extract_zip "$TORCH_INSTALLER" .
         rm "$TORCH_INSTALLER"
         # the archive unpacks as libtorch, rename to the version-less torch
         mv ./libtorch "$Torch_ROOT"
@@ -838,16 +863,29 @@ case "$OS" in
   if [ -f /etc/os-release ]; then
     . /etc/os-release
     if [ "$ID" = "ubuntu" ] || [ "$ID" = "debian" ]; then
-      INSTALL_ROOT="${install_root:-/opt}"
-      mkdir -p "$INSTALL_ROOT"
+      # Default system location where dependencies may already be installed
+      DEFAULT_ROOT="/opt"
       # Check if the user has sudo access
       if sudo -n true 2>/dev/null; then
         HAS_SUDO=1
-        SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       else
         HAS_SUDO=0
-        SMSPP_ROOT="${HOME}/smspp-project"
       fi
+      # Where to install dependencies that are not already present: an explicit
+      # --install-root wins (and disables default-location probing, placing
+      # everything there directly); otherwise the system default with sudo, or
+      # the user's home without it (each dependency still reused from the
+      # default location if found there)
+      if [ -n "$install_root" ]; then
+        INSTALL_ROOT="$install_root"
+        DEFAULT_ROOT="$install_root"
+      elif [ "$HAS_SUDO" -eq 1 ]; then
+        INSTALL_ROOT="$DEFAULT_ROOT"
+      else
+        INSTALL_ROOT="$HOME"
+      fi
+      mkdir -p "$INSTALL_ROOT"
+      SMSPP_ROOT="${INSTALL_ROOT}/smspp-project"
       install_on_linux
     else
       echo "This script supports Debian-based Linux distros only."

@@ -34,11 +34,15 @@ wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash
 ```
 
 If `<your-custom-path>` is not specified, the default installation root is
-`/opt` on Linux, `/Library` on macOS, and `C:\` on Windows. On macOS the
-script also falls back to `$HOME` if sudo is **not** available, the
-standard output is not a TTY, or the environment variable `CI` is set
-(e.g. when running in CI runners): in those cases an interactive sudo
-prompt would block, so the script picks a user-writable location instead.
+`/opt` on Linux, `/Library` on macOS, and `C:\` on Windows. Both the Linux
+and macOS scripts fall back to `$HOME` when sudo is **not** available (on
+macOS also when the standard output is not a TTY, or the environment variable
+`CI` is set, e.g. when running in CI runners): in those cases an interactive
+sudo prompt would block, so the script picks a user-writable location instead.
+On Linux each dependency already present under `/opt` is still reused in
+place, and only the missing ones are installed under `$HOME`. Passing an
+explicit `--install-root=<path>` installs everything there directly, without
+probing the default location.
 
 ### Skipping individual dependencies
 
@@ -645,8 +649,8 @@ to the version-less `torch` by the scripts):
 
 ```sh
 # Linux
-curl -L -O https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.12.0%2Bcpu.zip
-sudo unzip -q libtorch-cxx11-abi-shared-with-deps-2.12.0%2Bcpu.zip -d /opt
+curl -L -O https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.12.0%2Bcpu.zip
+sudo unzip -q libtorch-shared-with-deps-2.12.0%2Bcpu.zip -d /opt
 sudo mv /opt/libtorch /opt/torch
 
 # macOS (Apple Silicon)
