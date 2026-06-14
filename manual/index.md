@@ -40,7 +40,7 @@ into runnable programs.
 The development of SMS++ would not have been possible without the
 contributions of many co-authors over the years, prominent among them
 Rafael Durbano Lobato, Donato Meoli, Enrico Gorgone, Federica Di
-Pasquale, Francesco Demelas, Kostas Tavlaridis-Gyparakis, Niccolò
+Pasquale, Francesca Demelas, Kostas Tavlaridis-Gyparakis, Niccolò
 Iardella, and Benoit Tran. Specific contributions are credited in the
 source files and in the project's `CHANGELOG.md`.
 

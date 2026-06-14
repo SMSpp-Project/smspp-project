@@ -636,33 +636,38 @@ vcpkg install stopt --overlay-ports=C:\vcpkg-registry\ports\stopt --triplet x64-
 
 [Torch] (the PyTorch C++ API) is required by (and only by)
 BundleSolverML, which BundleSolver builds automatically when Torch is
-found. The INSTALL scripts pin the **2.5.1** CPU distribution.
+found. The INSTALL scripts pin the **2.12.0** CPU distribution.
 Recommended default paths (the archive unpacks as `libtorch`, renamed
 to the version-less `torch` by the scripts):
-- macOS: `/Library/torch`;
+- macOS: `/Library/torch` (Apple Silicon only, see below);
 - Linux: `/opt/torch`;
 - Windows: `C:\torch`.
 
+The `-L` flag below is mandatory: `download.pytorch.org` issues a
+redirect, and a plain `curl -O` would not follow it and would silently
+save an empty file (`wget` follows redirects by default, hence works
+without extra flags).
+
 ```sh
 # Linux
-curl -O https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip
-sudo unzip -q libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip -d /opt
+curl -L -O https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.12.0%2Bcpu.zip
+sudo unzip -q libtorch-cxx11-abi-shared-with-deps-2.12.0%2Bcpu.zip -d /opt
 sudo mv /opt/libtorch /opt/torch
 
-# macOS (Intel)
-curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.5.1.zip
-unzip -q libtorch-macos-x86_64-2.5.1.zip -d /Library
-mv /Library/libtorch /Library/torch
-
 # macOS (Apple Silicon)
-curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
-unzip -q libtorch-macos-arm64-2.5.1.zip -d /Library
-mv /Library/libtorch /Library/torch
+curl -L -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.12.0.zip
+sudo unzip -q libtorch-macos-arm64-2.12.0.zip -d /Library
+sudo mv /Library/libtorch /Library/torch
 ```
+
+> **macOS Intel (x86_64):** PyTorch stopped publishing prebuilt libtorch
+> for macOS x86_64 after **2.2.2**, so there is no `libtorch-macos-x86_64`
+> archive for recent versions. On Intel Macs either skip BSML (Torch is
+> optional) or build libtorch from source.
 
 ```powershell
 # Windows
-Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.5.1%2Bcpu.zip" -OutFile "C:\torch.zip"
+Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.12.0%2Bcpu.zip" -OutFile "C:\torch.zip"
 Expand-Archive -Path "C:\torch.zip" -DestinationPath "C:\" -Force
 Remove-Item "C:\torch.zip"
 Move-Item -Path "C:\libtorch" -Destination "C:\torch"
@@ -678,6 +683,26 @@ Move-Item -Path "C:\libtorch" -Destination "C:\torch"
 > **Windows note:** `INSTALL.ps1` adds `C:\torch\lib` to the system
 > `PATH` so that the SMS++ executables can locate the `torch*.dll` files.
 > When installing manually, do the same.
+>
+> **macOS notes:**
+> - `/Library` is root-owned, hence the `sudo` above. To install without
+>   `sudo`, unpack libtorch anywhere writable (e.g. `~/Applications/torch`)
+>   and point `Torch_ROOT` there: set `Torch_ROOT = ~/Applications/torch`
+>   in `extlib/makefile-paths` (makefile builds) or pass
+>   `-DTorch_ROOT=~/Applications/torch` to CMake.
+> - Alternatively, install libtorch via Homebrew (`brew install pytorch`)
+>   and set `Torch_ROOT` to the **Homebrew prefix**, i.e. the output of
+>   `brew --prefix` (`/opt/homebrew` on Apple Silicon, `/usr/local` on
+>   Intel), **not** to `.../include`: the build appends `/include` and
+>   `/lib` to `Torch_ROOT` itself, so `Torch_ROOT = /opt/homebrew` resolves
+>   the headers under `/opt/homebrew/include` and the libraries under
+>   `/opt/homebrew/lib`.
+> - Do **not** mix a Homebrew libtorch with a manually downloaded one: the
+>   Homebrew headers under `/opt/homebrew/include` are always on the default
+>   compiler search path, so a second libtorch pointed to by `Torch_ROOT`
+>   makes every header appear twice and the build fails with
+>   `redefinition of 'OrderedDict'`. Keep exactly one (uninstall the other
+>   with `brew uninstall pytorch`, or remove the manual copy).
 
 ### MS-MPI (Windows only)
 

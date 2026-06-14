@@ -363,9 +363,11 @@ EOL
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      TORCH_VERSION="2.5.1"
+      TORCH_VERSION="2.12.0"
       TORCH_INSTALLER="libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
-      curl -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
+      # -L is required: download.pytorch.org redirects, and a plain
+      # curl -O would not follow it and would save an empty file
+      curl -L -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
       unzip -q "$TORCH_INSTALLER" -d .
       rm "$TORCH_INSTALLER"
       # the archive unpacks as libtorch, rename to the version-less torch
@@ -729,18 +731,23 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=${Torch_ROOT}
     if [ ! -d "$Torch_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      TORCH_VERSION="2.5.1"
+      TORCH_VERSION="2.12.0"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
-        TORCH_INSTALLER="libtorch-macos-x86_64-${TORCH_VERSION}.zip"
-      else # Apple Silicon MX arch
+        # PyTorch stopped shipping prebuilt libtorch for macOS x86_64
+        # after 2.2.2, so on Intel Macs Torch (hence BSML) is skipped;
+        # build libtorch from source if you really need it
+        echo "No prebuilt libtorch for macOS x86_64; skipping Torch (BSML)."
+      else # Apple Silicon arch
         TORCH_INSTALLER="libtorch-macos-arm64-${TORCH_VERSION}.zip"
+        # -L is required: download.pytorch.org redirects, and a plain
+        # curl -O would not follow it and would save an empty file
+        curl -L -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
+        unzip -q "$TORCH_INSTALLER" -d .
+        rm "$TORCH_INSTALLER"
+        # the archive unpacks as libtorch, rename to the version-less torch
+        mv ./libtorch "$Torch_ROOT"
+        export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
       fi
-      curl -O "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER"
-      unzip -q "$TORCH_INSTALLER" -d .
-      rm "$TORCH_INSTALLER"
-      # the archive unpacks as libtorch, rename to the version-less torch
-      mv ./libtorch "$Torch_ROOT"
-      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
     else
       echo "Torch already installed."
     fi

@@ -376,7 +376,7 @@ if ($OS -eq "Win32NT")
         $Torch_ROOT = "C:\torch"
         if (-not (Test-Path $Torch_ROOT)) {
             Set-Location "C:\"
-            $TORCH_VERSION = "2.5.1"
+            $TORCH_VERSION = "2.12.0"
             $TORCH_INSTALLER = "libtorch-win-shared-with-deps-$TORCH_VERSION%2Bcpu.zip"
             Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER" -OutFile "C:\torch.zip"
             Expand-Archive -Path "C:\torch.zip" -DestinationPath "C:\" -Force
