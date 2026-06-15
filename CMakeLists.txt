@@ -227,7 +227,7 @@ endif ()
 
 if (BUILD_MCFBlock)
     init_submodule(MCFBlock)
-    add_subdirectory(MCFBlock) # Requires MCFClass
+    add_subdirectory(MCFBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
