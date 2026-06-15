@@ -124,9 +124,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   several test functions from the literature for NonDifferentiable
   Optimization solvers (such as `BundleSolver`).
 
-- [MCFBlock / MCFSolver](https://gitlab.com/smspp/mcfblock), defining the
-  `MCFBlock` class for the (continuous, linear) Min-Cost Flow problem and
-  its associated `MCFSolver`, basically a wrapper for solvers from the
+- [MCFBlock](https://gitlab.com/smspp/mcfblock), defining the
+  `MCFBlock` class for the (continuous, linear) Min-Cost Flow problem.
+
+- [MCFClassSolver](https://gitlab.com/smspp/mcfclasssolver), defining
+  `MCFSolver`, a `Solver` for `MCFBlock` that is basically a wrapper for
+  solvers from the
   [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
@@ -381,7 +384,7 @@ way to learn how to use it is to check the makefiles for testers, such as
 those in
 
 ```sh
-MCFBlock/test
+MCFClassSolver/test
 MILPSolver/test_*
 tests/CapacitatedFacilityLocationBlock 
 tests/LagBFunction 

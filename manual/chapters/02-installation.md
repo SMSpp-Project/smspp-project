@@ -100,7 +100,7 @@ The rule an executable's makefile follows is therefore simple:
 brings in the core — **and include every other module through its
 `makefile-s`.** This keeps the core's headers and objects in the
 build exactly once while letting an executable compose any set of
-modules. The existing testers (`MCFBlock/test`,
+modules. The existing testers (`MCFClassSolver/test`,
 `tests/CapacitatedFacilityLocation`, ...) are the reference
 examples to copy from.
 
@@ -125,14 +125,14 @@ both a `:Block` and a `:Solver` from different modules live there,
 not inside any one module. Among the running examples,
 `tests/CapacitatedFacilityLocation` is the one used by Recipes [R3](R3-cfl-three-ways.md#rec-R3)–[R5](R5-cfl-benders.md#rec-R5).
 
-Some `:Block`s, however, *do* carry their own tester under a local
-`test/` directory — namely those that "come with a `:Solver`
-attached" and so are self-contained: `MCFBlock` (with
-`MCFSolver`), `BinaryKnapsackBlock` (with
+Some modules, however, *do* carry their own tester under a local
+`test/` directory — namely those that bundle a `:Solver` and so are
+self-contained: `MCFClassSolver` (whose `MCFSolver` solves an
+`MCFBlock`), `BinaryKnapsackBlock` (with
 `DPBinaryKnapsackSolver`), `CapacitatedFacilityLocationBlock`, and
 `SDDPBlock`. Building and running one of these is the quickest way
 to confirm that the toolchain, the dependencies and the paths are
-all in order. The `MCFBlock/test` tester — the runnable
+all in order. The `MCFClassSolver/test` tester — the runnable
 counterpart of [Recipe R1](R1-mcf.md#rec-R1) — is a good first target: it builds the
 core, the `MCFBlock` module and the `MCFSolver`, loads a small flow
 instance, solves it, and checks the result.

@@ -234,7 +234,9 @@ Submodules add the following (nested) requirements:
       by) BundleSolverML, which is built automatically when Torch is found.
 
 - [MCFBlock]
-    - [MCFClass] — sub-project of MCFBlock, built with the umbrella by
+
+- [MCFClassSolver]
+    - [MCFClass] — sub-project of MCFClassSolver, built with the umbrella by
       default. Optionally requires [CPLEX].
 
 - [MILPSolver] — needs at least one of:
@@ -742,7 +744,7 @@ Two paths, depending on how many modules you need:
 3. *Optional, makefile-based builds:* if you installed the requirements
    to non-default paths, override them in `extlib/makefile-paths` (this
    file is `.gitignore`-d). Same for `BundleSolver/NdoFiOracle/extlib/makefile-paths`
-   and `MCFBlock/MCFClass/extlib/makefile-paths`. `INSTALL.sh` generates
+   and `MCFClassSolver/MCFClass/extlib/makefile-paths`. `INSTALL.sh` generates
    these automatically when `--install-root` is non-default. Example:
 
    ```make
@@ -959,6 +961,7 @@ For project-level installation issues not covered by the
 [SMS++ core library]:  https://gitlab.com/smspp/smspp
 [BundleSolver]:        https://gitlab.com/smspp/bundlesolver
 [MCFBlock]:            https://gitlab.com/smspp/mcfblock
+[MCFClassSolver]:      https://gitlab.com/smspp/mcfclasssolver
 [SDDPBlock]:           https://gitlab.com/smspp/sddpblock
 [MILPSolver]:          https://gitlab.com/smspp/milpsolver
 [Test Environment]:    https://gitlab.com/smspp/test-env

@@ -836,6 +836,7 @@ INPUT                  = doxygen/mainpage.md \
 			             MCFLemonSolver/include \
                          LukFiBlock/include \
                          MCFBlock/include \
+                         MCFClassSolver/include \
                          MILPSolver/include \
                          MMCFBlock/include \
                          SDDPBlock/include \

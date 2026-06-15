@@ -13,6 +13,9 @@
 [submodule "LagrangianDualSolver"]
 	path = LagrangianDualSolver
 	url = https://gitlab.com/smspp/lagrangiandualsolver.git
+[submodule "MCFClassSolver"]
+	path = MCFClassSolver
+	url = https://gitlab.com/smspp/mcfclasssolver.git
 [submodule "MCFLemonSolver"]
 	path = MCFLemonSolver
 	url = https://gitlab.com/smspp/mcflemonsolver.git

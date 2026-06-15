@@ -65,6 +65,7 @@ smspp_option(BUILD_TwoStageStochasticBlock "Build TwoStageStochasticBlock")
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
 smspp_option(BUILD_BundleSolver "Build BundleSolver")
 smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
+smspp_option(BUILD_MCFClassSolver "Build MCFClassSolver")
 smspp_option(BUILD_MCFLemonSolver "Build MCFLemonSolver")
 
 smspp_option(BUILD_tools "Build tools")
@@ -188,6 +189,10 @@ if (BUILD_BundleSolver)
     set(BUILD_MILPSolver ON) # Requires MILPSolver
 endif ()
 
+if (BUILD_MCFClassSolver)
+    set(BUILD_MCFBlock ON) # Requires MCFBlock
+endif ()
+
 if (BUILD_MCFLemonSolver)
     set(BUILD_MCFBlock ON) # Requires MCFBlock
 endif ()
@@ -284,6 +289,12 @@ endif ()
 if (BUILD_LagrangianDualSolver)
     init_submodule(LagrangianDualSolver)
     add_subdirectory(LagrangianDualSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_MCFClassSolver)
+    init_submodule(MCFClassSolver)
+    add_subdirectory(MCFClassSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 

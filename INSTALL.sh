@@ -974,10 +974,10 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "Created $ndofi_extlib_file file."
     fi
 
-    # If the submodule MCFBlock is initialized, i.e., the folder is not empty
-    if [ -d "$SMSPP_ROOT/MCFBlock" ] && [ -n "$(ls -A "$SMSPP_ROOT/MCFBlock")" ]; then
-      mcf_extlib_file="$SMSPP_ROOT/MCFBlock/MCFClass/extlib/makefile-paths"
-      # Create the file with the new paths of the resources for the MCFBlock/MCFClass
+    # If the submodule MCFClassSolver is initialized, i.e., the folder is not empty
+    if [ -d "$SMSPP_ROOT/MCFClassSolver" ] && [ -n "$(ls -A "$SMSPP_ROOT/MCFClassSolver")" ]; then
+      mcf_extlib_file="$SMSPP_ROOT/MCFClassSolver/MCFClass/extlib/makefile-paths"
+      # Create the file with the new paths of the resources for the MCFClassSolver/MCFClass
       {
         echo "CPLEX_ROOT = ${CPLEX_ROOT}"
       } > "$mcf_extlib_file"
