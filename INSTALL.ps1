@@ -7,6 +7,7 @@
     If not already present, it clones the smspp-project repositories, then builds and installs them.
 
     You can use the `-installRoot <your-custom-path>` option to specify your SMS++ custom installation root.
+    You can use the `-cplexInstaller <path-to-installer>` option to point to your own CPLEX installer.
     You can use the `-updatevcpkg` option to update the builtin-baseline in vcpkg.json.
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
@@ -48,7 +49,8 @@ param(
     [switch]$withoutTorch,
     [switch]$withoutSMSpp,
     [switch]$updatevcpkg,
-    [string]$installRoot = "C:\" # Default if not provided
+    [string]$installRoot = "C:\", # Default if not provided
+    [string]$cplexInstaller = "" # Path to a user-provided CPLEX installer
 )
 
 # Remove trailing backslash from installRoot if present
@@ -312,28 +314,27 @@ if ($OS -eq "Win32NT")
         $CPLEX_ROOT = "C:\IBM\ILOG\CPLEX_Studio"
         if (-not (Test-Path $CPLEX_ROOT)) {
             Set-Location "C:\"
-            $CPLEX_INSTALLER = "C:\cplex_studio2211.win_x86_64.exe"
-            # the CPLEX_URL is always given by the same prefix, i.e.:
-            # "https://drive.usercontent.google.com/download?id=" +
-            # the id code suffix in the Drive sharing link, i.e.:
-            # https://drive.google.com/file/d/ 1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta /view?usp=sharing
-            $CPLEX_URL = "https://drive.usercontent.google.com/download?id=1mtjzf3id5CDh5Z5-W4D5e1z4llDw7Kta"
-            if ((Invoke-WebRequest -Uri $CPLEX_URL -SessionVariable session).Content -match 'name="uuid" value="([^"]+)"') {
-                Start-BitsTransfer -Source "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$matches[1]" -Destination $CPLEX_INSTALLER
-                Start-Process -FilePath $CPLEX_INSTALLER -Wait
-                Remove-Item $CPLEX_INSTALLER
+            if (-not $cplexInstaller -or -not (Test-Path $cplexInstaller)) {
+                Write-Host "CPLEX installer not provided. Download IBM ILOG CPLEX Optimization"
+                Write-Host "Studio yourself (e.g. through the IBM Academic Initiative) and either"
+                Write-Host "install it manually or re-run with -cplexInstaller <path-to-installer>."
+                Write-Host "Skipping CPLEX."
+                $withoutCplex = $true
+            } else {
+                Start-Process -FilePath $cplexInstaller -Wait
                 # Move "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
                 # spaces in the next when building COIN-OR Osi with Cplex interface
                 Move-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM"
-                Move-Item -Path "C:\IBM\ILOG\CPLEX_Studio2211" -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
+                # the installer creates ILOG\CPLEX_Studio<ver>; strip the version from the path
+                $cplexVersioned = Get-ChildItem -Path "C:\IBM\ILOG" -Directory -Filter "CPLEX_Studio*" | Select-Object -First 1
+                Move-Item -Path $cplexVersioned.FullName -Destination $CPLEX_ROOT -ErrorAction SilentlyContinue
                 # Update the system PATH to ensure the SMS++ exe can correctly locate the cplex*.dll file
-                Update-EnvironmentVariables -oldPattern "C:\Program Files\IBM\ILOG\CPLEX_Studio2211" -newValue $CPLEX_ROOT
-            } else {
-                Write-Host "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
-                exit 1
+                Update-EnvironmentVariables -oldPattern "C:\Program Files\IBM\ILOG\$($cplexVersioned.Name)" -newValue $CPLEX_ROOT
+                Write-Host "... CPLEX installed successfully."
             }
+        } else {
+            Write-Host "... CPLEX installed successfully."
         }
-        Write-Host "... CPLEX installed successfully."
     }
 
     # Install Gurobi
@@ -486,13 +487,17 @@ if (-not $withoutSMSpp)
 
         if (-not $withoutCplex) {
             Write-Host "Applying CPLEX interface changes to overlay portfile.cmake..."
+            # the static lib name embeds the CPLEX version (cplex<ver>.lib)
+            $cplexLibDir = "C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda"
+            $cplexLibName = (Get-ChildItem -Path "$cplexLibDir/cplex*.lib" | Select-Object -First 1).Name
+            $cplexLib = "$cplexLibDir/$cplexLibName"
             # Replace the line containing --without-cplex with a multi-line --with-cplex block
             $replacementCPX = @"
         --with-cplex
-        --with-cplex-lib=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
+        --with-cplex-lib=$cplexLib
         --with-cplex-incdir=C:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
         --with-cplex-cflags=-IC:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-lflags=C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda/cplex2211.lib
+        --with-cplex-lflags=$cplexLib
 "@.Trim()
             $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
             Write-Host "Overlay portfile updated for CPLEX."

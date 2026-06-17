@@ -10,6 +10,7 @@
 #     repositories, then builds and installs them.
 #
 #     You can use the `--install-root=<your-custom-path>` option to specify your custom installation root.
+#     You can use the `--cplex-installer=<path-to-installer>` option to point to your own CPLEX installer.
 #     You can use the `--without-cplex` option to skip the installation of CPLEX.
 #     You can use the `--without-gurobi` option to skip the installation of Gurobi.
 #     You can use the `--without-scip` option to skip the installation of SCIP.
@@ -119,27 +120,25 @@ install_on_linux() {
     CURRENT_INSTALL_FOLDER="${INSTALL_ROOT}/ibm"
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      CPLEX_INSTALLER="cplex_studio2211.linux_x86_64.bin"
-      # the CPLEX_URL is always given by the same prefix, i.e.:
-      # "https://drive.usercontent.google.com/download?id=" +
-      # the id code suffix in the Drive sharing link, i.e.:
-      # https://drive.google.com/file/d/ 12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x /view?usp=sharing
-      CPLEX_URL="https://drive.usercontent.google.com/download?id=12JpuzOAjnuQK6tq2LLolIgmlmKTmOP4x"
-      uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
-      if [ -n "$uuid" ]; then
-        curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+      if [ -z "$cplex_installer" ] || [ ! -f "$cplex_installer" ]; then
+        echo "CPLEX installer not provided. Download IBM ILOG CPLEX Optimization"
+        echo "Studio yourself (e.g. through the IBM Academic Initiative) and either"
+        echo "install it manually or re-run with --cplex-installer=<path-to-installer>."
+        echo "Skipping CPLEX."
+        install_cplex=0
+      else
+        CPLEX_INSTALLER="$cplex_installer"
         chmod u+x "$CPLEX_INSTALLER"
         cat <<EOL > installer.properties
 INSTALLER_UI=silent
 LICENSE_ACCEPTED=TRUE
 USER_INSTALL_DIR=$CPLEX_ROOT
 EOL
-        ./"$CPLEX_INSTALLER" -f ./installer.properties &
+        "$CPLEX_INSTALLER" -f ./installer.properties &
         wait $! # wait for CPLEX installer to finish
         INSTALLER_EXIT_CODE=$?
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-          rm "$CPLEX_INSTALLER" installer.properties
-          #mv ./ibm/ILOG/CPLEX_Studio2211 "$CPLEX_ROOT"
+          rm installer.properties
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/x86-64_linux"
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CPLEX_HOME}/lib/x86-64_linux/static_pic"
@@ -153,9 +152,6 @@ EOL
           echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
           exit 1
         fi
-      else
-        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
-        exit 1
       fi
     else
       echo "CPLEX already installed."
@@ -502,40 +498,32 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=${CPLEX_ROOT}
     if [ ! -d "$CPLEX_ROOT" ]; then
       cd "$INSTALL_ROOT"
-      if [ "$OSX_ARCH" == "x86-64_osx" ]; then # Intel arch
-        CPLEX_INSTALLER="cplex_studio2211.osx.zip"
-        # the CPLEX_URL is always given by the same prefix, i.e.:
-        # "https://drive.usercontent.google.com/download?id=" +
-        # the id code suffix in the Drive sharing link, i.e.:
-        # https://drive.google.com/file/d/ 1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK /view?usp=sharing
-        CPLEX_URL="https://drive.usercontent.google.com/download?id=1_xE4MBohevx3Bb_lpl8euXyYWKS_zcVK"
-        CPLEX_NAME="cplex_studio2211-osx"
-      else # Apple Silicon MX arch
-        CPLEX_INSTALLER="cplex_studio2211.osx.arm64.zip"
-        # the CPLEX_URL is always given by the same prefix, i.e.:
-        # "https://drive.usercontent.google.com/download?id=" +
-        # the id code suffix in the Drive sharing link, i.e.:
-        # https://drive.google.com/file/d/ 1HAEILAjuHXnghVgjQ66jP9sfub-vDq3r /view?usp=sharing
-        CPLEX_URL="https://drive.usercontent.google.com/download?id=1HAEILAjuHXnghVgjQ66jP9sfub-vDq3r"
-        CPLEX_NAME="cplex_studio2211-osx-arm64"
-      fi
-      uuid=$(curl -sL "$CPLEX_URL" | grep -oE 'name="uuid" value="[^"]+"' | cut -d '"' -f 4)
-      if [ -n "$uuid" ]; then
-        curl -o "$CPLEX_INSTALLER" "$CPLEX_URL&export=download&authuser=0&confirm=t&uuid=$uuid"
+      if [ -z "$cplex_installer" ] || [ ! -f "$cplex_installer" ]; then
+        echo "CPLEX installer not provided. Download IBM ILOG CPLEX Optimization"
+        echo "Studio yourself (e.g. through the IBM Academic Initiative) and either"
+        echo "install it manually or re-run with --cplex-installer=<path-to-installer>."
+        echo "Skipping CPLEX."
+        install_cplex=0
+      else
         # Create a temporary directory to extract the files
         TEMP_DIR="/tmp/cplex_install"
         mkdir -p "$TEMP_DIR"
         # Extract directly into the temporary directory
-        sudo unzip "$CPLEX_INSTALLER" -d "$TEMP_DIR"
+        sudo unzip "$cplex_installer" -d "$TEMP_DIR"
+        # Locate the extracted installer app, whose name embeds the CPLEX version
+        CPLEX_APP=$(find "$TEMP_DIR" -maxdepth 1 -name '*.app' | head -n 1)
+        CPLEX_NAME=$(basename "${CPLEX_APP%.app}")
         # Remove macOS quarantine attribute to allow execution of unsigned app
-        sudo xattr -r -d com.apple.quarantine "${TEMP_DIR}/${CPLEX_NAME}.app"
+        sudo xattr -r -d com.apple.quarantine "$CPLEX_APP"
         # Launch the installer
-        sudo "${TEMP_DIR}/${CPLEX_NAME}.app/Contents/MacOS/${CPLEX_NAME}" &
+        sudo "${CPLEX_APP}/Contents/MacOS/${CPLEX_NAME}" &
         wait $! # wait for the installer to finish
         INSTALLER_EXIT_CODE=$?
         if [ $INSTALLER_EXIT_CODE -eq 0 ]; then
-          sudo rm -Rf "$CPLEX_INSTALLER" "$TEMP_DIR"
-          sudo mv "/Applications/CPLEX_Studio2211" "$CPLEX_ROOT"
+          sudo rm -Rf "$TEMP_DIR"
+          # the installer creates /Applications/CPLEX_Studio<ver>
+          CPLEX_INSTALL_DIR=$(find /Applications -maxdepth 1 -type d -name 'CPLEX_Studio*' | head -n 1)
+          sudo mv "$CPLEX_INSTALL_DIR" "$CPLEX_ROOT"
           export CPLEX_HOME="${CPLEX_ROOT}/cplex"
           export PATH="${PATH}:${CPLEX_HOME}/bin/${OSX_ARCH}"
           export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CPLEX_HOME}/lib/${OSX_ARCH}/static_pic"
@@ -543,9 +531,6 @@ install_on_macos() {
           echo "CPLEX installation failed with exit code $INSTALLER_EXIT_CODE."
           exit 1
         fi
-      else
-        echo "Error: unable to find the UUID value in the response. The CPLEX download link could not be constructed."
-        exit 1
       fi
     else
       echo "CPLEX already installed."
@@ -793,6 +778,9 @@ install_smspp=${install_smspp:-1}
 # Default value for installation root
 install_root=""
 
+# Default value for the path to a user-provided CPLEX installer
+cplex_installer=""
+
 # Default value for the maximum number of jobs
 if [ -z "${MAX_JOBS:-}" ]; then
   if command -v nproc >/dev/null 2>&1; then
@@ -846,6 +834,10 @@ do
     ;;
     --install-root=*)
     install_root="${arg#*=}"
+    shift
+    ;;
+    --cplex-installer=*)
+    cplex_installer="${arg#*=}"
     shift
     ;;
     *)

@@ -282,6 +282,11 @@ according to the following options table:
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
+Note that CPLEX is not redistributable, so the scripts do not download it. To
+install it, point the script to your own installer via `--cplex-installer=<path>`
+on Unix or `-cplexInstaller <path>` on Windows. If no installer is provided,
+CPLEX is skipped and the build proceeds with the other solvers.
+
 Otherwise, if you are already inside the cloned repository, you can run the
 script via:
 

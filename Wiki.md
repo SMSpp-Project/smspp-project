@@ -62,6 +62,11 @@ table below:
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
+CPLEX is not redistributable, so the scripts do not download it. To install it,
+point the script to your own installer via `--cplex-installer=<path>` on Unix or
+`-cplexInstaller <path>` on Windows. If no installer is provided, CPLEX is
+skipped and the build proceeds with the other solvers.
+
 > On Windows, HiGHS, StOpt and COIN-OR are pulled in unconditionally by
 > vcpkg from the `vcpkg.json` manifest at configure time, so they don't
 > need (and don't have) a "skip" toggle. CPLEX, Gurobi, SCIP and Torch
@@ -240,7 +245,7 @@ Submodules add the following (nested) requirements:
       default. Optionally requires [CPLEX].
 
 - [MILPSolver] — needs at least one of:
-    - [CPLEX] (minimum 12.8.0; INSTALL scripts pin **22.1.1**)
+    - [CPLEX] (minimum 12.8.0; user-provided installer)
     - [GUROBI] (minimum 10.0.0; INSTALL.sh pins **13.0.1**, INSTALL.ps1 pins **12.0.1**)
     - [SCIP] (minimum 7.0.0; INSTALL scripts pin **9.2.1**, INSTALL.ps1 pins **9.0.0**)
       together with [PaPILO](https://github.com/scipopt/papilo) and TBB
@@ -351,7 +356,9 @@ On Windows the MSVC toolchain provides OpenMP natively.
 
 ### CPLEX
 
-Install CPLEX using IBM's installer. Recommended default paths:
+Install CPLEX using IBM's installer, which you provide yourself. The INSTALL
+scripts can run it for you when pointed at it with `--cplex-installer=<path>`
+(`-cplexInstaller <path>` on Windows). Recommended default paths:
 - macOS: `/Applications/CPLEX_Studio<ver>` (the script moves it under
   `${INSTALL_ROOT}/CPLEX_Studio`);
 - Linux: `/opt/ibm/ILOG/CPLEX_Studio<ver>`;
