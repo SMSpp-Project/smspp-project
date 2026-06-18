@@ -13,7 +13,12 @@
 #                                                                             #
 #    Build this with:                                                         #
 #                                                                             #
-#        $ docker build -t registry.gitlab.com/smspp/smspp-project .          #
+#        $ docker build --no-cache --pull \                                   #
+#              -t registry.gitlab.com/smspp/smspp-project .                   #
+#                                                                             #
+#    The --no-cache --pull flags force a fresh build: INSTALL.sh is           #
+#    fetched at build time, so Docker would otherwise reuse the cached        #
+#    RUN layer and silently keep an outdated image.                           #
 #                                                                             #
 #    Upload with:                                                             #
 #                                                                             #
@@ -23,7 +28,7 @@
 #                                                                             #
 #        $ docker run --rm -it registry.gitlab.com/smspp/smspp-project:latest #
 #                                                                             #
-#    Note: you need to rebuild and upload the image only when this file       #
+#    Note: rebuild and upload the image when this file or INSTALL.sh          #
 #          changes, not when SMS++ changes.                                   #
 #                                                                             #
 #                                Donato Meoli                                 #
