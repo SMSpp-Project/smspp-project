@@ -96,4 +96,4 @@ libPIPSLIB = \
 	$(PIPS_SOLVER_LIBS) \
 	$(PIPS_EXTERNAL_LIBS)
 
-	############################# End of makefile ################################
+############################# End of makefile ################################

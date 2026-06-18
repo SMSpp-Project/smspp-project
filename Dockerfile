@@ -1,17 +1,22 @@
 # --------------------------------------------------------------------------- #
 #    Dockerfile for CI/CD                                                     #
 #                                                                             #
-#    This file contains the commands to build a Docker image containing       #
-#    all the packages needed to build and test the project.                   #
-#    Once built and uploaded in the repository's container registry           #
-#    (See: https://gitlab.com/smspp/smspp-project/container_registry),        #
-#    the image can be fetched and used by the GitLab Runner.                  #
+#    This file contains the commands to build a Docker image with all         #
+#    the packages needed to build and test the project. The same image        #
+#    serves both CIs: GitLab pulls it from its container registry and         #
+#    GitHub Actions from the GitHub one (ghcr.io):                            #
 #                                                                             #
-#    Login to GitLab registry with:                                           #
+#        GitLab : registry.gitlab.com/smspp/smspp-project                     #
+#        GitHub : ghcr.io/smspp-project/smspp-project                         #
+#                                                                             #
+#    On GitHub the image is (re)built and pushed automatically by the         #
+#    .github/workflows/docker-image.yml workflow whenever this file or        #
+#    INSTALL.sh changes. To build and push it by hand for GitLab, log         #
+#    in to the registry with:                                                 #
 #                                                                             #
 #        $ docker login registry.gitlab.com                                   #
 #                                                                             #
-#    Build this with:                                                         #
+#    build this with:                                                         #
 #                                                                             #
 #        $ docker build --no-cache --pull \                                   #
 #              -t registry.gitlab.com/smspp/smspp-project .                   #
@@ -20,11 +25,11 @@
 #    fetched at build time, so Docker would otherwise reuse the cached        #
 #    RUN layer and silently keep an outdated image.                           #
 #                                                                             #
-#    Upload with:                                                             #
+#    upload with:                                                             #
 #                                                                             #
 #        $ docker push registry.gitlab.com/smspp/smspp-project                #
 #                                                                             #
-#    Run (locally) with:                                                      #
+#    run (locally) with:                                                      #
 #                                                                             #
 #        $ docker run --rm -it registry.gitlab.com/smspp/smspp-project:latest #
 #                                                                             #

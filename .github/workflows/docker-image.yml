@@ -1,0 +1,47 @@
+# Builds the CI Docker image from the Dockerfile and pushes it to the GitHub
+# Container Registry (ghcr.io/smspp-project/smspp-project), the GitHub-side
+# counterpart of the GitLab container registry used by the per-module CI.
+#
+# It runs only when the image recipe changes (Dockerfile or INSTALL.sh) or on
+# manual dispatch, never on ordinary code pushes, so the image just sits on the
+# registry with every dependency baked in. Authentication uses the built-in
+# GITHUB_TOKEN (packages: write); no extra secret is needed. Make the resulting
+# package public once so the per-module CI can pull it without credentials.
+
+name: Docker image
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - Dockerfile
+      - INSTALL.sh
+      - .github/workflows/docker-image.yml
+  workflow_dispatch:
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          no-cache: true
+          pull: true
+          tags: ghcr.io/smspp-project/smspp-project:latest
