@@ -52,6 +52,9 @@
 [submodule "UCBlock"]
 	path = UCBlock
 	url = https://gitlab.com/smspp/ucblock.git
+[submodule "pySMSpp"]
+	path = pySMSpp
+	url = https://github.com/SPSUnipi/pySMSpp.git
 [submodule "vcpkg-registry"]
 	path = vcpkg-registry
 	url = https://gitlab.com/smspp/vcpkg-registry
