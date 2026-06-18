@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+# --------------------------------------------------------------------------- #
+# Mirror the SMS++ project from GitLab to the SMSpp-Project org on GitHub.    #
+#                                                                             #
+# For every GitLab-hosted repo of the umbrella -- discovered automatically    #
+# from .gitmodules, plus the umbrella itself -- this script, idempotently:    #
+#   1. creates the matching public GitHub repo if it does not exist;          #
+#   2. configures a native GitLab push mirror to it (Settings -> Repository   #
+#      -> Mirroring repositories) through the GitLab API.                     #
+# Re-running it is safe: existing repos and mirrors are detected and          #
+# skipped, so adding a new submodule only requires running this again.        #
+#                                                                             #
+# Skipped: GitHub-hosted submodules (pySMSpp, org-profile) and the wiki.      #
+#                                                                             #
+# Prerequisites:                                                              #
+#   - gh (GitHub CLI) authenticated:  gh auth login -h github.com             #
+#   - GITLAB_TOKEN : a GitLab Personal Access Token with the `api` scope      #
+#     and Maintainer/Owner role on the projects, generated at:                #
+#       https://gitlab.com/-/user_settings/personal_access_tokens             #
+#                                                                             #
+# Usage:                                                                      #
+#   GITLAB_TOKEN=glpat-xxxxxxxx bash mirror-to-github                         #
+#   DRY_RUN=1 GITLAB_TOKEN=glpat-xxxxxxxx bash mirror-to-github  # preview    #
+#                                                                             #
+#                                 Donato Meoli                                #
+#                         Dipartimento di Informatica                         #
+#                             Universita' di Pisa                             #
+# --------------------------------------------------------------------------- #
+
+set -uo pipefail
+
+: "${GITLAB_TOKEN:?set GITLAB_TOKEN (GitLab PAT, scope api)}"
+GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
+: "${GITHUB_TOKEN:?run 'gh auth login -h github.com' first}"
+
+API="https://gitlab.com/api/v4"
+GH_ORG="SMSpp-Project"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # umbrella root = this script's dir
+GMOD="$REPO/.gitmodules"
+[ -f "$GMOD" ] || { echo "cannot find $GMOD next to this script"; exit 1; }
+
+# Build "<gitlab-path-lowercase> <github-repo-name>" entries: the umbrella first,
+# then every GitLab-hosted submodule found in .gitmodules.
+ENTRIES=( "smspp/smspp-project smspp-project" )
+while read -r key url; do
+  name="${key#submodule.}"; name="${name%.url}"
+  case "$url" in
+    *.wiki.git)   continue ;;   # the wiki stays on GitLab
+    *gitlab.com*) ;;            # GitLab-hosted -> mirror it
+    *)            continue ;;   # GitHub-hosted (pySMSpp, org-profile) -> skip
+  esac
+  glpath=$(printf '%s' "$url" | sed -E 's#https?://[^/]+/##; s#\.git$##')
+  ghname=$(basename "$(git config -f "$GMOD" "submodule.$name.path")")
+  [ "$ghname" = "SMS++" ] && ghname="SMSpp"   # GitHub repo names cannot contain '+'
+  ENTRIES+=( "$glpath $ghname" )
+done < <(git config -f "$GMOD" --get-regexp '\.url$')
+
+for entry in "${ENTRIES[@]}"; do
+  gl="${entry%% *}"; gh="${entry##* }"
+  enc="${gl/\//%2F}"
+  echo "== $gl -> $GH_ORG/$gh"
+
+  # desired GitHub description = GitLab project description + a mirror note
+  gldesc=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc" \
+           | python3 -c "import sys,json;print((json.load(sys.stdin).get('description') or '').strip())" 2>/dev/null)
+  if [ -n "$gldesc" ]; then
+    want="$gldesc | mirror of https://gitlab.com/$gl"
+  else
+    want="Mirror of https://gitlab.com/$gl"
+  fi
+
+  # 1) GitHub repo: create if missing, keep its description in sync with GitLab
+  if gh repo view "$GH_ORG/$gh" >/dev/null 2>&1; then
+    have=$(gh repo view "$GH_ORG/$gh" --json description --jq '.description // ""')
+    if [ "$have" = "$want" ]; then
+      echo "   repo:   exists"
+    elif [ "${DRY_RUN:-0}" = "1" ]; then
+      echo "   repo:   would update description"
+    else
+      gh repo edit "$GH_ORG/$gh" --description "$want" >/dev/null \
+        && echo "   repo:   description synced" || echo "   repo:   description sync FAILED"
+    fi
+  elif [ "${DRY_RUN:-0}" = "1" ]; then
+    echo "   repo:   would create"
+  else
+    gh repo create "$GH_ORG/$gh" --public --description "$want" >/dev/null \
+      && echo "   repo:   created" || { echo "   repo:   FAILED"; continue; }
+  fi
+
+  # 2) GitLab push mirror
+  if curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
+       | grep -q "github.com/${GH_ORG}/${gh}.git"; then
+    echo "   mirror: exists"
+  elif [ "${DRY_RUN:-0}" = "1" ]; then
+    echo "   mirror: would create"
+  else
+    curl -sf -X POST -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+      --data-urlencode "url=https://x-access-token:${GITHUB_TOKEN}@github.com/${GH_ORG}/${gh}.git" \
+      --data "enabled=true" \
+      --data "only_protected_branches=false" \
+      --data "keep_divergent_refs=false" \
+      "$API/projects/$enc/remote_mirrors" >/dev/null \
+      && echo "   mirror: created" || echo "   mirror: FAILED (Maintainer role required?)"
+  fi
+done
+
+echo
+echo "Done."

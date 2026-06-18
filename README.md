@@ -132,6 +132,14 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   solvers from the
   [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
+- [MCFLemonSolver](https://gitlab.com/smspp/mcflemonsolver), a `Solver` for
+  `MCFBlock` based on interfacing the min-cost flow algorithms from the
+  [LEMON project](https://lemon.cs.elte.hu/trac/lemon). It is not a single
+  solver but a whole family of `Solver` variants, obtained by instantiating
+  LEMON's `NetworkSimplex`, `CostScaling`, `CycleCanceling` and
+  `CapacityScaling` algorithms on different graph types and on different
+  (`int`, `long`, `double`) cost/capacity numeric types.
+
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general `MILPSolver` `Solver` that aims at being able to solve any `Block`
   whose abstract representation encodes for a Mixed-Integer Linear Program
@@ -347,7 +355,7 @@ The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
 on requirements and dependencies between modules.
 
 Several CMake configuration options are available, see
-[here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration).
+[here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration).
 
 ### Build and install with makefiles
 
@@ -366,7 +374,7 @@ precisely so that local settings are never accidentally made public and are
 not overwritten when pulling the repository again), and properly setting the 
 corresponding *-ROOT values.
 
-See the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration#location-of-required-libraries)
+See the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration#location-of-external-libraries)
 for further details.
 
 The "core" `SMS++` classes have a makefile for building the corresponding
