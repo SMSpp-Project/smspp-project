@@ -3,15 +3,17 @@
 # --------------------------------------------------------------------------- #
 # Mirror the SMS++ project from GitLab to the SMSpp-Project org on GitHub.    #
 #                                                                             #
-# For every GitLab-hosted repo of the umbrella -- discovered automatically    #
-# from .gitmodules, plus the umbrella itself -- this script, idempotently:    #
+# Discovers every project in the GitLab `smspp` group (not just the ones      #
+# in the umbrella) and, for each, idempotently:                               #
 #   1. creates the matching public GitHub repo if it does not exist;          #
-#   2. configures a native GitLab push mirror to it (Settings -> Repository   #
-#      -> Mirroring repositories) through the GitLab API.                     #
+#   2. keeps the GitHub description in sync with the GitLab one;              #
+#   3. configures a native GitLab push mirror to it (Settings ->              #
+#      Repository -> Mirroring repositories) through the GitLab API.          #
 # Re-running it is safe: existing repos and mirrors are detected and          #
-# skipped, so adding a new submodule only requires running this again.        #
+# skipped, so a new GitLab project only requires running this again.          #
 #                                                                             #
-# Skipped: GitHub-hosted submodules (pySMSpp, org-profile) and the wiki.      #
+# Skipped: archived projects and `pysmspp` (itself a mirror of the            #
+# GitHub-hosted pySMSpp).                                                     #
 #                                                                             #
 # Prerequisites:                                                              #
 #   - gh (GitHub CLI) authenticated:  gh auth login -h github.com             #
@@ -35,37 +37,35 @@ GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
 : "${GITHUB_TOKEN:?run 'gh auth login -h github.com' first}"
 
 API="https://gitlab.com/api/v4"
+GROUP="smspp"
 GH_ORG="SMSpp-Project"
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # umbrella root = this script's dir
-GMOD="$REPO/.gitmodules"
-[ -f "$GMOD" ] || { echo "cannot find $GMOD next to this script"; exit 1; }
 
-# Build "<gitlab-path-lowercase> <github-repo-name>" entries: the umbrella first,
-# then every GitLab-hosted submodule found in .gitmodules.
-ENTRIES=( "smspp/smspp-project smspp-project" )
-while read -r key url; do
-  name="${key#submodule.}"; name="${name%.url}"
-  case "$url" in
-    *.wiki.git)   continue ;;   # the wiki stays on GitLab
-    *gitlab.com*) ;;            # GitLab-hosted -> mirror it
-    *)            continue ;;   # GitHub-hosted (pySMSpp, org-profile) -> skip
-  esac
-  glpath=$(printf '%s' "$url" | sed -E 's#https?://[^/]+/##; s#\.git$##')
-  ghname=$(basename "$(git config -f "$GMOD" "submodule.$name.path")")
-  [ "$ghname" = "SMS++" ] && ghname="SMSpp"   # GitHub repo names cannot contain '+'
-  ENTRIES+=( "$glpath $ghname" )
-done < <(git config -f "$GMOD" --get-regexp '\.url$')
+# Emit, per non-archived group project, a TSV line:
+#   <gitlab/path>\t<github-repo-name>\t<gitlab-description>
+# GitHub repo names use the GitLab project name (CamelCase) for modules, with a
+# few hand-mapped special cases; `pysmspp` is skipped (it is itself a mirror).
+list_projects() {
+  curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+    "$API/groups/$GROUP/projects?per_page=100&include_subgroups=true&archived=false" \
+  | jq -r '
+      { smspp: "SMSpp", "smspp-project": "smspp-project",
+        tests: "tests", tools: "tools", "vcpkg-registry": "vcpkg-registry" } as $special
+      | .[]
+      | select(.path != "pysmspp")
+      | [ .path_with_namespace,
+          ($special[.path] // .name),
+          ((.description // "") | gsub("[\t|\n]"; " ") | gsub("(^ +| +$)"; "")) ]
+      | @tsv'
+}
 
-for entry in "${ENTRIES[@]}"; do
-  gl="${entry%% *}"; gh="${entry##* }"
+while IFS=$'\t' read -r gl gh desc; do
+  [ -n "$gl" ] || continue
   enc="${gl/\//%2F}"
   echo "== $gl -> $GH_ORG/$gh"
 
-  # desired GitHub description = GitLab project description + a mirror note
-  gldesc=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc" \
-           | python3 -c "import sys,json;print((json.load(sys.stdin).get('description') or '').strip())" 2>/dev/null)
-  if [ -n "$gldesc" ]; then
-    want="$gldesc | mirror of https://gitlab.com/$gl"
+  # desired GitHub description = GitLab description + a mirror note
+  if [ -n "$desc" ]; then
+    want="$desc | mirror of https://gitlab.com/$gl"
   else
     want="Mirror of https://gitlab.com/$gl"
   fi
@@ -88,7 +88,7 @@ for entry in "${ENTRIES[@]}"; do
       && echo "   repo:   created" || { echo "   repo:   FAILED"; continue; }
   fi
 
-  # 2) GitLab push mirror
+  # 2) GitLab push mirror to that GitHub repo
   if curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
        | grep -q "github.com/${GH_ORG}/${gh}.git"; then
     echo "   mirror: exists"
@@ -103,7 +103,7 @@ for entry in "${ENTRIES[@]}"; do
       "$API/projects/$enc/remote_mirrors" >/dev/null \
       && echo "   mirror: created" || echo "   mirror: FAILED (Maintainer role required?)"
   fi
-done
+done < <(list_projects)
 
 echo
 echo "Done."

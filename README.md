@@ -120,6 +120,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   also used to provide an implementation of the Primal Proximal Heuristic
   Lagrangian-based math-heuristic.
 
+- [FrankWolfeSolver](https://gitlab.com/smspp/frankwolfesolver), a `Solver`
+  implementing Frank-Wolfe (conditional gradient) algorithms (ported from the
+  Julia package FrankWolfe.jl) for problems whose feasible region is the product
+  of the convex hulls of a number of sub-`Block`, each acting as a Linear
+  Minimization Oracle; it can also solve the corresponding Dantzig-Wolfe
+  relaxation.
+
 - [LukFiBlock](https://gitlab.com/smspp/lukfiblock), a simple `Block` defining
   several test functions from the literature for NonDifferentiable
   Optimization solvers (such as `BundleSolver`).
