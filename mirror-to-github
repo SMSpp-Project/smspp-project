@@ -20,10 +20,15 @@
 #   - GITLAB_TOKEN : a GitLab Personal Access Token with the `api` scope      #
 #     and Maintainer/Owner role on the projects, generated at:                #
 #       https://gitlab.com/-/user_settings/personal_access_tokens             #
+#   - GITHUB_MIRROR_PAT : a GitHub Personal Access Token (classic) with       #
+#     the `repo` and `workflow` scopes; the latter lets the mirror            #
+#     push the .github/workflows files, generated at:                         #
+#       https://github.com/settings/tokens                                    #
 #                                                                             #
 # Usage:                                                                      #
-#   GITLAB_TOKEN=glpat-xxxxxxxx bash mirror-to-github                         #
-#   DRY_RUN=1 GITLAB_TOKEN=glpat-xxxxxxxx bash mirror-to-github  # preview    #
+#   GITLAB_TOKEN=glpat-xxx GITHUB_MIRROR_PAT=ghp_xxx bash mirror-to-github    #
+#   DRY_RUN=1 ... bash mirror-to-github                            # preview  #
+#   ROTATE=1  ... bash mirror-to-github    # rotate existing mirrors' token   #
 #                                                                             #
 #                                 Donato Meoli                                #
 #                         Dipartimento di Informatica                         #
@@ -33,8 +38,8 @@
 set -uo pipefail
 
 : "${GITLAB_TOKEN:?set GITLAB_TOKEN (GitLab PAT, scope api)}"
-GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
-: "${GITHUB_TOKEN:?run 'gh auth login -h github.com' first}"
+: "${GITHUB_MIRROR_PAT:?set GITHUB_MIRROR_PAT (GitHub PAT, scopes repo + workflow)}"
+gh auth token >/dev/null 2>&1 || { echo "run 'gh auth login -h github.com' first" >&2; exit 1; }
 
 API="https://gitlab.com/api/v4"
 GROUP="smspp"
@@ -46,7 +51,7 @@ GH_ORG="SMSpp-Project"
 # few hand-mapped special cases; `pysmspp` is skipped (it is itself a mirror).
 list_projects() {
   curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-    "$API/groups/$GROUP/projects?per_page=100&include_subgroups=true&archived=false" \
+    "$API/groups/$GROUP/projects?per_page=100&include_subgroups=true&archived=false&visibility=public" \
   | jq -r '
       { smspp: "SMSpp", "smspp-project": "smspp-project",
         tests: "tests", tools: "tools", "vcpkg-registry": "vcpkg-registry" } as $special
@@ -88,20 +93,42 @@ while IFS=$'\t' read -r gl gh desc; do
       && echo "   repo:   created" || { echo "   repo:   FAILED"; continue; }
   fi
 
-  # 2) GitLab push mirror to that GitHub repo
-  if curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
-       | grep -q "github.com/${GH_ORG}/${gh}.git"; then
+  # 2) GitLab push mirror to that GitHub repo. With ROTATE=1 an existing
+  #    mirror is deleted and recreated, so its embedded GitHub token is
+  #    refreshed (needed e.g. to grant the `workflow` scope).
+  mid=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
+        | jq -r --arg u "github.com/${GH_ORG}/${gh}.git" \
+            'first(.[] | select(.url | contains($u)) | .id) // empty')
+
+  if [ -n "$mid" ] && [ "${ROTATE:-0}" != "1" ]; then
     echo "   mirror: exists"
   elif [ "${DRY_RUN:-0}" = "1" ]; then
-    echo "   mirror: would create"
+    [ -n "$mid" ] && echo "   mirror: would rotate" || echo "   mirror: would create"
   else
+    if [ -n "$mid" ]; then
+      curl -sf -X DELETE -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        "$API/projects/$enc/remote_mirrors/$mid" >/dev/null \
+        || echo "   mirror: delete FAILED"
+    fi
     curl -sf -X POST -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-      --data-urlencode "url=https://x-access-token:${GITHUB_TOKEN}@github.com/${GH_ORG}/${gh}.git" \
+      --data-urlencode "url=https://x-access-token:${GITHUB_MIRROR_PAT}@github.com/${GH_ORG}/${gh}.git" \
       --data "enabled=true" \
       --data "only_protected_branches=false" \
       --data "keep_divergent_refs=false" \
       "$API/projects/$enc/remote_mirrors" >/dev/null \
-      && echo "   mirror: created" || echo "   mirror: FAILED (Maintainer role required?)"
+      && echo "   mirror: $([ -n "$mid" ] && echo rotated || echo created)" \
+      || echo "   mirror: FAILED (Maintainer role required?)"
+  fi
+
+  # 3) trigger an immediate sync: a (re)created push mirror stays idle until
+  #    the next push, so without this it would not propagate existing commits
+  if [ "${DRY_RUN:-0}" != "1" ]; then
+    sid=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
+          | jq -r --arg u "github.com/${GH_ORG}/${gh}.git" \
+              'first(.[] | select(.url | contains($u)) | .id) // empty')
+    [ -n "$sid" ] && curl -sf -o /dev/null -X POST -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        "$API/projects/$enc/remote_mirrors/$sid/sync" \
+        && echo "   mirror: sync triggered"
   fi
 done < <(list_projects)
 

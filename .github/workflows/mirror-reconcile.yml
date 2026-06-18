@@ -1,0 +1,33 @@
+# Keeps the GitLab -> GitHub mirrors self-maintaining: once a day it lists the
+# public projects of the GitLab `smspp` group and, for any that is missing on
+# GitHub, creates the repo and the native push mirror, then triggers a sync.
+# Existing repos are left untouched (the native mirror already syncs them on
+# every push), so a newly added GitLab project shows up on GitHub on its own.
+#
+# One-time setup: add two repository secrets to this repo (Settings -> Secrets
+# and variables -> Actions):
+#   - GITLAB_TOKEN       : GitLab PAT, scope `api`
+#   - GITHUB_MIRROR_PAT  : GitHub PAT (classic), scopes `repo` + `workflow`
+# GitLab forces an expiry (<= 1 year) on its PAT, so GITLAB_TOKEN must be
+# refreshed once a year; the GitHub PAT can be set with no expiry.
+
+name: Mirror reconcile
+
+on:
+  schedule:
+    - cron: '37 4 * * *'   # daily, off-peak to limit GitHub's cron delay
+  workflow_dispatch:
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the umbrella (for the mirror-to-github script)
+        uses: actions/checkout@v4
+
+      - name: Reconcile mirrors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_MIRROR_PAT }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITHUB_MIRROR_PAT: ${{ secrets.GITHUB_MIRROR_PAT }}
+        run: bash mirror-to-github
