@@ -514,10 +514,6 @@ projects for their respective authors.
   Dipartimento di Informatica  
   Università di Pisa
 
-- **Rafael Durbano Lobato**  
-  Dipartimento di Informatica  
-  Università di Pisa
-
 - **Donato Meoli**  
   Dipartimento di Informatica  
   Università di Pisa
@@ -525,6 +521,10 @@ projects for their respective authors.
 ### Main past contributors
 
 - **Niccolò Iardella**  
+  Dipartimento di Informatica  
+  Università di Pisa
+
+- **Rafael Durbano Lobato**  
   Dipartimento di Informatica  
   Università di Pisa
 
