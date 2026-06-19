@@ -14,6 +14,10 @@
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
     You can use the `-withoutTorch` option to skip the installation of Torch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
+    You can use the `-withoutDefenderExclusions` option to skip adding the Windows Defender path
+    exclusions for the vcpkg and SMS++ directories (added by default to avoid spurious
+    "Permission denied" / "File exists" errors when an antivirus locks or quarantines freshly
+    built executables; if you run a third-party antivirus you must exclude those paths in it too).
 
     .AUTHOR
     Donato Meoli
@@ -49,6 +53,7 @@ param(
     [switch]$withoutTorch,
     [switch]$withoutSMSpp,
     [switch]$updatevcpkg,
+    [switch]$withoutDefenderExclusions,
     [string]$installRoot = "C:\", # Default if not provided
     [string]$cplexInstaller = "" # Path to a user-provided CPLEX installer
 )
@@ -84,6 +89,47 @@ function Add-ToSystemPath
         Write-Host "Added to system Path: $PathToAdd"
     } else {
         Write-Host "Already in system Path: $PathToAdd"
+    }
+}
+
+function Add-DefenderExclusions
+{
+    param(
+        [Parameter(Mandatory=$true)][string[]]$Paths
+    )
+
+    # Antivirus real-time scanning can lock or quarantine freshly built, unsigned executables
+    # under the build trees (e.g. OpenBLAS getarch_2nd.exe, bkbench.exe), making CMake/vcpkg
+    # fail to copy them ("Permission denied" / "File exists"). We exclude the build directories
+    # from Windows Defender. CLI only, so it works on CI. Add-MpPreference only drives Defender:
+    # it fails (0x800106ba) when a third-party antivirus (Avast, etc.) is the active provider,
+    # in which case the user must add the same exclusions in their own antivirus, or disable it.
+    if (Get-Command Add-MpPreference -ErrorAction SilentlyContinue) {
+        foreach ($p in $Paths) {
+            try {
+                Add-MpPreference -ExclusionPath $p -ErrorAction Stop
+                Write-Host "Added Windows Defender exclusion: $p"
+            } catch {
+                Write-Warning "Could not add Defender exclusion for ${p}: $($_.Exception.Message)"
+            }
+        }
+    } else {
+        Write-Host "Add-MpPreference not available; skipping Windows Defender exclusions."
+    }
+
+    # If a third-party antivirus is active, Defender exclusions do not apply to it: warn loudly.
+    try {
+        $thirdPartyAv = Get-CimInstance -Namespace 'root/SecurityCenter2' -ClassName AntiVirusProduct -ErrorAction Stop |
+                Where-Object { $_.displayName -and $_.displayName -notmatch 'Windows Defender' }
+        if ($thirdPartyAv) {
+            $names = ($thirdPartyAv.displayName | Sort-Object -Unique) -join ', '
+            Write-Warning "Third-party antivirus detected ($names); Windows Defender exclusions do not cover it."
+            Write-Warning "Exclude these paths in your antivirus, or disable it during the build, to avoid"
+            Write-Warning "'Permission denied' / 'File exists' errors on freshly built executables:"
+            foreach ($p in $Paths) { Write-Warning "    $p" }
+        }
+    } catch {
+        # root/SecurityCenter2 is unavailable on Windows Server / CI; nothing to warn about there.
     }
 }
 
@@ -217,6 +263,11 @@ if ($OS -eq "Win32NT")
     Set-Location "C:\"
 
     Write-Host "Starting the installation process on Windows..."
+
+    # Add Windows Defender path exclusions for the build directories before any build runs
+    if (-not $withoutDefenderExclusions) {
+        Add-DefenderExclusions -Paths @($env:VCPKG_ROOT, "$installRoot\smspp-project")
+    }
 
     # Attempt to locate an existing Visual Studio installation (must have C++ tools).
     # If not found (or vswhere not available), download & install VS Community, then re-check.
