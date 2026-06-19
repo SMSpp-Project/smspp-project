@@ -1,287 +1,182 @@
 # CFL Scenario Reduction Test
 
-This directory contains the CFL-specific implementation of the scenario
-reduction test framework, along with tools for generating and managing
-scenarios for Capacitated Facility Location (CFL) problems.
+This directory contains the Capacitated Facility Location (CFL) test for
+scenario reduction. A single self contained executable solves the full
+two stage stochastic problem, runs a chosen scenario reduction method, solves
+the reduced problem, and reports the in sample gap between them. A scenario
+generator and a batch sweep script complete the workflow.
 
 ## Components
 
-### Test Executables
+### Executables
 
-- `cfl_scenario_reduction_test`: Main test executable for heuristic scenario
-  reduction methods (Baseline, Dupacova, BestFit, FirstFit)
-- `cfl_cssc_test`: Test executable for the CSSC (Consistent Scenario Subset
-  Clustering) reduction algorithm
-- `cfl_full_tss`: Solves the full Two-Stage Stochastic CFL without scenario
-  reduction, used as reference baseline
-- `CFLScenarioGenerator`: Standalone scenario generator and instance validator
+- `cfl_scenario_reduction_test`: the main test. In ONE run it loads a CFL
+  instance, loads a scenario set, solves the full two stage problem (N
+  scenarios), applies a reduction method to pick K representatives, solves the
+  reduced problem, and prints the objectives plus the in sample gap and the
+  reduction time. All methods (including cssc) go through this one binary.
+- `CFLScenarioGenerator`: standalone tool that generates a `DiscreteScenarioSet`
+  of customer demand scenarios for a CFL instance.
 
-### Source Files
+### Source files
 
-- `CFLCSSCScenarioReductionTest.cpp`: CSSC algorithm entry point
-- `CFLTwoStageStochasticTest.cpp`: Full TSS solver entry point
-- `cfl_scenario_reduction_main.cpp`: Entry point for heuristic reduction methods
-- `CFLScenarioReductionTest.{h,cpp}`: CFL-specific test implementation shared
-  by all executables
+- `CFLScenarioReductionTest.cpp`: implementation of `cfl_scenario_reduction_test`
+  (the standalone main, scenario loading, TSSB build, reduction, reporting).
+- `CFLScenarioGenerator.cpp`: implementation of `CFLScenarioGenerator`.
+
+Note: the generic, problem agnostic solvers live one level up in
+`tests/ScenarioReduction/src` (`ScenarioReductionSolver` for the heuristics and
+`CSSCScenarioReductionSolver` for CSSC). They are compiled into this test and
+shared with the UC test.
 
 ### Configuration
 
-- `BSPar_CPLEX.txt`: CPLEX solver parameters
+Solver configuration files live in the parent directory
+`tests/ScenarioReduction`:
+
+- `BSPar_CPLEX.txt`: CPLEX solver parameters (default)
 - `BSPar_HiGHS.txt`: HiGHS solver parameters
 - `BSPar_GRB.txt`: Gurobi solver parameters
 - `BSPar_SCIP.txt`: SCIP solver parameters
 
-## Important: Scenario Management
+## What the test measures
 
-The test framework requires pre-generated scenarios. Scenarios must be
-generated using the `CFLScenarioGenerator` tool and stored in the
-`scenarios/CFL/` directory before running tests.
+The extensive form built here is a genuine two stage stochastic program: the
+facility open decisions `y` are first stage (here and now) variables shared by
+all scenarios through non anticipativity constraints, while the customer
+assignment is the second stage (recourse) that adapts to each scenario demand.
 
-## Directory Structure
+The test reports:
 
-```
-CFL/
-├── scenarios/                  # Pre-generated scenario files
-│   └── CFL/
-│       ├── cap41_scenarios.nc4
-│       ├── cap42_scenarios.nc4
-│       └── ...
-├── cfl_scenario_reduction_test # Heuristic reduction test executable
-├── cfl_cssc_test               # CSSC reduction test executable
-├── cfl_full_tss                # Full TSS solver executable
-└── CFLScenarioGenerator        # Scenario generator and validator tool
-```
+- `Full_Obj`: optimum of the full problem over all N scenarios.
+- `Reduced_Obj`: optimum of the reduced problem over the K selected scenarios.
+- `Gap`: the in sample gap, `|Reduced_Obj - Full_Obj| / |Full_Obj|`.
+
+The gap measures how close the reduced objective value is to the full one. It
+is an in sample quantity, computed on the same K scenarios the decision was
+built on.
+
+## Reduction methods
+
+Selected with `-m`:
+
+- `baseline`: simple representative selection
+- `dupacova`: Dupacova forward selection (greedy Kantorovich/Wasserstein)
+- `bestfit`: best fit assignment heuristic
+- `firstfit`: first fit assignment heuristic
+- `cssc`: Consistent Scenario Subset Clustering (solves an internal MILP; slower
+  than the heuristics but builds a cost aware clustering)
 
 ## Building
 
-All targets are defined in `CMakeLists.txt` and built through the SMS++ CMake
-system:
+Targets are built through the SMS++ CMake system:
 
 ```bash
 cd <build-dir>
 cmake ..
-cmake --build . --target CFLScenarioGenerator \
-                --target cfl_scenario_reduction_test \
-                --target cfl_cssc_test \
-                --target cfl_full_tss -j$(nproc)
+cmake --build . --target cfl_scenario_reduction_test --target CFLScenarioGenerator -j$(nproc)
 ```
+
+The binaries are produced under
+`<build-dir>/tests/ScenarioReduction/CFL`.
 
 ## Workflow
 
-### Step 1: Convert Instances to netCDF (once)
+### Step 1: convert an instance to netCDF (once)
 
-Raw ORLib `.txt` instances must be converted to netCDF format before use.
-Use the `txt2nc4` tool provided by `CapacitatedFacilityLocationBlock`:
+Raw ORLib `.txt` instances must be converted to netCDF before use, with the
+`txt2nc4` tool provided by `CapacitatedFacilityLocationBlock`:
 
 ```bash
-# Convert a single instance
 txt2nc4 cap41.txt 0 cap41.nc4
-
-# Convert all ORLib instances at once
-for f in <source-dir>/data/txt/ORLib/*.txt; do
-    name=$(basename "$f" .txt)
-    txt2nc4 "$f" 0 <source-dir>/data/nc4/ORLib/${name}.nc4
-done
 ```
 
-### Step 2: Generate Scenarios
-
-Before running any tests, generate scenarios for your instances:
+### Step 2: generate scenarios
 
 ```bash
-# Generate scenarios for a single instance
-./CFLScenarioGenerator -i ../../../CapacitatedFacilityLocationBlock/data/nc4/ORLib/cap41.nc4
-
-# The generator automatically saves to: scenarios/CFL/cap41_scenarios.nc4
+./CFLScenarioGenerator -i <instance.nc4> -o <scenarios.nc4> -n 100 -v 0.1 -s 42
 ```
 
 Options:
-- `-i`, `--instance`: Path to base CFL instance (required)
-- `-n`, `--scenarios`: Number of scenarios to generate (default: 20)
-- `-v`, `--variation`: Variation factor for demands (default: 0.2)
-- `-s`, `--seed`: Random seed for reproducibility (default: 42)
-- `-o`, `--output`: Output file path
-- `--no-validate`: Skip feasibility validation
-- `--validate-only`: Only validate instance, don't generate scenarios
-- `--verbose`: Set verbosity level (0-2)
-- `--timeout`: Timeout for validation (seconds)
 
-### Step 3: Run Tests
+- `-i`, `--instance`: base CFL instance (required)
+- `-o`, `--output`: output scenario file
+- `-n`, `--scenarios`: number of scenarios (default 20)
+- `-v`, `--variation`: demand variation factor (default 0.2)
+- `-s`, `--seed`: random seed
+- `--no-validate`: skip the feasibility validation step (faster, fully
+  deterministic for a given seed)
 
-#### Heuristic scenario reduction
-
-```bash
-# Run test with default settings
-./cfl_scenario_reduction_test \
-    -i ../../../CapacitatedFacilityLocationBlock/data/nc4/ORLib/cap41.nc4 \
-    -n 20 -r 5 -m dupacova -c BSPar_CPLEX.txt -v 1
-
-# The test will automatically load scenarios from: scenarios/CFL/cap41_scenarios.nc4
-```
-
-Available methods via `-m`: `baseline`, `dupacova`, `bestfit`, `firstfit`.
-
-By default the executable solves both the full TSS (N scenarios) and the
-reduced TSS (K scenarios) and prints a comparison. To skip the full TSS solve
-(e.g. when `Full_Obj` is already known from `cfl_full_tss`), pass
-`--skip-full`:
+### Step 3: run one test
 
 ```bash
 ./cfl_scenario_reduction_test \
-    -i cap41.nc4 -f scenarios/CFL/cap41_scenarios.nc4 \
-    -n 50 -r 5 -m dupacova -c BSPar_CPLEX.txt -v 1 --skip-full
+    -i <instance.nc4> -f <scenarios.nc4> \
+    -n 100 -r 5 -m cssc -c ../BSPar_CPLEX.txt
 ```
 
-#### CSSC scenario reduction
+Options:
+
+- `-i`: CFL instance netCDF file (required)
+- `-f`: scenario netCDF file (required)
+- `-n`: limit the total number of scenarios to N (default: all in the file)
+- `-r`: number of reduced scenarios K (default 5)
+- `-m`: reduction method (default `dupacova`)
+- `-c`: solver config file (default `BSPar_CPLEX.txt`)
+- `-v`: verbosity (default 0)
+
+Example output:
+
+```
+Full TSS  (N=100): 1.0301e+06  (11.45s)
+Reduced TSS (K=5): 1.0234e+06  (0.24s)
+Reduction time: 0.30s
+Gap (absolute): 6785.5  (0.659%)
+```
+
+## Batch experiments
+
+`run_cfl_tests.sh` sweeps over instances, N, K and methods, then prints an
+aligned table and writes a CSV. It uses only `cfl_scenario_reduction_test`
+(which already solves both the full and the reduced problem), and parses the
+gap and timings straight from its output.
 
 ```bash
-./cfl_cssc_test \
-    -i ../../../CapacitatedFacilityLocationBlock/data/nc4/ORLib/cap41.nc4 \
-    -f scenarios/CFL/cap41_scenarios.nc4 \
-    -n 20 -k 5 -c BSPar_CPLEX.txt -v 1
+bash run_cfl_tests.sh
+bash run_cfl_tests.sh --instances "cap41 cap121" --n "50 100" --k "5 10" \
+     --methods "dupacova cssc" --solver BSPar_CPLEX.txt --seed 42
 ```
 
-CSSC uses `-k` (not `-r`) for the number of reduced scenarios. It solves an
-internal MILP, so it is slower than heuristic methods but typically achieves
-a smaller optimality gap. The `--skip-full` flag is also supported:
+Flags: `--instances --n --k --methods --solver --seed --variation --output`.
 
-```bash
-./cfl_cssc_test \
-    -i cap41.nc4 -f scenarios/CFL/cap41_scenarios.nc4 \
-    -n 50 -k 5 -c BSPar_CPLEX.txt -v 1 --skip-full
-```
+The defaults are set in the configuration block at the top of the script.
 
-#### Full Two Stage Stochastic (reference baseline)
+## Output format
 
-```bash
-./cfl_full_tss \
-    -i ../../../CapacitatedFacilityLocationBlock/data/nc4/ORLib/cap41.nc4 \
-    -f scenarios/CFL/cap41_scenarios.nc4 \
-    -n 20 -c BSPar_CPLEX.txt -v 1
-```
+The table and the CSV have one row per `(instance, N, K, method)` with columns:
 
-## Batch Experiments
+- `Full_Obj`: full problem objective (N scenarios)
+- `Reduced_Obj`: reduced problem objective (K scenarios)
+- `Gap_Pct`: in sample gap percentage
+- `RedTime_s`: time to solve the reduced problem (seconds)
+- `AlgoTime_s`: time of the reduction algorithm itself (seconds)
 
-### run_experiments.sh
+`AlgoTime_s` is the genuine computational cost of the reduction method. It is
+tiny for the heuristics and large for cssc (which builds an N by N cost matrix
+and solves a partitioning MILP).
 
-Runs each `(instance, N, K, method)` combination once. The script follows
-this execution order for a fair and efficient comparison:
+## Scenario characteristics
 
-```
-for each (instance, N):
-    Step 1: CFLScenarioGenerator   generate scenario file once
-    Step 2: cfl_full_tss           solve full TSS once → Full_Obj
-    Step 3: for each (K, method):
-                 cfl_*_test --skip-full   solve reduced TSS only
-```
+`CFLScenarioGenerator` perturbs the base customer demands into clusters
+(normal, high, low, mixed) controlled by the variation factor. With validation
+enabled it checks single sourcing feasibility; with `--no-validate` it is fast
+and fully reproducible for a fixed seed.
 
-The full TSS is solved **once per (instance, N)** and its objective is reused
-across all methods and K values. Each reduction method uses `--skip-full` to
-avoid redundant full solves, ensuring a fair and consistent comparison.
+## Notes
 
-```bash
-cd <build-dir>/tests/ScenarioReduction/CFL
-bash <source-dir>/tests/ScenarioReduction/CFL/run_experiments.sh
-```
-
-The script supports two usage modes. The configuration section at the top of
-the file defines the default values:
-
-```bash
-INSTANCES="cap41 cap42"
-N_VALUES="50 100"
-K_VALUES="5 10"
-METHODS="baseline dupacova bestfit firstfit cssc"
-SOLVERS="BSPar_CPLEX.txt"
-SEED=42
-OUTPUT_CSV="results.csv"
-```
-
-These defaults can also be overridden directly from the terminal without
-editing the file:
-
-```bash
-# Override specific parameters
-./run_experiments.sh --instances "cap41" --n "50 100" --k "5 10" \
-                     --methods "cssc dupacova" --solver BSPar_CPLEX.txt
-
-# Run on all available ORLib instances
-./run_experiments.sh --instances all --n 100 --k 10
-
-# Show available options
-./run_experiments.sh --help
-```
-
-Results are printed to the console and saved to `results.csv` with columns:
-`Instance, N, K, Method, Solver, Full_Obj, Reduced_Obj, Gap_Pct, Red_us, RedAlgo_us`
-
-## Usage Details
-
-### Instance Validation
-
-```bash
-# Validate a single instance (using CFLScenarioGenerator in validate-only mode)
-./CFLScenarioGenerator --instance instance.nc4 --validate-only
-
-# Set time limit for validation
-./CFLScenarioGenerator --instance instance.nc4 --validate-only --timeout 60 --verbose 2
-```
-
-The validator checks if CFL instances are feasible with single-sourcing
-constraints.
-
-### Single Instance Generation
-
-```bash
-./CFLScenarioGenerator -i instance.nc4 -n 100 -v 0.2 -o output.nc4
-```
-
-## Output Format
-
-### Scenario files (CFLScenarioGenerator)
-
-Generated scenarios are saved as `DiscreteScenarioSet` in netCDF format:
-
-- Scenarios: 2D array of demand values
-- Probabilities: Uniform probability distribution
-- Metadata: Generator info, variation factor, timestamp
-
-### Experiment results (run_experiments.sh)
-
-Results are saved to a CSV file with one row per `(instance, N, K, method)`
-combination:
-
-- `Full_Obj`: objective value of the full TSS problem (N scenarios), solved
-  once per (instance, N) by `cfl_full_tss` and shared across all methods
-- `Reduced_Obj`: objective value of the reduced TSS problem (K scenarios)
-- `Gap_Pct`: relative gap between full and reduced objectives (%)
-- `Red_us`: time to solve the reduced TSS problem (µs)
-- `RedAlgo_us`: time to run the reduction algorithm itself (µs)
-
-## Scenario Characteristics
-
-The generator creates four types of demand clusters:
-
-- Normal: Small variations around original demands (±10%)
-- High: Increased demand scenarios (1.3x–1.5x)
-- Low: Decreased demand scenarios (0.5x–0.7x)
-- Mixed: Regional variations (half high, half low)
-
-## Timing Notes
-
-All timing values are reported in **microseconds (µs)**:
-- `Red_us`: time to solve the reduced TSS problem
-- `RedAlgo_us`: time to run the reduction algorithm itself
-
-For heuristic methods, `RedAlgo_us` is typically under 1000 µs. For CSSC,
-`RedAlgo_us` can range from thousands to millions of µs depending on N and K,
-since it involves solving an internal MILP subproblem.
-
-## Integration
-
-Generated scenarios can be used with:
-
-- `cfl_scenario_reduction_test` for heuristic scenario reduction experiments
-- `cfl_cssc_test` for CSSC scenario reduction experiments
-- `cfl_full_tss` for full Two-Stage Stochastic CFL solving
-- Any tool that accepts `DiscreteScenarioSet` format
+- The CFL is solved in the unsplittable (single sourcing) version, so a too
+  aggressive reduction can produce a first stage design that is infeasible or
+  costly on the full scenario set.
+- cssc is much slower than the heuristics. Use a modest N when including it.
+- The in sample gap is not monotone in K and does not by itself rank methods by
+  decision quality; it only measures the objective value approximation.

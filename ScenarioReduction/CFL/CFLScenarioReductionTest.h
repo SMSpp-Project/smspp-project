@@ -60,7 +60,7 @@ namespace ScenarioReductionTesting {
  /*------------------------ PROTECTED METHODS ------------------------------*/
  /*--------------------------------------------------------------------------*/
  protected:
- // ==================== Implementation of Pure Virtual Methods ==============
+ //  Implementation of Pure Virtual Methods 
 
  /** @brief Load CFL instance from file
   * @param path Path to the CFL instance file

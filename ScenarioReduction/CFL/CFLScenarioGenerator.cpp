@@ -4,7 +4,7 @@
 /** @file
  * Standalone scenario generator for Capacitated Facility Location (CFL)
  * problems. Generates and validates stochastic demand scenarios, saving them as
- * DiscreteScenarioSet in netCDF format.
+ * DiscreteScenarioSet in netCDF format
  *
  * \author Benoît Tran \n
  *         Dipartimento di Informatica \n
@@ -13,8 +13,6 @@
  * \copyright &copy; by Benoît Tran
  */
 /*--------------------------------------------------------------------------*/
-
-#include "CFLScenarioReductionTest.h"
 
 #include <chrono>
 #include <filesystem>
@@ -245,7 +243,7 @@ vector< vector< double > > generate_clustered_scenarios(
  int scenarios_per_cluster = (num_scenarios - 1) / 5;
  int remaining = (num_scenarios - 1) % 5;
 
- // Cluster 0: Around original (small variation ±10%)
+ // Cluster 0: Around original (small variation 10%)
  uniform_real_distribution<> cluster0_dist(
    1.0 - variation_factor * 0.5 ,
    1.0 + variation_factor * 0.5 );
@@ -378,12 +376,18 @@ bool validate_scenario(
 
     int result = solver->compute( false );
 
-    if( result == Solver::kOK ) {
-     success = true;
+    // A scenario is treated as valid (feasible) unless the solver *proves* it
+    // infeasible/unbounded.  Crucially, a wall-clock timeout (kStopTime) must
+    // NOT be treated as invalid: otherwise the verdict depends on machine load
+    // / solver threading / timing, which makes regeneration, and hence the
+    // whole scenario set, non-deterministic across runs with the same seed.
+    // Infeasibility, by contrast, is a deterministic mathematical fact.
+    success = ( result != Solver::kInfeasible &&
+                result != Solver::kUnbounded );
+
+    if( result == Solver::kOK && config.verbose >= 2 ) {
      double obj = solver->get_ub( );
-     if( config.verbose >= 2 ) {
-      cout << " (obj: " << fixed << setprecision( 2 ) << obj << ")";
-     }
+     cout << " (obj: " << fixed << setprecision( 2 ) << obj << ")";
     }
    }
   }

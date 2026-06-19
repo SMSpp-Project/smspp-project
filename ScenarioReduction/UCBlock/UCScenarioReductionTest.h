@@ -2,40 +2,35 @@
 /*---------------- File UCScenarioReductionTest.h -------------------------*/
 /*--------------------------------------------------------------------------*/
 /** @file
- * Header file for the Unit Commitment (UC) specific implementation of the
- * scenario reduction test framework.
+ * UC-specific implementation of AbstractScenarioReductionTest.
+ *
+ * Implements the two pure virtual methods added by the refactoring:
+ *  - create_srb()                  builds a ScenarioReductionBlock
+ *  - build_tssb_for_current_pool() builds a TSSB from the current pool
+ *
+ * Everything else (caching, VPI, warmstart, print_results) is inherited
+ * from AbstractScenarioReductionTest.
  *
  * \author Benoît Tran \n
  *         Dipartimento di Informatica \n
  *         Universita' di Pisa \n
  *
- * \copyright &copy; by Benoît Tran */
+ * \copyright &copy; by Benoît Tran
+ */
 /*--------------------------------------------------------------------------*/
 
 #ifndef __UCScenarioReductionTest
 #define __UCScenarioReductionTest
-/* self-identification: #endif at the end of the file */
-
-/*--------------------------------------------------------------------------*/
-/*------------------------------ INCLUDES ----------------------------------*/
-/*--------------------------------------------------------------------------*/
 
 #include "AbstractScenarioReductionTest.h"
+#include "CSSCScenarioReductionSolver.h"
+#include "IntermittentUnitBlock.h"
+#include "ThermalUnitBlock.h"
+#include "UCBlock.h"
+
 #include <memory>
 #include <string>
 #include <vector>
-
-/*--------------------------------------------------------------------------*/
-/*-------------------------- NAMESPACE -------------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-namespace SMSpp_di_unipi_it {
-// Forward declarations
- class UCBlock;
- class IntermittentUnitBlock;
- class StochasticBlock;
- class ECNetworkBlock;
-} // namespace SMSpp_di_unipi_it
 
 namespace ScenarioReductionTesting {
 
@@ -44,123 +39,82 @@ namespace ScenarioReductionTesting {
 /*--------------------------------------------------------------------------*/
 /*---------------------- CLASS UCScenarioReductionTest ---------------------*/
 /*--------------------------------------------------------------------------*/
-/** @class UCScenarioReductionTest
- *
- * UC-specific implementation of AbstractScenarioReductionTest.
- *
- * This class implements scenario reduction testing for Unit Commitment
- * problems, handling UC instances with demand and/or renewable generation
- * uncertainty. It supports various UC instance types including:
- * - Pure thermal UC instances
- * - Hydro-thermal UC instances
- * - Energy Community UC instances with distributed resources
- *
- * The class manages the creation of stochastic UC problems and evaluates
- * scenario reduction quality for UC-specific uncertain parameters.
- */
+
  class UCScenarioReductionTest : public AbstractScenarioReductionTest {
 
- /*--------------------------------------------------------------------------*/
- /*----------------------- PUBLIC METHODS -----------------------------------*/
- /*--------------------------------------------------------------------------*/
  public:
- /// Constructor
- UCScenarioReductionTest( ) = default;
 
- /// Destructor
- virtual ~UCScenarioReductionTest( ) = default;
+  UCScenarioReductionTest()  = default;
+  ~UCScenarioReductionTest() override = default;
 
- /*--------------------------------------------------------------------------*/
- /*----------------------- PROTECTED METHODS --------------------------------*/
- /*--------------------------------------------------------------------------*/
  protected:
- /// Load a UC problem instance from file
- /** Loads a UC instance from netCDF format, supporting various UC types:
-  * - Classic thermal UC (T-Ramp instances)
-  * - Hydro-thermal UC (HT-Ramp instances)
-  * - Energy Community UC (EC_Data instances)
-  *
-  * Sets up base_block and stochastic_block members.
-  *
-  * @param path Path to the UC instance file (netCDF format)
-  * @throws runtime_error if file cannot be loaded or is invalid
-  */
- void load_problem_instance( const std::string & path ) override;
 
- /// Create a TwoStageStochasticBlock netCDF file for UC
- /** Creates a two-stage stochastic UC problem with the current scenario_set.
-  * The first stage typically includes unit commitment decisions,
-  * while the second stage handles dispatch under uncertainty.
-  *
-  * @param filename Output filename for the TSSB netCDF file
-  * @throws runtime_error if file cannot be created
-  */
- void create_twostage_netcdf( const std::string & filename ) override;
+  // ===================== Pure virtuals from AbstractSRT ==================
 
- /// Get the problem type identifier
- /** @return "UC" */
- std::string get_problem_type( ) const override;
+  /** Load base UCBlock instance. Sets base_block and stochastic_block */
+  void load_problem_instance( const std::string & path ) override;
 
- /// Get the directory for storing UC scenarios
- /** @return "../scenarios/UCBlock/" */
- std::string get_scenarios_directory( ) const override;
+  /** Build a fully configured ScenarioReductionBlock.
+   *
+   *  Always sets: scenario_generator, sub_problem_block (synthetic CFLB).
+   *  For CSSC also sets: stochastic_block (TSSB), scenario_applicator
+   *
+   *  Owns the synthetic CFLB and (for CSSC) the TSSB through member
+   *  variables so they stay alive as long as the SRB is alive
+   */
+  std::unique_ptr< ScenarioReductionBlock >
+  create_srb( int K , const std::string & method ) override;
 
- /// Print UC-specific help information
- /** Displays additional help for UC-specific options and examples.
-  *
-  * @param program_name Name of the executable for example commands
-  */
- void print_additional_help( const char * program_name );
+  /** Build a TSSB from the base UCBlock + current scenario_set pool */
+  std::unique_ptr< TwoStageStochasticBlock >
+  build_tssb_for_current_pool( const std::string & tmp ) override;
 
- /// Override to check for demand scenarios and throw error
- /** This method is called by the base class when loading scenarios.
-  * We override it to detect if demand scenarios are being used
-  * and throw an error since they're not implemented yet.
-  */
- void validate_scenario_dimension( size_t scenario_dim );
+  /** @return "UC" */
+  std::string get_problem_type() const override { return "UC"; }
 
- /*--------------------------------------------------------------------------*/
- /*----------------------- PRIVATE DATA -------------------------------------*/
- /*--------------------------------------------------------------------------*/
+  /** UC CSSC: uses CSSCScenarioReductionSolver with a UC-specific
+   *  VarExtractor lambda that identifies commitment variables */
+  void run_cssc( ScenarioReductionBlock * srb ,
+                 BlockSolverConfig      * bsc ,
+                 int                      K  ) override;
+
+  /** @return "../scenarios/UCBlock/" */
+  std::string get_scenarios_directory() const override {
+   return "../scenarios/UCBlock/";
+  }
+
  private:
- /// Type of uncertainty being considered
- enum UncertaintyType {
-  DEMAND_ONLY ,    ///< Only demand uncertainty
-  RENEWABLE_ONLY , ///< Only renewable generation uncertainty
-  BOTH            ///< Both demand and renewable uncertainty
- };
 
- /// Current uncertainty type
- UncertaintyType uncertainty_type = RENEWABLE_ONLY; // Default to renewable for now
+  /** Which uncertain parameters appear in the scenario vectors */
+  enum class UncertaintyType { kDemandOnly , kRenewableOnly , kBoth };
 
- /// Problem dimensions
- size_t num_time_periods = 0;  ///< Time horizon of the UC problem
- size_t num_nodes = 0;         ///< Number of nodes in network
- size_t num_units = 0;         ///< Total number of units
+  /** Detect uncertainty type from scenario vector size */
+  UncertaintyType infer_uncertainty_type( size_t scenario_dim ) const;
 
- /// Indices of intermittent units (for renewable uncertainty)
- std::vector< Index > intermittent_units;
+  /** Indices of IntermittentUnitBlock children of the loaded UCBlock */
+  static std::vector< Index > get_intermittent_indices( UCBlock * uc );
 
- /// Expected scenario dimensions for validation
- size_t expected_renewable_dim = 0;  ///< Expected dim for renewable scenarios
- size_t expected_demand_dim = 0;     ///< Expected dim for demand scenarios
+  /** Internal build_tssb: takes an explicit DSS (for create_srb CSSC path) */
+  std::unique_ptr< TwoStageStochasticBlock >
+  build_tssb( UCBlock * uc ,
+              DiscreteScenarioSet * dss ,
+              const std::string & tmp ,
+              UncertaintyType utype ) const;
 
- /// Number of thermal units (if applicable)
- size_t num_thermal_units = 0;
+  // State set by load_problem_instance() 
+  UncertaintyType             uncertainty_type_ = UncertaintyType::kRenewableOnly;
+  std::vector< Index >        intermittent_units_;
+  size_t                      num_time_periods_ = 0;
+  size_t                      num_nodes_        = 0;
+  std::string                 instance_file_path_;  // for EC Block copy workaround
 
- /// Number of hydro units (if applicable)
- size_t num_hydro_units = 0;
+  // Owned objects that must outlive the SRB (for CSSC) 
+  // Reset at the start of each create_srb() call
+  std::unique_ptr< TwoStageStochasticBlock >          srb_tssb_;
 
- /// Whether this is an Energy Community instance
- bool is_energy_community = false;
+ };  // class UCScenarioReductionTest
 
- }; // end class UCScenarioReductionTest
-
-/*--------------------------------------------------------------------------*/
-/*----------------------- NAMESPACE CLOSING --------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-} // end namespace ScenarioReductionTesting
+}  // namespace ScenarioReductionTesting
 
 #endif /* __UCScenarioReductionTest */
 
