@@ -833,6 +833,7 @@ INPUT                  = doxygen/mainpage.md \
                          CapacitatedFacilityLocationBlock/include \
                          InvestmentBlock/include \
                          LagrangianDualSolver/include \
+                         FrankWolfeSolver/include \
 			             MCFLemonSolver/include \
                          LukFiBlock/include \
                          MCFBlock/include \

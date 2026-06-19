@@ -508,7 +508,7 @@ missed it we'd be happy for a tip.
 These authors are for the umbrella project alone. Check the individual
 projects for their respective authors.
 
-### Current lead authors
+### Current Lead authors
 
 - **Antonio Frangioni**  
   Dipartimento di Informatica  
