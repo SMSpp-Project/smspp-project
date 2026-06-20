@@ -6,8 +6,9 @@
 #
 # One-time setup: add two repository secrets to this repo (Settings -> Secrets
 # and variables -> Actions):
-#   - GITLAB_TOKEN       : GitLab PAT, scope `api`
-#   - GITHUB_MIRROR_PAT  : GitHub PAT (classic), scopes `repo` + `workflow`
+#   - GITLAB_TOKEN : GitLab PAT, scope `api`
+#   - MIRROR_PAT   : GitHub PAT (classic), scopes `repo` + `workflow`
+#                    (GitHub forbids secret names that start with GITHUB_)
 # GitLab forces an expiry (<= 1 year) on its PAT, so GITLAB_TOKEN must be
 # refreshed once a year; the GitHub PAT can be set with no expiry.
 
@@ -27,7 +28,7 @@ jobs:
 
       - name: Reconcile mirrors
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_MIRROR_PAT }}
+          GH_TOKEN: ${{ secrets.MIRROR_PAT }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-          GITHUB_MIRROR_PAT: ${{ secrets.GITHUB_MIRROR_PAT }}
+          GITHUB_MIRROR_PAT: ${{ secrets.MIRROR_PAT }}
         run: bash mirror-to-github
