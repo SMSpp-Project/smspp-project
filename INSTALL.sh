@@ -952,8 +952,9 @@ if [ "$install_smspp" -eq 1 ]; then
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
 
-    # If the submodule BundleSolver is initialized, i.e., the folder is not empty
-    if [ -d "$SMSPP_ROOT/BundleSolver" ] && [ -n "$(ls -A "$SMSPP_ROOT/BundleSolver")" ]; then
+    # If the nested submodule BundleSolver/NdoFiOracle is initialized, i.e., its
+    # extlib folder exists
+    if [ -d "$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib" ]; then
       ndofi_extlib_file="$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib/makefile-paths"
       # Create the file with the new paths of the resources for BundleSolver/NdoFiOracle
       {
@@ -966,8 +967,9 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "Created $ndofi_extlib_file file."
     fi
 
-    # If the submodule MCFClassSolver is initialized, i.e., the folder is not empty
-    if [ -d "$SMSPP_ROOT/MCFClassSolver" ] && [ -n "$(ls -A "$SMSPP_ROOT/MCFClassSolver")" ]; then
+    # If the nested submodule MCFClassSolver/MCFClass is initialized, i.e., its
+    # extlib folder exists
+    if [ -d "$SMSPP_ROOT/MCFClassSolver/MCFClass/extlib" ]; then
       mcf_extlib_file="$SMSPP_ROOT/MCFClassSolver/MCFClass/extlib/makefile-paths"
       # Create the file with the new paths of the resources for the MCFClassSolver/MCFClass
       {
