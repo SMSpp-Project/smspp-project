@@ -309,6 +309,7 @@ EOL
         osi_build_flags+=(
           "--with-cplex"
           "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lpthread -lm"
+          "--disable-cplex-libcheck"
           "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
         )
       fi
@@ -320,6 +321,7 @@ EOL
         osi_build_flags+=(
           "--with-gurobi"
           "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi${GUROBI_VERSION}"
+          "--disable-gurobi-libcheck"
           "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
         )
       fi
