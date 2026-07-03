@@ -495,6 +495,17 @@ the umbrella repository and integrate them with the rest of the
 you do it, if you will release your code and which license will it be
 released under. However, `SMS++` is a community project, and we humbly suggest
 you to consider participating in it with the rules we have been setting.
+
+The easiest way to start a new module is the
+[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository, a
+ready-to-use skeleton of a `SMS++` module in the standard layout (CMake and
+makefiles builds, GitLab and GitHub CI, a factory-registered stub class, a
+smoke test wired into CTest, and all the standard boilerplate). Its `init.sh`
+script renames everything after your module, wires the declared dependencies
+and registers the module as a submodule of the umbrella project, so that you
+only have to put your classes in `include/` and `src/`; see its README for
+the details.
+
 Constructive criticisms and proposals about changing these rules (the umbrella
 repository organisation and whatnot) are very welcome. In fact, we believe that
 the `SMS++ Project` underlines the need for a software distribution mechanism
