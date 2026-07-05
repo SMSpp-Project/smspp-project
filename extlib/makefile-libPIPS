@@ -34,7 +34,6 @@ PIPS_WITH_MUMPS ?= 1
 
 PIPS_MPI_CXX ?= mpicxx
 PIPS_MPI_INC ?= $(shell $(PIPS_MPI_CXX) --showme:compile 2>/dev/null)
-
 PIPS_MPI_LIBS ?= $(shell $(PIPS_MPI_CXX) --showme:link 2>/dev/null) -Wl,--no-as-needed -lmpi_mpifh -lmpi -Wl,--as-needed
 
 PIPS_OPENMP_LIBS ?= -fopenmp

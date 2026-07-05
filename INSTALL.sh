@@ -21,6 +21,12 @@
 #     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
+#     Skipping a dependency that an SMS++ module hard-requires automatically
+#     disables that module when building SMS++, so configuration does not fail
+#     looking for a missing library: --without-stopt disables SDDPBlock and
+#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
+#     --without-coinor disables BundleSolver.
+#
 # AUTHOR
 #     Donato Meoli
 #
@@ -979,8 +985,29 @@ if [ "$install_smspp" -eq 1 ]; then
     fi
   fi
 
+  # Map each skipped dependency to the SMS++ modules that hard-require it (i.e.,
+  # whose CMakeLists has a `find_package(<lib> REQUIRED)`), and force those
+  # modules OFF so that configuration does not fail looking for a library the
+  # user asked not to install. Modules that consume a dependency optionally
+  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS backends in
+  # MILPSolver) degrade gracefully on their own and need no mapping here.
+  smspp_cmake_flags=()
+  if [ "$install_stopt" -eq 0 ]; then
+    # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON
+    # through CMake's dependency resolution, so disable both.
+    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF" "-DBUILD_InvestmentBlock=OFF")
+  fi
+  if [ "$install_lemon" -eq 0 ]; then
+    # LEMON is required by MCFLemonSolver.
+    smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
+  fi
+  if [ "$install_coinor" -eq 0 ]; then
+    # Osi/Clp (COIN-OR) are required by BundleSolver (and its NdoFiOracle).
+    smspp_cmake_flags+=("-DBUILD_BundleSolver=OFF")
+  fi
+
   # Build SMSpp
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev "${smspp_cmake_flags[@]}"
   # Check if the script is not being executed on a server without display or interactive terminal
   if [ -t 1 ] && [ -z "${CI:-}" ]; then
     cd build
