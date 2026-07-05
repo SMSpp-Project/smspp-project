@@ -251,7 +251,10 @@ EOL
       cd "$INSTALL_ROOT"
       git clone https://github.com/ERGO-Code/HiGHS.git
       cd HiGHS
-      cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
+      # BLA_VENDOR routes CMake to the system libopenblas: Ubuntu's
+      # OpenBLASConfig.cmake advertises a lib/libopenblas.so path that
+      # does not exist
+      cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DBLA_VENDOR=OpenBLAS -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       if [ "$HAS_SUDO" -eq 1 ]; then
@@ -306,6 +309,7 @@ EOL
         osi_build_flags+=(
           "--with-cplex"
           "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lpthread -lm"
+          "--disable-cplex-libcheck"
           "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
         )
       fi
@@ -317,6 +321,7 @@ EOL
         osi_build_flags+=(
           "--with-gurobi"
           "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi${GUROBI_VERSION}"
+          "--disable-gurobi-libcheck"
           "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
         )
       fi

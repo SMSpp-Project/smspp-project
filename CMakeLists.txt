@@ -208,6 +208,14 @@ macro(init_submodule name)
     endif ()
 endmacro()
 
+# ----- Testing -------------------------------------------------------------- #
+# Enable testing at the top level if requested, so that the per-module tests
+# are reachable by ctest from the build root even when the system tests
+# (BUILD_tests) are not built.
+if (BUILD_TESTING)
+    enable_testing()
+endif ()
+
 # ----- Subprojects --------------------------------------------------------- #
 # The core library is required by all other SMS++ modules, if any
 # Requires Boost (headers only), netCDF-C++ and Eigen3.

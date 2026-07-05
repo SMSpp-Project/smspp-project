@@ -36,6 +36,10 @@
 #    Note: rebuild and upload the image when this file or INSTALL.sh          #
 #          changes, not when SMS++ changes.                                   #
 #                                                                             #
+#    Note: Gurobi is installed but unlicensed: the CI jobs materialize a      #
+#          WLS license at run time from masked CI/CD variables (GitLab)       #
+#          or secrets (GitHub), so no license ever enters the image.          #
+#                                                                             #
 #                                Donato Meoli                                 #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
@@ -46,5 +50,5 @@ FROM ubuntu:latest
 
 # Install required packages, run the INSTALL.sh script, and clean up
 RUN apt-get update && apt-get install -y wget sudo && \
-    wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --without-cplex --without-gurobi --without-smspp && \
+    wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --without-cplex --without-smspp && \
     rm -rf /var/lib/apt/lists/*

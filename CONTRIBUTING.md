@@ -7,6 +7,12 @@ making a change.
 Please note we have a code of conduct, please follow it in all your interactions
 with the project.
 
+If your contribution is an entirely new module (a new `:Block` and/or
+`:Solver` repository), start it from the
+[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository: its
+`init.sh` script generates a complete module in the standard SMS++ layout
+(builds, CI, tests and boilerplate) and registers it in the umbrella project.
+
 ## Merge Request Process
 
 1. Remove any build and temporary files before committing the changes.

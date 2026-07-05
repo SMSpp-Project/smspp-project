@@ -14,6 +14,15 @@ fit in an appendix.
 > The optional pieces (a custom `:Solution`, an `R3Block`, a
 > `:Change` family) are sketched in [§A.8](A-writing-block.md#sec-A-8) but not developed.
 
+> **Tip.** This appendix covers the *code*: the class itself. For the
+> *repository* around it — the CMake and makefile builds, the CI, the test
+> harness and the standard boilerplate every SMS++ module shares — do not
+> start from scratch: clone the
+> [ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository and
+> run its `init.sh`, which generates a complete module skeleton in the
+> standard layout (see the wiki page
+> [Creating a new module](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module)).
+
 The Bin Packing problem: given $n$ items of sizes $s_0, \dots,
 s_{n-1}$ and bins of identical capacity $C$, pack every item into a
 bin so that no bin's contents exceed $C$, using as few bins as
