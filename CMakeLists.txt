@@ -68,6 +68,7 @@ smspp_option(BUILD_BundleSolver "Build BundleSolver")
 smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
 smspp_option(BUILD_MCFClassSolver "Build MCFClassSolver")
 smspp_option(BUILD_MCFLemonSolver "Build MCFLemonSolver")
+smspp_option(BUILD_ScenarioReductionSolver "Build ScenarioReductionSolver")
 
 smspp_option(BUILD_tools "Build tools")
 smspp_option(BUILD_tests "Build system tests")
@@ -198,6 +199,10 @@ if (BUILD_MCFLemonSolver)
     set(BUILD_MCFBlock ON) # Requires MCFBlock
 endif ()
 
+if (BUILD_ScenarioReductionSolver)
+    set(BUILD_TwoStageStochasticBlock ON) # Requires TwoStageStochasticBlock
+endif ()
+
 # ----- Initialize submodules ------------------------------------------------ #
 macro(init_submodule name)
     # if the submodule is not initialized...
@@ -316,6 +321,12 @@ endif ()
 if (BUILD_MCFLemonSolver)
     init_submodule(MCFLemonSolver)
     add_subdirectory(MCFLemonSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_ScenarioReductionSolver)
+    init_submodule(ScenarioReductionSolver)
+    add_subdirectory(ScenarioReductionSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 
