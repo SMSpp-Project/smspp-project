@@ -841,6 +841,7 @@ INPUT                  = doxygen/mainpage.md \
                          MILPSolver/include \
                          MMCFBlock/include \
                          SDDPBlock/include \
+                         ScenarioReductionSolver/include \
                          SMS++/include \
                          StochasticBlock/include \
 			             TwoStageStochasticBlock/include \

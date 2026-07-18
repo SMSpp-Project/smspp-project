@@ -174,6 +174,15 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
 
+- [ScenarioReductionSolver](https://gitlab.com/smspp/scenarioreductionsolver),
+  defining `Solver` classes for the discrete scenario reduction problem: given
+  the finite set of scenarios carried by a `ScenarioReductionBlock` (through its
+  `DiscreteScenarioSet`), they select a smaller representative subset that stays
+  close to the full distribution in the (weighted) Wasserstein sense. It
+  provides `ScenarioReductionSolver`, with four heuristics (Baseline, Dupacova
+  forward selection, BestFit and FirstFit local searches), and
+  `CSSCScenarioReductionSolver`, implementing Cost-Space Scenario Clustering.
+
 - [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
   multi-stage stochastic optimization problems solvable by the Stochastic
   Dual Dynamic Programming approach, and the `SDDPSolver` that interfaces with
