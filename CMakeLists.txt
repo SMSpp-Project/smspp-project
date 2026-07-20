@@ -10,10 +10,12 @@
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.21)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DeriveVersion.cmake)
+smspp_derive_version(SMSPP_MODULE_VERSION)
 
 # ----- Project definition and configuration -------------------------------- #
 project(SMS++_project
-        VERSION 0.5.1
+        VERSION ${SMSPP_MODULE_VERSION}
         DESCRIPTION "The SMS++ Project"
         HOMEPAGE_URL https://gitlab.com/smspp-project
         LANGUAGES C CXX)
