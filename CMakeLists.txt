@@ -193,6 +193,10 @@ if (BUILD_BundleSolver)
     set(BUILD_MILPSolver ON) # Requires MILPSolver
 endif ()
 
+if (BUILD_LagrangianDualSolver)
+    set(BUILD_MILPSolver ON) # Requires MILPSolver
+endif ()
+
 if (BUILD_MCFClassSolver)
     set(BUILD_MCFBlock ON) # Requires MCFBlock
 endif ()
