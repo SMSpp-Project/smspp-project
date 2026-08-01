@@ -27,14 +27,21 @@ PIPSROOT ?= $(PIPSIPMPP_ROOT)/PIPS-IPM
 PIPS_CORE_LIB_DIR ?= $(PIPS_BUILD_DIR)/PIPS-IPM/Core
 PIPS_LINEAR_SOLVERS_LIB_DIR ?= $(PIPS_CORE_LIB_DIR)/LinearSolvers
 
-PIPS_PARDISO_LIB_DIR ?= $(if $(PARDISO_DIR),$(PARDISO_DIR),$(PIPSIPMPP_ROOT)/ThirdPartyLibs/PARDISO/src)
-PIPS_WITH_PARDISO ?= $(if $(wildcard $(PIPS_PARDISO_LIB_DIR)/libpardiso.so),1,0)
-PIPS_WITH_MA57 ?= $(if $(wildcard $(PIPS_LINEAR_SOLVERS_LIB_DIR)/libma57.a),1,0)
+PIPS_PARDISO_SRC_DIR ?= $(PIPSIPMPP_ROOT)/ThirdPartyLibs/PARDISO/src
+PIPS_PARDISO_LIB_DIR ?= \
+	$(if $(PARDISO_DIR),$(PARDISO_DIR),$(PIPS_PARDISO_SRC_DIR))
+PIPS_WITH_PARDISO ?= \
+	$(if $(wildcard $(PIPS_PARDISO_LIB_DIR)/libpardiso.so),1,0)
+PIPS_WITH_MA57 ?= \
+	$(if $(wildcard $(PIPS_LINEAR_SOLVERS_LIB_DIR)/libma57.a),1,0)
 PIPS_WITH_MUMPS ?= 1
 
+# --showme is OpenMPI syntax; with other MPI implementations (e.g. MPICH)
+# PIPS_MPI_INC / PIPS_MPI_LIBS must be set manually
 PIPS_MPI_CXX ?= mpicxx
 PIPS_MPI_INC ?= $(shell $(PIPS_MPI_CXX) --showme:compile 2>/dev/null)
-PIPS_MPI_LIBS ?= $(shell $(PIPS_MPI_CXX) --showme:link 2>/dev/null) -Wl,--no-as-needed -lmpi_mpifh -lmpi -Wl,--as-needed
+PIPS_MPI_LIBS ?= $(shell $(PIPS_MPI_CXX) --showme:link 2>/dev/null) \
+	-Wl,--no-as-needed -lmpi_mpifh -lmpi -Wl,--as-needed
 
 PIPS_OPENMP_LIBS ?= -fopenmp
 PIPS_MATH_LIBS ?= -llapack -lblas
@@ -96,4 +103,4 @@ libPIPSLIB = \
 	$(PIPS_SOLVER_LIBS) \
 	$(PIPS_EXTERNAL_LIBS)
 
-############################# End of makefile ################################
+######################### End of makefile-libPIPS ############################

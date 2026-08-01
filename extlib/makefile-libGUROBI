@@ -66,4 +66,4 @@ endif
 libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) $(libGUROBIEXTLIB)
 libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
-############################# End of makefile ################################
+####################### End of makefile-libGUROBI ############################

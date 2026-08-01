@@ -36,4 +36,4 @@ else
 endif
 libNtCDFINC = -I"$(libNtCDFBSCDIR)/include" -I"$(libNtCDFCxxBSCDIR)/include"
 
-############################# End of makefile ################################
+####################### End of makefile-libNetCDF ############################

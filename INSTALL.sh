@@ -15,6 +15,7 @@
 #     You can use the `--without-gurobi` option to skip the installation of Gurobi.
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
+#     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -24,8 +25,9 @@
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
 #     looking for a missing library: --without-stopt disables SDDPBlock and
-#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
-#     --without-coinor disables BundleSolver.
+#     InvestmentBlock, --without-lemon disables MCFLemonSolver,
+#     --without-coinor disables BundleSolver, and --without-pips disables
+#     PIPSMILPSolver.
 #
 # AUTHOR
 #     Donato Meoli
@@ -277,6 +279,28 @@ EOL
           echo "HiGHS already up to date."
         fi
       fi
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PIPS-IPM++
+  # PIPS-IPM++ is consumed from its build tree (no install step); the fully
+  # open-source build uses MUMPS as inner linear solver.
+  if [ "$install_pips" -eq 1 ]; then
+    echo "Installing PIPS-IPM++..."
+    PIPS_ROOT_DIR="$(resolve_dep_root pips-ipmpp)"
+    CURRENT_INSTALL_FOLDER=${PIPS_ROOT_DIR}
+    if [ ! -d "$PIPS_ROOT_DIR" ]; then
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        apt-get install -y -q libopenmpi-dev gfortran liblapack-dev libmetis-dev libmumps-dev
+      fi
+      cd "$INSTALL_ROOT"
+      git clone --recurse-submodules https://gitlab.com/pips-ipmpp/pips-ipmpp.git "$PIPS_ROOT_DIR"
+      cmake -S "$PIPS_ROOT_DIR" -B "$PIPS_ROOT_DIR/build" -DCMAKE_BUILD_TYPE=Release
+      cmake --build "$PIPS_ROOT_DIR/build" -j "${MAX_JOBS}"
+    else
+      echo "PIPS-IPM++ already installed."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -654,6 +678,12 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # PIPS-IPM++ is not supported on macOS
+  if [ "$install_pips" -eq 1 ]; then
+    echo "Skipping PIPS-IPM++ (Linux only)."
+    install_pips=0
+  fi
+
   # Install COIN-OR CoinUtils and Osi/Clp
   if [ "$install_coinor" -eq 1 ]; then
     echo "Installing COIN-OR CoinUtils and Osi/Clp..."
@@ -780,6 +810,7 @@ install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
+install_pips=${install_pips:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -821,6 +852,10 @@ do
     ;;
     --without-highs)
     install_highs=0
+    shift
+    ;;
+    --without-pips)
+    install_pips=0
     shift
     ;;
     --without-stopt)

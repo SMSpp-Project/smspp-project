@@ -48,6 +48,7 @@ CPLEX_ROOT = /opt/ibm/ILOG/CPLEX_Studio
 SCIP_ROOT = /opt/scip
 GUROBI_ROOT = /opt/gurobi
 HiGHS_ROOT = /opt/HiGHS
+PIPSIPMPP_ROOT = /opt/pips-ipmpp
 StOpt_ROOT = /opt/StOpt
 CoinUtils_ROOT = /opt/coin-or
 Osi_ROOT = /opt/coin-or

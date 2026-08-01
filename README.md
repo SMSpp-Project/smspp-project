@@ -93,6 +93,22 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   Solver based on a straightforward implementation of the Dynamic Programming
   approach (for integer weights).
 
+- [BendersDecompositionSolver](https://gitlab.com/smspp/bendersdecompositionsolver),
+  a "generic" Benders-based `Solver` for `Block` with appropriate structure,
+  that keeps the complicating (first-stage) `Variable` in a master problem and
+  projects out each sub-`Block` into its value function, represented by a
+  `BendersBFunction` producing the Benders cuts; the master can be solved either
+  as a convex problem by a bundle-type `Solver` or as a MILP with the cuts added
+  as lazy constraints.
+
+- [BranchAndXSolver](https://gitlab.com/smspp/branchandxsolver), a `Solver`
+  implementing a Relaxation-Agnostic Branch-and-X (RABaX) approach, i.e., a
+  generic enumerative `Solver` where "X" stands for Bound / Cut / Price. It
+  supports depth-first, breadth-first and best-first exploration, cut
+  separation, reoptimization of the enumeration tree and parallel exploration,
+  building on the `ChangeSolver` and `RelaxationSolver` abstractions in the
+  `SMS++` core.
+
 - [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
   an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
@@ -170,6 +186,11 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `HiGHSMILPSolver`, providing the interface with the open-source
     [HiGHS](https://highs.dev)
 
+  - `PIPSMILPSolver`, providing the interface with the open-source parallel
+    interior-point solver
+    [PIPS-IPM++](https://gitlab.com/pips-ipmpp/pips-ipmpp) (LP problems
+    only, currently supported on Linux only)
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -219,6 +240,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   per scenario) and adding non-anticipativity constraints to ensure first-stage
   variables are the same across all scenarios, but it will eventually be
   extended to the "Benders' version".
+
+- [MultiStageStochasticBlock](https://gitlab.com/smspp/multistagestochasticblock),
+  a `:Block` that represents a multi-stage stochastic programming problem as an
+  aggregation of `TwoStageStochasticBlock`, holding one of them per outer-stage
+  scenario and tying the first-stage here-and-now variables across them with an
+  outer layer of non-anticipativity constraints.
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
   Unit Commitment problems: the general `UCBlock` "root" class, several
@@ -299,6 +326,7 @@ according to the following options table:
 | `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation                 |
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
+| `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |

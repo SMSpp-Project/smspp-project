@@ -28,4 +28,4 @@ libEigenBSCDIR = $(subst $\",,$(Eigen3_ROOT))
 libEigenINC = -I"$(libEigenBSCDIR)/include/eigen3"
 libEigenLIB = 
 
-############################# End of makefile ################################
+######################## End of makefile-libEigen ############################

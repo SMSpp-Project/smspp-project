@@ -33,4 +33,4 @@ ifeq ($(UNAME_S),Darwin)
 endif
 libSCIPINC = -I"$(libSCIPBSCDIR)/include"
 
-############################# End of makefile ################################
+######################### End of makefile-libSCIP ############################

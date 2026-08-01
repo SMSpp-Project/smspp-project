@@ -12,6 +12,7 @@
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
+    Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
     You can use the `-withoutTorch` option to skip the installation of Torch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
     You can use the `-withoutDefenderExclusions` option to skip adding the Windows Defender path
