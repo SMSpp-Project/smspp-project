@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# --------------------------------------------------------------------------- #
+# Push the local clone of the project wiki to GitLab and republish it on      #
+# GitHub right away.                                                          #
+#                                                                             #
+# The wiki lives in its own repository of the GitLab project and is cloned    #
+# in `wiki/` beside this script, where it is not a submodule but an ignored   #
+# working copy. Pushing it there is all that is needed, GitLab being the only #
+# place where the pages are written; this script only adds the immediate      #
+# republication on the Wiki tab of the GitHub mirror, which otherwise waits   #
+# for the hourly `Wiki sync` workflow.                                        #
+#                                                                             #
+# Prerequisites:                                                              #
+#   - the wiki cloned in `wiki/`, if it is missing:                           #
+#       git clone git@gitlab.com:smspp/smspp-project.wiki.git wiki            #
+#   - gh (GitHub CLI) authenticated with the `repo` scope, which is what      #
+#     lets it ask for the workflow run:  gh auth login -h github.com          #
+#                                                                             #
+# Usage:                                                                      #
+#   bash wiki-push                            # push what is committed        #
+#   bash wiki-push -m "updated the FAQ"      # commit every change, then push #
+#   bash wiki-push --resync                   # republish, pushing nothing    #
+#                                                                             #
+#                                 Donato Meoli                                #
+#                         Dipartimento di Informatica                         #
+#                             Universita' di Pisa                             #
+# --------------------------------------------------------------------------- #
+
+set -uo pipefail
+
+WIKI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/wiki"
+GH_REPO="SMSpp-Project/smspp-project"
+
+message=""
+resync=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -m) message="${2:-}"; [ -n "$message" ] || { echo "-m needs a message" >&2; exit 1; }; shift 2 ;;
+    --resync) resync=1; shift ;;
+    -h|--help)
+      echo "usage: wiki-push [-m <message>] [--resync]"
+      exit 0 ;;
+    *) echo "unknown argument: $1" >&2; exit 1 ;;
+  esac
+done
+
+# ask the Wiki sync workflow of the mirror to copy the pages over. It reads
+# them from GitLab, so it must run after the push, never before
+republish() {
+  gh api "repos/$GH_REPO/dispatches" -f event_type=wiki-update >/dev/null 2>&1 \
+    && echo "republished on https://github.com/$GH_REPO/wiki (takes a few seconds)" \
+    || echo "dispatch FAILED, is gh authenticated with the repo scope?" >&2
+}
+
+if [ "$resync" = "1" ]; then
+  republish
+  exit 0
+fi
+
+[ -d "$WIKI/.git" ] || { echo "no wiki clone in $WIKI, see the header of this script" >&2; exit 1; }
+
+if [ -n "$message" ]; then
+  git -C "$WIKI" add -A
+  git -C "$WIKI" diff --cached --quiet \
+    && echo "nothing to commit" \
+    || git -C "$WIKI" commit --quiet -m "$message" || exit 1
+fi
+
+before=$(git -C "$WIKI" rev-parse "@{upstream}" 2>/dev/null)
+git -C "$WIKI" push || exit 1
+after=$(git -C "$WIKI" rev-parse "@{upstream}" 2>/dev/null)
+
+if [ "$before" = "$after" ]; then
+  echo "nothing pushed, GitHub is already in sync (force it with --resync)"
+  exit 0
+fi
+
+republish
