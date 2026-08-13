@@ -8,7 +8,10 @@
 #   1. creates the matching public GitHub repo if it does not exist;          #
 #   2. keeps the GitHub description in sync with the GitLab one;              #
 #   3. configures a native GitLab push mirror to it (Settings ->              #
-#      Repository -> Mirroring repositories) through the GitLab API.          #
+#      Repository -> Mirroring repositories) through the GitLab API;          #
+#   4. disables the Wiki tab, which GitHub enables by default, everywhere     #
+#      but on the umbrella, whose Wiki tab receives the pages of the GitLab   #
+#      project wiki (a repository the native mirror does not cover).          #
 # Re-running it is safe: existing repos and mirrors are detected and          #
 # skipped, so a new GitLab project only requires running this again.          #
 #                                                                             #
@@ -93,7 +96,23 @@ while IFS=$'\t' read -r gl gh desc; do
       && echo "   repo:   created" || { echo "   repo:   FAILED"; continue; }
   fi
 
-  # 2) GitLab push mirror to that GitHub repo. With ROTATE=1 an existing
+  # 2) the project wiki lives on GitLab and is published on the GitHub side
+  #    only through the umbrella (see sync_wiki below), so the Wiki tab that
+  #    GitHub enables by default is turned off on every other mirror, where
+  #    it would just offer an empty second place to write documentation
+  if [ "$gh" != "smspp-project" ]; then
+    if [ "$(gh repo view "$GH_ORG/$gh" --json hasWikiEnabled \
+              --jq '.hasWikiEnabled' 2>/dev/null)" != "true" ]; then
+      :
+    elif [ "${DRY_RUN:-0}" = "1" ]; then
+      echo "   wiki:   would disable"
+    else
+      gh repo edit "$GH_ORG/$gh" --enable-wiki=false >/dev/null \
+        && echo "   wiki:   disabled" || echo "   wiki:   disable FAILED"
+    fi
+  fi
+
+  # 3) GitLab push mirror to that GitHub repo. With ROTATE=1 an existing
   #    mirror is deleted and recreated, so its embedded GitHub token is
   #    refreshed (needed e.g. to grant the `workflow` scope).
   mid=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
@@ -120,7 +139,7 @@ while IFS=$'\t' read -r gl gh desc; do
       || echo "   mirror: FAILED (Maintainer role required?)"
   fi
 
-  # 3) trigger an immediate sync: a (re)created push mirror stays idle until
+  # 4) trigger an immediate sync: a (re)created push mirror stays idle until
   #    the next push, so without this it would not propagate existing commits
   if [ "${DRY_RUN:-0}" != "1" ]; then
     sid=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" "$API/projects/$enc/remote_mirrors" \
@@ -131,6 +150,44 @@ while IFS=$'\t' read -r gl gh desc; do
         && echo "   mirror: sync triggered"
   fi
 done < <(list_projects)
+
+# The wiki of the umbrella is a repository of its own (<project>.wiki.git) that
+# the native push mirror does not cover, and GitHub only links submodules that
+# it can resolve to a github.com repository, so from the GitHub side the `wiki`
+# gitlink is a dead entry. Mirroring the pages into the Wiki tab of the GitHub
+# umbrella keeps them reachable there while GitLab stays the only place where
+# they are written. GitHub materializes the wiki repository only after its
+# first page has been created from the web UI, so until then the push is
+# skipped with a note.
+sync_wiki() {
+  local src="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GROUP}/smspp-project.wiki.git"
+  local dst="https://x-access-token:${GITHUB_MIRROR_PAT}@github.com/${GH_ORG}/smspp-project.wiki.git"
+  local tmp
+
+  echo "== $GROUP/smspp-project.wiki -> $GH_ORG/smspp-project (Wiki tab)"
+
+  if ! git ls-remote --exit-code "$dst" >/dev/null 2>&1; then
+    echo "   wiki:   not initialized on GitHub, create the first page at"
+    echo "           https://github.com/$GH_ORG/smspp-project/wiki/_new"
+    return
+  fi
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    echo "   wiki:   would push"
+    return
+  fi
+
+  tmp=$(mktemp -d) || { echo "   wiki:   FAILED (mktemp)"; return; }
+  if git clone --quiet --mirror "$src" "$tmp/wiki" 2>/dev/null; then
+    git -C "$tmp/wiki" push --quiet --mirror "$dst" 2>/dev/null \
+      && echo "   wiki:   pushed" || echo "   wiki:   push FAILED"
+  else
+    echo "   wiki:   clone FAILED (GITLAB_TOKEN needs the read_repository scope?)"
+  fi
+  rm -rf "$tmp"
+}
+
+echo
+sync_wiki
 
 echo
 echo "Done."

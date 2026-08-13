@@ -3,6 +3,8 @@
 # GitHub, creates the repo and the native push mirror, then triggers a sync.
 # Existing repos are left untouched (the native mirror already syncs them on
 # every push), so a newly added GitLab project shows up on GitHub on its own.
+# The same run also pushes the GitLab project wiki, which the native mirror
+# does not cover, into the Wiki tab of the GitHub umbrella.
 #
 # One-time setup: add two repository secrets to this repo (Settings -> Secrets
 # and variables -> Actions):
