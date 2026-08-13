@@ -64,11 +64,3 @@
 [submodule "vcpkg-registry"]
 	path = vcpkg-registry
 	url = ../vcpkg-registry
-[submodule "wiki"]
-	path = wiki
-	url = https://gitlab.com/smspp/smspp-project.wiki.git
-	branch = master
-[submodule "org-profile"]
-	path = org-profile
-	url = https://github.com/SMSpp-Project/.github.git
-	branch = main

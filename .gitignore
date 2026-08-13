@@ -19,6 +19,12 @@ doc/latex/
 # Claude Code local notes (kept out of the repo)
 CLAUDE.md
 
+# Companion repositories that are not part of the project sources: the wiki,
+# whose pages live in the wiki repository of the GitLab project, and the
+# GitHub organization profile. Cloning either one here is handy but optional
+wiki/
+org-profile/
+
 # --- C/C++ build artifacts ----------------------------------
 *.o
 *.obj
