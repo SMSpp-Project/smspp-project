@@ -1,0 +1,34 @@
+# Republishes the wiki of the GitLab project into the Wiki tab of this mirror,
+# which the native push mirror does not cover. It runs hourly, so a page edited
+# on GitLab shows up here within the hour; the daily `Mirror reconcile` does
+# the same as part of its wider job, this one just shortens the delay.
+#
+# It reuses the secrets of that workflow, GITLAB_TOKEN and MIRROR_PAT, and the
+# copy is one-way: whatever is written from the Wiki tab of GitHub is dropped
+# by the next run.
+
+name: Wiki sync
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the umbrella (for the mirror-to-github script)
+        uses: actions/checkout@v4
+
+      - name: Sync the wiki
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_PAT }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITHUB_MIRROR_PAT: ${{ secrets.MIRROR_PAT }}
+          WIKI_ONLY: '1'
+        run: bash mirror-to-github
