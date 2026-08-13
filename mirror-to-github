@@ -204,12 +204,21 @@ sync_wiki() {
   local out rc=0
   if out=$(git clone --quiet "$src" "$tmp/wiki" 2>&1); then
     add_banner "$tmp/wiki"
-    if out=$(git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>&1); then
-      echo "   wiki:   pushed"
-    else
-      echo "   wiki:   push FAILED"
-      report "$out" "$GITHUB_MIRROR_PAT"
+    # GitHub occasionally turns down a wiki push that goes through moments
+    # later, so one refusal is retried before calling the run failed
+    local try
+    for try in 1 2; do
+      if out=$(git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>&1); then
+        echo "   wiki:   pushed"
+        rc=0
+        break
+      fi
       rc=1
+      [ "$try" = "1" ] && sleep 5
+    done
+    if [ "$rc" = "1" ]; then
+      echo "   wiki:   push FAILED twice"
+      report "$out" "$GITHUB_MIRROR_PAT"
     fi
   else
     echo "   wiki:   clone FAILED"
