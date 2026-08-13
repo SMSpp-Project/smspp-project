@@ -3,6 +3,15 @@
 # on GitLab shows up here within the hour; the daily `Mirror reconcile` does
 # the same as part of its wider job, this one just shortens the delay.
 #
+# The `wiki-update` dispatch makes a page appear at once instead of within the
+# hour. It is meant for the wiki page webhook of the GitLab project, which
+# needs a custom header `Authorization: Bearer <PAT with the repo scope>` and
+# the custom payload template `{"event_type": "wiki-update"}` to reach
+# https://api.github.com/repos/SMSpp-Project/smspp-project/dispatches. That
+# webhook only fires on the pages edited from the browser, so after a push to
+# the wiki repository the same dispatch is better sent by hand:
+#   gh workflow run "Wiki sync" -R SMSpp-Project/smspp-project
+#
 # It reuses the secrets of that workflow, GITLAB_TOKEN and MIRROR_PAT, and the
 # copy is one-way: whatever is written from the Wiki tab of GitHub is dropped
 # by the next run.
@@ -12,6 +21,8 @@ name: Wiki sync
 on:
   schedule:
     - cron: '17 * * * *'
+  repository_dispatch:
+    types: [wiki-update]
   workflow_dispatch:
 
 concurrency:
