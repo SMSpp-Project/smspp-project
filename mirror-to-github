@@ -30,8 +30,9 @@
 #                                                                             #
 # Usage:                                                                      #
 #   GITLAB_TOKEN=glpat-xxx GITHUB_MIRROR_PAT=ghp_xxx bash mirror-to-github    #
-#   DRY_RUN=1 ... bash mirror-to-github                            # preview  #
-#   ROTATE=1  ... bash mirror-to-github    # rotate existing mirrors' token   #
+#   DRY_RUN=1   ... bash mirror-to-github                          # preview  #
+#   ROTATE=1    ... bash mirror-to-github  # rotate existing mirrors' token   #
+#   WIKI_ONLY=1 ... bash mirror-to-github            # sync the wiki alone    #
 #                                                                             #
 #                                 Donato Meoli                                #
 #                         Dipartimento di Informatica                         #
@@ -53,6 +54,9 @@ GH_ORG="SMSpp-Project"
 # GitHub repo names use the GitLab project name (CamelCase) for modules, with a
 # few hand-mapped special cases; `pysmspp` is skipped (it is itself a mirror).
 list_projects() {
+  # with WIKI_ONLY=1 nothing is listed, so the run reduces to the wiki sync
+  [ "${WIKI_ONLY:-0}" = "1" ] && return
+
   curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
     "$API/groups/$GROUP/projects?per_page=100&include_subgroups=true&archived=false&visibility=public" \
   | jq -r '
@@ -159,6 +163,26 @@ done < <(list_projects)
 # they are written. GitHub materializes the wiki repository only after its
 # first page has been created from the web UI, so until then the push is
 # skipped with a note.
+#
+# The pages are copied verbatim but for the home, which gets a banner sending
+# the reader back to GitLab: the Wiki tab of GitHub is writable, and whatever
+# is written there is silently dropped by the next run.
+add_banner() {
+  local home="$1/Home.md"
+  [ -f "$home" ] || { echo "   wiki:   no Home.md to bannerize"; return; }
+
+  { printf '> ⚠️ This is a **read-only mirror** of the '
+    printf '[SMS++ project wiki](https://gitlab.com/%s/%s), hosted on ' \
+           "$GROUP" "smspp-project/-/wikis/home"
+    printf '**GitLab**. Edits made here are overwritten by the next sync: '
+    printf 'please edit the pages there.\n\n'
+    cat "$home"
+  } > "$home.tmp" && mv "$home.tmp" "$home"
+
+  git -C "$1" -c user.name="SMS++ mirror" -c user.email="noreply@github.com" \
+      commit --quiet -am "note that this copy of the wiki is read-only"
+}
+
 sync_wiki() {
   local src="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GROUP}/smspp-project.wiki.git"
   local dst="https://x-access-token:${GITHUB_MIRROR_PAT}@github.com/${GH_ORG}/smspp-project.wiki.git"
@@ -177,8 +201,9 @@ sync_wiki() {
   fi
 
   tmp=$(mktemp -d) || { echo "   wiki:   FAILED (mktemp)"; return; }
-  if git clone --quiet --mirror "$src" "$tmp/wiki" 2>/dev/null; then
-    git -C "$tmp/wiki" push --quiet --mirror "$dst" 2>/dev/null \
+  if git clone --quiet "$src" "$tmp/wiki" 2>/dev/null; then
+    add_banner "$tmp/wiki"
+    git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>/dev/null \
       && echo "   wiki:   pushed" || echo "   wiki:   push FAILED"
   else
     echo "   wiki:   clone FAILED (GITLAB_TOKEN needs the read_repository scope?)"
