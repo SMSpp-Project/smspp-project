@@ -200,19 +200,39 @@ sync_wiki() {
     return
   fi
 
-  tmp=$(mktemp -d) || { echo "   wiki:   FAILED (mktemp)"; return; }
-  if git clone --quiet "$src" "$tmp/wiki" 2>/dev/null; then
+  tmp=$(mktemp -d) || { echo "   wiki:   FAILED (mktemp)"; return 1; }
+  local out rc=0
+  if out=$(git clone --quiet "$src" "$tmp/wiki" 2>&1); then
     add_banner "$tmp/wiki"
-    git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>/dev/null \
-      && echo "   wiki:   pushed" || echo "   wiki:   push FAILED"
+    if out=$(git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>&1); then
+      echo "   wiki:   pushed"
+    else
+      echo "   wiki:   push FAILED"
+      report "$out" "$GITHUB_MIRROR_PAT"
+      rc=1
+    fi
   else
-    echo "   wiki:   clone FAILED (GITLAB_TOKEN needs the read_repository scope?)"
+    echo "   wiki:   clone FAILED"
+    report "$out" "$GITLAB_TOKEN"
+    rc=1
   fi
   rm -rf "$tmp"
+  return $rc
+}
+
+# echo what git said, with the token of the remote blanked out: it travels in
+# the URL, which git repeats in most of its error messages
+report() {
+  [ -n "$1" ] || return
+  echo "${1//"$2"/***}" | sed 's/^/           /'
 }
 
 echo
-sync_wiki
+sync_wiki || wiki_rc=1
 
 echo
 echo "Done."
+
+# a wiki left behind is worth a red run, the repositories keep themselves in
+# sync through their own mirror but this copy only happens here
+exit "${wiki_rc:-0}"
