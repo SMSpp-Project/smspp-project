@@ -18,9 +18,9 @@
 #     lets it ask for the workflow run:  gh auth login -h github.com          #
 #                                                                             #
 # Usage:                                                                      #
-#   bash wiki-push                            # push what is committed        #
+#   bash wiki-push                           # push what is committed         #
 #   bash wiki-push -m "updated the FAQ"      # commit every change, then push #
-#   bash wiki-push --resync                   # republish, pushing nothing    #
+#   bash wiki-push --resync                  # republish, pushing nothing     #
 #                                                                             #
 #                                 Donato Meoli                                #
 #                         Dipartimento di Informatica                         #
