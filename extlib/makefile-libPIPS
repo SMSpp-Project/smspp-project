@@ -86,7 +86,10 @@ PIPS_EXTERNAL_LIBS ?= \
 	$(PIPS_MATH_LIBS) \
 	$(PIPS_FORTRAN_LIBS)
 
+# the PIPS-IPM++ headers include the MPI ones, hence whoever compiles against
+# them needs the MPI include path too
 libPIPSINC = \
+	$(PIPS_MPI_INC) \
 	-I"$(PIPSROOT)/Core/Interface" \
 	-I"$(PIPSROOT)/Core/Options" \
 	-I"$(PIPSROOT)/Core/Utilities" \
@@ -96,7 +99,12 @@ libPIPSINC = \
 	-I"$(PIPSROOT)/Drivers/CallbackExample" \
 	-I"$(PIPSROOT)/Core/Readers/Distributed"
 
+# the PIPS-IPM++ libraries are shared and live outside the standard search
+# path, hence the rpath, so that a binary built with the makefiles finds them
+# at run time exactly as one built with CMake does
 libPIPSLIB = \
+	-Wl,-rpath,"$(PIPS_CORE_LIB_DIR)" \
+	-Wl,-rpath,"$(PIPS_LINEAR_SOLVERS_LIB_DIR)" \
 	-L"$(PIPS_CORE_LIB_DIR)" \
 	-lpips-ipmpp \
 	-L"$(PIPS_LINEAR_SOLVERS_LIB_DIR)" \

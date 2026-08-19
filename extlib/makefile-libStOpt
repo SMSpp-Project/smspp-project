@@ -23,6 +23,11 @@
 # basic StOpt directory without quotes, if any
 libStOptBSCDIR = $(subst $\",,$(StOpt_ROOT))
 
+# --showme is OpenMPI syntax; with other MPI implementations (e.g. MPICH)
+# StOpt_MPI_INC must be set manually
+StOpt_MPI_CXX ?= mpicxx
+StOpt_MPI_INC ?= $(shell $(StOpt_MPI_CXX) --showme:compile 2>/dev/null)
+
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ifeq ($(UNAME_S),Linux)
@@ -32,7 +37,7 @@ ifeq ($(UNAME_S),Linux)
     # boost::mpi ones) needs the MPI headers too
     libStOptINC = -I"$(libStOptBSCDIR)/include" \
 	    -I"$(libStOptBSCDIR)/include/geners" \
-	    -I"/usr/lib/x86_64-linux-gnu/openmpi/include"
+	    $(StOpt_MPI_INC)
 endif
 ifeq ($(UNAME_S),Darwin)
     libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners -lboost_timer
