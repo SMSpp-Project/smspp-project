@@ -201,29 +201,40 @@ sync_wiki() {
   fi
 
   tmp=$(mktemp -d) || { echo "   wiki:   FAILED (mktemp)"; return 1; }
-  local out rc=0
-  if out=$(git clone --quiet "$src" "$tmp/wiki" 2>&1); then
-    add_banner "$tmp/wiki"
-    # GitHub occasionally turns down a wiki push that goes through moments
-    # later, so one refusal is retried before calling the run failed
-    local try
-    for try in 1 2; do
-      if out=$(git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>&1); then
-        echo "   wiki:   pushed"
-        rc=0
-        break
-      fi
-      rc=1
-      [ "$try" = "1" ] && sleep 5
-    done
-    if [ "$rc" = "1" ]; then
-      echo "   wiki:   push FAILED twice"
-      report "$out" "$GITHUB_MIRROR_PAT"
+  local out rc try
+
+  # either side occasionally turns down a request that goes through moments
+  # later, so one refusal is retried before calling the run failed
+  rc=1
+  for try in 1 2; do
+    if out=$(git clone --quiet "$src" "$tmp/wiki" 2>&1); then
+      rc=0
+      break
     fi
-  else
-    echo "   wiki:   clone FAILED"
+    rm -rf "$tmp/wiki"
+    [ "$try" = "1" ] && sleep 5
+  done
+  if [ "$rc" = "1" ]; then
+    echo "   wiki:   clone FAILED twice"
     report "$out" "$GITLAB_TOKEN"
-    rc=1
+    rm -rf "$tmp"
+    return 1
+  fi
+
+  add_banner "$tmp/wiki"
+
+  rc=1
+  for try in 1 2; do
+    if out=$(git -C "$tmp/wiki" push --quiet --force "$dst" HEAD:master 2>&1); then
+      echo "   wiki:   pushed"
+      rc=0
+      break
+    fi
+    [ "$try" = "1" ] && sleep 5
+  done
+  if [ "$rc" = "1" ]; then
+    echo "   wiki:   push FAILED twice"
+    report "$out" "$GITHUB_MIRROR_PAT"
   fi
   rm -rf "$tmp"
   return $rc
