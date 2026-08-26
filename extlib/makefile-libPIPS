@@ -47,7 +47,15 @@ PIPS_OPENMP_LIBS ?= -fopenmp
 PIPS_MATH_LIBS ?= -llapack -lblas
 PIPS_MUMPS_LIBS ?= -ldmumps -lmumps_common -lpord
 PIPS_METIS_LIBS ?= -lmetis
-PIPS_FORTRAN_LIBS ?= -lgfortran
+
+# the GNU Fortran runtime is required by the Fortran parts of PIPS-IPM++ and
+# of its linear solvers; plain -lgfortran only resolves if the development
+# symlink is installed, hence fall back to the versioned runtime, and only
+# then to -lgfortran, when it is not
+PIPS_FORTRAN_LIBS ?= $(firstword \
+	$(wildcard $(shell $(CC) -print-file-name=libgfortran.so 2>/dev/null)) \
+	$(wildcard $(shell $(CC) -print-file-name=libgfortran.so.5 2>/dev/null)) \
+	-lgfortran)
 
 ifeq ($(PIPS_WITH_MUMPS),1)
     PIPS_MUMPS_SOLVER_LIBS ?= -lmumps_solver

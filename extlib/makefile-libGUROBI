@@ -46,7 +46,7 @@ ifeq ($(UNAME_S),Linux)
         | head -n1 \
     )
     ifeq ($(GUROBI_VERSION),)
-        $(error "No matching Gurobi library (libgurobi[digits].so found in $(libGUROBIBSCDIR)/lib!")
+        $(error "No matching Gurobi library (libgurobi[digits].so) found in $(libGUROBIBSCDIR)/lib!")
     endif
 endif
 ifeq ($(UNAME_S),Darwin)
