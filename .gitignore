@@ -16,8 +16,9 @@ include/
 doc/html/
 doc/latex/
 
-# Claude Code local notes (kept out of the repo)
+# Claude Code local notes and configuration (kept out of the repo)
 CLAUDE.md
+.mcp.json
 
 # Companion repositories that are not part of the project sources: the wiki,
 # whose pages live in the wiki repository of the GitLab project, and the
