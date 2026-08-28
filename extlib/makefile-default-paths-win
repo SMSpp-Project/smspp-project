@@ -44,6 +44,7 @@ Eigen3_ROOT = C:/vcpkg/installed/x64-windows
 netCDF_ROOT = C:/vcpkg/installed/x64-windows
 netCDFCxx_ROOT = C:/vcpkg/installed/x64-windows
 LEMON_ROOT = C:/vcpkg/installed/x64-windows
+LIBSVM_ROOT = C:/vcpkg/installed/x64-windows
 StOpt_ROOT = C:/StOpt
 CPLEX_ROOT = C:/IBM/ILOG/CPLEX_Studio
 SCIP_ROOT = "C:/Program Files/SCIPOptSuite"

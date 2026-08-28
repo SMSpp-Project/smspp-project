@@ -1,0 +1,40 @@
+##############################################################################
+############################ makefile-libLIBSVM ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libLIBSVM                                                    #
+#                                                                            #
+#   Input:  $(LIBSVM_ROOT), the directory where LIBSVM is installed          #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libLIBSVMLIB) = external libraries + -L< libdirs >             #
+#           $(libLIBSVMINC) = the -I$(include directories)                   #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic LIBSVM directory without quotes, if any
+libLIBSVMBSCDIR = $(subst $\",,$(LIBSVM_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# svm.h is included as <libsvm/svm.h>, which is where every distribution puts
+# it, hence the -I is the directory *containing* the libsvm one
+
+libLIBSVMINC = -I"$(libLIBSVMBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libLIBSVMLIB = -L"$(libLIBSVMBSCDIR)/lib" -lsvm
+endif
+ifeq ($(UNAME_S),Darwin)
+    libLIBSVMLIB = -rpath "$(libLIBSVMBSCDIR)/lib" \
+	-L"$(libLIBSVMBSCDIR)/lib" -lsvm
+endif
+
+####################### End of makefile-libLIBSVM ############################

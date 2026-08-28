@@ -19,6 +19,7 @@
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
+#     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
 #     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
@@ -118,6 +119,12 @@ install_on_linux() {
     if [ "$install_lemon" -eq 1 ]; then
       echo "Installing LEMON..."
       apt-get install -y -q liblemon-dev
+    fi
+
+    # Install LIBSVM
+    if [ "$install_libsvm" -eq 1 ]; then
+      echo "Installing LIBSVM..."
+      apt-get install -y -q libsvm-dev
     fi
   fi
 
@@ -526,6 +533,12 @@ install_on_macos() {
     fi
   fi
 
+  # Install LIBSVM
+  if [ "$install_libsvm" -eq 1 ]; then
+    echo "Installing LIBSVM..."
+    brew install libsvm
+  fi
+
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
@@ -814,6 +827,7 @@ install_pips=${install_pips:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
+install_libsvm=${install_libsvm:-1}
 install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
 
@@ -868,6 +882,10 @@ do
     ;;
     --without-lemon)
     install_lemon=0
+    shift
+    ;;
+    --without-libsvm)
+    install_libsvm=0
     shift
     ;;
     --without-coinor)
@@ -1030,7 +1048,8 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS backends in
-  # MILPSolver) degrade gracefully on their own and need no mapping here.
+  # MILPSolver, LIBSVM in SVMBlock) degrade gracefully on their own and need
+  # no mapping here.
   smspp_cmake_flags=()
   if [ "$install_stopt" -eq 0 ]; then
     # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON

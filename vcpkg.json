@@ -12,6 +12,7 @@
     "getopt",
     "highs",
     "liblemon",
+    "libsvm",
     "msmpi",
     "netcdf-cxx4",
     "pthreads",
