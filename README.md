@@ -330,6 +330,7 @@ according to the following options table:
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
+| `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
 | `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
