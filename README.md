@@ -247,6 +247,14 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   scenario and tying the first-stage here-and-now variables across them with an
   outer layer of non-anticipativity constraints.
 
+- [SVMBlock](https://gitlab.com/smspp/svmblock), defining the `Block` for the
+  training problem of a *Support Vector Machine*, both the classifier and the
+  regressor, together with the ad hoc `SMOSolver` and with `LIBSVMSolver`,
+  which hands the problem over to LIBSVM. The abstract representation encodes
+  either the training problem itself or its Wolfe dual, and the samples can be
+  dealt out to chunks tied by consensus constraints, which is the structure a
+  Lagrangian, or equivalently a Dantzig-Wolfe, decomposition attacks.
+
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
   Unit Commitment problems: the general `UCBlock` "root" class, several
   `Block` for specific generating units (`UnitBlock`) and interconnect

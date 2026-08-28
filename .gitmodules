@@ -49,6 +49,9 @@
 [submodule "StochasticBlock"]
 	path = StochasticBlock
 	url = ../stochasticblock.git
+[submodule "SVMBlock"]
+	path = SVMBlock
+	url = ../svmblock.git
 [submodule "tests"]
 	path = tests
 	url = ../tests.git
