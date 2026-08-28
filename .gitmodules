@@ -34,6 +34,9 @@
 [submodule "MMCFBlock"]
 	path = MMCFBlock
 	url = ../mmcfblock.git
+[submodule "MultiStageStochasticBlock"]
+	path = MultiStageStochasticBlock
+	url = ../multistagestochasticblock.git
 [submodule "ScenarioReductionSolver"]
 	path = ScenarioReductionSolver
 	url = ../scenarioreductionsolver.git

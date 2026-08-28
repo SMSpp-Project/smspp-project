@@ -62,6 +62,7 @@ smspp_option(BUILD_SDDPBlock "Build SDDPBlock")
 smspp_option(BUILD_CapacitatedFacilityLocationBlock "Build CapacitatedFacilityLocationBlock")
 smspp_option(BUILD_InvestmentBlock "Build InvestmentBlock")
 smspp_option(BUILD_TwoStageStochasticBlock "Build TwoStageStochasticBlock")
+smspp_option(BUILD_MultiStageStochasticBlock "Build MultiStageStochasticBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
@@ -172,6 +173,11 @@ if (BUILD_InvestmentBlock)
 endif ()
 
 if (BUILD_TwoStageStochasticBlock)
+    set(BUILD_StochasticBlock ON) # Requires StochasticBlock
+endif ()
+
+if (BUILD_MultiStageStochasticBlock)
+    set(BUILD_TwoStageStochasticBlock ON) # Requires TwoStageStochasticBlock
     set(BUILD_StochasticBlock ON) # Requires StochasticBlock
 endif ()
 
@@ -290,6 +296,12 @@ endif ()
 if (BUILD_TwoStageStochasticBlock)
     init_submodule(TwoStageStochasticBlock)
     add_subdirectory(TwoStageStochasticBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_MultiStageStochasticBlock)
+    init_submodule(MultiStageStochasticBlock)
+    add_subdirectory(MultiStageStochasticBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
