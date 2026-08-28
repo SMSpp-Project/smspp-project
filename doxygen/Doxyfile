@@ -844,7 +844,8 @@ INPUT                  = doxygen/mainpage.md \
                          ScenarioReductionSolver/include \
                          SMS++/include \
                          StochasticBlock/include \
-			             TwoStageStochasticBlock/include \
+                         TwoStageStochasticBlock/include \
+                         MultiStageStochasticBlock/include \
                          UCBlock/include
 
 # This tag can be used to specify the character encoding of the source files
