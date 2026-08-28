@@ -844,6 +844,7 @@ INPUT                  = doxygen/mainpage.md \
                          ScenarioReductionSolver/include \
                          SMS++/include \
                          StochasticBlock/include \
+                         SVMBlock/include \
                          TwoStageStochasticBlock/include \
                          MultiStageStochasticBlock/include \
                          UCBlock/include
