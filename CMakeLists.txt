@@ -170,6 +170,7 @@ endif ()
 
 if (BUILD_InvestmentBlock)
     set(BUILD_SDDPBlock ON) # Requires SDDPBlock
+    set(BUILD_TwoStageStochasticBlock ON) # Requires TwoStageStochasticBlock
     set(BUILD_UCBlock ON) # Requires UCBlock
 endif ()
 
@@ -288,15 +289,15 @@ if (BUILD_CapacitatedFacilityLocationBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
-if (BUILD_InvestmentBlock)
-    init_submodule(InvestmentBlock)
-    add_subdirectory(InvestmentBlock)
-    set(SMSPP_REQUIRED ON)
-endif ()
-
 if (BUILD_TwoStageStochasticBlock)
     init_submodule(TwoStageStochasticBlock)
     add_subdirectory(TwoStageStochasticBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_InvestmentBlock)
+    init_submodule(InvestmentBlock)
+    add_subdirectory(InvestmentBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
