@@ -1,6 +1,9 @@
 [submodule "BinaryKnapsackBlock"]
 	path = BinaryKnapsackBlock
 	url = ../binaryknapsackblock.git
+[submodule "BranchAndXSolver"]
+	path = BranchAndXSolver
+	url = ../branchandxsolver.git
 [submodule "BundleSolver"]
 	path = BundleSolver
 	url = ../bundlesolver.git

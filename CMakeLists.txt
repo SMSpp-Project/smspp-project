@@ -67,6 +67,7 @@ smspp_option(BUILD_SVMBlock "Build SVMBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
+smspp_option(BUILD_BranchAndXSolver "Build BranchAndXSolver")
 smspp_option(BUILD_FrankWolfeSolver "Build FrankWolfeSolver")
 smspp_option(BUILD_BundleSolver "Build BundleSolver")
 smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
@@ -317,6 +318,12 @@ endif ()
 if (BUILD_MILPSolver)
     init_submodule(MILPSolver)
     add_subdirectory(MILPSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_BranchAndXSolver)
+    init_submodule(BranchAndXSolver)
+    add_subdirectory(BranchAndXSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 
