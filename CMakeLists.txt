@@ -67,6 +67,7 @@ smspp_option(BUILD_SVMBlock "Build SVMBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
+smspp_option(BUILD_BendersDecompositionSolver "Build BendersDecompositionSolver")
 smspp_option(BUILD_BranchAndXSolver "Build BranchAndXSolver")
 smspp_option(BUILD_FrankWolfeSolver "Build FrankWolfeSolver")
 smspp_option(BUILD_BundleSolver "Build BundleSolver")
@@ -318,6 +319,12 @@ endif ()
 if (BUILD_MILPSolver)
     init_submodule(MILPSolver)
     add_subdirectory(MILPSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_BendersDecompositionSolver)
+    init_submodule(BendersDecompositionSolver)
+    add_subdirectory(BendersDecompositionSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 

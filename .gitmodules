@@ -1,3 +1,6 @@
+[submodule "BendersDecompositionSolver"]
+	path = BendersDecompositionSolver
+	url = ../bendersdecompositionsolver.git
 [submodule "BinaryKnapsackBlock"]
 	path = BinaryKnapsackBlock
 	url = ../binaryknapsackblock.git
