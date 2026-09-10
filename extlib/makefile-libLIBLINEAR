@@ -1,0 +1,42 @@
+##############################################################################
+############################ makefile-libLIBLINEAR ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libLIBLINEAR                                                    #
+#                                                                            #
+#   Input:  $(LIBLINEAR_ROOT), the directory where LIBLINEAR is installed          #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libLIBLINEARLIB) = external libraries + -L< libdirs >             #
+#           $(libLIBLINEARINC) = the -I$(include directories)                   #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic LIBLINEAR directory without quotes, if any
+libLIBLINEARBSCDIR = $(subst $\",,$(LIBLINEAR_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# linear.h is included as <linear.h>: the Debian package puts it straight
+# into the include directory, other distributions into one of their own,
+# hence both are given to the compiler
+
+libLIBLINEARINC = -I"$(libLIBLINEARBSCDIR)/include" \
+	-I"$(libLIBLINEARBSCDIR)/include/liblinear"
+
+ifeq ($(UNAME_S),Linux)
+    libLIBLINEARLIB = -L"$(libLIBLINEARBSCDIR)/lib" -llinear
+endif
+ifeq ($(UNAME_S),Darwin)
+    libLIBLINEARLIB = -rpath "$(libLIBLINEARBSCDIR)/lib" \
+	-L"$(libLIBLINEARBSCDIR)/lib" -llinear
+endif
+
+####################### End of makefile-libLIBLINEAR ############################

@@ -20,6 +20,7 @@
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
+#     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
 #     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
@@ -125,6 +126,12 @@ install_on_linux() {
     if [ "$install_libsvm" -eq 1 ]; then
       echo "Installing LIBSVM..."
       apt-get install -y -q libsvm-dev
+    fi
+
+    # Install LIBLINEAR
+    if [ "$install_liblinear" -eq 1 ]; then
+      echo "Installing LIBLINEAR..."
+      apt-get install -y -q liblinear-dev
     fi
   fi
 
@@ -539,6 +546,12 @@ install_on_macos() {
     brew install libsvm
   fi
 
+  # Install LIBLINEAR
+  if [ "$install_liblinear" -eq 1 ]; then
+    echo "Installing LIBLINEAR..."
+    brew install liblinear
+  fi
+
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
@@ -828,6 +841,7 @@ install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
 install_libsvm=${install_libsvm:-1}
+install_liblinear=${install_liblinear:-1}
 install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
 
@@ -886,6 +900,10 @@ do
     ;;
     --without-libsvm)
     install_libsvm=0
+    shift
+    ;;
+    --without-liblinear)
+    install_liblinear=0
     shift
     ;;
     --without-coinor)
@@ -1048,7 +1066,8 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS backends in
-  # MILPSolver, LIBSVM in SVMBlock) degrade gracefully on their own and need
+  # MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their
+  # own and need
   # no mapping here.
   smspp_cmake_flags=()
   if [ "$install_stopt" -eq 0 ]; then

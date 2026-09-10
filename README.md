@@ -249,11 +249,20 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [SVMBlock](https://gitlab.com/smspp/svmblock), defining the `Block` for the
   training problem of a *Support Vector Machine*, both the classifier and the
-  regressor, together with the ad hoc `SMOSolver` and with `LIBSVMSolver`,
-  which hands the problem over to LIBSVM. The abstract representation encodes
+  regressor, together with the ad hoc `SMOSolver` and with `LIBSVMSolver` and
+  `LIBLINEARSolver`, which hand the problem over to LIBSVM and to LIBLINEAR. The abstract representation encodes
   either the training problem itself or its Wolfe dual, and the samples can be
   dealt out to chunks tied by consensus constraints, which is the structure a
   Lagrangian, or equivalently a Dantzig-Wolfe, decomposition attacks.
+
+- [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
+  defining the `Block` for Delay-Constrained Routing problems, i.e., routing
+  flows on a network at minimum cost so that the worst-case end-to-end delay
+  of each of them, as given by a network-calculus formula, meets its
+  deadline: `SingleFlowDCRBlock` for one flow, `MultiFlowDCRBlock` for
+  several of them sharing the arc capacities, together with the
+  `SingleFlowDCRBendersSolver` that solves the single-flow problem by a
+  Benders scheme with a nested Lagrangian relaxation.
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
   Unit Commitment problems: the general `UCBlock` "root" class, several
@@ -339,6 +348,7 @@ according to the following options table:
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
+| `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
 | `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |

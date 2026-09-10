@@ -12,6 +12,7 @@
     "getopt",
     "highs",
     "liblemon",
+    "liblinear",
     "libsvm",
     "msmpi",
     "netcdf-cxx4",
