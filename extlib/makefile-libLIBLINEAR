@@ -1,15 +1,15 @@
 ##############################################################################
-############################ makefile-libLIBLINEAR ##############################
+########################### makefile-libLIBLINEAR ############################
 ##############################################################################
 #                                                                            #
-#   makefile of libLIBLINEAR                                                    #
+#   makefile of libLIBLINEAR                                                 #
 #                                                                            #
-#   Input:  $(LIBLINEAR_ROOT), the directory where LIBLINEAR is installed          #
+#   Input:  $(LIBLINEAR_ROOT), the directory where LIBLINEAR is installed    #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libLIBLINEARLIB) = external libraries + -L< libdirs >             #
-#           $(libLIBLINEARINC) = the -I$(include directories)                   #
+#           $(libLIBLINEARLIB) = external libraries + -L< libdirs >          #
+#           $(libLIBLINEARINC) = the -I$(include directories)                #
 #                                                                            #
 #                                Donato Meoli                                #
 #                         Dipartimento di Informatica                        #
@@ -39,4 +39,4 @@ ifeq ($(UNAME_S),Darwin)
 	-L"$(libLIBLINEARBSCDIR)/lib" -llinear
 endif
 
-####################### End of makefile-libLIBLINEAR ############################
+####################### End of makefile-libLIBLINEAR #########################
