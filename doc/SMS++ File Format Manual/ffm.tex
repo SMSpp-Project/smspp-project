@@ -836,10 +836,29 @@ which case it is necessary to make specific \groups because the name of a
   indices associated with each node in the path. This \variable is
   optional. If it is not provided, then \code{PathElementIndices[i]} is
   assumed to be \code{inf} for all $i \in \{0, \dots, \cstr{TotalLength}-1\}$.
+
+\item the \variable \cstr{PathRangeIndices}, of type \code{netCDF::NcUint} and
+  indexed over the \dimension \cstr{TotalLength}, contains the end of the
+  range of elements selected by each node in the path (see below). This
+  \variable is optional. If it is not provided, then each node selects a
+  single element.
+
+\item the \variables \cstr{PathSubsetSizes}, of type \code{netCDF::NcUint} and
+  indexed over the \dimension \cstr{TotalLength}, and \cstr{PathSubset}, of
+  type \code{netCDF::NcUint} and indexed over the \dimension
+  \cstr{PathSubsetTotalLength}, contain the explicit subsets of elements
+  selected by the nodes in the path (see below). These \variables are
+  optional, and either both are present or neither is. If they are not
+  provided, then no node selects an explicit subset.
 \end{itemize}
 
 \note{All indices mentioned here belong to zero-based numbered sequences, that
   is, sequences whose first element is 0.}
+
+\note{The name of the \dimension over which \cstr{PathNodeTypes} and the other
+  arrays are indexed is not checked when the path is read, since the number of
+  nodes is taken from the arrays themselves. The \code{serialize()} method of
+  \code{AbstractPath} writes it as \cstr{PathTotalLength}.}
 
 The $i$-th element in each of these arrays is associated with the $i$-th node
 in the path, for $i \in \{0, \dots, N-1\}$. The type of a node may be indicated
@@ -938,6 +957,39 @@ second case, in which the group is a vector of lists of \Constraint or
 where $s_t$ is the number of elements in the $t$-th list of the vector. The
 last case is analogous.
 
+The last node of a path can select more than one element of the same kind,
+rather than a single one, in two equivalent forms.
+
+\begin{itemize}
+\item A contiguous range. For a node of type `C', `c', `V' or `v', the range
+  \[
+    [\, \code{PathElementIndices[ i ]} \, , \, \code{PathRangeIndices[ i ]} \,)
+  \]
+  is taken over the indices of the elements of the group, and
+  $\code{PathRangeIndices[ i ]} = +\infty$ means ``up to the end of the
+  group''. For a node of type `B', the range
+  \[
+    [\, \code{PathGroupIndices[ i ]} \, , \, \code{PathRangeIndices[ i ]} \,)
+  \]
+  is taken over the indices of the sub-\Block, and
+  $\code{PathRangeIndices[ i ]} = +\infty$ keeps its original meaning of ``a
+  single sub-\Block''.
+
+\item An explicit subset of indices, which need not be contiguous.
+  \code{PathSubsetSizes[i]} is the size of the subset selected by the $i$-th
+  node, and it is 0 for a node that selects no subset; \cstr{PathSubset} is
+  the concatenation, in the order of the nodes, of the subsets of all the
+  nodes, so that \cstr{PathSubsetTotalLength} is the sum of the entries of
+  \cstr{PathSubsetSizes}. When $\code{PathSubsetSizes[i]} > 0$, the subset
+  takes precedence over the range of the $i$-th node.
+\end{itemize}
+
+If the group is a multidimensional array, the bounds of a range and the
+elements of a subset are the same flat row-major indices of
+\eqref{eq:element_index}. A range therefore selects elements in row-major
+order, and any other selection, say a column of a two-dimensional array,
+requires a subset.
+
 Rather than indices, \cstr{PathGroupIndices} can contain names: it is then of
 type \code{netCDF::NcString}, and the meaning of its $i$-th entry depends on
 the type of the $i$-th node.
@@ -1000,6 +1052,18 @@ given \group.
   and indexed over the \dimension \cstr{TotalLength}. This \variable is
   optional. If it is not provided, then \code{PathElementIndices[i]} is
   assumed to be \code{inf} for all $i \in \{0, \dots, \cstr{TotalLength}-1\}$.
+
+\item the \variable \cstr{PathRangeIndices}, of type \code{netCDF::NcUint} and
+  indexed over the \dimension \cstr{TotalLength}. This \variable is optional,
+  with the same meaning as for a single \code{AbstractPath}.
+
+\item the \variables \cstr{PathSubsetSizes}, of type \code{netCDF::NcUint} and
+  indexed over the \dimension \cstr{TotalLength}, and \cstr{PathSubset}, of
+  type \code{netCDF::NcUint} and indexed over the \dimension
+  \cstr{PathSubsetTotalLength}. These \variables are optional, with the same
+  meaning as for a single \code{AbstractPath}: \cstr{PathSubset} is the
+  concatenation of the subsets of the nodes of all the paths, in the order in
+  which the nodes appear in \cstr{PathNodeTypes}.
 \end{itemize}
 
 The format of a vector of \code{AbstractPath} is similar to that of a single
@@ -1041,6 +1105,12 @@ In particular, \cstr{PathGroupIndices} can be of type \code{netCDF::NcString}
 also for a vector of \code{AbstractPath}, in which case it is so for all the
 paths of the vector: the entries of a path that uses no names are its indices
 written in decimal digits.
+
+\note{The \code{serialize()} method of \code{AbstractPath} that writes a
+  vector of \code{AbstractPath} refuses to write explicit subsets, and
+  therefore throws an exception if any path of the vector has one; a vector
+  that has them can still be read. Such a path has to be written on its own,
+  i.e., in a \group of its.}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\code{SimpleDataMapping}}\label{sec:SimpleDataMapping}
