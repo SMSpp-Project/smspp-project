@@ -827,8 +827,9 @@ which case it is necessary to make specific \groups because the name of a
   nodes in the path;
 
 \item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint}
-  and indexed over the \dimension \cstr{TotalLength}, contains the group
-  indices associated with each node in the path;
+  (or \code{netCDF::NcString}, see below) and indexed over the \dimension
+  \cstr{TotalLength}, contains the group indices associated with each node in
+  the path;
 
 \item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{TotalLength}, contains the element
@@ -937,6 +938,39 @@ second case, in which the group is a vector of lists of \Constraint or
 where $s_t$ is the number of elements in the $t$-th list of the vector. The
 last case is analogous.
 
+Rather than indices, \cstr{PathGroupIndices} can contain names: it is then of
+type \code{netCDF::NcString}, and the meaning of its $i$-th entry depends on
+the type of the $i$-th node.
+
+\begin{itemize}
+\item For a node of type `C', `c', `V' or `v', the entry is the name of the
+  (static or dynamic) group of \Constraint or \Variable of the \Block the node
+  refers to (see \code{Block::get\_s\_const\_name()},
+  \code{Block::get\_d\_const\_name()}, \code{Block::get\_s\_var\_name()} and
+  \code{Block::get\_d\_var\_name()}).
+
+\item For a node of type `B', the entry is the name of the sub-\Block, i.e.,
+  what its \code{name()} method returns, which is the optional \cstr{name}
+  \attribute of the \group describing it (see \S \ref{ssec:Block}). If more
+  than one sub-\Block has that name, the first one is taken.
+
+\item For a node of type `O', the entry is meaningless, but it must still be
+  written in decimal digits, e.g., \code{"0"}.
+\end{itemize}
+
+An entry made of decimal digits only is taken as an index, with the same
+meaning as when \cstr{PathGroupIndices} is of type \code{netCDF::NcUint}: always
+for a node of type `B', and for a node of type `C', `c', `V' or `v' whenever
+the \Block has no group with that name. Hence, names and indices can be mixed
+in the same path; in particular, $+\infty$ for the last node of type `B' is
+written as \code{"4294967295"}. For instance, the path with
+$\cstr{PathNodeTypes} = \code{"BV"}$ and $\cstr{PathGroupIndices} = (
+\code{"1"} , \code{"x"} )$ refers to an element of the static group of
+\Variable named \code{x} of the sub-\Block with index 1.
+
+\note{The name of a sub-\Block cannot be made of decimal digits only, since
+  such an entry is always taken as an index.}
+
 \subsubsubsection{Vector of \code{AbstractPath}}\label{sec:vector_AbstractPath}
 
 \noindent
@@ -959,7 +993,8 @@ given \group.
   indexed over the \dimension \cstr{TotalLength};
 
 \item the \variable \cstr{PathGroupIndices}, of type \code{netCDF::NcUint}
-  and indexed over the \dimension \cstr{TotalLength};
+  (or \code{netCDF::NcString}) and indexed over the \dimension
+  \cstr{TotalLength};
 
 \item the \variable \cstr{PathElementIndices}, of type \code{netCDF::NcUint}
   and indexed over the \dimension \cstr{TotalLength}. This \variable is
@@ -1002,6 +1037,10 @@ The description of the last path is given between the indices
 The paths are represented in the same format as specified for a single
 \code{AbstractPath}, except that here they are concatenated in the arrays
 \cstr{PathNodeTypes}, \cstr{PathGroupIndices}, and \cstr{PathElementIndices}.
+In particular, \cstr{PathGroupIndices} can be of type \code{netCDF::NcString}
+also for a vector of \code{AbstractPath}, in which case it is so for all the
+paths of the vector: the entries of a path that uses no names are its indices
+written in decimal digits.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\code{SimpleDataMapping}}\label{sec:SimpleDataMapping}
