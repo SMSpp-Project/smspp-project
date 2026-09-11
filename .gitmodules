@@ -49,6 +49,9 @@
 [submodule "SDDPBlock"]
 	path = SDDPBlock
 	url = ../sddpblock.git
+[submodule "SingleFlowDCRBlock"]
+	path = SingleFlowDCRBlock
+	url = ../singleflowdcrblock.git
 [submodule "SMS++"]
 	path = SMS++
 	url = ../smspp.git
