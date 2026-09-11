@@ -398,4 +398,18 @@ if (SMSPP_REQUIRED)
     add_subdirectory(SMS++)
 endif ()
 
+# ----- Binary packages ----------------------------------------------------- #
+# cpack packs what the build installs, i.e. the libraries, the headers and the
+# tools of the enabled modules, in the archives the release pipeline publishes
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR "SMS++ Project")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_HOMEPAGE_URL ${PROJECT_HOMEPAGE_URL})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_FILE_NAME
+        "${PROJECT_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}")
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+set(CPACK_SOURCE_GENERATOR "")
+include(CPack)
+
 # --------------------------------------------------------------------------- #
