@@ -273,7 +273,16 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 ## Getting started
 
-These instructions will let you build the projects on your local machine.
+SMS++ is also distributed ready-made, which is the quickest way to use it:
+
+- `conda install -c conda-forge smspp-project` installs the libraries and the
+  command-line tools on Linux, macOS and Windows;
+
+- the [SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry) packages
+  it as a vcpkg port with one feature per module, e.g.
+  `vcpkg install "smspp[core,ucblock,milp]"`.
+
+The instructions below are for building the projects on your local machine.
 
 ### Requirements
 
