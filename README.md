@@ -275,14 +275,30 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 SMS++ is also distributed ready-made, which is the quickest way to use it:
 
+- on Ubuntu, the [PPA of the project](https://launchpad.net/~smspp/+archive/ubuntu/ppa)
+  carries one package per module and one per tool, so that a project installs
+  only what it uses:
+
+  ```sh
+  sudo add-apt-repository ppa:smspp/ppa
+  sudo apt install smspp-project      # everything, libraries, headers and tools
+  sudo apt install smspp-ucblock      # the Unit Commitment tool alone
+  sudo apt install libsmspp-mcf-dev   # the headers of MCFBlock and its CMake
+  ```
+
 - `conda install -c conda-forge smspp-project` installs the libraries and the
   command-line tools on Linux, macOS and Windows;
+
+- `brew tap SMSpp-Project/smspp` and then `brew install smspp` install the
+  whole framework on macOS and on Linux;
 
 - the [SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry) packages
   it as a vcpkg port with one feature per module, e.g.
   `vcpkg install "smspp[core,ucblock,milp]"`.
 
-The instructions below are for building the projects on your local machine.
+CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
+Solvers carry the HiGHS backend alone; a build against the others is still the
+one of the sources, which the instructions below are about.
 
 ### Requirements
 
