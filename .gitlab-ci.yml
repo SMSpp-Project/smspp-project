@@ -76,6 +76,19 @@ vcpkg_registry:
     branch: develop
     strategy: depend
 
+# The release pipeline of the packaging for the PPA builds the source package
+# of the new tag and uploads it to Launchpad, if the key is in its variables.
+ppa:
+  stage: release
+  rules:
+    - if: $CI_COMMIT_TAG
+  needs: [release_job]
+  variables:
+    SMSPP_VERSION: $CI_COMMIT_TAG
+  trigger:
+    project: smspp/ppa
+    branch: develop
+
 # The gitlink of vcpkg-registry follows the commit the update has just made,
 # so that the project keeps pinning the registry that serves its own release.
 # The push is with the job token, as the user who pushed the tag.
