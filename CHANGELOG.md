@@ -13,6 +13,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.6.1] - 2026-09-13
+
+### Added
+
+- the operating rules of a nuclear unit in the `NuclearUnitBlock` of UCBlock,
+  with the labelled dynamic programming that solves them, and the options
+  that decide whether the optimal schedule uses them
+
+- the samples of a sparse data set are read as the list of their nonzeroes in
+  SVMBlock, which is how its kernel is computed there: on `w8a`, which is 3.9
+  per cent full, a factor of 4.5 on the solve
+
+### Changed
+
+- the installed tools carry the name of the project, e.g.
+  `smspp_ucblock_solver` and `smspp_chgcfg`, so that they are recognisable
+  among all the others where they are installed; each of them is also
+  installed under the name it had before, which is a link to it and which a
+  later release will drop
+
+- `intLogVerb` of the `PrimalProximalHeur` of LagrangianDualSolver is one
+  composite value, v + 4 * w, carrying the verbosity of the heuristic and
+  that of its inner Solver
+
+- the start of the Gurobi environment is retried, with a growing wait, when
+  the license service refuses it for a transient reason
+
+- the project is packaged for Ubuntu in the PPA `ppa:smspp/ppa`, one package
+  per module and one per tool, and for Homebrew in the tap
+  `SMSpp-Project/smspp`; the README and the wiki tell the four ways of
+  installing it ready-made
+
+### Fixed
+
+- a direction is checked against a quadratic row of a `Block` too, the sign
+  of the quadratic form deciding whether the row bounds it
+
+- `FindStOpt` looks for the library in lowercase too, as a distribution
+  packaging StOpt names it
+
+- the master of the Benders decomposition needs the least numerical care of
+  GUROBI, not none of it, and the residual of a cut is declared
+
+- `is_sol_feasible()` and `is_sol_optimal()` of MCFBlock and of
+  SingleFlowDCRBlock read the Solution and leave the Variable alone
+
 ## [0.6.0] - 2026-09-12
 
 ### Added
