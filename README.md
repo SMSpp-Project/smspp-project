@@ -273,28 +273,26 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 ## Getting started
 
-SMS++ is also distributed ready-made, which is the quickest way to use it:
+SMS++ is also distributed ready-made, which is the quickest way to use it,
+in any of
 
-- on Ubuntu, the [PPA of the project](https://launchpad.net/~smspp-project/+archive/ubuntu/smspp)
-  carries one package per module and one per tool, so that a project installs
-  only what it uses:
+```sh
+sudo add-apt-repository ppa:smspp-project/smspp   # Ubuntu
+sudo apt install smspp-project                    # or smspp-ucblock, libsmspp-mcf-dev, ...
 
-  ```sh
-  sudo add-apt-repository ppa:smspp-project/smspp
-  sudo apt install smspp-project      # everything, libraries, headers and tools
-  sudo apt install smspp-ucblock      # the Unit Commitment tool alone
-  sudo apt install libsmspp-mcf-dev   # the headers of MCFBlock and its CMake
-  ```
+conda install -c conda-forge smspp-project        # Linux, macOS, Windows
 
-- `conda install -c conda-forge smspp-project` installs the libraries and the
-  command-line tools on Linux, macOS and Windows;
+brew tap SMSpp-Project/smspp                      # macOS, Linux
+brew install smspp
 
-- `brew tap SMSpp-Project/smspp` and then `brew install smspp` install the
-  whole framework on macOS and on Linux;
+vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one feature per module
+```
 
-- the [SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry) packages
-  it as a vcpkg port with one feature per module, e.g.
-  `vcpkg install "smspp[core,ucblock,milp]"`.
+On Ubuntu the framework is one package per module and one per tool, so that a
+project installs only what it uses: `libsmspp-<module>` holds a shared
+library, `libsmspp-<module>-dev` its headers and the CMake configuration that
+`find_package()` finds, `smspp-<tool>` a command with its configuration files,
+its examples and its man page, and `smspp-project` installs them all.
 
 CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
 Solvers carry the HiGHS backend alone; a build against the others is still the
