@@ -113,9 +113,10 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
   Warehouse Location (CWL) problem, primarily intended as a "didactic"
-  implementation for showing some of the features of `SMS++`. However, it is
-  also used as the support for scenario reduction techniques in
-  `StochasticBlock` (see below).
+  implementation for showing some of the features of `SMS++`. However, it can
+  also play, at run time, the role of the sub-problem of the scenario
+  reduction techniques (see below), which build it through the `SMS++`
+  factory and therefore do not require this module at build time.
 
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
@@ -218,8 +219,10 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   generating scenario data (in the form that `StochasticBlock` uses) and its
   `DiscreteScenarioSet` implementation for the special case of discrete
   distributions (finite sets of scenarios). The latter also implements a
-  general support for *scenario reduction* techniques via integration with the
-  `CapacitatedFacilityLocationBlock` (and solvers therein).
+  general support for *scenario reduction* techniques, whose sub-problem is
+  built through the `SMS++` factory, so that a
+  `CapacitatedFacilityLocationBlock` (and the Solvers therein) can serve as
+  such without the module being required to build this one.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (`Block` and/or
