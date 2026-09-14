@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.6.3] - 2026-09-14
+
+### Fixed
+
+- the makefiles of the modules declare the same dependencies as CMake does:
+  LagrangianDualSolver brings in MILPSolver, which PrimalProximalHeur needs,
+  StochasticBlock no longer brings in the facility location Block, and the
+  complete makefile of InvestmentBlock does not list the core objects twice
+
 - StochasticBlock no longer turns CapacitatedFacilityLocationBlock on, which
   it stopped using when `ScenarioReductor.cpp` went away: a build of
   SDDPBlock, or of any other stochastic module, no longer drags in the
