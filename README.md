@@ -113,9 +113,10 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
   Warehouse Location (CWL) problem, primarily intended as a "didactic"
-  implementation for showing some of the features of `SMS++`. However, it is
-  also used as the support for scenario reduction techniques in
-  `StochasticBlock` (see below).
+  implementation for showing some of the features of `SMS++`. However, it can
+  also play, at run time, the role of the sub-problem of the scenario
+  reduction techniques (see below), which build it through the `SMS++`
+  factory and therefore do not require this module at build time.
 
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
@@ -218,8 +219,10 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   generating scenario data (in the form that `StochasticBlock` uses) and its
   `DiscreteScenarioSet` implementation for the special case of discrete
   distributions (finite sets of scenarios). The latter also implements a
-  general support for *scenario reduction* techniques via integration with the
-  `CapacitatedFacilityLocationBlock` (and solvers therein).
+  general support for *scenario reduction* techniques, whose sub-problem is
+  built through the `SMS++` factory, so that a
+  `CapacitatedFacilityLocationBlock` (and the Solvers therein) can serve as
+  such without the module being required to build this one.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (`Block` and/or
@@ -273,28 +276,26 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 ## Getting started
 
-SMS++ is also distributed ready-made, which is the quickest way to use it:
+SMS++ is also distributed ready-made, which is the quickest way to use it,
+in any of
 
-- on Ubuntu, the [PPA of the project](https://launchpad.net/~smspp/+archive/ubuntu/ppa)
-  carries one package per module and one per tool, so that a project installs
-  only what it uses:
+```sh
+sudo add-apt-repository ppa:smspp-project/smspp   # Ubuntu
+sudo apt install smspp-project                    # or smspp-ucblock, libsmspp-mcf-dev, ...
 
-  ```sh
-  sudo add-apt-repository ppa:smspp/ppa
-  sudo apt install smspp-project      # everything, libraries, headers and tools
-  sudo apt install smspp-ucblock      # the Unit Commitment tool alone
-  sudo apt install libsmspp-mcf-dev   # the headers of MCFBlock and its CMake
-  ```
+conda install -c conda-forge smspp-project        # Linux, macOS, Windows
 
-- `conda install -c conda-forge smspp-project` installs the libraries and the
-  command-line tools on Linux, macOS and Windows;
+brew tap SMSpp-Project/smspp                      # macOS, Linux
+brew install smspp
 
-- `brew tap SMSpp-Project/smspp` and then `brew install smspp` install the
-  whole framework on macOS and on Linux;
+vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one feature per module
+```
 
-- the [SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry) packages
-  it as a vcpkg port with one feature per module, e.g.
-  `vcpkg install "smspp[core,ucblock,milp]"`.
+On Ubuntu the framework is one package per module and one per tool, so that a
+project installs only what it uses: `libsmspp-<module>` holds a shared
+library, `libsmspp-<module>-dev` its headers and the CMake configuration that
+`find_package()` finds, `smspp-<tool>` a command with its configuration files,
+its examples and its man page, and `smspp-project` installs them all.
 
 CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
 Solvers carry the HiGHS backend alone; a build against the others is still the
