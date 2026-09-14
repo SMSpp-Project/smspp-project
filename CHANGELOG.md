@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- StochasticBlock no longer turns CapacitatedFacilityLocationBlock on, which
+  it stopped using when `ScenarioReductor.cpp` went away: a build of
+  SDDPBlock, or of any other stochastic module, no longer drags in the
+  facility location Block and the two Blocks it needs
+
 ## [0.6.2] - 2026-09-14
 
 ### Fixed
