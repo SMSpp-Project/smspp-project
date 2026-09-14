@@ -275,12 +275,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 SMS++ is also distributed ready-made, which is the quickest way to use it:
 
-- on Ubuntu, the [PPA of the project](https://launchpad.net/~smspp/+archive/ubuntu/ppa)
+- on Ubuntu, the [PPA of the project](https://launchpad.net/~smspp-project/+archive/ubuntu/smspp)
   carries one package per module and one per tool, so that a project installs
   only what it uses:
 
   ```sh
-  sudo add-apt-repository ppa:smspp/ppa
+  sudo add-apt-repository ppa:smspp-project/smspp
   sudo apt install smspp-project      # everything, libraries, headers and tools
   sudo apt install smspp-ucblock      # the Unit Commitment tool alone
   sudo apt install libsmspp-mcf-dev   # the headers of MCFBlock and its CMake
