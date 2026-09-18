@@ -1084,8 +1084,10 @@ if [ "$install_smspp" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_BundleSolver=OFF")
   fi
 
-  # Build SMSpp
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev "${smspp_cmake_flags[@]}"
+  # Build SMSpp, optimized: a build with no CMAKE_BUILD_TYPE, or a Debug one,
+  # has no optimization at all, and building the Blocks of a large instance
+  # becomes several times slower than solving it
+  cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev "${smspp_cmake_flags[@]}"
   # Check if the script is not being executed on a server without display or interactive terminal
   if [ -t 1 ] && [ -z "${CI:-}" ]; then
     cd build
