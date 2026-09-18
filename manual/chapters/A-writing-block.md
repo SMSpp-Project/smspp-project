@@ -18,7 +18,7 @@ fit in an appendix.
 > *repository* around it — the CMake and makefile builds, the CI, the test
 > harness and the standard boilerplate every SMS++ module shares — do not
 > start from scratch: clone the
-> [ModuleTemplate](https://gitlab.com/smspp-develop/ModuleTemplate) repository and
+> [ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository and
 > run its `init.sh`, which generates a complete module skeleton in the
 > standard layout (see the wiki page
 > [Creating a new module](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module)).

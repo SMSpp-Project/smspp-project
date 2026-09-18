@@ -5,7 +5,7 @@ first-fit greedy heuristic for the `BinPackingBlock` of [Appendix A](A-writing-b
 as the worked example. As there, the code is illustrative rather
 than production-grade. For the repository scaffolding around a new
 `:Solver` module (builds, CI, tests, boilerplate) start from the
-[ModuleTemplate](https://gitlab.com/smspp-develop/ModuleTemplate) repository, as
+[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository, as
 described in the wiki page
 [Creating a new module](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module).
 
