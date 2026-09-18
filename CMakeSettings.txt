@@ -19,8 +19,12 @@
 #   - Release:        -O3 -DNDEBUG                                            #
 #   - RelWithDebInfo: -O2 -g -DNDEBUG                                         #
 # --------------------------------------------------------------------------- #
-# Build type
-#set(CMAKE_BUILD_TYPE "Debug")
+# Build type: Release unless one is given, e.g., with -DCMAKE_BUILD_TYPE=Debug;
+# a build with no type has no optimization at all. Multi-config generators
+# (Visual Studio, Xcode) choose it at build time and are left alone
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif ()
 
 # Shared or static libraries
 set(BUILD_SHARED_LIBS ON)
