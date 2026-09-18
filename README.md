@@ -579,8 +579,9 @@ released under. However, `SMS++` is a community project, and we humbly suggest
 you to consider participating in it with the rules we have been setting.
 
 The easiest way to start a new module is the
-[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository, a
-ready-to-use skeleton of a `SMS++` module in the standard layout (CMake and
+[ModuleTemplate](https://gitlab.com/smspp-develop/ModuleTemplate) repository (in
+the private `smspp-develop` group of the SMS++ developers), a ready-to-use
+skeleton of a `SMS++` module in the standard layout (CMake and
 makefiles builds, GitLab and GitHub CI, a factory-registered stub class, a
 smoke test wired into CTest, and all the standard boilerplate). Its `init.sh`
 script renames everything after your module, wires the declared dependencies

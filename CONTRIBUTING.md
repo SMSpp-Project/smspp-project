@@ -9,7 +9,8 @@ with the project.
 
 If your contribution is an entirely new module (a new `:Block` and/or
 `:Solver` repository), start it from the
-[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository: its
+[ModuleTemplate](https://gitlab.com/smspp-develop/ModuleTemplate) repository (in the
+private `smspp-develop` group of the SMS++ developers): its
 `init.sh` script generates a complete module in the standard SMS++ layout
 (builds, CI, tests and boilerplate) and registers it in the umbrella project.
 
