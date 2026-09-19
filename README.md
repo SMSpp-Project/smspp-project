@@ -502,15 +502,7 @@ and `SW` controlling the `C++` compiler and its main options; these can
 therefore be set in the "main" makefile and will be used throughout the
 whole compilation. This may be useful to set system-specific values.
 
-An example of this is the macro
-
-```sh
-CLANG_1200_0_32_27_PATCH
-```
-
-which activates a patch for a weird glitch of `clang++` (from 1200.0.32.27
-to at least 1200.0.32.29) that cause some `boost::any magic` to stop working.
-Other settings may be needed (see, for instance, the comments about
+Some settings may be needed (see, for instance, the comments about
 `--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
 
 
