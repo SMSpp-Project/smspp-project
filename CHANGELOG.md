@@ -59,6 +59,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   gigabyte per job and a machine with many cores and little memory going to
   the swap or being killed
 
+### Removed
+
+- COIN-OR (CoinUtils, Osi, Clp) and NDOSolver/FiOracle, which the
+  BundleSolver no longer uses since its version 2.0: `INSTALL.sh` and
+  `INSTALL.ps1` no longer build or look for them (`--without-coinor` is
+  still accepted, and does nothing), and they are gone from `vcpkg.json`,
+  from the `extlib` makefile paths, from the inputs of Doxygen and from the
+  installation pages of the README and of the manual
+
 ### Fixed
 
 ## [0.6.3] - 2026-09-14
