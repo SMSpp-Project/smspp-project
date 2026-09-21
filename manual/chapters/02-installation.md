@@ -34,7 +34,7 @@ locations: `INSTALL.sh` (Linux / macOS) and `INSTALL.ps1`
 (Windows), each accepting `--without-<dependency>` flags
 (`--without-cplex`, `--without-gurobi`, `--without-scip`,
 `--without-highs`, `--without-stopt`, `--without-lemon`,
-`--without-coinor`, `--without-smspp`) to skip the parts not wanted. The exact
+`--without-smspp`) to skip the parts not wanted. The exact
 invocations are in the project `README.md`; the Wiki's
 [requirements guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements)
 has the detail.

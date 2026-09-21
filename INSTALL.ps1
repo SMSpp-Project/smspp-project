@@ -355,10 +355,6 @@ if ($OS -eq "Win32NT")
         .\bootstrap-vcpkg.bat
     }
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
-    $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
-    if (-not (Test-Path $OverlayRoot)) {
-        New-Item -ItemType Directory -Force -Path $OverlayRoot | Out-Null
-    }
 
     # Install CPLEX
     if (-not $withoutCplex) {
@@ -374,8 +370,8 @@ if ($OS -eq "Win32NT")
                 $withoutCplex = $true
             } else {
                 Start-Process -FilePath $cplexInstaller -Wait
-                # Move "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
-                # spaces in the next when building COIN-OR Osi with Cplex interface
+                # Move "IBM" folder from "C:\Program Files" to "C:\", so that its path
+                # has no spaces
                 Move-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM"
                 # the installer creates ILOG\CPLEX_Studio<ver>; strip the version from the path
                 $cplexVersioned = Get-ChildItem -Path "C:\IBM\ILOG" -Directory -Filter "CPLEX_Studio*" | Select-Object -First 1
@@ -506,61 +502,6 @@ if (-not $withoutSMSpp)
         $manifestJson = Get-Content $ManifestPath -Raw | ConvertFrom-Json
         $manifestJson.'builtin-baseline' = $Baseline
         $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
-    }
-
-    # Configure COIN-OR Osi
-    Write-Host "Configuring COIN-OR Osi..."
-
-    # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
-    if ((-not $withoutCplex) -or (-not $withoutGurobi)) {
-        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
-        New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
-
-        # Copy the original port as a base for our overlay
-        Copy-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'ports\coin-or-osi\*') $OverlayPort
-
-        # Edit the portfile INSIDE THE OVERLAY (never touch the builtin port directly)
-        $portfile = Join-Path $OverlayPort 'portfile.cmake'
-        $osiText = Get-Content -Raw -Path $portfile
-
-        if (-not $withoutGurobi) {
-            Write-Host "Applying Gurobi interface changes to overlay portfile.cmake..."
-            # Replace the line containing --without-gurobi with a multi-line --with-gurobi block
-            $replacementGRB = @"
-        --with-gurobi
-        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
-        --with-gurobi-incdir=C:/gurobi/win64/include
-        --with-gurobi-cflags=-IC:/gurobi/win64/include
-        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
-"@.Trim()
-            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
-            Write-Host "Overlay portfile updated for Gurobi."
-        }
-
-        if (-not $withoutCplex) {
-            Write-Host "Applying CPLEX interface changes to overlay portfile.cmake..."
-            # the static lib name embeds the CPLEX version (cplex<ver>.lib)
-            $cplexLibDir = "C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda"
-            $cplexLibName = (Get-ChildItem -Path "$cplexLibDir/cplex*.lib" | Select-Object -First 1).Name
-            $cplexLib = "$cplexLibDir/$cplexLibName"
-            # Replace the line containing --without-cplex with a multi-line --with-cplex block
-            $replacementCPX = @"
-        --with-cplex
-        --with-cplex-lib=$cplexLib
-        --with-cplex-incdir=C:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-cflags=-IC:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-lflags=$cplexLib
-"@.Trim()
-            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
-            Write-Host "Overlay portfile updated for CPLEX."
-        }
-
-        Set-Content -Path $portfile -Value $osiText -NoNewline
-        $env:VCPKG_OVERLAY_PORTS = $OverlayRoot
-    } else {
-        Remove-Item Env:\VCPKG_OVERLAY_PORTS -ErrorAction SilentlyContinue
-        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
-        if (Test-Path $OverlayPort) { Remove-Item -Recurse -Force $OverlayPort }
     }
 
     Set-Location $SMSPP_ROOT
