@@ -21,15 +21,13 @@
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
 #     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
-#     You can use the `--without-coinor` option to skip the installation of COIN-OR.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
 #     looking for a missing library: --without-stopt disables SDDPBlock and
-#     InvestmentBlock, --without-lemon disables MCFLemonSolver,
-#     --without-coinor disables BundleSolver, and --without-pips disables
-#     PIPSMILPSolver.
+#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
+#     --without-pips disables PIPSMILPSolver.
 #
 # AUTHOR
 #     Donato Meoli
@@ -317,64 +315,6 @@ EOL
       echo "PIPS-IPM++ already installed."
     fi
     cd "$INSTALL_ROOT"
-    CURRENT_INSTALL_FOLDER=""
-  fi
-
-  # Install COIN-OR CoinUtils and Osi/Clp
-  if [ "$install_coinor" -eq 1 ]; then
-    echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-    CoinOr_ROOT="$(resolve_dep_root coin-or)"
-    CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
-    if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q libbz2-dev
-    fi
-    if [ ! -d "$CoinOr_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-      chmod u+x coinbrew
-      # Build CoinUtils
-      ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      osi_build_flags=(
-        "--latest-release"
-        "--skip-dependencies"
-        "--prefix=$CoinOr_ROOT"
-        "--tests=none"
-      )
-      # Build Osi with or without CPLEX
-      if [ "$install_cplex" -eq 0 ]; then
-        osi_build_flags+=("--without-cplex")
-      else
-        osi_build_flags+=(
-          "--with-cplex"
-          "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lpthread -lm"
-          "--disable-cplex-libcheck"
-          "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
-        )
-      fi
-      # Build Osi with or without Gurobi
-      if [ "$install_gurobi" -eq 0 ]; then
-        osi_build_flags+=("--without-gurobi")
-      else
-        GUROBI_VERSION=$(ls "${GUROBI_ROOT}/linux64/lib" | grep -E '^libgurobi[0-9]+\.so$' | sed -E 's/^libgurobi([0-9]+)\.so$/\1/' | head -n1)
-        osi_build_flags+=(
-          "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi${GUROBI_VERSION}"
-          "--disable-gurobi-libcheck"
-          "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
-        )
-      fi
-      ./coinbrew build Osi "${osi_build_flags[@]}"
-      # Build Clp
-      ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      rm -Rf coinbrew build CoinUtils Osi Clp
-      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
-        ldconfig
-      fi
-    else
-      echo "COIN-OR already installed."
-    fi
     CURRENT_INSTALL_FOLDER=""
   fi
 
@@ -710,57 +650,6 @@ install_on_macos() {
     install_pips=0
   fi
 
-  # Install COIN-OR CoinUtils and Osi/Clp
-  if [ "$install_coinor" -eq 1 ]; then
-    echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
-    CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
-    if [ ! -d "$CoinOr_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-      chmod u+x coinbrew
-      # Build CoinUtils
-      ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      osi_build_flags=(
-        "--latest-release"
-        "--skip-dependencies"
-        "--prefix=$CoinOr_ROOT"
-        "--tests=none"
-      )
-      # Build Osi with or without CPLEX
-      if [ "$install_cplex" -eq 0 ]; then
-        osi_build_flags+=("--without-cplex")
-      else
-        osi_build_flags+=(
-          "--with-cplex"
-          "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/${OSX_ARCH}/static_pic -lcplex -lm"
-          "--disable-cplex-libcheck"
-          "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
-        )
-      fi
-      # Build Osi with or without Gurobi
-      if [ "$install_gurobi" -eq 0 ]; then
-        osi_build_flags+=("--without-gurobi")
-      else
-        GUROBI_VERSION=$(ls "${GUROBI_ROOT}/macos_universal2/lib" | grep -E '^libgurobi[0-9]+\.dylib$' | sed -E 's/^libgurobi([0-9]+)\.dylib$/\1/' | head -n1)
-        osi_build_flags+=(
-          "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi${GUROBI_VERSION}"
-          "--disable-gurobi-libcheck"
-          "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
-        )
-      fi
-      ./coinbrew build Osi "${osi_build_flags[@]}"
-      # Build Clp
-      ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      rm -Rf coinbrew build CoinUtils Osi Clp
-      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
-    else
-      echo "COIN-OR already installed."
-    fi
-    CURRENT_INSTALL_FOLDER=""
-  fi
-
   # Install StOpt
   if [ "$install_stopt" -eq 1 ]; then
     echo "Installing StOpt..."
@@ -842,7 +731,6 @@ install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
 install_libsvm=${install_libsvm:-1}
 install_liblinear=${install_liblinear:-1}
-install_coinor=${install_coinor:-1}
 install_smspp=${install_smspp:-1}
 
 # Default value for installation root
@@ -923,7 +811,7 @@ do
     shift
     ;;
     --without-coinor)
-    install_coinor=0
+    # accepted for compatibility: nothing in SMS++ depends on COIN-OR
     shift
     ;;
     --without-smspp)
@@ -1043,27 +931,9 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "GUROBI_ROOT = ${GUROBI_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
-      echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
-      echo "Osi_ROOT = ${CoinOr_ROOT}"
-      echo "Clp_ROOT = ${CoinOr_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
-
-    # If the nested submodule BundleSolver/NdoFiOracle is initialized, i.e., its
-    # extlib folder exists
-    if [ -d "$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib" ]; then
-      ndofi_extlib_file="$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib/makefile-paths"
-      # Create the file with the new paths of the resources for BundleSolver/NdoFiOracle
-      {
-        echo "CPLEX_ROOT = ${CPLEX_ROOT}"
-        echo "GUROBI_ROOT = ${GUROBI_ROOT}"
-        echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
-        echo "Osi_ROOT = ${CoinOr_ROOT}"
-        echo "Clp_ROOT = ${CoinOr_ROOT}"
-      } > "$ndofi_extlib_file"
-      echo "Created $ndofi_extlib_file file."
-    fi
 
     # If the nested submodule MCFClassSolver/MCFClass is initialized, i.e., its
     # extlib folder exists
@@ -1094,10 +964,6 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ "$install_lemon" -eq 0 ]; then
     # LEMON is required by MCFLemonSolver.
     smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
-  fi
-  if [ "$install_coinor" -eq 0 ]; then
-    # Osi/Clp (COIN-OR) are required by BundleSolver (and its NdoFiOracle).
-    smspp_cmake_flags+=("-DBUILD_BundleSolver=OFF")
   fi
 
   # Build SMSpp, optimized: a build with no CMAKE_BUILD_TYPE, or a Debug one,

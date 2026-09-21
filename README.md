@@ -120,10 +120,7 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
-  function(s) based on the (generalized) "bundle method". It currently
-  uses some modules from the [NDOSolver / FiOracle
-  project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
-  although the dependency will be hopefully removed in time.
+  function(s) based on the (generalized) "bundle method".
 
 - [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
   designed to model the investment in different assets defined in
@@ -375,7 +372,6 @@ according to the following options table:
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
 | `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
-| `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 

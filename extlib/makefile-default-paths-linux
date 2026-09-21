@@ -52,9 +52,6 @@ GUROBI_ROOT = /opt/gurobi
 HiGHS_ROOT = /opt/HiGHS
 PIPSIPMPP_ROOT = /opt/pips-ipmpp
 StOpt_ROOT = /opt/StOpt
-CoinUtils_ROOT = /opt/coin-or
-Osi_ROOT = /opt/coin-or
-Clp_ROOT = /opt/coin-or
 FastFlow_ROOT = /opt/fastflow
 Torch_ROOT = /opt/torch
 

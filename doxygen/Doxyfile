@@ -825,11 +825,6 @@ INPUT                  = doxygen/mainpage.md \
                          ./LICENSE \
                          BinaryKnapsackBlock/include \
                          BundleSolver/include \
-                         BundleSolver/NDOFiOracle/Bundle/MPSolver.h \
-                         BundleSolver/NDOFiOracle/MPTester \
-                         BundleSolver/NDOFiOracle/NDOSlver \
-                         BundleSolver/NDOFiOracle/OSIMPSolver \
-                         BundleSolver/NDOFiOracle/QPPnltMP \
                          CapacitatedFacilityLocationBlock/include \
                          InvestmentBlock/include \
                          LagrangianDualSolver/include \
