@@ -860,7 +860,23 @@ if [ -z "${MAX_JOBS:-}" ]; then
   else
     MAX_JOBS=1
   fi
+  # each compiler process may take up to about 1.5 GB on the heaviest SMS++
+  # sources, so the jobs are also bounded by the available memory, lest the
+  # kernel kills the compiler (c++: fatal error: Killed signal terminated
+  # program cc1plus); an explicit MAX_JOBS in the environment is left alone
+  MEM_PER_JOB_MB=1536
+  if [ -r /proc/meminfo ]; then
+    MEM_MB=$(awk '/^MemAvailable:/ { print int($2 / 1024) }' /proc/meminfo)
+  elif [ "$(uname)" = "Darwin" ]; then
+    MEM_MB=$(( $(sysctl -n hw.memsize) / 1048576 ))
+  fi
+  if [ -n "${MEM_MB:-}" ]; then
+    MEM_JOBS=$(( MEM_MB / MEM_PER_JOB_MB ))
+    [ "$MEM_JOBS" -lt 1 ] && MEM_JOBS=1
+    [ "$MEM_JOBS" -lt "$MAX_JOBS" ] && MAX_JOBS=$MEM_JOBS
+  fi
 fi
+echo "Building with ${MAX_JOBS} parallel jobs (set MAX_JOBS to change it)"
 
 # Parse command line arguments
 for arg in "$@"
