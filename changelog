@@ -335,9 +335,10 @@ APART = { "CHANGELOG.md" , "CONTRIBUTING.md" , "LICENSE" , "README.md" ,
 APART_UNDER = ( "ci/" , ".gitlab/" , ".github/" )
 
 
-def submodules():
-    """the paths the .gitmodules of the repository registers"""
-    out = git( ROOT , "config" , "-f" , ".gitmodules" , "--get-regexp" , "path" )
+def submodules( module = "." ):
+    """the paths the .gitmodules of that repository registers"""
+    out = git( os.path.join( ROOT , module ) , "config" , "-f" , ".gitmodules" ,
+               "--get-regexp" , "path" )
     return( set( out.split()[ 1 : : 2 ] ) )
 
 
@@ -378,7 +379,7 @@ def uncovered( module , frm , to , overlap ):
     blob = " ".join( written ).lower()
     said = [ words( e ) for e in written ]
 
-    subs = submodules() if module == "." else set()
+    subs = submodules( module )
 
     missing = []
     for sha , subject , files , section , _ in commits( module , frm , to ):
