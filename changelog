@@ -21,6 +21,11 @@
 #             covered when an entry names one of the files it touches or      #
 #             enough of the words of its subject [see --overlap].             #
 #                                                                             #
+#   links     rewrites the link references of every CHANGELOG from its own     #
+#             releases, each version comparing against the one below it and   #
+#             the oldest pointing at its tag, so that they are all there and  #
+#             all right; without -w it only says what would change.           #
+#                                                                             #
 #   draft     writes the release draft: one section per module, its           #
 #             [Unreleased] as it stands followed by the commits coverage      #
 #             says are not in it, in Keep a Changelog form, ready to be       #
@@ -221,8 +226,12 @@ def check_one( module , cl ):
                 previous = when
             except ValueError:
                 bad.append( f"{where}: '{date}' is no ISO date" )
+        has_tag = version.lstrip( "v" ) in {
+            t.lstrip( "v" ) for t in
+            git( os.path.join( ROOT , module ) , "tag" ).split() }
         if version not in cl.links:
-            bad.append( f"{where}: no link reference for it" )
+            if has_tag:
+                bad.append( f"{where}: no link reference for it" )
         elif version not in cl.links[ version ]:
             bad.append( f"{where}: its link does not name {version}" )
 
@@ -366,6 +375,103 @@ def do_draft( args ):
     return( 0 )
 
 # --------------------------------------------------------------------------- #
+# links                                                                       #
+# --------------------------------------------------------------------------- #
+
+def base_url( repo ):
+    """the https address of the project, from the url of its origin
+
+    The path of a project on GitLab is lowercase whatever the case of the
+    name it is cloned with, so it is lowercased here too."""
+    url = git( repo , "remote" , "get-url" , "origin" )
+    if not url:
+        return( "" )
+    url = re.sub( r"^git@([^:]+):" , r"https://\1/" , url )
+    url = re.sub( r"\.git$" , "" , url )
+    host , _ , path = url.partition( "://" )[ 2 ].partition( "/" )
+    return( f"https://{host}/{path.lower()}" )
+
+
+def previous_of( repo , version , listed ):
+    """what a release compares against: the release below it that has a tag
+
+    The release below it in the file is the answer whenever the repository
+    has a tag for it. It does not always: a CHANGELOG carries releases that
+    were never tagged, and a comparison against one of those is a link to
+    nothing, so the tag right below the version is taken instead."""
+    tags = git( repo , "tag" , "--sort=-v:refname" ).split()
+    bare = [ t.lstrip( "v" ) for t in tags ]
+    if listed and listed.lstrip( "v" ) in bare:
+        return( listed )
+    if version.lstrip( "v" ) in bare:
+        i = bare.index( version.lstrip( "v" ) )
+        if i + 1 < len( tags ):
+            return( tags[ i + 1 ] )
+    return( "" )
+
+
+def link_block( repo , cl ):
+    """the link references the releases of the CHANGELOG ask for"""
+    base = base_url( repo )
+    if not base:
+        return( [] )
+    versions = [ v for v , _ , _ , _ in cl.releases if v.lower() != "unreleased" ]
+    if not versions:
+        return( [] )
+    lines = []
+    if cl.unreleased() is not None:
+        lines.append( f"[Unreleased]: {base}/-/compare/{versions[ 0 ]}...develop" )
+    tagged = { t.lstrip( "v" ) for t in
+               git( repo , "tag" , "--sort=-v:refname" ).split() }
+    for i , v in enumerate( versions ):
+        if v.lstrip( "v" ) not in tagged:
+            # a release the repository has no tag for has nothing to link to,
+            # neither a tag page nor a comparison, so it is left without one
+            continue
+        listed = versions[ i + 1 ] if i + 1 < len( versions ) else ""
+        previous = previous_of( repo , v , listed )
+        if previous:
+            lines.append( f"[{v}]: {base}/-/compare/{previous}...{v}" )
+        else:
+            lines.append( f"[{v}]: {base}/-/tags/{v}" )
+    return( lines )
+
+
+def do_links( args ):
+    """rewrite the link references of each CHANGELOG from its releases"""
+    touched = 0
+    for module in modules():
+        repo = os.path.join( ROOT , module )
+        path = os.path.join( repo , "CHANGELOG.md" )
+        cl = Changelog( path )
+        if not cl.text:
+            continue
+        wanted = link_block( repo , cl )
+        if not wanted:
+            continue
+        keep = [ l for l in cl.text.rstrip( "\n" ).split( "\n" )
+                 if not re.match( r"^\[[^\]]+\]:\s*\S+\s*$" , l ) ]
+        while keep and not keep[ -1 ].strip():
+            keep.pop()
+        text = "\n".join( keep + [ "" ] + wanted ) + "\n"
+        if text.rstrip() == cl.text.rstrip():
+            continue  # the links are those already there, blank lines apart
+        touched += 1
+        print( f"{module}:" )
+        had = set( l for l in cl.text.split( "\n" )
+                   if re.match( r"^\[[^\]]+\]:\s*\S+\s*$" , l ) )
+        for l in wanted:
+            if l not in had:
+                print( f"  + {l}" )
+        for l in sorted( had - set( wanted ) ):
+            print( f"  - {l}" )
+        if args.write:
+            open( path , "w" , encoding = "utf-8" ).write( text )
+    print( f"\n{touched} to rewrite" + ( ", written" if args.write else
+                                         ", pass -w to write them" ) )
+    return( 0 )
+
+# --------------------------------------------------------------------------- #
 # the command line                                                            #
 # --------------------------------------------------------------------------- #
 
@@ -383,6 +489,12 @@ def main():
     v.add_argument( "-l" , "--list" , action = "store_true" ,
                     help = "list them, one per line" )
     v.set_defaults( run = do_coverage )
+
+    k = sub.add_parser( "links" ,
+                        help = "rewrite the link references from the releases" )
+    k.add_argument( "-w" , "--write" , action = "store_true" ,
+                    help = "write them, instead of only saying what changes" )
+    k.set_defaults( run = do_links )
 
     d = sub.add_parser( "draft" , help = "the release draft, module by module" )
     d.add_argument( "-o" , "--out" , help = "the file to write it in" )

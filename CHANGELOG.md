@@ -148,6 +148,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - significant changes in installation scripts and cmake / makefiles
 
-[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.0...develop
-[0.6.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.5.1...0.6.0
-[0.5.0]: https://gitlab.com/smspp/smspp-project/-/tags/0.5.0
+[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.3...develop
+[0.6.3]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.2...0.6.3
+[0.6.2]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.1...0.6.2
+[0.6.1]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.0...0.6.1
+[0.6.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.5.0...0.6.0
+[0.5.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.4.0...0.5.0
