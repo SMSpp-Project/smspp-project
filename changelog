@@ -103,20 +103,61 @@ def range_of( module , frm ):
     return( ( line.split()[ 2 ] if line else "" ) , "HEAD" )
 
 
+def trailers( body ):
+    """the Changelog trailers of a commit message, ( section , entry )
+
+    A commit says what it changes with the trailer the CONTRIBUTING asks for,
+
+        Changelog: Fixed
+        Changelog-entry: what it fixed, in the words of the CHANGELOG,
+          carried on as many lines as it takes
+
+    and a commit that changes nothing worth telling says so with
+    [skip changelog] anywhere in its message. Answers ( "" , "" ) when there
+    is no trailer, ( "skip" , "" ) when there is the marker."""
+    section = entry = ""
+    lines = body.split( "\n" )
+    for i , line in enumerate( lines ):
+        m = re.match( r"^Changelog:\s*(\S+)\s*$" , line )
+        if m:
+            section = m.group( 1 ).capitalize()
+            continue
+        m = re.match( r"^Changelog-entry:\s*(.*)$" , line )
+        if m:
+            parts = [ m.group( 1 ).strip() ]
+            for nxt in lines[ i + 1 : ]:
+                if nxt.startswith( ( " " , "\t" ) ) and nxt.strip():
+                    parts.append( nxt.strip() )
+                else:
+                    break
+            entry = " ".join( p for p in parts if p )
+    if ( not section ) and ( "[skip changelog]" in body.lower() ):
+        section = "skip"
+    return( section , entry )
+
+
 def commits( module , frm , to ):
-    """the commits of the module in the range, as ( sha , subject , files )"""
+    """the commits of the range, as ( sha , subject , files , section , entry )"""
     repo = os.path.join( ROOT , module )
     if not frm:
         return( [] )
     span = f"{frm}..{to}"
-    out = git( repo , "log" , "--no-merges" , "--format=%h%x1f%s" , span )
+    out = git( repo , "log" , "--no-merges" , "--format=%h%x1f%s%x1f%b%x1e" , span )
     if not out:
         return( [] )
     got = []
-    for line in out.split( "\n" ):
-        sha , _ , subject = line.partition( "\x1f" )
+    for record in out.split( "\x1e" ):
+        record = record.strip( "\n" )
+        if not record:
+            continue
+        sha , _ , rest = record.partition( "\x1f" )
+        subject , _ , body = rest.partition( "\x1f" )
         files = git( repo , "show" , "--name-only" , "--format=" , sha ).split( "\n" )
-        got.append( ( sha , subject , [ f for f in files if f ] ) )
+        section , entry = trailers( body )
+        if ( not section ) and ( "[skip changelog]" in subject.lower() ):
+            section = "skip"
+        got.append( ( sha , subject , [ f for f in files if f ] ,
+                      section , entry ) )
     return( got )
 
 # --------------------------------------------------------------------------- #
@@ -302,9 +343,11 @@ def uncovered( module , frm , to , overlap ):
     said = [ words( e ) for e in written ]
 
     missing = []
-    for sha , subject , files in commits( module , frm , to ):
+    for sha , subject , files , section , _ in commits( module , frm , to ):
         if subject.startswith( "updated submodule" ) or subject.startswith( "Merge " ):
             continue
+        if section:
+            continue  # the commit says what it changes, or that it changes nothing
         names = { os.path.basename( f ) for f in files }
         stems = { os.path.splitext( n )[ 0 ].lower() for n in names }
         if any( s and s in blob for s in stems ):
@@ -365,7 +408,16 @@ def do_draft( args ):
         cl = Changelog( os.path.join( ROOT , module , "CHANGELOG.md" ) )
         said = cl.unreleased_text()
         miss = uncovered( module , frm , to , args.overlap )
-        if not said and not miss:
+        # what the commits say of themselves in their trailers, and which the
+        # CHANGELOG does not carry yet
+        told = {}
+        for sha , subject , _ , section , entry in commits( module , frm , to ):
+            if ( not entry ) or ( section in ( "" , "skip" ) ):
+                continue
+            if entry.lower()[ : 60 ] in said.lower():
+                continue
+            told.setdefault( section , [] ).append( ( sha , entry ) )
+        if not said and not miss and not told:
             continue
         name = "umbrella" if module == "." else module
         out.append( f"## {name}" )
@@ -374,6 +426,14 @@ def do_draft( args ):
         out.append( "" )
         if said:
             out.append( said )
+            out.append( "" )
+        for section in SECTIONS:
+            if section not in told:
+                continue
+            out.append( f"### {section}, from the trailers of the commits" )
+            out.append( "" )
+            for sha , entry in told[ section ]:
+                out.append( f"- {entry} [{sha}]" )
             out.append( "" )
         if miss:
             out.append( "### To be written" )

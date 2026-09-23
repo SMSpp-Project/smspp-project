@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- a commit says what it changes with the `Changelog:` and `Changelog-entry:`
+  trailers of its message, or that it changes nothing worth telling with
+  `[skip changelog]`; `changelog coverage` reads them, so that a commit is
+  covered because it says so and not because an entry happens to share its
+  words, and `changelog draft` collects them into the draft of a release
+  [see CONTRIBUTING.md]
+
 - `changelog`, which reads the CHANGELOG of the project and of every module:
   `check` says what does not hold in them, from a date that is not ISO to a
   link reference that names another release; `coverage` says which commits

@@ -21,6 +21,31 @@ private `smspp-develop` group of the SMS++ developers): its
 2. Update the Changelog accordingly.
    The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+   Say in the commit itself what it changes, with the trailer
+
+       Changelog: Added
+       Changelog-entry: `MCFSolver::get_var_direction()`, which writes the
+         cycle of negative cost that certifies the unboundedness of the flow
+
+   where the first line is one of the sections of the format (`Added`,
+   `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`) and the second
+   is the entry as it will read in the `CHANGELOG.md`, carried on as many
+   lines as it takes. The entry is written when the work is done and is
+   understood, rather than reconstructed at the release out of a year of
+   commits, and `changelog draft` collects the trailers of a release into
+   the draft of its changelog.
+
+   A commit that changes nothing worth telling — a rename of a local
+   variable, a comment, the formatting of a file — says so with
+   `[skip changelog]` anywhere in its message.
+
+   The pipeline holds this: `changelog check` reads the `CHANGELOG.md` of
+   the project and complains about what does not keep the format, and on a
+   merge request `changelog coverage` asks for a trailer, or the marker, or
+   an entry of `[Unreleased]` covering each of its commits. The tool is
+   `changelog` in the umbrella, and works on one repository at a time with
+   `--repo`.
+
 3. The version is derived automatically from the most recent git tag (see
    `cmake/DeriveVersion.cmake`), so there is no version number to bump by hand:
    cutting a release is just tagging the release commit, e.g. `git tag x.y.z`.
