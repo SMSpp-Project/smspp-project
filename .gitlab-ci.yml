@@ -57,39 +57,91 @@ changelog_all:
 # checks of itself in its own pipeline is its own, while what only the
 # umbrella has is the modules together and the suites of tests/, which read
 # the instances of one module and solve them with the Solver of another.
-# It runs on a schedule that sets NIGHTLY, and nowhere else, since it is the
-# one job of this project that costs more than seconds.
-nightly:
-  stage: check
+# It runs on the schedule that sets NIGHTLY, and nowhere else, being the one
+# thing here that costs more than seconds. One job builds, the others take
+# the build and run their share of the suites, each of them well inside the
+# hour a job is given.
+.nightly:
   image: registry.gitlab.com/smspp/smspp-project
   rules:
     - if: $NIGHTLY == "1"
-  timeout: 55m
   variables:
     GIT_DEPTH: 0
     CCACHE_DIR: $CI_PROJECT_DIR/.ccache
-    CCACHE_MAXSIZE: 1G
+    CCACHE_MAXSIZE: 2G
+  before_script:
+    # the Gurobi WLS license from the masked variables, as the modules do;
+    # without them the tests that ask for Gurobi are the ones that fail
+    - |
+      if [ -n "$GRB_WLSSECRET" ]; then
+        printf 'LICENSEID=%s\nWLSACCESSID=%s\nWLSSECRET=%s\n' \
+          "$GRB_LICENSEID" "$GRB_WLSACCESSID" "$GRB_WLSSECRET" > /tmp/gurobi.lic
+        export GRB_LICENSE_FILE=/tmp/gurobi.lic
+      fi
+
+nightly:build:
+  extends: .nightly
+  stage: check
+  timeout: 55m
   cache:
     key: nightly-$CI_COMMIT_REF_SLUG
     paths:
       - .ccache
-  before_script:
+  script:
     - apt-get update && apt-get install -y --no-install-recommends ccache
     - git submodule sync --recursive
     - git submodule update --init --recursive
-  script:
     - ccache --zero-stats
     - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
             -DCMAKE_C_COMPILER_LAUNCHER=ccache
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build build -j$(nproc)
     - ccache --show-stats
-    - cd build && ctest -j$(nproc) --timeout 600 --output-on-failure --no-tests=error
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 day
+
+# each of these takes the build and runs the suites of its share; the last
+# one runs whatever the others do not, so that no suite is left out by a
+# name nobody thought of
+.nightly:test:
+  extends: .nightly
+  stage: deploy
+  timeout: 55m
+  needs:
+    - job: nightly:build
+      artifacts: true
+  script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - cd build && ctest -j$(nproc) --timeout 900 --output-on-failure
+                        --no-tests=error $CTEST_SELECT
   artifacts:
     when: always
     paths:
       - build/Testing/Temporary/LastTest.log
     expire_in: 7 days
+
+nightly:core:
+  extends: .nightly:test
+  variables:
+    CTEST_SELECT: -R "^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)"
+
+nightly:unitcommitment:
+  extends: .nightly:test
+  variables:
+    CTEST_SELECT: -R "^(UCBlock_test|TUDPS_test|extract_uc)"
+
+nightly:flows:
+  extends: .nightly:test
+  variables:
+    CTEST_SELECT: -R "^(MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)"
+
+nightly:rest:
+  extends: .nightly:test
+  variables:
+    CTEST_SELECT: -E "^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)"
 
 pages:
   stage: deploy
