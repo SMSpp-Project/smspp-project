@@ -37,6 +37,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `mirror-to-github` skips `moduletemplate`, which has moved to the private
+  `smspp-develop` group and is not mirrored
+- `CMakeSettings.txt` gives `-Wno-undefined-internal` to clang alone, gcc
+  answering that it does not know the option and stopping there
+- `INSTALL.sh` and `CMakeSettings.txt` build in Release when no build type is
+  given, a build with no type carrying no optimization at all, which made
+  everything built by hand one or two orders of magnitude slower than it had
+  to be
+- `INSTALL.sh` bounds the parallel jobs by the memory of the machine as well
+  as by the cores, a compilation of the heavier headers taking more than a
+  gigabyte per job and a machine with many cores and little memory going to
+  the swap or being killed
 ### Fixed
 
 ## [0.6.3] - 2026-09-14

@@ -330,15 +330,27 @@ def do_check( args ):
 # that are not the software, i.e., the pipeline, the license, the notes for
 # whoever contributes, and the CHANGELOG itself
 APART = { "CHANGELOG.md" , "CONTRIBUTING.md" , "LICENSE" , "README.md" ,
-          ".gitignore" , ".gitattributes" , ".gitlab-ci.yml" }
+          "TODO" , ".gitignore" , ".gitattributes" , ".gitlab-ci.yml" }
 
 APART_UNDER = ( "ci/" , ".gitlab/" , ".github/" )
 
 
-def is_apart( files ):
-    """true if none of the files of the commit is the software"""
+def submodules():
+    """the paths the .gitmodules of the repository registers"""
+    out = git( ROOT , "config" , "-f" , ".gitmodules" , "--get-regexp" , "path" )
+    return( set( out.split()[ 1 : : 2 ] ) )
+
+
+def is_apart( files , subs = None ):
+    """true if none of the files of the commit is the software
+
+    Neither is a submodule: a commit that moves a gitlink says that another
+    repository has moved, and what moved there is told by the CHANGELOG of
+    that repository."""
     if not files:
         return( False )
+    if subs and all( f in subs for f in files ):
+        return( True )
     for f in files:
         if f in APART or os.path.basename( f ) in APART:
             continue
@@ -366,13 +378,15 @@ def uncovered( module , frm , to , overlap ):
     blob = " ".join( written ).lower()
     said = [ words( e ) for e in written ]
 
+    subs = submodules() if module == "." else set()
+
     missing = []
     for sha , subject , files , section , _ in commits( module , frm , to ):
         if subject.startswith( "updated submodule" ) or subject.startswith( "Merge " ):
             continue
         if section:
             continue  # the commit says what it changes, or that it changes nothing
-        if is_apart( files ):
+        if is_apart( files , subs ):
             continue  # it touches nothing the CHANGELOG speaks of
         names = { os.path.basename( f ) for f in files }
         stems = { os.path.splitext( n )[ 0 ].lower() for n in names }
