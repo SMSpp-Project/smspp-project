@@ -102,7 +102,7 @@ release_job:
     # [Unreleased] and, under it, the commits it does not say anything about,
     # each module read between the gitlink of the previous tag and this one
     - ./changelog draft --from "$previous_tag" -o release-artifacts/changelog-draft.md
-    - echo "## Draft of the changelog: see the changelog-draft.md of this release" >> release-artifacts/release_notes.md
+    - 'echo "## Draft of the changelog, in the changelog-draft.md of this release" >> release-artifacts/release_notes.md'
     - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/data' --exclude='UCBlock/tools/mathpower2netCDF' --exclude='.git*' --exclude='wiki' --exclude='org-profile' --exclude='CapacitatedFacilityLocationBlock/data' --exclude='MCFBlock/data' -czvf release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz .
     - ls -lh release-artifacts
     # the tarball also goes to the generic package registry, at a path that the
