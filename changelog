@@ -18,8 +18,10 @@
 #             with the entries of [Unreleased], and lists the commits that    #
 #             no entry seems to cover, so that what is missing is visible     #
 #             before the release rather than after it. A commit counts as     #
-#             covered when an entry names one of the files it touches or      #
-#             enough of the words of its subject [see --overlap].             #
+#             covered when it carries a Changelog trailer, when it touches    #
+#             nothing but the pipeline, the README and the like, or when an   #
+#             entry names one of the files it touches or enough of the words  #
+#             of its subject [see --overlap].                                 #
 #                                                                             #
 #   links     rewrites the link references of every CHANGELOG from its own     #
 #             releases, each version comparing against the one below it and   #
@@ -324,6 +326,28 @@ def do_check( args ):
 # coverage                                                                    #
 # --------------------------------------------------------------------------- #
 
+# what a commit can touch without owing the CHANGELOG an entry: the files
+# that are not the software, i.e., the pipeline, the license, the notes for
+# whoever contributes, and the CHANGELOG itself
+APART = { "CHANGELOG.md" , "CONTRIBUTING.md" , "LICENSE" , "README.md" ,
+          ".gitignore" , ".gitattributes" , ".gitlab-ci.yml" }
+
+APART_UNDER = ( "ci/" , ".gitlab/" , ".github/" )
+
+
+def is_apart( files ):
+    """true if none of the files of the commit is the software"""
+    if not files:
+        return( False )
+    for f in files:
+        if f in APART or os.path.basename( f ) in APART:
+            continue
+        if f.startswith( APART_UNDER ):
+            continue
+        return( False )
+    return( True )
+
+
 NOISE = set( """a an and are as at be by for from in into is it its of on onto or
 that the their them they this to when where which with without not no but also
 now only same than then there these those what while who whom whose""".split() )
@@ -348,6 +372,8 @@ def uncovered( module , frm , to , overlap ):
             continue
         if section:
             continue  # the commit says what it changes, or that it changes nothing
+        if is_apart( files ):
+            continue  # it touches nothing the CHANGELOG speaks of
         names = { os.path.basename( f ) for f in files }
         stems = { os.path.splitext( n )[ 0 ].lower() for n in names }
         if any( s and s in blob for s in stems ):
