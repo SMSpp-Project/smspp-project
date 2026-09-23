@@ -115,8 +115,10 @@ nightly:build:
   script:
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    # the two parts are kept apart because a quoted regex inside one variable
+    # reaches ctest with its quotes and matches nothing
     - cd build && ctest -j$(nproc) --timeout 900 --output-on-failure
-                        --no-tests=error $CTEST_SELECT
+                        --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
   artifacts:
     when: always
     paths:
@@ -126,22 +128,26 @@ nightly:build:
 nightly:core:
   extends: .nightly:test
   variables:
-    CTEST_SELECT: -R "^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)"
+    CTEST_WHICH: -R
+    CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)
 
 nightly:unitcommitment:
   extends: .nightly:test
   variables:
-    CTEST_SELECT: -R "^(UCBlock_test|TUDPS_test|extract_uc)"
+    CTEST_WHICH: -R
+    CTEST_RE: ^(UCBlock_test|TUDPS_test|extract_uc)
 
 nightly:flows:
   extends: .nightly:test
   variables:
-    CTEST_SELECT: -R "^(MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)"
+    CTEST_WHICH: -R
+    CTEST_RE: ^(MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
 
 nightly:rest:
   extends: .nightly:test
   variables:
-    CTEST_SELECT: -E "^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)"
+    CTEST_WHICH: -E
+    CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
 
 pages:
   stage: deploy
