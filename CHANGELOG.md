@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `changelog`, which reads the CHANGELOG of the project and of every module:
+  `check` says what does not hold in them, from a date that is not ISO to a
+  link reference that names another release; `coverage` says which commits
+  since the last tag no entry covers, so that what is missing is seen before
+  the release and not after it; `links` writes the link references from the
+  releases, each comparing against the release below it that has a tag; and
+  `draft` writes the draft of a release, module by module, to be pruned. With
+  `--repo` it works on one repository alone, which is what a module runs in
+  its own pipeline
+
+- the pipeline holds the CHANGELOG of the umbrella to the format at every
+  push, reports on the whole project on a schedule, and writes the draft of
+  the changelog among the artifacts of a release
+
 ### Changed
 
 ### Fixed
