@@ -69,6 +69,7 @@ changelog_all:
     GIT_DEPTH: 0
     CCACHE_DIR: $CI_PROJECT_DIR/.ccache
     CCACHE_MAXSIZE: 2G
+    CTEST_SKIP: ^(test_cuts|test_dynamic|CFL_test/batches/batch-ben)
   before_script:
     # the Gurobi WLS license from the masked variables, as the modules do;
     # without them the tests that ask for Gurobi are the ones that fail
@@ -109,6 +110,13 @@ nightly:build:
   extends: .nightly
   stage: deploy
   timeout: 55m
+  # the WLS licence of the project gives two sessions at a time, and a
+  # session is per container: four jobs solving with Gurobi at once are
+  # refused the environment [GRBstartenv 10030], so they take their turn
+  resource_group: gurobi
+  retry:
+    max: 2
+    when: script_failure
   needs:
     - job: nightly:build
       artifacts: false
@@ -121,8 +129,11 @@ nightly:build:
     - !reference [ nightly:build , script ]
     # the two parts are kept apart because a quoted regex inside one variable
     # reaches ctest with its quotes and matches nothing
+    # the suites whose configuration names CPXMILPSolver cannot run here,
+    # the image of the project carrying no CPLEX
     - cd build && ctest -j$(nproc) --timeout 900 --output-on-failure
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
+                        -E "$CTEST_SKIP"
   artifacts:
     when: always
     paths:
@@ -150,8 +161,10 @@ nightly:flows:
 nightly:rest:
   extends: .nightly:test
   variables:
-    CTEST_WHICH: -E
-    CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
+    # whatever the other three do not take, the ones that want CPLEX apart
+    CTEST_WHICH: -R
+    CTEST_RE: .
+    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
 
 pages:
   stage: deploy
