@@ -97,24 +97,28 @@ nightly:build:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build build -j$(nproc)
     - ccache --show-stats
-  artifacts:
-    paths:
-      - build
-    expire_in: 1 day
 
-# each of these takes the build and runs the suites of its share; the last
-# one runs whatever the others do not, so that no suite is left out by a
-# name nobody thought of
+# the build is not carried from one job to another: what is carried is the
+# cache of ccache, which the job above fills, so that each of these compiles
+# again in a few minutes instead of taking a build tree made in another
+# container, where the paths CMake wrote are not the ones it finds.
+#
+# Each of them runs the suites of its share; the last one runs whatever the
+# others do not, so that no suite is left out by a name nobody thought of.
 .nightly:test:
   extends: .nightly
   stage: deploy
   timeout: 55m
   needs:
     - job: nightly:build
-      artifacts: true
+      artifacts: false
+  cache:
+    key: nightly-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+    policy: pull
   script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
+    - !reference [ nightly:build , script ]
     # the two parts are kept apart because a quoted regex inside one variable
     # reaches ctest with its quotes and matches nothing
     - cd build && ctest -j$(nproc) --timeout 900 --output-on-failure
