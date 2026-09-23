@@ -53,6 +53,44 @@ changelog_all:
       - changelog-coverage.txt
     expire_in: 30 days
 
+# The project built and tested as a whole, every night: what each module
+# checks of itself in its own pipeline is its own, while what only the
+# umbrella has is the modules together and the suites of tests/, which read
+# the instances of one module and solve them with the Solver of another.
+# It runs on a schedule that sets NIGHTLY, and nowhere else, since it is the
+# one job of this project that costs more than seconds.
+nightly:
+  stage: check
+  image: registry.gitlab.com/smspp/smspp-project
+  rules:
+    - if: $NIGHTLY == "1"
+  timeout: 55m
+  variables:
+    GIT_DEPTH: 0
+    CCACHE_DIR: $CI_PROJECT_DIR/.ccache
+    CCACHE_MAXSIZE: 1G
+  cache:
+    key: nightly-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends ccache
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  script:
+    - ccache --zero-stats
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build build -j$(nproc)
+    - ccache --show-stats
+    - cd build && ctest -j$(nproc) --timeout 600 --output-on-failure --no-tests=error
+  artifacts:
+    when: always
+    paths:
+      - build/Testing/Temporary/LastTest.log
+    expire_in: 7 days
+
 pages:
   stage: deploy
   script:
