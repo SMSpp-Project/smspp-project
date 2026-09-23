@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   push, reports on the whole project on a schedule, and writes the draft of
   the changelog among the artifacts of a release
 
+- `ci/changelog.yml`, which every module includes to get the same job on its
+  own CHANGELOG: the format at every push, and, on a merge request, an entry
+  of [Unreleased] for every commit of the branch, unless its message carries
+  [skip changelog]
+
 ### Changed
 
 ### Fixed

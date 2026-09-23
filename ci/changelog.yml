@@ -1,0 +1,55 @@
+# --------------------------------------------------------------------------- #
+# The CHANGELOG of a module, held to the format and to the work.              #
+#                                                                             #
+# Every module includes this file:                                            #
+#                                                                             #
+#   include:                                                                  #
+#     - project: smspp/smspp-project                                          #
+#       ref: develop                                                          #
+#       file: /ci/changelog.yml                                               #
+#                                                                             #
+# and gets one job, in the .pre stage that every pipeline has, which fetches  #
+# the `changelog` of the umbrella and runs it on the module alone:            #
+#                                                                             #
+#   - `check` holds the CHANGELOG to the format: the sections of Keep a       #
+#     Changelog and in its order, ISO dates that do not go backwards, one     #
+#     link reference per release that has a tag, no entry written twice;      #
+#                                                                             #
+#   - `coverage`, on a merge request, holds it to the work: every commit of   #
+#     the branch must be said by some entry of [Unreleased], so that the      #
+#     CHANGELOG is written while the work is done and not reconstructed at    #
+#     the release out of a year of commits.                                   #
+#                                                                             #
+# A commit that changes nothing worth telling says so in its message, with    #
+# [skip changelog] anywhere in it, and the job does not run.                  #
+# --------------------------------------------------------------------------- #
+
+changelog:
+  stage: .pre
+  image: alpine
+  variables:
+    GIT_DEPTH: 0                       # the tags, which the links name
+    CHANGELOG_TOOL: "https://gitlab.com/smspp/smspp-project/-/raw/develop/changelog"
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_MESSAGE =~ /\[skip changelog\]/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+  before_script:
+    - apk add --no-cache curl git python3
+  script:
+    - curl -fsSL "$CHANGELOG_TOOL" -o changelog-tool
+    - chmod +x changelog-tool
+    - ./changelog-tool check --repo .
+    - |
+      if [ -n "$CI_MERGE_REQUEST_DIFF_BASE_SHA" ]; then
+        git fetch --quiet origin "$CI_MERGE_REQUEST_DIFF_BASE_SHA" || true
+        ./changelog-tool coverage --repo . --list --fail \
+                         --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA"
+      else
+        echo "no merge request: the entries are not held to the commits here"
+      fi
+  after_script:
+    - rm -f changelog-tool
