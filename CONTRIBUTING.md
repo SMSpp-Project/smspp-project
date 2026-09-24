@@ -46,6 +46,16 @@ private `smspp-develop` group of the SMS++ developers): its
    `changelog` in the umbrella, and works on one repository at a time with
    `--repo`.
 
+   Besides the format, `check` asks that a released version say what it was
+   released with and say it once: an entry that is also in another release,
+   a section named twice in the same release, an entry sitting under no
+   section at all and a formula between dollars, which Markdown does not
+   build, are each a complaint. The form of the file — the blanks at the
+   end of a line, the blank line between two entries, the case an entry of
+   `[Unreleased]` opens with and the full stop it closes with — is not a
+   complaint but a command: `changelog tidy -w` puts it as the project
+   writes it.
+
 3. The version is derived automatically from the most recent git tag (see
    `cmake/DeriveVersion.cmake`), so there is no version number to bump by hand:
    cutting a release is just tagging the release commit, e.g. `git tag x.y.z`.

@@ -175,6 +175,9 @@ class Changelog:
                     if os.path.exists( path ) else ""
         self.releases = []   # ( version , date , { section : [ entry ] } , line )
         self.links = {}      # version -> url
+        self.orphans = []    # ( version , line ) of an entry under no section
+        self.twice = []      # ( version , section , line ) of a section said
+                             # twice in the same release
         self.parse()
 
     def parse( self ):
@@ -193,7 +196,14 @@ class Changelog:
             sub = re.match( r"^### (\S+)\s*$" , line )
             if sub and version is not None:
                 section = sub.group( 1 )
+                if section in entries:
+                    self.twice.append( ( version , section , n ) )
                 entries.setdefault( section , [] )
+                continue
+            if version is not None and not section and line.startswith( "- " ):
+                # an entry under no section: the parser has nowhere to put it,
+                # and whoever reads the file has no idea what it is about
+                self.orphans.append( ( version , n ) )
                 continue
             if version is not None and section and line.startswith( "- " ):
                 entries[ section ].append( line[ 2 : ].rstrip() )
@@ -289,6 +299,35 @@ def check_one( module , cl ):
                 bad.append( f"{where}: no link reference for it" )
         elif version not in cl.links[ version ]:
             bad.append( f"{where}: its link does not name {version}" )
+
+    for version , line in cl.orphans:
+        bad.append( f"line {line}, [{version}]: the entry is under no section" )
+
+    for version , section , line in cl.twice:
+        bad.append( f"line {line}, [{version}]: "
+                    f"the '{section}' section is there twice" )
+
+    # an entry that is in two releases: the one below says what it was not
+    # released with. Told apart from the entries that are meant to repeat,
+    # "Minor fixes." and the like, by asking for something distinctive
+    said = {}
+    for version , _ , entries , line in cl.releases:
+        for items in entries.values():
+            for item in items:
+                key = " ".join( item.lower().split() )
+                if len( key ) < 30:
+                    continue
+                if key in said and said[ key ] != version:
+                    bad.append( f"line {line}, [{version}]: the entry "
+                                f"'{item[ : 40 ]}...' is already in "
+                                f"[{said[ key ]}]" )
+                said[ key ] = version
+
+    # a formula between dollars, which Markdown prints as it is written
+    for n , text in enumerate( cl.text.split( "\n" ) , 1 ):
+        if re.search( r"\$[^$]+\$" , text ):
+            bad.append( f"line {n}: a formula between dollars, which Markdown "
+                        f"does not build" )
 
     named = { v for v , _ , _ , _ in cl.releases }
     for version in cl.links:
@@ -590,6 +629,74 @@ def do_links( args ):
     return( 0 )
 
 # --------------------------------------------------------------------------- #
+# tidy                                                                        #
+# --------------------------------------------------------------------------- #
+
+# the words an entry opens with in upper case where the rest of the project
+# opens in lower case; a name of the code is left alone, and is told from
+# these by not being one of them
+
+OPENERS = ( "A|An|The|This|These|Those|Two|Three|At|When|Where|Whether|With|"
+            "Without|After|Before|Every|Each|It|They|What|Which|Now|Also|"
+            "Adding|Removing|Scaling|Solving|Reading|Writing|Asking|Taking" )
+
+
+def tidy_text( text ):
+    """the CHANGELOG in the form the project writes it
+
+    Nothing is said differently: what changes is the blanks at the end of a
+    line, the blank line between two entries and before a section, and, in
+    [Unreleased] alone, the case of the word an entry opens with and the full
+    stop it closes with. What is released is history, and only gets the
+    blanks."""
+    start = text.find( "## [Unreleased]" )
+    if start >= 0:
+        end = text.find( "\n## [" , start + 1 )
+        end = len( text ) if end < 0 else end
+        out = []
+        for chunk in re.split( r"(?m)^(?=- )" , text[ start : end ] ):
+            if chunk.startswith( "- " ):
+                m = re.match( r"- (" + OPENERS + r") " , chunk )
+                if m:
+                    chunk = "- " + m.group( 1 )[ 0 ].lower() + chunk[ 3 : ]
+                chunk = re.sub( r"\.(\s*)$" , r"\1" , chunk )
+            out.append( chunk )
+        text = text[ : start ] + "".join( out ) + text[ end : ]
+
+    lines = []
+    for line in text.split( "\n" ):
+        line = line.rstrip()
+        if ( line.startswith( "- " ) or line.startswith( "### " ) ) \
+           and lines and lines[ -1 ].strip() and not lines[ -1 ].startswith( "# " ):
+            lines.append( "" )
+        lines.append( line )
+    return( "\n".join( lines ) )
+
+
+def do_tidy( args ):
+    """put every CHANGELOG in the form the project writes it"""
+    touched = 0
+    for module in modules():
+        path = os.path.join( ROOT , module , "CHANGELOG.md" )
+        cl = Changelog( path )
+        if not cl.text:
+            continue
+        text = tidy_text( cl.text )
+        if text == cl.text:
+            continue
+        touched += 1
+        was = cl.text.split( "\n" )
+        now = text.split( "\n" )
+        print( f"{module}: {len( now ) - len( was )} lines, "
+               f"{sum( 1 for l in was if l != l.rstrip() )} with blanks at "
+               f"the end" )
+        if args.write:
+            open( path , "w" , encoding = "utf-8" ).write( text )
+    print( f"\n{touched} to tidy" + ( ", written" if args.write else
+                                      ", pass -w to write them" ) )
+    return( 0 )
+
+# --------------------------------------------------------------------------- #
 # the command line                                                            #
 # --------------------------------------------------------------------------- #
 
@@ -629,6 +736,12 @@ def main():
     k.add_argument( "-w" , "--write" , action = "store_true" ,
                     help = "write them, instead of only saying what changes" )
     k.set_defaults( run = do_links )
+
+    t = sub.add_parser( "tidy" , parents = [ common ] ,
+                        help = "put the CHANGELOG in the form of the project" )
+    t.add_argument( "-w" , "--write" , action = "store_true" ,
+                    help = "write it, instead of only saying what changes" )
+    t.set_defaults( run = do_tidy )
 
     d = sub.add_parser( "draft" , parents = [ common ] ,
                         help = "the release draft, module by module" )
