@@ -162,6 +162,7 @@ nightly:core:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)
+    CTEST_TIMEOUT: "3600"
 
 nightly:unitcommitment:
   extends: .nightly:test
