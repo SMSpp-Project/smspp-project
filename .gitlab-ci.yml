@@ -152,7 +152,15 @@ nightly:unitcommitment:
   extends: .nightly:test
   variables:
     CTEST_WHICH: -R
-    CTEST_RE: ^(UCBlock_test|TUDPS_test|extract_uc)
+    CTEST_RE: ^(UCBlock_test|extract_uc)
+
+# the dynamic programming of the thermal units is a job of its own: with the
+# unit commitment it does not fit the hour a job is given
+nightly:tudps:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(TUDPS_test|extract_uc)
 
 nightly:flows:
   extends: .nightly:test
