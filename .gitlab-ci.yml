@@ -152,6 +152,11 @@ nightly:build:
       - build/Testing/Temporary/LastTest.log
     expire_in: 7 days
 
+# a runner of the shared fleet has two cores and is some times slower than
+# the machines the batteries were written on: one of them takes 41 minutes
+# there, so what a test may take is an hour, and the families that hold the
+# long batteries are a job each, none of them near the three hours a job is
+# given
 nightly:core:
   extends: .nightly:test
   variables:
@@ -163,29 +168,49 @@ nightly:unitcommitment:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(UCBlock_test|extract_uc)
-    CTEST_TIMEOUT: "1800"
+    CTEST_TIMEOUT: "3600"
 
 # the dynamic programming of the thermal units is a job of its own: with the
-# unit commitment it does not fit the hour a job is given
+# unit commitment it does not fit the time a job is given. The validation of
+# the claim of the paper, which re-runs four batteries end to end, is another
 nightly:tudps:
   extends: .nightly:test
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(TUDPS_test|extract_uc)
-    CTEST_TIMEOUT: "1800"
+    CTEST_SKIP: ^TUDPS_test/batches/run-validation
+    CTEST_TIMEOUT: "3600"
+
+nightly:validation:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^TUDPS_test/batches/run-validation
+    CTEST_TIMEOUT: "7200"
+
+# the flows are two jobs: the batteries of the min-cost flow take 40 minutes
+# each on a machine of ours, hence more than an hour here
+nightly:mcf:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(MCFBlock|MCFClassSolver|MCFLemonSolver|run_dmx)
+    CTEST_TIMEOUT: "3600"
 
 nightly:flows:
   extends: .nightly:test
   variables:
     CTEST_WHICH: -R
-    CTEST_RE: ^(MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
+    CTEST_RE: ^(MMCFBlock|CFL_test|SingleFlowDCR)
+    CTEST_TIMEOUT: "3600"
 
 nightly:rest:
   extends: .nightly:test
   variables:
-    # whatever the other three do not take, the ones that want CPLEX apart
+    # whatever the others do not take, the ones that want CPLEX apart
     CTEST_WHICH: -R
     CTEST_RE: .
+    CTEST_TIMEOUT: "3600"
     CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
 
 pages:
