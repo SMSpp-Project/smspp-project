@@ -133,7 +133,10 @@ nightly:build:
     # the image of the project carrying no CPLEX
     # two at a time and no more: a Gurobi session is per process here, and
     # the WLS licence of the project gives two of them
-    - cd build && ctest -j2 --timeout 900 --output-on-failure
+    # a test refused the Gurobi environment because somebody else held the
+    # sessions of the licence is tried again, which is not the same as
+    # ignoring a failure: it has to pass on its own
+    - cd build && ctest -j2 --timeout 900 --repeat until-pass:2 --output-on-failure
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
                         -E "$CTEST_SKIP"
   artifacts:
