@@ -112,7 +112,10 @@ nightly:build:
 .nightly:test:
   extends: .nightly
   stage: deploy
-  timeout: 55m
+  # three hours, which is what a shared runner allows at most: the suites of
+  # one job run one after the other, and the dynamic programming alone has
+  # eleven of them, one of which re-runs four others end to end
+  timeout: 3h
   # the WLS licence of the project gives two sessions at a time, and a
   # session is per container: four jobs solving with Gurobi at once are
   # refused the environment [GRBstartenv 10030], so they take their turn
