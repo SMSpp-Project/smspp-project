@@ -70,6 +70,9 @@ changelog_all:
     CCACHE_DIR: $CI_PROJECT_DIR/.ccache
     CCACHE_MAXSIZE: 2G
     CTEST_SKIP: ^(test_cuts|test_dynamic|CFL_test/batches/batch-ben)
+    # how long one test may take; the suites of the unit commitment and of
+    # the dynamic programming ask for more [see the jobs below]
+    CTEST_TIMEOUT: "900"
   before_script:
     # the Gurobi WLS license from the masked variables, as the modules do;
     # without them the tests that ask for Gurobi are the ones that fail
@@ -136,7 +139,8 @@ nightly:build:
     # a test refused the Gurobi environment because somebody else held the
     # sessions of the licence is tried again, which is not the same as
     # ignoring a failure: it has to pass on its own
-    - cd build && ctest -j2 --timeout 900 --repeat until-pass:2 --output-on-failure
+    - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
+                        --output-on-failure
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
                         -E "$CTEST_SKIP"
   artifacts:
@@ -156,6 +160,7 @@ nightly:unitcommitment:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(UCBlock_test|extract_uc)
+    CTEST_TIMEOUT: "1800"
 
 # the dynamic programming of the thermal units is a job of its own: with the
 # unit commitment it does not fit the hour a job is given
@@ -164,6 +169,7 @@ nightly:tudps:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(TUDPS_test|extract_uc)
+    CTEST_TIMEOUT: "1800"
 
 nightly:flows:
   extends: .nightly:test
