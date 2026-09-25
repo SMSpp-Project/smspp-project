@@ -70,6 +70,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `changelog` takes the last release of a repository from its version tags
+  alone: a tag that names something else, e.g., `archive/<branch>`, sorted
+  above them, so `check` compared the CHANGELOG of `tests` with it and
+  `coverage` and `draft` started the range of commits from it
+
 ## [0.6.3] - 2026-09-14
 
 ### Fixed

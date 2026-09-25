@@ -88,9 +88,17 @@ def modules():
               if os.path.exists( os.path.join( ROOT , m , ".git" ) ) or m == "." ] )
 
 
+def version_tags( repo ):
+    """the tags of the repository that name a version, the highest first; a
+    tag that names something else, e.g., archive/<branch> for a branch kept
+    after being deleted, is no release, and sorts above all of them"""
+    return( [ t for t in git( repo , "tag" , "--sort=-v:refname" ).split()
+              if re.fullmatch( r"v?\d+(\.\d+)*" , t ) ] )
+
+
 def last_tag( repo ):
-    """the highest tag of the repository, empty if it has none"""
-    tags = git( repo , "tag" , "--sort=-v:refname" ).split()
+    """the highest version tag of the repository, empty if it has none"""
+    tags = version_tags( repo )
     return( tags[ 0 ] if tags else "" )
 
 
@@ -556,7 +564,7 @@ def previous_of( repo , version , listed ):
     has a tag for it. It does not always: a CHANGELOG carries releases that
     were never tagged, and a comparison against one of those is a link to
     nothing, so the tag right below the version is taken instead."""
-    tags = git( repo , "tag" , "--sort=-v:refname" ).split()
+    tags = version_tags( repo )
     bare = [ t.lstrip( "v" ) for t in tags ]
     if listed and listed.lstrip( "v" ) in bare:
         return( listed )
@@ -578,8 +586,7 @@ def link_block( repo , cl ):
     lines = []
     if cl.unreleased() is not None:
         lines.append( f"[Unreleased]: {base}/-/compare/{versions[ 0 ]}...develop" )
-    tagged = { t.lstrip( "v" ) for t in
-               git( repo , "tag" , "--sort=-v:refname" ).split() }
+    tagged = { t.lstrip( "v" ) for t in version_tags( repo ) }
     for i , v in enumerate( versions ):
         if v.lstrip( "v" ) not in tagged:
             # a release the repository has no tag for has nothing to link to,
