@@ -53,6 +53,167 @@ changelog_all:
       - changelog-coverage.txt
     expire_in: 30 days
 
+# The project built and tested as a whole, every night: what each module
+# checks of itself in its own pipeline is its own, while what only the
+# umbrella has is the modules together and the suites of tests/, which read
+# the instances of one module and solve them with the Solver of another.
+# It runs on the schedule that sets NIGHTLY, and nowhere else, being the one
+# thing here that costs more than seconds. One job builds, the others take
+# the build and run their share of the suites, each of them well inside the
+# hour a job is given.
+.nightly:
+  image: registry.gitlab.com/smspp/smspp-project
+  rules:
+    - if: $NIGHTLY == "1"
+  variables:
+    GIT_DEPTH: 0
+    CCACHE_DIR: $CI_PROJECT_DIR/.ccache
+    CCACHE_MAXSIZE: 2G
+    CTEST_SKIP: ^(test_cuts|test_dynamic|CFL_test/batches/batch-ben)
+    # how long one test may take; the suites of the unit commitment and of
+    # the dynamic programming ask for more [see the jobs below]
+    CTEST_TIMEOUT: "900"
+  before_script:
+    # the Gurobi WLS license from the masked variables, as the modules do;
+    # without them the tests that ask for Gurobi are the ones that fail
+    - |
+      if [ -n "$GRB_WLSSECRET" ]; then
+        printf 'LICENSEID=%s\nWLSACCESSID=%s\nWLSSECRET=%s\n' \
+          "$GRB_LICENSEID" "$GRB_WLSACCESSID" "$GRB_WLSSECRET" > /tmp/gurobi.lic
+        export GRB_LICENSE_FILE=/tmp/gurobi.lic
+      fi
+
+nightly:build:
+  extends: .nightly
+  stage: check
+  timeout: 55m
+  cache:
+    key: nightly-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends ccache
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - ccache --zero-stats
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build build -j$(nproc)
+    - ccache --show-stats
+
+# the build is not carried from one job to another: what is carried is the
+# cache of ccache, which the job above fills, so that each of these compiles
+# again in a few minutes instead of taking a build tree made in another
+# container, where the paths CMake wrote are not the ones it finds.
+#
+# Each of them runs the suites of its share; the last one runs whatever the
+# others do not, so that no suite is left out by a name nobody thought of.
+.nightly:test:
+  extends: .nightly
+  stage: deploy
+  # three hours, which is what a shared runner allows at most: the suites of
+  # one job run one after the other, and the dynamic programming alone has
+  # eleven of them, one of which re-runs four others end to end
+  timeout: 3h
+  # the WLS licence of the project gives two sessions at a time, and a
+  # session is per container: four jobs solving with Gurobi at once are
+  # refused the environment [GRBstartenv 10030], so they take their turn
+  resource_group: gurobi
+  retry:
+    max: 2
+    when: script_failure
+  needs:
+    - job: nightly:build
+      artifacts: false
+  cache:
+    key: nightly-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+    policy: pull
+  script:
+    - !reference [ nightly:build , script ]
+    # the two parts are kept apart because a quoted regex inside one variable
+    # reaches ctest with its quotes and matches nothing
+    # the suites whose configuration names CPXMILPSolver cannot run here,
+    # the image of the project carrying no CPLEX
+    # two at a time and no more: a Gurobi session is per process here, and
+    # the WLS licence of the project gives two of them
+    # a test refused the Gurobi environment because somebody else held the
+    # sessions of the licence is tried again, which is not the same as
+    # ignoring a failure: it has to pass on its own
+    - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
+                        --output-on-failure
+                        --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
+                        -E "$CTEST_SKIP"
+  artifacts:
+    when: always
+    paths:
+      - build/Testing/Temporary/LastTest.log
+    expire_in: 7 days
+
+# a runner of the shared fleet has two cores and is some times slower than
+# the machines the batteries were written on: one of them takes 41 minutes
+# there, so what a test may take is an hour, and the families that hold the
+# long batteries are a job each, none of them near the three hours a job is
+# given
+nightly:core:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)
+    CTEST_TIMEOUT: "3600"
+
+nightly:unitcommitment:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(UCBlock_test|extract_uc)
+    CTEST_TIMEOUT: "3600"
+
+# the dynamic programming of the thermal units is a job of its own: with the
+# unit commitment it does not fit the time a job is given. The validation of
+# the claim of the paper, which re-runs four batteries end to end, is another
+nightly:tudps:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(TUDPS_test|extract_uc)
+    CTEST_SKIP: ^TUDPS_test/batches/run-validation
+    CTEST_TIMEOUT: "3600"
+
+nightly:validation:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^TUDPS_test/batches/run-validation
+    CTEST_TIMEOUT: "7200"
+
+# the flows are two jobs: the batteries of the min-cost flow take 40 minutes
+# each on a machine of ours, hence more than an hour here
+nightly:mcf:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(MCFBlock|MCFClassSolver|MCFLemonSolver|run_dmx)
+    CTEST_TIMEOUT: "3600"
+
+nightly:flows:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(MMCFBlock|CFL_test|SingleFlowDCR)
+    CTEST_TIMEOUT: "3600"
+
+nightly:rest:
+  extends: .nightly:test
+  variables:
+    # whatever the others do not take, the ones that want CPLEX apart
+    CTEST_WHICH: -R
+    CTEST_RE: .
+    CTEST_TIMEOUT: "3600"
+    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
+
 pages:
   stage: deploy
   script:
