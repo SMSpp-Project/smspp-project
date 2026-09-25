@@ -35,6 +35,10 @@ changelog_all:
   stage: check
   image: alpine
   rules:
+    # the schedule of the night is the one that builds and tests, and has
+    # nothing to do with this: each of the two schedules does its own thing
+    - if: $NIGHTLY == "1"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "schedule"
   variables:
     GIT_DEPTH: 0
