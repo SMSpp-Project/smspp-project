@@ -37,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- upload-to-package-registry takes the version to publish, which the
+  data/upload-* script of a module reads from its CMakeLists.txt: it refuses
+  a version that is already there, a published version being never
+  replaced, and writes `latest` too, for the trees that do not name a
+  version yet
+
 - `mirror-to-github` skips `moduletemplate`, which has moved to the private
   `smspp-develop` group and is not mirrored
 

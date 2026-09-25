@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # --------------------------------------------------------------------------- #
-# Script to upload a file to GitLab Package Registry (single version: latest) #
+# Script to upload a file to GitLab Package Registry, as a given version      #
 #                                                                             #
 # Prerequisites:                                                              #
 #   Generate a GitLab Personal Access Token (PAT) with the `api` scope at:    #
@@ -23,7 +23,14 @@
 #                                                                             #
 # Usage:                                                                      #
 #                                                                             #
-#          $ bash upload-to-gitlab.sh <path/to/your-file>                     #
+#          $ bash upload-to-package-registry <path/to/your-file> <version>    #
+#                                                                             #
+# The version is the one the CMakeLists.txt of the module downloads (its      #
+# DATA_VERSION), and the data/upload-* script of the module passes it. A      #
+# published version is never replaced, so that whoever has downloaded it     #
+# keeps the same data: new data need a new version, and the script refuses    #
+# one that is already there. The same file also replaces `latest`, which is   #
+# what the modules that do not name a version yet still download.             #
 #                                                                             #
 #                                Donato Meoli                                 #
 #                         Dipartimento di Informatica                         #
@@ -32,16 +39,19 @@
 
 set -e
 
-# Configuration
-VERSION="latest"
-
-# Check argument
-if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 <file_to_upload>"
+# Check arguments
+if [[ $# -ne 2 || -z "$2" ]]; then
+  echo "Usage: $0 <file_to_upload> <version>"
   exit 1
 fi
 
 LOCAL_FILE="$1"
+VERSION="$2"
+
+if [[ "$VERSION" == "latest" ]]; then
+  echo "ERROR: 'latest' is written together with every version, not by itself."
+  exit 1
+fi
 
 if [[ ! -f "$LOCAL_FILE" ]]; then
   echo "ERROR: File '$LOCAL_FILE' not found."
@@ -81,33 +91,38 @@ if [[ -z "$PROJECT_ID" || "$PROJECT_ID" == "null" ]]; then
   exit 1
 fi
 
-# Check if package with same name/version exists
-echo "Checking if a package named '$PACKAGE_NAME' with version '$VERSION' exists..."
-EXISTING_ID=$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-  "https://gitlab.com/api/v4/projects/$PROJECT_ID/packages?package_type=generic" \
-  | jq -r ".[] | select(.name==\"$PACKAGE_NAME\" and .version==\"$VERSION\") | .id")
+# The id of the package named $PACKAGE_NAME with the given version, if any
+package_id() {
+  curl -s --fail --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+    "https://gitlab.com/api/v4/projects/$PROJECT_ID/packages?package_type=generic&package_name=$PACKAGE_NAME&per_page=100" \
+    | jq -r ".[] | select(.name==\"$PACKAGE_NAME\" and .version==\"$1\") | .id"
+}
 
-# If found, delete it
-if [[ -n "$EXISTING_ID" ]]; then
-  echo "Existing package found (ID: $EXISTING_ID). Deleting it..."
-  curl -s --request DELETE \
-       --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-       "https://gitlab.com/api/v4/projects/$PROJECT_ID/packages/$EXISTING_ID"
-  echo "Previous package deleted."
-else
-  echo "No previous package found with version 'latest'."
+upload() {
+  local url="https://gitlab.com/api/v4/projects/$PROJECT_ID/packages/generic/$PACKAGE_NAME/$1/$FILE_NAME"
+  echo "Uploading $LOCAL_FILE as version '$1'..."
+  curl -s --fail --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+       --upload-file "$LOCAL_FILE" "$url" > /dev/null
+  echo "Download URL: $url"
+}
+
+# A published version is never replaced: whoever has downloaded it would keep
+# data that no longer match the ones under the same name
+if [[ -n "$(package_id "$VERSION")" ]]; then
+  echo "ERROR: version '$VERSION' of '$PACKAGE_NAME' is already published and is"
+  echo "never replaced: raise DATA_VERSION in the CMakeLists.txt of the module."
+  exit 1
 fi
 
-# Upload new package file
-echo "Uploading $LOCAL_FILE to GitLab Package Registry..."
+upload "$VERSION"
 
-UPLOAD_URL="https://gitlab.com/api/v4/projects/$PROJECT_ID/packages/generic/$PACKAGE_NAME/$VERSION/$FILE_NAME"
+# `latest` follows the newest version
+EXISTING_ID=$(package_id latest)
+if [[ -n "$EXISTING_ID" ]]; then
+  curl -s --fail --request DELETE \
+       --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+       "https://gitlab.com/api/v4/projects/$PROJECT_ID/packages/$EXISTING_ID"
+fi
+upload latest
 
-curl --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-     --upload-file "$LOCAL_FILE" \
-     "$UPLOAD_URL"
-
-echo
 echo "Upload complete."
-echo "Download URL:"
-echo "$UPLOAD_URL"
