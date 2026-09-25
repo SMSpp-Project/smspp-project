@@ -209,6 +209,17 @@ nightly:flows:
     CTEST_RE: ^(MMCFBlock|CFL_test|SingleFlowDCR)
     CTEST_TIMEOUT: "3600"
 
+# the quadratic batteries over the integers are a job of their own: the three
+# of them take 42, 33 and more than 60 minutes here, which is what a job is
+# given; the three over the reals take 27 minutes together and stay with the
+# others
+nightly:quad:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^quad_test/batches/batch.._I$
+    CTEST_TIMEOUT: "3600"
+
 nightly:rest:
   extends: .nightly:test
   variables:
@@ -216,7 +227,7 @@ nightly:rest:
     CTEST_WHICH: -R
     CTEST_RE: .
     CTEST_TIMEOUT: "3600"
-    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
+    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx|quad_test/batches/batch.._I$)
 
 pages:
   stage: deploy
