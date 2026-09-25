@@ -218,7 +218,10 @@ nightly:quad:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^quad_test/batches/batch.._I$
-    CTEST_TIMEOUT: "3600"
+    # the three take 42, 33 and 58 minutes here, the last one being 17
+    # instances that mostly run into the 300 seconds the configuration gives
+    # SCIP: an hour each is not enough for it, an hour and a half is
+    CTEST_TIMEOUT: "5400"
 
 nightly:rest:
   extends: .nightly:test
