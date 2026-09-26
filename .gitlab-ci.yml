@@ -3,6 +3,16 @@ image: alpine
 before_script:
   - apk add --no-cache doxygen git
 
+# A pipeline started by a module [see integration] runs on develop, where
+# the pins move often: the push that moves one would cancel it as redundant
+# before its turn on the licence of Gurobi comes, so it is not cancelled
+workflow:
+  rules:
+    - if: $SMSPP_MODULE
+      auto_cancel:
+        on_new_commit: none
+    - when: always
+
 stages:
   - check
   - deploy
