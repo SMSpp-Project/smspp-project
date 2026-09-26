@@ -260,7 +260,6 @@ integration:
   needs: []
   variables:
     CTEST_WHICH: -L
-    CTEST_RE: ^${SMSPP_MODULE}$
     CTEST_TIMEOUT: "3600"
   script:
     - apt-get update && apt-get install -y --no-install-recommends ccache
@@ -277,6 +276,9 @@ integration:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     - cmake --build build -j$(nproc)
     - ccache --show-stats
+    # the label is the name of the module matched as it is: ctest reads -L as
+    # a regex, where the "+" of "SMS++" are operators and match nothing
+    - CTEST_RE="^$(printf '%s' "$SMSPP_MODULE" | sed 's/[][\.*^$+?(){}|]/\\&/g')\$"
     - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
                         --output-on-failure
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
