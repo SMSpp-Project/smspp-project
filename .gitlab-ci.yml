@@ -18,6 +18,9 @@ changelog:
   rules:
     - if: $CI_COMMIT_TAG
       when: never
+    # a pipeline started by a module checks that module [see integration]
+    - if: $SMSPP_MODULE
+      when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH
   variables:
@@ -231,6 +234,43 @@ nightly:rest:
     CTEST_RE: .
     CTEST_TIMEOUT: "3600"
     CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx|quad_test/batches/batch.._I$)
+
+# The suites of tests/ that exercise one module, run on a commit of that module
+# before it is pinned here. The pipeline of a module builds the module and its
+# dependencies alone, and on a push to its develop it starts this one, passing
+# its name and its commit [see the integration job of the modules], so that
+# what the module does together with the others is checked at once, and not
+# only on the night after its pin moves. The build is the one of the nightly,
+# with the module moved from its pin to that commit, and the tests are the
+# ones labelled with its name.
+integration:
+  extends: .nightly:test
+  rules:
+    - if: $SMSPP_MODULE && $SMSPP_SHA
+  needs: []
+  variables:
+    CTEST_WHICH: -L
+    CTEST_RE: ^${SMSPP_MODULE}$
+    CTEST_TIMEOUT: "3600"
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends ccache
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    # the module at the commit its pipeline was started for, in place of the
+    # one the umbrella pins
+    - git -C "$SMSPP_MODULE" fetch --quiet origin "$SMSPP_SHA"
+    - git -C "$SMSPP_MODULE" checkout --quiet "$SMSPP_SHA"
+    - git -C "$SMSPP_MODULE" submodule update --init --recursive
+    - ccache --zero-stats
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build build -j$(nproc)
+    - ccache --show-stats
+    - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
+                        --output-on-failure
+                        --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
+                        -E "$CTEST_SKIP"
 
 pages:
   stage: deploy
