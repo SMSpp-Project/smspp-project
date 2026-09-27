@@ -179,6 +179,10 @@ nightly:core:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)
+    # the quadratic batteries over the integers have a job of their own, and
+    # together they take more than two hours: without taking them out here
+    # this job runs into the three of its own [see nightly:quad]
+    CTEST_SKIP: ^(test_cuts|test_dynamic|CFL_test/batches/batch-ben|MILPSolver_QuadFunction_test/batches/batch.._I$)
     CTEST_TIMEOUT: "3600"
 
 nightly:unitcommitment:
@@ -230,7 +234,7 @@ nightly:quad:
   extends: .nightly:test
   variables:
     CTEST_WHICH: -R
-    CTEST_RE: ^quad_test/batches/batch.._I$
+    CTEST_RE: ^MILPSolver_QuadFunction_test/batches/batch.._I$
     # the three take 42, 33 and 58 minutes here, the last one being 17
     # instances that mostly run into the 300 seconds the configuration gives
     # SCIP: an hour each is not enough for it, an hour and a half is
@@ -243,7 +247,7 @@ nightly:rest:
     CTEST_WHICH: -R
     CTEST_RE: .
     CTEST_TIMEOUT: "3600"
-    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx|quad_test/batches/batch.._I$)
+    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
 
 # The suites of tests/ that exercise one module, run on a commit of that module
 # before it is pinned here. The pipeline of a module builds the module and its
