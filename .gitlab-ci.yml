@@ -200,14 +200,14 @@ nightly:tudps:
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(TUDPS_test|extract_uc)
-    CTEST_SKIP: ^TUDPS_test/batches/run-validation
+    CTEST_SKIP: ^TUDPS_test/batches-tub/run-validation
     CTEST_TIMEOUT: "3600"
 
 nightly:validation:
   extends: .nightly:test
   variables:
     CTEST_WHICH: -R
-    CTEST_RE: ^TUDPS_test/batches/run-validation
+    CTEST_RE: ^TUDPS_test/batches-tub/run-validation
     CTEST_TIMEOUT: "7200"
 
 # the flows are two jobs: the batteries of the min-cost flow take 40 minutes
