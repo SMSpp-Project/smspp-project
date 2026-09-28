@@ -387,7 +387,8 @@ EOL
     StOpt_ROOT="$(resolve_dep_root StOpt)"
     CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q zlib1g-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
+      # StOpt looks for BZip2 too, which the COIN-OR packages used to bring
+      apt-get install -y -q zlib1g-dev libbz2-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
     fi
     if [ ! -d "$StOpt_ROOT" ]; then
       cd "$INSTALL_ROOT"
