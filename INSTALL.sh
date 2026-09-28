@@ -170,7 +170,8 @@ install_on_linux() {
 
   # Install MiniSat from its source: no distribution packages its library.
   # The stp/minisat fork, the one Homebrew packages, compiles with the recent
-  # compilers as it is
+  # compilers as it is; its CMakeLists.txt asks for CMake 2.6, which CMake 4
+  # refuses unless told the policies it may assume
   if [ "$install_minisat" -eq 1 ]; then
     echo "Installing MiniSat..."
     MINISAT_ROOT="$(resolve_dep_root minisat)"
@@ -179,7 +180,7 @@ install_on_linux() {
       cd "$INSTALL_ROOT"
       git clone --branch releases/2.2.1 --depth 1 https://github.com/stp/minisat.git minisat-src
       cd minisat-src
-      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_INSTALL_PREFIX="$MINISAT_ROOT"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX="$MINISAT_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
