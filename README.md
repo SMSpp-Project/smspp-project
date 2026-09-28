@@ -308,8 +308,9 @@ CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
 Solvers carry the HiGHS backend alone; a build against the others is still the
 one of the sources, which the instructions below are about. Similarly, the
 Solvers of SATBlock carry CaDiCaL alone, and none on Windows, where CaDiCaL does
-not build: MiniSat, whose library no package manager but Homebrew distributes,
-comes with a build from the sources.
+not build: MiniSat, whose stp/minisat code no package manager but Homebrew
+distributes (Debian and Ubuntu carry the older one of minisat.se), comes with a
+build from the sources.
 
 ### Requirements
 

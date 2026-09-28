@@ -138,7 +138,7 @@ install_on_linux() {
       apt-get install -y -q liblinear-dev
     fi
 
-    # Install CaDiCaL: the package is there from Debian 13 and Ubuntu 25.04 on,
+    # Install CaDiCaL: the package is there from Debian 12 and Ubuntu 24.04 on,
     # otherwise it is built from its source below
     if [ "$install_cadical" -eq 1 ]; then
       echo "Installing CaDiCaL..."
@@ -168,10 +168,11 @@ install_on_linux() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install MiniSat from its source: no distribution packages its library.
-  # The stp/minisat fork, the one Homebrew packages, compiles with the recent
-  # compilers as it is; its CMakeLists.txt asks for CMake 2.6, which CMake 4
-  # refuses unless told the policies it may assume
+  # Install MiniSat from its source: the minisat package of Debian and Ubuntu
+  # carries the 2010 code of minisat.se, older than the stp/minisat fork,
+  # the one Homebrew packages, which compiles with the recent compilers as it
+  # is; its CMakeLists.txt asks for CMake 2.6, which CMake 4 refuses unless
+  # told the policies it may assume
   if [ "$install_minisat" -eq 1 ]; then
     echo "Installing MiniSat..."
     MINISAT_ROOT="$(resolve_dep_root minisat)"
@@ -1018,6 +1019,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
+      [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
       [ -n "${MINISAT_ROOT:-}" ] && echo "MINISAT_ROOT = ${MINISAT_ROOT}"
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
