@@ -135,8 +135,14 @@ nightly:build:
   timeout: 3h
   # the WLS licence of the project gives two sessions at a time, and a
   # session is per container: four jobs solving with Gurobi at once are
-  # refused the environment [GRBstartenv 10030], so they take their turn
-  resource_group: gurobi
+  # refused the environment [GRBstartenv 10030], so they take their turn.
+  # A resource_group of GitLab lets one job in at a time, hence the two
+  # groups, gurobi-a and gurobi-b, one for each session the licence gives:
+  # with a single group the eight jobs of the night run one after the other,
+  # which is more than the day they have before the next night starts. Each
+  # job names the group it belongs to; this is the default for whoever does
+  # not [see nightly:core and its fellows]
+  resource_group: gurobi-a
   retry:
     max: 2
     when: script_failure
@@ -154,8 +160,9 @@ nightly:build:
     # reaches ctest with its quotes and matches nothing
     # the suites whose configuration names CPXMILPSolver cannot run here,
     # the image of the project carrying no CPLEX
-    # two at a time and no more: a Gurobi session is per process here, and
-    # the WLS licence of the project gives two of them
+    # two tests at a time, which is what a runner of the shared fleet has
+    # cores for; they cost one session of the licence between them, a session
+    # being per container [see resource_group above]
     # a test refused the Gurobi environment because somebody else held the
     # sessions of the licence is tried again, which is not the same as
     # ignoring a failure: it has to pass on its own
@@ -187,6 +194,7 @@ nightly:core:
 
 nightly:unitcommitment:
   extends: .nightly:test
+  resource_group: gurobi-b
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(UCBlock_test|extract_uc)
@@ -197,6 +205,7 @@ nightly:unitcommitment:
 # the claim of the paper, which re-runs four batteries end to end, is another
 nightly:tudps:
   extends: .nightly:test
+  resource_group: gurobi-b
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(TUDPS_test|extract_uc)
@@ -205,6 +214,7 @@ nightly:tudps:
 
 nightly:validation:
   extends: .nightly:test
+  resource_group: gurobi-b
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^TUDPS_test/batches-tub/run-validation
@@ -214,6 +224,7 @@ nightly:validation:
 # each on a machine of ours, hence more than an hour here
 nightly:mcf:
   extends: .nightly:test
+  resource_group: gurobi-b
   variables:
     CTEST_WHICH: -R
     CTEST_RE: ^(MCFBlock|MCFClassSolver|MCFLemonSolver|run_dmx)
