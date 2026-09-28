@@ -255,6 +255,16 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   dealt out to chunks tied by consensus constraints, which is the structure a
   Lagrangian, or equivalently a Dantzig-Wolfe, decomposition attacks.
 
+- [SATBlock](https://gitlab.com/smspp/satblock), defining the `Block` for the
+  satisfiability problems of the propositional logic and for their weighted
+  partial MaxSAT version, whose abstract representation is the MILP
+  formulation, so that the `:MILPSolver` and the decompositions of SMS++ work
+  on it as they are, together with `SATSolver`, the base of the `Solver` that
+  hand the clauses to a SAT solver (`CaDiCaLSATSolver` for
+  [CaDiCaL](https://github.com/arminbiere/cadical) and `MiniSATSolver` for
+  [MiniSat](https://github.com/stp/minisat)), which also solves the weighted
+  MaxSAT by the core-guided algorithm OLL.
+
 - [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
   defining the `Block` for Delay-Constrained Routing problems, i.e., routing
   flows on a network at minimum cost so that the worst-case end-to-end delay
@@ -372,6 +382,8 @@ according to the following options table:
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
 | `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
+| `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
+| `--without-minisat` | *(not supported)* | skip MiniSat installation               |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 

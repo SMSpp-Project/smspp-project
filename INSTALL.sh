@@ -21,13 +21,16 @@
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
 #     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
+#     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
+#     You can use the `--without-minisat` option to skip the installation of MiniSat.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
 #     looking for a missing library: --without-stopt disables SDDPBlock and
 #     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
-#     --without-pips disables PIPSMILPSolver.
+#     --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
+#     for SATBlock, which builds the SAT solvers it finds.
 #
 # AUTHOR
 #     Donato Meoli
@@ -92,6 +95,9 @@ install_on_linux() {
 
   echo "Starting the installation process on Linux..."
 
+  # CaDiCaL is built from its source unless its package is installed below
+  cadical_from_source=1
+
   if [ "$HAS_SUDO" -eq 1 ]; then
     # Update packages and install basic requirements
     echo "Updating system and installing basic requirements..."
@@ -131,6 +137,62 @@ install_on_linux() {
       echo "Installing LIBLINEAR..."
       apt-get install -y -q liblinear-dev
     fi
+
+    # Install CaDiCaL: the package is there from Debian 13 and Ubuntu 25.04 on,
+    # otherwise it is built from its source below
+    if [ "$install_cadical" -eq 1 ]; then
+      echo "Installing CaDiCaL..."
+      if apt-get install -y -q libcadical-dev; then
+        cadical_from_source=0
+      fi
+    fi
+  fi
+
+  # Install CaDiCaL from its source, where there is no package: its own
+  # configure script builds it in place (src/cadical.hpp and
+  # build/libcadical.a), which is what SATBlock looks for in CADICAL_ROOT;
+  # -fPIC lets the library be linked into a shared SATBlock
+  if [ "$install_cadical" -eq 1 ] && [ "$cadical_from_source" -eq 1 ]; then
+    echo "Installing CaDiCaL from its source..."
+    CADICAL_ROOT="$(resolve_dep_root cadical)"
+    CURRENT_INSTALL_FOLDER=${CADICAL_ROOT}
+    if [ ! -d "$CADICAL_ROOT" ]; then
+      git clone --branch rel-3.0.1 --depth 1 https://github.com/arminbiere/cadical.git "$CADICAL_ROOT"
+      cd "$CADICAL_ROOT"
+      ./configure -fPIC
+      make -j "${MAX_JOBS}"
+    else
+      echo "CaDiCaL already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install MiniSat from its source: no distribution packages its library.
+  # The stp/minisat fork, the one Homebrew packages, compiles with the recent
+  # compilers as it is
+  if [ "$install_minisat" -eq 1 ]; then
+    echo "Installing MiniSat..."
+    MINISAT_ROOT="$(resolve_dep_root minisat)"
+    CURRENT_INSTALL_FOLDER=${MINISAT_ROOT}
+    if [ ! -d "$MINISAT_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone --branch releases/2.2.1 --depth 1 https://github.com/stp/minisat.git minisat-src
+      cd minisat-src
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_INSTALL_PREFIX="$MINISAT_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      cd "$INSTALL_ROOT"
+      rm -rf minisat-src
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${MINISAT_ROOT}/lib' > /etc/ld.so.conf.d/minisat.conf"
+        ldconfig
+      fi
+    else
+      echo "MiniSat already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install CPLEX
@@ -492,6 +554,18 @@ install_on_macos() {
     brew install liblinear
   fi
 
+  # Install CaDiCaL
+  if [ "$install_cadical" -eq 1 ]; then
+    echo "Installing CaDiCaL..."
+    brew install cadical
+  fi
+
+  # Install MiniSat
+  if [ "$install_minisat" -eq 1 ]; then
+    echo "Installing MiniSat..."
+    brew install minisat
+  fi
+
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
@@ -731,6 +805,8 @@ install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
 install_libsvm=${install_libsvm:-1}
 install_liblinear=${install_liblinear:-1}
+install_cadical=${install_cadical:-1}
+install_minisat=${install_minisat:-1}
 install_smspp=${install_smspp:-1}
 
 # Default value for installation root
@@ -808,6 +884,14 @@ do
     ;;
     --without-liblinear)
     install_liblinear=0
+    shift
+    ;;
+    --without-cadical)
+    install_cadical=0
+    shift
+    ;;
+    --without-minisat)
+    install_minisat=0
     shift
     ;;
     --without-coinor)
@@ -932,6 +1016,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
+      [ -n "${MINISAT_ROOT:-}" ] && echo "MINISAT_ROOT = ${MINISAT_ROOT}"
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
 
@@ -964,6 +1049,10 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ "$install_lemon" -eq 0 ]; then
     # LEMON is required by MCFLemonSolver.
     smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
+  fi
+  # a CaDiCaL built from its source is not where extlib says (the package)
+  if [ "${cadical_from_source:-0}" -eq 1 ] && [ -n "${CADICAL_ROOT:-}" ]; then
+    smspp_cmake_flags+=("-DCADICAL_ROOT=${CADICAL_ROOT}")
   fi
 
   # Build SMSpp, optimized: a build with no CMAKE_BUILD_TYPE, or a Debug one,

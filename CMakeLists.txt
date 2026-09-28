@@ -65,6 +65,7 @@ smspp_option(BUILD_TwoStageStochasticBlock "Build TwoStageStochasticBlock")
 smspp_option(BUILD_MultiStageStochasticBlock "Build MultiStageStochasticBlock")
 smspp_option(BUILD_SVMBlock "Build SVMBlock")
 smspp_option(BUILD_SingleFlowDCRBlock "Build SingleFlowDCRBlock")
+smspp_option(BUILD_SATBlock "Build SATBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
@@ -315,6 +316,12 @@ endif ()
 if (BUILD_SingleFlowDCRBlock)
     init_submodule(SingleFlowDCRBlock)
     add_subdirectory(SingleFlowDCRBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_SATBlock)
+    init_submodule(SATBlock)
+    add_subdirectory(SATBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 

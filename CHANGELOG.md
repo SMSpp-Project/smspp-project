@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- SATBlock, the `Block` of the satisfiability problems and of the weighted
+  partial MaxSAT, with the `SATSolver` that hand them to CaDiCaL and to
+  MiniSat (`BUILD_SATBlock`); `INSTALL.sh` installs CaDiCaL from its package
+  where there is one and from its source otherwise, and MiniSat from its
+  source, whose library no distribution packages (`--without-cadical`,
+  `--without-minisat`), Homebrew both on macOS; `extlib` has
+  `makefile-libCaDiCaL` and `makefile-libMiniSat` and their default paths
+
 - a commit says what it changes with the `Changelog:` and `Changelog-entry:`
   trailers of its message, or that it changes nothing worth telling with
   `[skip changelog]`; `changelog coverage` reads them, so that a commit is

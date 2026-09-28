@@ -1,0 +1,38 @@
+##############################################################################
+############################ makefile-libMiniSat #############################
+##############################################################################
+#                                                                            #
+#   makefile of libMiniSat                                                   #
+#                                                                            #
+#   Input:  $(MINISAT_ROOT), the directory where MiniSat is installed        #
+#                                                                            #
+#           MiniSat is an installed one (include/minisat/core/Solver.h and   #
+#           lib/libminisat), as INSTALL.sh, which builds it from its         #
+#           source, or Homebrew install it.                                  #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libMiniSatINC) = the -I$(include directory) for MiniSat        #
+#           $(libMiniSatLIB) = external libraries + -L< libdirs > for        #
+#                              MiniSat                                       #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic MiniSat directory without quotes, if any
+libMiniSatBSCDIR = $(subst $\",,$(MINISAT_ROOT))
+
+# the first of the candidate directories that exists
+libMiniSatLIBDIR = $(firstword $(wildcard \
+	$(libMiniSatBSCDIR)/lib/x86_64-linux-gnu/libminisat.* \
+	$(libMiniSatBSCDIR)/lib/aarch64-linux-gnu/libminisat.* \
+	$(libMiniSatBSCDIR)/lib/libminisat.*))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libMiniSatINC = -I"$(libMiniSatBSCDIR)/include"
+libMiniSatLIB = -L"$(dir $(libMiniSatLIBDIR))" -lminisat
+
+######################### End of makefile-libMiniSat #########################
