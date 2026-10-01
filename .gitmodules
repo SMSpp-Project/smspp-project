@@ -82,3 +82,6 @@
 [submodule "vcpkg-registry"]
 	path = vcpkg-registry
 	url = ../vcpkg-registry
+[submodule "SatellitesBlock"]
+	path = SatellitesBlock
+	url = ../satellitesblock.git

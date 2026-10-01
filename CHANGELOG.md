@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- SatellitesBlock, the `Block` of the Satellite Constellation Design
+  Problem, in its continuous and discrete versions, with the `Solver` of
+  their sub-problems (`BUILD_SatellitesBlock`), and its feature
+  `satellites` in the smspp port of the vcpkg registry
+
 - SATBlock, the `Block` of the satisfiability problems and of the weighted
   partial MaxSAT, with the `SATSolver` that hand them to CaDiCaL and to
   MiniSat (`BUILD_SATBlock`); `INSTALL.sh` installs CaDiCaL from its package

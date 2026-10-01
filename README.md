@@ -265,6 +265,17 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   [MiniSat](https://github.com/stp/minisat)), which also solves the weighted
   MaxSAT by the core-guided algorithm OLL.
 
+- [SatellitesBlock](https://gitlab.com/smspp/satellitesblock), defining the
+  `Block` for the Satellite Constellation Design Problem, i.e., choosing the
+  orbits of a constellation of satellites so as to minimize either their
+  number or the sum over the targets of the maximum revisit times:
+  `SatelliteBlock`, `SingleTargetBlock`, `MultiTargetBlock` and the
+  `ConstellationBlock` that aggregates them for the continuous version of the
+  problem, `DiscreteSatelliteBlock` and `DiscreteConstellationBlock` for the
+  version where the observability threshold of each satellite takes one of
+  finitely many levels, together with the heuristics `SatelliteSolver` and
+  `DiscreteSatelliteSolver`.
+
 - [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
   defining the `Block` for Delay-Constrained Routing problems, i.e., routing
   flows on a network at minimum cost so that the worst-case end-to-end delay

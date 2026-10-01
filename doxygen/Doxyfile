@@ -835,6 +835,8 @@ INPUT                  = doxygen/mainpage.md \
                          MCFClassSolver/include \
                          MILPSolver/include \
                          MMCFBlock/include \
+                         SATBlock/include \
+                         SatellitesBlock/include \
                          SDDPBlock/include \
                          ScenarioReductionSolver/include \
                          SingleFlowDCRBlock/include \
