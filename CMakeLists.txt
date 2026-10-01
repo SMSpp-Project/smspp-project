@@ -81,6 +81,7 @@ smspp_option(BUILD_ScenarioReductionSolver "Build ScenarioReductionSolver")
 
 smspp_option(BUILD_tools "Build tools")
 smspp_option(BUILD_tests "Build system tests")
+smspp_option(BUILD_experiments "Build the computational studies of the papers")
 
 # Read the dependencies default location from a file written in a
 # bash-style syntax since it is shared with the other hand-written Makefiles,
@@ -400,6 +401,15 @@ if (BUILD_tests)
     add_subdirectory(tests)
     set(SMSPP_REQUIRED ON)
     enable_testing()
+endif ()
+
+# ----- Experiments --------------------------------------------------------- #
+# The computational studies of the papers are a private repository, not a
+# submodule: it is built when it has been cloned in experiments/, which the
+# .gitignore keeps out of the umbrella.
+if (BUILD_experiments AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/experiments/CMakeLists.txt")
+    add_subdirectory(experiments)
+    set(SMSPP_REQUIRED ON)
 endif ()
 
 # ----- SMS++ --------------------------------------------------------------- #
