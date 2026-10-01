@@ -290,6 +290,22 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   `Block` for specific generating units (`UnitBlock`) and interconnect
   networks (`NetworkBlock`), with some specialized `Solver`.
 
+- [pySMSpp](https://github.com/SPSUnipi/pySMSpp), the Python interface of
+  SMS++, which builds the netCDF files of SMS++ models, runs the SMS++ tools
+  on them and reads their results back.
+
+- [pypsa2smspp](https://github.com/SPSUnipi/pypsa2smspp), which translates
+  a [PyPSA](https://pypsa.org) energy-system network into the corresponding
+  SMS++ model (a `UCBlock`, possibly within an `InvestmentBlock` for capacity
+  expansion, or within a `TwoStageStochasticBlock` or a
+  `MultiStageStochasticBlock` for its stochastic versions), solves it
+  through pySMSpp, which it requires, and maps the solution back onto the
+  network.
+
+  Both are Python packages (`pip install pysmspp pypsa2smspp`) that CMake
+  does not build, and their submodules are only initialized on request,
+  e.g., `git submodule update --init pySMSpp pypsa2smspp`.
+
 
 
 ## Getting started
