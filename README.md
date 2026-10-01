@@ -337,7 +337,11 @@ one of the sources, which the instructions below are about. Similarly, the
 Solvers of SATBlock carry CaDiCaL alone, and none on Windows, where CaDiCaL does
 not build: MiniSat, whose stp/minisat code no package manager but Homebrew
 distributes (Debian and Ubuntu carry the older one of minisat.se), comes with a
-build from the sources.
+build from the sources. BinaryKnapsackBlock is packaged without the Solvers that
+hand its core to RECORD and to COMBO, which are built from the sources when
+these are found (RECORD, which `INSTALL.sh` checks out, in `RECORD_ROOT`, and
+COMBO, which is for academic or non-commercial use only and comes with no
+installer, in `COMBO_ROOT`).
 
 ### Requirements
 
@@ -415,6 +419,7 @@ according to the following options table:
 | `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
 | `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
 | `--without-minisat` | *(not supported)* | skip MiniSat installation               |
+| `--without-record` | *(not supported)* | skip RECORD installation                 |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 

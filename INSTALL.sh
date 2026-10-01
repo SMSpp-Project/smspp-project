@@ -23,6 +23,7 @@
 #     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
 #     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
 #     You can use the `--without-minisat` option to skip the installation of MiniSat.
+#     You can use the `--without-record` option to skip the installation of RECORD.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
@@ -30,7 +31,11 @@
 #     looking for a missing library: --without-stopt disables SDDPBlock and
 #     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
 #     --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
-#     for SATBlock, which builds the SAT solvers it finds.
+#     for SATBlock, which builds the SAT solvers it finds, and RECORD is
+#     optional for BinaryKnapsackBlock, which builds RECORDBinaryKnapsackSolver
+#     if it finds it. COMBO, which BinaryKnapsackBlock can also use, is for
+#     academic or non-commercial use only and is not installed: whoever has
+#     its combo.c and combo.h gives their directory as COMBO_ROOT.
 #
 # AUTHOR
 #     Donato Meoli
@@ -192,6 +197,23 @@ install_on_linux() {
       fi
     else
       echo "MiniSat already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install RECORD: a single source file, which BinaryKnapsackBlock compiles
+  # itself, so there is nothing to build here; its repository also holds a
+  # large set of benchmark data, hence only source/ is checked out
+  if [ "$install_record" -eq 1 ]; then
+    echo "Installing RECORD..."
+    RECORD_ROOT="$(resolve_dep_root record)"
+    CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
+    if [ ! -d "$RECORD_ROOT" ]; then
+      git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
+      git -C "$RECORD_ROOT" sparse-checkout set source
+    else
+      echo "RECORD already installed."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -569,6 +591,19 @@ install_on_macos() {
     brew install minisat
   fi
 
+  # Install RECORD: a single source file, which BinaryKnapsackBlock compiles
+  # itself; only source/ of its repository is checked out
+  if [ "$install_record" -eq 1 ]; then
+    echo "Installing RECORD..."
+    RECORD_ROOT="${INSTALL_ROOT}/record"
+    if [ ! -d "$RECORD_ROOT" ]; then
+      git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
+      git -C "$RECORD_ROOT" sparse-checkout set source
+    else
+      echo "RECORD already installed."
+    fi
+  fi
+
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
@@ -810,6 +845,7 @@ install_libsvm=${install_libsvm:-1}
 install_liblinear=${install_liblinear:-1}
 install_cadical=${install_cadical:-1}
 install_minisat=${install_minisat:-1}
+install_record=${install_record:-1}
 install_smspp=${install_smspp:-1}
 
 # Default value for installation root
@@ -895,6 +931,10 @@ do
     ;;
     --without-minisat)
     install_minisat=0
+    shift
+    ;;
+    --without-record)
+    install_record=0
     shift
     ;;
     --without-coinor)
@@ -1021,6 +1061,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
       [ -n "${MINISAT_ROOT:-}" ] && echo "MINISAT_ROOT = ${MINISAT_ROOT}"
+      [ -n "${RECORD_ROOT:-}" ] && echo "RECORD_ROOT = ${RECORD_ROOT}"
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
 
@@ -1057,6 +1098,10 @@ if [ "$install_smspp" -eq 1 ]; then
   # a CaDiCaL built from its source is not where extlib says (the package)
   if [ "${cadical_from_source:-0}" -eq 1 ] && [ -n "${CADICAL_ROOT:-}" ]; then
     smspp_cmake_flags+=("-DCADICAL_ROOT=${CADICAL_ROOT}")
+  fi
+  # without it, BinaryKnapsackBlock finds RECORD only in its default location
+  if [ -n "${RECORD_ROOT:-}" ]; then
+    smspp_cmake_flags+=("-DRECORD_ROOT=${RECORD_ROOT}")
   fi
 
   # Build SMSpp, optimized: a build with no CMAKE_BUILD_TYPE, or a Debug one,

@@ -15,6 +15,8 @@
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
     Note that CaDiCaL and MiniSat are not packaged for Windows, so there are no related options:
     SATBlock is built with SATSolver only, without the SAT solvers it wraps.
+    Note that RECORD and COMBO use POSIX clocks and 128-bit integers, which MSVC does not have,
+    so there are no related options: BinaryKnapsackBlock is built without the Solver that wrap them.
     You can use the `-withoutTorch` option to skip the installation of Torch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
     You can use the `-withoutDefenderExclusions` option to skip adding the Windows Defender path

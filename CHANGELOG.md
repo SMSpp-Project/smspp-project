@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--without-minisat`), Homebrew both on macOS; `extlib` has
   `makefile-libCaDiCaL` and `makefile-libMiniSat` and their default paths
 
+- `INSTALL.sh` checks out the source of RECORD (`--without-record`), which
+  BinaryKnapsackBlock compiles into `RECORDBinaryKnapsackSolver` when it finds
+  it, and `extlib` has the default paths of RECORD and COMBO (`RECORD_ROOT`,
+  `COMBO_ROOT`); COMBO, for academic or non-commercial use only, is not
+  installed and is built only from a directory with its sources
+
 - a commit says what it changes with the `Changelog:` and `Changelog-entry:`
   trailers of its message, or that it changes nothing worth telling with
   `[skip changelog]`; `changelog coverage` reads them, so that a commit is
