@@ -79,6 +79,9 @@
 [submodule "pySMSpp"]
 	path = pySMSpp
 	url = https://github.com/SPSUnipi/pySMSpp.git
+[submodule "pypsa2smspp"]
+	path = pypsa2smspp
+	url = https://github.com/SPSUnipi/pypsa2smspp.git
 [submodule "vcpkg-registry"]
 	path = vcpkg-registry
 	url = ../vcpkg-registry
