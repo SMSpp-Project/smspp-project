@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- every module is compiled as C++20, which the core already required, by
+  CMake and by the makefiles alike, and so is a module generated from the
+  ModuleTemplate; ACNetworkBlock and IntegralityBarrierFunction take pi from
+  `std::numbers` rather than from the non-standard `M_PI` or a macro of their
+  own
+
 - upload-to-package-registry takes the version to publish, which the
   data/upload-* script of a module reads from its CMakeLists.txt: it refuses
   a version that is already there, a published version being never
