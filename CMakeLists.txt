@@ -404,9 +404,9 @@ if (BUILD_tests)
 endif ()
 
 # ----- Experiments --------------------------------------------------------- #
-# The computational studies of the papers are a private repository, not a
-# submodule: it is built when it has been cloned in experiments/, which the
-# .gitignore keeps out of the umbrella.
+# The computational studies of the papers are a private submodule, which
+# .gitmodules marks "update = none" so that a recursive clone or update skips
+# it: it is built only when whoever has access has initialized it.
 if (BUILD_experiments AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/experiments/CMakeLists.txt")
     add_subdirectory(experiments)
     set(SMSPP_REQUIRED ON)

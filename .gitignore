@@ -6,10 +6,6 @@
 # Local override of external-library paths (gitignored on purpose)
 extlib/makefile-paths
 
-# The computational studies of the papers, a private repository that the
-# developers clone here and that is never part of the umbrella
-experiments/
-
 # Install tree produced by `make install` / CMake install
 bin/
 lib/
