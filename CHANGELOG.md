@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- MultiKnapsackAssignBlock, the `Block` of the Multiple Knapsack Assignment
+  Problem, whose sub-`Block` are `BinaryKnapsackBlock`
+  (`BUILD_MultiKnapsackAssignBlock`, which turns on
+  `BUILD_BinaryKnapsackBlock`), and its feature `mkab` in the smspp port of
+  the vcpkg registry
+
 - SatellitesBlock, the `Block` of the Satellite Constellation Design
   Problem, in its continuous and discrete versions, with the `Solver` of
   their sub-problems (`BUILD_SatellitesBlock`), and its feature

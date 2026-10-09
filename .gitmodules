@@ -88,6 +88,9 @@
 [submodule "SatellitesBlock"]
 	path = SatellitesBlock
 	url = ../satellitesblock.git
+[submodule "MultiKnapsackAssignBlock"]
+	path = MultiKnapsackAssignBlock
+	url = ../multiknapsackassignblock.git
 [submodule "experiments"]
 	path = experiments
 	url = https://gitlab.com/smspp-develop/experiments.git

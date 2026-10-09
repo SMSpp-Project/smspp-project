@@ -276,6 +276,15 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   finitely many levels, together with the heuristics `SatelliteSolver` and
   `DiscreteSatelliteSolver`.
 
+- [MultiKnapsackAssignBlock](https://gitlab.com/smspp/multiknapsackassignblock),
+  defining the `Block` for the Multiple Knapsack Assignment Problem, i.e.,
+  placing items partitioned into classes in knapsacks, each of which is given
+  at most one class and holds items of that class within its capacity, so as
+  to maximize the total profit: its sub-`Block` are the `BinaryKnapsackBlock`
+  of the pairs of a knapsack and a class, linked by the constraints that
+  assign each item to at most one knapsack and each knapsack at most one
+  class.
+
 - [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
   defining the `Block` for Delay-Constrained Routing problems, i.e., routing
   flows on a network at minimum cost so that the worst-case end-to-end delay

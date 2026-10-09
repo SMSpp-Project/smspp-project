@@ -67,6 +67,7 @@ smspp_option(BUILD_SVMBlock "Build SVMBlock")
 smspp_option(BUILD_SingleFlowDCRBlock "Build SingleFlowDCRBlock")
 smspp_option(BUILD_SATBlock "Build SATBlock")
 smspp_option(BUILD_SatellitesBlock "Build SatellitesBlock")
+smspp_option(BUILD_MultiKnapsackAssignBlock "Build MultiKnapsackAssignBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
@@ -195,6 +196,10 @@ endif ()
 
 if (BUILD_CapacitatedFacilityLocationBlock)
     set(BUILD_MCFBlock ON) # Requires MCFBlock
+    set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
+endif ()
+
+if (BUILD_MultiKnapsackAssignBlock)
     set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
 endif ()
 
@@ -330,6 +335,12 @@ endif ()
 if (BUILD_SatellitesBlock)
     init_submodule(SatellitesBlock)
     add_subdirectory(SatellitesBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_MultiKnapsackAssignBlock)
+    init_submodule(MultiKnapsackAssignBlock)
+    add_subdirectory(MultiKnapsackAssignBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
