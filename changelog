@@ -1,0 +1,779 @@
+#!/usr/bin/env python3
+
+# --------------------------------------------------------------------------- #
+# The CHANGELOG.md of the umbrella and of every submodule, checked, measured  #
+# and drafted.                                                                #
+#                                                                             #
+# Three commands:                                                             #
+#                                                                             #
+#   check     reads every CHANGELOG.md and reports what does not hold: a      #
+#             missing [Unreleased] section, sections out of the Keep a        #
+#             Changelog order or not among its seven, a section left empty,   #
+#             versions not in decreasing order, a date that is not ISO or     #
+#             that goes backwards, a version whose link reference is missing  #
+#             or points at another tag, a link reference no version uses,     #
+#             and an entry repeated inside the same release.                  #
+#                                                                             #
+#   coverage  compares, module by module, the commits since the last tag      #
+#             with the entries of [Unreleased], and lists the commits that    #
+#             no entry seems to cover, so that what is missing is visible     #
+#             before the release rather than after it. A commit counts as     #
+#             covered when it carries a Changelog trailer, when it touches    #
+#             nothing but the pipeline, the README and the like, or when an   #
+#             entry names one of the files it touches or enough of the words  #
+#             of its subject [see --overlap].                                 #
+#                                                                             #
+#   links     rewrites the link references of every CHANGELOG from its own     #
+#             releases, each version comparing against the one below it and   #
+#             the oldest pointing at its tag, so that they are all there and  #
+#             all right; without -w it only says what would change.           #
+#                                                                             #
+#   draft     writes the release draft: one section per module, its           #
+#             [Unreleased] as it stands followed by the commits coverage      #
+#             says are not in it, in Keep a Changelog form, ready to be       #
+#             pruned into the CHANGELOG of each module.                       #
+#                                                                             #
+# The commit range of a module is taken from its own tags; with --from the    #
+# range of every module is taken instead from the gitlink each one had at     #
+# that reference of the umbrella, which is what a release of the whole        #
+# project asks for.                                                           #
+#                                                                             #
+# With --repo the tool works on one repository alone, its submodules left     #
+# aside, which is what a module runs in its own pipeline, where the umbrella  #
+# is not there.                                                               #
+#                                                                             #
+# Only `links -w` writes a CHANGELOG, and only `draft -o` writes the draft:   #
+# no repository is ever touched.                                              #
+# --------------------------------------------------------------------------- #
+
+import argparse
+import datetime
+import os
+import re
+import subprocess
+import sys
+
+SECTIONS = [ "Added" , "Changed" , "Deprecated" , "Removed" , "Fixed" ,
+             "Security" , "Unreleased" ]
+
+ROOT = os.path.dirname( os.path.abspath( __file__ ) )
+
+ALONE = False   # true when --repo says to work on one repository only
+
+# --------------------------------------------------------------------------- #
+# reading the repositories                                                    #
+# --------------------------------------------------------------------------- #
+
+def git( repo , *args , check = False ):
+    """the output of a git command in repo, empty on failure"""
+    r = subprocess.run( [ "git" , "-C" , repo ] + list( args ) ,
+                        capture_output = True , text = True )
+    if r.returncode and check:
+        sys.exit( f"changelog: git {' '.join( args )} in {repo}: {r.stderr.strip()}" )
+    return( r.stdout.strip() )
+
+
+def modules():
+    """the umbrella and each of its submodules that is checked out
+
+    With --repo there are no submodules to look at: the one repository
+    given is all there is, which is how a module checks itself in its own
+    pipeline, where the umbrella is not there."""
+    if ALONE:
+        return( [ "." ] )
+    out = git( ROOT , "config" , "-f" , ".gitmodules" , "--get-regexp" , "path" )
+    paths = out.split()[ 1 : : 2 ]
+    here = [ "." ] + sorted( paths )
+    return( [ m for m in here
+              if os.path.exists( os.path.join( ROOT , m , ".git" ) ) or m == "." ] )
+
+
+def version_tags( repo ):
+    """the tags of the repository that name a version, the highest first; a
+    tag that names something else, e.g., archive/<branch> for a branch kept
+    after being deleted, is no release, and sorts above all of them"""
+    return( [ t for t in git( repo , "tag" , "--sort=-v:refname" ).split()
+              if re.fullmatch( r"v?\d+(\.\d+)*" , t ) ] )
+
+
+def last_tag( repo ):
+    """the highest version tag of the repository, empty if it has none"""
+    tags = version_tags( repo )
+    return( tags[ 0 ] if tags else "" )
+
+
+def range_of( module , frm ):
+    """( from , to ) for the module: its own last tag, or the gitlink at frm"""
+    repo = os.path.join( ROOT , module )
+    if not frm:
+        return( last_tag( repo ) , "HEAD" )
+    if module == ".":
+        return( frm , "HEAD" )
+    line = git( ROOT , "ls-tree" , frm , module )
+    return( ( line.split()[ 2 ] if line else "" ) , "HEAD" )
+
+
+def trailers( body ):
+    """the Changelog trailers of a commit message, ( section , entry )
+
+    A commit says what it changes with the trailer the CONTRIBUTING asks for,
+
+        Changelog: Fixed
+        Changelog-entry: what it fixed, in the words of the CHANGELOG,
+          carried on as many lines as it takes
+
+    and a commit that changes nothing worth telling says so with
+    [skip changelog] anywhere in its message. Answers ( "" , "" ) when there
+    is no trailer, ( "skip" , "" ) when there is the marker."""
+    section = entry = ""
+    lines = body.split( "\n" )
+    for i , line in enumerate( lines ):
+        m = re.match( r"^Changelog:\s*(\S+)\s*$" , line )
+        if m:
+            section = m.group( 1 ).capitalize()
+            continue
+        m = re.match( r"^Changelog-entry:\s*(.*)$" , line )
+        if m:
+            parts = [ m.group( 1 ).strip() ]
+            for nxt in lines[ i + 1 : ]:
+                if nxt.startswith( ( " " , "\t" ) ) and nxt.strip():
+                    parts.append( nxt.strip() )
+                else:
+                    break
+            entry = " ".join( p for p in parts if p )
+    if ( not section ) and ( "[skip changelog]" in body.lower() ):
+        section = "skip"
+    return( section , entry )
+
+
+def commits( module , frm , to ):
+    """the commits of the range, as ( sha , subject , files , section , entry )"""
+    repo = os.path.join( ROOT , module )
+    if not frm:
+        return( [] )
+    span = f"{frm}..{to}"
+    out = git( repo , "log" , "--no-merges" , "--format=%h%x1f%s%x1f%b%x1e" , span )
+    if not out:
+        return( [] )
+    got = []
+    for record in out.split( "\x1e" ):
+        record = record.strip( "\n" )
+        if not record:
+            continue
+        sha , _ , rest = record.partition( "\x1f" )
+        subject , _ , body = rest.partition( "\x1f" )
+        files = git( repo , "show" , "--name-only" , "--format=" , sha ).split( "\n" )
+        section , entry = trailers( body )
+        if ( not section ) and ( "[skip changelog]" in subject.lower() ):
+            section = "skip"
+        got.append( ( sha , subject , [ f for f in files if f ] ,
+                      section , entry ) )
+    return( got )
+
+# --------------------------------------------------------------------------- #
+# reading a CHANGELOG                                                         #
+# --------------------------------------------------------------------------- #
+
+class Changelog:
+    """what a CHANGELOG.md holds: its releases, their entries and their links"""
+
+    def __init__( self , path ):
+        self.path = path
+        self.text = open( path , encoding = "utf-8" ).read() \
+                    if os.path.exists( path ) else ""
+        self.releases = []   # ( version , date , { section : [ entry ] } , line )
+        self.links = {}      # version -> url
+        self.orphans = []    # ( version , line ) of an entry under no section
+        self.twice = []      # ( version , section , line ) of a section said
+                             # twice in the same release
+        self.parse()
+
+    def parse( self ):
+        version = date = None
+        section = None
+        entries = {}
+        line_of = 0
+        for n , line in enumerate( self.text.split( "\n" ) , 1 ):
+            head = re.match( r"^## \[([^\]]+)\](?:\s*-\s*(\S+))?\s*$" , line )
+            if head:
+                if version is not None:
+                    self.releases.append( ( version , date , entries , line_of ) )
+                version , date = head.group( 1 ) , head.group( 2 )
+                entries , section , line_of = {} , None , n
+                continue
+            sub = re.match( r"^### (\S+)\s*$" , line )
+            if sub and version is not None:
+                section = sub.group( 1 )
+                if section in entries:
+                    self.twice.append( ( version , section , n ) )
+                entries.setdefault( section , [] )
+                continue
+            if version is not None and not section and line.startswith( "- " ):
+                # an entry under no section: the parser has nowhere to put it,
+                # and whoever reads the file has no idea what it is about
+                self.orphans.append( ( version , n ) )
+                continue
+            if version is not None and section and line.startswith( "- " ):
+                entries[ section ].append( line[ 2 : ].rstrip() )
+                continue
+            # a line under an entry, indented, is the rest of that entry
+            if ( version is not None and section and entries.get( section )
+                 and line.startswith( "  " ) and line.strip() ):
+                entries[ section ][ -1 ] += "\n" + line.rstrip()
+                continue
+            link = re.match( r"^\[([^\]]+)\]:\s*(\S+)\s*$" , line )
+            if link:
+                self.links[ link.group( 1 ) ] = link.group( 2 )
+        if version is not None:
+            self.releases.append( ( version , date , entries , line_of ) )
+
+    def unreleased( self ):
+        for version , _ , entries , _ in self.releases:
+            if version.lower() == "unreleased":
+                return( entries )
+        return( None )
+
+    def unreleased_text( self ):
+        """the [Unreleased] section as it is written, its empty sections out
+
+        The sections kept empty as the place of what is not written yet say
+        nothing in a draft, so they are left out of it."""
+        entries = self.unreleased()
+        if not entries:
+            return( "" )
+        out = []
+        for section in SECTIONS:
+            items = entries.get( section , [] )
+            if not items:
+                continue
+            out += [ f"### {section}" , "" ]
+            for item in items:
+                out += [ f"- {item}" , "" ]
+        return( "\n".join( out ).strip( "\n" ) )
+
+# --------------------------------------------------------------------------- #
+# check                                                                       #
+# --------------------------------------------------------------------------- #
+
+def check_one( module , cl ):
+    """the complaints about one CHANGELOG, as a list of strings"""
+    bad = []
+    if not cl.text:
+        return( [ "there is no CHANGELOG.md" ] )
+
+    versions = [ ( v , d , e , l ) for v , d , e , l in cl.releases
+                 if v.lower() != "unreleased" ]
+
+    if cl.unreleased() is None:
+        bad.append( "no [Unreleased] section" )
+
+    for version , date , entries , line in cl.releases:
+        where = f"line {line}, [{version}]"
+        for section , items in entries.items():
+            if section not in SECTIONS:
+                bad.append( f"{where}: '{section}' is no Keep a Changelog section" )
+            if not items and version.lower() != "unreleased":
+                # in [Unreleased] an empty section is the place kept for what
+                # the next commit will have to say, and is meant to be there
+                bad.append( f"{where}: the '{section}' section is empty" )
+            seen = set()
+            for item in items:
+                key = " ".join( item.lower().split() )[ : 80 ]
+                if key in seen:
+                    bad.append( f"{where}: the entry '{item[ : 40 ]}...' is there twice" )
+                seen.add( key )
+        order = [ SECTIONS.index( s ) for s in entries if s in SECTIONS ]
+        if order != sorted( order ):
+            bad.append( f"{where}: the sections are not in the Keep a Changelog order" )
+
+    previous = None
+    for version , date , _ , line in versions:
+        where = f"line {line}, [{version}]"
+        if not date:
+            bad.append( f"{where}: the release carries no date" )
+        else:
+            try:
+                when = datetime.date.fromisoformat( date )
+                if previous and when > previous:
+                    bad.append( f"{where}: dated {date}, after the release above it" )
+                previous = when
+            except ValueError:
+                bad.append( f"{where}: '{date}' is no ISO date" )
+        has_tag = version.lstrip( "v" ) in {
+            t.lstrip( "v" ) for t in
+            git( os.path.join( ROOT , module ) , "tag" ).split() }
+        if version not in cl.links:
+            if has_tag:
+                bad.append( f"{where}: no link reference for it" )
+        elif version not in cl.links[ version ]:
+            bad.append( f"{where}: its link does not name {version}" )
+
+    for version , line in cl.orphans:
+        bad.append( f"line {line}, [{version}]: the entry is under no section" )
+
+    for version , section , line in cl.twice:
+        bad.append( f"line {line}, [{version}]: "
+                    f"the '{section}' section is there twice" )
+
+    # an entry that is in two releases: the one below says what it was not
+    # released with. Told apart from the entries that are meant to repeat,
+    # "Minor fixes." and the like, by asking for something distinctive
+    said = {}
+    for version , _ , entries , line in cl.releases:
+        for items in entries.values():
+            for item in items:
+                key = " ".join( item.lower().split() )
+                if len( key ) < 30:
+                    continue
+                if key in said and said[ key ] != version:
+                    bad.append( f"line {line}, [{version}]: the entry "
+                                f"'{item[ : 40 ]}...' is already in "
+                                f"[{said[ key ]}]" )
+                said[ key ] = version
+
+    # a formula between dollars, which Markdown prints as it is written
+    for n , text in enumerate( cl.text.split( "\n" ) , 1 ):
+        if re.search( r"\$[^$]+\$" , text ):
+            bad.append( f"line {n}: a formula between dollars, which Markdown "
+                        f"does not build" )
+
+    named = { v for v , _ , _ , _ in cl.releases }
+    for version in cl.links:
+        if version not in named:
+            bad.append( f"the link reference [{version}] belongs to no release" )
+
+    repo = os.path.join( ROOT , module )
+    tag = last_tag( repo )
+    if tag and versions:
+        top = versions[ 0 ][ 0 ]
+        if top.lstrip( "v" ) != tag.lstrip( "v" ):
+            bad.append( f"the last release is [{top}] while the last tag is {tag}" )
+
+    return( bad )
+
+
+def do_check( args ):
+    bad_ones = 0
+    for module in modules():
+        cl = Changelog( os.path.join( ROOT , module , "CHANGELOG.md" ) )
+        if not cl.text and module != "." and args.quiet:
+            continue
+        complaints = check_one( module , cl )
+        if complaints:
+            bad_ones += 1
+            print( f"{module}:" )
+            for c in complaints:
+                print( f"  {c}" )
+        elif not args.quiet:
+            print( f"{module}: ok" )
+    print( f"\n{bad_ones} of {len( modules() )} have something to fix" )
+    return( 1 if bad_ones else 0 )
+
+# --------------------------------------------------------------------------- #
+# coverage                                                                    #
+# --------------------------------------------------------------------------- #
+
+# what a commit can touch without owing the CHANGELOG an entry: the files
+# that are not the software, i.e., the pipeline, the license, the notes for
+# whoever contributes, and the CHANGELOG itself
+APART = { "CHANGELOG.md" , "CONTRIBUTING.md" , "LICENSE" , "README.md" ,
+          "TODO" , ".gitignore" , ".gitattributes" , ".gitlab-ci.yml" }
+
+APART_UNDER = ( "ci/" , ".gitlab/" , ".github/" )
+
+
+def submodules( module = "." ):
+    """the paths the .gitmodules of that repository registers"""
+    out = git( os.path.join( ROOT , module ) , "config" , "-f" , ".gitmodules" ,
+               "--get-regexp" , "path" )
+    return( set( out.split()[ 1 : : 2 ] ) )
+
+
+def is_apart( files , subs = None ):
+    """true if none of the files of the commit is the software
+
+    Neither is a submodule: a commit that moves a gitlink says that another
+    repository has moved, and what moved there is told by the CHANGELOG of
+    that repository."""
+    if not files:
+        return( False )
+    if subs and all( f in subs for f in files ):
+        return( True )
+    for f in files:
+        if f in APART or os.path.basename( f ) in APART:
+            continue
+        if f.startswith( APART_UNDER ):
+            continue
+        return( False )
+    return( True )
+
+
+NOISE = set( """a an and are as at be by for from in into is it its of on onto or
+that the their them they this to when where which with without not no but also
+now only same than then there these those what while who whom whose""".split() )
+
+
+def words( text ):
+    return( { w for w in re.findall( r"[A-Za-z_]{4,}" , text.lower() )
+              if w not in NOISE } )
+
+
+def uncovered( module , frm , to , overlap ):
+    """the commits of the range that no entry of [Unreleased] seems to cover"""
+    cl = Changelog( os.path.join( ROOT , module , "CHANGELOG.md" ) )
+    entries = cl.unreleased() or {}
+    written = [ e for items in entries.values() for e in items ]
+    blob = " ".join( written ).lower()
+    said = [ words( e ) for e in written ]
+
+    subs = submodules( module )
+
+    missing = []
+    for sha , subject , files , section , _ in commits( module , frm , to ):
+        if subject.startswith( "updated submodule" ) or subject.startswith( "Merge " ):
+            continue
+        if section:
+            continue  # the commit says what it changes, or that it changes nothing
+        if is_apart( files , subs ):
+            continue  # it touches nothing the CHANGELOG speaks of
+        names = { os.path.basename( f ) for f in files }
+        stems = { os.path.splitext( n )[ 0 ].lower() for n in names }
+        if any( s and s in blob for s in stems ):
+            continue
+        mine = words( subject )
+        if mine and any( len( mine & s ) >= overlap * len( mine ) for s in said ):
+            continue
+        missing.append( ( sha , subject , files ) )
+    return( missing )
+
+
+def do_coverage( args ):
+    total_c = total_m = 0
+    print( f"{'module'.ljust( 32 )} {'commits':>8} {'entries':>8} {'uncovered':>10}" )
+    for module in modules():
+        frm , to = range_of( module , args.frm )
+        if not frm:
+            continue
+        cs = commits( module , frm , to )
+        cs = [ c for c in cs if not c[ 1 ].startswith( "updated submodule" ) ]
+        cl = Changelog( os.path.join( ROOT , module , "CHANGELOG.md" ) )
+        entries = cl.unreleased() or {}
+        n_e = sum( len( v ) for v in entries.values() )
+        miss = uncovered( module , frm , to , args.overlap )
+        total_c += len( cs )
+        total_m += len( miss )
+        if not cs and not n_e:
+            continue
+        print( f"{module.ljust( 32 )} {len( cs ):>8} {n_e:>8} {len( miss ):>10}" )
+        if args.list:
+            for sha , subject , _ in miss:
+                print( f"    {sha}  {subject[ : 100 ]}" )
+    print( f"\n{total_m} of {total_c} commits are in no entry" )
+    if args.fail and total_m:
+        print( "changelog: write them in the [Unreleased] section, or say in "
+               "the message of the commit that it changes nothing worth "
+               "telling" )
+        return( 1 )
+    return( 0 )
+
+# --------------------------------------------------------------------------- #
+# draft                                                                       #
+# --------------------------------------------------------------------------- #
+
+def do_draft( args ):
+    out = []
+    today = datetime.date.today().isoformat()
+    out.append( f"# Release draft, {today}" )
+    out.append( "" )
+    out.append( "One section per module: what its CHANGELOG already says, and" )
+    out.append( "the commits that say something it does not. Prune, do not add." )
+    out.append( "" )
+
+    for module in modules():
+        frm , to = range_of( module , args.frm )
+        if not frm:
+            continue
+        cl = Changelog( os.path.join( ROOT , module , "CHANGELOG.md" ) )
+        said = cl.unreleased_text()
+        miss = uncovered( module , frm , to , args.overlap )
+        # what the commits say of themselves in their trailers, and which the
+        # CHANGELOG does not carry yet
+        told = {}
+        for sha , subject , _ , section , entry in commits( module , frm , to ):
+            if ( not entry ) or ( section in ( "" , "skip" ) ):
+                continue
+            if entry.lower()[ : 60 ] in said.lower():
+                continue
+            told.setdefault( section , [] ).append( ( sha , entry ) )
+        if not said and not miss and not told:
+            continue
+        name = "umbrella" if module == "." else module
+        out.append( f"## {name}" )
+        out.append( "" )
+        out.append( f"*{frm[ : 12 ]}..{to}*" )
+        out.append( "" )
+        if said:
+            out.append( said )
+            out.append( "" )
+        for section in SECTIONS:
+            if section not in told:
+                continue
+            out.append( f"### {section}, from the trailers of the commits" )
+            out.append( "" )
+            for sha , entry in told[ section ]:
+                out.append( f"- {entry} [{sha}]" )
+            out.append( "" )
+        if miss:
+            out.append( "### To be written" )
+            out.append( "" )
+            for sha , subject , files in miss:
+                where = ", ".join( sorted( { f.split( "/" )[ 0 ] for f in files } )[ : 3 ] )
+                out.append( f"- {subject} [{sha}, {where}]" )
+            out.append( "" )
+
+    text = "\n".join( out ) + "\n"
+    if args.out:
+        open( args.out , "w" , encoding = "utf-8" ).write( text )
+        print( f"written in {args.out}" )
+    else:
+        print( text )
+    return( 0 )
+
+# --------------------------------------------------------------------------- #
+# links                                                                       #
+# --------------------------------------------------------------------------- #
+
+def base_url( repo ):
+    """the https address of the project, from the url of its origin
+
+    The path of a project on GitLab is lowercase whatever the case of the
+    name it is cloned with, so it is lowercased here too."""
+    url = git( repo , "remote" , "get-url" , "origin" )
+    if not url:
+        return( "" )
+    url = re.sub( r"^git@([^:]+):" , r"https://\1/" , url )
+    url = re.sub( r"\.git$" , "" , url )
+    host , _ , path = url.partition( "://" )[ 2 ].partition( "/" )
+    return( f"https://{host}/{path.lower()}" )
+
+
+def previous_of( repo , version , listed ):
+    """what a release compares against: the release below it that has a tag
+
+    The release below it in the file is the answer whenever the repository
+    has a tag for it. It does not always: a CHANGELOG carries releases that
+    were never tagged, and a comparison against one of those is a link to
+    nothing, so the tag right below the version is taken instead."""
+    tags = version_tags( repo )
+    bare = [ t.lstrip( "v" ) for t in tags ]
+    if listed and listed.lstrip( "v" ) in bare:
+        return( listed )
+    if version.lstrip( "v" ) in bare:
+        i = bare.index( version.lstrip( "v" ) )
+        if i + 1 < len( tags ):
+            return( tags[ i + 1 ] )
+    return( "" )
+
+
+def link_block( repo , cl ):
+    """the link references the releases of the CHANGELOG ask for"""
+    base = base_url( repo )
+    if not base:
+        return( [] )
+    versions = [ v for v , _ , _ , _ in cl.releases if v.lower() != "unreleased" ]
+    if not versions:
+        return( [] )
+    lines = []
+    if cl.unreleased() is not None:
+        lines.append( f"[Unreleased]: {base}/-/compare/{versions[ 0 ]}...develop" )
+    tagged = { t.lstrip( "v" ) for t in version_tags( repo ) }
+    for i , v in enumerate( versions ):
+        if v.lstrip( "v" ) not in tagged:
+            # a release the repository has no tag for has nothing to link to,
+            # neither a tag page nor a comparison, so it is left without one
+            continue
+        listed = versions[ i + 1 ] if i + 1 < len( versions ) else ""
+        previous = previous_of( repo , v , listed )
+        if previous:
+            lines.append( f"[{v}]: {base}/-/compare/{previous}...{v}" )
+        else:
+            lines.append( f"[{v}]: {base}/-/tags/{v}" )
+    return( lines )
+
+
+def do_links( args ):
+    """rewrite the link references of each CHANGELOG from its releases"""
+    touched = 0
+    for module in modules():
+        repo = os.path.join( ROOT , module )
+        path = os.path.join( repo , "CHANGELOG.md" )
+        cl = Changelog( path )
+        if not cl.text:
+            continue
+        wanted = link_block( repo , cl )
+        if not wanted:
+            continue
+        keep = [ l for l in cl.text.rstrip( "\n" ).split( "\n" )
+                 if not re.match( r"^\[[^\]]+\]:\s*\S+\s*$" , l ) ]
+        while keep and not keep[ -1 ].strip():
+            keep.pop()
+        text = "\n".join( keep + [ "" ] + wanted ) + "\n"
+        if text.rstrip() == cl.text.rstrip():
+            continue  # the links are those already there, blank lines apart
+        touched += 1
+        print( f"{module}:" )
+        had = set( l for l in cl.text.split( "\n" )
+                   if re.match( r"^\[[^\]]+\]:\s*\S+\s*$" , l ) )
+        for l in wanted:
+            if l not in had:
+                print( f"  + {l}" )
+        for l in sorted( had - set( wanted ) ):
+            print( f"  - {l}" )
+        if args.write:
+            open( path , "w" , encoding = "utf-8" ).write( text )
+    print( f"\n{touched} to rewrite" + ( ", written" if args.write else
+                                         ", pass -w to write them" ) )
+    return( 0 )
+
+# --------------------------------------------------------------------------- #
+# tidy                                                                        #
+# --------------------------------------------------------------------------- #
+
+# the words an entry opens with in upper case where the rest of the project
+# opens in lower case; a name of the code is left alone, and is told from
+# these by not being one of them
+
+OPENERS = ( "A|An|The|This|These|Those|Two|Three|At|When|Where|Whether|With|"
+            "Without|After|Before|Every|Each|It|They|What|Which|Now|Also|"
+            "Adding|Removing|Scaling|Solving|Reading|Writing|Asking|Taking" )
+
+
+def tidy_text( text ):
+    """the CHANGELOG in the form the project writes it
+
+    Nothing is said differently: what changes is the blanks at the end of a
+    line, the blank line between two entries and before a section, and, in
+    [Unreleased] alone, the case of the word an entry opens with and the full
+    stop it closes with. What is released is history, and only gets the
+    blanks."""
+    start = text.find( "## [Unreleased]" )
+    if start >= 0:
+        end = text.find( "\n## [" , start + 1 )
+        end = len( text ) if end < 0 else end
+        out = []
+        for chunk in re.split( r"(?m)^(?=- )" , text[ start : end ] ):
+            if chunk.startswith( "- " ):
+                m = re.match( r"- (" + OPENERS + r") " , chunk )
+                if m:
+                    chunk = "- " + m.group( 1 )[ 0 ].lower() + chunk[ 3 : ]
+                chunk = re.sub( r"\.(\s*)$" , r"\1" , chunk )
+            out.append( chunk )
+        text = text[ : start ] + "".join( out ) + text[ end : ]
+
+    lines = []
+    for line in text.split( "\n" ):
+        line = line.rstrip()
+        if ( line.startswith( "- " ) or line.startswith( "### " ) ) \
+           and lines and lines[ -1 ].strip() and not lines[ -1 ].startswith( "# " ):
+            lines.append( "" )
+        lines.append( line )
+    return( "\n".join( lines ) )
+
+
+def do_tidy( args ):
+    """put every CHANGELOG in the form the project writes it"""
+    touched = 0
+    for module in modules():
+        path = os.path.join( ROOT , module , "CHANGELOG.md" )
+        cl = Changelog( path )
+        if not cl.text:
+            continue
+        text = tidy_text( cl.text )
+        if text == cl.text:
+            continue
+        touched += 1
+        was = cl.text.split( "\n" )
+        now = text.split( "\n" )
+        print( f"{module}: {len( now ) - len( was )} lines, "
+               f"{sum( 1 for l in was if l != l.rstrip() )} with blanks at "
+               f"the end" )
+        if args.write:
+            open( path , "w" , encoding = "utf-8" ).write( text )
+    print( f"\n{touched} to tidy" + ( ", written" if args.write else
+                                      ", pass -w to write them" ) )
+    return( 0 )
+
+# --------------------------------------------------------------------------- #
+# the command line                                                            #
+# --------------------------------------------------------------------------- #
+
+def main():
+    p = argparse.ArgumentParser(
+            description = "check, measure and draft the CHANGELOG of the project" )
+
+    # every command takes it, before or after the name of the command
+    common = argparse.ArgumentParser( add_help = False )
+    common.add_argument( "--repo" , metavar = "PATH" ,
+                         help = "work on this repository alone, its "
+                                "submodules left aside: what a module runs "
+                                "in its own pipeline, where the umbrella is "
+                                "not there" )
+
+    p.add_argument( "--repo" , metavar = "PATH" , dest = "repo_first" ,
+                    help = argparse.SUPPRESS )
+    sub = p.add_subparsers( dest = "what" , required = True )
+
+    c = sub.add_parser( "check" , parents = [ common ] ,
+                        help = "what does not hold in the CHANGELOG" )
+    c.add_argument( "-q" , "--quiet" , action = "store_true" ,
+                    help = "say nothing about the ones that are fine" )
+    c.set_defaults( run = do_check )
+
+    v = sub.add_parser( "coverage" , parents = [ common ] ,
+                        help = "the commits that no entry covers" )
+    v.add_argument( "-l" , "--list" , action = "store_true" ,
+                    help = "list them, one per line" )
+    v.add_argument( "--fail" , action = "store_true" ,
+                    help = "exit with an error when a commit is in no entry, "
+                           "which is what a pipeline asks for" )
+    v.set_defaults( run = do_coverage )
+
+    k = sub.add_parser( "links" , parents = [ common ] ,
+                        help = "rewrite the link references from the releases" )
+    k.add_argument( "-w" , "--write" , action = "store_true" ,
+                    help = "write them, instead of only saying what changes" )
+    k.set_defaults( run = do_links )
+
+    t = sub.add_parser( "tidy" , parents = [ common ] ,
+                        help = "put the CHANGELOG in the form of the project" )
+    t.add_argument( "-w" , "--write" , action = "store_true" ,
+                    help = "write it, instead of only saying what changes" )
+    t.set_defaults( run = do_tidy )
+
+    d = sub.add_parser( "draft" , parents = [ common ] ,
+                        help = "the release draft, module by module" )
+    d.add_argument( "-o" , "--out" , help = "the file to write it in" )
+    d.set_defaults( run = do_draft )
+
+    for one in ( v , d ):
+        one.add_argument( "--from" , dest = "frm" , metavar = "REF" ,
+                          help = "take the range of every module from the "
+                                 "gitlink it had at this reference of the "
+                                 "umbrella, e.g. a tag, instead of from its "
+                                 "own last tag" )
+        one.add_argument( "--overlap" , type = float , default = 0.5 ,
+                          metavar = "F" ,
+                          help = "how much of the words of a commit subject an "
+                                 "entry must share to count as covering it "
+                                 "(default 0.5)" )
+
+    args = p.parse_args()
+    args.repo = args.repo or args.repo_first
+    if args.repo:
+        global ROOT , ALONE
+        ROOT , ALONE = os.path.abspath( args.repo ) , True
+    sys.exit( args.run( args ) )
+
+
+if __name__ == "__main__":
+    main()

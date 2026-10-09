@@ -9,7 +9,8 @@ with the project.
 
 If your contribution is an entirely new module (a new `:Block` and/or
 `:Solver` repository), start it from the
-[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository: its
+[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository (in the
+private `smspp-develop` group of the SMS++ developers): its
 `init.sh` script generates a complete module in the standard SMS++ layout
 (builds, CI, tests and boilerplate) and registers it in the umbrella project.
 
@@ -19,6 +20,41 @@ If your contribution is an entirely new module (a new `:Block` and/or
 
 2. Update the Changelog accordingly.
    The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+   Say in the commit itself what it changes, with the trailer
+
+       Changelog: Added
+       Changelog-entry: `MCFSolver::get_var_direction()`, which writes the
+         cycle of negative cost that certifies the unboundedness of the flow
+
+   where the first line is one of the sections of the format (`Added`,
+   `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`) and the second
+   is the entry as it will read in the `CHANGELOG.md`, carried on as many
+   lines as it takes. The entry is written when the work is done and is
+   understood, rather than reconstructed at the release out of a year of
+   commits, and `changelog draft` collects the trailers of a release into
+   the draft of its changelog.
+
+   A commit that changes nothing worth telling — a rename of a local
+   variable, a comment, the formatting of a file — says so with
+   `[skip changelog]` anywhere in its message.
+
+   The pipeline holds this: `changelog check` reads the `CHANGELOG.md` of
+   the project and complains about what does not keep the format, and on a
+   merge request `changelog coverage` asks for a trailer, or the marker, or
+   an entry of `[Unreleased]` covering each of its commits. The tool is
+   `changelog` in the umbrella, and works on one repository at a time with
+   `--repo`.
+
+   Besides the format, `check` asks that a released version say what it was
+   released with and say it once: an entry that is also in another release,
+   a section named twice in the same release, an entry sitting under no
+   section at all and a formula between dollars, which Markdown does not
+   build, are each a complaint. The form of the file — the blanks at the
+   end of a line, the blank line between two entries, the case an entry of
+   `[Unreleased]` opens with and the full stop it closes with — is not a
+   complaint but a command: `changelog tidy -w` puts it as the project
+   writes it.
 
 3. The version is derived automatically from the most recent git tag (see
    `cmake/DeriveVersion.cmake`), so there is no version number to bump by hand:

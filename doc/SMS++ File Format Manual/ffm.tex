@@ -785,8 +785,9 @@ which case that \Objective is an \code{FRealObjective}). The type of the
 target element must be known from the context. If this is not the last node in
 the path, then the type of the next node in the path is `B' and it is
 associated with the inner \Block of either a \code{BendersBFunction} or a
-\code{LagBFunction} which is the \Function of that \Objective (and thus that
-\Objective is actually an \code{FRealObjective}).
+\code{LagBFunction} (cf. \S \ref{sec:BendersBFunction} and
+\S \ref{sec:LagBFunction}) which is the \Function of that \Objective (and
+thus that \Objective is actually an \code{FRealObjective}).
 
 Finally, a `C' or `c' node, which is associated with a \Constraint, has
 characteristics pertaining both the `V' (and `v') and the `O' nodes. Like the
@@ -800,8 +801,9 @@ or the \Function in that \Constraint (in which case that \Constraint is an
 \code{FRowConstraint}). The type of the target element must be known from the
 context. If this is not the last node in the path, then the type of the next
 node in the path is `B' and it is associated with the inner \Block of either a
-\code{BendersBFunction} or a \code{LagBFunction} which is the \Function of
-that \Constraint (and thus that \Constraint is actually an
+\code{BendersBFunction} or a \code{LagBFunction} (cf.
+\S \ref{sec:BendersBFunction} and \S \ref{sec:LagBFunction}) which is the
+\Function of that \Constraint (and thus that \Constraint is actually an
 \code{FRowConstraint}).
 
 Besides the description of an \code{AbstractPath}, we also provide a
@@ -1552,9 +1554,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
 %
  \item the \dimension \cstr{NumberPollutants} containing the number of pollutants in the problem. The \dimension is optional, if it is not provided then it is taken to be $0$, which means that no pollutants constraints are present in the problem;
  %
- \item the \variable \cstr{NumberPollutantZones} of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberPollutants}: the entry \code{NumberPollutantZones[ p ]} is assumed to contain the number of pollutant zones associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded. Then, all number of pollutant zones associated with each pollutant $p$ is computed as: \code{TotalNumberPollutantZones == NumberPollutantZone[ 0 ] + \dots + NumberPollutantZone[ NumberPollutants - 1 ]};
+ \item the \variable \cstr{NumberPollutantZones} of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberPollutants}: the entry \code{NumberPollutantZones[ p ]} is assumed to contain the number of pollutant zones associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded; if \code{NumberPollutants > 0} and this variable is not defined, then each pollutant has exactly one zone. The total number of pollutant zones is computed as \code{TotalNumberPollutantZones == NumberPollutantZones[ 0 ] + \dots + NumberPollutantZones[ NumberPollutants - 1 ]}; a \dimension \cstr{TotalNumberPollutantZones} may be present (typically, to index \cstr{PollutantBudget}), in which case it is an error if its size is not that sum;
 %
- \item the \variable \cstr{PollutantZones}, of type \code{netCDF::NcUint} and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
+ \item the \variable \cstr{PollutantZones}, of type \code{netCDF::NcUint} and indexed over the \dimensions \cstr{NumberPollutants} and \cstr{NumberNodes}: the entry \code{PollutantZones[ p , n ]} tells to which pollutant zone associated with pollutant $p$ the node $n$ belongs. If \code{PollutantZones[ p , n ] >= NumberPollutantZones[ p ]}, this means that node $n$ does not belong to any pollutant zone, and hence the corresponding units are not involved into the pollutant budget constraints associated with pollutant $p$. The first \dimension can have size $1$, in which case the same zones are used for all pollutants. If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded; if each pollutant has exactly one zone and this variable is not defined, then all the nodes belong to the unique zone of each pollutant;
  %
  \item the \variable \cstr{PollutantBudget}, of type \code{netCDF::NcDouble} and indexed over the set \{ 0 , \dots, \code{TotalNumberPollutantZones} - 1 \}: the entry \code{PollutantBudget[ n ]} for \code{n = 0 , \dots, TotalNumberPollutantZones - 1} is assumed to contain the pollutant budget (across all the time horizon) for the pair (zone of the pollutant , pollutant) corresponding to $n$. In another word, since the number of pollutant zones of each pollutant may not be equal with each other it is useful (to avoid having to store PollutantBudget as an irregular matrix) to be able to assign a unique index \code{n = 0, 1, \dots, TotalNumberPollutantZones - 1} to each pollutant budget of each pollutant zone. A mapping must be defined between each entry $n$ and the pair (zone of the pollutant , pollutant). The mapping is the obvious one: \code{UCBlock} has a set of pollutants \code{p = 0, 1, \dots, NumberPollutants - 1}, and each pollutant $p$ may have several pollutant zones (see comments of variable \cstr{NumberPollutantZones} above). Thus, in general the mapping is:
  \begin{itemize}
@@ -1568,9 +1570,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group should co
  \end{itemize}
  \smallskip
  \noindent
- If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded;
+ If \code{NumberPollutants == 0} (say, it is not provided) then this variable need not be defined, since it is not loaded; otherwise it is mandatory;
  %
- \item the \variable \cstr{PollutantRho}, of type \code{netCDF::NcDouble} and indexed over three \dimensions which are \cstr{TimeHorizon} and \cstr{NumberPollutants} and the set \{0, \dots, \code{NumberElectricalGenerators} - 1\} (see comments above). The first \dimension can have size either $1$ or \cstr{TimeHorizon}. In the former case the entry \code{PollutantRho[ 0 , p , g ]} is assumed to contain the conversion factor of pollutant $p$ due to the electrical generator $g$ which is equal for all time instants $t$. Otherwise, the first \dimension has full size \code{TimeHorizon} and the entry \code{PollutantRho[ t , p , g ]} gives the conversion factor of pollutant $p$ due to the electrical generator $g$ for time t. If \code{NumberPollutants == 0} (it is not provided) then this variable need not be defined, since it's not loaded.
+ \item the \variable \cstr{PollutantRho}, of type \code{netCDF::NcDouble} and indexed over three \dimensions which are \cstr{TimeHorizon} and \cstr{NumberPollutants} and the set \{0, \dots, \code{NumberElectricalGenerators} - 1\} (see comments above). The first \dimension can have size either $1$ or \cstr{TimeHorizon}. In the former case the entry \code{PollutantRho[ 0 , p , g ]} is assumed to contain the conversion factor of pollutant $p$ due to the electrical generator $g$ which is equal for all time instants $t$. Otherwise, the first \dimension has full size \code{TimeHorizon} and the entry \code{PollutantRho[ t , p , g ]} gives the conversion factor of pollutant $p$ due to the electrical generator $g$ for time t. The conversion factor multiplies the active power of the generator, hence it also accounts for the duration of the time instant (it is, say, in tonnes per MW over one time instant), and the pollutant budget constraint of a zone bounds the sum over all time instants and all the electrical generators at the nodes of the zone of the conversion factor times the active power. If \code{NumberPollutants == 0} (it is not provided) then this variable need not be defined, since it's not loaded; otherwise it is mandatory.
  %
  %\item the \variable \cstr{PollutantHeatRho}, of type \code{netCDF::NcDouble} and indexed over three \dimensions. The first \dimension can have size $1$ or \cstr{TimeHorizon}. The second and third \dimensions have sizes \cstr{NumberPollutants} and \cstr{NumberHeatBlocks}, respectively. If the first \dimension has size $1$, then the entry \code{PollutantRho[ 0 , p , h ]} is assumed to contain the conversion factor of pollutant $p$ due to the generation of \highlight{all} heat generators in \code{HeatBlock} $h$, which is equal for all time instants $t$. If, instead, the first \dimension has full size \cstr{TimeHorizon}, then the entry \code{PollutantRho[ t , p , h ]} gives the conversion factor of pollutant $p$ due to the generation of \highlight{all} heat generators in \code{HeatBlock} $h$ for time instant $t$. If \code{NumberPollutants == 0} (say, it is not provided) then this variable does not need be defined, since it is not loaded. If \code{NumberHeatBlocks == 0} (there is no \code{HeatBlock}) then this variable need not be defined, since it is not loaded.
 \end{itemize}
@@ -1890,13 +1892,59 @@ The future value of water function is represented by the single \code{Polyhedral
 This must be the format of the data (linear inequalities) that define the \code{PolyhedralFunction}: the $i$-th entry of each vector is related to the future value of the water stored in the reservoir identified by the above mapping. See \code{PolyhedralFunction::deserialize()} for details about how the data must be stored in the \code{PolyhedralFunctionBlock} \group.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsection {\code{AbstractBlock}}\label{sec:AbstractBlock}
+
+The class \code{AbstractBlock} derives from \Block and holds an ``abstract''
+representation made of \Variables, \Constraints and an \Objective which are
+not tied to any specific structure. It may be used directly (say, for a
+model that is only available as an LP file), and it is also the base class of
+\Blocks, such as \code{PolyhedralFunctionBlock} (cf.
+\S \ref{sec:PolyhedralFunctionBlock}), which reserve a part of the
+representation for the data specific to them and leave the rest
+``arbitrary''. The format
+only describes the ``arbitrary'' part, i.e., what comes after the part
+reserved to a derived class, if any. Besides the mandatory \cstr{type}
+attribute of any \dBlock, an \SMSpp \netCDF \group for an
+\code{AbstractBlock} contains the following:
+\begin{itemize}
+\item The \variable \cstr{Model}, of type \code{netCDF::NcString}, containing
+  the ``arbitrary'' \Variables, \Constraints and \Objective written as an LP
+  (or MPS) file. The \variable may have the \attribute \cstr{ModelType}, of
+  type \code{netCDF::NcChar}, which is `L' for the LP format and `M' for the
+  MPS one; if the \attribute is not provided, then `L' is assumed. This
+  \variable is optional; if it is not provided, then the \Block has no
+  ``arbitrary'' \Variable, \Constraint or \Objective.
+
+\item The \dimension \cstr{NumberInnerBlock} containing the number of inner
+  \Blocks, those reserved to a derived class included. This \dimension is
+  optional; if it is not provided, then 0 is assumed.
+
+\item The \groups \cstr{Block\_<i>}, for each $i$ between the number of inner
+  \Blocks reserved to a derived class and $\cstr{NumberInnerBlock} - 1$, the
+  $i$-th of which contains the description of the $i$-th inner \Block.
+\end{itemize}
+
+When the \Block is serialized, \cstr{Model} is written in the LP format by
+the method \code{AbstractBlock::write\_lp()}, with some care in order for the
+file to be read back as the same model. An LP file has no notion of groups,
+and therefore the \Variables and \Constraints read back from it form one group
+of columns and one group of rows, whatever grouping the \Block had.
+Furthermore, the reader numbers the columns in the order in which it first
+meets them. Hence, each column is written in the \Objective, with a zero cost
+when it has none, so that the columns are read back in the order they have in
+the \Block. Finally, the LP format takes a lower bound that is not written to be
+0; therefore, a column with an upper bound \code{u} and no (finite)
+lower bound is written as \code{-inf <= x <= u} (while a column with neither
+bound is written as \code{x free}).
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection {\code{PolyhedralFunctionBlock}}\label{sec:PolyhedralFunctionBlock}
 The class \code{PolyhedralFunctionBlock} derives from \code{AbstractBlock} to define the following concept: a \Block whose sole distinguishing feature is a \code{PolyhedralFunction} as objective, but which can otherwise contain any kind of ``abstract'' Variable and Constraint (provided these are handled by the base \code{AbstractBlock} class). The rationale for the \code{PolyhedralFunctionBlock} class is that a \code{PolyhedralFunction} is a perfectly fine object in itself, but one that several solvers cannot easily deal with in its ``natural'' form. However, a \code{PolyhedralFunction} can also be represented in a very natural way by means of one extra continuous \code{ColVariable} plus a finite set of (dynamic) \code{FRowConstraint} with \code{LinearFunction} inside (a.k.a., linear constraints). Thus, the main feature that \code{PolyhedralFunctionBlock} implements is the ability to ``present'' itself (construct an ``abstract representation'') as either having a \code{FRealObjective} with a \code{PolyhedralFunction} inside, or having a set of (continuous) \code{ColVariable} and (linear) \code{RowConstraint}. We call the first the ``natural representation''  of a \code{PolyhedralFunctionBlock}, and the latter its ``linearized representation''. Note that most individual changes in the \code{PolyhedralFunction} result in many changes to the ``linearized representation'', that are properly bunched into appropriate \code{GroupModification}. Conversely, many individual changes to the ``linearized representation'' cannot (or would be too complex to) be implemented in the \code{PolyhedralFunction}, because each one of them individually would lead it to end in a partly inconsistent state, and only a co-ordinated set of them (say, properly bunched into an appropriate \code{GroupModification}) would work. Hence, a number of changes to the ``linearized representation'' are not allowed; see the comments to the protected method \code{guts\_of\_add\_Modification\_LR()} for details. Other than that, \code{PolyhedralFunctionBlock} entirely relies on the machinery provided by \code{AbstractBlock} to handle all the rest of the \Block, and therefore is subject to the limitations of that class regarding what kind of \code{Constraint}, \code{Variable} and \code{Objective} are supported. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
 \begin{itemize}
 \item all the data necessary to describe a \code{PolyhedralFunction}; see \S \ref{sec:PolyhedralFunction} for details;
 %
 \item any other data necessary to represent the ``arbitrary'' part of the
-  \code{AbstractBlock}; see \code{AbstractBlock::\-de\-se\-rialize()} for details.
+  \code{AbstractBlock}; see \S \ref{sec:AbstractBlock} for details.
 \end{itemize}
 
 
@@ -1911,6 +1959,8 @@ The \code{PolyhedralFunction} class derives from \code{C05Function}, and defines
 \item The \variable \cstr{PolyFunction\_A}, of type \code{netCDF::NcDouble} and indexed over both the \dimensions \code{NumRow} and \code{NumVar} (in this order); it contains the(row-major) representation of the matrix $A$. The variable is only optional if \code{NumRow == 0}.
 %
 \item The \variable \cstr{PolyFunction\_b}, of type \code{netCDF::NcDouble} and indexed over the \dimension \code{NumRow}, which contains the vector $b$. The variable is only optional if \code{NumRow == 0}.
+%
+\item The \variable \cstr{PolyFunction\_Vert}, of type \code{netCDF::NcUbyte} and indexed over the \dimension \code{NumRow}, whose $i$-th entry is nonzero if the $i$-th row of $A$ is a \emph{vertical} linearization and zero if it is a \emph{diagonal} one. A diagonal row is one of the affine forms $A_i x + b_i$ of which the function is the maximum (minimum). A vertical row, instead, describes the constraint $A_i x + b_i \le 0$ (if \code{PolyFunction\_sign ==} true, $A_i x + b_i \ge 0$ otherwise) on the domain of the function, which is $+\infty$ ($-\infty$) wherever some vertical row is violated. The \variable is optional; if it is not provided, then all the rows are assumed to be diagonal (and, in fact, it is only written when at least one row is vertical).
 %
 \item The \dimension \cstr{PolyFunction\_sign} (actually a bool), which contains the ``verse'' of the \code{PolyhedralFunction}, i.e., true for a convex max-function and false for a concave min-function (encoded in the obvious way, i.e., zero for false, nonzero for true). The \variable is optional, if it is not provided true is assumed.
 %
@@ -2636,6 +2686,104 @@ An \SMSpp \netCDF \group for a \code{BendersBFunction} contains the following:
 \item The \group \cstr{BlockSolver}, containing the \BlockSolverConfig of the
   inner \Block.
 \end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsection {\code{LagBFunction}}\label{sec:LagBFunction}
+
+The \code{LagBFunction} is a convenience class implementing the ``abstract''
+concept of the Lagrangian relaxation of ``any'' \Block; as the
+\code{BendersBFunction}, it derives from both \code{C05Function} and \Block.
+Its first ingredient is a ``base'' \Block $B$, representing an optimization
+problem of the form
+\begin{equation}
+  \max \{ c(x) : x \in X \}, \tag{$B_L$}
+  \label{eq:B_L}
+\end{equation}
+which is the one, and only, sub-\Block of the \code{LagBFunction} (when
+``seen'' as a \Block). The second is a Lagrangian term $\langle y , g(x) \rangle =
+\sum_{i \in I} y_i g_i(x)$, where each $g_i$ is an affine function (a
+\code{LinearFunction}) of the \Variables $x$ of $B$ and $y = [ y_i ]_{i \in
+I}$ is the vector of the Lagrangian multipliers. The functions $g_i$ are
+typically (a part of) the ``complicating'' constraints $g(x) \le 0$ (or $\ge$,
+or $=$) of some original problem which are relaxed in a Lagrangian way. The
+choice of the signs of $g$ and of the multipliers is left to whoever
+constructs the term (and to the ``outer'' \Block which defines $y$), and the
+\code{LagBFunction} takes no responsibility for it. With these elements, the \code{LagBFunction} represents
+the Lagrangian function
+\begin{equation}
+  l(y) = \max \{ c(x) + \langle y , g(x) \rangle : x \in X \}, \tag{$L_y$}
+  \label{eq:L_y}
+\end{equation}
+whose active \Variables are the multipliers $y$; these are not \Variables of
+the \code{LagBFunction} seen as a \Block, since they are conceptually fixed
+when \eqref{eq:L_y} is solved. The function $l$ is convex (concave if
+\eqref{eq:B_L} is a minimization problem) and typically nondifferentiable. If
+$x(y)$ is an optimal solution of \eqref{eq:L_y}, then $g(x(y))$ is a
+subgradient (supergradient) of $l$ at $y$. Note that the \code{LagBFunction} is not
+supposed to have any \Variable or \Constraint besides those of its only inner
+\Block $B$.
+
+In the file the Lagrangian term is written as $g(x) = A x + b$, where the
+$i$-th row of the matrix $A$ and the $i$-th entry of the vector $b$ are,
+respectively, the coefficients and the constant term of $g_i$. The matrix $A$
+is stored in the sparse format of the \code{BendersBFunction} (cf.
+\S \ref{sec:BendersBFunction}), except that the column of each nonzero entry
+is not given by an index but by an \code{AbstractPath} to the corresponding
+\code{ColVariable} of $B$. Besides what is managed by the serialization of the
+base \Block class (e.g., the mandatory \cstr{type} attribute), an \SMSpp
+\netCDF \group for a \code{LagBFunction} contains the following:
+\begin{itemize}
+\item The \dimension \cstr{NumVar} containing the number of Lagrangian terms,
+  i.e., the number of rows of the $A$ matrix, which is also the number of
+  active variables $y$. This \dimension is optional; if it is not provided,
+  then 0 (no Lagrangian term) is assumed.
+
+\item The \dimension \cstr{NumNonzero} containing the number of nonzero
+  entries of the $A$ matrix, i.e., the total number of terms of the functions
+  $g_i$. This \dimension is optional; if it is not provided, then 0 is
+  assumed.
+
+\item The \variable \cstr{NumNonzeroAtRow}, of type \code{netCDF::NcUint} and
+  indexed over the \dimension \cstr{NumVar}, containing the number of nonzero
+  elements of the $A$ matrix in each row, i.e., \code{NumNonzeroAtRow[i]} is
+  the number of terms of $g_i$. This \variable is optional only if
+  \code{NumNonzero == 0}.
+
+\item The \variable \cstr{A}, of type \code{netCDF::NcDouble} and indexed over
+  the \dimension \cstr{NumNonzero}, containing the nonzero entries of the $A$
+  matrix in row-major order, i.e., the coefficients of $g_0$ first, then those
+  of $g_1$, and so on. This \variable is optional only if
+  \code{NumNonzero == 0}.
+
+\item The \group \cstr{AbstractPath} containing the description of a vector of
+  \code{AbstractPath} (cf. \S \ref{sec:vector_AbstractPath}), whose number is
+  given by the \dimension \cstr{NumNonzero}. The $k$-th \code{AbstractPath} in
+  this vector is the path to the \code{ColVariable} of the $k$-th nonzero
+  entry, i.e., to the \Variable which \code{A[k]} multiplies. Each
+  \code{AbstractPath} is taken with respect to the inner \Block of this
+  \code{LagBFunction} (i.e., $B$ must be the reference \Block of the path).
+  This \group is optional only if \code{NumNonzero == 0}.
+
+\item The \variable \cstr{b}, of type \code{netCDF::NcDouble} and indexed over
+  the \dimension \cstr{NumVar}, which contains the vector $b$. This \variable
+  is optional. If it is not provided, then we assume \code{b[i] = 0} for each
+  $i \in \{0, \dots, \cstr{NumVar} - 1\}$.
+
+\item The \group \cstr{Block}, containing the description of the inner \Block
+  $B$, whose \Objective has the original costs $c(x)$, i.e., those without the
+  Lagrangian term (which depends on the current value of $y$). This \group is
+  mandatory.
+\end{itemize}
+
+As for the \code{BendersBFunction} and the \code{PolyhedralFunction}, the
+active \Variables $y$ are not part of the file, since they do not belong to
+the \code{LagBFunction} (they usually are \Variables of some ``outer''
+\Block).
+Hence, after being de-serialized the \code{LagBFunction} has the functions
+$g_i$ but no active \Variable, and the multipliers have to be given to it
+afterwards by \code{LagBFunction::set\_variables()}; the $i$-th element of the vector
+passed to this method becomes the multiplier of the $i$-th function $g_i$ read
+from the file.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

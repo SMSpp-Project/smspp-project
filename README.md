@@ -120,10 +120,7 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
   optimization problems involving (several) nondifferentiable objective
-  function(s) based on the (generalized) "bundle method". It currently
-  uses some modules from the [NDOSolver / FiOracle
-  project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
-  although the dependency will be hopefully removed in time.
+  function(s) based on the (generalized) "bundle method".
 
 - [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
   designed to model the investment in different assets defined in
@@ -258,6 +255,36 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   dealt out to chunks tied by consensus constraints, which is the structure a
   Lagrangian, or equivalently a Dantzig-Wolfe, decomposition attacks.
 
+- [SATBlock](https://gitlab.com/smspp/satblock), defining the `Block` for the
+  satisfiability problems of the propositional logic and for their weighted
+  partial MaxSAT version, whose abstract representation is the MILP
+  formulation, so that the `:MILPSolver` and the decompositions of SMS++ work
+  on it as they are, together with `SATSolver`, the base of the `Solver` that
+  hand the clauses to a SAT solver (`CaDiCaLSATSolver` for
+  [CaDiCaL](https://github.com/arminbiere/cadical) and `MiniSATSolver` for
+  [MiniSat](https://github.com/stp/minisat)), which also solves the weighted
+  MaxSAT by the core-guided algorithm OLL.
+
+- [SatellitesBlock](https://gitlab.com/smspp/satellitesblock), defining the
+  `Block` for the Satellite Constellation Design Problem, i.e., choosing the
+  orbits of a constellation of satellites so as to minimize either their
+  number or the sum over the targets of the maximum revisit times:
+  `SatelliteBlock`, `SingleTargetBlock`, `MultiTargetBlock` and the
+  `ConstellationBlock` that aggregates them for the continuous version of the
+  problem, `DiscreteSatelliteBlock` and `DiscreteConstellationBlock` for the
+  version where the observability threshold of each satellite takes one of
+  finitely many levels, together with the heuristics `SatelliteSolver` and
+  `DiscreteSatelliteSolver`.
+
+- [MultiKnapsackAssignBlock](https://gitlab.com/smspp/multiknapsackassignblock),
+  defining the `Block` for the Multiple Knapsack Assignment Problem, i.e.,
+  placing items partitioned into classes in knapsacks, each of which is given
+  at most one class and holds items of that class within its capacity, so as
+  to maximize the total profit: its sub-`Block` are the `BinaryKnapsackBlock`
+  of the pairs of a knapsack and a class, linked by the constraints that
+  assign each item to at most one knapsack and each knapsack at most one
+  class.
+
 - [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
   defining the `Block` for Delay-Constrained Routing problems, i.e., routing
   flows on a network at minimum cost so that the worst-case end-to-end delay
@@ -271,6 +298,22 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   Unit Commitment problems: the general `UCBlock` "root" class, several
   `Block` for specific generating units (`UnitBlock`) and interconnect
   networks (`NetworkBlock`), with some specialized `Solver`.
+
+- [pySMSpp](https://github.com/SPSUnipi/pySMSpp), the Python interface of
+  SMS++, which builds the netCDF files of SMS++ models, runs the SMS++ tools
+  on them and reads their results back.
+
+- [pypsa2smspp](https://github.com/SPSUnipi/pypsa2smspp), which translates
+  a [PyPSA](https://pypsa.org) energy-system network into the corresponding
+  SMS++ model (a `UCBlock`, possibly within an `InvestmentBlock` for capacity
+  expansion, or within a `TwoStageStochasticBlock` or a
+  `MultiStageStochasticBlock` for its stochastic versions), solves it
+  through pySMSpp, which it requires, and maps the solution back onto the
+  network.
+
+  Both are Python packages (`pip install pysmspp pypsa2smspp`) that CMake
+  does not build, and their submodules are only initialized on request,
+  e.g., `git submodule update --init pySMSpp pypsa2smspp`.
 
 
 
@@ -299,7 +342,15 @@ its examples and its man page, and `smspp-project` installs them all.
 
 CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
 Solvers carry the HiGHS backend alone; a build against the others is still the
-one of the sources, which the instructions below are about.
+one of the sources, which the instructions below are about. Similarly, the
+Solvers of SATBlock carry CaDiCaL alone, and none on Windows, where CaDiCaL does
+not build: MiniSat, whose stp/minisat code no package manager but Homebrew
+distributes (Debian and Ubuntu carry the older one of minisat.se), comes with a
+build from the sources. BinaryKnapsackBlock is packaged without the Solvers that
+hand its core to RECORD and to COMBO, which are built from the sources when
+these are found (RECORD, which `INSTALL.sh` checks out, in `RECORD_ROOT`, and
+COMBO, which is for academic or non-commercial use only and comes with no
+installer, in `COMBO_ROOT`).
 
 ### Requirements
 
@@ -375,7 +426,9 @@ according to the following options table:
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
 | `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
-| `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
+| `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
+| `--without-minisat` | *(not supported)* | skip MiniSat installation               |
+| `--without-record` | *(not supported)* | skip RECORD installation                 |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
@@ -502,15 +555,7 @@ and `SW` controlling the `C++` compiler and its main options; these can
 therefore be set in the "main" makefile and will be used throughout the
 whole compilation. This may be useful to set system-specific values.
 
-An example of this is the macro
-
-```sh
-CLANG_1200_0_32_27_PATCH
-```
-
-which activates a patch for a weird glitch of `clang++` (from 1200.0.32.27
-to at least 1200.0.32.29) that cause some `boost::any magic` to stop working.
-Other settings may be needed (see, for instance, the comments about
+Some settings may be needed (see, for instance, the comments about
 `--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
 
 
@@ -579,8 +624,9 @@ released under. However, `SMS++` is a community project, and we humbly suggest
 you to consider participating in it with the rules we have been setting.
 
 The easiest way to start a new module is the
-[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository, a
-ready-to-use skeleton of a `SMS++` module in the standard layout (CMake and
+[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository (in
+the private `smspp-develop` group of the SMS++ developers), a ready-to-use
+skeleton of a `SMS++` module in the standard layout (CMake and
 makefiles builds, GitLab and GitHub CI, a factory-registered stub class, a
 smoke test wired into CTest, and all the standard boilerplate). Its `init.sh`
 script renames everything after your module, wires the declared dependencies

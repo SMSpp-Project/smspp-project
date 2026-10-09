@@ -3,9 +3,301 @@ image: alpine
 before_script:
   - apk add --no-cache doxygen git
 
+# A pipeline started by a module [see integration] runs on develop, where
+# the pins move often: the push that moves one would cancel it as redundant
+# before its turn on the licence of Gurobi comes, so it is not cancelled
+workflow:
+  rules:
+    - if: $SMSPP_MODULE
+      auto_cancel:
+        on_new_commit: none
+    - when: always
+
 stages:
+  - check
   - deploy
   - release
+
+# The CHANGELOG of the umbrella, held to the format: the sections of Keep a
+# Changelog and in its order, the dates, and one link reference per release
+# that has a tag [see ./changelog]. It says nothing of the submodules, whose
+# own pipelines check their own, so it needs no clone of them.
+changelog:
+  stage: check
+  image: alpine
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    # a pipeline started by a module checks that module [see integration]
+    - if: $SMSPP_MODULE
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+  variables:
+    GIT_DEPTH: 0                       # the tags the links are checked against
+  before_script:
+    - apk add --no-cache git python3
+  script:
+    - ./changelog check --repo .
+
+# The same over the whole project, submodules comprised, plus what the entries
+# of their [Unreleased] do not say about the commits since their last tag.
+# It is a report and not a gate, so it runs on a schedule and is allowed to
+# fail: what it finds is read in its artifacts.
+changelog_all:
+  stage: check
+  image: alpine
+  rules:
+    # the schedule of the night is the one that builds and tests, and has
+    # nothing to do with this: each of the two schedules does its own thing
+    - if: $NIGHTLY == "1"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  variables:
+    GIT_DEPTH: 0
+  before_script:
+    - apk add --no-cache git python3
+  script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - git submodule foreach --quiet 'git fetch --tags --quiet || true'
+    - ./changelog check -q | tee changelog-check.txt
+    - ./changelog coverage --list | tee changelog-coverage.txt
+  allow_failure: true
+  artifacts:
+    paths:
+      - changelog-check.txt
+      - changelog-coverage.txt
+    expire_in: 30 days
+
+# The project built and tested as a whole, every night: what each module
+# checks of itself in its own pipeline is its own, while what only the
+# umbrella has is the modules together and the suites of tests/, which read
+# the instances of one module and solve them with the Solver of another.
+# It runs on the schedule that sets NIGHTLY, and nowhere else, being the one
+# thing here that costs more than seconds. One job builds, the others take
+# the build and run their share of the suites, each of them well inside the
+# hour a job is given.
+.nightly:
+  image: registry.gitlab.com/smspp/smspp-project
+  rules:
+    - if: $NIGHTLY == "1"
+  variables:
+    GIT_DEPTH: 0
+    CCACHE_DIR: $CI_PROJECT_DIR/.ccache
+    CCACHE_MAXSIZE: 2G
+    CTEST_SKIP: ^(test_cuts|test_dynamic|CFL_test/batches/batch-ben)
+    # how long one test may take; the suites of the unit commitment and of
+    # the dynamic programming ask for more [see the jobs below]
+    CTEST_TIMEOUT: "900"
+  before_script:
+    # the Gurobi WLS license from the masked variables, as the modules do;
+    # without them the tests that ask for Gurobi are the ones that fail
+    - |
+      if [ -n "$GRB_WLSSECRET" ]; then
+        printf 'LICENSEID=%s\nWLSACCESSID=%s\nWLSSECRET=%s\n' \
+          "$GRB_LICENSEID" "$GRB_WLSACCESSID" "$GRB_WLSSECRET" > /tmp/gurobi.lic
+        export GRB_LICENSE_FILE=/tmp/gurobi.lic
+      fi
+
+nightly:build:
+  extends: .nightly
+  stage: check
+  timeout: 55m
+  cache:
+    key: nightly-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends ccache
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - ccache --zero-stats
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build build -j$(nproc)
+    - ccache --show-stats
+
+# the build is not carried from one job to another: what is carried is the
+# cache of ccache, which the job above fills, so that each of these compiles
+# again in a few minutes instead of taking a build tree made in another
+# container, where the paths CMake wrote are not the ones it finds.
+#
+# Each of them runs the suites of its share; the last one runs whatever the
+# others do not, so that no suite is left out by a name nobody thought of.
+.nightly:test:
+  extends: .nightly
+  stage: deploy
+  # three hours, which is what a shared runner allows at most: the suites of
+  # one job run one after the other, and the dynamic programming alone has
+  # eleven of them, one of which re-runs four others end to end
+  timeout: 3h
+  # the WLS licence of the project gives two sessions at a time, and a
+  # session is per container: four jobs solving with Gurobi at once are
+  # refused the environment [GRBstartenv 10030], so they take their turn.
+  # A resource_group of GitLab lets one job in at a time, hence the two
+  # groups, gurobi-a and gurobi-b, one for each session the licence gives:
+  # with a single group the eight jobs of the night run one after the other,
+  # which is more than the day they have before the next night starts. Each
+  # job names the group it belongs to; this is the default for whoever does
+  # not [see nightly:core and its fellows]
+  resource_group: gurobi-a
+  retry:
+    max: 2
+    when: script_failure
+  needs:
+    - job: nightly:build
+      artifacts: false
+  cache:
+    key: nightly-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+    policy: pull
+  script:
+    - !reference [ nightly:build , script ]
+    # the two parts are kept apart because a quoted regex inside one variable
+    # reaches ctest with its quotes and matches nothing
+    # the suites whose configuration names CPXMILPSolver cannot run here,
+    # the image of the project carrying no CPLEX
+    # two tests at a time, which is what a runner of the shared fleet has
+    # cores for; they cost one session of the licence between them, a session
+    # being per container [see resource_group above]
+    # a test refused the Gurobi environment because somebody else held the
+    # sessions of the licence is tried again, which is not the same as
+    # ignoring a failure: it has to pass on its own
+    - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
+                        --output-on-failure
+                        --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
+                        -E "$CTEST_SKIP"
+  artifacts:
+    when: always
+    paths:
+      - build/Testing/Temporary/LastTest.log
+    expire_in: 7 days
+
+# a runner of the shared fleet has two cores and is some times slower than
+# the machines the batteries were written on: one of them takes 41 minutes
+# there, so what a test may take is an hour, and the families that hold the
+# long batteries are a job each, none of them near the three hours a job is
+# given
+nightly:core:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_)
+    # the quadratic batteries over the integers have a job of their own, and
+    # together they take more than two hours: without taking them out here
+    # this job runs into the three of its own [see nightly:quad]
+    CTEST_SKIP: ^(test_cuts|test_dynamic|CFL_test/batches/batch-ben|MILPSolver_QuadFunction_test/batches/batch.._I$)
+    CTEST_TIMEOUT: "3600"
+
+nightly:unitcommitment:
+  extends: .nightly:test
+  resource_group: gurobi-b
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(UCBlock_test|extract_uc)
+    CTEST_TIMEOUT: "3600"
+
+# the dynamic programming of the thermal units is a job of its own: with the
+# unit commitment it does not fit the time a job is given. The validation of
+# the claim of the paper, which re-runs four batteries end to end, is another
+nightly:tudps:
+  extends: .nightly:test
+  resource_group: gurobi-b
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(TUDPS_test|extract_uc)
+    CTEST_SKIP: ^TUDPS_test/batches-tub/run-validation
+    CTEST_TIMEOUT: "3600"
+
+nightly:validation:
+  extends: .nightly:test
+  resource_group: gurobi-b
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^TUDPS_test/batches-tub/run-validation
+    CTEST_TIMEOUT: "7200"
+
+# the flows are two jobs: the batteries of the min-cost flow take 40 minutes
+# each on a machine of ours, hence more than an hour here
+nightly:mcf:
+  extends: .nightly:test
+  resource_group: gurobi-b
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(MCFBlock|MCFClassSolver|MCFLemonSolver|run_dmx)
+    CTEST_TIMEOUT: "3600"
+
+nightly:flows:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^(MMCFBlock|CFL_test|SingleFlowDCR)
+    CTEST_TIMEOUT: "3600"
+
+# the quadratic batteries over the integers are a job of their own: the three
+# of them take 42, 33 and more than 60 minutes here, which is what a job is
+# given; the three over the reals take 27 minutes together and stay with the
+# others
+nightly:quad:
+  extends: .nightly:test
+  variables:
+    CTEST_WHICH: -R
+    CTEST_RE: ^MILPSolver_QuadFunction_test/batches/batch.._I$
+    # the three take 42, 33 and 58 minutes here, the last one being 17
+    # instances that mostly run into the 300 seconds the configuration gives
+    # SCIP: an hour each is not enough for it, an hour and a half is
+    CTEST_TIMEOUT: "5400"
+
+nightly:rest:
+  extends: .nightly:test
+  variables:
+    # whatever the others do not take, the ones that want CPLEX apart
+    CTEST_WHICH: -R
+    CTEST_RE: .
+    CTEST_TIMEOUT: "3600"
+    CTEST_SKIP: ^(test_|Group_test|AbstractBlock|AbstractPath|SizeVariable|BoxSolver|Benders|Polyhedral|LagBFunction|QuadFunction|MILPSolver_|UCBlock_test|TUDPS_test|extract_uc|MCFBlock|MCFClassSolver|MCFLemonSolver|MMCFBlock|CFL_test|SingleFlowDCR|run_dmx)
+
+# The suites of tests/ that exercise one module, run on a commit of that module
+# before it is pinned here. The pipeline of a module builds the module and its
+# dependencies alone, and on a push to its develop it starts this one, passing
+# its name and its commit [see the integration job of the modules], so that
+# what the module does together with the others is checked at once, and not
+# only on the night after its pin moves. The build is the one of the nightly,
+# with the module moved from its pin to that commit, and the tests are the
+# ones labelled with its name.
+integration:
+  extends: .nightly:test
+  rules:
+    - if: $SMSPP_MODULE && $SMSPP_SHA
+  needs: []
+  variables:
+    CTEST_WHICH: -L
+    CTEST_TIMEOUT: "3600"
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends ccache
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    # the module at the commit its pipeline was started for, in place of the
+    # one the umbrella pins
+    - git -C "$SMSPP_MODULE" fetch --quiet origin "$SMSPP_SHA"
+    - git -C "$SMSPP_MODULE" checkout --quiet "$SMSPP_SHA"
+    - git -C "$SMSPP_MODULE" submodule update --init --recursive
+    - ccache --zero-stats
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - cmake --build build -j$(nproc)
+    - ccache --show-stats
+    # the label is the name of the module matched as it is: ctest reads -L as
+    # a regex, where the "+" of "SMS++" are operators and match nothing
+    - CTEST_RE="^$(printf '%s' "$SMSPP_MODULE" | sed 's/[][\.*^$+?(){}|]/\\&/g')\$"
+    - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
+                        --output-on-failure
+                        --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
+                        -E "$CTEST_SKIP"
 
 pages:
   stage: deploy
@@ -35,7 +327,7 @@ release_job:
   variables:
     GIT_DEPTH: 0                       # all the tags, for git describe
   script:
-    - apk add --no-cache curl git tar zip bzip2
+    - apk add --no-cache curl git python3 tar zip bzip2
     - echo "Creating GitLab Release..."
     - glab auth login --hostname gitlab.com --token $ANTONIO_PERSONAL_ACCESS_TOKEN --api-protocol https --git-protocol https
     - glab auth status
@@ -52,12 +344,17 @@ release_job:
     - echo "## Commits since $previous_tag:" >> release-artifacts/release_notes.md
     - git shortlog "${previous_tag}..${CI_COMMIT_TAG}" | sed 's/^./    &/' >> release-artifacts/release_notes.md
     - if [ -n "$untagged" ]; then echo "## Submodules not on a tag of their own:" >> release-artifacts/release_notes.md; echo "$untagged" | sed 's/^/    /' >> release-artifacts/release_notes.md; fi
+    # the draft of the changelog of the release: what each module says in its
+    # [Unreleased] and, under it, the commits it does not say anything about,
+    # each module read between the gitlink of the previous tag and this one
+    - ./changelog draft --from "$previous_tag" -o release-artifacts/changelog-draft.md
+    - 'echo "## Draft of the changelog, in the changelog-draft.md of this release" >> release-artifacts/release_notes.md'
     - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/data' --exclude='UCBlock/tools/mathpower2netCDF' --exclude='.git*' --exclude='wiki' --exclude='org-profile' --exclude='CapacitatedFacilityLocationBlock/data' --exclude='MCFBlock/data' -czvf release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz .
     - ls -lh release-artifacts
     # the tarball also goes to the generic package registry, at a path that the
     # vcpkg port computes from the version alone
     - 'curl --fail --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/smspp-project/${CI_COMMIT_TAG}/smspp-project-${CI_COMMIT_TAG}.tar.gz"'
-    - glab release create "$CI_COMMIT_TAG" -F release-artifacts/release_notes.md "release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz#Source code including submodules (tar.gz)#package"
+    - glab release create "$CI_COMMIT_TAG" -F release-artifacts/release_notes.md "release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz#Source code including submodules (tar.gz)#package" "release-artifacts/changelog-draft.md#Draft of the changelog, to be pruned#other"
   artifacts:
     paths:
       - release-artifacts/

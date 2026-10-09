@@ -15,8 +15,9 @@
 # Re-running it is safe: existing repos and mirrors are detected and          #
 # skipped, so a new GitLab project only requires running this again.          #
 #                                                                             #
-# Skipped: archived projects and `pysmspp` (itself a mirror of the            #
-# GitHub-hosted pySMSpp).                                                     #
+# Skipped: archived projects, `pysmspp` (itself a mirror of the               #
+# GitHub-hosted pySMSpp) and `moduletemplate` (moved to the private           #
+# `smspp-develop` group, which is not mirrored).                              #
 #                                                                             #
 # Prerequisites:                                                              #
 #   - gh (GitHub CLI) authenticated:  gh auth login -h github.com             #
@@ -52,7 +53,8 @@ GH_ORG="SMSpp-Project"
 # Emit, per non-archived group project, a TSV line:
 #   <gitlab/path>\t<github-repo-name>\t<gitlab-description>
 # GitHub repo names use the GitLab project name (CamelCase) for modules, with a
-# few hand-mapped special cases; `pysmspp` is skipped (it is itself a mirror).
+# few hand-mapped special cases; `pysmspp` is skipped (it is itself a mirror),
+# and so is `moduletemplate` (moved to the private `smspp-develop` group).
 list_projects() {
   # with WIKI_ONLY=1 nothing is listed, so the run reduces to the wiki sync
   [ "${WIKI_ONLY:-0}" = "1" ] && return
@@ -63,7 +65,7 @@ list_projects() {
       { smspp: "SMSpp", "smspp-project": "smspp-project",
         tests: "tests", tools: "tools", "vcpkg-registry": "vcpkg-registry" } as $special
       | .[]
-      | select(.path != "pysmspp")
+      | select(.path != "pysmspp" and .path != "moduletemplate")
       | [ .path_with_namespace,
           ($special[.path] // .name),
           ((.description // "") | gsub("[\t|\n]"; " ") | gsub("(^ +| +$)"; "")) ]

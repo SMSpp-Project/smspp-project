@@ -7,11 +7,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-09
+
 ### Added
+
+- MultiKnapsackAssignBlock, the `Block` of the Multiple Knapsack Assignment
+  Problem, whose sub-`Block` are `BinaryKnapsackBlock`
+  (`BUILD_MultiKnapsackAssignBlock`, which turns on
+  `BUILD_BinaryKnapsackBlock`), and its feature `mkab` in the smspp port of
+  the vcpkg registry
+
+- SatellitesBlock, the `Block` of the Satellite Constellation Design
+  Problem, in its continuous and discrete versions, with the `Solver` of
+  their sub-problems (`BUILD_SatellitesBlock`), and its feature
+  `satellites` in the smspp port of the vcpkg registry
+
+- SATBlock, the `Block` of the satisfiability problems and of the weighted
+  partial MaxSAT, with the `SATSolver` that hand them to CaDiCaL and to
+  MiniSat (`BUILD_SATBlock`); `INSTALL.sh` installs CaDiCaL from its package
+  where there is one and from its source otherwise, and MiniSat from its
+  source, whose library no distribution packages (`--without-cadical`,
+  `--without-minisat`), Homebrew both on macOS; `extlib` has
+  `makefile-libCaDiCaL` and `makefile-libMiniSat` and their default paths
+
+- `INSTALL.sh` checks out the source of RECORD (`--without-record`), which
+  BinaryKnapsackBlock compiles into `RECORDBinaryKnapsackSolver` when it finds
+  it, and `extlib` has the default paths of RECORD and COMBO (`RECORD_ROOT`,
+  `COMBO_ROOT`); COMBO, for academic or non-commercial use only, is not
+  installed and is built only from a directory with its sources
+
+- a commit says what it changes with the `Changelog:` and `Changelog-entry:`
+  trailers of its message, or that it changes nothing worth telling with
+  `[skip changelog]`; `changelog coverage` reads them, so that a commit is
+  covered because it says so and not because an entry happens to share its
+  words, and `changelog draft` collects them into the draft of a release
+  [see CONTRIBUTING.md]
+
+- `changelog`, which reads the CHANGELOG of the project and of every module:
+  `check` says what does not hold in them, from a date that is not ISO to a
+  link reference that names another release; `coverage` says which commits
+  since the last tag no entry covers, so that what is missing is seen before
+  the release and not after it; `links` writes the link references from the
+  releases, each comparing against the release below it that has a tag; and
+  `draft` writes the draft of a release, module by module, to be pruned. With
+  `--repo` it works on one repository alone, which is what a module runs in
+  its own pipeline
+
+- the pipeline holds the CHANGELOG of the umbrella to the format at every
+  push, reports on the whole project on a schedule, and writes the draft of
+  the changelog among the artifacts of a release
+
+- `ci/changelog.yml`, which every module includes to get the same job on its
+  own CHANGELOG: the format at every push, and, on a merge request, an entry
+  of [Unreleased] for every commit of the branch, unless its message carries
+  [skip changelog]
 
 ### Changed
 
+- every module is compiled as C++20, which the core already required, by
+  CMake and by the makefiles alike, and so is a module generated from the
+  ModuleTemplate; ACNetworkBlock and IntegralityBarrierFunction take pi from
+  `std::numbers` rather than from the non-standard `M_PI` or a macro of their
+  own
+
+- upload-to-package-registry takes the version to publish, which the
+  data/upload-* script of a module reads from its CMakeLists.txt: it refuses
+  a version that is already there, a published version being never
+  replaced, and writes `latest` too, for the trees that do not name a
+  version yet
+
+- `mirror-to-github` skips `moduletemplate`, which has moved to the private
+  `smspp-develop` group and is not mirrored
+
+- `INSTALL.sh` and `CMakeSettings.txt` build in Release when no build type is
+  given, a build with no type carrying no optimization at all, which made
+  everything built by hand one or two orders of magnitude slower than it had
+  to be
+
+- `INSTALL.sh` bounds the parallel jobs by the memory of the machine as well
+  as by the cores, a compilation of the heavier headers taking more than a
+  gigabyte per job and a machine with many cores and little memory going to
+  the swap or being killed
+
+### Removed
+
+- COIN-OR (CoinUtils, Osi, Clp) and NDOSolver/FiOracle, which the
+  BundleSolver no longer uses since its version 2.0: `INSTALL.sh` and
+  `INSTALL.ps1` no longer build or look for them (`--without-coinor` is
+  still accepted, and does nothing), and they are gone from `vcpkg.json`,
+  from the `extlib` makefile paths, from the inputs of Doxygen and from the
+  installation pages of the README and of the manual
+
 ### Fixed
+
+- `CMakeSettings.txt` gives `-Wno-undefined-internal` to clang alone: it
+  gave it to gcc too, which answered that it does not know the option and
+  stopped there
+
+- `changelog` takes the last release of a repository from its version tags
+  alone: a tag that names something else, e.g., `archive/<branch>`, sorted
+  above them, so `check` compared the CHANGELOG of `tests` with it and
+  `coverage` and `draft` started the range of commits from it
 
 ## [0.6.3] - 2026-09-14
 
@@ -136,18 +232,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0] - 2025-12-12
 
-### Added 
+### Added
 
 - TwoStageStochasticBlock
 
 - CHANGELOG.md
 
-### Changed 
+### Changed
 
 - moved to X.Y.Z release names and started overdue changelog
 
 - significant changes in installation scripts and cmake / makefiles
 
-[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.0...develop
-[0.6.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.5.1...0.6.0
-[0.5.0]: https://gitlab.com/smspp/smspp-project/-/tags/0.5.0
+[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...develop
+[0.7.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.3...0.7.0
+[0.6.3]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.2...0.6.3
+[0.6.2]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.1...0.6.2
+[0.6.1]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.0...0.6.1
+[0.6.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.5.0...0.6.0
+[0.5.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.4.0...0.5.0
