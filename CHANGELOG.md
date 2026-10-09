@@ -77,9 +77,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `mirror-to-github` skips `moduletemplate`, which has moved to the private
   `smspp-develop` group and is not mirrored
 
-- `CMakeSettings.txt` gives `-Wno-undefined-internal` to clang alone, gcc
-  answering that it does not know the option and stopping there
-
 - `INSTALL.sh` and `CMakeSettings.txt` build in Release when no build type is
   given, a build with no type carrying no optimization at all, which made
   everything built by hand one or two orders of magnitude slower than it had
@@ -100,6 +97,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   installation pages of the README and of the manual
 
 ### Fixed
+
+- `CMakeSettings.txt` gives `-Wno-undefined-internal` to clang alone: it
+  gave it to gcc too, which answered that it does not know the option and
+  stopped there
 
 - `changelog` takes the last release of a repository from its version tags
   alone: a tag that names something else, e.g., `archive/<branch>`, sorted
