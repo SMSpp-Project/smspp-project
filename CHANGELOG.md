@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `--with-experiments` in INSTALL.sh and `-withExperiments` in INSTALL.ps1,
+  which fetch and build the private `experiments` submodule
+
+### Fixed
+
+- INSTALL.sh and INSTALL.ps1 no longer touch the private `experiments`
+  submodule unless asked to, whatever the local git configuration says, so
+  that an installation never stops to ask for GitLab credentials
+
 ## [0.7.0] - 2026-10-09
 
 ### Added

@@ -25,6 +25,9 @@
 #     You can use the `--without-minisat` option to skip the installation of MiniSat.
 #     You can use the `--without-record` option to skip the installation of RECORD.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
+#     You can use the `--with-experiments` option to also fetch and build the
+#     private experiments submodule, which needs access to its repository;
+#     without it the script never touches that submodule.
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
@@ -847,6 +850,7 @@ install_cadical=${install_cadical:-1}
 install_minisat=${install_minisat:-1}
 install_record=${install_record:-1}
 install_smspp=${install_smspp:-1}
+install_experiments=${install_experiments:-0}
 
 # Default value for installation root
 install_root=""
@@ -945,6 +949,10 @@ do
     install_smspp=0
     shift
     ;;
+    --with-experiments)
+    install_experiments=1
+    shift
+    ;;
     --install-root=*)
     install_root="${arg#*=}"
     shift
@@ -1029,11 +1037,9 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ -d "$SMSPP_ROOT" ]; then
     cd "$SMSPP_ROOT"
     echo "SMSpp already exists. Pulling latest changes..."
-    git pull --recurse-submodules
-    git submodule sync --recursive
-    git submodule update --init --recursive
   else
     echo "Repository not found locally. Cloning SMSpp..."
+    smspp_cloned=1
     # Check if the script is not being executed on a server without display or interactive terminal
     if [ -t 1 ] && [ -z "${CI:-}" ]; then
       git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
@@ -1042,9 +1048,23 @@ if [ "$install_smspp" -eq 1 ]; then
       git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     fi
     cd "$SMSPP_ROOT"
-    git submodule sync --recursive
-    git submodule update --init --recursive
   fi
+
+  # experiments is private: unless asked for, it is neither fetched nor
+  # updated, whatever the local configuration says, so that git never stops
+  # to ask for credentials
+  if [ "$install_experiments" -eq 1 ]; then
+    git config submodule.experiments.update checkout
+    skip_experiments=()
+  else
+    skip_experiments=(-c submodule.experiments.update=none
+                      -c submodule.experiments.fetchRecurseSubmodules=false)
+  fi
+  if [ -z "${smspp_cloned:-}" ]; then
+    git "${skip_experiments[@]}" pull
+  fi
+  git submodule sync --recursive
+  git "${skip_experiments[@]}" submodule update --init --recursive
 
   # If the installation root is not the default one, update the makefile-paths
   if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
@@ -1086,6 +1106,11 @@ if [ "$install_smspp" -eq 1 ]; then
   # own and need
   # no mapping here.
   smspp_cmake_flags=()
+  if [ "$install_experiments" -eq 1 ]; then
+    smspp_cmake_flags+=("-DBUILD_experiments=ON")
+  else
+    smspp_cmake_flags+=("-DBUILD_experiments=OFF")
+  fi
   if [ "$install_stopt" -eq 0 ]; then
     # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON
     # through CMake's dependency resolution, so disable both.

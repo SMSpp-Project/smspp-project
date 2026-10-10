@@ -19,6 +19,8 @@
     so there are no related options: BinaryKnapsackBlock is built without the Solver that wrap them.
     You can use the `-withoutTorch` option to skip the installation of Torch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
+    You can use the `-withExperiments` option to also fetch and build the private experiments
+    submodule, which needs access to its repository; without it the script never touches it.
     You can use the `-withoutDefenderExclusions` option to skip adding the Windows Defender path
     exclusions for the vcpkg and SMS++ directories (added by default to avoid spurious
     "Permission denied" / "File exists" errors when an antivirus locks or quarantines freshly
@@ -57,6 +59,7 @@ param(
     [switch]$withoutSCIP,
     [switch]$withoutTorch,
     [switch]$withoutSMSpp,
+    [switch]$withExperiments,
     [switch]$updatevcpkg,
     [switch]$withoutDefenderExclusions,
     [string]$installRoot = "C:\", # Default if not provided
@@ -483,11 +486,21 @@ if (-not $withoutSMSpp)
     Write-Host "Compiling SMSpp..."
     $SMSPP_ROOT = "$installRoot\smspp-project"
 
+    # experiments is private: unless asked for, it is neither fetched nor updated, whatever
+    # the local configuration says, so that git never stops to ask for credentials
+    $skipExperiments = @()
+    if (-not $withExperiments) {
+        $skipExperiments = @('-c', 'submodule.experiments.update=none',
+                             '-c', 'submodule.experiments.fetchRecurseSubmodules=false')
+    }
+
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
         Write-Host "SMSpp already exists. Pulling latest changes..."
-        git pull --recurse-submodules
+        git @skipExperiments pull
+        git submodule sync --recursive
+        git @skipExperiments submodule update --recursive
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
         if (-not $HAS_CMAKE_GUI) {
@@ -498,6 +511,11 @@ if (-not $withoutSMSpp)
         }
         Set-Location $SMSPP_ROOT
     }
+    if ($withExperiments) {
+        git config submodule.experiments.update checkout
+        git submodule update --init experiments
+    }
+    $experimentsFlag = if ($withExperiments) { '-DBUILD_experiments=ON' } else { '-DBUILD_experiments=OFF' }
 
     # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
     if ($updatevcpkg) {
@@ -514,7 +532,7 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
+    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files

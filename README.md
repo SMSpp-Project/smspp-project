@@ -430,6 +430,7 @@ according to the following options table:
 | `--without-minisat` | *(not supported)* | skip MiniSat installation               |
 | `--without-record` | *(not supported)* | skip RECORD installation                 |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
+| `--with-experiments` | `-withExperiments` | also fetch and build the private `experiments` submodule |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
 Note that CPLEX is not redistributable, so the scripts do not download it. To
