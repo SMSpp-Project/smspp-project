@@ -2036,7 +2036,7 @@ Deserialize a \code{DCNetworkData} out of a \code{netCDF::NcGroup}, which should
  \noindent
  If \code{NumberNodes == 1} (equivalently, it is not provided), the network is a ``bus'' formed of only one node, and therefore all the subsequent information need not to be present since it is not loaded. If \code{NumberNodes > 1}, then all the subsequent information is mandatory:
  %
- \item the \dimension \cstr{NumberLines} containing the number of lines in the transmission network;
+ \item the \dimension \cstr{NumberLines} containing the number of lines in the transmission network; it may be $0$ (e.g., nodes of different carriers coupled only by units), in which case none of the \variables indexed over it is needed and every node is balanced by the units on it;
  %
  \item the \variable \cstr{StartLine}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of the variable is the starting point of the line (a number in \code{0, \dots, NumberLines - 1}). Note that lines are not oriented, but the flow of energy is; that is, a positive flow along line $i$ means that energy is being taken away from \code{StartLine[ i ]} and delivered to \code{EndLine[ i ]} (see next), a negative flow means vice-versa. Note that lines names here go from $0$ to \code{NLines.getSize() - 1};
  %
