@@ -1862,6 +1862,50 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  \item The \variable \cstr{InertiaCost}, of type \code{netCDF::NcDouble} and either of size 1 or indexed over the \dimension \cstr{NumberIntervals}  (if \cstr{NumberIntervals} is not provided, then this \variable can also be indexed over \cstr{TimeHorizon}). This is meant to represent the vector \code{IC[ t ]} that, for each time instant $t$, contains the cost of producing ``one unit'' of inertia. Since the inertia-producing variable is \code{u[ t ]}, which is in the interval \code{[ 0 , 1 ]}, the cost of \code{u[ t ]} is \code{MaxI[ t ] * IC[ t ]}; in other words, \code{u[ t ]} represents the fraction of the maximum possible amount of inertia (\code{MaxI[ t ]}) that can be produced at time step $t$. This \variable is optional; if it is not provided then it's taken to be zero(but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{InertiaCost} has length $1$ then \code{IC[ t ]} contains the same value for $t$. Otherwise, \code{InertiaCost[ i ]} is the fixed value of \code{IC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
 \end{itemize}
 
+
+\subsubsection {\code{ConversionUnitBlock}}\label{sec:ConversionUnitBlock}
+The \code{ConversionUnitBlock} class derives from \code{UnitBlock} and implements a unit that is switched on and off as a whole and has $G \geq 1$ generators, each of which is placed on its own node by \cstr{GeneratorNode} of the \code{UCBlock}: a plant that converts energy among several carriers (a combined heat and power plant, an electrolyser with its heat, a heat pump or a power-to-gas unit with commitment), whose outputs are generators of nonnegative power and whose inputs (the fuel drawn from a gas node, the electricity drawn from an electric node) are generators of nonpositive power. When the unit is on at the instant $t$, the powers $p_{t,g}$ of its generators lie in the operating region given by the bounds $P^{mn}_{t,g} \leq p_{t,g} \leq P^{mx}_{t,g}$ and by $M$ operating rows $\underline{b}_{t,m} \leq \sum_g a_{m,g} p_{t,g} \leq \bar{b}_{t,m}$; when it is off they are all $0$. The commitment of the unit is exposed to the \code{UCBlock} through one generator only, so that the fixed consumption and the inertia per unit of commitment are counted at the node of that generator.
+
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. Below, a \variable ``indexed over the instants'' is of type \code{netCDF::NcDouble} and has as its first \dimension either one of size $1$ (the same value at every instant) or \cstr{NumberIntervals} (or \cstr{TimeHorizon} if \cstr{NumberIntervals} is not provided), with the same meaning as for the \code{ThermalUnitBlock}; a \variable indexed over the instants and over the generators has \cstr{NumberGenerators} (or a \dimension of size $1$, for the same value for all the generators) as its second \dimension, and similarly for the operating rows and the ramps. The \code{netCDF::NcGroup} must then also contain:
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumberGenerators}, the number $G$ of generators; it is optional, with default $1$;
+ %
+ \item the scalar \variable \cstr{CommitmentGenerator}, of type \code{netCDF::NcUint}, the generator through which the commitment is exposed (\code{get\_commitment( g )} returns \code{nullptr} for every other generator); it is optional, with default $0$;
+ %
+ \item the \variables \cstr{MinPower} and \cstr{MaxPower}, indexed over the instants and over the generators, the bounds $P^{mn}_{t,g} \leq P^{mx}_{t,g}$ of the power of each generator when the unit is on, which may be negative and must be finite; \cstr{MaxPower} is mandatory, \cstr{MinPower} is optional with default $0$;
+ %
+ \item the \dimension \cstr{NumberOperatingRows}, the number $M$ of operating rows (optional, default $0$), the \variable \cstr{OperatingMatrix}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberOperatingRows} and \cstr{NumberGenerators}, their coefficients $a_{m,g}$, and the \variables \cstr{OperatingLHS} and \cstr{OperatingRHS}, indexed over the instants and over \cstr{NumberOperatingRows}, their sides $\underline{b}_{t,m} \leq \bar{b}_{t,m}$ (an equality row having equal sides), each optional with default $-\infty$ and $+\infty$ respectively, a row having a finite side at some instant;
+ %
+ \item the \dimension \cstr{NumberRampRows} and the \variable \cstr{RampMatrix}, indexed over \cstr{NumberRampRows} and \cstr{NumberGenerators}, the coefficients $c_{k,g}$ of the combinations of the powers whose changes the ramps limit; both optional, and without them there is one combination per generator, i.e., the ramps are on each generator;
+ %
+ \item the \variables \cstr{DeltaRampUp} and \cstr{DeltaRampDown}, indexed over the instants and over \cstr{NumberRampRows} (over \cstr{NumberGenerators} if \cstr{RampMatrix} is not provided), the largest increase and decrease $\Delta^{\pm}_{t,k} \geq 0$ of the combination $k$ from $t - 1$ to $t$; each optional, and without it there are no ramp constraints of that kind;
+ %
+ \item the \variables \cstr{StartUpLimit} and \cstr{StartUpLowerLimit}, indexed over the instants and over the generators, the largest and the smallest power of each generator at the instant of a start-up, and the \variables \cstr{ShutDownLimit} and \cstr{ShutDownLowerLimit}, the largest and the smallest power at the instant before a shut-down; all optional, with default the bounds of the power (no limit);
+ %
+ \item the \variables \cstr{PrimaryRho} and \cstr{SecondaryRho}, indexed over the instants and over the generators, the largest fractions of the absolute value of the power of each generator that it can offer as primary and secondary spinning reserve; optional, a generator with a zero fraction offering no reserve, and a generator that offers one must have a power of the same sign at every instant;
+ %
+ \item the \variable \cstr{ReserveDirection}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberGenerators} twice, whose entry \code{[ h ][ g ]} is the change of the power of the generator $h$ per unit of reserve of the generator $g$ deployed (with \code{[ g ][ g ] == 1} for a generator that offers a reserve); optional, with default the identity;
+ %
+ \item the \variables \cstr{PrimarySpinningReserveCost} and \cstr{SecondarySpinningReserveCost}, indexed over the instants and over the generators, the costs of one unit of reserve; optional with default $0$;
+ %
+ \item the \variables \cstr{QuadTerm} and \cstr{LinearTerm}, indexed over the instants and over the generators, the coefficients of the cost $a_{t,g} p_{t,g}^2 + b_{t,g} p_{t,g}$ of each generator, with $a_{t,g} \geq 0$; optional with default $0$;
+ %
+ \item the \variables \cstr{ConstTerm}, \cstr{StartUpCost} and \cstr{ShutDownCost}, of type \code{netCDF::NcDouble} and indexed over the instants only, the cost of the unit being on and the costs of a start-up and of a shut-down; optional with default $0$;
+ %
+ \item the \variable \cstr{InitialPower}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberGenerators}, the powers of the generators before the horizon, used only if the unit is on before the horizon, in which case they must lie in the operating region of the instant $0$; optional with default $0$;
+ %
+ \item the scalar \variables \cstr{InitUpDownTime} (of type \code{netCDF::NcInt}), \cstr{MinUpTime} and \cstr{MinDownTime} (of type \code{netCDF::NcUint}), with the same meaning and defaults as for the \code{ThermalUnitBlock};
+ %
+ \item the \variables \cstr{FixedConsumption} and \cstr{InertiaCommitment}, indexed over the instants only, the power the unit draws when it is off and the inertia it gives when it is on, both counted at the node of the commitment generator; optional with default $0$;
+ %
+ \item the \variable \cstr{InertiaPower}, indexed over the instants and over the generators, the inertia of each generator per unit of power; optional with default $0$;
+ %
+ \item the scalar \variable \cstr{Scale}, of type \code{netCDF::NcDouble}, the scale factor of the unit (cf. \code{UnitBlock::scale()}); optional with default $1$.
+\end{itemize}
+
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection {\code{HydroSystemUnitBlock}}\label{sec:HydroSystemUnitBlock}
 The class \code{HydroSystemUnitBlock}, which derives from the \Block, in order to define a base class for any possible \cstr{hydro unit} plus the linking \code{PolyhedralFunctionBlock} to describe the future value of water function in a \code{UCBlock}. Besides the mandatory \cstr{type} attribute of any \dBlock, the group should contain the following:
