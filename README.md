@@ -334,6 +334,11 @@ brew install smspp
 vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one feature per module
 ```
 
+The vcpkg port is not in the default registry of vcpkg but in the
+[SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry), whose README
+shows how a project routes `smspp` (and its dependencies `stopt` and
+`cadical`) to it.
+
 On Ubuntu the framework is one package per module and one per tool, so that a
 project installs only what it uses: `libsmspp-<module>` holds a shared
 library, `libsmspp-<module>-dev` its headers and the CMake configuration that
