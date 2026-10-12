@@ -146,4 +146,4 @@ for those cases ([§16.2](16-change.md#sec-16-2)).
 ---
 
 *This is the end of the SMS++ User Manual, version 0.1, for SMS++
-0.6.0.*
+0.7.0.*

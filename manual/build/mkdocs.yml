@@ -8,7 +8,7 @@
 # resolve correctly from the chapter files.
 
 site_name: SMS++ — A User Manual
-site_description: A user manual for SMS++ 0.6.0, the C++ framework for structured optimization.
+site_description: A user manual for SMS++ 0.7.0, the C++ framework for structured optimization.
 site_author: Antonio Frangioni
 docs_dir: ..
 # site_dir must live OUTSIDE docs_dir (which is the manual root); write the

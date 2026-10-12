@@ -172,7 +172,7 @@ generic `:Solver` on $(B)$, and maintains the linearization pools.
 
 It also maps changes in its inner `Block` $(B)$ into the
 `FunctionMod*` types of [§13.3](13-function-family.md#sec-13-3), with the same reoptimization
-intent described for `LagBFunction` above. **At version 0.6.0,
+intent described for `LagBFunction` above. **At version 0.7.0,
 however, the `BendersBFunction` translation is more limited than
 `LagBFunction`'s**: fewer kinds of inner change are mapped to the
 fine-grained, directionally-typed `FunctionMod`s that would let an
@@ -197,14 +197,29 @@ an `SDDPBlock`: there, the Benders cuts generated at each stage are
 accumulated into a `PolyhedralFunction` ([§13.4](13-function-family.md#sec-13-4)) representing the
 recourse-cost approximation of the following stage.
 
-**Status — planned.** A `BendersDecompositionSolver` that would
-automate the construction of an enclosing Benders master for any
-suitable `Block` — in the way `LagrangianDualSolver` automates the
-Lagrangian master — is documented in the project's plans but is
-not released at version 0.6.0. The CFL/BenForm recipe of R5 works
-today because the cuts are emitted on demand by the master MILP's
-user-cut callback driving `generate_dynamic_constraints()`, which
-does not depend on that future `:Solver`.
+**The Benders master.** Since version 0.7.0 the enclosing Benders
+master is built by `BendersDecompositionSolver`, in the way
+`LagrangianDualSolver` builds the Lagrangian one. The complicating
+`Variable`s $x$ and the subproblems are those named by the parameters
+`vintMasterVars` and `vintMasterBlock`, since the same `Block` admits,
+in general, many Benders reformulations. In each subproblem the
+`:Solver` finds the rows that are linear in $x$, and it wraps the
+subproblem in a `BendersBFunction`; the master is then solved in one
+of two regimes, selected by `int_BDSlv_Regime`. In the *convex*
+regime the value functions are `C05Function` terms of the master
+`Objective`, and a `:CDASolver` of the bundle family (e.g.,
+`BundleSolver`, or `ParallelBundleSolver` if the subproblems are to
+be evaluated in parallel) drives a stabilized cutting-plane method.
+In the *MILP* regime, instead, the master is a MILP with one
+epigraph `Variable` per subproblem (or a single one), the cuts enter
+it as dynamic `Constraint`s, and the master is solved again after
+each round of cuts. A `TwoStageStochasticBlock` provides the required
+form through `get_Benders_form()`, and the `-k` option of
+`smspp_tssb_solver` uses it. Also, the arrangement of [Recipe R5](R5-cfl-benders.md#rec-R5), in which
+the cuts are emitted by the user-cut callback of the master
+`:MILPSolver` driving `generate_dynamic_constraints()`, remains
+available; it may be the more natural one when the cuts are to
+be seen by the branch-and-cut of the master while it proceeds.
 
 ## 14.4 Why "almost any `Block`, almost any `Solver`" {#sec-14-4}
 
