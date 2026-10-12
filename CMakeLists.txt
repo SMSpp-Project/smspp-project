@@ -225,7 +225,7 @@ if (BUILD_ScenarioReductionSolver)
     set(BUILD_TwoStageStochasticBlock ON) # Requires TwoStageStochasticBlock
 endif ()
 
-# ----- Initialize submodules ------------------------------------------------ #
+# ----- Initialize submodules ----------------------------------------------- #
 macro(init_submodule name)
     # if the submodule is not initialized...
     if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}/CMakeLists.txt")
@@ -235,7 +235,7 @@ macro(init_submodule name)
     endif ()
 endmacro()
 
-# ----- Testing -------------------------------------------------------------- #
+# ----- Testing ------------------------------------------------------------- #
 # Enable testing at the top level if requested, so that the per-module tests
 # are reachable by ctest from the build root even when the system tests
 # (BUILD_tests) are not built.
