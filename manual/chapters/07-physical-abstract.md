@@ -202,7 +202,7 @@ abstract representation to carry both groups.
 ## 7.6 Status — under development: the half-baked `Solution` {#sec-7-6}
 
 The framing of [§7.1](07-physical-abstract.md#sec-7-1), "two faces coexist and neither is privileged",
-is not, at version 0.6.0, a faithful description of the
+is not, at version 0.7.0, a faithful description of the
 implementation: it is the framing we are working towards.
 
 What is true today is the following:
@@ -239,7 +239,7 @@ step entirely, the `Solver` would hand back a `:Block`-specific
 absorb it into its physical representation without intermediation.
 
 The above is one of several places where the SMS++ public API is
-not yet fully settled at version 0.6.0; the convention adopted by
+not yet fully settled at version 0.7.0; the convention adopted by
 the manual is to flag such places with **Status — under
 development** and to let the reader know that user code written
 today should not assume the asymmetry will persist. [Chapter 9](09-solution.md#ch-9)

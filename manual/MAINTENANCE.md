@@ -2,7 +2,7 @@
 
 *Internal document for whoever (human or AI assistant) maintains this
 manual. It is deliberately excluded from the MkDocs site and from the
-PDF build. Last updated 2026-05-20, for SMS++ **0.6.0**.*
+PDF build. Last updated 2026-10-12, for SMS++ **0.7.0**.*
 
 Read this first. It captures what the manual is, the rules it was
 written by, how it is built and deployed, and the traps already hit so
@@ -13,7 +13,7 @@ they are not re-hit.
 ## 1. What this is
 
 A user manual for **SMS++** (open-source C++-20 framework for
-structured optimization), version **0.6.0** (December 2025). Audience:
+structured optimization), version **0.7.0** (October 2026). Audience:
 algorithm developers, `:Block`/`:Solver` authors, and sophisticated end
 users who already write C++-20. It is a *companion* to the Doxygen API
 reference and the project Wiki, not a replacement.
@@ -95,7 +95,7 @@ uniformly. Preserve them on every update.
   against the real APIs. Concrete facts established this way that are
   easy to get wrong:
   - Linear `Function`s are built with **`LinearFunction`** (real, used
-    throughout 0.6.0, e.g. `BinaryKnapsackBlock.cpp`): pattern
+    throughout the code, e.g. `BinaryKnapsackBlock.cpp`): pattern
     `LinearFunction::v_coeff_pair` + `new LinearFunction(std::move(cp), const)`
     passed to `set_function(...)`. There is **no** successor class.
   - `ColVariable` type enum is `kContinuous` (=0), `kBinary`,
@@ -261,8 +261,9 @@ Result: Doxygen at `…/smspp-project/`, manual at `…/smspp-project/manual/`.
      (Ch7 §7.6, Ch9 §9.7, **under development**) — is the `Solver`-
      returns-`Solution` adoption path in?
    - parallelism write-starvation (Ch17, **under development**).
-   - `BendersDecompositionSolver` (R5, **planned**) — if it lands, R5
-     shrinks to a config change.
+   - `BendersDecompositionSolver` landed in 0.7.0: §14.3 and R5 describe
+     it; R5 could be rewritten as a configuration of it, and an example
+     of it (e.g., on a `TwoStageStochasticBlock`) is still missing.
 4. **Run a consistency subagent** over all chapters (see §3).
 5. **Rebuild**: `make pdf` (confirm 0 overfull), `make html`; commit the
    refreshed `SMS++-manual.pdf`; re-run the `pages` job.

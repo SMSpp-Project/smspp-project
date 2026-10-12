@@ -566,5 +566,5 @@ object, and (where the `:Block` chooses to support it) can be
 *undone* via an automatically-generated inverse `Change`. The
 intended downstream use is message-passing distributed
 computation; only a small number of `:Change` classes exist at
-version 0.6.0 (in particular for `BinaryKnapsackBlock`) and the
+version 0.7.0 (in particular for `BinaryKnapsackBlock` and `SATBlock`) and the
 interface is subject to change. **Status — beta.**

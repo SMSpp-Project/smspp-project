@@ -6,8 +6,8 @@ SMS++ is a C++-20 software framework for *structured* mathematical
 optimization, designed primarily for researchers and practitioners who
 need to build, combine and solve mathematical models in which the
 problem structure is exploited algorithmically rather than ignored.
-The version covered by this manual is **0.6.0**, released in December
-2025, and is distributed under the GNU Lesser General Public Licence
+The version covered by this manual is **0.7.0**, released in October
+2026, and is distributed under the GNU Lesser General Public Licence
 v3.0.
 
 The framework rests on a small number of abstractions, none of which
@@ -64,8 +64,9 @@ change made via either representation produces the appropriate
 `Modification` notification with the data needed to *apply* the
 change to a different copy of the `Block` and, if requested, to
 *undo* it. **Status — beta**: only a small number of `:Change` classes
-exist at version 0.6.0 (in particular for
-[`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html)),
+exist at version 0.7.0 (in particular for
+[`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html)
+and `SATBlock`),
 and the interface is subject to change.
 
 The framework supports *algorithmic reformulation* of a `Block`
@@ -137,7 +138,7 @@ in this scenario, however, the framework's idioms and the role of
 configuration are not always intuitive, and reading at least Part I
 of this manual is recommended.
 
-SMS++ is **not interface-stable**. Version 0.6.0 is the current
+SMS++ is **not interface-stable**. Version 0.7.0 is the current
 public release; the framework is under active development and a
 non-negligible amount of further evolution is expected, including
 changes that may not preserve backward compatibility. Concrete
@@ -284,7 +285,7 @@ not substitute for, either the Doxygen reference or the Wiki.
 When the three sources of documentation disagree, the source code is
 the ultimate authority, the Doxygen reference comes second, and this
 manual comes third. We have tried to keep all three consistent at the
-version covered (0.6.0), but in case of discrepancy the reader is
+version covered (0.7.0), but in case of discrepancy the reader is
 invited to file an issue against the umbrella project.
 
 ## 1.6 A note on style {#sec-1-6}
@@ -307,10 +308,7 @@ optimization frameworks will find that material elsewhere.
 
 We **prefer code to abstract description** wherever a short snippet
 clarifies more than a paragraph of English. Every snippet in the
-manual is meant to compile against the SMS++ source tree of version
-0.6.0; the snippets in Part III recipes are extracted from
-runnable example programs in the `manual/examples/` directory of the
-source repository.
+manual is written against the SMS++ source tree of version 0.7.0.
 
 We **cite precisely**. Whenever we make a claim about how a class
 behaves, we point to either its Doxygen page or a `file:line` in the
