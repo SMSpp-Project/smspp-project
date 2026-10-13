@@ -89,9 +89,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   defining the general `SMS++` framework features.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
-  a `Block` implementing the Binary Knapsack Problem and the corresponding
-  Solver based on a straightforward implementation of the Dynamic Programming
-  approach (for integer weights).
+  a `Block` implementing the (Mixed) Binary Knapsack Problem, together with
+  a family of `Solver` for it: the full-table Dynamic Programming one, an
+  exact core one in the MINKNAP / COMBO / RECORD line that is orders of
+  magnitude faster, those handing the core to the external COMBO and RECORD
+  solvers, and the greedy one for the continuous relaxation; all of them can
+  reuse the previous solution after a change of the data.
 
 - [BendersDecompositionSolver](https://gitlab.com/smspp/bendersdecompositionsolver),
   a "generic" Benders-based `Solver` for `Block` with appropriate structure,
@@ -163,11 +166,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general `MILPSolver` `Solver` that aims at being able to solve any `Block`
-  whose abstract representation encodes for a Mixed-Integer Linear Program
-  (`ColVariable`, `FRowConstraint` and `FRealObjective` with `LinearFunction`
-  inside, `OneVarConstraint`), together with derived classes that actually
-  interface with existing MILP solvers. Currently, available derived classes
-  are:
+  whose abstract representation encodes for a Mixed-Integer
+  Quadratically-Constrained Quadratic Program (`ColVariable`,
+  `OneVarConstraint`, `FRowConstraint` and `FRealObjective` with
+  `LinearFunction`, `DQuadFunction` or `QuadFunction` inside), together with
+  derived classes that actually interface with existing solvers; not all of
+  them handle all the quadratic cases, in particular the non-convex ones.
+  Currently, available derived classes are:
 
   - `CPXMILPSolver`, providing the interface with the commercial
     [IBM ILOG CPLEX Studio](https://www.ibm.com/products/ilog-cplex-optimization-studio)
@@ -204,9 +209,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
   multi-stage stochastic optimization problems solvable by the Stochastic
-  Dual Dynamic Programming approach, and the `SDDPSolver` that interfaces with
+  Dual Dynamic Programming approach, the `SDDPSolver` that interfaces with
   the SDDP solver in the
-  [StOpt project](https://gitlab.com/stochastic-control/StOpt).
+  [StOpt project](https://gitlab.com/stochastic-control/StOpt), and the
+  `SDDPGreedySolver` that solves the stages of one scenario one after the
+  other, each with the approximation of the future cost the `SDDPBlock`
+  holds, giving feasible solutions that evaluate (and bound from above) the
+  decisions of `SDDPSolver`.
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   `StochasticBlock` "meta-Block" that takes *any* "deterministic" `Block` and
@@ -250,10 +259,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 - [SVMBlock](https://gitlab.com/smspp/svmblock), defining the `Block` for the
   training problem of a *Support Vector Machine*, both the classifier and the
   regressor, together with the ad hoc `SMOSolver` and with `LIBSVMSolver` and
-  `LIBLINEARSolver`, which hand the problem over to LIBSVM and to LIBLINEAR. The abstract representation encodes
-  either the training problem itself or its Wolfe dual, and the samples can be
-  dealt out to chunks tied by consensus constraints, which is the structure a
-  Lagrangian, or equivalently a Dantzig-Wolfe, decomposition attacks.
+  `LIBLINEARSolver`, which hand the problem over to
+  [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvm/) and to
+  [LIBLINEAR](https://www.csie.ntu.edu.tw/~cjlin/liblinear/). The abstract
+  representation encodes either the training problem itself or its Wolfe
+  dual, and the samples can be dealt out to chunks tied by consensus
+  constraints, which is the structure a Lagrangian, or equivalently a
+  Dantzig-Wolfe, decomposition attacks.
 
 - [SATBlock](https://gitlab.com/smspp/satblock), defining the `Block` for the
   satisfiability problems of the propositional logic and for their weighted
