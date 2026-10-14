@@ -121,9 +121,16 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   reduction techniques (see below), which build it through the `SMS++`
   factory and therefore do not require this module at build time.
 
-- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
-  optimization problems involving (several) nondifferentiable objective
-  function(s) based on the (generalized) "bundle method".
+- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for the
+  minimization of a sum of convex nondifferentiable functions known through
+  an oracle (e.g., the Lagrangian dual of a `Block`, or the master of a
+  Benders' decomposition) by the "generalized bundle" method. Its master
+  problem is a `MasterProblemBlock`, solved by any `:MILPSolver`, with the
+  proximal, level, doubly stabilized or trust-region stabilization; the
+  components can enter it as cutting-plane models or, when they are "easy",
+  with their exact description. `ParallelBundleSolver` evaluates the
+  components in parallel, and `BundleSolverML` predicts the proximal
+  parameter with a neural network.
 
 - [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
   designed to model the investment in different assets defined in
