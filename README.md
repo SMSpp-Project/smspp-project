@@ -201,6 +201,10 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     [PIPS-IPM++](https://gitlab.com/pips-ipmpp/pips-ipmpp) (LP problems
     only, currently supported on Linux only)
 
+  - `DAQPMILPSolver`, providing the interface with the open-source dual
+    active-set solver [DAQP](https://github.com/darnstrom/daqp) (convex QP
+    and LP problems with linear constraints, dense, no integer variables)
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -355,8 +359,8 @@ vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one featur
 
 The vcpkg port is not in the default registry of vcpkg but in the
 [SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry), whose README
-shows how a project routes `smspp` (and its dependencies `stopt` and
-`cadical`) to it.
+shows how a project routes `smspp` (and its dependencies `stopt`, `cadical`
+and `daqp`) to it.
 
 On Ubuntu the framework is one package per module and one per tool, so that a
 project installs only what it uses: `libsmspp-<module>` holds a shared
@@ -365,16 +369,16 @@ library, `libsmspp-<module>-dev` its headers and the CMake configuration that
 its examples and its man page, and `smspp-project` installs them all.
 
 CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
-Solvers carry the HiGHS backend alone; a build against the others is still the
-one of the sources, which the instructions below are about. Similarly, the
-Solvers of SATBlock carry CaDiCaL alone, and none on Windows, where CaDiCaL does
-not build: MiniSat, whose stp/minisat code no package manager but Homebrew
-distributes (Debian and Ubuntu carry the older one of minisat.se), comes with a
-build from the sources. BinaryKnapsackBlock is packaged without the Solvers that
-hand its core to RECORD and to COMBO, which are built from the sources when
-these are found (RECORD, which `INSTALL.sh` checks out, in `RECORD_ROOT`, and
-COMBO, which is for academic or non-commercial use only and comes with no
-installer, in `COMBO_ROOT`).
+Solvers carry the HiGHS and DAQP backends alone; a build against the others is
+still the one of the sources, which the instructions below are about.
+Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
+where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
+manager but Homebrew distributes (Debian and Ubuntu carry the older one of
+minisat.se), comes with a build from the sources. BinaryKnapsackBlock is
+packaged without the Solvers that hand its core to RECORD and to COMBO, which
+are built from the sources when these are found (RECORD, which `INSTALL.sh`
+checks out, in `RECORD_ROOT`, and COMBO, which is for academic or
+non-commercial use only and comes with no installer, in `COMBO_ROOT`).
 
 ### Requirements
 
@@ -445,6 +449,7 @@ according to the following options table:
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
+| `--without-daqp`   | *(via vcpkg)*     | skip DAQP installation                   |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |

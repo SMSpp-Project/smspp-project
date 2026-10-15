@@ -5,6 +5,7 @@
     "boost",
     "boost-mpi",
     "bzip2",
+    "daqp",
     "eigen3",
     "getopt",
     "highs",
@@ -34,6 +35,14 @@
         "baseline": "b1c4b10ee58fad9b2f60b40c8ffd04cf10fabbdf",
         "packages": [
           "stopt"
+        ]
+      },
+      {
+        "kind": "git",
+        "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
+        "baseline": "d94367aa8d8553423ffa62871fec01cc46481e1d",
+        "packages": [
+          "daqp"
         ]
       }
     ]

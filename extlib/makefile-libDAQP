@@ -1,0 +1,39 @@
+##############################################################################
+############################## makefile-libDAQP ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libDAQP                                                      #
+#                                                                            #
+#   Input:  $(DAQP_ROOT), the directory where DAQP is installed, i.e., the   #
+#           headers are in $(DAQP_ROOT)/include/daqp and the library is in   #
+#           $(DAQP_ROOT)/lib                                                 #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libDAQPLIB) = external libraries + -L< libdirs > for libDAQP   #
+#           $(libDAQPINC) = the -I$(include directories) for libDAQP         #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic DAQP directory without quotes, if any
+libDAQPBSCDIR = $(subst $\",,$(DAQP_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libDAQPINC = -I"$(libDAQPBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libDAQPLIB = -L"$(libDAQPBSCDIR)/lib" -Wl,-rpath,"$(libDAQPBSCDIR)/lib" \
+	-ldaqp
+endif
+ifeq ($(UNAME_S),Darwin)
+    libDAQPLIB = -rpath "$(libDAQPBSCDIR)/lib" -L"$(libDAQPBSCDIR)/lib" -ldaqp
+endif
+
+######################## End of makefile-libDAQP #############################

@@ -16,6 +16,7 @@
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
+#     You can use the `--without-daqp` option to skip the installation of DAQP.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -380,6 +381,32 @@ EOL
           echo "HiGHS already up to date."
         fi
       fi
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install DAQP
+  # DAQP is built from its latest release, i.e., the latest tag of its
+  # repository, rather than from its development branch.
+  if [ "$install_daqp" -eq 1 ]; then
+    echo "Installing DAQP..."
+    DAQP_ROOT="$(resolve_dep_root daqp)"
+    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
+    if [ ! -d "$DAQP_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+      cd "$DAQP_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${DAQP_ROOT}/lib' > /etc/ld.so.conf.d/daqp.conf"
+        ldconfig
+      fi
+    else
+      echo "DAQP already installed."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -759,6 +786,29 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install DAQP
+  # DAQP is built from its latest release, i.e., the latest tag of its
+  # repository, rather than from its development branch.
+  if [ "$install_daqp" -eq 1 ]; then
+    echo "Installing DAQP..."
+    DAQP_ROOT="${INSTALL_ROOT}/daqp"
+    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
+    if [ ! -d "$DAQP_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+      cd "$DAQP_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${DAQP_ROOT}/lib"
+    else
+      echo "DAQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # PIPS-IPM++ is not supported on macOS
   if [ "$install_pips" -eq 1 ]; then
     echo "Skipping PIPS-IPM++ (Linux only)."
@@ -841,6 +891,7 @@ install_gurobi=${install_gurobi:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_pips=${install_pips:-1}
+install_daqp=${install_daqp:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -907,6 +958,10 @@ do
     ;;
     --without-pips)
     install_pips=0
+    shift
+    ;;
+    --without-daqp)
+    install_daqp=0
     shift
     ;;
     --without-stopt)
@@ -1077,6 +1132,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "SCIP_ROOT = ${SCIP_ROOT}"
       echo "GUROBI_ROOT = ${GUROBI_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
+      [ -n "${DAQP_ROOT:-}" ] && echo "DAQP_ROOT = ${DAQP_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
@@ -1101,7 +1157,7 @@ if [ "$install_smspp" -eq 1 ]; then
   # whose CMakeLists has a `find_package(<lib> REQUIRED)`), and force those
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
-  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS backends in
+  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS/DAQP backends in
   # MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their
   # own and need
   # no mapping here.

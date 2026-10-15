@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--with-experiments` in INSTALL.sh and `-withExperiments` in INSTALL.ps1,
   which fetch and build the private `experiments` submodule
 
+- DAQP, the QP solver of `DAQPMILPSolver`: `INSTALL.sh` builds it from its
+  latest tag (`--without-daqp`), INSTALL.ps1 takes it from the SMS++ vcpkg
+  registry through `vcpkg.json`, and `extlib` has `makefile-libDAQP` and the
+  default paths of `DAQP_ROOT`
+
 ### Fixed
 
 - INSTALL.sh and INSTALL.ps1 no longer touch the private `experiments`

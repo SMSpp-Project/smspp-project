@@ -54,6 +54,7 @@ CPLEX_ROOT = /Applications/CPLEX_Studio
 SCIP_ROOT = /Library/scip
 GUROBI_ROOT = /Library/gurobi
 HiGHS_ROOT = /Library/HiGHS
+DAQP_ROOT = /Library/daqp
 StOpt_ROOT = /Library/StOpt
 FastFlow_ROOT = /Library/fastflow
 Torch_ROOT = /Library/torch
