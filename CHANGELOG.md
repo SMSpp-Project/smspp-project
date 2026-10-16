@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- the tests of the modules are reachable by ctest from the build root in
+  a fresh build too, where `BUILD_TESTING` was not yet defined when it was
+  checked and the build root had no test
+
 - INSTALL.sh and INSTALL.ps1 no longer touch the private `experiments`
   submodule unless asked to, whatever the local git configuration says, so
   that an installation never stops to ask for GitLab credentials

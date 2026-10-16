@@ -236,12 +236,10 @@ macro(init_submodule name)
 endmacro()
 
 # ----- Testing ------------------------------------------------------------- #
-# Enable testing at the top level if requested, so that the per-module tests
-# are reachable by ctest from the build root even when the system tests
-# (BUILD_tests) are not built.
-if (BUILD_TESTING)
-    enable_testing()
-endif ()
+# Enable testing at the top level, so that the per-module tests are
+# reachable by ctest from the build root even when the system tests
+# (BUILD_tests) are not built; CTest defines BUILD_TESTING (default ON).
+include(CTest)
 
 # ----- Subprojects --------------------------------------------------------- #
 # The core library is required by all other SMS++ modules, if any
