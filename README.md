@@ -132,6 +132,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   components in parallel, and `BundleSolverML` predicts the proximal
   parameter with a neural network.
 
+- [SubGradSolver](https://gitlab.com/smspp/subgradsolver), a `Solver` for the
+  same problems as `BundleSolver` by the deflected and projected subgradient
+  methods, whose stepsize and deflection rules (Polyak, ColorTV, FumeroTV,
+  Volume and the primal-dual one) are chosen by name in its configuration;
+  as the inner `Solver` of `LagrangianDualSolver`, it also recovers primal
+  solutions from the convex combinations of the subgradients.
+
 - [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
   designed to model the investment in different assets defined in
   [UCBlock](https://gitlab.com/smspp/ucblock). The corresponding problem

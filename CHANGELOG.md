@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- SubGradSolver, the deflected and projected subgradient methods for the
+  same problems as BundleSolver (`BUILD_SubGradSolver`), and its feature
+  `subgrad` in the smspp port of the vcpkg registry; the battery of
+  MultiKnapsackAssignBlock cross-checks it as the inner `Solver` of
+  `LagrangianDualSolver`
+
 - `--with-experiments` in INSTALL.sh and `-withExperiments` in INSTALL.ps1,
   which fetch and build the private `experiments` submodule
 

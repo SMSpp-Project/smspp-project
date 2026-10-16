@@ -91,6 +91,9 @@
 [submodule "MultiKnapsackAssignBlock"]
 	path = MultiKnapsackAssignBlock
 	url = ../multiknapsackassignblock.git
+[submodule "SubGradSolver"]
+	path = SubGradSolver
+	url = ../subgradsolver.git
 [submodule "experiments"]
 	path = experiments
 	url = https://gitlab.com/smspp-develop/experiments.git

@@ -841,6 +841,7 @@ INPUT                  = doxygen/mainpage.md \
                          SDDPBlock/include \
                          ScenarioReductionSolver/include \
                          SingleFlowDCRBlock/include \
+                         SubGradSolver/include \
                          SMS++/include \
                          StochasticBlock/include \
                          SVMBlock/include \
