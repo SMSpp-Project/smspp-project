@@ -240,6 +240,10 @@ endmacro()
 # Enable testing at the top level, so that the per-module tests are
 # reachable by ctest from the build root even when the system tests
 # (BUILD_tests) are not built; CTest defines BUILD_TESTING (default ON).
+# CTest also gives each test a default timeout of 1500 s, which the
+# batteries of the bundle and of the decompositions exceed: 0 leaves the
+# tests with no timeout, unless they have one of their own.
+set(DART_TESTING_TIMEOUT 0 CACHE STRING "Default timeout of a test (s)")
 include(CTest)
 
 # ----- Subprojects --------------------------------------------------------- #

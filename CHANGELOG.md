@@ -29,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a fresh build too, where `BUILD_TESTING` was not yet defined when it was
   checked and the build root had no test
 
+- the tests run from the build root have no timeout, as before the
+  umbrella included CTest, whose default of 1500 s stopped the batteries
+  of LagBFunction and PolyhedralFunctionBlock in the CI of BundleSolver
+
 - INSTALL.sh and INSTALL.ps1 no longer touch the private `experiments`
   submodule unless asked to, whatever the local git configuration says, so
   that an installation never stops to ask for GitLab credentials
