@@ -472,9 +472,9 @@ according to the following options table:
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
 | `--without-daqp`   | *(via vcpkg)*     | skip DAQP installation                   |
-| `--without-proxsuite` | *(not supported)* | skip ProxSuite installation           |
-| `--without-piqp`   | *(not supported)* | skip PIQP installation                   |
-| `--without-osqp`   | *(not supported)* | skip OSQP installation                   |
+| `--without-proxsuite` | *(via vcpkg)* | skip ProxSuite installation               |
+| `--without-piqp`   | *(via vcpkg)*     | skip PIQP installation                   |
+| `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
