@@ -17,6 +17,9 @@
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
 #     You can use the `--without-daqp` option to skip the installation of DAQP.
+#     You can use the `--without-proxsuite` option to skip the installation of ProxSuite.
+#     You can use the `--without-piqp` option to skip the installation of PIQP.
+#     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -407,6 +410,90 @@ EOL
       fi
     else
       echo "DAQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install ProxSuite
+  # ProxSuite (ProxQP) is header-only: it is configured from its latest
+  # release, without the SIMD vectorization that would need Simde, and only
+  # its headers and its CMake configuration are installed.
+  if [ "$install_proxsuite" -eq 1 ]; then
+    echo "Installing ProxSuite..."
+    proxsuite_ROOT="$(resolve_dep_root proxsuite)"
+    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
+    if [ ! -d "$proxsuite_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+      cd "$proxsuite_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      git submodule update --init cmake-module
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
+        -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF
+      cmake --install build
+    else
+      echo "ProxSuite already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PIQP
+  # PIQP is built from its latest release, with its C++ interface alone (the
+  # compiled library of its common templates and its headers), without the
+  # C, Python and Matlab interfaces, the tests and the benchmarks.
+  if [ "$install_piqp" -eq 1 ]; then
+    echo "Installing PIQP..."
+    piqp_ROOT="$(resolve_dep_root piqp)"
+    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
+    if [ ! -d "$piqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+      cd "$piqp_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
+        -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
+        -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${piqp_ROOT}/lib' > /etc/ld.so.conf.d/piqp.conf"
+        ldconfig
+      fi
+    else
+      echo "PIQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install OSQP
+  # OSQP is built from its latest release, with its builtin linear algebra
+  # and in double precision, without the demo and the unit tests; the
+  # version is given to its CMake, which otherwise writes 0.0.0 in it.
+  if [ "$install_osqp" -eq 1 ]; then
+    echo "Installing OSQP..."
+    osqp_ROOT="$(resolve_dep_root osqp)"
+    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
+    if [ ! -d "$osqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+      cd "$osqp_ROOT"
+      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      git checkout -q "$osqp_tag"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
+        -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
+        -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${osqp_ROOT}/lib' > /etc/ld.so.conf.d/osqp.conf"
+        ldconfig
+      fi
+    else
+      echo "OSQP already installed."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -809,6 +896,84 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install ProxSuite
+  # ProxSuite (ProxQP) is header-only: it is configured from its latest
+  # release, without the SIMD vectorization that would need Simde, and only
+  # its headers and its CMake configuration are installed.
+  if [ "$install_proxsuite" -eq 1 ]; then
+    echo "Installing ProxSuite..."
+    proxsuite_ROOT="${INSTALL_ROOT}/proxsuite"
+    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
+    if [ ! -d "$proxsuite_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+      cd "$proxsuite_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      git submodule update --init cmake-module
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
+        -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF
+      cmake --install build
+    else
+      echo "ProxSuite already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PIQP
+  # PIQP is built from its latest release, with its C++ interface alone (the
+  # compiled library of its common templates and its headers), without the
+  # C, Python and Matlab interfaces, the tests and the benchmarks.
+  if [ "$install_piqp" -eq 1 ]; then
+    echo "Installing PIQP..."
+    piqp_ROOT="${INSTALL_ROOT}/piqp"
+    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
+    if [ ! -d "$piqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+      cd "$piqp_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
+        -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
+        -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${piqp_ROOT}/lib"
+    else
+      echo "PIQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install OSQP
+  # OSQP is built from its latest release, with its builtin linear algebra
+  # and in double precision, without the demo and the unit tests; the
+  # version is given to its CMake, which otherwise writes 0.0.0 in it.
+  if [ "$install_osqp" -eq 1 ]; then
+    echo "Installing OSQP..."
+    osqp_ROOT="${INSTALL_ROOT}/osqp"
+    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
+    if [ ! -d "$osqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+      cd "$osqp_ROOT"
+      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      git checkout -q "$osqp_tag"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
+        -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
+        -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${osqp_ROOT}/lib"
+    else
+      echo "OSQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # PIPS-IPM++ is not supported on macOS
   if [ "$install_pips" -eq 1 ]; then
     echo "Skipping PIPS-IPM++ (Linux only)."
@@ -892,6 +1057,9 @@ install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_pips=${install_pips:-1}
 install_daqp=${install_daqp:-1}
+install_proxsuite=${install_proxsuite:-1}
+install_piqp=${install_piqp:-1}
+install_osqp=${install_osqp:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -962,6 +1130,18 @@ do
     ;;
     --without-daqp)
     install_daqp=0
+    shift
+    ;;
+    --without-proxsuite)
+    install_proxsuite=0
+    shift
+    ;;
+    --without-piqp)
+    install_piqp=0
+    shift
+    ;;
+    --without-osqp)
+    install_osqp=0
     shift
     ;;
     --without-stopt)
@@ -1133,6 +1313,9 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "GUROBI_ROOT = ${GUROBI_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       [ -n "${DAQP_ROOT:-}" ] && echo "DAQP_ROOT = ${DAQP_ROOT}"
+      [ -n "${proxsuite_ROOT:-}" ] && echo "proxsuite_ROOT = ${proxsuite_ROOT}"
+      [ -n "${piqp_ROOT:-}" ] && echo "piqp_ROOT = ${piqp_ROOT}"
+      [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
@@ -1157,10 +1340,9 @@ if [ "$install_smspp" -eq 1 ]; then
   # whose CMakeLists has a `find_package(<lib> REQUIRED)`), and force those
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
-  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS/DAQP backends in
-  # MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their
-  # own and need
-  # no mapping here.
+  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS/DAQP/ProxQP/PIQP/
+  # OSQP backends in MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade
+  # gracefully on their own and need no mapping here.
   smspp_cmake_flags=()
   if [ "$install_experiments" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=ON")
