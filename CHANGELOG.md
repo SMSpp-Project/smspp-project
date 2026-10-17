@@ -23,14 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   registry through `vcpkg.json`, and `extlib` has `makefile-libDAQP` and the
   default paths of `DAQP_ROOT`
 
-- ProxSuite, PIQP and OSQP, the QP solvers of `ProxQPMILPSolver`,
-  `PIQPMILPSolver` and `OSQPMILPSolver`: `INSTALL.sh` builds them from
-  their latest tag on Linux and macOS (`--without-proxsuite`,
-  `--without-piqp`, `--without-osqp`), INSTALL.ps1 takes them from vcpkg
-  through `vcpkg.json` (PIQP from the SMS++ vcpkg registry), and `extlib` has
-  `makefile-libProxSuite`, `makefile-libPIQP`, `makefile-libOSQP` and the
-  default paths of `proxsuite_ROOT`, `piqp_ROOT` and `osqp_ROOT`
-
 ### Fixed
 
 - the tests of the modules are reachable by ctest from the build root in

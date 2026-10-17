@@ -56,9 +56,6 @@ SCIP_ROOT = "C:/Program Files/SCIPOptSuite"
 GUROBI_ROOT = C:/gurobi
 HiGHS_ROOT = C:/vcpkg/installed/x64-windows
 DAQP_ROOT = C:/vcpkg/installed/x64-windows
-proxsuite_ROOT = C:/vcpkg/installed/x64-windows
-piqp_ROOT = C:/vcpkg/installed/x64-windows
-osqp_ROOT = C:/vcpkg/installed/x64-windows
 Torch_ROOT = C:/torch
 
 VCPKG_ROOT = C:/vcpkg

@@ -13,9 +13,9 @@
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
-    Note that HiGHS, DAQP, ProxSuite, PIQP, OSQP, StOpt, LEMON, LIBSVM and LIBLINEAR come from vcpkg
-    (vcpkg.json), so there are no related options: DAQP and PIQP, which the default registry of vcpkg
-    does not carry, come from the SMS++ vcpkg registry (https://gitlab.com/smspp/vcpkg-registry).
+    Note that HiGHS, DAQP, StOpt, LEMON, LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there
+    are no related options: DAQP, which the default registry of vcpkg does not carry, comes from the
+    SMS++ vcpkg registry (https://gitlab.com/smspp/vcpkg-registry).
     Note that CaDiCaL and MiniSat are not packaged for Windows, so there are no related options:
     SATBlock is built with SATSolver only, without the SAT solvers it wraps.
     Note that RECORD and COMBO use POSIX clocks and 128-bit integers, which MSVC does not have,

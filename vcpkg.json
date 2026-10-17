@@ -14,9 +14,6 @@
     "libsvm",
     "msmpi",
     "netcdf-cxx4",
-    "osqp",
-    "piqp",
-    "proxsuite",
     "pthreads",
     "stopt",
     "zlib"
@@ -43,10 +40,9 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "260a59bcbd49111581fbb003790ae18ec3dc49dc",
+        "baseline": "d94367aa8d8553423ffa62871fec01cc46481e1d",
         "packages": [
-          "daqp",
-          "piqp"
+          "daqp"
         ]
       }
     ]
