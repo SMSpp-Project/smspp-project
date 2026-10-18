@@ -1,19 +1,19 @@
 ##############################################################################
-########################## makefile-libAStarSearch ###########################
+############################# makefile-libPBeFS ##############################
 ##############################################################################
 #                                                                            #
-#   makefile of libAStarSearch                                               #
+#   makefile of libPBeFS                                                     #
 #                                                                            #
-#   Input:  $(AStarSearch_ROOT), the directory where AStarSearch is          #
+#   Input:  $(PBeFS_ROOT), the directory where PBeFS is                      #
 #           installed, i.e., the headers are in                              #
-#           $(AStarSearch_ROOT)/include/AStarSearch and the library is in    #
-#           $(AStarSearch_ROOT)/lib (e.g., by make install                   #
-#           PREFIX=$(AStarSearch_ROOT) in the sources of AStarSearch)        #
+#           $(PBeFS_ROOT)/include/PBeFS and the library is in                #
+#           $(PBeFS_ROOT)/lib (e.g., by make install                         #
+#           PREFIX=$(PBeFS_ROOT) in the sources of PBeFS)                    #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libAStarSearchLIB) = external libraries + -L< libdirs >        #
-#           $(libAStarSearchINC) = the -I$(include directories)              #
+#           $(libPBeFSLIB) = external libraries + -L< libdirs >              #
+#           $(libPBeFSINC) = the -I$(include directories)                    #
 #                                                                            #
 #                                Donato Meoli                                #
 #                         Dipartimento di Informatica                        #
@@ -23,20 +23,20 @@
 
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# basic AStarSearch directory without quotes, if any
-libAStarSearchBSCDIR = $(subst $\",,$(AStarSearch_ROOT))
+# basic PBeFS directory without quotes, if any
+libPBeFSBSCDIR = $(subst $\",,$(PBeFS_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libAStarSearchINC = -I"$(libAStarSearchBSCDIR)/include"
+libPBeFSINC = -I"$(libPBeFSBSCDIR)/include"
 
 ifeq ($(UNAME_S),Linux)
-    libAStarSearchLIB = -L"$(libAStarSearchBSCDIR)/lib" \
-	-Wl,-rpath,"$(libAStarSearchBSCDIR)/lib" -lAStarSearch -pthread
+    libPBeFSLIB = -L"$(libPBeFSBSCDIR)/lib" \
+	-Wl,-rpath,"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
 endif
 ifeq ($(UNAME_S),Darwin)
-    libAStarSearchLIB = -rpath "$(libAStarSearchBSCDIR)/lib" \
-	-L"$(libAStarSearchBSCDIR)/lib" -lAStarSearch -pthread
+    libPBeFSLIB = -rpath "$(libPBeFSBSCDIR)/lib" \
+	-L"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
 endif
 
-###################### End of makefile-libAStarSearch ########################
+########################## End of makefile-libPBeFS ##########################
