@@ -132,11 +132,16 @@ exhale_args = {
 }
 
 html_theme = 'sphinx_rtd_theme'
-html_logo = os.path.join(ROOT, 'doxygen', 'SMSpp_logo_small_whiteback.png')
+# the logo without background, on the grey of the sidebar, where its blue M
+# stands out (on the blue of the theme it does not), and alone, since it
+# spells the name of the project
+html_logo = os.path.join(ROOT, 'doxygen', 'SMSpp_logo_mid_noback.png')
 # the sidebar of each page holds the branch of that page alone: with the
 # whole tree of the API in each of its 2000 pages the build takes about
 # nine times as long (55 minutes instead of 6, measured on one core)
-html_theme_options = {'navigation_depth': 3, 'collapse_navigation': True}
+html_theme_options = {'navigation_depth': 3, 'collapse_navigation': True,
+                      'logo_only': True,
+                      'style_nav_header_background': '#343131'}
 
 # --------------------------------------------------------------------------- #
 #                              End of conf.py                                 #
