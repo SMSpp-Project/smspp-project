@@ -47,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   macOS (`--without-mosek`), `INSTALL.ps1` its installer on Windows
   (`-withoutMosek`), both say where the license goes, and `extlib` has
   `makefile-libMOSEK` and the default paths of `MOSEK_ROOT`; the CI image
-  is built without it, since the CI has no license
+  has it, its license coming from the file CI/CD variable
+  `MOSEKLM_LICENSE_FILE` of each project
 
 ### Fixed
 
