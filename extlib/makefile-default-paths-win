@@ -57,6 +57,7 @@ GUROBI_ROOT = C:/gurobi
 HiGHS_ROOT = C:/vcpkg/installed/x64-windows
 DAQP_ROOT = C:/vcpkg/installed/x64-windows
 qpOASES_ROOT = C:/vcpkg/installed/x64-windows
+Clarabel_ROOT = C:/clarabel
 Torch_ROOT = C:/torch
 
 VCPKG_ROOT = C:/vcpkg

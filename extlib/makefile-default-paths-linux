@@ -56,6 +56,7 @@ GUROBI_ROOT = /opt/gurobi
 HiGHS_ROOT = /opt/HiGHS
 DAQP_ROOT = /opt/daqp
 qpOASES_ROOT = /opt/qpOASES
+Clarabel_ROOT = /opt/clarabel
 PIPSIPMPP_ROOT = /opt/pips-ipmpp
 StOpt_ROOT = /opt/StOpt
 FastFlow_ROOT = /opt/fastflow

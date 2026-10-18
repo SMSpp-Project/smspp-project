@@ -217,6 +217,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     QP and LP problems with linear constraints, dense, no integer variables,
     the Hessian possibly singular, hot starts between similar problems)
 
+  - `ClarabelMILPSolver`, providing the interface with the open-source
+    interior-point solver [Clarabel](https://clarabel.org) (convex QP and LP
+    problems with linear constraints, sparse, no integer variables), whose C
+    interface is built with a Rust toolchain and installed by hand [see the
+    README of MILPSolver]
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.

@@ -1,0 +1,45 @@
+##############################################################################
+############################ makefile-libClarabel ############################
+##############################################################################
+#                                                                            #
+#   makefile of libClarabel                                                  #
+#                                                                            #
+#   Input:  $(Clarabel_ROOT), the directory where the C interface of         #
+#           Clarabel (Clarabel.cpp) is installed, i.e., clarabel.h and its   #
+#           c/ subdirectory are in $(Clarabel_ROOT)/include and the library  #
+#           libclarabel_c is in $(Clarabel_ROOT)/lib                         #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libClarabelLIB) = external libraries + -L< libdirs > for       #
+#                               libClarabel                                  #
+#           $(libClarabelINC) = the -I$(include directories) for libClarabel #
+#                                                                            #
+#   The system libraries at the end are those of the Rust standard library,  #
+#   needed if libclarabel_c is a static library.                             #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic Clarabel directory without quotes, if any
+libClarabelBSCDIR = $(subst $\",,$(Clarabel_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libClarabelINC = -I"$(libClarabelBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libClarabelLIB = -L"$(libClarabelBSCDIR)/lib" \
+	-Wl,-rpath,"$(libClarabelBSCDIR)/lib" -lclarabel_c -lpthread -ldl -lm
+endif
+ifeq ($(UNAME_S),Darwin)
+    libClarabelLIB = -rpath "$(libClarabelBSCDIR)/lib" \
+	-L"$(libClarabelBSCDIR)/lib" -lclarabel_c
+endif
+
+###################### End of makefile-libClarabel ###########################

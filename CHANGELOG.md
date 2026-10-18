@@ -29,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the default vcpkg registry through `vcpkg.json`, and `extlib` has
   `makefile-libqpOASES` and the default paths of `qpOASES_ROOT`
 
+- `extlib` has `makefile-libClarabel` and the default paths of
+  `Clarabel_ROOT` for `ClarabelMILPSolver`, whose C interface no package
+  manager carries and `INSTALL.sh` does not install, as it needs Rust
+
 ### Fixed
 
 - the tests of the modules are reachable by ctest from the build root in
