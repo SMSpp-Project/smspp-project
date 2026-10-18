@@ -4,9 +4,11 @@
  * See HTML_EXTRA_STYLESHEET in Doxyfile.
  */
 
+/* the colour of the text is that of the theme, light or dark, so that it
+   keeps its contrast with the background of either */
 body, table, div, p, dl {
     font-family: -apple-system, Roboto, sans-serif;
-    color: #2c3e50;
+    color: var(--page-foreground-color);
 }
 
 div.header {
@@ -39,4 +41,10 @@ div.line {
 
 #projectbrief {
     color: #6a8bad;
+}
+
+@media (prefers-color-scheme: dark) {
+    #projectbrief {
+        color: #9fb7d4;
+    }
 }
