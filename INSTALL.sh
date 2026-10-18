@@ -17,6 +17,7 @@
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
 #     You can use the `--without-daqp` option to skip the installation of DAQP.
+#     You can use the `--without-qpoases` option to skip the installation of qpOASES.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -407,6 +408,39 @@ EOL
       fi
     else
       echo "DAQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install qpOASES
+  # qpOASES is built from its latest release, i.e., the latest tag of its
+  # repository, as a shared library whose replacements of the BLAS and LAPACK
+  # routines it uses are renamed (QPOASES_AVOID_LA_NAMING_CONFLICTS), so that
+  # they do not take the place of the BLAS and LAPACK of the other libraries;
+  # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
+  # unless told otherwise.
+  if [ "$install_qpoases" -eq 1 ]; then
+    echo "Installing qpOASES..."
+    qpOASES_ROOT="$(resolve_dep_root qpOASES)"
+    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
+    if [ ! -d "$qpOASES_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+      cd "$qpOASES_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+        -DCMAKE_INSTALL_PREFIX="$qpOASES_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${qpOASES_ROOT}/lib' > /etc/ld.so.conf.d/qpoases.conf"
+        ldconfig
+      fi
+    else
+      echo "qpOASES already installed."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -809,6 +843,36 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install qpOASES
+  # qpOASES is built from its latest release, i.e., the latest tag of its
+  # repository, as a shared library whose replacements of the BLAS and LAPACK
+  # routines it uses are renamed (QPOASES_AVOID_LA_NAMING_CONFLICTS), so that
+  # they do not take the place of the BLAS and LAPACK of the other libraries;
+  # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
+  # unless told otherwise.
+  if [ "$install_qpoases" -eq 1 ]; then
+    echo "Installing qpOASES..."
+    qpOASES_ROOT="${INSTALL_ROOT}/qpOASES"
+    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
+    if [ ! -d "$qpOASES_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+      cd "$qpOASES_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+        -DCMAKE_INSTALL_PREFIX="$qpOASES_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${qpOASES_ROOT}/lib"
+    else
+      echo "qpOASES already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # PIPS-IPM++ is not supported on macOS
   if [ "$install_pips" -eq 1 ]; then
     echo "Skipping PIPS-IPM++ (Linux only)."
@@ -892,6 +956,7 @@ install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_pips=${install_pips:-1}
 install_daqp=${install_daqp:-1}
+install_qpoases=${install_qpoases:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -962,6 +1027,10 @@ do
     ;;
     --without-daqp)
     install_daqp=0
+    shift
+    ;;
+    --without-qpoases)
+    install_qpoases=0
     shift
     ;;
     --without-stopt)
@@ -1133,6 +1202,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "GUROBI_ROOT = ${GUROBI_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       [ -n "${DAQP_ROOT:-}" ] && echo "DAQP_ROOT = ${DAQP_ROOT}"
+      [ -n "${qpOASES_ROOT:-}" ] && echo "qpOASES_ROOT = ${qpOASES_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
@@ -1157,10 +1227,9 @@ if [ "$install_smspp" -eq 1 ]; then
   # whose CMakeLists has a `find_package(<lib> REQUIRED)`), and force those
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
-  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS/DAQP backends in
-  # MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their
-  # own and need
-  # no mapping here.
+  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS/DAQP/qpOASES
+  # backends in MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade
+  # gracefully on their own and need no mapping here.
   smspp_cmake_flags=()
   if [ "$install_experiments" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=ON")

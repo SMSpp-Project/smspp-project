@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   registry through `vcpkg.json`, and `extlib` has `makefile-libDAQP` and the
   default paths of `DAQP_ROOT`
 
+- qpOASES, the QP solver of `QPOASESMILPSolver`: `INSTALL.sh` builds it
+  from its latest tag as a shared library whose BLAS and LAPACK
+  replacements are renamed (`--without-qpoases`), INSTALL.ps1 takes it from
+  the default vcpkg registry through `vcpkg.json`, and `extlib` has
+  `makefile-libqpOASES` and the default paths of `qpOASES_ROOT`
+
 ### Fixed
 
 - the tests of the modules are reachable by ctest from the build root in

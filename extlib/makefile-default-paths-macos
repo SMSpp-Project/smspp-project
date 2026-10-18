@@ -55,6 +55,7 @@ SCIP_ROOT = /Library/scip
 GUROBI_ROOT = /Library/gurobi
 HiGHS_ROOT = /Library/HiGHS
 DAQP_ROOT = /Library/daqp
+qpOASES_ROOT = /Library/qpOASES
 StOpt_ROOT = /Library/StOpt
 FastFlow_ROOT = /Library/fastflow
 Torch_ROOT = /Library/torch

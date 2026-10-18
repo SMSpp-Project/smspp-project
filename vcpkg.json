@@ -15,6 +15,7 @@
     "msmpi",
     "netcdf-cxx4",
     "pthreads",
+    "qpoases",
     "stopt",
     "zlib"
   ],

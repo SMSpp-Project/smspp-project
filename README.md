@@ -212,6 +212,11 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     active-set solver [DAQP](https://github.com/darnstrom/daqp) (convex QP
     and LP problems with linear constraints, dense, no integer variables)
 
+  - `QPOASESMILPSolver`, providing the interface with the open-source online
+    active-set solver [qpOASES](https://github.com/coin-or/qpOASES) (convex
+    QP and LP problems with linear constraints, dense, no integer variables,
+    the Hessian possibly singular, hot starts between similar problems)
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -376,7 +381,7 @@ library, `libsmspp-<module>-dev` its headers and the CMake configuration that
 its examples and its man page, and `smspp-project` installs them all.
 
 CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
-Solvers carry the HiGHS and DAQP backends alone; a build against the others is
+Solvers carry the HiGHS, DAQP and qpOASES backends alone; a build against the others is
 still the one of the sources, which the instructions below are about.
 Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
 where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
@@ -457,6 +462,7 @@ according to the following options table:
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
 | `--without-daqp`   | *(via vcpkg)*     | skip DAQP installation                   |
+| `--without-qpoases` | *(via vcpkg)*    | skip qpOASES installation                |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
