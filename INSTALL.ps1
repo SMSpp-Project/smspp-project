@@ -11,6 +11,7 @@
     You can use the `-updatevcpkg` option to update the builtin-baseline in vcpkg.json.
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
+    You can use the `-withoutMosek` option to skip the installation of MOSEK.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
     Note that HiGHS, DAQP, qpOASES, StOpt, LEMON, LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json),
@@ -59,6 +60,7 @@
 param(
     [switch]$withoutCplex,
     [switch]$withoutGurobi,
+    [switch]$withoutMosek,
     [switch]$withoutSCIP,
     [switch]$withoutTorch,
     [switch]$withoutSMSpp,
@@ -410,6 +412,46 @@ if ($OS -eq "Win32NT")
             Update-EnvironmentVariables -oldPattern "C:\gurobi1201" -newValue $GUROBI_ROOT
         }
         Write-Host "... Gurobi installed successfully."
+    }
+
+    # Install MOSEK: the installer of the latest 11.0.x version, whose
+    # number is published next to it (a fixed one if it cannot be read); it
+    # installs into C:\Program Files\Mosek\<major.minor>, and MOSEK_ROOT is
+    # C:\Program Files\Mosek, which holds one directory per version
+    if (-not $withoutMosek) {
+        Write-Host "Installing MOSEK..."
+        $MOSEK_ROOT = "C:\Program Files\Mosek"
+        if (-not (Test-Path $MOSEK_ROOT)) {
+            Set-Location "C:\"
+            $MOSEK_URL = "https://download.mosek.com/stable"
+            try {
+                $MOSEK_VERSION = (Invoke-WebRequest -UseBasicParsing `
+                    -Uri "$MOSEK_URL/11.0/version").Content.Trim()
+            } catch {
+                $MOSEK_VERSION = ""
+            }
+            if ($MOSEK_VERSION -notmatch '^11\.0\.[0-9]+$') {
+                $MOSEK_VERSION = "11.0.30"
+            }
+            $MOSEK_INSTALLER = "moseksetupwin64x86.msi"
+            Invoke-WebRequest `
+                -Uri "$MOSEK_URL/$MOSEK_VERSION/$MOSEK_INSTALLER" `
+                -OutFile "C:\$MOSEK_INSTALLER"
+            Start-Process -FilePath "msiexec.exe" `
+                -ArgumentList "/i", "C:\$MOSEK_INSTALLER" -Wait
+            Remove-Item "C:\$MOSEK_INSTALLER"
+            # Update the system PATH to ensure the SMS++ exe can correctly
+            # locate the mosek*.dll file
+            $MOSEK_MAJOR_MINOR = $MOSEK_VERSION.Substring(0,
+                $MOSEK_VERSION.LastIndexOf('.'))
+            Add-ToSystemPath -PathToAdd `
+                "$MOSEK_ROOT\$MOSEK_MAJOR_MINOR\tools\platform\win64x86\bin"
+        }
+        Write-Host "... MOSEK installed successfully."
+        Write-Host "MOSEK needs a license (free for academic use, see"
+        Write-Host "https://www.mosek.com/products/academic-licenses/):"
+        Write-Host "put it in %USERPROFILE%\mosek\mosek.lic or point"
+        Write-Host "MOSEKLM_LICENSE_FILE to it."
     }
 
     # Install SCIP

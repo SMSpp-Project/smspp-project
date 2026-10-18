@@ -13,6 +13,7 @@
 #     You can use the `--cplex-installer=<path-to-installer>` option to point to your own CPLEX installer.
 #     You can use the `--without-cplex` option to skip the installation of CPLEX.
 #     You can use the `--without-gurobi` option to skip the installation of Gurobi.
+#     You can use the `--without-mosek` option to skip the installation of MOSEK.
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
@@ -292,6 +293,53 @@ EOL
     else
       echo "Gurobi already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install MOSEK: the tools archive of the latest 11.0.x version, whose
+  # number is published next to it (a fixed one if it cannot be read); the
+  # archive unpacks as mosek/<major.minor>/tools/platform/<platform>, and
+  # MOSEK_ROOT is the mosek directory, which holds one directory per version
+  if [ "$install_mosek" -eq 1 ]; then
+    echo "Installing MOSEK..."
+    MOSEK_ROOT="$(resolve_dep_root mosek)"
+    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
+    if [ ! -d "$MOSEK_ROOT" ]; then
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        apt-get install -y -q bzip2
+      fi
+      cd "$INSTALL_ROOT"
+      MOSEK_URL="https://download.mosek.com/stable"
+      MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/11.0/version" || true)
+      if ! [[ "$MOSEK_VERSION" =~ ^11\.0\.[0-9]+$ ]]; then
+        MOSEK_VERSION="11.0.30"
+      fi
+      if [ "$(uname -m)" == "aarch64" ]; then
+        MOSEK_PLATFORM="linuxaarch64"
+      else
+        MOSEK_PLATFORM="linux64x86"
+      fi
+      MOSEK_INSTALLER="mosektools${MOSEK_PLATFORM}.tar.bz2"
+      curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"
+      mkdir -p mosek-src
+      tar -xjf "$MOSEK_INSTALLER" -C mosek-src
+      rm "$MOSEK_INSTALLER"
+      mv mosek-src/mosek "$MOSEK_ROOT"
+      rm -rf mosek-src
+      MOSEK_HOME="${MOSEK_ROOT}/${MOSEK_VERSION%.*}"
+      MOSEK_HOME="${MOSEK_HOME}/tools/platform/${MOSEK_PLATFORM}"
+      export PATH="${PATH}:${MOSEK_HOME}/bin"
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${MOSEK_HOME}/bin"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${MOSEK_HOME}/bin' > /etc/ld.so.conf.d/mosek.conf"
+        ldconfig
+      fi
+    else
+      echo "MOSEK already installed."
+    fi
+    echo "MOSEK needs a license (free for academic use, see"
+    echo "https://www.mosek.com/products/academic-licenses/): put it in"
+    echo "~/mosek/mosek.lic or point MOSEKLM_LICENSE_FILE to it."
     CURRENT_INSTALL_FOLDER=""
   fi
 
@@ -742,6 +790,47 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install MOSEK: the tools archive of the latest 11.0.x version, as on
+  # Linux; MOSEK 11 is built for Apple Silicon only
+  if [ "$install_mosek" -eq 1 ]; then
+    echo "Installing MOSEK..."
+    MOSEK_ROOT="${INSTALL_ROOT}/mosek"
+    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
+    if [ ! -d "$MOSEK_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
+        echo "No MOSEK 11 for macOS x86_64; skipping MOSEK."
+        install_mosek=0
+        MOSEK_ROOT=""
+      else # Apple Silicon arch
+        MOSEK_URL="https://download.mosek.com/stable"
+        MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/11.0/version" || true)
+        if ! [[ "$MOSEK_VERSION" =~ ^11\.0\.[0-9]+$ ]]; then
+          MOSEK_VERSION="11.0.30"
+        fi
+        MOSEK_INSTALLER="mosektoolsosxaarch64.tar.bz2"
+        curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"
+        mkdir -p mosek-src
+        tar -xjf "$MOSEK_INSTALLER" -C mosek-src
+        rm "$MOSEK_INSTALLER"
+        sudo mv mosek-src/mosek "$MOSEK_ROOT"
+        rm -rf mosek-src
+        MOSEK_HOME="${MOSEK_ROOT}/${MOSEK_VERSION%.*}"
+        MOSEK_HOME="${MOSEK_HOME}/tools/platform/osxaarch64"
+        export PATH="${PATH}:${MOSEK_HOME}/bin"
+        export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${MOSEK_HOME}/bin"
+      fi
+    else
+      echo "MOSEK already installed."
+    fi
+    if [ "$install_mosek" -eq 1 ]; then
+      echo "MOSEK needs a license (free for academic use, see"
+      echo "https://www.mosek.com/products/academic-licenses/): put it in"
+      echo "~/mosek/mosek.lic or point MOSEKLM_LICENSE_FILE to it."
+    fi
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
     echo "Installing SCIP..."
@@ -952,6 +1041,7 @@ install_on_macos() {
 # it works even if you use `install_*=0`
 install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
+install_mosek=${install_mosek:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_pips=${install_pips:-1}
@@ -1011,6 +1101,10 @@ do
     ;;
     --without-gurobi)
     install_gurobi=0
+    shift
+    ;;
+    --without-mosek)
+    install_mosek=0
     shift
     ;;
     --without-scip)
@@ -1200,6 +1294,7 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "CPLEX_ROOT = ${CPLEX_ROOT}"
       echo "SCIP_ROOT = ${SCIP_ROOT}"
       echo "GUROBI_ROOT = ${GUROBI_ROOT}"
+      [ -n "${MOSEK_ROOT:-}" ] && echo "MOSEK_ROOT = ${MOSEK_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       [ -n "${DAQP_ROOT:-}" ] && echo "DAQP_ROOT = ${DAQP_ROOT}"
       [ -n "${qpOASES_ROOT:-}" ] && echo "qpOASES_ROOT = ${qpOASES_ROOT}"
@@ -1227,7 +1322,7 @@ if [ "$install_smspp" -eq 1 ]; then
   # whose CMakeLists has a `find_package(<lib> REQUIRED)`), and force those
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
-  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS/DAQP/qpOASES
+  # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES
   # backends in MILPSolver, LIBSVM and LIBLINEAR in SVMBlock) degrade
   # gracefully on their own and need no mapping here.
   smspp_cmake_flags=()

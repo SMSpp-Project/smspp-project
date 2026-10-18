@@ -53,6 +53,7 @@ COMBO_ROOT = /opt/combo
 CPLEX_ROOT = /opt/ibm/ILOG/CPLEX_Studio
 SCIP_ROOT = /opt/scip
 GUROBI_ROOT = /opt/gurobi
+MOSEK_ROOT = /opt/mosek
 HiGHS_ROOT = /opt/HiGHS
 DAQP_ROOT = /opt/daqp
 qpOASES_ROOT = /opt/qpOASES

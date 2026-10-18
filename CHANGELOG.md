@@ -33,6 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Clarabel_ROOT` for `ClarabelMILPSolver`, whose C interface no package
   manager carries and `INSTALL.sh` does not install, as it needs Rust
 
+- MOSEK 11, the commercial solver of `MOSEKMILPSolver`, which needs a
+  license of its own (free for academic use): `INSTALL.sh` downloads the
+  tools archive of the latest 11.0.x version on Linux and on Apple Silicon
+  macOS (`--without-mosek`), `INSTALL.ps1` its installer on Windows
+  (`-withoutMosek`), both say where the license goes, and `extlib` has
+  `makefile-libMOSEK` and the default paths of `MOSEK_ROOT`; the CI image
+  is built without it, since the CI has no license
+
 ### Fixed
 
 - the tests of the modules are reachable by ctest from the build root in

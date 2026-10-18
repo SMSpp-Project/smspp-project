@@ -200,6 +200,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `GRBMILPSolver`, providing the interface with the commercial
     [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
+  - `MOSEKMILPSolver`, providing the interface with the commercial
+    [MOSEK Optimizer](https://www.mosek.com) (version 11), which needs a
+    license of its own, free for academic use
+    ([academic licenses](https://www.mosek.com/products/academic-licenses/));
+    it is built when CMake finds MOSEK (`MILPSolver_USE_MOSEK`, with
+    `MOSEK_ROOT` as hint)
+
   - `HiGHSMILPSolver`, providing the interface with the open-source
     [HiGHS](https://highs.dev)
 
@@ -386,9 +393,10 @@ library, `libsmspp-<module>-dev` its headers and the CMake configuration that
 `find_package()` finds, `smspp-<tool>` a command with its configuration files,
 its examples and its man page, and `smspp-project` installs them all.
 
-CPLEX, Gurobi and SCIP are not redistributable, so in all of these the MILP
-Solvers carry the HiGHS, DAQP and qpOASES backends alone; a build against the others is
-still the one of the sources, which the instructions below are about.
+CPLEX, Gurobi, MOSEK and SCIP are not redistributable, so in all of these the
+MILP Solvers carry the HiGHS, DAQP and qpOASES backends alone; a build against
+the others is still the one of the sources, which the instructions below are
+about.
 Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
 where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
 manager but Homebrew distributes (Debian and Ubuntu carry the older one of
@@ -464,6 +472,7 @@ according to the following options table:
 |--------------------|-------------------|------------------------------------------|
 | `--without-cplex`  | `-withoutCplex`   | skip CPLEX installation                  |
 | `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation                 |
+| `--without-mosek`  | `-withoutMosek`   | skip MOSEK installation                  |
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
@@ -485,6 +494,13 @@ Note that CPLEX is not redistributable, so the scripts do not download it. To
 install it, point the script to your own installer via `--cplex-installer=<path>`
 on Unix or `-cplexInstaller <path>` on Windows. If no installer is provided,
 CPLEX is skipped and the build proceeds with the other solvers.
+
+MOSEK is not redistributable either, but its archives can be downloaded
+freely: the scripts install the latest 11.0.x version (except on macOS x86_64,
+for which MOSEK 11 has no build), and using it requires a license of your own,
+free for academic use, put in `~/mosek/mosek.lic`
+(`%USERPROFILE%\mosek\mosek.lic` on Windows) or pointed to by the
+`MOSEKLM_LICENSE_FILE` environment variable.
 
 Otherwise, if you are already inside the cloned repository, you can run the
 script via:
