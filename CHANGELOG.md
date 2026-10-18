@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A second site of the documentation, built by Sphinx with the theme of
+  Read the Docs from `sphinx/` and served at `/smspp-project/sphinx/` next
+  to the Doxygen site and the user manual: its pages come from the
+  README.md, the general description of `doxygen/mainpage.md`,
+  CONTRIBUTING.md and this CHANGELOG, and its API reference is built by
+  Breathe and Exhale from the XML that `doxygen/Doxyfile` now writes into
+  `doc/xml` along with the HTML, which is unchanged
+
 - SubGradSolver, the deflected and projected subgradient methods for the
   same problems as BundleSolver (`BUILD_SubGradSolver`), and its feature
   `subgrad` in the smspp port of the vcpkg registry; the battery of

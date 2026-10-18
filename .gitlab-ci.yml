@@ -301,6 +301,8 @@ integration:
 
 pages:
   stage: deploy
+  variables:
+    GIT_DEPTH: 0                       # the tags, for the version of Sphinx
   script:
     - git submodule sync --recursive
     - git submodule update --init --recursive
@@ -312,6 +314,15 @@ pages:
     - apk add --no-cache python3 py3-pip
     - pip install --no-cache-dir --break-system-packages mkdocs-material
     - mkdocs build -f manual/build/mkdocs.yml -d "$CI_PROJECT_DIR/public/manual"
+    # --- Sphinx site served at /smspp-project/sphinx/ ---
+    # the same reference, read by Breathe and Exhale from the XML that the
+    # Doxyfile writes into doc/xml, with the pages from the Markdown files
+    - pip install --no-cache-dir --break-system-packages
+                  -r sphinx/requirements.txt
+    - python3 sphinx/pages.py
+    # the doctrees of Sphinx stay out of the site
+    - sphinx-build -b html -d doc/doctrees sphinx
+                   "$CI_PROJECT_DIR/public/sphinx"
   artifacts:
     paths:
       - public
