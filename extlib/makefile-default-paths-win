@@ -57,6 +57,7 @@ GUROBI_ROOT = C:/gurobi
 MOSEK_ROOT = "C:/Program Files/Mosek"
 HiGHS_ROOT = C:/vcpkg/installed/x64-windows
 DAQP_ROOT = C:/vcpkg/installed/x64-windows
+AStarSearch_ROOT = C:/AStarSearch
 qpOASES_ROOT = C:/vcpkg/installed/x64-windows
 Clarabel_ROOT = C:/clarabel
 Torch_ROOT = C:/torch

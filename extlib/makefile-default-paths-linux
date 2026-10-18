@@ -56,6 +56,7 @@ GUROBI_ROOT = /opt/gurobi
 MOSEK_ROOT = /opt/mosek
 HiGHS_ROOT = /opt/HiGHS
 DAQP_ROOT = /opt/daqp
+AStarSearch_ROOT = /opt/AStarSearch
 qpOASES_ROOT = /opt/qpOASES
 Clarabel_ROOT = /opt/clarabel
 PIPSIPMPP_ROOT = /opt/pips-ipmpp
