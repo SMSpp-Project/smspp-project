@@ -1,5 +1,14 @@
 # The SMS++ Project
 
+[![Pipeline](https://gitlab.com/smspp/smspp-project/badges/develop/pipeline.svg)](https://gitlab.com/smspp/smspp-project/-/pipelines?ref=develop)
+[![Release](https://gitlab.com/smspp/smspp-project/-/badges/release.svg)](https://gitlab.com/smspp/smspp-project/-/releases)
+[![Doxygen](https://img.shields.io/badge/docs-Doxygen-blue)](https://smspp.gitlab.io/smspp-project/)
+[![Sphinx](https://img.shields.io/badge/docs-Sphinx-blue)](https://smspp.gitlab.io/smspp-project/sphinx/)
+[![Manual](https://img.shields.io/badge/docs-Manual-blue)](https://smspp.gitlab.io/smspp-project/manual/)
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Platforms](https://img.shields.io/badge/platform-Linux-lightgrey)](https://gitlab.com/smspp/smspp-project/-/blob/develop/.gitlab-ci.yml)
+
 ![To boldly model (and solve) what no one has modeled (and solved)
 before](doxygen/SMSpp_logo_mid_noback.png)
 
