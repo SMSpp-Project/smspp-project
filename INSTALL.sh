@@ -23,6 +23,8 @@
 #     You can use the `--without-piqp` option to skip the installation of PIQP.
 #     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-qpmad` option to skip the installation of qpmad.
+#     You can use the `--with-quadprog` option to also install quadprog, which
+#     is under the GPL, so that a MILPSolver built with it is too.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -603,6 +605,36 @@ EOL
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install quadprog
+  # quadprog has no library of its own: its C sources are compiled from its
+  # latest release into one, which exports only the function that is called,
+  # since the others have names (dot, axpy, ...) that other libraries export.
+  # It is under the GPL, hence it is installed only if asked.
+  if [ "$install_quadprog" -eq 1 ]; then
+    echo "Installing quadprog..."
+    quadprog_ROOT="$(resolve_dep_root quadprog)"
+    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
+    if [ ! -d "$quadprog_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+      cd "$quadprog_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      mkdir -p lib
+      echo "{ global: qpgen2_; local: *; };" > lib/quadprog.map
+      cc -O2 -fPIC -shared -Wl,--version-script=lib/quadprog.map \
+        -o lib/libquadprog.so quadprog/solve.QP.c \
+        quadprog/linear-algebra.c quadprog/qr-update.c -lm
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${quadprog_ROOT}/lib' > /etc/ld.so.conf.d/quadprog.conf"
+        ldconfig
+      fi
+    else
+      echo "quadprog already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install PIPS-IPM++
   # PIPS-IPM++ is consumed from its build tree (no install step); the fully
   # open-source build uses MUMPS as inner linear solver.
@@ -1170,6 +1202,32 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install quadprog
+  # quadprog has no library of its own: its C sources are compiled from its
+  # latest release into one, which exports only the function that is called,
+  # since the others have names (dot, axpy, ...) that other libraries export.
+  # It is under the GPL, hence it is installed only if asked.
+  if [ "$install_quadprog" -eq 1 ]; then
+    echo "Installing quadprog..."
+    quadprog_ROOT="${INSTALL_ROOT}/quadprog"
+    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
+    if [ ! -d "$quadprog_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+      cd "$quadprog_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      mkdir -p lib
+      cc -O2 -fPIC -dynamiclib -Wl,-exported_symbol,_qpgen2_ \
+        -install_name "${quadprog_ROOT}/lib/libquadprog.dylib" \
+        -o lib/libquadprog.dylib quadprog/solve.QP.c \
+        quadprog/linear-algebra.c quadprog/qr-update.c
+    else
+      echo "quadprog already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # PIPS-IPM++ is not supported on macOS
   if [ "$install_pips" -eq 1 ]; then
     echo "Skipping PIPS-IPM++ (Linux only)."
@@ -1259,6 +1317,7 @@ install_proxsuite=${install_proxsuite:-1}
 install_piqp=${install_piqp:-1}
 install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
+install_quadprog=${install_quadprog:-0}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -1353,6 +1412,10 @@ do
     ;;
     --without-qpmad)
     install_qpmad=0
+    shift
+    ;;
+    --with-quadprog)
+    install_quadprog=1
     shift
     ;;
     --without-stopt)
@@ -1530,6 +1593,7 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${piqp_ROOT:-}" ] && echo "piqp_ROOT = ${piqp_ROOT}"
       [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
       [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
+      [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
@@ -1555,8 +1619,9 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES/
-  # ProxQP/PIQP/OSQP/qpmad backends in MILPSolver, LIBSVM and LIBLINEAR in
-  # SVMBlock) degrade gracefully on their own and need no mapping here.
+  # ProxQP/PIQP/OSQP/qpmad/quadprog backends in MILPSolver, LIBSVM and
+  # LIBLINEAR in SVMBlock) degrade gracefully on their own and need no
+  # mapping here.
   smspp_cmake_flags=()
   if [ "$install_experiments" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=ON")

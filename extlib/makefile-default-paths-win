@@ -63,6 +63,7 @@ proxsuite_ROOT = C:/vcpkg/installed/x64-windows
 piqp_ROOT = C:/vcpkg/installed/x64-windows
 osqp_ROOT = C:/vcpkg/installed/x64-windows
 qpmad_ROOT = C:/vcpkg/installed/x64-windows
+quadprog_ROOT = C:/quadprog
 Torch_ROOT = C:/torch
 
 VCPKG_ROOT = C:/vcpkg

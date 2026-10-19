@@ -63,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   INSTALL.ps1 takes it from the SMS++ vcpkg registry through `vcpkg.json`,
   and `extlib` has `makefile-libqpmad` and the default paths of `qpmad_ROOT`
 
+- quadprog, the QP solver of `QuadProgMILPSolver`: being under the GPL, it
+  is installed only by `INSTALL.sh --with-quadprog`, on Linux and macOS,
+  which compiles its C sources from its latest tag into `libquadprog`, which
+  exports only `qpgen2_`; it is in no package, and `extlib` has
+  `makefile-libquadprog` and the default paths of `quadprog_ROOT`
+
 ### Fixed
 
 - the tests of the modules are reachable by ctest from the build root in

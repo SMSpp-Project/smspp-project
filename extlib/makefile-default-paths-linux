@@ -62,6 +62,7 @@ proxsuite_ROOT = /opt/proxsuite
 piqp_ROOT = /opt/piqp
 osqp_ROOT = /opt/osqp
 qpmad_ROOT = /opt/qpmad
+quadprog_ROOT = /opt/quadprog
 PIPSIPMPP_ROOT = /opt/pips-ipmpp
 StOpt_ROOT = /opt/StOpt
 FastFlow_ROOT = /opt/fastflow

@@ -259,6 +259,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     Goldfarb and Idnani (strictly convex QP problems with linear
     constraints, dense, the Hessian positive definite, no integer variables)
 
+  - `QuadProgMILPSolver`, providing the interface with the open-source
+    dual active-set solver [quadprog](https://github.com/quadprog/quadprog),
+    the original implementation of the method of Goldfarb and Idnani (same
+    problems as `QPMADMILPSolver`); quadprog is under the GPL, hence it is
+    installed only if asked (`--with-quadprog`) and it is in no package
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -511,6 +517,7 @@ according to the following options table:
 | `--without-piqp`   | *(via vcpkg)*     | skip PIQP installation                   |
 | `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
 | `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
+| `--with-quadprog`  | *(not supported)* | install quadprog (GPL)                   |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
