@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `packaging/`, the recipes of SMS++ for Conan (with netcdf-cxx4 and stopt,
+  for a remote of the project), Spack (a repository with smspp, stopt and
+  highs), Nix (package.nix, stopt.nix and a flake), the AUR (the split
+  package smspp-project, one package per module and per tool as in the PPA,
+  and stopt), MSYS2 and xmake (a repository with smspp, netcdf-cxx4 and
+  stopt), all written by `packaging/gen_recipes.py` from the table of the
+  modules of `packaging/modules.py`, with the steps of a release for each
+  channel in `packaging/README.md`
+
+- The section "Build inside a CMake project" of the README, on building
+  SMS++ along with a project by FetchContent or CPM.cmake
+
 - A second site of the documentation, built by Sphinx with the theme of
   Read the Docs from `sphinx/` and served at `/smspp-project/sphinx/` next
   to the Doxygen site and the user manual: its pages come from the

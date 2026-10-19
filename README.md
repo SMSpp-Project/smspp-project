@@ -604,6 +604,52 @@ on requirements and dependencies between modules.
 Several CMake configuration options are available, see
 [here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration).
 
+### Build inside a CMake project
+
+A CMake project can also build SMS++ along with itself, out of the tarball of
+a release (which carries every submodule), by FetchContent or by
+[CPM.cmake](https://github.com/cpm-cmake/CPM.cmake); the modules are then
+targets of the project, e.g., `SMS++::UCBlock`, and `BUILD_<module>` turns off
+those that are not wanted or whose dependencies are not installed (here
+SDDPBlock and InvestmentBlock, which need StOpt, and MCFLemonSolver, which
+needs LEMON):
+
+```cmake
+set(SMSPP_VERSION 0.7.0)
+string(CONCAT SMSPP_URL
+    "https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/"
+    "generic/smspp-project/${SMSPP_VERSION}/"
+    "smspp-project-${SMSPP_VERSION}.tar.gz")
+
+include(FetchContent)
+set(BUILD_TESTING OFF CACHE BOOL "")
+set(BUILD_tests OFF CACHE BOOL "")
+set(BUILD_tools OFF CACHE BOOL "")
+set(BUILD_SDDPBlock OFF CACHE BOOL "")
+set(BUILD_InvestmentBlock OFF CACHE BOOL "")
+set(BUILD_MCFLemonSolver OFF CACHE BOOL "")
+FetchContent_Declare(smspp URL ${SMSPP_URL})
+FetchContent_MakeAvailable(smspp)
+
+add_executable(app app.cpp)
+target_link_libraries(app PRIVATE SMS++::UCBlock SMS++::MILPSolver)
+```
+
+or, with CPM.cmake,
+
+```cmake
+CPMAddPackage(
+    NAME smspp
+    URL ${SMSPP_URL}
+    OPTIONS "BUILD_TESTING OFF" "BUILD_tests OFF" "BUILD_tools OFF"
+            "BUILD_SDDPBlock OFF" "BUILD_InvestmentBlock OFF"
+            "BUILD_MCFLemonSolver OFF")
+```
+
+`URL_HASH SHA256=<hash>` pins the tarball, whose SHA-256 is the one of the
+release. The core fetches FastFlow at configure time, hence the build needs
+the network unless `FETCHCONTENT_SOURCE_DIR_FASTFLOW` points to a copy.
+
 ### Build and install with makefiles
 
 All modules, starting with the "core" `SMS++ classes`, also come with
