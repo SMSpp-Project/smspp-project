@@ -10,10 +10,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.files import copy, get, load, rm, rmdir
 
 required_conan_version = ">=2.0"
 
@@ -76,7 +76,12 @@ _MODULES = [
     ('ScenarioReductionSolver', 'srs', ['tssb'], [], [],
      'Scenario reduction Solvers'),
 ]
-_NEVER = ['CPLEX', 'GUROBI', 'MOSEK', 'PIPS', 'Clarabel', 'quadprog', 'Torch']
+_NEVER = ['PIPS', 'Clarabel', 'quadprog', 'Torch']
+_LOCAL = {
+    'cplex': ('CPLEX', 'CPLEX_ROOT'),
+    'gurobi': ('GUROBI', 'GUROBI_ROOT'),
+    'mosek': ('MOSEK', 'MOSEK_ROOT'),
+}
 _NO_SOURCES = ['COMBO_ROOT', 'RECORD_ROOT']
 _CMAKE_NAME = {
     'highs': 'HiGHS',
@@ -112,15 +117,16 @@ _ROOT_VAR = {
 
 # the Conan package of each external of packaging/modules.py, None where
 # there is none that the modules can use: netcdf-cxx4 and stopt are recipes
-# of the SMS++ remote, the osqp of Conan Center is 0.6 while MILPSolver needs
+# of the SMS++ remote (under the user and channel smspp/stable, which the
+# Conan registry of GitLab wants in every reference), the osqp of Conan Center is 0.6 while MILPSolver needs
 # the API of 1.0, and its minisat is 2.2.0, older than the one SATBlock
 # needs; CPLEX, Gurobi and MOSEK are not redistributable
 _EXTERNALS = {
     "boost": "boost/1.88.0",
     "eigen": "eigen/3.4.0",
-    "netcdf-cxx4": "netcdf-cxx4/4.3.1",
+    "netcdf-cxx4": "netcdf-cxx4/4.3.1@smspp/stable",
     "openmp": None,
-    "stopt": "stopt/7.1",
+    "stopt": "stopt/7.1@smspp/stable",
     "libsvm": "libsvm/333",
     "liblinear": None,
     "cadical": None,
@@ -135,6 +141,10 @@ _EXTERNALS = {
     "qpmad": None,
     "lemon": "coin-lemon/1.3.1",
 }
+
+# the source of the backend of MILPSolver of each of those solvers
+_LOCAL_SOURCE = {"cplex": "CPXMILPSolver", "gurobi": "GRBMILPSolver",
+                 "mosek": "MOSEKMILPSolver"}
 
 _DIR = {m[1]: m[0] for m in _MODULES}
 _NEEDS = {m[1]: m[2] for m in _MODULES}
@@ -156,6 +166,7 @@ class SmsppConan(ConanFile):
         "fPIC": [True, False],
         "tools": [True, False],
         "with_scip": [True, False],
+        **{f"with_{e}": [True, False] for e in _LOCAL},
         **{m[1]: [True, False] for m in _MODULES if m[1] != "core"},
     }
     # the libraries are shared by default: the classes of a module register
@@ -166,6 +177,7 @@ class SmsppConan(ConanFile):
         "fPIC": True,
         "tools": True,
         "with_scip": False,
+        **{f"with_{e}": False for e in _LOCAL},
         **{m[1]: all(_EXTERNALS[e] for e in m[3])
            for m in _MODULES if m[1] != "core"},
     }
@@ -224,6 +236,30 @@ class SmsppConan(ConanFile):
                 raise ConanInvalidConfiguration(
                     f"{m[0]} needs {', '.join(missing)}, not in Conan")
 
+    def _local_roots(self):
+        """The installations of the solvers that are not redistributable,
+        as the configuration user.smspp:<solver>_root gives them."""
+        return {e: self.conf.get(f"user.smspp:{e}_root")
+                for e in _LOCAL if self.options.get_safe(f"with_{e}")}
+
+    def validate_build(self):
+        # CPLEX, Gurobi and MOSEK are never in a package: with_<solver>
+        # builds MILPSolver against a local installation of the solver,
+        # which must be given, and the binary package is for that machine
+        if any(self.options.get_safe(f"with_{e}") for e in _LOCAL) and \
+                not self.options.milp:
+            raise ConanInvalidConfiguration(
+                "with_cplex, with_gurobi and with_mosek need milp=True")
+        for e, root in self._local_roots().items():
+            if not root:
+                raise ConanInvalidConfiguration(
+                    f"with_{e}=True needs the installation of "
+                    f"{_LOCAL[e][0]}, given by "
+                    f"-c user.smspp:{e}_root=<directory>")
+            if not os.path.isdir(root):
+                raise ConanInvalidConfiguration(
+                    f"user.smspp:{e}_root={root} is not a directory")
+
     def source(self):
         # the tarball of a release has no top directory, and FastFlow, which
         # the core fetches at configure time, is a source of its own
@@ -254,8 +290,12 @@ class SmsppConan(ConanFile):
             if m[1] != "core":
                 tc.cache_variables[f"BUILD_{m[0]}"] = m[1] in mods
         exts = self._externals()
+        local = self._local_roots()
         disabled = list(_NEVER) + [n for e, n in _CMAKE_NAME.items()
-                                   if e not in exts]
+                                   if e not in exts] + \
+            [n for e, (n, _) in _LOCAL.items() if e not in local]
+        for e, root in local.items():
+            tc.cache_variables[_LOCAL[e][1]] = root.replace("\\", "/")
         for p in disabled:
             tc.cache_variables[f"CMAKE_DISABLE_FIND_PACKAGE_{p}"] = True
         for e in exts:
@@ -265,6 +305,7 @@ class SmsppConan(ConanFile):
                     dep.package_folder.replace("\\", "/")
         for v in _NO_SOURCES:
             tc.cache_variables[v] = "OFF"
+        tc.cache_variables["SMSPP_EXTLIB_DEFAULTS"] = False
         # the Find module of LEMON looks for the name lemon everywhere before
         # the name emon of its CMake build, and would take the liblemon of
         # the system
@@ -284,6 +325,22 @@ class SmsppConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cmake.configure()
+        # MILPSolver leaves out a backend whose solver it does not find,
+        # which a solver asked for must not be: its source is then not in
+        # the build of MILPSolver
+        rules = ""
+        for root, _, files in os.walk(os.path.join(self.build_folder,
+                                                   "MILPSolver")):
+            for f in files:
+                if f in ("build.make", "build.ninja", "compile_commands.json"):
+                    rules += load(self, os.path.join(root, f))
+        rules += load(self, os.path.join(self.build_folder, "build.ninja")) \
+            if os.path.exists(os.path.join(self.build_folder,
+                                           "build.ninja")) else ""
+        for e, root in self._local_roots().items():
+            if f"{_LOCAL_SOURCE[e]}.cpp" not in rules:
+                raise ConanException(
+                    f"MILPSolver did not find {_LOCAL[e][0]} in {root}")
         cmake.build()
 
     def package(self):

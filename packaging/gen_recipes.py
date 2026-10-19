@@ -121,8 +121,10 @@ ARCH = {
 
 
 def disabled_finds(table):
-    """The CMake names of the optional externals the channel has not."""
-    return [M.CMAKE_NAME[e] for e in M.CMAKE_NAME if not table.get(e)]
+    """The CMake names of the optional externals the channel has not, and
+    of the solvers that are not redistributable."""
+    return [n for n, _ in M.LOCAL.values()] + \
+        [M.CMAKE_NAME[e] for e in M.CMAKE_NAME if not table.get(e)]
 
 
 def channel_modules(table):
@@ -255,6 +257,7 @@ def gen_aur(rel, base):
             w(f"    -D{var}=/usr \\")
     for var in M.NO_SOURCES:
         w(f"    -D{var}=OFF \\")
+    w("    -DSMSPP_EXTLIB_DEFAULTS=OFF \\")
     w("    -DCADICAL_INCLUDE_DIR=/usr/include/cadical \\")
     w("    -DUSE_MPI=OFF")
     w("  cmake --build build")
@@ -527,6 +530,7 @@ def gen_msys2(rel, base):
             w(f"      -D{var}=\"${{MINGW_PREFIX}}\" \\")
     for var in M.NO_SOURCES:
         w(f"      -D{var}=OFF \\")
+    w("      -DSMSPP_EXTLIB_DEFAULTS=OFF \\")
     # the Find module of netCDF-C++ looks on Windows for the name of the
     # library of vcpkg alone, while MSYS2 names it netcdf_c++4
     for var in ("netCDFCxx_LIBRARY", "netCDFCxx_LIBRARY_DEBUG"):
@@ -585,6 +589,12 @@ def gen_nix(rel, base):
     L.append("];")
     L.append("# the solvers that are never packaged")
     L.append(f"never = {nix_list(M.NEVER)};")
+    L.append("# the solvers that are not redistributable: CMake name and")
+    L.append("# variable of the installation")
+    L.append("local = {")
+    for e, (n, v) in M.LOCAL.items():
+        L.append(f'  {e} = {{ name = "{n}"; root = "{v}"; }};')
+    L.append("};")
     L.append("# the CMake names of the optional externals")
     L.append("cmakeName = {")
     for e, n in M.CMAKE_NAME.items():
@@ -622,6 +632,10 @@ def py_modules():
         L.append(f"     {desc!r}),")
     L.append("]")
     L.append(f"_NEVER = {M.NEVER!r}")
+    L.append("_LOCAL = {")
+    for e, (n, v) in M.LOCAL.items():
+        L.append(f"    {e!r}: ({n!r}, {v!r}),")
+    L.append("}")
     L.append(f"_NO_SOURCES = {M.NO_SOURCES!r}")
     for name, d in (("_CMAKE_NAME", M.CMAKE_NAME),
                     ("_ROOT_VAR", M.ROOT_VAR)):
@@ -720,9 +734,10 @@ def gen_xmake(rel, base):
     L.append("-- the solvers that are never packaged, the CMake names of the")
     L.append("-- optional externals, the variables that tell where an")
     L.append("-- external is and the sources not to compile in")
-    half = len(M.NEVER) // 2
-    L.append(f"local never = {lua_list(M.NEVER[:half])[:-1]},")
-    L.append(f"               {lua_list(M.NEVER[half:])[1:]}")
+    never = [n for n, _ in M.LOCAL.values()] + M.NEVER
+    half = len(never) // 2
+    L.append(f"local never = {lua_list(never[:half])[:-1]},")
+    L.append(f"               {lua_list(never[half:])[1:]}")
     L.append("local cmake_name = {")
     for e, n in M.CMAKE_NAME.items():
         L.append(f'    {e} = "{n}",')

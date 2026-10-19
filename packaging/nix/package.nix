@@ -3,11 +3,18 @@
 # acronyms of packaging/modules.py, which are those of the vcpkg features and
 # of the Debian packages: smspp.override { modules = [ "ucblock" "milp" ]; }
 # builds those and the modules they need; null builds every module whose
-# dependencies nixpkgs has.
+# dependencies nixpkgs has. CPLEX, Gurobi and MOSEK are never in the package:
+# withCplex, withGurobi and withMosek build the backends of MILPSolver
+# against them, CPLEX and Gurobi from the unfree packages of nixpkgs (which
+# want allowUnfree, and CPLEX its installer as cplex.releasePath), unless
+# localRoots gives the directory of a local installation, as it must for
+# MOSEK, e.g., localRoots = { mosek = "/opt/mosek/11.0"; } (outside the
+# store, hence with the directory among the extra-sandbox-paths of Nix).
 {
   lib,
   stdenv,
   fetchurl,
+  runCommand,
   cmake,
   help2man,
   boost,
@@ -26,8 +33,14 @@
   libsvm,
   liblinear,
   stopt,
+  cplex ? null,
+  gurobi ? null,
   modules ? null,
   withTools ? true,
+  withCplex ? false,
+  withGurobi ? false,
+  withMosek ? false,
+  localRoots ? { },
 }:
 
 let
@@ -242,7 +255,14 @@ let
     }
   ];
   # the solvers that are never packaged
-  never = [ "CPLEX" "GUROBI" "MOSEK" "PIPS" "Clarabel" "quadprog" "Torch" ];
+  never = [ "PIPS" "Clarabel" "quadprog" "Torch" ];
+  # the solvers that are not redistributable: CMake name and
+  # variable of the installation
+  local = {
+    cplex = { name = "CPLEX"; root = "CPLEX_ROOT"; };
+    gurobi = { name = "GUROBI"; root = "GUROBI_ROOT"; };
+    mosek = { name = "MOSEK"; root = "MOSEK_ROOT"; };
+  };
   # the CMake names of the optional externals
   cmakeName = {
     highs = "HiGHS";
@@ -280,7 +300,7 @@ let
   # END of the table written by gen_recipes.py
 
   # the packages of each external of packaging/modules.py, none where
-  # nixpkgs has none; CPLEX, Gurobi and MOSEK are not redistributable
+  # nixpkgs has none
   externals = {
     boost = [ boost ];
     eigen = [ eigen ];
@@ -307,6 +327,53 @@ let
     lemon = [ lemon-graph ];
   };
   has = e: externals.${e} != [ ];
+
+  # the solvers that are not redistributable which have been asked for, and
+  # where each is: a local installation, or the package of nixpkgs (whose
+  # Gurobi is the directory linux64 that its Find module looks for)
+  asked = {
+    cplex = withCplex;
+    gurobi = withGurobi;
+    mosek = withMosek;
+  };
+  fromNixpkgs = {
+    cplex = cplex;
+    gurobi =
+      if gurobi == null then
+        null
+      else
+        runCommand "gurobi-root" { } ''
+          mkdir $out
+          ln -s ${gurobi} $out/linux64
+        '';
+    mosek = null;
+  };
+  localRoot =
+    e:
+    if localRoots ? ${e} then
+      localRoots.${e}
+    else if fromNixpkgs.${e} != null then
+      "${fromNixpkgs.${e}}"
+    else
+      throw (
+        "smspp: ${option.${e}} needs localRoots.${e}, the directory of a"
+        + " local installation of ${local.${e}.name}, which nixpkgs does"
+        + " not carry"
+      );
+  option = {
+    cplex = "withCplex";
+    gurobi = "withGurobi";
+    mosek = "withMosek";
+  };
+  localSource = {
+    cplex = "CPXMILPSolver";
+    gurobi = "GRBMILPSolver";
+    mosek = "MOSEKMILPSolver";
+  };
+  localWanted = lib.filter (e: asked.${e}) (lib.attrNames local);
+  localDeps = lib.concatMap (
+    e: lib.optional (!(localRoots ? ${e}) && e != "mosek") fromNixpkgs.${e}
+  ) localWanted;
 
   byAcr = lib.listToAttrs (map (m: lib.nameValuePair m.acr m) table);
   closure =
@@ -364,6 +431,7 @@ stdenv.mkDerivation {
     help2man
   ];
   propagatedBuildInputs = deps;
+  buildInputs = localDeps;
 
   # the modules not chosen, and the solvers that are not redistributable or
   # that nixpkgs does not have, are left out
@@ -384,16 +452,33 @@ stdenv.mkDerivation {
   # would compile in from there are not looked for
   ++ map (v: lib.cmakeFeature v "") rootVars
   ++ map (v: lib.cmakeFeature v "OFF") noSources
+  ++ [ (lib.cmakeBool "SMSPP_EXTLIB_DEFAULTS" false) ]
+  ++ map (e: lib.cmakeFeature local.${e}.root (localRoot e)) localWanted
   ++ map (p: lib.cmakeBool "CMAKE_DISABLE_FIND_PACKAGE_${p}" true) (
     never
     ++ map (e: cmakeName.${e}) (
       lib.filter (e: !has e) (lib.attrNames cmakeName)
     )
+    ++ map (e: local.${e}.name) (
+      lib.filter (e: !asked.${e}) (lib.attrNames local)
+    )
   );
 
-  # FastFlow is next to the sources, out of which the build runs
+  # MILPSolver leaves out a backend whose solver it does not find, which a
+  # solver asked for must not be
+  postConfigure = lib.concatMapStrings (e: ''
+    grep -rq "${localSource.${e}}.cpp" MILPSolver/CMakeFiles/MILPSolver.dir \
+      || { echo "smspp: MILPSolver did not find ${local.${e}.name}"; exit 1; }
+  '') localWanted;
+
+  # FastFlow is next to the sources, out of which the build runs; a local
+  # installation of a solver is outside the store, whose paths the wrapper
+  # of the compiler would otherwise drop
   preConfigure = ''
     cmakeFlagsArray+=("-DFETCHCONTENT_SOURCE_DIR_FASTFLOW=$(pwd)/../fastflow")
+  ''
+  + lib.optionalString (localRoots != { }) ''
+    export NIX_ENFORCE_PURITY=0
   '';
 
   doInstallCheck = withTools && lib.elem "mcf" wanted;

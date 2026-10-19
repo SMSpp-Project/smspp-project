@@ -86,6 +86,56 @@ be picked up on the machine that builds the package. For the same reason it
 turns off the RECORD and COMBO sources of BinaryKnapsackBlock (COMBO is for
 non-commercial use only).
 
+## CPLEX, Gurobi and MOSEK
+
+The three solvers are never in a package, since none of them can be
+redistributed; the recipes of Conan, Spack and Nix can however build the
+backends of MILPSolver against a local installation of each, on request,
+for the machine that has it (the libraries then need the solver, and its
+licence, at run time):
+
+    conan create packaging/conan/smspp --version X.Y.Z ... \
+        -o "smspp/*:with_gurobi=True" -c user.smspp:gurobi_root=/opt/gurobi
+    spack install smspp+cplex+gurobi+mosek     # with the externals below
+    nix build --impure --expr '... smspp.override { withGurobi = true; }'
+
+Conan has the options `with_cplex`, `with_gurobi` and `with_mosek`, and the
+directory of each installation is the configuration
+`user.smspp:<solver>_root` (that of `CPLEX_ROOT`, `GUROBI_ROOT` and
+`MOSEK_ROOT` in the CMake of the umbrella, e.g., `/opt/ibm/ILOG/CPLEX_Studio`,
+`/opt/gurobi` and `/opt/mosek`). Spack has the variants `cplex`, `gurobi` and
+`mosek`, on the `cplex` and `gurobi` packages of its builtin repository,
+which download nothing, and on the `mosek` package of this repository, which
+stands for the installation alone: each is declared as an external in
+`packages.yaml`, e.g.,
+
+    packages:
+      gurobi:
+        buildable: false
+        externals:
+        - spec: gurobi@13.0.1
+          prefix: /opt/gurobi/linux64
+      cplex:
+        buildable: false
+        externals:
+        - spec: cplex@22.1.1
+          prefix: /opt/ibm/ILOG/CPLEX_Studio
+      mosek:
+        buildable: false
+        externals:
+        - spec: mosek@11.0
+          prefix: /opt/mosek/11.0
+
+Nix has the arguments `withCplex`, `withGurobi` and `withMosek`: CPLEX and
+Gurobi come from the unfree packages of nixpkgs (with `allowUnfree`, and
+CPLEX with its installer given as `cplex.releasePath`), unless `localRoots`
+gives the directory of a local installation, which MOSEK, not in nixpkgs,
+always needs (e.g., `localRoots = { mosek = "/opt/mosek/11.0"; }`, with that
+directory among the `extra-sandbox-paths` of Nix). A solver asked for and not
+given stops the build with a message that says what is missing, and so does
+a solver given where MILPSolver does not find it, instead of a package
+without its backend.
+
 ## A release
 
 The recipes are written for the release in `release.json`. After the tag of
@@ -104,24 +154,36 @@ need an account on the channel, and none of them is automated here).
 Conan Center carries neither netCDF-C++, which the core needs, nor StOpt.
 Its rules also want the libraries of a recipe described as components, while
 this one uses the CMake configuration that SMS++ installs. Hence, the recipes
-are meant for a remote of the project, e.g., the Conan registry of the
-GitLab project (the remote below), out of which the users install SMS++ with
-the dependencies of Conan Center:
+are meant for a remote of the project, the Conan registry of the GitLab
+project, out of which the users install SMS++ with the dependencies of Conan
+Center. According to the documentation of GitLab
+(https://docs.gitlab.com/user/packages/conan_2_repository/), this registry
+serves Conan 2 clients on gitlab.com since GitLab 18.3, as a beta "not ready
+for production use due to limited functionality"; a remote is per project,
+addressed by the numeric ID of the project (15006687 for smspp-project),
+package names are lowercase, and every reference carries a user and a
+channel (`name/version@user/channel`), which here are `smspp/stable`, also in
+the references of `conan/smspp/conanfile.py` to netcdf-cxx4 and stopt. I have
+not tried an upload, which needs an account; the steps are
 
     conan remote add smspp \
-        https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/conan
+        https://gitlab.com/api/v4/projects/15006687/packages/conan
     conan remote login smspp <user> -p <token with api scope>
-    conan create packaging/conan/netcdf-cxx4 --version 4.3.1 --build=missing
-    conan create packaging/conan/stopt --version 7.1 --build=missing
-    conan create packaging/conan/smspp --version X.Y.Z --build=missing \
+    U="--user smspp --channel stable"
+    conan create packaging/conan/netcdf-cxx4 --version 4.3.1 $U --build=missing
+    conan create packaging/conan/stopt --version 7.1 $U --build=missing
+    conan create packaging/conan/smspp --version X.Y.Z $U --build=missing \
         -s compiler.cppstd=20
-    conan upload "netcdf-cxx4/*" "stopt/*" "smspp/*" -r smspp -c
+    conan upload "netcdf-cxx4/*@smspp/stable" "stopt/*@smspp/stable" \
+        "smspp/*@smspp/stable" -r smspp -c
 
 The first two are uploaded once, and again only when their versions
 change; a user then writes
 
-    conan remote add smspp <the URL above>
-    conan install --requires=smspp/X.Y.Z --build=missing -s compiler.cppstd=20
+    conan remote add smspp \
+        https://gitlab.com/api/v4/projects/15006687/packages/conan
+    conan install --requires=smspp/X.Y.Z@smspp/stable --build=missing \
+        -s compiler.cppstd=20
 
 and `find_package(UCBlock)` in the consumer, whose `CMAKE_PREFIX_PATH` is
 set by the toolchain of Conan (cf. `conan/smspp/test_package`).
@@ -221,17 +283,21 @@ for it).
 
 I have built the recipes, the MSYS2 one excepted, on Linux x86_64, out of a
 tarball made from `develop` as the release job makes it (hence the version
-0.7.99 in `release.json`), with `gen_recipes.py --url-base` pointing to a
-local copy of it. Conan was tried by `conan create` and its test package,
-Spack by `spack install` and `spack test run`, Nix by `nix build` of the
-package and of the check of the flake, and xmake by `xmake require` and a
-consumer project. The AUR packages were built by `makepkg` in an Arch
-container, then installed, and their tools solved the examples installed
-with them. A consumer that finds UCBlock and MILPSolver by CMake and makes a
-`UCBlock` and a `HiGHSMILPSolver` by the factories (`nix/consumer`) was built
-against each channel. Of the MSYS2 recipe, `makepkg --printsrcinfo` reads the
-PKGBUILD, and a cross build on Linux with its options (llvm-mingw, the
-`clang64` packages of MSYS2 as the sysroot, and wine to run the generators
-and the tools) gave the three defects above; with them worked around, the
-core and 21 of the 23 modules of the recipe built (all but UCBlock and
-SVMBlock), and the min-cost flow tool solved its example under wine.
+0.7.99 in `release.json`), with `gen_recipes.py --url-base` pointing to a local
+copy of it. Conan was tried by `conan create` and its test package, Spack by
+`spack install` and `spack test run`, Nix by `nix build` of the package and of
+the check of the flake, and xmake by `xmake require` and a consumer project.
+The AUR packages were built by `makepkg` in an Arch container, then installed,
+and their tools solved the examples installed with them. A consumer that finds
+UCBlock and MILPSolver by CMake and makes a `UCBlock` and a `HiGHSMILPSolver`
+by the factories (`nix/consumer`) was built against each channel. The options
+of the solvers that are not redistributable were tried with the local
+installations of CPLEX 22.1.1, Gurobi 13.0.1 and MOSEK 11.0 (in Conan and Spack
+all three, in Nix Gurobi from nixpkgs and MOSEK from its directory), and
+without them, where the build stops with the messages above. Of the MSYS2
+recipe, `makepkg --printsrcinfo` reads the PKGBUILD, and a cross build on Linux
+with its options (llvm-mingw, the `clang64` packages of MSYS2 as the sysroot,
+and wine to run the generators and the tools) gave the three defects above;
+with them worked around, the core and 21 of the 23 modules of the recipe built
+(all but UCBlock and SVMBlock), and the min-cost flow tool solved its example
+under wine.

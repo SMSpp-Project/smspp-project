@@ -128,10 +128,19 @@ ROOT_VAR = {
     "stopt": "StOpt_ROOT", "lemon": "LEMON_ROOT",
 }
 
-# the solvers that are never packaged: CPLEX, Gurobi and MOSEK are not
-# redistributable, PIPS-IPM++ and the C interface of Clarabel are in no
-# package, quadprog is under the GPL and Torch is not wanted in a package
-NEVER = ["CPLEX", "GUROBI", "MOSEK", "PIPS", "Clarabel", "quadprog", "Torch"]
+# the solvers that are never packaged: PIPS-IPM++ and the C interface of
+# Clarabel are in no package, quadprog is under the GPL and Torch is not
+# wanted in a package
+NEVER = ["PIPS", "Clarabel", "quadprog", "Torch"]
+
+# the solvers that are not redistributable, which a package never carries
+# but which the recipes of Conan, Spack and Nix can build against a local
+# installation, on request: (CMake name, variable of its installation)
+LOCAL = {
+    "cplex": ("CPLEX", "CPLEX_ROOT"),
+    "gurobi": ("GUROBI", "GUROBI_ROOT"),
+    "mosek": ("MOSEK", "MOSEK_ROOT"),
+}
 
 # the sources that BinaryKnapsackBlock compiles in when it finds them, under
 # /opt by default: COMBO is for non-commercial use only, and neither is in a

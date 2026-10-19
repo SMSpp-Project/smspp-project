@@ -342,6 +342,7 @@ package("smspp")
         for _, v in ipairs(no_sources) do
             table.insert(configs, "-D" .. v .. "=OFF")
         end
+        table.insert(configs, "-DSMSPP_EXTLIB_DEFAULTS=OFF")
         import("package.tools.cmake").install(package, configs)
     end)
 

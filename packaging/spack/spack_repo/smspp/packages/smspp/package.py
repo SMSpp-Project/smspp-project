@@ -83,7 +83,12 @@ _MODULES = [
     ('ScenarioReductionSolver', 'srs', ['tssb'], [], [],
      'Scenario reduction Solvers'),
 ]
-_NEVER = ['CPLEX', 'GUROBI', 'MOSEK', 'PIPS', 'Clarabel', 'quadprog', 'Torch']
+_NEVER = ['PIPS', 'Clarabel', 'quadprog', 'Torch']
+_LOCAL = {
+    'cplex': ('CPLEX', 'CPLEX_ROOT'),
+    'gurobi': ('GUROBI', 'GUROBI_ROOT'),
+    'mosek': ('MOSEK', 'MOSEK_ROOT'),
+}
 _NO_SOURCES = ['COMBO_ROOT', 'RECORD_ROOT']
 _CMAKE_NAME = {
     'highs': 'HiGHS',
@@ -120,8 +125,7 @@ _ROOT_VAR = {
 # the Spack package of each external of packaging/modules.py, None where
 # Spack has none that the modules can use: SCIP is there only as a manual
 # download, the OSQP is 0.6, while MILPSolver needs the API of 1.0, and the
-# libsvm installs neither its header nor the link of its library; CPLEX,
-# Gurobi and MOSEK are not redistributable
+# libsvm installs neither its header nor the link of its library
 _EXTERNALS = {
     "boost": "boost",
     "eigen": "eigen",
@@ -184,6 +188,17 @@ class Smspp(CMakePackage):
     # the timer of Boost, which SDDPBlock asks for along with StOpt
     depends_on("boost+timer", when="+sddp")
 
+    # CPLEX, Gurobi and MOSEK are never in a package: a variant builds the
+    # backend of MILPSolver against the installation of the solver, which
+    # Spack knows as an external (cplex and gurobi of the builtin
+    # repository, mosek of this one), see the description of each
+    for _e, (_name, _root) in _LOCAL.items():
+        variant(_e, default=False,
+                description=f"The {_name} backend of MILPSolver, on a local "
+                f"installation declared as the external {_e}")
+        depends_on(_e, when=f"+{_e}")
+        requires("+milp", when=f"+{_e}")
+
     depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("cmake@3.21:", type="build")
@@ -217,7 +232,7 @@ class Smspp(CMakePackage):
                 args.append(self.define(f"BUILD_{d}", f"+{acr}" in spec))
         disabled = list(_NEVER) + [
             n for e, n in _CMAKE_NAME.items() if not _EXTERNALS[e]
-        ]
+        ] + [n for e, (n, _) in _LOCAL.items() if f"+{e}" not in spec]
         for p in disabled:
             args.append(self.define(f"CMAKE_DISABLE_FIND_PACKAGE_{p}", True))
         # the externals where Spack has them, and not under the defaults of
@@ -227,6 +242,8 @@ class Smspp(CMakePackage):
                 args.append(self.define(v, spec[_EXTERNALS[e]].prefix))
         for v in _NO_SOURCES:
             args.append(self.define(v, "OFF"))
+        args.append(self.define("SMSPP_EXTLIB_DEFAULTS", False))
+        args += self._local_args()
         # the Find module of LEMON looks for the name lemon everywhere before
         # the name emon of its CMake build, and would take the liblemon of
         # the system
@@ -235,6 +252,49 @@ class Smspp(CMakePackage):
                 "LEMON_LIBRARY", join_path(spec["lemon"].prefix.lib,
                                            "libemon.a")))
         return args
+
+    def _local_args(self):
+        """The installations of the solvers that are not redistributable."""
+        spec, args = self.spec, []
+        for e, (name, root) in _LOCAL.items():
+            if f"+{e}" not in spec:
+                continue
+            prefix = spec[e].prefix
+            if e == "gurobi":
+                # the Find module of Gurobi looks in <root>/linux64, which
+                # is what the prefix of the gurobi package holds; the link
+                # stays in the prefix of smspp, since the library of Gurobi
+                # has no SONAME and the libraries record the path to it
+                prefix = join_path(self.prefix, "share", "smspp",
+                                   "gurobi-root")
+                mkdirp(prefix)
+                link = join_path(prefix, "linux64")
+                if not os.path.exists(link):
+                    symlink(spec[e].prefix, link)
+            args.append(self.define(root, prefix))
+        return args
+
+    @run_after("cmake")
+    def check_local_solvers(self):
+        """MILPSolver leaves out a backend whose solver it does not find,
+        which a solver asked for must not be."""
+        rules = ""
+        for root, _, files in os.walk(join_path(self.build_directory,
+                                                "MILPSolver")):
+            for f in files:
+                if f in ("build.make", "build.ninja"):
+                    with open(join_path(root, f)) as fh:
+                        rules += fh.read()
+        ninja = join_path(self.build_directory, "build.ninja")
+        if os.path.exists(ninja):
+            with open(ninja) as fh:
+                rules += fh.read()
+        sources = {"cplex": "CPXMILPSolver", "gurobi": "GRBMILPSolver",
+                   "mosek": "MOSEKMILPSolver"}
+        for e, (name, _) in _LOCAL.items():
+            if f"+{e}" in self.spec and f"{sources[e]}.cpp" not in rules:
+                raise InstallError(f"MILPSolver did not find {name} in the "
+                                   f"external {e}")
 
     def test_mcfblock_solver(self):
         """the min-cost flow tool solves the example installed with it"""
