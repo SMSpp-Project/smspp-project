@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The section "Build inside a CMake project" of the README, on building
   SMS++ along with a project by FetchContent or CPM.cmake
 
+- `SMSPP_EXTLIB_DEFAULTS`, ON by default, which with OFF leaves out the
+  default paths of `extlib/makefile-default-paths-*`, several under `/opt`,
+  so that a package is not built against what its building machine has
+  there; with the default nothing changes, `extlib/makefile-paths` is read
+  either way
+
 - A second site of the documentation, built by Sphinx with the theme of
   Read the Docs from `sphinx/` and served at `/smspp-project/sphinx/` next
   to the Doxygen site and the user manual: its pages come from the

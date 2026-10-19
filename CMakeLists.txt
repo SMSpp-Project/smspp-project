@@ -137,15 +137,20 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extlib/makefile-paths")
     makefile_macros_to_cmake(extlib/makefile-paths)
 endif ()
 # ... then set the default other ones ignoring those already previously set,
-# according to the specific OS
-if (UNIX)
-    if (APPLE)
-        makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
-    else ()
-        makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
+# according to the specific OS. A package turns them off, so that what a
+# machine has under the default locations (e.g., /opt) is not built into it
+option(SMSPP_EXTLIB_DEFAULTS
+        "Look for the dependencies in the default locations of extlib/" ON)
+if (SMSPP_EXTLIB_DEFAULTS)
+    if (UNIX)
+        if (APPLE)
+            makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
+        else ()
+            makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
+        endif ()
+    elseif (WIN32)
+        makefile_macros_to_cmake(extlib/makefile-default-paths-win)
     endif ()
-elseif (WIN32)
-    makefile_macros_to_cmake(extlib/makefile-default-paths-win)
 endif ()
 
 # Retrieve the system architecture

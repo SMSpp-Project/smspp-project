@@ -590,7 +590,14 @@ The rationale for not directly changing the makefile-default-paths-* is that
 re-change the makefiles (or stash/restore the changes) each time the project is
 pulled, or manually ignore the changes when it is pushed, which is very convenient
 for anyone who actually develops new `SMS++` components (which you know you
-should, so please do).
+should, so please do). With CMake, `-DSMSPP_EXTLIB_DEFAULTS=OFF` leaves the
+default paths out (`extlib/makefile-paths` is still read), so that the
+`*_ROOT` variables are only those given on the command line: this is what a
+package is built with, lest it take in whatever the building machine has
+under, e.g., `/opt`. A few Find modules look in `/opt` by themselves (those
+of CPLEX, Gurobi, MOSEK and SCIP, and BinaryKnapsackBlock for the RECORD and
+COMBO sources), and a package turns them off one by one
+(`CMAKE_DISABLE_FIND_PACKAGE_<name>`, `RECORD_ROOT=OFF`, `COMBO_ROOT=OFF`).
 
 ### Build and install with CMake
 
