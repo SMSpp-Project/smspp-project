@@ -70,21 +70,21 @@ backends of its packages, differ somewhat from channel to channel:
 | CaDiCaL, MiniSat (SATBlock) | no | no | yes | yes | no | no |
 | libsvm, liblinear (SVMBlock) | libsvm | no | yes | yes | no | libsvm |
 
-where "ours" is a recipe of this directory. A module whose required
-dependency is missing is left out of the channel (SDDPBlock, InvestmentBlock
-and MCFLemonSolver in MSYS2), while a missing optional one only takes away
-the Solvers that wrap it (e.g., SATBlock and SVMBlock are built without their
-solvers). OSQP is left out of the AUR package, since the static library of
-the Arch package, which MILPSolver prefers, is made of slim LTO objects that
-a build without LTO cannot link. SCIP is an option, off by default, in Conan,
-whose recipe of SCIP builds the suite from the sources (I have not built SMS++
-with it). A recipe turns off the search of what it does not carry, and points
-the CMake of the modules to the externals of its channel (the
-`<package>_ROOT` variables): the umbrella reads defaults for them from
-`extlib/`, several under `/opt`, which might otherwise be picked up on the
-machine that builds the package. For the same reason it turns off the RECORD
-and COMBO sources of BinaryKnapsackBlock (COMBO is for non-commercial use
-only).
+where "ours" is a recipe of this directory. A module whose required dependency
+is missing is left out of the channel (SDDPBlock, InvestmentBlock and
+MCFLemonSolver in MSYS2), while a missing optional one only takes away the
+Solvers that wrap it (e.g., SATBlock and SVMBlock are built without their
+solvers). OSQP is left out of the AUR package, since the static library of the
+Arch package, which MILPSolver prefers, is made of slim LTO objects that a
+build without LTO cannot link. SCIP is an option, off by default, in Conan,
+whose recipe of SCIP builds the suite from the sources (shared, since the Find
+module of MILPSolver links the library of SCIP alone). A recipe turns off the
+search of what it does not carry, and points the CMake of the modules to the
+externals of its channel (the `<package>_ROOT` variables): the umbrella reads
+defaults for them from `extlib/`, several under `/opt`, which might otherwise
+be picked up on the machine that builds the package. For the same reason it
+turns off the RECORD and COMBO sources of BinaryKnapsackBlock (COMBO is for
+non-commercial use only).
 
 ## A release
 

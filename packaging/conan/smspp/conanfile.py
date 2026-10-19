@@ -177,6 +177,10 @@ class SmsppConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        # the Find module of SCIP in MILPSolver links the library of SCIP
+        # alone, which only a shared library makes enough
+        if self.options.with_scip:
+            self.options["scip"].shared = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -205,8 +209,11 @@ class SmsppConan(ConanFile):
         return out
 
     def requirements(self):
+        # the Boost of the recipe wins over the one SoPlex pins, which the
+        # SCIP of Conan Center brings in
         for e in self._externals():
-            self.requires(_EXTERNALS[e], transitive_headers=True)
+            self.requires(_EXTERNALS[e], transitive_headers=True,
+                          force=(e == "boost"))
 
     def validate(self):
         check_min_cppstd(self, 20)
