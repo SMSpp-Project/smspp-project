@@ -18,6 +18,7 @@
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
 #     You can use the `--without-daqp` option to skip the installation of DAQP.
+#     You can use the `--without-pbefs` option to skip the installation of PBeFS.
 #     You can use the `--without-qpoases` option to skip the installation of qpOASES.
 #     You can use the `--without-proxsuite` option to skip the installation of ProxSuite.
 #     You can use the `--without-piqp` option to skip the installation of PIQP.
@@ -92,6 +93,16 @@ resolve_dep_root() {
   else
     echo "${INSTALL_ROOT}/$1"
   fi
+}
+
+# The commit of PBeFS that BranchAndXSolver pins, i.e., BXS_PBEFS_COMMIT in
+# its CMakeLists.txt, read from GitLab since SMS++ is cloned after its
+# dependencies are installed; the tip of main if it cannot be read.
+pbefs_commit() {
+  local c
+  c=$(curl -fsSL "https://gitlab.com/smspp/branchandxsolver/-/raw/develop/CMakeLists.txt" 2>/dev/null |
+      sed -n 's/^set(BXS_PBEFS_COMMIT \([0-9a-f]\{40\}\).*/\1/p')
+  echo "${c:-main}"
 }
 
 # Extract a .zip archive ($1) into a destination directory ($2). unzip is not
@@ -463,6 +474,33 @@ EOL
     else
       echo "DAQP already installed."
     fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PBeFS
+  # PBeFS, whose branch-and-bound BranchAndXSolver may explore its tree with,
+  # is built from the commit that BranchAndXSolver pins (BXS_PBEFS_COMMIT in
+  # its CMakeLists.txt), so that the two always agree; it is a static library,
+  # found by CMake through PBeFS_ROOT and by the makefiles through
+  # extlib/makefile-paths.
+  if [ "$install_pbefs" -eq 1 ]; then
+    echo "Installing PBeFS..."
+    PBeFS_ROOT="$(resolve_dep_root PBeFS)"
+    CURRENT_INSTALL_FOLDER=${PBeFS_ROOT}
+    if [ ! -d "$PBeFS_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/dmeoli/PBeFS.git "$PBeFS_ROOT"
+      cd "$PBeFS_ROOT"
+      git checkout -q "$(pbefs_commit)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PBeFS_ROOT" \
+            -DPBEFS_BUILD_TESTS=OFF -DPBEFS_BUILD_EXAMPLES=OFF -DPBEFS_BUILD_TOOLS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+    else
+      echo "PBeFS already installed."
+    fi
+    export PBeFS_ROOT
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -1073,6 +1111,33 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install PBeFS
+  # PBeFS, whose branch-and-bound BranchAndXSolver may explore its tree with,
+  # is built from the commit that BranchAndXSolver pins (BXS_PBEFS_COMMIT in
+  # its CMakeLists.txt), so that the two always agree; it is a static library,
+  # found by CMake through PBeFS_ROOT and by the makefiles through
+  # extlib/makefile-paths.
+  if [ "$install_pbefs" -eq 1 ]; then
+    echo "Installing PBeFS..."
+    PBeFS_ROOT="${INSTALL_ROOT}/PBeFS"
+    CURRENT_INSTALL_FOLDER=${PBeFS_ROOT}
+    if [ ! -d "$PBeFS_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/dmeoli/PBeFS.git "$PBeFS_ROOT"
+      cd "$PBeFS_ROOT"
+      git checkout -q "$(pbefs_commit)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PBeFS_ROOT" \
+            -DPBEFS_BUILD_TESTS=OFF -DPBEFS_BUILD_EXAMPLES=OFF -DPBEFS_BUILD_TOOLS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+    else
+      echo "PBeFS already installed."
+    fi
+    export PBeFS_ROOT
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install qpOASES
   # qpOASES is built from its latest release, i.e., the latest tag of its
   # repository, as a shared library whose replacements of the BLAS and LAPACK
@@ -1312,6 +1377,7 @@ install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_pips=${install_pips:-1}
 install_daqp=${install_daqp:-1}
+install_pbefs=${install_pbefs:-1}
 install_qpoases=${install_qpoases:-1}
 install_proxsuite=${install_proxsuite:-1}
 install_piqp=${install_piqp:-1}
@@ -1392,6 +1458,10 @@ do
     ;;
     --without-daqp)
     install_daqp=0
+    shift
+    ;;
+    --without-pbefs)
+    install_pbefs=0
     shift
     ;;
     --without-qpoases)
@@ -1588,6 +1658,7 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${MOSEK_ROOT:-}" ] && echo "MOSEK_ROOT = ${MOSEK_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
       [ -n "${DAQP_ROOT:-}" ] && echo "DAQP_ROOT = ${DAQP_ROOT}"
+      [ -n "${PBeFS_ROOT:-}" ] && echo "PBeFS_ROOT = ${PBeFS_ROOT}"
       [ -n "${qpOASES_ROOT:-}" ] && echo "qpOASES_ROOT = ${qpOASES_ROOT}"
       [ -n "${proxsuite_ROOT:-}" ] && echo "proxsuite_ROOT = ${proxsuite_ROOT}"
       [ -n "${piqp_ROOT:-}" ] && echo "piqp_ROOT = ${piqp_ROOT}"
