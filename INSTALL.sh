@@ -502,8 +502,9 @@ EOL
 
   # Install ProxSuite
   # ProxSuite (ProxQP) is header-only: it is configured from its latest
-  # release, without the SIMD vectorization that would need Simde, and only
-  # its headers and its CMake configuration are installed.
+  # release, without the SIMD vectorization that would need Simde and the
+  # serialization that would need cereal, and only its headers and its CMake
+  # configuration are installed.
   if [ "$install_proxsuite" -eq 1 ]; then
     echo "Installing ProxSuite..."
     proxsuite_ROOT="$(resolve_dep_root proxsuite)"
@@ -513,10 +514,10 @@ EOL
       git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
       cd "$proxsuite_ROOT"
       git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git submodule update --init cmake-module
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
         -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
-        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
+        -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
       cmake --install build
     else
       echo "ProxSuite already installed."
@@ -1105,8 +1106,9 @@ install_on_macos() {
 
   # Install ProxSuite
   # ProxSuite (ProxQP) is header-only: it is configured from its latest
-  # release, without the SIMD vectorization that would need Simde, and only
-  # its headers and its CMake configuration are installed.
+  # release, without the SIMD vectorization that would need Simde and the
+  # serialization that would need cereal, and only its headers and its CMake
+  # configuration are installed.
   if [ "$install_proxsuite" -eq 1 ]; then
     echo "Installing ProxSuite..."
     proxsuite_ROOT="${INSTALL_ROOT}/proxsuite"
@@ -1116,10 +1118,10 @@ install_on_macos() {
       git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
       cd "$proxsuite_ROOT"
       git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git submodule update --init cmake-module
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
         -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
-        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
+        -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
       cmake --install build
     else
       echo "ProxSuite already installed."

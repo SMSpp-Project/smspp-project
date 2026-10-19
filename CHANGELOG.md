@@ -71,6 +71,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- INSTALL.sh builds ProxSuite 0.8.0, its latest release, which has no
+  `cmake-module` submodule any more and needs cereal unless its
+  serialization is turned off
+
 - the tests of the modules are reachable by ctest from the build root in
   a fresh build too, where `BUILD_TESTING` was not yet defined when it was
   checked and the build root had no test
