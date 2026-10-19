@@ -239,6 +239,26 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     interface is built with a Rust toolchain and installed by hand [see the
     README of MILPSolver]
 
+  - `ProxQPMILPSolver`, providing the interface with the open-source
+    proximal augmented Lagrangian solver ProxQP of
+    [ProxSuite](https://github.com/Simple-Robotics/proxsuite) (convex QP
+    and LP problems with linear constraints, dense or sparse, no integer
+    variables)
+
+  - `PIQPMILPSolver`, providing the interface with the open-source
+    proximal interior point solver [PIQP](https://github.com/PREDICT-EPFL/piqp)
+    (convex QP and LP problems with linear constraints, dense or sparse,
+    no integer variables)
+
+  - `OSQPMILPSolver`, providing the interface with the open-source
+    operator splitting solver [OSQP](https://osqp.org) (convex QP and LP
+    problems with linear constraints, sparse, no integer variables)
+
+  - `QPMADMILPSolver`, providing the interface with the open-source dual
+    active-set solver [qpmad](https://github.com/asherikov/qpmad), of
+    Goldfarb and Idnani (strictly convex QP problems with linear
+    constraints, dense, the Hessian positive definite, no integer variables)
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -403,9 +423,9 @@ library, `libsmspp-<module>-dev` its headers and the CMake configuration that
 its examples and its man page, and `smspp-project` installs them all.
 
 CPLEX, Gurobi, MOSEK and SCIP are not redistributable, so in all of these the
-MILP Solvers carry the HiGHS, DAQP and qpOASES backends alone; a build against
-the others is still the one of the sources, which the instructions below are
-about.
+MILP Solvers carry the HiGHS, DAQP and qpOASES backends alone (the vcpkg port
+also ProxQP, PIQP, OSQP and qpmad); a build against the others is still the one
+of the sources, which the instructions below are about.
 Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
 where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
 manager but Homebrew distributes (Debian and Ubuntu carry the older one of
@@ -487,6 +507,10 @@ according to the following options table:
 | `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
 | `--without-daqp`   | *(via vcpkg)*     | skip DAQP installation                   |
 | `--without-qpoases` | *(via vcpkg)*    | skip qpOASES installation                |
+| `--without-proxsuite` | *(via vcpkg)* | skip ProxSuite installation               |
+| `--without-piqp`   | *(via vcpkg)*     | skip PIQP installation                   |
+| `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
+| `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
