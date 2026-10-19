@@ -174,9 +174,20 @@ generator, the same file that `makepkg --printsrcinfo` writes on Arch.
 The PKGBUILD goes to a fork of
 [msys2/MINGW-packages](https://github.com/msys2/MINGW-packages) as
 `mingw-w64-smspp/PKGBUILD`, in a pull request, whose CI builds it for the
-environments of `mingw_arch`. It is the one recipe that I have not built
-(see below), and the first pull request may well need some round of
-fixes.
+environments of `mingw_arch`. Three things have to hold in the sources first,
+since a build of the umbrella with MinGW stops on them: (i) the core uses
+`std::atomic_flag` (`Observer.h`, `Solver.h`) without including `<atomic>`,
+which the libc++ of the `clang64` and `clangarm64` environments does not
+include on its behalf; (ii) the Windows layer of FastFlow, which
+ThermalUnitDPSolver of UCBlock and SVMBlock include, is written for MSVC
+(`ff/platforms/liblfds.h` has no branch for MinGW, and `platform.h` redefines
+what MinGW already has); (iii) a module asks the linker to keep its library
+only under MSVC (`/INCLUDE:SMSpp_force_load_<module>`) and on ELF and macOS,
+and the import of a DLL that a tool does not call is dropped, so that the
+factories are empty, while `LINKER:-u,SMSpp_force_load_<module>` under
+`MINGW` keeps it. The name `netcdf_c++4` of the library of netCDF-C++ in
+MSYS2, which the Find module of the core looks for only on Unix, is given by
+the recipe itself.
 
 ### xmake
 
@@ -218,5 +229,9 @@ consumer project. The AUR packages were built by `makepkg` in an Arch
 container, then installed, and their tools solved the examples installed
 with them. A consumer that finds UCBlock and MILPSolver by CMake and makes a
 `UCBlock` and a `HiGHSMILPSolver` by the factories (`nix/consumer`) was built
-against each channel. The MSYS2 PKGBUILD has only been read by `makepkg
---printsrcinfo`, since I had no Windows machine.
+against each channel. Of the MSYS2 recipe, `makepkg --printsrcinfo` reads the
+PKGBUILD, and a cross build on Linux with its options (llvm-mingw, the
+`clang64` packages of MSYS2 as the sysroot, and wine to run the generators
+and the tools) gave the three defects above; with them worked around, the
+core and 21 of the 23 modules of the recipe built (all but UCBlock and
+SVMBlock), and the min-cost flow tool solved its example under wine.
