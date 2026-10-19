@@ -56,6 +56,7 @@ GUROBI_ROOT = /opt/gurobi
 MOSEK_ROOT = /opt/mosek
 HiGHS_ROOT = /opt/HiGHS
 DAQP_ROOT = /opt/daqp
+PBeFS_ROOT = /opt/PBeFS
 qpOASES_ROOT = /opt/qpOASES
 Clarabel_ROOT = /opt/clarabel
 proxsuite_ROOT = /opt/proxsuite

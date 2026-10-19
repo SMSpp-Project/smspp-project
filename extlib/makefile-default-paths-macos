@@ -56,6 +56,7 @@ GUROBI_ROOT = /Library/gurobi
 MOSEK_ROOT = /Library/mosek
 HiGHS_ROOT = /Library/HiGHS
 DAQP_ROOT = /Library/daqp
+PBeFS_ROOT = /Library/PBeFS
 qpOASES_ROOT = /Library/qpOASES
 Clarabel_ROOT = /Library/clarabel
 proxsuite_ROOT = /Library/proxsuite
