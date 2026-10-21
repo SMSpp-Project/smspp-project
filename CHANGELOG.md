@@ -98,6 +98,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- the README asks for MOSEK 11.0.1 or later, the first version whose
+  error codes MOSEKMILPSolver builds with
+
 - the release tarball carries FastFlow and RECORD, with their licenses, in
   `third-party/`, at the commits of `packaging/modules.py`
   (`packaging/third_party.py`), and the `CMakeLists.txt` of the umbrella

@@ -210,7 +210,7 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
   - `MOSEKMILPSolver`, providing the interface with the commercial
-    [MOSEK Optimizer](https://www.mosek.com) (version 10 or later), which
+    [MOSEK Optimizer](https://www.mosek.com) (version 11.0.1 or later), which
     needs a license of its own, free for academic use
     ([academic licenses](https://www.mosek.com/products/academic-licenses/));
     it is built when CMake finds MOSEK (`MILPSolver_USE_MOSEK`, with
