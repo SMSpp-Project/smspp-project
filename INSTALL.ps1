@@ -417,7 +417,7 @@ if ($OS -eq "Win32NT")
         Write-Host "... Gurobi installed successfully."
     }
 
-    # Install MOSEK: the installer of the latest 11.0.x version, whose
+    # Install MOSEK: the installer of the latest 12.0.x version, whose
     # number is published next to it (a fixed one if it cannot be read); it
     # installs into C:\Program Files\Mosek\<major.minor>, and MOSEK_ROOT is
     # C:\Program Files\Mosek, which holds one directory per version
@@ -429,12 +429,12 @@ if ($OS -eq "Win32NT")
             $MOSEK_URL = "https://download.mosek.com/stable"
             try {
                 $MOSEK_VERSION = (Invoke-WebRequest -UseBasicParsing `
-                    -Uri "$MOSEK_URL/11.0/version").Content.Trim()
+                    -Uri "$MOSEK_URL/12.0/version").Content.Trim()
             } catch {
                 $MOSEK_VERSION = ""
             }
-            if ($MOSEK_VERSION -notmatch '^11\.0\.[0-9]+$') {
-                $MOSEK_VERSION = "11.0.30"
+            if ($MOSEK_VERSION -notmatch '^12\.0\.[0-9]+$') {
+                $MOSEK_VERSION = "12.0.0"
             }
             $MOSEK_INSTALLER = "moseksetupwin64x86.msi"
             Invoke-WebRequest `

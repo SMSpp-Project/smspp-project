@@ -302,7 +302,7 @@ EOL
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install MOSEK: the tools archive of the latest 11.0.x version, whose
+  # Install MOSEK: the tools archive of the latest 12.0.x version, whose
   # number is published next to it (a fixed one if it cannot be read); the
   # archive unpacks as mosek/<major.minor>/tools/platform/<platform>, and
   # MOSEK_ROOT is the mosek directory, which holds one directory per version
@@ -316,9 +316,9 @@ EOL
       fi
       cd "$INSTALL_ROOT"
       MOSEK_URL="https://download.mosek.com/stable"
-      MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/11.0/version" || true)
-      if ! [[ "$MOSEK_VERSION" =~ ^11\.0\.[0-9]+$ ]]; then
-        MOSEK_VERSION="11.0.30"
+      MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+      if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+        MOSEK_VERSION="12.0.0"
       fi
       if [ "$(uname -m)" == "aarch64" ]; then
         MOSEK_PLATFORM="linuxaarch64"
@@ -932,8 +932,8 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install MOSEK: the tools archive of the latest 11.0.x version, as on
-  # Linux; MOSEK 11 is built for Apple Silicon only
+  # Install MOSEK: the tools archive of the latest 12.0.x version, as on
+  # Linux; MOSEK 12 is built for Apple Silicon only
   if [ "$install_mosek" -eq 1 ]; then
     echo "Installing MOSEK..."
     MOSEK_ROOT="${INSTALL_ROOT}/mosek"
@@ -941,14 +941,14 @@ install_on_macos() {
     if [ ! -d "$MOSEK_ROOT" ]; then
       cd "$INSTALL_ROOT"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
-        echo "No MOSEK 11 for macOS x86_64; skipping MOSEK."
+        echo "No MOSEK 12 for macOS x86_64; skipping MOSEK."
         install_mosek=0
         MOSEK_ROOT=""
       else # Apple Silicon arch
         MOSEK_URL="https://download.mosek.com/stable"
-        MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/11.0/version" || true)
-        if ! [[ "$MOSEK_VERSION" =~ ^11\.0\.[0-9]+$ ]]; then
-          MOSEK_VERSION="11.0.30"
+        MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+        if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+          MOSEK_VERSION="12.0.0"
         fi
         MOSEK_INSTALLER="mosektoolsosxaarch64.tar.bz2"
         curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"

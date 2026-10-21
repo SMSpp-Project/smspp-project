@@ -95,6 +95,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   uses them in place of the FastFlow that SMS++ fetches and of a RECORD
   checkout, so that a build of the tarball fetches nothing
 
+- `INSTALL.sh` and `INSTALL.ps1` install the latest MOSEK 12.0.x in place
+  of 11.0.x (12.0.0 if its number cannot be read), so does the image of
+  the CI that is built by `INSTALL.sh`; MOSEKMILPSolver still builds with
+  MOSEK 10 or later, and a license of MOSEK 12 serves the earlier versions
+
 ### Fixed
 
 - INSTALL.sh builds ProxSuite 0.8.0, its latest release, which has no

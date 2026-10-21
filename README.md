@@ -210,8 +210,8 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
   - `MOSEKMILPSolver`, providing the interface with the commercial
-    [MOSEK Optimizer](https://www.mosek.com) (version 11), which needs a
-    license of its own, free for academic use
+    [MOSEK Optimizer](https://www.mosek.com) (version 10 or later), which
+    needs a license of its own, free for academic use
     ([academic licenses](https://www.mosek.com/products/academic-licenses/));
     it is built when CMake finds MOSEK (`MILPSolver_USE_MOSEK`, with
     `MOSEK_ROOT` as hint)
@@ -536,8 +536,8 @@ on Unix or `-cplexInstaller <path>` on Windows. If no installer is provided,
 CPLEX is skipped and the build proceeds with the other solvers.
 
 MOSEK is not redistributable either, but its archives can be downloaded
-freely: the scripts install the latest 11.0.x version (except on macOS x86_64,
-for which MOSEK 11 has no build), and using it requires a license of your own,
+freely: the scripts install the latest 12.0.x version (except on macOS x86_64,
+for which MOSEK 12 has no build), and using it requires a license of your own,
 free for academic use, put in `~/mosek/mosek.lic`
 (`%USERPROFILE%\mosek\mosek.lic` on Windows) or pointed to by the
 `MOSEKLM_LICENSE_FILE` environment variable.
