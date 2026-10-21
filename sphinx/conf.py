@@ -4,10 +4,10 @@
 # The configuration of Sphinx for the second site of the documentation of     #
 # SMS++, next to the one of Doxygen and to the user manual: the pages that    #
 # sphinx/pages.py writes from the Markdown files of the umbrella (read by     #
-# MyST), and the API reference, which Exhale builds from the XML that         #
-# doxygen/Doxyfile writes into doc/xml and Breathe renders; Doxygen is run    #
-# before, and not by Exhale. The theme is that of Read the Docs. The pages    #
-# job of .gitlab-ci.yml builds it with                                        #
+# MyST), and the API reference, whose pages sphinx/apiref.py writes from      #
+# the XML that doxygen/Doxyfile writes into doc/xml and Breathe renders.      #
+# The theme is that of Read the Docs. The pages job of .gitlab-ci.yml         #
+# builds it with                                                              #
 #                                                                             #
 #   doxygen doxygen/Doxyfile                                                  #
 #   python3 sphinx/pages.py                                                   #
@@ -16,7 +16,6 @@
 
 import os
 import re
-import shutil
 import subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,10 +49,23 @@ version = release
 
 extensions = [
     'breathe',              # the Doxygen XML in Sphinx
-    'exhale',               # a page per class, function and file
     'myst_parser',          # the pages in Markdown
     'sphinx.ext.mathjax',   # the formulae of the comments
+    'sphinx_copybutton',    # a button that copies a block of code
+    'sphinx_rtd_dark_mode', # a switch between the light and the dark theme
 ]
+
+# the light theme first, the dark one on the switch, which the browser
+# remembers
+default_dark_mode = False
+
+# a signature longer than this goes one parameter per line, instead of
+# being cut at the margin or wrapped at random
+maximum_signature_line_length = 110
+
+# the prompts of the shells are not copied with the commands
+copybutton_prompt_text = r'\$ |>>> '
+copybutton_prompt_is_regexp = True
 
 source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}
 myst_enable_extensions = ['dollarmath', 'colon_fence']
@@ -61,9 +73,9 @@ myst_heading_anchors = 3
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # what the comments of the headers cause and the configuration cannot mend:
-# a nested class is rendered both in its outer class, which Breathe does
-# for every :members:, and in the page Exhale gives it, and the \verbatim
-# blocks with formulae fail to be lexed as C++
+# a member that Doxygen lists twice (in a class and in a group) is
+# declared twice, and the \verbatim blocks with formulae fail to be lexed
+# as C++
 suppress_warnings = ['duplicate_declaration.cpp', 'misc.highlighting_failure']
 
 breathe_projects = {'SMS++': os.path.join(ROOT, 'doc', 'xml')}
@@ -71,27 +83,57 @@ breathe_default_project = 'SMS++'
 primary_domain = 'cpp'
 highlight_language = 'cpp'
 
+# a "friend X;" that Doxygen reads as a variable of type friend
+FRIEND = re.compile(r'(<memberdef )kind="variable"([^>]*>\s*)'
+                    r'<type>friend</type>')
+
+# the elements whose text keeps its lines
+VERBATIM = re.compile(r'<(/?)(verbatim|preformatted|programlisting|formula)'
+                      r'\b[^>]*?(/?)>')
+
+
+def join_lines(text):
+    """the ends of the lines inside the text of the comments made spaces,
+    out of the elements whose text keeps its lines"""
+    out, keep = [], 0
+    for part in re.split(r'(<[^>]*>)', text):
+        if part.startswith('<'):
+            m = VERBATIM.match(part)
+            if m and not m.group(3):
+                keep += -1 if m.group(1) else 1
+        elif keep == 0 and '\n' in part.strip():
+            body = part.strip()
+            lead = part[:len(part) - len(part.lstrip())]
+            trail = part[len(part.rstrip()):]
+            part = lead + re.sub(r'\s*\n\s*', ' ', body) + trail
+        out.append(part)
+    return ''.join(out)
+
+
 def mend_xml():
-    """the XML of doxygen/Doxyfile made fit for Breathe and Exhale, in place
-    (it is a product of the build, which is read and never published):
+    """the XML of doxygen/Doxyfile made fit for Breathe, in place (it is a
+    product of the build, which is read and never published):
 
     - the Doxyfile has CREATE_SUBDIRS, which the HTML site keeps, so the
       XML files lie in two levels of directories and their refids carry
-      the path ("de/d75/class_..."); Exhale names its pages after the refid
-      but links them by the name alone, so the files are moved up into
-      doc/xml and the path is dropped from every id and refid, which stay
-      unique since the path is a hash of the name;
+      the path ("de/d75/class_...") into the anchors of the pages; the
+      files are moved up into doc/xml and the path is dropped from every
+      id and refid, which stay unique since the path is a hash of the name
+      (sphinx/apiref.py, which reads the XML before, finds the pages of
+      the Doxygen site from the name alone);
     - the friends that a group lists come in a <sectiondef kind="">, which
       the schema of Breathe rejects, and become a section of friends;
     - the caption of a table comes with no id, which the schema requires,
       and is given one;
-    - the logo that doxygen/mainpage.md shows is copied next to the XML,
-      where the page that Exhale makes of it looks for it"""
+    - the text between quotes keeps the ends of the lines of the comment,
+      which Breathe turns into as many paragraphs (a reference whose title
+      spans two lines comes out cut in two), and they become spaces;
+    - a "friend X;" without "class" is taken by Doxygen for a variable X
+      of type friend, which the C++ domain of Sphinx cannot parse, and
+      becomes the friend class it is"""
     xml = breathe_projects['SMS++']
     if not os.path.isdir(xml):
         return
-    shutil.copy(os.path.join(ROOT, 'doxygen', 'SMSpp_logo_mid_noback.png'),
-                xml)
     subdir = re.compile(r'\b((?:ref)?id)="d[0-9a-f]/d[0-9a-f]{2}/')
     for top, _, files in sorted(os.walk(xml), reverse=True):
         for name in files:
@@ -107,6 +149,8 @@ def mend_xml():
             new = parts[0] + ''.join('<caption id="%s_caption%d">%s'
                                      % (name[:-4], k, part)
                                      for k, part in enumerate(parts[1:]))
+            new = join_lines(new)
+            new = FRIEND.sub(r'\1kind="friend"\2<type>class</type>', new)
             if new != text or top != xml:
                 with open(os.path.join(xml, name), 'w') as f:
                     f.write(new)
@@ -118,29 +162,23 @@ def mend_xml():
 
 mend_xml()
 
-exhale_args = {
-    'containmentFolder': './api',
-    'rootFileName': 'library_root.rst',
-    'doxygenStripFromPath': ROOT,
-    'rootFileTitle': 'API Reference',
-    'afterTitleDescription':
-        'The classes and the files of the core library and of the modules; '
-        'the same reference, with the graphs of Doxygen, is the '
-        '`Doxygen site <https://smspp.gitlab.io/smspp-project/>`_.',
-    'createTreeView': True,
-    'exhaleExecutesDoxygen': False,
-}
-
 html_theme = 'sphinx_rtd_theme'
 # the logo without background, on the grey of the sidebar, where its blue M
 # stands out (on the blue of the theme it does not), and alone, since it
 # spells the name of the project
 html_logo = os.path.join(ROOT, 'doxygen', 'SMSpp_logo_mid_noback.png')
-# the sidebar of each page holds the branch of that page alone: with the
-# whole tree of the API in each of its 2000 pages the build takes about
-# nine times as long (55 minutes instead of 6, measured on one core)
-html_theme_options = {'navigation_depth': 3, 'collapse_navigation': True,
-                      'logo_only': True,
+# the content as wide as the formulae need, which scroll in their box when
+# wider still (see _static/smspp.css)
+html_static_path = ['_static']
+html_css_files = ['smspp.css']
+# the sidebar stays in place while the page scrolls and scrolls on its own;
+# it holds the modules and the groups, and the branch of the page down to
+# its classes. The whole tree in each page (collapse_navigation False, each
+# branch with its switch) makes the build of the core and of UCBlock, 300
+# pages, take 6 minutes instead of 1.5, and 5 with the tree down to the
+# headers only; the build grows with the square of the pages
+html_theme_options = {'navigation_depth': 5, 'collapse_navigation': True,
+                      'sticky_navigation': True, 'logo_only': True,
                       'style_nav_header_background': '#343131'}
 
 # --------------------------------------------------------------------------- #

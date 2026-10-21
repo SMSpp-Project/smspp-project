@@ -31,9 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Read the Docs from `sphinx/` and served at `/smspp-project/sphinx/` next
   to the Doxygen site and the user manual: its pages come from the
   README.md, the general description of `doxygen/mainpage.md`,
-  CONTRIBUTING.md and this CHANGELOG, and its API reference is built by
-  Breathe and Exhale from the XML that `doxygen/Doxyfile` now writes into
-  `doc/xml` along with the HTML, which is unchanged
+  CONTRIBUTING.md and this CHANGELOG, and its API reference, rendered by
+  Breathe from the XML that `doxygen/Doxyfile` now writes into `doc/xml`
+  along with the HTML, is a tree that `sphinx/apiref.py` writes from that
+  XML: the modules, in each module its headers gathered by what they
+  define (its Blocks, its Functions, its Solvers, ...), then the headers
+  and, below each, its classes, each with the diagram of its hierarchy
+  from the Doxygen site; a fixed sidebar with the branch of the page, an
+  index of the classes and members, content wide enough for the formulae
+  (which scroll in their box when wider), copy buttons and a dark theme.
+  The Doxyfile now also reads BendersDecompositionSolver and
+  BranchAndXSolver, and expands `SMSpp_insert_in_factory_h` to nothing,
+  which it took for a member of every class that uses it
 
 - SubGradSolver, the deflected and projected subgradient methods for the
   same problems as BundleSolver (`BUILD_SubGradSolver`), and its feature

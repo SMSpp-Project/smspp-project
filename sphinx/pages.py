@@ -7,8 +7,9 @@
 # each section of the README.md becomes a page of the site, the sections of   #
 # the general description in doxygen/mainpage.md become the user guide,       #
 # CONTRIBUTING.md and CHANGELOG.md become the pages of the project, and the   #
-# links to the files of the repository point to GitLab. The pages job of      #
-# .gitlab-ci.yml runs it before Sphinx:                                       #
+# links to the files of the repository point to GitLab; then apiref.py        #
+# writes the API reference into sphinx/api. The pages job of .gitlab-ci.yml   #
+# runs it after Doxygen and before Sphinx:                                    #
 #                                                                             #
 #   python3 sphinx/pages.py                                                   #
 #   sphinx-build -b html -d doc/doctrees sphinx public/sphinx                 #
@@ -17,6 +18,8 @@
 import os
 import re
 import shutil
+
+import apiref
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'sphinx', 'generated')
@@ -136,6 +139,8 @@ def main():
         write(page, read(name))
     log = read('CHANGELOG.md').replace('# Changelog', '# Release Notes', 1)
     write('project/release_notes.md', log)
+
+    apiref.main()
 
 
 if __name__ == '__main__':

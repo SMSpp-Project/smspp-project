@@ -33,7 +33,8 @@ the use of SMS++ from the beginning.
    :maxdepth: 2
    :caption: API Reference
 
-   api/library_root
+   api/index
+   Index of the classes and members <genindex>
    Doxygen site <https://smspp.gitlab.io/smspp-project/>
 
 .. toctree::

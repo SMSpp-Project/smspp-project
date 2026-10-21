@@ -315,8 +315,9 @@ pages:
     - pip install --no-cache-dir --break-system-packages mkdocs-material
     - mkdocs build -f manual/build/mkdocs.yml -d "$CI_PROJECT_DIR/public/manual"
     # --- Sphinx site served at /smspp-project/sphinx/ ---
-    # the same reference, read by Breathe and Exhale from the XML that the
-    # Doxyfile writes into doc/xml, with the pages from the Markdown files
+    # the same reference, read by Breathe from the XML that the Doxyfile
+    # writes into doc/xml in the tree of pages that sphinx/apiref.py writes,
+    # with the pages from the Markdown files
     - pip install --no-cache-dir --break-system-packages
                   -r sphinx/requirements.txt
     - python3 sphinx/pages.py

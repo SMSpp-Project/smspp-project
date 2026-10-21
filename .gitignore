@@ -21,10 +21,11 @@ doc/latex/
 doc/xml/
 doc/doctrees/
 
-# The pages that sphinx/pages.py and Exhale write before Sphinx builds
-# the site
+# The pages that sphinx/pages.py and sphinx/apiref.py write before Sphinx
+# builds the site
 sphinx/generated/
 sphinx/api/
+sphinx/__pycache__/
 
 # Claude Code local notes and configuration (kept out of the repo)
 CLAUDE.md
