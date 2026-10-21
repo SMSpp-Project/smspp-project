@@ -87,6 +87,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   exports only `qpgen2_`; it is in no package, and `extlib` has
   `makefile-libquadprog` and the default paths of `quadprog_ROOT`
 
+### Changed
+
+- the release tarball carries FastFlow and RECORD, with their licenses, in
+  `third-party/`, at the commits of `packaging/modules.py`
+  (`packaging/third_party.py`), and the `CMakeLists.txt` of the umbrella
+  uses them in place of the FastFlow that SMS++ fetches and of a RECORD
+  checkout, so that a build of the tarball fetches nothing
+
 ### Fixed
 
 - INSTALL.sh builds ProxSuite 0.8.0, its latest release, which has no

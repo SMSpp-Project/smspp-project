@@ -166,6 +166,21 @@ FASTFLOW = {
               "eb75816a00d2d97a93deba9b351f9c53",
 }
 
+# RECORD, the solver of RECORDBinaryKnapsackSolver in BinaryKnapsackBlock,
+# which is a single source file with no tag: the file and its LICENSE at a
+# fixed commit, which the release tarball carries [see third_party.py]
+RECORD = {
+    "commit": "8cfbb6fd2084e1aac4857069a10c565b7b927cd7",
+    "files": {
+        "source/RECORD.cpp":
+            "a62886ad586f0b64efbd5c7f20e7075dcb9c674735e033f1250eb575990e5c96",
+        "LICENSE":
+            "c07f6ec57d7e3f1b18e47cf9d6ebebec76c6b141f780ecfe4993056b20b7bc5d",
+    },
+    "url": "https://gitlab.com/renanfernandofranco/record/-/raw/"
+           "8cfbb6fd2084e1aac4857069a10c565b7b927cd7/",
+}
+
 # StOpt, which SDDPBlock needs and which most channels do not carry, so that
 # the recipes of this directory carry it as the Homebrew tap does
 STOPT = {

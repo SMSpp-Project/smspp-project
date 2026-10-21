@@ -349,6 +349,9 @@ release_job:
     - echo "$CI_COMMIT_TAG" > VERSION.txt
     - git submodule foreach --quiet --recursive 'v=$(git describe --tags --abbrev=0 2>/dev/null) && echo "$v" > VERSION.txt || true'
     - untagged=$(git submodule foreach --quiet --recursive 'git describe --tags --exact-match > /dev/null 2>&1 || echo "$displaypath"')
+    # FastFlow and RECORD, with their licenses, at the commits of
+    # packaging/modules.py: a build of the tarball fetches nothing
+    - python3 packaging/third_party.py third-party
     - mkdir release-artifacts
     - previous_tag=$(git tag --sort=-creatordate | sed -n 2p)
     - echo "# Release $CI_COMMIT_TAG" >> release-artifacts/release_notes.md

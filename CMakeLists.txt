@@ -26,6 +26,24 @@ include(CMakeSettings.txt OPTIONAL)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 
+# ----- Third-party sources of a release tarball ---------------------------- #
+# The release tarball carries FastFlow and RECORD in third-party/, at the
+# commits of packaging/modules.py [see packaging/third_party.py]: they are
+# used in place of the FastFlow that SMS++ fetches and of a RECORD checkout,
+# so that a build of the tarball fetches nothing, unless something else is
+# given on the command line.
+set(_smspp_third_party "${CMAKE_CURRENT_SOURCE_DIR}/third-party")
+if (EXISTS "${_smspp_third_party}/fastflow/ff" AND
+    NOT FETCHCONTENT_SOURCE_DIR_FASTFLOW)
+    set(FETCHCONTENT_SOURCE_DIR_FASTFLOW "${_smspp_third_party}/fastflow"
+        CACHE PATH "The source tree of FastFlow, not fetched")
+endif ()
+if (EXISTS "${_smspp_third_party}/record/source/RECORD.cpp" AND
+    NOT RECORD_ROOT)
+    set(RECORD_ROOT "${_smspp_third_party}/record"
+        CACHE PATH "The directory of RECORD, with source/RECORD.cpp")
+endif ()
+
 # Only apply this on Windows when building shared libraries
 if (WIN32 AND BUILD_SHARED_LIBS)
     # Enable automatic symbol export introduced in CMake 3.4
