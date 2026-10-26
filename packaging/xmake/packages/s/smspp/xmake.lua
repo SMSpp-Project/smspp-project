@@ -348,6 +348,22 @@ package("smspp")
             table.insert(configs, "-D" .. v .. "=OFF")
         end
         table.insert(configs, "-DSMSPP_EXTLIB_DEFAULTS=OFF")
+        -- the HDF5 under netCDF is static unless xmake is told otherwise,
+        -- while FindHDF5 looks for a shared one, and fails, unless told;
+        -- its targets then link ZLIB::ZLIB, which its configuration does
+        -- not define, and which each project of the umbrella defines first
+        -- from the zlib of xmake
+        for _, dep in ipairs(package:librarydeps()) do
+            if dep:name() == "hdf5" and not dep:config("shared") then
+                table.insert(configs, "-DHDF5_USE_STATIC_LIBRARIES=ON")
+                local zlib = path.join(package:cachedir(), "zlib.cmake")
+                io.writefile(zlib, "find_package(ZLIB REQUIRED)\n")
+                table.insert(configs,
+                             "-DCMAKE_PROJECT_INCLUDE_BEFORE=" .. zlib)
+            elseif dep:name() == "zlib" and not dep:is_system() then
+                table.insert(configs, "-DZLIB_ROOT=" .. dep:installdir())
+            end
+        end
         import("package.tools.cmake").install(package, configs)
     end)
 

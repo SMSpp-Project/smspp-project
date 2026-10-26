@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Writes the recipes of the channels of this directory from modules.py.
 
-Usage: gen_recipes.py [--release X.Y.Z] [--url-base URL]
+Usage: gen_recipes.py [--release X.Y.Z | --tarball FILE] [--url-base URL]
+                      [--modules ACR,...]
 
 Without arguments it rewrites every recipe for the release in release.json.
 With --release it first downloads the tarball of that release of the
@@ -9,7 +10,14 @@ umbrella, writes its version and its SHA-256 into release.json, and then
 rewrites the recipes. --url-base replaces the address of the generic package
 registry where the release tarballs live, so that a recipe can be tried on a
 tarball that is not published (the recipes it writes are then not to be
-committed).
+committed). --tarball names such a tarball, made as the release job makes it
+(cf. tarball.sh) and kept as DIR/X.Y.Z/smspp-project-X.Y.Z.tar.gz: the
+recipes are written for its version and its SHA-256, and for the address
+file://DIR unless --url-base gives another, while release.json is left as it
+is. --modules writes the AUR and MSYS2 PKGBUILDs, which build the modules
+of their channel all together, for the given modules and those they need
+only, as the CI does to keep its builds short; the other recipes choose the
+modules by their options and are written whole in any case.
 
 The AUR and MSYS2 PKGBUILDs and the .SRCINFO files are written whole; the
 other recipes are written by hand around a table of the modules, between the
@@ -127,9 +135,15 @@ def disabled_finds(table):
         [M.CMAKE_NAME[e] for e in M.CMAKE_NAME if not table.get(e)]
 
 
+# the modules to which --modules restricts the PKGBUILDs, None for all
+ONLY = None
+
+
 def channel_modules(table):
     """The modules whose required externals the channel has."""
     ok = {m[1] for m in M.MODULES if all(table.get(r) for r in m[3])}
+    if ONLY is not None:
+        ok &= set(M.closure(ONLY))
     needs = {m[1]: m[2] for m in M.MODULES}
     changed = True
     while changed:
@@ -756,26 +770,60 @@ def gen_xmake(rel, base):
 
 # ----- main --------------------------------------------------------------- #
 
+def sha256_of(f):
+    h = hashlib.sha256()
+    for chunk in iter(lambda: f.read(1 << 20), b""):
+        h.update(chunk)
+    return h.hexdigest()
+
+
+def local_tarball(path):
+    """The version and the SHA-256 of a tarball kept as
+    DIR/X.Y.Z/smspp-project-X.Y.Z.tar.gz, and the address file://DIR."""
+    path = os.path.abspath(path)
+    vdir, name = os.path.split(path)
+    v = os.path.basename(vdir)
+    if name != f"smspp-project-{v}.tar.gz":
+        sys.exit(f"gen_recipes.py: {path} is not "
+                 "DIR/X.Y.Z/smspp-project-X.Y.Z.tar.gz")
+    with open(path, "rb") as f:
+        rel = {"version": v, "sha256": sha256_of(f)}
+    return rel, "file://" + os.path.dirname(vdir)
+
+
 def main():
+    global ONLY
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--release", help="version of the umbrella to package")
-    ap.add_argument("--url-base", default=REGISTRY,
-                    help="where the release tarballs are")
+    which = ap.add_mutually_exclusive_group()
+    which.add_argument("--release",
+                       help="version of the umbrella to package")
+    which.add_argument("--tarball",
+                       help="a local tarball to write the recipes for")
+    ap.add_argument("--url-base", help="where the release tarballs are")
+    ap.add_argument("--modules",
+                    help="the acronyms of the modules of the PKGBUILDs")
     a = ap.parse_args()
+    if a.modules:
+        ONLY = a.modules.split(",")
+        unknown = set(ONLY) - {m[1] for m in M.MODULES}
+        if unknown:
+            sys.exit("gen_recipes.py: no module " + ", ".join(unknown))
     relpath = os.path.join(HERE, "release.json")
+    if a.tarball:
+        rel, base = local_tarball(a.tarball)
+        a.url_base = a.url_base or base
+    a.url_base = a.url_base or REGISTRY
     if a.release:
         url = tarball_url(a.url_base, a.release)
         print(f"downloading {url}")
-        h = hashlib.sha256()
         with urllib.request.urlopen(url) as r:
-            for chunk in iter(lambda: r.read(1 << 20), b""):
-                h.update(chunk)
+            sha = sha256_of(r)
         with open(relpath, "w") as f:
-            json.dump({"version": a.release, "sha256": h.hexdigest()}, f,
-                      indent=2)
+            json.dump({"version": a.release, "sha256": sha}, f, indent=2)
             f.write("\n")
-    with open(relpath) as f:
-        rel = json.load(f)
+    if not a.tarball:
+        with open(relpath) as f:
+            rel = json.load(f)
     gen_aur(rel, a.url_base)
     gen_aur_stopt()
     gen_msys2(rel, a.url_base)
