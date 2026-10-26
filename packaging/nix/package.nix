@@ -175,6 +175,13 @@ let
       opt = [ ];
     }
     {
+      dir = "HQPBlock";
+      acr = "hqp";
+      needs = [ "core" ];
+      req = [ ];
+      opt = [ ];
+    }
+    {
       dir = "MILPSolver";
       acr = "milp";
       needs = [ "core" ];

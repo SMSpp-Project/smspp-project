@@ -86,6 +86,7 @@ smspp_option(BUILD_SingleFlowDCRBlock "Build SingleFlowDCRBlock")
 smspp_option(BUILD_SATBlock "Build SATBlock")
 smspp_option(BUILD_SatellitesBlock "Build SatellitesBlock")
 smspp_option(BUILD_MultiKnapsackAssignBlock "Build MultiKnapsackAssignBlock")
+smspp_option(BUILD_HQPBlock "Build HQPBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
@@ -375,6 +376,12 @@ endif ()
 if (BUILD_MultiKnapsackAssignBlock)
     init_submodule(MultiKnapsackAssignBlock)
     add_subdirectory(MultiKnapsackAssignBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_HQPBlock)
+    init_submodule(HQPBlock)
+    add_subdirectory(HQPBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 

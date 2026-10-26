@@ -379,6 +379,17 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   assign each item to at most one knapsack and each knapsack at most one
   class.
 
+- [HQPBlock](https://gitlab.com/smspp/hqpblock), defining the `Block` for
+  hierarchical (lexicographic) quadratic programs, i.e., a sequence of
+  levels each of which minimizes the violation of its tasks, equalities and
+  inequalities, while keeping those of the levels above at their optimum, as
+  in the hierarchical Model Predictive Control of robots: `HQPBlock` writes
+  them as one model in the original variables, which goes from a level to
+  the next one, and from a step of the control to the next one, by
+  `Modification`, so that an active-set `:MILPSolver` restarts from the
+  previous solution, and `HQPSolver` solves its levels one after the other
+  with an inner `Solver` taken from a `BlockSolverConfig`.
+
 - [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
   defining the `Block` for Delay-Constrained Routing problems, i.e., routing
   flows on a network at minimum cost so that the worst-case end-to-end delay

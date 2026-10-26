@@ -98,3 +98,6 @@
 	path = experiments
 	url = https://gitlab.com/smspp-develop/experiments.git
 	update = none
+[submodule "HQPBlock"]
+	path = HQPBlock
+	url = ../hqpblock.git

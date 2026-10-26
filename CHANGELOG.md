@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `HQPBlock`, the module of the `Block` and the `Solver` of hierarchical
+  (lexicographic) quadratic programs: the submodule, `BUILD_HQPBlock`, the
+  feature `hqp` of the smspp port of the vcpkg registry and the module in
+  `packaging/modules.py`, with the recipes written again
+
 - the nightly job `nightly:makefiles`, which builds all the modules with
   their makefiles, with g++ and then with clang++ and the C++20 modules,
   and runs `Module_test`

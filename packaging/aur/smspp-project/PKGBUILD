@@ -28,6 +28,7 @@ pkgname=(
   libsmspp-sat
   libsmspp-satellites
   libsmspp-mkab
+  libsmspp-hqp
   libsmspp-milp
   libsmspp-bundle
   libsmspp-subgrad
@@ -256,6 +257,12 @@ package_libsmspp-mkab() {
   DESTDIR="$pkgdir" cmake --install build/MultiKnapsackAssignBlock
 }
 
+package_libsmspp-hqp() {
+  pkgdesc="SMS++: SMS++ Block and Solver for hierarchical (lexicographic) quadratic programs"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/HQPBlock
+}
+
 package_libsmspp-milp() {
   pkgdesc="SMS++: MILP Solvers, on the open-source solvers of the channel"
   depends=(libsmspp highs scip)
@@ -454,6 +461,7 @@ package_smspp-project() {
     libsmspp-sat
     libsmspp-satellites
     libsmspp-mkab
+    libsmspp-hqp
     libsmspp-milp
     libsmspp-bundle
     libsmspp-subgrad
