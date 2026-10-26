@@ -26,6 +26,12 @@ include(CMakeSettings.txt OPTIONAL)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 
+# smspp_check_module(), which the modules call before SMS++ is added below
+# [see SMS++/cmake/CheckModule.cmake]
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake)
+endif ()
+
 # ----- Third-party sources of a release tarball ---------------------------- #
 # The release tarball carries FastFlow and RECORD in third-party/, at the
 # commits of packaging/modules.py [see packaging/third_party.py]: they are
