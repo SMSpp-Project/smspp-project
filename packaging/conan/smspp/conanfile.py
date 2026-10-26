@@ -76,7 +76,7 @@ _MODULES = [
     ('ScenarioReductionSolver', 'srs', ['tssb'], [], [],
      'Scenario reduction Solvers'),
 ]
-_NEVER = ['PIPS', 'Clarabel', 'quadprog', 'Torch']
+_NEVER = ['PIPS', 'Clarabel', 'quadprog', 'HPIPM', 'Torch']
 _LOCAL = {
     'cplex': ('CPLEX', 'CPLEX_ROOT'),
     'gurobi': ('GUROBI', 'GUROBI_ROOT'),

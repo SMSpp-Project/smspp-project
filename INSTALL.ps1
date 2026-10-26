@@ -16,6 +16,8 @@
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
     Note that quadprog (QuadProgMILPSolver), which is under the GPL and is installed by INSTALL.sh
     only if asked, is not installed on Windows, so there is no related option.
+    Note that HPIPM (HPIPMMILPSolver), which is in no vcpkg registry, is not installed on Windows,
+    so there is no related option.
     Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, StOpt, LEMON, LIBSVM and
     LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options: DAQP, PIQP and qpmad,
     which the default registry of vcpkg does not carry, come from the SMS++ vcpkg registry

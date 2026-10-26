@@ -23,6 +23,7 @@
 #     You can use the `--without-piqp` option to skip the installation of PIQP.
 #     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-qpmad` option to skip the installation of qpmad.
+#     You can use the `--without-hpipm` option to skip the installation of HPIPM.
 #     You can use the `--with-quadprog` option to also install quadprog, which
 #     is under the GPL, so that a MILPSolver built with it is too.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
@@ -601,6 +602,44 @@ EOL
       cmake --install build
     else
       echo "qpmad already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install HPIPM
+  # HPIPM and BLASFEO, the linear algebra it is built on, are built from
+  # their latest releases and installed in the same directory; BLASFEO is
+  # built for a generic processor, so that the installation (e.g., the image
+  # of the CI) also runs on a processor other than the one it was built on,
+  # and the library of HPIPM finds that of BLASFEO next to it.
+  if [ "$install_hpipm" -eq 1 ]; then
+    echo "Installing HPIPM..."
+    HPIPM_ROOT="$(resolve_dep_root hpipm)"
+    CURRENT_INSTALL_FOLDER=${HPIPM_ROOT}
+    if [ ! -d "$HPIPM_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src"
+      cd "${HPIPM_ROOT}/blasfeo-src"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      git clone https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src"
+      cd "${HPIPM_ROOT}/hpipm-src"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_PATH="$HPIPM_ROOT" -DHPIPM_TESTING=OFF \
+        -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$ORIGIN'
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${HPIPM_ROOT}/lib' > /etc/ld.so.conf.d/hpipm.conf"
+        ldconfig
+      fi
+    else
+      echo "HPIPM already installed."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1204,6 +1243,41 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install HPIPM
+  # HPIPM and BLASFEO, the linear algebra it is built on, are built from
+  # their latest releases and installed in the same directory; BLASFEO is
+  # built for a generic processor, so that the installation (e.g., the image
+  # of the CI) also runs on a processor other than the one it was built on,
+  # and the library of HPIPM finds that of BLASFEO next to it.
+  if [ "$install_hpipm" -eq 1 ]; then
+    echo "Installing HPIPM..."
+    HPIPM_ROOT="${INSTALL_ROOT}/hpipm"
+    CURRENT_INSTALL_FOLDER=${HPIPM_ROOT}
+    if [ ! -d "$HPIPM_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src"
+      cd "${HPIPM_ROOT}/blasfeo-src"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      git clone https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src"
+      cd "${HPIPM_ROOT}/hpipm-src"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_PATH="$HPIPM_ROOT" -DHPIPM_TESTING=OFF \
+        -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH=@loader_path
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HPIPM_ROOT}/lib"
+    else
+      echo "HPIPM already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install quadprog
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
@@ -1319,6 +1393,7 @@ install_proxsuite=${install_proxsuite:-1}
 install_piqp=${install_piqp:-1}
 install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
+install_hpipm=${install_hpipm:-1}
 install_quadprog=${install_quadprog:-0}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
@@ -1414,6 +1489,10 @@ do
     ;;
     --without-qpmad)
     install_qpmad=0
+    shift
+    ;;
+    --without-hpipm)
+    install_hpipm=0
     shift
     ;;
     --with-quadprog)
@@ -1595,6 +1674,7 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${piqp_ROOT:-}" ] && echo "piqp_ROOT = ${piqp_ROOT}"
       [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
       [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
+      [ -n "${HPIPM_ROOT:-}" ] && echo "HPIPM_ROOT = ${HPIPM_ROOT}"
       [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
@@ -1621,7 +1701,7 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES/
-  # ProxQP/PIQP/OSQP/qpmad/quadprog backends in MILPSolver, LIBSVM and
+  # ProxQP/PIQP/OSQP/qpmad/quadprog/HPIPM backends in MILPSolver, LIBSVM and
   # LIBLINEAR in SVMBlock) degrade gracefully on their own and need no
   # mapping here.
   smspp_cmake_flags=()

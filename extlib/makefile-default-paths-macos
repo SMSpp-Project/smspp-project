@@ -64,6 +64,7 @@ piqp_ROOT = /Library/piqp
 osqp_ROOT = /Library/osqp
 qpmad_ROOT = /Library/qpmad
 quadprog_ROOT = /Library/quadprog
+HPIPM_ROOT = /Library/hpipm
 StOpt_ROOT = /Library/StOpt
 FastFlow_ROOT = /Library/fastflow
 Torch_ROOT = /Library/torch

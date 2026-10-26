@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with Clang and Ninja, checks that none was turned off, and runs the test
   that imports the module of the core
 
+- HPIPM and BLASFEO, the QP solver of `HPIPMMILPSolver` and the linear
+  algebra it is built on: `INSTALL.sh` builds them from their latest tags
+  into the same directory, BLASFEO for a generic processor
+  (`--without-hpipm`), INSTALL.ps1 says that they are not installed on
+  Windows, `extlib` has `makefile-libHPIPM` and the default paths of
+  `HPIPM_ROOT`, and the packages never take them, being in no channel
+
 - `packaging/`, the recipes of SMS++ for Conan (with netcdf-cxx4 and stopt,
   for a remote of the project), Spack (a repository with smspp, stopt and
   highs), Nix (package.nix, stopt.nix and a flake), the AUR (the split

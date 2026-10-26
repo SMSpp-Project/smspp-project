@@ -165,8 +165,8 @@ package("smspp")
     -- the solvers that are never packaged, the CMake names of the
     -- optional externals, the variables that tell where an
     -- external is and the sources not to compile in
-    local never = {"CPLEX", "GUROBI", "MOSEK",
-                   "PIPS", "Clarabel", "quadprog", "Torch"}
+    local never = {"CPLEX", "GUROBI", "MOSEK", "PIPS",
+                   "Clarabel", "quadprog", "HPIPM", "Torch"}
     local cmake_name = {
         highs = "HiGHS",
         scip = "SCIP",

@@ -269,6 +269,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     problems as `QPMADMILPSolver`); quadprog is under the GPL, hence it is
     installed only if asked (`--with-quadprog`) and it is in no package
 
+  - `HPIPMMILPSolver`, providing the interface with the open-source
+    interior-point solver [HPIPM](https://github.com/giaf/hpipm), built on
+    the linear algebra of [BLASFEO](https://github.com/giaf/blasfeo) for the
+    small and dense problems of Model Predictive Control (convex QP and LP
+    problems with linear constraints, dense, no integer variables); it is in
+    no package
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -522,6 +529,7 @@ according to the following options table:
 | `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
 | `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
 | `--with-quadprog`  | *(not supported)* | install quadprog (GPL)                   |
+| `--without-hpipm`  | *(not supported)* | skip HPIPM (and BLASFEO) installation    |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
