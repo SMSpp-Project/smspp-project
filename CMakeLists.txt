@@ -235,7 +235,6 @@ endif ()
 
 if (BUILD_LagrangianDualSolver)
     set(BUILD_MILPSolver ON) # Requires MILPSolver
-    set(BUILD_BranchAndXSolver ON) # Requires BranchAndXSolver
 endif ()
 
 if (BUILD_MCFClassSolver)

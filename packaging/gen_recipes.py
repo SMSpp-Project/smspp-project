@@ -523,7 +523,9 @@ def gen_msys2(rel, base):
     w("")
     w("build() {")
     w("  # the modules whose dependencies MSYS2 does not carry are left out;")
-    w("  # CPLEX, Gurobi and MOSEK are not redistributable")
+    w("  # CPLEX, Gurobi and MOSEK are not redistributable; the C++20")
+    w("  # modules, which CMake would build with the Clang of clang64, are")
+    w("  # not built on Windows by the CI, hence they are left out too")
     w("  MSYS2_ARG_CONV_EXCL=\"-DCMAKE_INSTALL_PREFIX=\" \\")
     w("    cmake -S smspp-project-$pkgver -B \"build-${MSYSTEM}\" -G Ninja \\")
     w("      -DCMAKE_BUILD_TYPE=Release \\")
@@ -532,6 +534,7 @@ def gen_msys2(rel, base):
     w("      -DBUILD_tests=OFF \\")
     w("      -DBUILD_TESTING=OFF \\")
     w("      -DBUILD_experiments=OFF \\")
+    w("      -DSMSpp_BUILD_MODULE=OFF \\")
     for d in off:
         w(f"      -DBUILD_{d}=OFF \\")
     w("      -DUSE_MPI=OFF \\")
