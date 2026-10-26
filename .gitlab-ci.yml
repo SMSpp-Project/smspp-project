@@ -408,6 +408,8 @@ pages:
     - sed -i 's/textContent = escapeHtml(\(text\|name\))/textContent = \1/'
              doc/html/navtree.js
     - test "$(grep -c 'textContent = escapeHtml' doc/html/navtree.js)" = 0
+    # the overloads in the outline with the types of their parameters
+    - cat doxygen/outline-overloads.js >> doc/html/navtree.js
     - mv doc/html/ public/
     # --- User Manual (MkDocs) served at /smspp-project/manual/ ---
     - pip install --no-cache-dir --break-system-packages mkdocs-material

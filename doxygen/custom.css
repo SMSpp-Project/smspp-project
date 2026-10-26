@@ -47,3 +47,14 @@ div.groupHeader {
     border-bottom: 1px solid var(--separator-color);
     padding-bottom: 4px;
 }
+
+/* the entries of the outline on the right on more lines, where the types
+   of the parameters of the overloads make them wider than the panel */
+#page-nav-contents div.item {
+    white-space: normal;
+}
+
+#page-nav-contents div.item > a {
+    display: inline;
+    overflow-wrap: anywhere;
+}

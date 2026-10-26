@@ -172,7 +172,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the groups of members take the colours of the light and the dark theme
 
 - the Sphinx site: the signatures of the members on the dark theme, which
-  kept the light grey of the light one under names coloured for the dark
+  kept the light grey of the light one under names coloured for the dark,
+  and the cells of the tables on more lines, where the descriptions of the
+  modules, the headers and the classes ran out of the page
+
+- the outline of a page of the Doxygen site gives the overloads of a
+  method with the types of their parameters (`doxygen/outline-overloads.js`,
+  appended to `navtree.js` by the pages job), e.g., `mirror_of(ColVariable
+  *)` and `mirror_of(RowConstraint *)`, and its entries go on more lines
+  where they are wider than the panel
 
 - `extlib/makefile-libGUROBI` stops only if the header of Gurobi is there
   and its library is not: it stopped whenever Gurobi was not installed, so

@@ -34,3 +34,11 @@ html[data-theme="dark"] .rst-content dl.cpp dt {
     color: #d0d0d0 !important;
     border-color: #555555 !important;
 }
+
+/* the cells of the tables on more lines: the theme keeps them on one, so
+   that the descriptions of the modules, the headers and the classes run
+   out of the page and have to be scrolled */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+    white-space: normal;
+}
