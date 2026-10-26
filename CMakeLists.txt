@@ -26,6 +26,24 @@ include(CMakeSettings.txt OPTIONAL)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 
+# ----- Third-party sources of a release tarball ---------------------------- #
+# The release tarball carries FastFlow and RECORD in third-party/, at the
+# commits of packaging/modules.py [see packaging/third_party.py]: they are
+# used in place of the FastFlow that SMS++ fetches and of a RECORD checkout,
+# so that a build of the tarball fetches nothing, unless something else is
+# given on the command line.
+set(_smspp_third_party "${CMAKE_CURRENT_SOURCE_DIR}/third-party")
+if (EXISTS "${_smspp_third_party}/fastflow/ff" AND
+    NOT FETCHCONTENT_SOURCE_DIR_FASTFLOW)
+    set(FETCHCONTENT_SOURCE_DIR_FASTFLOW "${_smspp_third_party}/fastflow"
+        CACHE PATH "The source tree of FastFlow, not fetched")
+endif ()
+if (EXISTS "${_smspp_third_party}/record/source/RECORD.cpp" AND
+    NOT RECORD_ROOT)
+    set(RECORD_ROOT "${_smspp_third_party}/record"
+        CACHE PATH "The directory of RECORD, with source/RECORD.cpp")
+endif ()
+
 # Only apply this on Windows when building shared libraries
 if (WIN32 AND BUILD_SHARED_LIBS)
     # Enable automatic symbol export introduced in CMake 3.4
@@ -64,6 +82,10 @@ smspp_option(BUILD_InvestmentBlock "Build InvestmentBlock")
 smspp_option(BUILD_TwoStageStochasticBlock "Build TwoStageStochasticBlock")
 smspp_option(BUILD_MultiStageStochasticBlock "Build MultiStageStochasticBlock")
 smspp_option(BUILD_SVMBlock "Build SVMBlock")
+smspp_option(BUILD_SingleFlowDCRBlock "Build SingleFlowDCRBlock")
+smspp_option(BUILD_SATBlock "Build SATBlock")
+smspp_option(BUILD_SatellitesBlock "Build SatellitesBlock")
+smspp_option(BUILD_MultiKnapsackAssignBlock "Build MultiKnapsackAssignBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
@@ -71,6 +93,7 @@ smspp_option(BUILD_BendersDecompositionSolver "Build BendersDecompositionSolver"
 smspp_option(BUILD_BranchAndXSolver "Build BranchAndXSolver")
 smspp_option(BUILD_FrankWolfeSolver "Build FrankWolfeSolver")
 smspp_option(BUILD_BundleSolver "Build BundleSolver")
+smspp_option(BUILD_SubGradSolver "Build SubGradSolver")
 smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
 smspp_option(BUILD_MCFClassSolver "Build MCFClassSolver")
 smspp_option(BUILD_MCFLemonSolver "Build MCFLemonSolver")
@@ -78,6 +101,7 @@ smspp_option(BUILD_ScenarioReductionSolver "Build ScenarioReductionSolver")
 
 smspp_option(BUILD_tools "Build tools")
 smspp_option(BUILD_tests "Build system tests")
+smspp_option(BUILD_experiments "Build the computational studies of the papers")
 
 # Read the dependencies default location from a file written in a
 # bash-style syntax since it is shared with the other hand-written Makefiles,
@@ -131,15 +155,20 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extlib/makefile-paths")
     makefile_macros_to_cmake(extlib/makefile-paths)
 endif ()
 # ... then set the default other ones ignoring those already previously set,
-# according to the specific OS
-if (UNIX)
-    if (APPLE)
-        makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
-    else ()
-        makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
+# according to the specific OS. A package turns them off, so that what a
+# machine has under the default locations (e.g., /opt) is not built into it
+option(SMSPP_EXTLIB_DEFAULTS
+        "Look for the dependencies in the default locations of extlib/" ON)
+if (SMSPP_EXTLIB_DEFAULTS)
+    if (UNIX)
+        if (APPLE)
+            makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
+        else ()
+            makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
+        endif ()
+    elseif (WIN32)
+        makefile_macros_to_cmake(extlib/makefile-default-paths-win)
     endif ()
-elseif (WIN32)
-    makefile_macros_to_cmake(extlib/makefile-default-paths-win)
 endif ()
 
 # Retrieve the system architecture
@@ -189,12 +218,12 @@ if (BUILD_SDDPBlock)
     set(BUILD_StochasticBlock ON) # Requires StochasticBlock
 endif ()
 
-if (BUILD_StochasticBlock)
-    set(BUILD_CapacitatedFacilityLocationBlock ON) # Requires CapacitatedFacilityLocationBlock
-endif ()
-
 if (BUILD_CapacitatedFacilityLocationBlock)
     set(BUILD_MCFBlock ON) # Requires MCFBlock
+    set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
+endif ()
+
+if (BUILD_MultiKnapsackAssignBlock)
     set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
 endif ()
 
@@ -205,6 +234,7 @@ endif ()
 
 if (BUILD_LagrangianDualSolver)
     set(BUILD_MILPSolver ON) # Requires MILPSolver
+    set(BUILD_BranchAndXSolver ON) # Requires BranchAndXSolver
 endif ()
 
 if (BUILD_MCFClassSolver)
@@ -219,7 +249,7 @@ if (BUILD_ScenarioReductionSolver)
     set(BUILD_TwoStageStochasticBlock ON) # Requires TwoStageStochasticBlock
 endif ()
 
-# ----- Initialize submodules ------------------------------------------------ #
+# ----- Initialize submodules ----------------------------------------------- #
 macro(init_submodule name)
     # if the submodule is not initialized...
     if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}/CMakeLists.txt")
@@ -229,13 +259,22 @@ macro(init_submodule name)
     endif ()
 endmacro()
 
-# ----- Testing -------------------------------------------------------------- #
-# Enable testing at the top level if requested, so that the per-module tests
-# are reachable by ctest from the build root even when the system tests
-# (BUILD_tests) are not built.
-if (BUILD_TESTING)
-    enable_testing()
-endif ()
+# smspp_check_module(), which the modules call before SMS++ is added below
+# [see SMS++/cmake/CheckModule.cmake]: the core, which every module needs, is
+# initialized here, since a build of a single module (e.g., in its CI) may
+# start with no submodule checked out
+init_submodule(SMS++)
+include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake OPTIONAL)
+
+# ----- Testing ------------------------------------------------------------- #
+# Enable testing at the top level, so that the per-module tests are
+# reachable by ctest from the build root even when the system tests
+# (BUILD_tests) are not built; CTest defines BUILD_TESTING (default ON).
+# CTest also gives each test a default timeout of 1500 s, which the
+# batteries of the bundle and of the decompositions exceed: 0 leaves the
+# tests with no timeout, unless they have one of their own.
+set(DART_TESTING_TIMEOUT 0 CACHE STRING "Default timeout of a test (s)")
+include(CTest)
 
 # ----- Subprojects --------------------------------------------------------- #
 # The core library is required by all other SMS++ modules, if any
@@ -315,6 +354,30 @@ if (BUILD_SVMBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
+if (BUILD_SingleFlowDCRBlock)
+    init_submodule(SingleFlowDCRBlock)
+    add_subdirectory(SingleFlowDCRBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_SATBlock)
+    init_submodule(SATBlock)
+    add_subdirectory(SATBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_SatellitesBlock)
+    init_submodule(SatellitesBlock)
+    add_subdirectory(SatellitesBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_MultiKnapsackAssignBlock)
+    init_submodule(MultiKnapsackAssignBlock)
+    add_subdirectory(MultiKnapsackAssignBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
 # Solvers
 if (BUILD_MILPSolver)
     init_submodule(MILPSolver)
@@ -343,6 +406,12 @@ endif ()
 if (BUILD_BundleSolver)
     init_submodule(BundleSolver)
     add_subdirectory(BundleSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_SubGradSolver)
+    init_submodule(SubGradSolver)
+    add_subdirectory(SubGradSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 
@@ -385,10 +454,33 @@ if (BUILD_tests)
     enable_testing()
 endif ()
 
+# ----- Experiments --------------------------------------------------------- #
+# The computational studies of the papers are a private submodule, which
+# .gitmodules marks "update = none" so that a recursive clone or update skips
+# it: it is built only when whoever has access has initialized it.
+if (BUILD_experiments AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/experiments/CMakeLists.txt")
+    add_subdirectory(experiments)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
 # ----- SMS++ --------------------------------------------------------------- #
 if (SMSPP_REQUIRED)
     init_submodule(SMS++)
     add_subdirectory(SMS++)
 endif ()
+
+# ----- Binary packages ----------------------------------------------------- #
+# cpack packs what the build installs, i.e. the libraries, the headers and the
+# tools of the enabled modules, in the archives the release pipeline publishes
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR "SMS++ Project")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_HOMEPAGE_URL ${PROJECT_HOMEPAGE_URL})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_FILE_NAME
+        "${PROJECT_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}")
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+set(CPACK_SOURCE_GENERATOR "")
+include(CPack)
 
 # --------------------------------------------------------------------------- #

@@ -18,7 +18,7 @@ algorithms that SMS++ implements and that are mentioned in the text.
    <https://gitlab.com/smspp/smspp-project>, API reference (Doxygen)
    <https://smspp.gitlab.io/smspp-project/>, and project Wiki
    <https://gitlab.com/smspp/smspp-project/-/wikis/home>. Version
-   covered by this manual: 0.6.0 (December 2025).
+   covered by this manual: 0.7.0 (October 2026).
 
 ## Decomposition and nonsmooth optimization
 

@@ -1,0 +1,278 @@
+pkgbase = smspp-project
+	pkgdesc = Framework to model and solve block-structured optimization problems
+	pkgver = 0.7.99
+	pkgrel = 1
+	url = https://smspp.gitlab.io/
+	arch = x86_64
+	arch = aarch64
+	license = LGPL-3.0-only
+	makedepends = cmake
+	makedepends = help2man
+	makedepends = boost
+	makedepends = eigen
+	makedepends = netcdf-cxx
+	makedepends = stopt
+	makedepends = libsvm
+	makedepends = liblinear
+	makedepends = cadical
+	makedepends = minisat
+	makedepends = highs
+	makedepends = scip
+	makedepends = coin-or-lemon
+	noextract = smspp-project-0.7.99.tar.gz
+	options = !lto
+	source = smspp-project-0.7.99.tar.gz::https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/generic/smspp-project/0.7.99/smspp-project-0.7.99.tar.gz
+	source = fastflow-d476f66ab924d8d122f54b4b90aee00ef979aea8.tar.gz::https://github.com/fastflow/fastflow/archive/d476f66ab924d8d122f54b4b90aee00ef979aea8.tar.gz
+	sha256sums = a33859ae4ca6ca2ab9d6bfce67804e501051eae1780b4f148ef489f52978d91a
+	sha256sums = fca23ce672fe12fe7cdbfa6955a982d6eb75816a00d2d97a93deba9b351f9c53
+
+pkgname = libsmspp
+	pkgdesc = SMS++: Core library of the SMS++ modelling framework
+	depends = boost
+	depends = eigen
+	depends = netcdf-cxx
+
+pkgname = libsmspp-bkb
+	pkgdesc = SMS++: Binary knapsack Block and its dynamic programming Solver
+	depends = libsmspp
+
+pkgname = libsmspp-mcf
+	pkgdesc = SMS++: Min-cost flow Block
+	depends = libsmspp
+
+pkgname = libsmspp-cflb
+	pkgdesc = SMS++: Capacitated facility location Block
+	depends = libsmspp-bkb
+	depends = libsmspp-mcf
+
+pkgname = libsmspp-mmcf
+	pkgdesc = SMS++: Multicommodity min-cost flow Block
+	depends = libsmspp-bkb
+	depends = libsmspp-mcf
+
+pkgname = libsmspp-lukfi
+	pkgdesc = SMS++: Test functions for nonsmooth optimization
+	depends = libsmspp
+
+pkgname = libsmspp-ucblock
+	pkgdesc = SMS++: Unit Commitment Block, its units and networks
+	depends = libsmspp
+
+pkgname = libsmspp-stochastic
+	pkgdesc = SMS++: Stochastic Block and scenario sets
+	depends = libsmspp
+
+pkgname = libsmspp-tssb
+	pkgdesc = SMS++: Two-stage stochastic Block
+	depends = libsmspp-stochastic
+
+pkgname = libsmspp-mssb
+	pkgdesc = SMS++: Multi-stage stochastic Block
+	depends = libsmspp-tssb
+
+pkgname = libsmspp-sddp
+	pkgdesc = SMS++: Stochastic Dual Dynamic Programming Block
+	depends = libsmspp-stochastic
+	depends = stopt
+
+pkgname = libsmspp-investment
+	pkgdesc = SMS++: Investment (capacity expansion) Block
+	depends = libsmspp-sddp
+	depends = libsmspp-tssb
+	depends = libsmspp-ucblock
+
+pkgname = libsmspp-svm
+	pkgdesc = SMS++: Support Vector Machine Block
+	depends = libsmspp
+	depends = libsvm
+	depends = liblinear
+
+pkgname = libsmspp-sfdcr
+	pkgdesc = SMS++: Single-flow delay-constrained routing Block
+	depends = libsmspp
+
+pkgname = libsmspp-sat
+	pkgdesc = SMS++: SAT and weighted MaxSAT Block
+	depends = libsmspp
+	depends = cadical
+	depends = minisat
+
+pkgname = libsmspp-satellites
+	pkgdesc = SMS++: Satellite Constellation Design Problem Block
+	depends = libsmspp
+
+pkgname = libsmspp-mkab
+	pkgdesc = SMS++: Multiple knapsack assignment Block
+	depends = libsmspp-bkb
+
+pkgname = libsmspp-milp
+	pkgdesc = SMS++: MILP Solvers, on the open-source solvers of the channel
+	depends = libsmspp
+	depends = highs
+	depends = scip
+
+pkgname = libsmspp-bundle
+	pkgdesc = SMS++: Bundle methods for nondifferentiable optimization
+	depends = libsmspp-milp
+
+pkgname = libsmspp-subgrad
+	pkgdesc = SMS++: Subgradient methods for nondifferentiable optimization
+	depends = libsmspp
+
+pkgname = libsmspp-lds
+	pkgdesc = SMS++: Lagrangian dual Solver
+	depends = libsmspp-milp
+	depends = libsmspp-bnx
+
+pkgname = libsmspp-frankwolfe
+	pkgdesc = SMS++: Frank-Wolfe and Dantzig-Wolfe decomposition Solver
+	depends = libsmspp
+
+pkgname = libsmspp-bnx
+	pkgdesc = SMS++: Relaxation-agnostic Branch-and-X Solver
+	depends = libsmspp
+
+pkgname = libsmspp-bds
+	pkgdesc = SMS++: Generic Benders decomposition Solver
+	depends = libsmspp
+
+pkgname = libsmspp-mcfclass
+	pkgdesc = SMS++: Min-cost flow Solvers of MCFClass
+	depends = libsmspp-mcf
+
+pkgname = libsmspp-mcflemon
+	pkgdesc = SMS++: Min-cost flow Solvers of LEMON
+	depends = libsmspp-mcf
+	depends = coin-or-lemon
+
+pkgname = libsmspp-srs
+	pkgdesc = SMS++: Scenario reduction Solvers
+	depends = libsmspp-tssb
+
+pkgname = smspp-ucblock
+	pkgdesc = SMS++: Unit Commitment solver
+	depends = libsmspp
+	depends = libsmspp-ucblock
+	depends = libsmspp-milp
+
+pkgname = smspp-tssb
+	pkgdesc = SMS++: two-stage stochastic solver
+	depends = libsmspp
+	depends = libsmspp-ucblock
+	depends = libsmspp-stochastic
+	depends = libsmspp-tssb
+	depends = libsmspp-milp
+
+pkgname = smspp-mssb
+	pkgdesc = SMS++: multi-stage stochastic solver
+	depends = libsmspp
+	depends = libsmspp-ucblock
+	depends = libsmspp-stochastic
+	depends = libsmspp-tssb
+	depends = libsmspp-mssb
+	depends = libsmspp-milp
+
+pkgname = smspp-sddp
+	pkgdesc = SMS++: SDDP solver
+	depends = libsmspp
+	depends = libsmspp-ucblock
+	depends = libsmspp-stochastic
+	depends = libsmspp-sddp
+	depends = libsmspp-milp
+
+pkgname = smspp-investment
+	pkgdesc = SMS++: capacity expansion solver
+	depends = libsmspp
+	depends = libsmspp-ucblock
+	depends = libsmspp-stochastic
+	depends = libsmspp-tssb
+	depends = libsmspp-mssb
+	depends = libsmspp-sddp
+	depends = libsmspp-investment
+	depends = libsmspp-milp
+
+pkgname = smspp-svm
+	pkgdesc = SMS++: support vector machine trainer
+	depends = libsmspp
+	depends = libsmspp-svm
+	depends = libsmspp-milp
+
+pkgname = smspp-mcf
+	pkgdesc = SMS++: min-cost flow solver
+	depends = libsmspp
+	depends = libsmspp-mcf
+	depends = libsmspp-mcfclass
+
+pkgname = smspp-bkb
+	pkgdesc = SMS++: binary knapsack solver
+	depends = libsmspp
+	depends = libsmspp-bkb
+
+pkgname = smspp-cflb
+	pkgdesc = SMS++: capacitated facility location solver
+	depends = libsmspp
+	depends = libsmspp-bkb
+	depends = libsmspp-mcf
+	depends = libsmspp-cflb
+	depends = libsmspp-milp
+
+pkgname = smspp-mmcf
+	pkgdesc = SMS++: multicommodity min-cost flow solver
+	depends = libsmspp
+	depends = libsmspp-bkb
+	depends = libsmspp-mcf
+	depends = libsmspp-mmcf
+	depends = libsmspp-milp
+
+pkgname = smspp-sfdcr
+	pkgdesc = SMS++: delay-constrained routing solver
+	depends = libsmspp
+	depends = libsmspp-sfdcr
+	depends = libsmspp-milp
+
+pkgname = smspp-tools
+	pkgdesc = SMS++: generic solver and configuration editor
+	depends = libsmspp
+
+pkgname = smspp-project
+	pkgdesc = SMS++: every module, with its headers, and every tool
+	arch = any
+	depends = libsmspp
+	depends = libsmspp-bkb
+	depends = libsmspp-mcf
+	depends = libsmspp-cflb
+	depends = libsmspp-mmcf
+	depends = libsmspp-lukfi
+	depends = libsmspp-ucblock
+	depends = libsmspp-stochastic
+	depends = libsmspp-tssb
+	depends = libsmspp-mssb
+	depends = libsmspp-sddp
+	depends = libsmspp-investment
+	depends = libsmspp-svm
+	depends = libsmspp-sfdcr
+	depends = libsmspp-sat
+	depends = libsmspp-satellites
+	depends = libsmspp-mkab
+	depends = libsmspp-milp
+	depends = libsmspp-bundle
+	depends = libsmspp-subgrad
+	depends = libsmspp-lds
+	depends = libsmspp-frankwolfe
+	depends = libsmspp-bnx
+	depends = libsmspp-bds
+	depends = libsmspp-mcfclass
+	depends = libsmspp-mcflemon
+	depends = libsmspp-srs
+	depends = smspp-ucblock
+	depends = smspp-tssb
+	depends = smspp-mssb
+	depends = smspp-sddp
+	depends = smspp-investment
+	depends = smspp-svm
+	depends = smspp-mcf
+	depends = smspp-bkb
+	depends = smspp-cflb
+	depends = smspp-mmcf
+	depends = smspp-sfdcr
+	depends = smspp-tools

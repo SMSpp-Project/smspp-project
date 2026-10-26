@@ -1,0 +1,5 @@
+# written by packaging/gen_recipes.py of the SMS++ umbrella
+sources:
+  "7.1":
+    url: "https://gitlab.com/stochastic-control/StOpt/-/archive/v7.1/StOpt-v7.1.tar.gz"
+    sha256: "8bee8f2aab097c91a791729cde34f50b062208a1ab1af4d62ee41dba24a9e5e7"

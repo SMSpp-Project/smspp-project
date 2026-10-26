@@ -12,6 +12,8 @@
 #           $(libGUROBILIB) = external libraries + -L< libdirs > for         #
 #                             libGUROBI                                      #
 #           $(libGUROBIINC) = the -I$(include directories) for libGUROBI     #
+#           $(GUROBI_PRESENT) = non-empty if and only if gurobi_c.h is       #
+#                               there                                        #
 #                                                                            #
 #                              Antonio Frangioni                             #
 #                         Dipartimento di Informatica                        #
@@ -37,33 +39,33 @@ ifeq ($(UNAME_S),Darwin)
     libGUROBIBSCDIR = $(GUROBI_ROOT)/macos_universal2
 endif
 
+# Gurobi is there if its header is; then its library has to be there too
+GUROBI_PRESENT := $(wildcard $(libGUROBIBSCDIR)/include/gurobi_c.h)
+
 # extract Gurobi version
 ifeq ($(UNAME_S),Linux)
-    GUROBI_VERSION := $(shell \
-        ls "$(libGUROBIBSCDIR)/lib" \
-        | grep -E '^libgurobi[0-9]+\.so$$' \
-        | sed -E 's/^libgurobi([0-9]+)\.so$$/\1/' \
-        | head -n1 \
-    )
-    ifeq ($(GUROBI_VERSION),)
-        $(error "No matching Gurobi library (libgurobi[digits].so) found in $(libGUROBIBSCDIR)/lib!")
-    endif
+    libGUROBISFX = so
 endif
 ifeq ($(UNAME_S),Darwin)
+    libGUROBISFX = dylib
+endif
+ifneq ($(GUROBI_PRESENT),)
     GUROBI_VERSION := $(shell \
-        ls "$(libGUROBIBSCDIR)/lib" \
-        | grep -E '^libgurobi[0-9]+\.dylib$$' \
-        | sed -E 's/^libgurobi([0-9]+)\.dylib$$/\1/' \
+        ls "$(libGUROBIBSCDIR)/lib" 2>/dev/null \
+        | grep -E '^libgurobi[0-9]+\.$(libGUROBISFX)$$' \
+        | sed -E 's/^libgurobi([0-9]+)\.$(libGUROBISFX)$$/\1/' \
         | head -n1 \
     )
     ifeq ($(GUROBI_VERSION),)
-        $(error "No matching Gurobi library (libgurobi[digits].dylib) found in $(libGUROBIBSCDIR)/lib!")
+        $(error no libgurobi<version>.$(libGUROBISFX) in \
+                $(libGUROBIBSCDIR)/lib, where gurobi_c.h is)
     endif
 endif
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) $(libGUROBIEXTLIB)
+libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) \
+	$(libGUROBIEXTLIB)
 libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
 
 ####################### End of makefile-libGUROBI ############################

@@ -1,0 +1,27 @@
+/* ------------------------------------------------------------------------
+   smspp.css: what the site of SMS++ changes in the theme of Read the Docs
+   ------------------------------------------------------------------------ */
+
+/* the content as wide as the formulae and the signatures of the API need:
+   at 1300 pixels 1 display formula in 253 and 65 signatures in 6916 of the
+   core and of UCBlock are still wider (800, the default of the theme, cuts
+   27 and 686), and the signatures longer than
+   maximum_signature_line_length go one parameter per line anyway */
+.wy-nav-content {
+    max-width: 1300px;
+}
+
+/* a display formula wider than the page scrolls in its own box, and does
+   not spill over the margin */
+mjx-container[display="true"],
+div.math {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* the names in the signatures, which the dark theme leaves black */
+html[data-theme="dark"] .rst-content dl .sig-name,
+html[data-theme="dark"] .rst-content dl .sig-name * {
+    color: #e6e6e6 !important;
+}

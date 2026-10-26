@@ -1,0 +1,103 @@
+# Maintainer: Donato Meoli <donato.meoli.95@gmail.com>
+#
+# Written by packaging/gen_recipes.py of the SMS++ umbrella from its
+# packaging/modules.py: edit those, not this file.
+
+_realname=smspp
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=0.7.99
+pkgrel=1
+pkgdesc="Framework for block-structured optimization problems (mingw-w64)"
+arch=('any')
+mingw_arch=('ucrt64' 'clang64' 'clangarm64')
+url="https://smspp.gitlab.io/"
+msys2_references=(
+  'gitlab: smspp/smspp-project'
+)
+license=('spdx:LGPL-3.0-only')
+depends=(
+  "${MINGW_PACKAGE_PREFIX}-boost"
+  "${MINGW_PACKAGE_PREFIX}-netcdf-cxx"
+  "${MINGW_PACKAGE_PREFIX}-highs"
+)
+makedepends=(
+  "${MINGW_PACKAGE_PREFIX}-cc"
+  "${MINGW_PACKAGE_PREFIX}-cmake"
+  "${MINGW_PACKAGE_PREFIX}-ninja"
+  "${MINGW_PACKAGE_PREFIX}-eigen3"
+)
+# FastFlow, which the core fetches at configure time, at the commit
+# that the other packages of the project pin
+_ff=d476f66ab924d8d122f54b4b90aee00ef979aea8
+_gitlab=https://gitlab.com/api/v4/projects
+_registry=$_gitlab/smspp%2Fsmspp-project/packages/generic/smspp-project
+_ffurl=https://github.com/fastflow/fastflow/archive
+_tarball=smspp-project-$pkgver.tar.gz
+source=(
+  "$_tarball::$_registry/$pkgver/$_tarball"
+  "fastflow-$_ff.tar.gz::$_ffurl/$_ff.tar.gz"
+)
+# the tarball of the release has no top directory
+noextract=("$_tarball")
+sha256sums=(
+  'a33859ae4ca6ca2ab9d6bfce67804e501051eae1780b4f148ef489f52978d91a'
+  'fca23ce672fe12fe7cdbfa6955a982d6eb75816a00d2d97a93deba9b351f9c53'
+)
+
+prepare() {
+  mkdir -p smspp-project-$pkgver
+  bsdtar -xf $_tarball -C smspp-project-$pkgver
+  # the settings of the umbrella for its developers give way to these
+  rm -f smspp-project-$pkgver/CMakeSettings.txt
+}
+
+build() {
+  # the modules whose dependencies MSYS2 does not carry are left out;
+  # CPLEX, Gurobi and MOSEK are not redistributable
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+    cmake -S smspp-project-$pkgver -B "build-${MSYSTEM}" -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="${MINGW_PREFIX}" \
+      -DBUILD_SHARED_LIBS=ON \
+      -DBUILD_tests=OFF \
+      -DBUILD_TESTING=OFF \
+      -DBUILD_experiments=OFF \
+      -DBUILD_SDDPBlock=OFF \
+      -DBUILD_InvestmentBlock=OFF \
+      -DBUILD_MCFLemonSolver=OFF \
+      -DUSE_MPI=OFF \
+      -DFETCHCONTENT_SOURCE_DIR_FASTFLOW="$srcdir/fastflow-$_ff" \
+      -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_PIPS=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_Clarabel=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_quadprog=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_Torch=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_CPLEX=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_GUROBI=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_MOSEK=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_SCIP=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_DAQP=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_qpOASES=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_proxsuite=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_piqp=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_osqp=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_qpmad=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_CaDiCaL=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_MiniSat=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_LIBSVM=ON \
+      -DCMAKE_DISABLE_FIND_PACKAGE_LIBLINEAR=ON \
+      -DHiGHS_ROOT="${MINGW_PREFIX}" \
+      -DCOMBO_ROOT=OFF \
+      -DRECORD_ROOT=OFF \
+      -DSMSPP_EXTLIB_DEFAULTS=OFF \
+      -DnetCDFCxx_LIBRARY="${MINGW_PREFIX}/lib/libnetcdf_c++4.dll.a" \
+      -DnetCDFCxx_LIBRARY_DEBUG="${MINGW_PREFIX}/lib/libnetcdf_c++4.dll.a"
+  cmake --build "build-${MSYSTEM}"
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install "build-${MSYSTEM}"
+  install -Dm644 smspp-project-$pkgver/LICENSE \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

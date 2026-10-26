@@ -13,22 +13,41 @@
 #     You can use the `--cplex-installer=<path-to-installer>` option to point to your own CPLEX installer.
 #     You can use the `--without-cplex` option to skip the installation of CPLEX.
 #     You can use the `--without-gurobi` option to skip the installation of Gurobi.
+#     You can use the `--without-mosek` option to skip the installation of MOSEK.
 #     You can use the `--without-scip` option to skip the installation of SCIP.
 #     You can use the `--without-highs` option to skip the installation of HiGHS.
 #     You can use the `--without-pips` option to skip the installation of PIPS-IPM++.
+#     You can use the `--without-daqp` option to skip the installation of DAQP.
+#     You can use the `--without-qpoases` option to skip the installation of qpOASES.
+#     You can use the `--without-proxsuite` option to skip the installation of ProxSuite.
+#     You can use the `--without-piqp` option to skip the installation of PIQP.
+#     You can use the `--without-osqp` option to skip the installation of OSQP.
+#     You can use the `--without-qpmad` option to skip the installation of qpmad.
+#     You can use the `--with-quadprog` option to also install quadprog, which
+#     is under the GPL, so that a MILPSolver built with it is too.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
-#     You can use the `--without-coinor` option to skip the installation of COIN-OR.
+#     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
+#     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
+#     You can use the `--without-minisat` option to skip the installation of MiniSat.
+#     You can use the `--without-record` option to skip the installation of RECORD.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
+#     You can use the `--with-experiments` option to also fetch and build the
+#     private experiments submodule, which needs access to its repository;
+#     without it the script never touches that submodule.
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
 #     looking for a missing library: --without-stopt disables SDDPBlock and
-#     InvestmentBlock, --without-lemon disables MCFLemonSolver,
-#     --without-coinor disables BundleSolver, and --without-pips disables
-#     PIPSMILPSolver.
+#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
+#     --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
+#     for SATBlock, which builds the SAT solvers it finds, and RECORD is
+#     optional for BinaryKnapsackBlock, which builds RECORDBinaryKnapsackSolver
+#     if it finds it. COMBO, which BinaryKnapsackBlock can also use, is for
+#     academic or non-commercial use only and is not installed: whoever has
+#     its combo.c and combo.h gives their directory as COMBO_ROOT.
 #
 # AUTHOR
 #     Donato Meoli
@@ -93,6 +112,9 @@ install_on_linux() {
 
   echo "Starting the installation process on Linux..."
 
+  # CaDiCaL is built from its source unless its package is installed below
+  cadical_from_source=1
+
   if [ "$HAS_SUDO" -eq 1 ]; then
     # Update packages and install basic requirements
     echo "Updating system and installing basic requirements..."
@@ -126,6 +148,87 @@ install_on_linux() {
       echo "Installing LIBSVM..."
       apt-get install -y -q libsvm-dev
     fi
+
+    # Install LIBLINEAR
+    if [ "$install_liblinear" -eq 1 ]; then
+      echo "Installing LIBLINEAR..."
+      apt-get install -y -q liblinear-dev
+    fi
+
+    # Install CaDiCaL: the package is there from Debian 12 and Ubuntu 24.04 on,
+    # otherwise it is built from its source below
+    if [ "$install_cadical" -eq 1 ]; then
+      echo "Installing CaDiCaL..."
+      if apt-get install -y -q libcadical-dev; then
+        cadical_from_source=0
+      fi
+    fi
+  fi
+
+  # Install CaDiCaL from its source, where there is no package: its own
+  # configure script builds it in place (src/cadical.hpp and
+  # build/libcadical.a), which is what SATBlock looks for in CADICAL_ROOT;
+  # -fPIC lets the library be linked into a shared SATBlock
+  if [ "$install_cadical" -eq 1 ] && [ "$cadical_from_source" -eq 1 ]; then
+    echo "Installing CaDiCaL from its source..."
+    CADICAL_ROOT="$(resolve_dep_root cadical)"
+    CURRENT_INSTALL_FOLDER=${CADICAL_ROOT}
+    if [ ! -d "$CADICAL_ROOT" ]; then
+      git clone --branch rel-3.0.1 --depth 1 https://github.com/arminbiere/cadical.git "$CADICAL_ROOT"
+      cd "$CADICAL_ROOT"
+      ./configure -fPIC
+      make -j "${MAX_JOBS}"
+    else
+      echo "CaDiCaL already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install MiniSat from its source: the minisat package of Debian and Ubuntu
+  # carries the 2010 code of minisat.se, older than the stp/minisat fork,
+  # the one Homebrew packages, which compiles with the recent compilers as it
+  # is; its CMakeLists.txt asks for CMake 2.6, which CMake 4 refuses unless
+  # told the policies it may assume
+  if [ "$install_minisat" -eq 1 ]; then
+    echo "Installing MiniSat..."
+    MINISAT_ROOT="$(resolve_dep_root minisat)"
+    CURRENT_INSTALL_FOLDER=${MINISAT_ROOT}
+    if [ ! -d "$MINISAT_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone --branch releases/2.2.1 --depth 1 https://github.com/stp/minisat.git minisat-src
+      cd minisat-src
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX="$MINISAT_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      cd "$INSTALL_ROOT"
+      rm -rf minisat-src
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${MINISAT_ROOT}/lib' > /etc/ld.so.conf.d/minisat.conf"
+        ldconfig
+      fi
+    else
+      echo "MiniSat already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install RECORD: a single source file, which BinaryKnapsackBlock compiles
+  # itself, so there is nothing to build here; its repository also holds a
+  # large set of benchmark data, hence only source/ is checked out
+  if [ "$install_record" -eq 1 ]; then
+    echo "Installing RECORD..."
+    RECORD_ROOT="$(resolve_dep_root record)"
+    CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
+    if [ ! -d "$RECORD_ROOT" ]; then
+      git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
+      git -C "$RECORD_ROOT" sparse-checkout set source
+    else
+      echo "RECORD already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install CPLEX
@@ -196,6 +299,53 @@ EOL
     else
       echo "Gurobi already installed."
     fi
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install MOSEK: the tools archive of the latest 12.0.x version, whose
+  # number is published next to it (a fixed one if it cannot be read); the
+  # archive unpacks as mosek/<major.minor>/tools/platform/<platform>, and
+  # MOSEK_ROOT is the mosek directory, which holds one directory per version
+  if [ "$install_mosek" -eq 1 ]; then
+    echo "Installing MOSEK..."
+    MOSEK_ROOT="$(resolve_dep_root mosek)"
+    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
+    if [ ! -d "$MOSEK_ROOT" ]; then
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        apt-get install -y -q bzip2
+      fi
+      cd "$INSTALL_ROOT"
+      MOSEK_URL="https://download.mosek.com/stable"
+      MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+      if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+        MOSEK_VERSION="12.0.0"
+      fi
+      if [ "$(uname -m)" == "aarch64" ]; then
+        MOSEK_PLATFORM="linuxaarch64"
+      else
+        MOSEK_PLATFORM="linux64x86"
+      fi
+      MOSEK_INSTALLER="mosektools${MOSEK_PLATFORM}.tar.bz2"
+      curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"
+      mkdir -p mosek-src
+      tar -xjf "$MOSEK_INSTALLER" -C mosek-src
+      rm "$MOSEK_INSTALLER"
+      mv mosek-src/mosek "$MOSEK_ROOT"
+      rm -rf mosek-src
+      MOSEK_HOME="${MOSEK_ROOT}/${MOSEK_VERSION%.*}"
+      MOSEK_HOME="${MOSEK_HOME}/tools/platform/${MOSEK_PLATFORM}"
+      export PATH="${PATH}:${MOSEK_HOME}/bin"
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${MOSEK_HOME}/bin"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${MOSEK_HOME}/bin' > /etc/ld.so.conf.d/mosek.conf"
+        ldconfig
+      fi
+    else
+      echo "MOSEK already installed."
+    fi
+    echo "MOSEK needs a license (free for academic use, see"
+    echo "https://www.mosek.com/products/academic-licenses/): put it in"
+    echo "~/mosek/mosek.lic or point MOSEKLM_LICENSE_FILE to it."
     CURRENT_INSTALL_FOLDER=""
   fi
 
@@ -291,6 +441,201 @@ EOL
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install DAQP
+  # DAQP is built from its latest release, i.e., the latest tag of its
+  # repository, rather than from its development branch.
+  if [ "$install_daqp" -eq 1 ]; then
+    echo "Installing DAQP..."
+    DAQP_ROOT="$(resolve_dep_root daqp)"
+    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
+    if [ ! -d "$DAQP_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+      cd "$DAQP_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${DAQP_ROOT}/lib' > /etc/ld.so.conf.d/daqp.conf"
+        ldconfig
+      fi
+    else
+      echo "DAQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install qpOASES
+  # qpOASES is built from its latest release, i.e., the latest tag of its
+  # repository, as a shared library whose replacements of the BLAS and LAPACK
+  # routines it uses are renamed (QPOASES_AVOID_LA_NAMING_CONFLICTS), so that
+  # they do not take the place of the BLAS and LAPACK of the other libraries;
+  # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
+  # unless told otherwise.
+  if [ "$install_qpoases" -eq 1 ]; then
+    echo "Installing qpOASES..."
+    qpOASES_ROOT="$(resolve_dep_root qpOASES)"
+    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
+    if [ ! -d "$qpOASES_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+      cd "$qpOASES_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+        -DCMAKE_INSTALL_PREFIX="$qpOASES_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${qpOASES_ROOT}/lib' > /etc/ld.so.conf.d/qpoases.conf"
+        ldconfig
+      fi
+    else
+      echo "qpOASES already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install ProxSuite
+  # ProxSuite (ProxQP) is header-only: it is configured from its latest
+  # release, without the SIMD vectorization that would need Simde and the
+  # serialization that would need cereal, and only its headers and its CMake
+  # configuration are installed.
+  if [ "$install_proxsuite" -eq 1 ]; then
+    echo "Installing ProxSuite..."
+    proxsuite_ROOT="$(resolve_dep_root proxsuite)"
+    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
+    if [ ! -d "$proxsuite_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+      cd "$proxsuite_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
+        -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
+        -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
+      cmake --install build
+    else
+      echo "ProxSuite already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PIQP
+  # PIQP is built from its latest release, with its C++ interface alone (the
+  # compiled library of its common templates and its headers), without the
+  # C, Python and Matlab interfaces, the tests and the benchmarks.
+  if [ "$install_piqp" -eq 1 ]; then
+    echo "Installing PIQP..."
+    piqp_ROOT="$(resolve_dep_root piqp)"
+    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
+    if [ ! -d "$piqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+      cd "$piqp_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
+        -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
+        -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${piqp_ROOT}/lib' > /etc/ld.so.conf.d/piqp.conf"
+        ldconfig
+      fi
+    else
+      echo "PIQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install OSQP
+  # OSQP is built from its latest release, with its builtin linear algebra
+  # and in double precision, without the demo and the unit tests; the
+  # version is given to its CMake, which otherwise writes 0.0.0 in it.
+  if [ "$install_osqp" -eq 1 ]; then
+    echo "Installing OSQP..."
+    osqp_ROOT="$(resolve_dep_root osqp)"
+    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
+    if [ ! -d "$osqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+      cd "$osqp_ROOT"
+      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      git checkout -q "$osqp_tag"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
+        -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
+        -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${osqp_ROOT}/lib' > /etc/ld.so.conf.d/osqp.conf"
+        ldconfig
+      fi
+    else
+      echo "OSQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install qpmad
+  # qpmad is header-only: it is configured from its latest release, and only
+  # its headers and its CMake configuration are installed.
+  if [ "$install_qpmad" -eq 1 ]; then
+    echo "Installing qpmad..."
+    qpmad_ROOT="$(resolve_dep_root qpmad)"
+    CURRENT_INSTALL_FOLDER=${qpmad_ROOT}
+    if [ ! -d "$qpmad_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/asherikov/qpmad.git "$qpmad_ROOT"
+      cd "$qpmad_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$qpmad_ROOT"
+      cmake --install build
+    else
+      echo "qpmad already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install quadprog
+  # quadprog has no library of its own: its C sources are compiled from its
+  # latest release into one, which exports only the function that is called,
+  # since the others have names (dot, axpy, ...) that other libraries export.
+  # It is under the GPL, hence it is installed only if asked.
+  if [ "$install_quadprog" -eq 1 ]; then
+    echo "Installing quadprog..."
+    quadprog_ROOT="$(resolve_dep_root quadprog)"
+    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
+    if [ ! -d "$quadprog_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+      cd "$quadprog_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      mkdir -p lib
+      echo "{ global: qpgen2_; local: *; };" > lib/quadprog.map
+      cc -O2 -fPIC -shared -Wl,--version-script=lib/quadprog.map \
+        -o lib/libquadprog.so quadprog/solve.QP.c \
+        quadprog/linear-algebra.c quadprog/qr-update.c -lm
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${quadprog_ROOT}/lib' > /etc/ld.so.conf.d/quadprog.conf"
+        ldconfig
+      fi
+    else
+      echo "quadprog already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install PIPS-IPM++
   # PIPS-IPM++ is consumed from its build tree (no install step); the fully
   # open-source build uses MUMPS as inner linear solver.
@@ -313,71 +658,14 @@ EOL
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install COIN-OR CoinUtils and Osi/Clp
-  if [ "$install_coinor" -eq 1 ]; then
-    echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-    CoinOr_ROOT="$(resolve_dep_root coin-or)"
-    CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
-    if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q libbz2-dev
-    fi
-    if [ ! -d "$CoinOr_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-      chmod u+x coinbrew
-      # Build CoinUtils
-      ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      osi_build_flags=(
-        "--latest-release"
-        "--skip-dependencies"
-        "--prefix=$CoinOr_ROOT"
-        "--tests=none"
-      )
-      # Build Osi with or without CPLEX
-      if [ "$install_cplex" -eq 0 ]; then
-        osi_build_flags+=("--without-cplex")
-      else
-        osi_build_flags+=(
-          "--with-cplex"
-          "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/x86-64_linux/static_pic -lcplex -lpthread -lm"
-          "--disable-cplex-libcheck"
-          "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
-        )
-      fi
-      # Build Osi with or without Gurobi
-      if [ "$install_gurobi" -eq 0 ]; then
-        osi_build_flags+=("--without-gurobi")
-      else
-        GUROBI_VERSION=$(ls "${GUROBI_ROOT}/linux64/lib" | grep -E '^libgurobi[0-9]+\.so$' | sed -E 's/^libgurobi([0-9]+)\.so$/\1/' | head -n1)
-        osi_build_flags+=(
-          "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/linux64/lib -lgurobi${GUROBI_VERSION}"
-          "--disable-gurobi-libcheck"
-          "--with-gurobi-incdir=${GUROBI_ROOT}/linux64/include"
-        )
-      fi
-      ./coinbrew build Osi "${osi_build_flags[@]}"
-      # Build Clp
-      ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      rm -Rf coinbrew build CoinUtils Osi Clp
-      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        sh -c "echo '${CoinOr_ROOT}/lib' > /etc/ld.so.conf.d/coin-or.conf"
-        ldconfig
-      fi
-    else
-      echo "COIN-OR already installed."
-    fi
-    CURRENT_INSTALL_FOLDER=""
-  fi
-
   # Install StOpt
   if [ "$install_stopt" -eq 1 ]; then
     echo "Installing StOpt..."
     StOpt_ROOT="$(resolve_dep_root StOpt)"
     CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
-      apt-get install -y -q zlib1g-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
+      # StOpt looks for BZip2 too, which the COIN-OR packages used to bring
+      apt-get install -y -q zlib1g-dev libbz2-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
     fi
     if [ ! -d "$StOpt_ROOT" ]; then
       cd "$INSTALL_ROOT"
@@ -539,6 +827,37 @@ install_on_macos() {
     brew install libsvm
   fi
 
+  # Install LIBLINEAR
+  if [ "$install_liblinear" -eq 1 ]; then
+    echo "Installing LIBLINEAR..."
+    brew install liblinear
+  fi
+
+  # Install CaDiCaL
+  if [ "$install_cadical" -eq 1 ]; then
+    echo "Installing CaDiCaL..."
+    brew install cadical
+  fi
+
+  # Install MiniSat
+  if [ "$install_minisat" -eq 1 ]; then
+    echo "Installing MiniSat..."
+    brew install minisat
+  fi
+
+  # Install RECORD: a single source file, which BinaryKnapsackBlock compiles
+  # itself; only source/ of its repository is checked out
+  if [ "$install_record" -eq 1 ]; then
+    echo "Installing RECORD..."
+    RECORD_ROOT="${INSTALL_ROOT}/record"
+    if [ ! -d "$RECORD_ROOT" ]; then
+      git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
+      git -C "$RECORD_ROOT" sparse-checkout set source
+    else
+      echo "RECORD already installed."
+    fi
+  fi
+
   # Install CPLEX
   if [ "$install_cplex" -eq 1 ]; then
     echo "Installing CPLEX..."
@@ -609,6 +928,47 @@ install_on_macos() {
       fi
     else
       echo "Gurobi already installed."
+    fi
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install MOSEK: the tools archive of the latest 12.0.x version, as on
+  # Linux; MOSEK 12 is built for Apple Silicon only
+  if [ "$install_mosek" -eq 1 ]; then
+    echo "Installing MOSEK..."
+    MOSEK_ROOT="${INSTALL_ROOT}/mosek"
+    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
+    if [ ! -d "$MOSEK_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
+        echo "No MOSEK 12 for macOS x86_64; skipping MOSEK."
+        install_mosek=0
+        MOSEK_ROOT=""
+      else # Apple Silicon arch
+        MOSEK_URL="https://download.mosek.com/stable"
+        MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+        if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+          MOSEK_VERSION="12.0.0"
+        fi
+        MOSEK_INSTALLER="mosektoolsosxaarch64.tar.bz2"
+        curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"
+        mkdir -p mosek-src
+        tar -xjf "$MOSEK_INSTALLER" -C mosek-src
+        rm "$MOSEK_INSTALLER"
+        sudo mv mosek-src/mosek "$MOSEK_ROOT"
+        rm -rf mosek-src
+        MOSEK_HOME="${MOSEK_ROOT}/${MOSEK_VERSION%.*}"
+        MOSEK_HOME="${MOSEK_HOME}/tools/platform/osxaarch64"
+        export PATH="${PATH}:${MOSEK_HOME}/bin"
+        export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${MOSEK_HOME}/bin"
+      fi
+    else
+      echo "MOSEK already installed."
+    fi
+    if [ "$install_mosek" -eq 1 ]; then
+      echo "MOSEK needs a license (free for academic use, see"
+      echo "https://www.mosek.com/products/academic-licenses/): put it in"
+      echo "~/mosek/mosek.lic or point MOSEKLM_LICENSE_FILE to it."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -691,61 +1051,189 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install DAQP
+  # DAQP is built from its latest release, i.e., the latest tag of its
+  # repository, rather than from its development branch.
+  if [ "$install_daqp" -eq 1 ]; then
+    echo "Installing DAQP..."
+    DAQP_ROOT="${INSTALL_ROOT}/daqp"
+    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
+    if [ ! -d "$DAQP_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+      cd "$DAQP_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${DAQP_ROOT}/lib"
+    else
+      echo "DAQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install qpOASES
+  # qpOASES is built from its latest release, i.e., the latest tag of its
+  # repository, as a shared library whose replacements of the BLAS and LAPACK
+  # routines it uses are renamed (QPOASES_AVOID_LA_NAMING_CONFLICTS), so that
+  # they do not take the place of the BLAS and LAPACK of the other libraries;
+  # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
+  # unless told otherwise.
+  if [ "$install_qpoases" -eq 1 ]; then
+    echo "Installing qpOASES..."
+    qpOASES_ROOT="${INSTALL_ROOT}/qpOASES"
+    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
+    if [ ! -d "$qpOASES_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+      cd "$qpOASES_ROOT"
+      git checkout -q "$(git describe --tags --abbrev=0)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+        -DCMAKE_INSTALL_PREFIX="$qpOASES_ROOT"
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${qpOASES_ROOT}/lib"
+    else
+      echo "qpOASES already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install ProxSuite
+  # ProxSuite (ProxQP) is header-only: it is configured from its latest
+  # release, without the SIMD vectorization that would need Simde and the
+  # serialization that would need cereal, and only its headers and its CMake
+  # configuration are installed.
+  if [ "$install_proxsuite" -eq 1 ]; then
+    echo "Installing ProxSuite..."
+    proxsuite_ROOT="${INSTALL_ROOT}/proxsuite"
+    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
+    if [ ! -d "$proxsuite_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+      cd "$proxsuite_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
+        -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
+        -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
+      cmake --install build
+    else
+      echo "ProxSuite already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PIQP
+  # PIQP is built from its latest release, with its C++ interface alone (the
+  # compiled library of its common templates and its headers), without the
+  # C, Python and Matlab interfaces, the tests and the benchmarks.
+  if [ "$install_piqp" -eq 1 ]; then
+    echo "Installing PIQP..."
+    piqp_ROOT="${INSTALL_ROOT}/piqp"
+    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
+    if [ ! -d "$piqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+      cd "$piqp_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
+        -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
+        -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${piqp_ROOT}/lib"
+    else
+      echo "PIQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install OSQP
+  # OSQP is built from its latest release, with its builtin linear algebra
+  # and in double precision, without the demo and the unit tests; the
+  # version is given to its CMake, which otherwise writes 0.0.0 in it.
+  if [ "$install_osqp" -eq 1 ]; then
+    echo "Installing OSQP..."
+    osqp_ROOT="${INSTALL_ROOT}/osqp"
+    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
+    if [ ! -d "$osqp_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+      cd "$osqp_ROOT"
+      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      git checkout -q "$osqp_tag"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
+        -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
+        -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${osqp_ROOT}/lib"
+    else
+      echo "OSQP already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install qpmad
+  # qpmad is header-only: it is configured from its latest release, and only
+  # its headers and its CMake configuration are installed.
+  if [ "$install_qpmad" -eq 1 ]; then
+    echo "Installing qpmad..."
+    qpmad_ROOT="${INSTALL_ROOT}/qpmad"
+    CURRENT_INSTALL_FOLDER=${qpmad_ROOT}
+    if [ ! -d "$qpmad_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/asherikov/qpmad.git "$qpmad_ROOT"
+      cd "$qpmad_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$qpmad_ROOT"
+      cmake --install build
+    else
+      echo "qpmad already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install quadprog
+  # quadprog has no library of its own: its C sources are compiled from its
+  # latest release into one, which exports only the function that is called,
+  # since the others have names (dot, axpy, ...) that other libraries export.
+  # It is under the GPL, hence it is installed only if asked.
+  if [ "$install_quadprog" -eq 1 ]; then
+    echo "Installing quadprog..."
+    quadprog_ROOT="${INSTALL_ROOT}/quadprog"
+    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
+    if [ ! -d "$quadprog_ROOT" ]; then
+      cd "$INSTALL_ROOT"
+      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+      cd "$quadprog_ROOT"
+      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+      mkdir -p lib
+      cc -O2 -fPIC -dynamiclib -Wl,-exported_symbol,_qpgen2_ \
+        -install_name "${quadprog_ROOT}/lib/libquadprog.dylib" \
+        -o lib/libquadprog.dylib quadprog/solve.QP.c \
+        quadprog/linear-algebra.c quadprog/qr-update.c
+    else
+      echo "quadprog already installed."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # PIPS-IPM++ is not supported on macOS
   if [ "$install_pips" -eq 1 ]; then
     echo "Skipping PIPS-IPM++ (Linux only)."
     install_pips=0
-  fi
-
-  # Install COIN-OR CoinUtils and Osi/Clp
-  if [ "$install_coinor" -eq 1 ]; then
-    echo "Installing COIN-OR CoinUtils and Osi/Clp..."
-    CoinOr_ROOT="${INSTALL_ROOT}/coin-or"
-    CURRENT_INSTALL_FOLDER=${CoinOr_ROOT}
-    if [ ! -d "$CoinOr_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      curl -O https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-      chmod u+x coinbrew
-      # Build CoinUtils
-      ./coinbrew build CoinUtils --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      osi_build_flags=(
-        "--latest-release"
-        "--skip-dependencies"
-        "--prefix=$CoinOr_ROOT"
-        "--tests=none"
-      )
-      # Build Osi with or without CPLEX
-      if [ "$install_cplex" -eq 0 ]; then
-        osi_build_flags+=("--without-cplex")
-      else
-        osi_build_flags+=(
-          "--with-cplex"
-          "--with-cplex-lib=-L${CPLEX_ROOT}/cplex/lib/${OSX_ARCH}/static_pic -lcplex -lm"
-          "--disable-cplex-libcheck"
-          "--with-cplex-incdir=${CPLEX_ROOT}/cplex/include/ilcplex"
-        )
-      fi
-      # Build Osi with or without Gurobi
-      if [ "$install_gurobi" -eq 0 ]; then
-        osi_build_flags+=("--without-gurobi")
-      else
-        GUROBI_VERSION=$(ls "${GUROBI_ROOT}/macos_universal2/lib" | grep -E '^libgurobi[0-9]+\.dylib$' | sed -E 's/^libgurobi([0-9]+)\.dylib$/\1/' | head -n1)
-        osi_build_flags+=(
-          "--with-gurobi"
-          "--with-gurobi-lib=-L${GUROBI_ROOT}/macos_universal2/lib -lgurobi${GUROBI_VERSION}"
-          "--disable-gurobi-libcheck"
-          "--with-gurobi-incdir=${GUROBI_ROOT}/macos_universal2/include"
-        )
-      fi
-      ./coinbrew build Osi "${osi_build_flags[@]}"
-      # Build Clp
-      ./coinbrew build Clp --latest-release --skip-dependencies --prefix="$CoinOr_ROOT" --tests=none
-      rm -Rf coinbrew build CoinUtils Osi Clp
-      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${CoinOr_ROOT}/lib"
-    else
-      echo "COIN-OR already installed."
-    fi
-    CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install StOpt
@@ -821,15 +1309,27 @@ install_on_macos() {
 # it works even if you use `install_*=0`
 install_cplex=${install_cplex:-1}
 install_gurobi=${install_gurobi:-1}
+install_mosek=${install_mosek:-1}
 install_scip=${install_scip:-1}
 install_highs=${install_highs:-1}
 install_pips=${install_pips:-1}
+install_daqp=${install_daqp:-1}
+install_qpoases=${install_qpoases:-1}
+install_proxsuite=${install_proxsuite:-1}
+install_piqp=${install_piqp:-1}
+install_osqp=${install_osqp:-1}
+install_qpmad=${install_qpmad:-1}
+install_quadprog=${install_quadprog:-0}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
 install_libsvm=${install_libsvm:-1}
-install_coinor=${install_coinor:-1}
+install_liblinear=${install_liblinear:-1}
+install_cadical=${install_cadical:-1}
+install_minisat=${install_minisat:-1}
+install_record=${install_record:-1}
 install_smspp=${install_smspp:-1}
+install_experiments=${install_experiments:-0}
 
 # Default value for installation root
 install_root=""
@@ -846,7 +1346,23 @@ if [ -z "${MAX_JOBS:-}" ]; then
   else
     MAX_JOBS=1
   fi
+  # each compiler process may take up to about 1.5 GB on the heaviest SMS++
+  # sources, so the jobs are also bounded by the available memory, lest the
+  # kernel kills the compiler (c++: fatal error: Killed signal terminated
+  # program cc1plus); an explicit MAX_JOBS in the environment is left alone
+  MEM_PER_JOB_MB=1536
+  if [ -r /proc/meminfo ]; then
+    MEM_MB=$(awk '/^MemAvailable:/ { print int($2 / 1024) }' /proc/meminfo)
+  elif [ "$(uname)" = "Darwin" ]; then
+    MEM_MB=$(( $(sysctl -n hw.memsize) / 1048576 ))
+  fi
+  if [ -n "${MEM_MB:-}" ]; then
+    MEM_JOBS=$(( MEM_MB / MEM_PER_JOB_MB ))
+    [ "$MEM_JOBS" -lt 1 ] && MEM_JOBS=1
+    [ "$MEM_JOBS" -lt "$MAX_JOBS" ] && MAX_JOBS=$MEM_JOBS
+  fi
 fi
+echo "Building with ${MAX_JOBS} parallel jobs (set MAX_JOBS to change it)"
 
 # Parse command line arguments
 for arg in "$@"
@@ -860,6 +1376,10 @@ do
     install_gurobi=0
     shift
     ;;
+    --without-mosek)
+    install_mosek=0
+    shift
+    ;;
     --without-scip)
     install_scip=0
     shift
@@ -870,6 +1390,34 @@ do
     ;;
     --without-pips)
     install_pips=0
+    shift
+    ;;
+    --without-daqp)
+    install_daqp=0
+    shift
+    ;;
+    --without-qpoases)
+    install_qpoases=0
+    shift
+    ;;
+    --without-proxsuite)
+    install_proxsuite=0
+    shift
+    ;;
+    --without-piqp)
+    install_piqp=0
+    shift
+    ;;
+    --without-osqp)
+    install_osqp=0
+    shift
+    ;;
+    --without-qpmad)
+    install_qpmad=0
+    shift
+    ;;
+    --with-quadprog)
+    install_quadprog=1
     shift
     ;;
     --without-stopt)
@@ -888,12 +1436,32 @@ do
     install_libsvm=0
     shift
     ;;
+    --without-liblinear)
+    install_liblinear=0
+    shift
+    ;;
+    --without-cadical)
+    install_cadical=0
+    shift
+    ;;
+    --without-minisat)
+    install_minisat=0
+    shift
+    ;;
+    --without-record)
+    install_record=0
+    shift
+    ;;
     --without-coinor)
-    install_coinor=0
+    # accepted for compatibility: nothing in SMS++ depends on COIN-OR
     shift
     ;;
     --without-smspp)
     install_smspp=0
+    shift
+    ;;
+    --with-experiments)
+    install_experiments=1
     shift
     ;;
     --install-root=*)
@@ -980,11 +1548,9 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ -d "$SMSPP_ROOT" ]; then
     cd "$SMSPP_ROOT"
     echo "SMSpp already exists. Pulling latest changes..."
-    git pull --recurse-submodules
-    git submodule sync --recursive
-    git submodule update --init --recursive
   else
     echo "Repository not found locally. Cloning SMSpp..."
+    smspp_cloned=1
     # Check if the script is not being executed on a server without display or interactive terminal
     if [ -t 1 ] && [ -z "${CI:-}" ]; then
       git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
@@ -993,9 +1559,23 @@ if [ "$install_smspp" -eq 1 ]; then
       git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     fi
     cd "$SMSPP_ROOT"
-    git submodule sync --recursive
-    git submodule update --init --recursive
   fi
+
+  # experiments is private: unless asked for, it is neither fetched nor
+  # updated, whatever the local configuration says, so that git never stops
+  # to ask for credentials
+  if [ "$install_experiments" -eq 1 ]; then
+    git config submodule.experiments.update checkout
+    skip_experiments=()
+  else
+    skip_experiments=(-c submodule.experiments.update=none
+                      -c submodule.experiments.fetchRecurseSubmodules=false)
+  fi
+  if [ -z "${smspp_cloned:-}" ]; then
+    git "${skip_experiments[@]}" pull
+  fi
+  git submodule sync --recursive
+  git "${skip_experiments[@]}" submodule update --init --recursive
 
   # If the installation root is not the default one, update the makefile-paths
   if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
@@ -1007,29 +1587,22 @@ if [ "$install_smspp" -eq 1 ]; then
       echo "CPLEX_ROOT = ${CPLEX_ROOT}"
       echo "SCIP_ROOT = ${SCIP_ROOT}"
       echo "GUROBI_ROOT = ${GUROBI_ROOT}"
+      [ -n "${MOSEK_ROOT:-}" ] && echo "MOSEK_ROOT = ${MOSEK_ROOT}"
       echo "HiGHS_ROOT = ${HiGHS_ROOT}"
+      [ -n "${DAQP_ROOT:-}" ] && echo "DAQP_ROOT = ${DAQP_ROOT}"
+      [ -n "${qpOASES_ROOT:-}" ] && echo "qpOASES_ROOT = ${qpOASES_ROOT}"
+      [ -n "${proxsuite_ROOT:-}" ] && echo "proxsuite_ROOT = ${proxsuite_ROOT}"
+      [ -n "${piqp_ROOT:-}" ] && echo "piqp_ROOT = ${piqp_ROOT}"
+      [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
+      [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
+      [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
-      echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
-      echo "Osi_ROOT = ${CoinOr_ROOT}"
-      echo "Clp_ROOT = ${CoinOr_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
+      [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
+      [ -n "${MINISAT_ROOT:-}" ] && echo "MINISAT_ROOT = ${MINISAT_ROOT}"
+      [ -n "${RECORD_ROOT:-}" ] && echo "RECORD_ROOT = ${RECORD_ROOT}"
     } > "$umbrella_extlib_file"
     echo "Created $umbrella_extlib_file file."
-
-    # If the nested submodule BundleSolver/NdoFiOracle is initialized, i.e., its
-    # extlib folder exists
-    if [ -d "$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib" ]; then
-      ndofi_extlib_file="$SMSPP_ROOT/BundleSolver/NdoFiOracle/extlib/makefile-paths"
-      # Create the file with the new paths of the resources for BundleSolver/NdoFiOracle
-      {
-        echo "CPLEX_ROOT = ${CPLEX_ROOT}"
-        echo "GUROBI_ROOT = ${GUROBI_ROOT}"
-        echo "CoinUtils_ROOT = ${CoinOr_ROOT}"
-        echo "Osi_ROOT = ${CoinOr_ROOT}"
-        echo "Clp_ROOT = ${CoinOr_ROOT}"
-      } > "$ndofi_extlib_file"
-      echo "Created $ndofi_extlib_file file."
-    fi
 
     # If the nested submodule MCFClassSolver/MCFClass is initialized, i.e., its
     # extlib folder exists
@@ -1047,10 +1620,16 @@ if [ "$install_smspp" -eq 1 ]; then
   # whose CMakeLists has a `find_package(<lib> REQUIRED)`), and force those
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
-  # (Torch in BundleSolverML, the CPLEX/Gurobi/SCIP/HiGHS backends in
-  # MILPSolver, LIBSVM in SVMBlock) degrade gracefully on their own and need
-  # no mapping here.
+  # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES/
+  # ProxQP/PIQP/OSQP/qpmad/quadprog backends in MILPSolver, LIBSVM and
+  # LIBLINEAR in SVMBlock) degrade gracefully on their own and need no
+  # mapping here.
   smspp_cmake_flags=()
+  if [ "$install_experiments" -eq 1 ]; then
+    smspp_cmake_flags+=("-DBUILD_experiments=ON")
+  else
+    smspp_cmake_flags+=("-DBUILD_experiments=OFF")
+  fi
   if [ "$install_stopt" -eq 0 ]; then
     # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON
     # through CMake's dependency resolution, so disable both.
@@ -1060,13 +1639,19 @@ if [ "$install_smspp" -eq 1 ]; then
     # LEMON is required by MCFLemonSolver.
     smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
   fi
-  if [ "$install_coinor" -eq 0 ]; then
-    # Osi/Clp (COIN-OR) are required by BundleSolver (and its NdoFiOracle).
-    smspp_cmake_flags+=("-DBUILD_BundleSolver=OFF")
+  # a CaDiCaL built from its source is not where extlib says (the package)
+  if [ "${cadical_from_source:-0}" -eq 1 ] && [ -n "${CADICAL_ROOT:-}" ]; then
+    smspp_cmake_flags+=("-DCADICAL_ROOT=${CADICAL_ROOT}")
+  fi
+  # without it, BinaryKnapsackBlock finds RECORD only in its default location
+  if [ -n "${RECORD_ROOT:-}" ]; then
+    smspp_cmake_flags+=("-DRECORD_ROOT=${RECORD_ROOT}")
   fi
 
-  # Build SMSpp
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev "${smspp_cmake_flags[@]}"
+  # Build SMSpp, optimized: a build with no CMAKE_BUILD_TYPE, or a Debug one,
+  # has no optimization at all, and building the Blocks of a large instance
+  # becomes several times slower than solving it
+  cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${SMSPP_ROOT}" -Wno-dev "${smspp_cmake_flags[@]}"
   # Check if the script is not being executed on a server without display or interactive terminal
   if [ -t 1 ] && [ -z "${CI:-}" ]; then
     cd build

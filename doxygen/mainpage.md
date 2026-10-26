@@ -53,7 +53,7 @@ Current systems for modeling mathematical models typically falls into two
 opposite approaches:
 
 - *General-purpose Algebraic Modeling Languages*, commercial ones like
-  [AMPL](https://ampl.com) and [GAMS](https://www.gams.co/), or open-source
+  [AMPL](https://ampl.com) and [GAMS](https://www.gams.com), or open-source
   ones like [Coliop](http://www.coliop.org) and [ZIMPL](http://zimpl.zib.de).
   These try to abstract away as much as possible the mathematical model from
   the underlying solver, thereby taking away from the user all the effort
@@ -64,27 +64,27 @@ opposite approaches:
   mainly the block one, e.g. in the [Structured Modeling Language
   (SML)](https://www.maths.ed.ac.uk/ERGO/sml). An alternative approach has
   been to re-construct the structure backwards from the "flat" model, as
-  [Generic Column Generation (GCG)](http://www.or.rwth-aachen.de/gcg) does,
+  [Generic Column Generation (GCG)](https://gcg.or.rwth-aachen.de) does,
   possibly taking hints from the user about how to do that.
 
 - The alternative has typically been to *directly interface to a specific
   solver via its APIs*; all modern general-purpose (and specialized)
   solvers, both commercial ones like
-  [Cplex](https://www.ibm.com/analytics/cplex-optimizer),
-  [GuRoBi](http://www.gurobi.com) and [MOSEK](https://www.mosek.com), and
-  open-source ones like [Cbc](https://projects.coin-or.org/Cbc) and
-  [SCIP](http://scip.zib.de), offer one or more APIs, usually for
+  [Cplex](https://www.ibm.com/products/ilog-cplex-optimization-studio),
+  [GuRoBi](https://www.gurobi.com) and [MOSEK](https://www.mosek.com), and
+  open-source ones like [HiGHS](https://highs.dev) and
+  [SCIP](https://www.scipopt.org), offer one or more APIs, usually for
   different languages (among which, surely C/C++). This allows to directly
   address all the structure-exploiting features of the solver, if any, but
   directly exposed the user to its complexity and idiosyncrasies.
 
 - A somewhat "in the middle" approach is that of *modeling systems embedded
   in general purpose languages*, such as
-  [FlopC++](https://projects.coin-or.org/FlopC++) and
-  [COIN-Reharse](https://github.com/coin-or/Rehearse) for C++,
-  [PuLP](https://pythonhosted.org/PuLP) and
+  [FlopC++](https://github.com/coin-or/FlopCpp) and
+  [COIN-OR Rehearse](https://github.com/coin-or/Rehearse) for C++,
+  [PuLP](https://coin-or.github.io/pulp/) and
   [Pyomo](http://www.pyomo.org) for Python,
-  [JuMP](https://github.com/JuliaOpt/JuMP.jl) for Julia and
+  [JuMP](https://jump.dev) for Julia and
   [YALMIP](https://yalmip.github.io) for Matlab. This allows to better deal
   with parts of the model that have specific structure and allow for
   specialized solution method, and thereby implement sophisticated
@@ -204,13 +204,16 @@ Upon this quite classical setting, SMS++ adds a number of twists:
   "owner" for the case where a `Solver` attached to a `Block` needs to
   delegate tasks to `Solver` attached to inner `Block` (recursively).
 
-- `Block` supports (although only in the interface, not in any practical
-  implementation) the concept that a `Block` can produce different versions
+- `Block` supports the concept that a `Block` can produce different versions
   of itself that are either equivalent (a Reformulation), a Relaxation or
   a Restriction. The interface caters for the fact that both solution
   information (see `Solution`) and `Modification` can be mapped back and forth
   from a `Block` to any one of its "R3 `Block`", although this is all predicated
-  on the fact that the `Block` itself implements this.
+  on the fact that the `Block` itself implements this. Several `Block`
+  (e.g., `MCFBlock`, `BinaryKnapsackBlock`, `CapacitatedFacilityLocationBlock`
+  and `PolyhedralFunctionBlock`) implement at least the identical copy of
+  themselves, which is what `LagrangianDualSolver` uses to give each of
+  its `Solver` its own copy of a sub-`Block`.
 
 - Since `Block` is an arbitrarily large tree-structured object, configuring
   it and attaching all needed `Solver` to all the necessary inner `Block` is
@@ -265,24 +268,24 @@ involved parties and the community in general.
 
 ## First steps
 
-Although sadly a proper User Manual is still missing, the
-[tests](https://gitlab.com/smspp/tests) repository can be useful to get a
-first look at possible ways of using SMS++. In particular the three three
-tests `LagrangianDualSolver_Box`, `MMCFBlock` and
+Besides the [User Manual](https://smspp.gitlab.io/smspp-project/manual/),
+the [tests](https://gitlab.com/smspp/tests) repository can be useful to get
+a first look at possible ways of using SMS++. In particular the three
+tests `SMS++/AbstractBlock`, `MMCFBlock` and
 `UCBlock` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register the `Solver` (such as a `:MILPSolver` and a
 `LagrangianDualSolver`) to it, properly configure them if needed (mostly,
 but not exclusively, using `Configuration` files) and run them
-to verify that they give the same answer. The `LagrangianDualSolver_Box`
+to verify that they give the same answer. The `SMS++/AbstractBlock`
 test also shows how one can use SMS++ to build "normal" models a-la
 algebraic modelling language using `AbstractBlock`, as opposed to
 programming a whole `Block` from scratch, more of which can be found, e.g.,
-in `tests/LagBFunction` and `tests/PolyhedralFunction`. Furthermore,
-provides an example on how to (randomly) modify the `:Block` and re-solve
-it many times (still checking that the results agree), showcasing the
-crucial `Modification` SMS++ concept whereby changes in the `:Block` are
-automatically forwarded to all concerned `Solver`. Other similar examples
-can be found in basically all the other tests.
+in `tests/SMS++/LagBFunction` and `tests/SMS++/PolyhedralFunction`.
+Furthermore, it provides an example on how to (randomly) modify the `:Block`
+and re-solve it many times (still checking that the results agree),
+showcasing the crucial `Modification` SMS++ concept whereby changes in the
+`:Block` are automatically forwarded to all concerned `Solver`. Other
+similar examples can be found in basically all the other tests.
 
 The `MMCFBlock` and `UCBlock` versions rather
 provides examples about using full-featured "pre-built" `:Block`, that can be

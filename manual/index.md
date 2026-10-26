@@ -4,7 +4,7 @@
 *Dipartimento di Informatica, Università di Pisa*
 `frangio@di.unipi.it`
 
-*Version 0.1 — for SMS++ 0.6.0 (December 2025)*
+*Version 0.1 — for SMS++ 0.7.0 (October 2026)*
 
 ---
 

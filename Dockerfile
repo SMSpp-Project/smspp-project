@@ -40,6 +40,10 @@
 #          WLS license at run time from masked CI/CD variables (GitLab)       #
 #          or secrets (GitHub), so no license ever enters the image.          #
 #                                                                             #
+#    Note: MOSEK is installed but unlicensed as well: the CI jobs find its    #
+#          license in the file CI/CD variable MOSEKLM_LICENSE_FILE            #
+#          (GitLab), whose path MOSEK reads from the environment.             #
+#                                                                             #
 #                                Donato Meoli                                 #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
@@ -50,5 +54,6 @@ FROM ubuntu:latest
 
 # Install required packages, run the INSTALL.sh script, and clean up
 RUN apt-get update && apt-get install -y wget sudo && \
-    wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --without-cplex --without-smspp && \
+    wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | \
+      bash -s -- --without-cplex --without-smspp && \
     rm -rf /var/lib/apt/lists/*

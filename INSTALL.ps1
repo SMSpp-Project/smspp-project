@@ -11,10 +11,23 @@
     You can use the `-updatevcpkg` option to update the builtin-baseline in vcpkg.json.
     You can use the `-withoutCplex` option to skip the installation of CPLEX.
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
+    You can use the `-withoutMosek` option to skip the installation of MOSEK.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
+    Note that quadprog (QuadProgMILPSolver), which is under the GPL and is installed by INSTALL.sh
+    only if asked, is not installed on Windows, so there is no related option.
+    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, StOpt, LEMON, LIBSVM and
+    LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options: DAQP, PIQP and qpmad,
+    which the default registry of vcpkg does not carry, come from the SMS++ vcpkg registry
+    (https://gitlab.com/smspp/vcpkg-registry).
+    Note that CaDiCaL and MiniSat are not packaged for Windows, so there are no related options:
+    SATBlock is built with SATSolver only, without the SAT solvers it wraps.
+    Note that RECORD and COMBO use POSIX clocks and 128-bit integers, which MSVC does not have,
+    so there are no related options: BinaryKnapsackBlock is built without the Solver that wrap them.
     You can use the `-withoutTorch` option to skip the installation of Torch.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
+    You can use the `-withExperiments` option to also fetch and build the private experiments
+    submodule, which needs access to its repository; without it the script never touches it.
     You can use the `-withoutDefenderExclusions` option to skip adding the Windows Defender path
     exclusions for the vcpkg and SMS++ directories (added by default to avoid spurious
     "Permission denied" / "File exists" errors when an antivirus locks or quarantines freshly
@@ -50,9 +63,11 @@
 param(
     [switch]$withoutCplex,
     [switch]$withoutGurobi,
+    [switch]$withoutMosek,
     [switch]$withoutSCIP,
     [switch]$withoutTorch,
     [switch]$withoutSMSpp,
+    [switch]$withExperiments,
     [switch]$updatevcpkg,
     [switch]$withoutDefenderExclusions,
     [string]$installRoot = "C:\", # Default if not provided
@@ -355,10 +370,6 @@ if ($OS -eq "Win32NT")
         .\bootstrap-vcpkg.bat
     }
     $env:VCPKG_FEATURE_FLAGS = 'manifests,registries'
-    $OverlayRoot = Join-Path $env:VCPKG_ROOT 'overlays\ports'
-    if (-not (Test-Path $OverlayRoot)) {
-        New-Item -ItemType Directory -Force -Path $OverlayRoot | Out-Null
-    }
 
     # Install CPLEX
     if (-not $withoutCplex) {
@@ -374,8 +385,8 @@ if ($OS -eq "Win32NT")
                 $withoutCplex = $true
             } else {
                 Start-Process -FilePath $cplexInstaller -Wait
-                # Move "IBM" folder from "C:\Program Files" to "C:\" to avoid errors due to
-                # spaces in the next when building COIN-OR Osi with Cplex interface
+                # Move "IBM" folder from "C:\Program Files" to "C:\", so that its path
+                # has no spaces
                 Move-Item -Path "C:\Program Files\IBM" -Destination "C:\IBM"
                 # the installer creates ILOG\CPLEX_Studio<ver>; strip the version from the path
                 $cplexVersioned = Get-ChildItem -Path "C:\IBM\ILOG" -Directory -Filter "CPLEX_Studio*" | Select-Object -First 1
@@ -404,6 +415,46 @@ if ($OS -eq "Win32NT")
             Update-EnvironmentVariables -oldPattern "C:\gurobi1201" -newValue $GUROBI_ROOT
         }
         Write-Host "... Gurobi installed successfully."
+    }
+
+    # Install MOSEK: the installer of the latest 12.0.x version, whose
+    # number is published next to it (a fixed one if it cannot be read); it
+    # installs into C:\Program Files\Mosek\<major.minor>, and MOSEK_ROOT is
+    # C:\Program Files\Mosek, which holds one directory per version
+    if (-not $withoutMosek) {
+        Write-Host "Installing MOSEK..."
+        $MOSEK_ROOT = "C:\Program Files\Mosek"
+        if (-not (Test-Path $MOSEK_ROOT)) {
+            Set-Location "C:\"
+            $MOSEK_URL = "https://download.mosek.com/stable"
+            try {
+                $MOSEK_VERSION = (Invoke-WebRequest -UseBasicParsing `
+                    -Uri "$MOSEK_URL/12.0/version").Content.Trim()
+            } catch {
+                $MOSEK_VERSION = ""
+            }
+            if ($MOSEK_VERSION -notmatch '^12\.0\.[0-9]+$') {
+                $MOSEK_VERSION = "12.0.0"
+            }
+            $MOSEK_INSTALLER = "moseksetupwin64x86.msi"
+            Invoke-WebRequest `
+                -Uri "$MOSEK_URL/$MOSEK_VERSION/$MOSEK_INSTALLER" `
+                -OutFile "C:\$MOSEK_INSTALLER"
+            Start-Process -FilePath "msiexec.exe" `
+                -ArgumentList "/i", "C:\$MOSEK_INSTALLER" -Wait
+            Remove-Item "C:\$MOSEK_INSTALLER"
+            # Update the system PATH to ensure the SMS++ exe can correctly
+            # locate the mosek*.dll file
+            $MOSEK_MAJOR_MINOR = $MOSEK_VERSION.Substring(0,
+                $MOSEK_VERSION.LastIndexOf('.'))
+            Add-ToSystemPath -PathToAdd `
+                "$MOSEK_ROOT\$MOSEK_MAJOR_MINOR\tools\platform\win64x86\bin"
+        }
+        Write-Host "... MOSEK installed successfully."
+        Write-Host "MOSEK needs a license (free for academic use, see"
+        Write-Host "https://www.mosek.com/products/academic-licenses/):"
+        Write-Host "put it in %USERPROFILE%\mosek\mosek.lic or point"
+        Write-Host "MOSEKLM_LICENSE_FILE to it."
     }
 
     # Install SCIP
@@ -483,11 +534,21 @@ if (-not $withoutSMSpp)
     Write-Host "Compiling SMSpp..."
     $SMSPP_ROOT = "$installRoot\smspp-project"
 
+    # experiments is private: unless asked for, it is neither fetched nor updated, whatever
+    # the local configuration says, so that git never stops to ask for credentials
+    $skipExperiments = @()
+    if (-not $withExperiments) {
+        $skipExperiments = @('-c', 'submodule.experiments.update=none',
+                             '-c', 'submodule.experiments.fetchRecurseSubmodules=false')
+    }
+
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
         Write-Host "SMSpp already exists. Pulling latest changes..."
-        git pull --recurse-submodules
+        git @skipExperiments pull
+        git submodule sync --recursive
+        git @skipExperiments submodule update --recursive
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
         if (-not $HAS_CMAKE_GUI) {
@@ -498,6 +559,11 @@ if (-not $withoutSMSpp)
         }
         Set-Location $SMSPP_ROOT
     }
+    if ($withExperiments) {
+        git config submodule.experiments.update checkout
+        git submodule update --init experiments
+    }
+    $experimentsFlag = if ($withExperiments) { '-DBUILD_experiments=ON' } else { '-DBUILD_experiments=OFF' }
 
     # Update builtin-baseline in vcpkg.json to match the current vcpkg commit
     if ($updatevcpkg) {
@@ -508,68 +574,13 @@ if (-not $withoutSMSpp)
         $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $ManifestPath -Encoding UTF8
     }
 
-    # Configure COIN-OR Osi
-    Write-Host "Configuring COIN-OR Osi..."
-
-    # Prepare an overlay port so vcpkg uses OUR modified portfile.cmake
-    if ((-not $withoutCplex) -or (-not $withoutGurobi)) {
-        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
-        New-Item -ItemType Directory -Force -Path $OverlayPort | Out-Null
-
-        # Copy the original port as a base for our overlay
-        Copy-Item -Recurse -Force (Join-Path $env:VCPKG_ROOT 'ports\coin-or-osi\*') $OverlayPort
-
-        # Edit the portfile INSIDE THE OVERLAY (never touch the builtin port directly)
-        $portfile = Join-Path $OverlayPort 'portfile.cmake'
-        $osiText = Get-Content -Raw -Path $portfile
-
-        if (-not $withoutGurobi) {
-            Write-Host "Applying Gurobi interface changes to overlay portfile.cmake..."
-            # Replace the line containing --without-gurobi with a multi-line --with-gurobi block
-            $replacementGRB = @"
-        --with-gurobi
-        --with-gurobi-lib=C:/gurobi/win64/lib/gurobi120.lib
-        --with-gurobi-incdir=C:/gurobi/win64/include
-        --with-gurobi-cflags=-IC:/gurobi/win64/include
-        --with-gurobi-lflags=C:/gurobi/win64/lib/gurobi120.lib
-"@.Trim()
-            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-gurobi[^\r\n]*$', $replacementGRB)
-            Write-Host "Overlay portfile updated for Gurobi."
-        }
-
-        if (-not $withoutCplex) {
-            Write-Host "Applying CPLEX interface changes to overlay portfile.cmake..."
-            # the static lib name embeds the CPLEX version (cplex<ver>.lib)
-            $cplexLibDir = "C:/IBM/ILOG/CPLEX_Studio/cplex/lib/x64_windows_msvc14/stat_mda"
-            $cplexLibName = (Get-ChildItem -Path "$cplexLibDir/cplex*.lib" | Select-Object -First 1).Name
-            $cplexLib = "$cplexLibDir/$cplexLibName"
-            # Replace the line containing --without-cplex with a multi-line --with-cplex block
-            $replacementCPX = @"
-        --with-cplex
-        --with-cplex-lib=$cplexLib
-        --with-cplex-incdir=C:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-cflags=-IC:/IBM/ILOG/CPLEX_Studio/cplex/include/ilcplex
-        --with-cplex-lflags=$cplexLib
-"@.Trim()
-            $osiText = [regex]::Replace($osiText, '(?m)^[^\r\n]*--without-cplex[^\r\n]*$', $replacementCPX)
-            Write-Host "Overlay portfile updated for CPLEX."
-        }
-
-        Set-Content -Path $portfile -Value $osiText -NoNewline
-        $env:VCPKG_OVERLAY_PORTS = $OverlayRoot
-    } else {
-        Remove-Item Env:\VCPKG_OVERLAY_PORTS -ErrorAction SilentlyContinue
-        $OverlayPort = Join-Path $OverlayRoot 'coin-or-osi'
-        if (Test-Path $OverlayPort) { Remove-Item -Recurse -Force $OverlayPort }
-    }
-
     Set-Location $SMSPP_ROOT
 
     # Configure once using multi-config
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev'
+    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files

@@ -2,8 +2,8 @@
 
 > **Status — beta.** The `Change` concept is in `develop` but its
 > interface and semantics may change in incompatible ways. Only a
-> small number of `:Change` classes exist at version 0.6.0
-> (notably for `BinaryKnapsackBlock`). Code written against it
+> small number of `:Change` classes exist at version 0.7.0
+> (notably for `BinaryKnapsackBlock` and `SATBlock`). Code written against it
 > today should expect to be revisited.
 
 [Source: `SMS++/include/Change.h`,
@@ -126,7 +126,7 @@ uses the `Change` concept is meant to enable, and it is
 ## 16.4 The reference example: `BinaryKnapsackBlock`'s `Change`s {#sec-16-4}
 
 `BinaryKnapsackBlock` is the reference implementation of the
-`Change` family at version 0.6.0. It ships three specific
+`Change` family at version 0.7.0. It ships three specific
 `:Change` classes:
 
 - [`BinaryKnapsackBlockChange`](https://smspp.gitlab.io/smspp-project/d8/d50/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block_change.html)

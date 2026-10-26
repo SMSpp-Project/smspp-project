@@ -10,6 +10,7 @@
 #                                                                            #
 #           $(libCPLEXLIB) = external libraries + -L< libdirs > for libCPLEX #
 #           $(libCPLEXINC) = the -I$(include directories) for libCPLEX       #
+#           $(CPLEX_PRESENT) = non-empty if and only if cplex.h is there     #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                        Dipartimento di Informatica                         #
@@ -45,6 +46,9 @@ endif
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libCPLEXLIB = -L"$(libCPLEXINCDIR)" -lilocplex -lcplex $(libCPLEXEXTLIB)
-libCPLEXINC = -I"$(libCPLEXBSCDIR)/include" -DBUILD_CPXSTATIC -DCPXSIZE_BITS_TEST_DISABLE
+libCPLEXINC = -I"$(libCPLEXBSCDIR)/include" -DBUILD_CPXSTATIC \
+	-DCPXSIZE_BITS_TEST_DISABLE
+
+CPLEX_PRESENT := $(wildcard $(libCPLEXBSCDIR)/include/ilcplex/cplex.h)
 
 ######################### End of makefile-libCPLEX ###########################

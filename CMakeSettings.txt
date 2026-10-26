@@ -19,8 +19,12 @@
 #   - Release:        -O3 -DNDEBUG                                            #
 #   - RelWithDebInfo: -O2 -g -DNDEBUG                                         #
 # --------------------------------------------------------------------------- #
-# Build type
-#set(CMAKE_BUILD_TYPE "Debug")
+# Build type: Release unless one is given, e.g., with -DCMAKE_BUILD_TYPE=Debug;
+# a build with no type has no optimization at all. Multi-config generators
+# (Visual Studio, Xcode) choose it at build time and are left alone
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif ()
 
 # Shared or static libraries
 set(BUILD_SHARED_LIBS ON)
@@ -107,7 +111,8 @@ if (MSVC)
     add_link_options("/IGNORE:4006,4075,4088,4255")
 else () # Unix
     add_compile_options(
-             "-Wno-enum-compare" "-Wno-enum-conversion" "-Wno-deprecated-declarations" "-Wno-undefined-internal"
+             "-Wno-enum-compare" "-Wno-enum-conversion" "-Wno-deprecated-declarations"
+             "$<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-undefined-internal>"
              "-Wno-deprecated-enum-enum-conversion" "-Wno-deprecated-enum-float-conversion" "-Wno-free-nonheap-object" # C++20
              "-DBUILD_CPXSTATIC" "-DCPXSIZE_BITS_TEST_DISABLE"
              #"-ferror-limit=1" "-fexceptions"

@@ -6,6 +6,9 @@
 # Local override of external-library paths (gitignored on purpose)
 extlib/makefile-paths
 
+# FastFlow and RECORD, which the release job puts there for the tarball
+/third-party/
+
 # Install tree produced by `make install` / CMake install
 bin/
 lib/
@@ -15,10 +18,19 @@ include/
 # Doxygen output
 doc/html/
 doc/latex/
+doc/xml/
+doc/doctrees/
+
+# The pages that sphinx/pages.py and sphinx/apiref.py write before Sphinx
+# builds the site
+sphinx/generated/
+sphinx/api/
+sphinx/__pycache__/
 
 # Claude Code local notes and configuration (kept out of the repo)
 CLAUDE.md
 .mcp.json
+.claude
 
 # Companion repositories that are not part of the project sources: the wiki,
 # whose pages live in the wiki repository of the GitLab project, and the

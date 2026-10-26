@@ -1,0 +1,479 @@
+# Maintainer: Donato Meoli <donato.meoli.95@gmail.com>
+#
+# Written by packaging/gen_recipes.py of the SMS++ umbrella from its
+# packaging/modules.py: edit those, not this file.
+
+pkgbase=smspp-project
+_gitlab=https://gitlab.com/api/v4/projects
+_registry=$_gitlab/smspp%2Fsmspp-project/packages/generic/smspp-project
+# FastFlow, which the core fetches at configure time, at the commit
+# that the other packages of the project pin
+_ff=d476f66ab924d8d122f54b4b90aee00ef979aea8
+_ffurl=https://github.com/fastflow/fastflow/archive
+pkgname=(
+  libsmspp
+  libsmspp-bkb
+  libsmspp-mcf
+  libsmspp-cflb
+  libsmspp-mmcf
+  libsmspp-lukfi
+  libsmspp-ucblock
+  libsmspp-stochastic
+  libsmspp-tssb
+  libsmspp-mssb
+  libsmspp-sddp
+  libsmspp-investment
+  libsmspp-svm
+  libsmspp-sfdcr
+  libsmspp-sat
+  libsmspp-satellites
+  libsmspp-mkab
+  libsmspp-milp
+  libsmspp-bundle
+  libsmspp-subgrad
+  libsmspp-lds
+  libsmspp-frankwolfe
+  libsmspp-bnx
+  libsmspp-bds
+  libsmspp-mcfclass
+  libsmspp-mcflemon
+  libsmspp-srs
+  smspp-ucblock
+  smspp-tssb
+  smspp-mssb
+  smspp-sddp
+  smspp-investment
+  smspp-svm
+  smspp-mcf
+  smspp-bkb
+  smspp-cflb
+  smspp-mmcf
+  smspp-sfdcr
+  smspp-tools
+  smspp-project
+)
+pkgver=0.7.99
+pkgrel=1
+_tarball=smspp-project-$pkgver.tar.gz
+pkgdesc="Framework to model and solve block-structured optimization problems"
+arch=('x86_64' 'aarch64')
+url="https://smspp.gitlab.io/"
+license=('LGPL-3.0-only')
+makedepends=(
+  cmake
+  help2man
+  boost
+  eigen
+  netcdf-cxx
+  stopt
+  libsvm
+  liblinear
+  cadical
+  minisat
+  highs
+  scip
+  coin-or-lemon
+)
+# link-time optimization of a code base this large is a memory sink
+options=('!lto')
+source=(
+  "$_tarball::$_registry/$pkgver/$_tarball"
+  "fastflow-$_ff.tar.gz::$_ffurl/$_ff.tar.gz"
+)
+# the tarball of the release has no top directory
+noextract=("$_tarball")
+sha256sums=(
+  'a33859ae4ca6ca2ab9d6bfce67804e501051eae1780b4f148ef489f52978d91a'
+  'fca23ce672fe12fe7cdbfa6955a982d6eb75816a00d2d97a93deba9b351f9c53'
+)
+
+prepare() {
+  mkdir -p smspp-project-$pkgver
+  bsdtar -xf $_tarball -C smspp-project-$pkgver
+  # the settings of the umbrella for its developers give way to these
+  rm -f smspp-project-$pkgver/CMakeSettings.txt
+}
+
+build() {
+  # the build type None of Arch defines no NDEBUG
+  CXXFLAGS+=" -DNDEBUG"
+  # CPLEX, Gurobi and MOSEK are not redistributable, the C interface
+  # of Clarabel and the other QP solvers are in no package; FastFlow,
+  # which the core fetches at configure time, comes as a source; the
+  # header of CaDiCaL is in a directory of its own
+  cmake -S smspp-project-$pkgver -B build \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_tests=OFF \
+    -DBUILD_TESTING=OFF \
+    -DBUILD_experiments=OFF \
+    -DCMAKE_SKIP_INSTALL_RPATH=ON \
+    -DFETCHCONTENT_SOURCE_DIR_FASTFLOW="$srcdir/fastflow-$_ff" \
+    -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_PIPS=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_Clarabel=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_quadprog=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_Torch=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_CPLEX=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_GUROBI=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_MOSEK=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_DAQP=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_qpOASES=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_proxsuite=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_piqp=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_osqp=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_qpmad=ON \
+    -DHiGHS_ROOT=/usr \
+    -DSCIP_ROOT=/usr \
+    -DCADICAL_ROOT=/usr \
+    -DMINISAT_ROOT=/usr \
+    -DLIBSVM_ROOT=/usr \
+    -DLIBLINEAR_ROOT=/usr \
+    -DStOpt_ROOT=/usr \
+    -DLEMON_ROOT=/usr \
+    -DCOMBO_ROOT=OFF \
+    -DRECORD_ROOT=OFF \
+    -DSMSPP_EXTLIB_DEFAULTS=OFF \
+    -DCADICAL_INCLUDE_DIR=/usr/include/cadical \
+    -DUSE_MPI=OFF
+  cmake --build build
+}
+
+# the one build of the umbrella is installed one module at a time,
+# each in its package, and so are the tools; the install goes through
+# DESTDIR, since the link that carries the old name of a tool is made
+# of the prefix of the configure
+
+package_libsmspp() {
+  pkgdesc="SMS++: Core library of the SMS++ modelling framework"
+  depends=(boost eigen netcdf-cxx)
+  DESTDIR="$pkgdir" cmake --install build/SMS++
+}
+
+package_libsmspp-bkb() {
+  pkgdesc="SMS++: Binary knapsack Block and its dynamic programming Solver"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/BinaryKnapsackBlock
+  rm "$pkgdir/usr/bin/bkbench"
+  rmdir --ignore-fail-on-non-empty "$pkgdir/usr/bin"
+}
+
+package_libsmspp-mcf() {
+  pkgdesc="SMS++: Min-cost flow Block"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/MCFBlock
+  rm "$pkgdir/usr/bin/dmx2nc4"
+  rmdir --ignore-fail-on-non-empty "$pkgdir/usr/bin"
+}
+
+package_libsmspp-cflb() {
+  pkgdesc="SMS++: Capacitated facility location Block"
+  depends=(libsmspp-bkb libsmspp-mcf)
+  DESTDIR="$pkgdir" cmake --install build/CapacitatedFacilityLocationBlock
+  rm "$pkgdir/usr/bin/cfl2nc4"
+  rmdir --ignore-fail-on-non-empty "$pkgdir/usr/bin"
+}
+
+package_libsmspp-mmcf() {
+  pkgdesc="SMS++: Multicommodity min-cost flow Block"
+  depends=(libsmspp-bkb libsmspp-mcf)
+  DESTDIR="$pkgdir" cmake --install build/MMCFBlock
+}
+
+package_libsmspp-lukfi() {
+  pkgdesc="SMS++: Test functions for nonsmooth optimization"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/LukFiBlock
+}
+
+package_libsmspp-ucblock() {
+  pkgdesc="SMS++: Unit Commitment Block, its units and networks"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/UCBlock
+  rm "$pkgdir/usr/bin/nc4generator"
+  rmdir --ignore-fail-on-non-empty "$pkgdir/usr/bin"
+}
+
+package_libsmspp-stochastic() {
+  pkgdesc="SMS++: Stochastic Block and scenario sets"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/StochasticBlock
+}
+
+package_libsmspp-tssb() {
+  pkgdesc="SMS++: Two-stage stochastic Block"
+  depends=(libsmspp-stochastic)
+  DESTDIR="$pkgdir" cmake --install build/TwoStageStochasticBlock
+}
+
+package_libsmspp-mssb() {
+  pkgdesc="SMS++: Multi-stage stochastic Block"
+  depends=(libsmspp-tssb)
+  DESTDIR="$pkgdir" cmake --install build/MultiStageStochasticBlock
+}
+
+package_libsmspp-sddp() {
+  pkgdesc="SMS++: Stochastic Dual Dynamic Programming Block"
+  depends=(libsmspp-stochastic stopt)
+  DESTDIR="$pkgdir" cmake --install build/SDDPBlock
+}
+
+package_libsmspp-investment() {
+  pkgdesc="SMS++: Investment (capacity expansion) Block"
+  depends=(libsmspp-sddp libsmspp-tssb libsmspp-ucblock)
+  DESTDIR="$pkgdir" cmake --install build/InvestmentBlock
+}
+
+package_libsmspp-svm() {
+  pkgdesc="SMS++: Support Vector Machine Block"
+  depends=(libsmspp libsvm liblinear)
+  DESTDIR="$pkgdir" cmake --install build/SVMBlock
+}
+
+package_libsmspp-sfdcr() {
+  pkgdesc="SMS++: Single-flow delay-constrained routing Block"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/SingleFlowDCRBlock
+}
+
+package_libsmspp-sat() {
+  pkgdesc="SMS++: SAT and weighted MaxSAT Block"
+  depends=(libsmspp cadical minisat)
+  DESTDIR="$pkgdir" cmake --install build/SATBlock
+}
+
+package_libsmspp-satellites() {
+  pkgdesc="SMS++: Satellite Constellation Design Problem Block"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/SatellitesBlock
+}
+
+package_libsmspp-mkab() {
+  pkgdesc="SMS++: Multiple knapsack assignment Block"
+  depends=(libsmspp-bkb)
+  DESTDIR="$pkgdir" cmake --install build/MultiKnapsackAssignBlock
+}
+
+package_libsmspp-milp() {
+  pkgdesc="SMS++: MILP Solvers, on the open-source solvers of the channel"
+  depends=(libsmspp highs scip)
+  DESTDIR="$pkgdir" cmake --install build/MILPSolver
+}
+
+package_libsmspp-bundle() {
+  pkgdesc="SMS++: Bundle methods for nondifferentiable optimization"
+  depends=(libsmspp-milp)
+  DESTDIR="$pkgdir" cmake --install build/BundleSolver
+}
+
+package_libsmspp-subgrad() {
+  pkgdesc="SMS++: Subgradient methods for nondifferentiable optimization"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/SubGradSolver
+}
+
+package_libsmspp-lds() {
+  pkgdesc="SMS++: Lagrangian dual Solver"
+  depends=(libsmspp-milp libsmspp-bnx)
+  DESTDIR="$pkgdir" cmake --install build/LagrangianDualSolver
+}
+
+package_libsmspp-frankwolfe() {
+  pkgdesc="SMS++: Frank-Wolfe and Dantzig-Wolfe decomposition Solver"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/FrankWolfeSolver
+}
+
+package_libsmspp-bnx() {
+  pkgdesc="SMS++: Relaxation-agnostic Branch-and-X Solver"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/BranchAndXSolver
+}
+
+package_libsmspp-bds() {
+  pkgdesc="SMS++: Generic Benders decomposition Solver"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/BendersDecompositionSolver
+}
+
+package_libsmspp-mcfclass() {
+  pkgdesc="SMS++: Min-cost flow Solvers of MCFClass"
+  depends=(libsmspp-mcf)
+  DESTDIR="$pkgdir" cmake --install build/MCFClassSolver
+}
+
+package_libsmspp-mcflemon() {
+  pkgdesc="SMS++: Min-cost flow Solvers of LEMON"
+  depends=(libsmspp-mcf coin-or-lemon)
+  DESTDIR="$pkgdir" cmake --install build/MCFLemonSolver
+}
+
+package_libsmspp-srs() {
+  pkgdesc="SMS++: Scenario reduction Solvers"
+  depends=(libsmspp-tssb)
+  DESTDIR="$pkgdir" cmake --install build/ScenarioReductionSolver
+}
+
+package_smspp-ucblock() {
+  pkgdesc="SMS++: Unit Commitment solver"
+  depends=(libsmspp libsmspp-ucblock libsmspp-milp)
+  DESTDIR="$pkgdir" cmake --install build/tools/ucblock_solver
+  DESTDIR="$srcdir/helper-nc4generator" \
+    cmake --install build/UCBlock
+  install -Dm755 -t "$pkgdir/usr/bin" \
+    "$srcdir/helper-nc4generator/usr/bin/nc4generator"
+}
+
+package_smspp-tssb() {
+  pkgdesc="SMS++: two-stage stochastic solver"
+  depends=(
+    libsmspp
+    libsmspp-ucblock
+    libsmspp-stochastic
+    libsmspp-tssb
+    libsmspp-milp
+  )
+  DESTDIR="$pkgdir" cmake --install build/tools/tssb_solver
+}
+
+package_smspp-mssb() {
+  pkgdesc="SMS++: multi-stage stochastic solver"
+  depends=(
+    libsmspp
+    libsmspp-ucblock
+    libsmspp-stochastic
+    libsmspp-tssb
+    libsmspp-mssb
+    libsmspp-milp
+  )
+  DESTDIR="$pkgdir" cmake --install build/tools/mssb_solver
+}
+
+package_smspp-sddp() {
+  pkgdesc="SMS++: SDDP solver"
+  depends=(
+    libsmspp
+    libsmspp-ucblock
+    libsmspp-stochastic
+    libsmspp-sddp
+    libsmspp-milp
+  )
+  DESTDIR="$pkgdir" cmake --install build/tools/sddp_solver
+}
+
+package_smspp-investment() {
+  pkgdesc="SMS++: capacity expansion solver"
+  depends=(
+    libsmspp
+    libsmspp-ucblock
+    libsmspp-stochastic
+    libsmspp-tssb
+    libsmspp-mssb
+    libsmspp-sddp
+    libsmspp-investment
+    libsmspp-milp
+  )
+  DESTDIR="$pkgdir" cmake --install build/tools/investmentblock_solver
+}
+
+package_smspp-svm() {
+  pkgdesc="SMS++: support vector machine trainer"
+  depends=(libsmspp libsmspp-svm libsmspp-milp)
+  DESTDIR="$pkgdir" cmake --install build/tools/svm_solver
+}
+
+package_smspp-mcf() {
+  pkgdesc="SMS++: min-cost flow solver"
+  depends=(libsmspp libsmspp-mcf libsmspp-mcfclass)
+  DESTDIR="$pkgdir" cmake --install build/tools/mcfblock_solver
+  DESTDIR="$srcdir/helper-dmx2nc4" \
+    cmake --install build/MCFBlock
+  install -Dm755 -t "$pkgdir/usr/bin" \
+    "$srcdir/helper-dmx2nc4/usr/bin/dmx2nc4"
+}
+
+package_smspp-bkb() {
+  pkgdesc="SMS++: binary knapsack solver"
+  depends=(libsmspp libsmspp-bkb)
+  DESTDIR="$pkgdir" cmake --install build/tools/bkblock_solver
+  DESTDIR="$srcdir/helper-bkbench" \
+    cmake --install build/BinaryKnapsackBlock
+  install -Dm755 -t "$pkgdir/usr/bin" \
+    "$srcdir/helper-bkbench/usr/bin/bkbench"
+}
+
+package_smspp-cflb() {
+  pkgdesc="SMS++: capacitated facility location solver"
+  depends=(libsmspp libsmspp-bkb libsmspp-mcf libsmspp-cflb libsmspp-milp)
+  DESTDIR="$pkgdir" cmake --install build/tools/cflblock_solver
+  DESTDIR="$srcdir/helper-cfl2nc4" \
+    cmake --install build/CapacitatedFacilityLocationBlock
+  install -Dm755 -t "$pkgdir/usr/bin" \
+    "$srcdir/helper-cfl2nc4/usr/bin/cfl2nc4"
+}
+
+package_smspp-mmcf() {
+  pkgdesc="SMS++: multicommodity min-cost flow solver"
+  depends=(libsmspp libsmspp-bkb libsmspp-mcf libsmspp-mmcf libsmspp-milp)
+  DESTDIR="$pkgdir" cmake --install build/tools/mmcfblock_solver
+}
+
+package_smspp-sfdcr() {
+  pkgdesc="SMS++: delay-constrained routing solver"
+  depends=(libsmspp libsmspp-sfdcr libsmspp-milp)
+  DESTDIR="$pkgdir" cmake --install build/tools/sfdcrblock_solver
+}
+
+package_smspp-tools() {
+  pkgdesc="SMS++: generic solver and configuration editor"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/tools/block_solver
+  DESTDIR="$pkgdir" cmake --install build/tools/chgcfg
+}
+
+package_smspp-project() {
+  pkgdesc="SMS++: every module, with its headers, and every tool"
+  arch=('any')
+  depends=(
+    libsmspp
+    libsmspp-bkb
+    libsmspp-mcf
+    libsmspp-cflb
+    libsmspp-mmcf
+    libsmspp-lukfi
+    libsmspp-ucblock
+    libsmspp-stochastic
+    libsmspp-tssb
+    libsmspp-mssb
+    libsmspp-sddp
+    libsmspp-investment
+    libsmspp-svm
+    libsmspp-sfdcr
+    libsmspp-sat
+    libsmspp-satellites
+    libsmspp-mkab
+    libsmspp-milp
+    libsmspp-bundle
+    libsmspp-subgrad
+    libsmspp-lds
+    libsmspp-frankwolfe
+    libsmspp-bnx
+    libsmspp-bds
+    libsmspp-mcfclass
+    libsmspp-mcflemon
+    libsmspp-srs
+    smspp-ucblock
+    smspp-tssb
+    smspp-mssb
+    smspp-sddp
+    smspp-investment
+    smspp-svm
+    smspp-mcf
+    smspp-bkb
+    smspp-cflb
+    smspp-mmcf
+    smspp-sfdcr
+    smspp-tools
+  )
+}

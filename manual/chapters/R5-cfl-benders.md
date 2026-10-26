@@ -87,17 +87,22 @@ supplies the `BendersBFunction` evaluation and the cut, the
   a `generate_dynamic_constraints()` that the `:MILPSolver`'s
   callback calls.
 
-## Status — planned: `BendersDecompositionSolver`
+## `BendersDecompositionSolver`
 
-This recipe works *today* because the cuts are emitted by the
-master `:MILPSolver`'s own user-cut callback. What does **not** yet
-exist is a `BendersDecompositionSolver` that would build an
-enclosing Benders master automatically for any suitable `Block` —
-the Benders counterpart of what `LagrangianDualSolver` does for the
-Lagrangian dual ([Recipe R4](R4-cfl-lagrangian.md#rec-R4)). It is documented in the project's
-plans but is not released at version 0.6.0; until it is, the
-explicit user-cut-callback arrangement of this recipe is the way to
-run Benders on a CFL `Block`. **Status — planned.**
+In this recipe the cuts are emitted by the user-cut callback of the
+master `:MILPSolver`, and therefore no Benders-specific `:Solver` is
+needed. Since version 0.7.0 the master can also be built
+automatically by `BendersDecompositionSolver` ([§14.3](14-lag-benders-bfunction.md#sec-14-3)), the
+Benders counterpart of `LagrangianDualSolver` ([Recipe R4](R4-cfl-lagrangian.md#rec-R4)). On the CFL
+this is exercised by `tests/CapacitatedFacilityLocationBlock/test_bds.cpp`,
+which writes the instance as a two-level `AbstractBlock` (the design
+`Variable`s at the root, the transportation subproblems below) and
+compares the value given by both regimes with that of the monolithic
+solve of the same model. The two arrangements differ, however, in
+where the cuts go. With the callback they enter the branch-and-cut of the
+master while it proceeds; with `BendersDecompositionSolver` the
+master is usually solved again after each round of cuts (MILP
+regime), or stabilized by a bundle method (convex regime).
 
 ## Expected behaviour
 

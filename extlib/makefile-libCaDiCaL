@@ -1,0 +1,44 @@
+##############################################################################
+############################ makefile-libCaDiCaL #############################
+##############################################################################
+#                                                                            #
+#   makefile of libCaDiCaL                                                   #
+#                                                                            #
+#   Input:  $(CADICAL_ROOT), the directory where CaDiCaL is installed        #
+#                                                                            #
+#           CaDiCaL may be an installed one (include/cadical.hpp and         #
+#           lib/libcadical, e.g., the libcadical-dev package or Homebrew)    #
+#           or a source tree built as its own configure script does          #
+#           (src/cadical.hpp and build/libcadical.a): the first of the       #
+#           candidate directories that exists is used.                       #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libCaDiCaLINC) = the -I$(include directory) for CaDiCaL        #
+#           $(libCaDiCaLLIB) = external libraries + -L< libdirs > for        #
+#                              CaDiCaL                                       #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic CaDiCaL directory without quotes, if any
+libCaDiCaLBSCDIR = $(subst $\",,$(CADICAL_ROOT))
+
+# the first of the candidate directories that exists
+libCaDiCaLINCDIR = $(firstword $(wildcard \
+	$(libCaDiCaLBSCDIR)/include/cadical.hpp \
+	$(libCaDiCaLBSCDIR)/src/cadical.hpp))
+libCaDiCaLLIBDIR = $(firstword $(wildcard \
+	$(libCaDiCaLBSCDIR)/lib/x86_64-linux-gnu/libcadical.* \
+	$(libCaDiCaLBSCDIR)/lib/aarch64-linux-gnu/libcadical.* \
+	$(libCaDiCaLBSCDIR)/lib/libcadical.* \
+	$(libCaDiCaLBSCDIR)/build/libcadical.*))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libCaDiCaLINC = -I"$(dir $(libCaDiCaLINCDIR))"
+libCaDiCaLLIB = -L"$(dir $(libCaDiCaLLIBDIR))" -lcadical
+
+######################### End of makefile-libCaDiCaL #########################

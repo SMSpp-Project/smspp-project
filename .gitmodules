@@ -49,6 +49,12 @@
 [submodule "SDDPBlock"]
 	path = SDDPBlock
 	url = ../sddpblock.git
+[submodule "SingleFlowDCRBlock"]
+	path = SingleFlowDCRBlock
+	url = ../singleflowdcrblock.git
+[submodule "SATBlock"]
+	path = SATBlock
+	url = ../satblock.git
 [submodule "SMS++"]
 	path = SMS++
 	url = ../smspp.git
@@ -73,6 +79,22 @@
 [submodule "pySMSpp"]
 	path = pySMSpp
 	url = https://github.com/SPSUnipi/pySMSpp.git
+[submodule "pypsa2smspp"]
+	path = pypsa2smspp
+	url = https://github.com/SPSUnipi/pypsa2smspp.git
 [submodule "vcpkg-registry"]
 	path = vcpkg-registry
 	url = ../vcpkg-registry
+[submodule "SatellitesBlock"]
+	path = SatellitesBlock
+	url = ../satellitesblock.git
+[submodule "MultiKnapsackAssignBlock"]
+	path = MultiKnapsackAssignBlock
+	url = ../multiknapsackassignblock.git
+[submodule "SubGradSolver"]
+	path = SubGradSolver
+	url = ../subgradsolver.git
+[submodule "experiments"]
+	path = experiments
+	url = https://gitlab.com/smspp-develop/experiments.git
+	update = none

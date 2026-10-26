@@ -1,5 +1,14 @@
 # The SMS++ Project
 
+[![Pipeline](https://gitlab.com/smspp/smspp-project/badges/develop/pipeline.svg)](https://gitlab.com/smspp/smspp-project/-/pipelines?ref=develop)
+[![Release](https://gitlab.com/smspp/smspp-project/-/badges/release.svg)](https://gitlab.com/smspp/smspp-project/-/releases)
+[![Doxygen](https://img.shields.io/badge/docs-Doxygen-blue)](https://smspp.gitlab.io/smspp-project/)
+[![Sphinx](https://img.shields.io/badge/docs-Sphinx-blue)](https://smspp.gitlab.io/smspp-project/sphinx/)
+[![Manual](https://img.shields.io/badge/docs-Manual-blue)](https://smspp.gitlab.io/smspp-project/manual/)
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Platforms](https://img.shields.io/badge/platform-Linux-lightgrey)](https://gitlab.com/smspp/smspp-project/-/blob/develop/.gitlab-ci.yml)
+
 ![To boldly model (and solve) what no one has modeled (and solved)
 before](doxygen/SMSpp_logo_mid_noback.png)
 
@@ -93,9 +102,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   defining the general `SMS++` framework features.
 
 - [BinaryKnapsackBlock](https://gitlab.com/smspp/binaryknapsackblock),
-  a `Block` implementing the Binary Knapsack Problem and the corresponding
-  Solver based on a straightforward implementation of the Dynamic Programming
-  approach (for integer weights).
+  a `Block` implementing the (Mixed) Binary Knapsack Problem, together with
+  a family of `Solver` for it: the full-table Dynamic Programming one, an
+  exact core one in the MINKNAP / COMBO / RECORD line that is orders of
+  magnitude faster, those handing the core to the external COMBO and RECORD
+  solvers, and the greedy one for the continuous relaxation; all of them can
+  reuse the previous solution after a change of the data.
 
 - [BendersDecompositionSolver](https://gitlab.com/smspp/bendersdecompositionsolver),
   a "generic" Benders-based `Solver` for `Block` with appropriate structure,
@@ -117,16 +129,28 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   an implementation of the `Block` concept for a "pretty basic version" the
   Capacitated Facility Location (CFL) problem, a.k.a. the Capacitated
   Warehouse Location (CWL) problem, primarily intended as a "didactic"
-  implementation for showing some of the features of `SMS++`. However, it is
-  also used as the support for scenario reduction techniques in
-  `StochasticBlock` (see below).
+  implementation for showing some of the features of `SMS++`. However, it can
+  also play, at run time, the role of the sub-problem of the scenario
+  reduction techniques (see below), which build it through the `SMS++`
+  factory and therefore do not require this module at build time.
 
-- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for
-  optimization problems involving (several) nondifferentiable objective
-  function(s) based on the (generalized) "bundle method". It currently
-  uses some modules from the [NDOSolver / FiOracle
-  project](https://gitlab.com/frangio68/ndosolver_fioracle_project),
-  although the dependency will be hopefully removed in time.
+- [BundleSolver](https://gitlab.com/smspp/bundlesolver), a `Solver` for the
+  minimization of a sum of convex nondifferentiable functions known through
+  an oracle (e.g., the Lagrangian dual of a `Block`, or the master of a
+  Benders' decomposition) by the "generalized bundle" method. Its master
+  problem is a `MasterProblemBlock`, solved by any `:MILPSolver`, with the
+  proximal, level, doubly stabilized or trust-region stabilization; the
+  components can enter it as cutting-plane models or, when they are "easy",
+  with their exact description. `ParallelBundleSolver` evaluates the
+  components in parallel, and `BundleSolverML` predicts the proximal
+  parameter with a neural network.
+
+- [SubGradSolver](https://gitlab.com/smspp/subgradsolver), a `Solver` for the
+  same problems as `BundleSolver` by the deflected and projected subgradient
+  methods, whose stepsize and deflection rules (Polyak, ColorTV, FumeroTV,
+  Volume and the primal-dual one) are chosen by name in its configuration;
+  as the inner `Solver` of `LagrangianDualSolver`, it also recovers primal
+  solutions from the convex combinations of the subgradients.
 
 - [InvestmentBlock](https://gitlab.com/smspp/investmentblock), a `Block`
   designed to model the investment in different assets defined in
@@ -169,11 +193,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general `MILPSolver` `Solver` that aims at being able to solve any `Block`
-  whose abstract representation encodes for a Mixed-Integer Linear Program
-  (`ColVariable`, `FRowConstraint` and `FRealObjective` with `LinearFunction`
-  inside, `OneVarConstraint`), together with derived classes that actually
-  interface with existing MILP solvers. Currently, available derived classes
-  are:
+  whose abstract representation encodes for a Mixed-Integer
+  Quadratically-Constrained Quadratic Program (`ColVariable`,
+  `OneVarConstraint`, `FRowConstraint` and `FRealObjective` with
+  `LinearFunction`, `DQuadFunction` or `QuadFunction` inside), together with
+  derived classes that actually interface with existing solvers; not all of
+  them handle all the quadratic cases, in particular the non-convex ones.
+  Currently, available derived classes are:
 
   - `CPXMILPSolver`, providing the interface with the commercial
     [IBM ILOG CPLEX Studio](https://www.ibm.com/products/ilog-cplex-optimization-studio)
@@ -187,6 +213,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `GRBMILPSolver`, providing the interface with the commercial
     [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
+  - `MOSEKMILPSolver`, providing the interface with the commercial
+    [MOSEK Optimizer](https://www.mosek.com) (version 11.0.1 or later), which
+    needs a license of its own, free for academic use
+    ([academic licenses](https://www.mosek.com/products/academic-licenses/));
+    it is built when CMake finds MOSEK (`MILPSolver_USE_MOSEK`, with
+    `MOSEK_ROOT` as hint)
+
   - `HiGHSMILPSolver`, providing the interface with the open-source
     [HiGHS](https://highs.dev)
 
@@ -194,6 +227,47 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     interior-point solver
     [PIPS-IPM++](https://gitlab.com/pips-ipmpp/pips-ipmpp) (LP problems
     only, currently supported on Linux only)
+
+  - `DAQPMILPSolver`, providing the interface with the open-source dual
+    active-set solver [DAQP](https://github.com/darnstrom/daqp) (convex QP
+    and LP problems with linear constraints, dense, no integer variables)
+
+  - `QPOASESMILPSolver`, providing the interface with the open-source online
+    active-set solver [qpOASES](https://github.com/coin-or/qpOASES) (convex
+    QP and LP problems with linear constraints, dense, no integer variables,
+    the Hessian possibly singular, hot starts between similar problems)
+
+  - `ClarabelMILPSolver`, providing the interface with the open-source
+    interior-point solver [Clarabel](https://clarabel.org) (convex QP and LP
+    problems with linear constraints, sparse, no integer variables), whose C
+    interface is built with a Rust toolchain and installed by hand [see the
+    README of MILPSolver]
+
+  - `ProxQPMILPSolver`, providing the interface with the open-source
+    proximal augmented Lagrangian solver ProxQP of
+    [ProxSuite](https://github.com/Simple-Robotics/proxsuite) (convex QP
+    and LP problems with linear constraints, dense or sparse, no integer
+    variables)
+
+  - `PIQPMILPSolver`, providing the interface with the open-source
+    proximal interior point solver [PIQP](https://github.com/PREDICT-EPFL/piqp)
+    (convex QP and LP problems with linear constraints, dense or sparse,
+    no integer variables)
+
+  - `OSQPMILPSolver`, providing the interface with the open-source
+    operator splitting solver [OSQP](https://osqp.org) (convex QP and LP
+    problems with linear constraints, sparse, no integer variables)
+
+  - `QPMADMILPSolver`, providing the interface with the open-source dual
+    active-set solver [qpmad](https://github.com/asherikov/qpmad), of
+    Goldfarb and Idnani (strictly convex QP problems with linear
+    constraints, dense, the Hessian positive definite, no integer variables)
+
+  - `QuadProgMILPSolver`, providing the interface with the open-source
+    dual active-set solver [quadprog](https://github.com/quadprog/quadprog),
+    the original implementation of the method of Goldfarb and Idnani (same
+    problems as `QPMADMILPSolver`); quadprog is under the GPL, hence it is
+    installed only if asked (`--with-quadprog`) and it is in no package
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
@@ -210,9 +284,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [SDDPBlock](https://gitlab.com/smspp/sddpblock), defining the `SDDPBlock` for
   multi-stage stochastic optimization problems solvable by the Stochastic
-  Dual Dynamic Programming approach, and the `SDDPSolver` that interfaces with
+  Dual Dynamic Programming approach, the `SDDPSolver` that interfaces with
   the SDDP solver in the
-  [StOpt project](https://gitlab.com/stochastic-control/StOpt).
+  [StOpt project](https://gitlab.com/stochastic-control/StOpt), and the
+  `SDDPGreedySolver` that solves the stages of one scenario one after the
+  other, each with the approximation of the future cost the `SDDPBlock`
+  holds, giving feasible solutions that evaluate (and bound from above) the
+  decisions of `SDDPSolver`.
 
 - [StochasticBlock](https://gitlab.com/smspp/stochasticblock), defining the
   `StochasticBlock` "meta-Block" that takes *any* "deterministic" `Block` and
@@ -222,8 +300,10 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   generating scenario data (in the form that `StochasticBlock` uses) and its
   `DiscreteScenarioSet` implementation for the special case of discrete
   distributions (finite sets of scenarios). The latter also implements a
-  general support for *scenario reduction* techniques via integration with the
-  `CapacitatedFacilityLocationBlock` (and solvers therein).
+  general support for *scenario reduction* techniques, whose sub-problem is
+  built through the `SMS++` factory, so that a
+  `CapacitatedFacilityLocationBlock` (and the Solvers therein) can serve as
+  such without the module being required to build this one.
 
 - [tests](https://gitlab.com/smspp/tests), defining (complex) testers for
   several components of the project that require elements (`Block` and/or
@@ -253,22 +333,117 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [SVMBlock](https://gitlab.com/smspp/svmblock), defining the `Block` for the
   training problem of a *Support Vector Machine*, both the classifier and the
-  regressor, together with the ad hoc `SMOSolver` and with `LIBSVMSolver`,
-  which hands the problem over to LIBSVM. The abstract representation encodes
-  either the training problem itself or its Wolfe dual, and the samples can be
-  dealt out to chunks tied by consensus constraints, which is the structure a
-  Lagrangian, or equivalently a Dantzig-Wolfe, decomposition attacks.
+  regressor, together with the ad hoc `SMOSolver` and with `LIBSVMSolver` and
+  `LIBLINEARSolver`, which hand the problem over to
+  [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvm/) and to
+  [LIBLINEAR](https://www.csie.ntu.edu.tw/~cjlin/liblinear/). The abstract
+  representation encodes either the training problem itself or its Wolfe
+  dual, and the samples can be dealt out to chunks tied by consensus
+  constraints, which is the structure a Lagrangian, or equivalently a
+  Dantzig-Wolfe, decomposition attacks.
+
+- [SATBlock](https://gitlab.com/smspp/satblock), defining the `Block` for the
+  satisfiability problems of the propositional logic and for their weighted
+  partial MaxSAT version, whose abstract representation is the MILP
+  formulation, so that the `:MILPSolver` and the decompositions of SMS++ work
+  on it as they are, together with `SATSolver`, the base of the `Solver` that
+  hand the clauses to a SAT solver (`CaDiCaLSATSolver` for
+  [CaDiCaL](https://github.com/arminbiere/cadical) and `MiniSATSolver` for
+  [MiniSat](https://github.com/stp/minisat)), which also solves the weighted
+  MaxSAT by the core-guided algorithm OLL.
+
+- [SatellitesBlock](https://gitlab.com/smspp/satellitesblock), defining the
+  `Block` for the Satellite Constellation Design Problem, i.e., choosing the
+  orbits of a constellation of satellites so as to minimize either their
+  number or the sum over the targets of the maximum revisit times:
+  `SatelliteBlock`, `SingleTargetBlock`, `MultiTargetBlock` and the
+  `ConstellationBlock` that aggregates them for the continuous version of the
+  problem, `DiscreteSatelliteBlock` and `DiscreteConstellationBlock` for the
+  version where the observability threshold of each satellite takes one of
+  finitely many levels, together with the heuristics `SatelliteSolver` and
+  `DiscreteSatelliteSolver`.
+
+- [MultiKnapsackAssignBlock](https://gitlab.com/smspp/multiknapsackassignblock),
+  defining the `Block` for the Multiple Knapsack Assignment Problem, i.e.,
+  placing items partitioned into classes in knapsacks, each of which is given
+  at most one class and holds items of that class within its capacity, so as
+  to maximize the total profit: its sub-`Block` are the `BinaryKnapsackBlock`
+  of the pairs of a knapsack and a class, linked by the constraints that
+  assign each item to at most one knapsack and each knapsack at most one
+  class.
+
+- [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
+  defining the `Block` for Delay-Constrained Routing problems, i.e., routing
+  flows on a network at minimum cost so that the worst-case end-to-end delay
+  of each of them, as given by a network-calculus formula, meets its
+  deadline: `SingleFlowDCRBlock` for one flow, `MultiFlowDCRBlock` for
+  several of them sharing the arc capacities, together with the
+  `SingleFlowDCRBendersSolver` that solves the single-flow problem by a
+  Benders scheme with a nested Lagrangian relaxation.
 
 - [UCBlock](https://gitlab.com/smspp/ucblock), defining several `Block` for
   Unit Commitment problems: the general `UCBlock` "root" class, several
   `Block` for specific generating units (`UnitBlock`) and interconnect
   networks (`NetworkBlock`), with some specialized `Solver`.
 
+- [pySMSpp](https://github.com/SPSUnipi/pySMSpp), the Python interface of
+  SMS++, which builds the netCDF files of SMS++ models, runs the SMS++ tools
+  on them and reads their results back.
+
+- [pypsa2smspp](https://github.com/SPSUnipi/pypsa2smspp), which translates
+  a [PyPSA](https://pypsa.org) energy-system network into the corresponding
+  SMS++ model (a `UCBlock`, possibly within an `InvestmentBlock` for capacity
+  expansion, or within a `TwoStageStochasticBlock` or a
+  `MultiStageStochasticBlock` for its stochastic versions), solves it
+  through pySMSpp, which it requires, and maps the solution back onto the
+  network.
+
+  Both are Python packages (`pip install pysmspp pypsa2smspp`) that CMake
+  does not build, and their submodules are only initialized on request,
+  e.g., `git submodule update --init pySMSpp pypsa2smspp`.
+
 
 
 ## Getting started
 
-These instructions will let you build the projects on your local machine.
+SMS++ is also distributed ready-made, which is the quickest way to use it,
+in any of
+
+```sh
+sudo add-apt-repository ppa:smspp-project/smspp   # Ubuntu
+sudo apt install smspp-project                    # or smspp-ucblock, libsmspp-mcf-dev, ...
+
+conda install -c conda-forge smspp-project        # Linux, macOS, Windows
+
+brew tap SMSpp-Project/smspp                      # macOS, Linux
+brew install smspp
+
+vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one feature per module
+```
+
+The vcpkg port is not in the default registry of vcpkg but in the
+[SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry), whose README
+shows how a project routes `smspp` (and its dependencies `stopt`, `cadical`
+and `daqp`) to it.
+
+On Ubuntu the framework is one package per module and one per tool, so that a
+project installs only what it uses: `libsmspp-<module>` holds a shared
+library, `libsmspp-<module>-dev` its headers and the CMake configuration that
+`find_package()` finds, `smspp-<tool>` a command with its configuration files,
+its examples and its man page, and `smspp-project` installs them all.
+
+CPLEX, Gurobi, MOSEK and SCIP are not redistributable, so in all of these the
+MILP Solvers carry the HiGHS, DAQP and qpOASES backends alone (the vcpkg port
+also ProxQP, PIQP, OSQP and qpmad); a build against the others is still the one
+of the sources, which the instructions below are about.
+Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
+where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
+manager but Homebrew distributes (Debian and Ubuntu carry the older one of
+minisat.se), comes with a build from the sources. BinaryKnapsackBlock is
+packaged without the Solvers that hand its core to RECORD and to COMBO, which
+are built from the sources when these are found (RECORD, which `INSTALL.sh`
+checks out, in `RECORD_ROOT`, and COMBO, which is for academic or
+non-commercial use only and comes with no installer, in `COMBO_ROOT`).
 
 ### Requirements
 
@@ -336,21 +511,40 @@ according to the following options table:
 |--------------------|-------------------|------------------------------------------|
 | `--without-cplex`  | `-withoutCplex`   | skip CPLEX installation                  |
 | `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation                 |
+| `--without-mosek`  | `-withoutMosek`   | skip MOSEK installation                  |
 | `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
 | `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
 | `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
+| `--without-daqp`   | *(via vcpkg)*     | skip DAQP installation                   |
+| `--without-qpoases` | *(via vcpkg)*    | skip qpOASES installation                |
+| `--without-proxsuite` | *(via vcpkg)* | skip ProxSuite installation               |
+| `--without-piqp`   | *(via vcpkg)*     | skip PIQP installation                   |
+| `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
+| `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
+| `--with-quadprog`  | *(not supported)* | install quadprog (GPL)                   |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
-| `--without-coinor` | *(via vcpkg)*     | skip COIN-OR installation                |
+| `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
+| `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
+| `--without-minisat` | *(not supported)* | skip MiniSat installation               |
+| `--without-record` | *(not supported)* | skip RECORD installation                 |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
+| `--with-experiments` | `-withExperiments` | also fetch and build the private `experiments` submodule |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
 Note that CPLEX is not redistributable, so the scripts do not download it. To
 install it, point the script to your own installer via `--cplex-installer=<path>`
 on Unix or `-cplexInstaller <path>` on Windows. If no installer is provided,
 CPLEX is skipped and the build proceeds with the other solvers.
+
+MOSEK is not redistributable either, but its archives can be downloaded
+freely: the scripts install the latest 12.0.x version (except on macOS x86_64,
+for which MOSEK 12 has no build), and using it requires a license of your own,
+free for academic use, put in `~/mosek/mosek.lic`
+(`%USERPROFILE%\mosek\mosek.lic` on Windows) or pointed to by the
+`MOSEKLM_LICENSE_FILE` environment variable.
 
 Otherwise, if you are already inside the cloned repository, you can run the
 script via:
@@ -400,7 +594,14 @@ The rationale for not directly changing the makefile-default-paths-* is that
 re-change the makefiles (or stash/restore the changes) each time the project is
 pulled, or manually ignore the changes when it is pushed, which is very convenient
 for anyone who actually develops new `SMS++` components (which you know you
-should, so please do).
+should, so please do). With CMake, `-DSMSPP_EXTLIB_DEFAULTS=OFF` leaves the
+default paths out (`extlib/makefile-paths` is still read), so that the
+`*_ROOT` variables are only those given on the command line: this is what a
+package is built with, lest it take in whatever the building machine has
+under, e.g., `/opt`. A few Find modules look in `/opt` by themselves (those
+of CPLEX, Gurobi, MOSEK and SCIP, and BinaryKnapsackBlock for the RECORD and
+COMBO sources), and a package turns them off one by one
+(`CMAKE_DISABLE_FIND_PACKAGE_<name>`, `RECORD_ROOT=OFF`, `COMBO_ROOT=OFF`).
 
 ### Build and install with CMake
 
@@ -413,6 +614,52 @@ on requirements and dependencies between modules.
 
 Several CMake configuration options are available, see
 [here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration).
+
+### Build inside a CMake project
+
+A CMake project can also build SMS++ along with itself, out of the tarball of
+a release (which carries every submodule), by FetchContent or by
+[CPM.cmake](https://github.com/cpm-cmake/CPM.cmake); the modules are then
+targets of the project, e.g., `SMS++::UCBlock`, and `BUILD_<module>` turns off
+those that are not wanted or whose dependencies are not installed (here
+SDDPBlock and InvestmentBlock, which need StOpt, and MCFLemonSolver, which
+needs LEMON):
+
+```cmake
+set(SMSPP_VERSION 0.7.0)
+string(CONCAT SMSPP_URL
+    "https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/"
+    "generic/smspp-project/${SMSPP_VERSION}/"
+    "smspp-project-${SMSPP_VERSION}.tar.gz")
+
+include(FetchContent)
+set(BUILD_TESTING OFF CACHE BOOL "")
+set(BUILD_tests OFF CACHE BOOL "")
+set(BUILD_tools OFF CACHE BOOL "")
+set(BUILD_SDDPBlock OFF CACHE BOOL "")
+set(BUILD_InvestmentBlock OFF CACHE BOOL "")
+set(BUILD_MCFLemonSolver OFF CACHE BOOL "")
+FetchContent_Declare(smspp URL ${SMSPP_URL})
+FetchContent_MakeAvailable(smspp)
+
+add_executable(app app.cpp)
+target_link_libraries(app PRIVATE SMS++::UCBlock SMS++::MILPSolver)
+```
+
+or, with CPM.cmake,
+
+```cmake
+CPMAddPackage(
+    NAME smspp
+    URL ${SMSPP_URL}
+    OPTIONS "BUILD_TESTING OFF" "BUILD_tests OFF" "BUILD_tools OFF"
+            "BUILD_SDDPBlock OFF" "BUILD_InvestmentBlock OFF"
+            "BUILD_MCFLemonSolver OFF")
+```
+
+`URL_HASH SHA256=<hash>` pins the tarball, whose SHA-256 is the one of the
+release. The core fetches FastFlow at configure time, hence the build needs
+the network unless `FETCHCONTENT_SOURCE_DIR_FASTFLOW` points to a copy.
 
 ### Build and install with makefiles
 
@@ -470,15 +717,7 @@ and `SW` controlling the `C++` compiler and its main options; these can
 therefore be set in the "main" makefile and will be used throughout the
 whole compilation. This may be useful to set system-specific values.
 
-An example of this is the macro
-
-```sh
-CLANG_1200_0_32_27_PATCH
-```
-
-which activates a patch for a weird glitch of `clang++` (from 1200.0.32.27
-to at least 1200.0.32.29) that cause some `boost::any magic` to stop working.
-Other settings may be needed (see, for instance, the comments about
+Some settings may be needed (see, for instance, the comments about
 `--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
 
 
@@ -547,8 +786,9 @@ released under. However, `SMS++` is a community project, and we humbly suggest
 you to consider participating in it with the rules we have been setting.
 
 The easiest way to start a new module is the
-[ModuleTemplate](https://gitlab.com/smspp/moduletemplate) repository, a
-ready-to-use skeleton of a `SMS++` module in the standard layout (CMake and
+[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository (in
+the private `smspp-develop` group of the SMS++ developers), a ready-to-use
+skeleton of a `SMS++` module in the standard layout (CMake and
 makefiles builds, GitLab and GitHub CI, a factory-registered stub class, a
 smoke test wired into CTest, and all the standard boilerplate). Its `init.sh`
 script renames everything after your module, wires the declared dependencies

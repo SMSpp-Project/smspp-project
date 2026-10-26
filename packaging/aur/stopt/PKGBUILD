@@ -1,0 +1,37 @@
+# Maintainer: Donato Meoli <donato.meoli.95@gmail.com>
+#
+# Written by packaging/gen_recipes.py of the SMS++ umbrella from its
+# packaging/modules.py: edit those, not this file.
+
+pkgname=stopt
+pkgver=7.1
+pkgrel=1
+pkgdesc="Library for stochastic optimization by dynamic programming and SDDP"
+arch=('x86_64' 'aarch64')
+url="https://gitlab.com/stochastic-control/StOpt"
+license=('LGPL-3.0-only')
+depends=(boost boost-libs eigen zlib bzip2)
+makedepends=(cmake)
+_tarball=StOpt-v$pkgver.tar.gz
+source=("$_tarball::$url/-/archive/v$pkgver/$_tarball")
+sha256sums=('8bee8f2aab097c91a791729cde34f50b062208a1ab1af4d62ee41dba24a9e5e7')
+
+build() {
+  # the geners serialization library travels inside StOpt and is built
+  # with it; the SDDP and DP CUTS switches build tests, not the library
+  cmake -S StOpt-v$pkgver -B build \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_PYTHON=OFF \
+    -DBUILD_TEST=OFF \
+    -DBUILD_SDDP=OFF \
+    -DBUILD_DPCUTS=OFF \
+    -DBUILD_MPI=OFF \
+    -DBUILD_SYSTEM_INSTALL=ON
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

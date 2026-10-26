@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "A Structured Modeling System for mathematical models"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = doxygen/SMSpp_logo_small_whiteback.png
+PROJECT_LOGO           = doxygen/SMSpp_logo_small_noback.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -823,13 +823,10 @@ INPUT                  = doxygen/mainpage.md \
                          ./README.md \
                          ./CONTRIBUTING.md \
                          ./LICENSE \
+                         BendersDecompositionSolver/include \
                          BinaryKnapsackBlock/include \
+                         BranchAndXSolver/include \
                          BundleSolver/include \
-                         BundleSolver/NDOFiOracle/Bundle/MPSolver.h \
-                         BundleSolver/NDOFiOracle/MPTester \
-                         BundleSolver/NDOFiOracle/NDOSlver \
-                         BundleSolver/NDOFiOracle/OSIMPSolver \
-                         BundleSolver/NDOFiOracle/QPPnltMP \
                          CapacitatedFacilityLocationBlock/include \
                          InvestmentBlock/include \
                          LagrangianDualSolver/include \
@@ -840,8 +837,13 @@ INPUT                  = doxygen/mainpage.md \
                          MCFClassSolver/include \
                          MILPSolver/include \
                          MMCFBlock/include \
+                         SATBlock/include \
+                         SatellitesBlock/include \
+                         MultiKnapsackAssignBlock/include \
                          SDDPBlock/include \
                          ScenarioReductionSolver/include \
+                         SingleFlowDCRBlock/include \
+                         SubGradSolver/include \
                          SMS++/include \
                          StochasticBlock/include \
                          SVMBlock/include \
@@ -1974,7 +1976,7 @@ MAN_LINKS              = NO
 # captures the structure of the code including all documentation.
 # The default value is: NO.
 
-GENERATE_XML           = NO
+GENERATE_XML           = YES
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
@@ -2094,7 +2096,7 @@ ENABLE_PREPROCESSING   = YES
 # The default value is: NO.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES then
 # the macro expansion is limited to the macros specified with the PREDEFINED and
@@ -2102,7 +2104,7 @@ MACRO_EXPANSION        = NO
 # The default value is: NO.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-EXPAND_ONLY_PREDEF     = NO
+EXPAND_ONLY_PREDEF     = YES
 
 # If the SEARCH_INCLUDES tag is set to YES, the include files in the
 # INCLUDE_PATH will be searched if a #include is found.
@@ -2134,7 +2136,7 @@ INCLUDE_FILE_PATTERNS  =
 # recursively expanded use the := operator instead of the = operator.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-PREDEFINED             =
+PREDEFINED             = SMSpp_insert_in_factory_h:=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

@@ -231,7 +231,7 @@ present-day solution channel, read the solution back through the
 obtained from `get_Solution()`, and do not write code that
 assumes the `Variable`s-as-channel arrangement will persist. This
 remains one of the clearest signs that the SMS++ public interface
-is not yet fully settled at version 0.6.0. **Status — under
+is not yet fully settled at version 0.7.0. **Status — under
 development.**
 
 ## 9.8 API outline {#sec-9-8}
