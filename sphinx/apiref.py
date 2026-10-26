@@ -416,7 +416,8 @@ def toctree(entries, hidden=True, maxdepth=1):
 def table(rows, header):
     if not rows:
         return ''
-    out = '.. list-table::\n   :header-rows: 1\n   :widths: 30 70\n\n'
+    out = ('.. list-table::\n   :header-rows: 1\n   :widths: 30 70\n'
+           '   :width: 100%\n\n')
     for row in [header] + rows:
         out += '   * - %s\n     - %s\n' % (row[0], row[1] or ' ')
     return out + '\n'

@@ -11,6 +11,12 @@
     max-width: 1300px;
 }
 
+/* the content in the middle of the room the menu leaves, on a screen
+   wider than the menu and the content, instead of against the menu */
+.wy-nav-content {
+    margin: 0 auto;
+}
+
 /* a display formula wider than the page scrolls in its own box, and does
    not spill over the margin */
 mjx-container[display="true"],

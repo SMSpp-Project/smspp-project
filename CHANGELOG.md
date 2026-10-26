@@ -176,6 +176,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the cells of the tables on more lines, where the descriptions of the
   modules, the headers and the classes ran out of the page
 
+- the Sphinx site: the content in the middle of the room the menu leaves on
+  a wide screen, instead of against the menu, and the tables of the API
+  reference as wide as the content, so that those of a page line up
+
 - the titles of the Sphinx site in sentence case, as most of them were:
   the captions of the menu, "API reference", "Release notes" and two
   sections of the main page
