@@ -34,6 +34,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML = os.path.join(ROOT, 'doc', 'xml')
 OUT = os.path.join(ROOT, 'sphinx', 'api')
 TOPICS = os.path.join(ROOT, 'doxygen', 'modules.dox')
+PAGES = os.path.join(ROOT, 'doxygen', 'pages.cfg')
 CORE = 'SMS++'
 NAMESPACE = 'SMSpp_di_unipi_it::'
 GITLAB = 'https://gitlab.com/smspp/'
@@ -329,6 +330,14 @@ def headers_of(compounds, members):
         modules[module_of(f.file)].append(h)
     for h in [h for hs in modules.values() for h in hs]:
         place(h, compounds)
+    # a family that holds all the Blocks of its module is just the Blocks,
+    # its name being needed only next to other Blocks
+    for hs in modules.values():
+        kinds = {h.group for h in hs if h.group.endswith('Blocks')}
+        if len(kinds) == 1 and 'Blocks' not in kinds:
+            for h in hs:
+                if h.group in kinds:
+                    h.group = 'Blocks'
     return modules
 
 
@@ -602,6 +611,7 @@ def topics(order, modules, readme, docs, compounds):
     groups = {c.name: c for c in compounds.values() if c.kind == 'group'
               and not c.name.startswith(('mod_', 'hdr_', 'headers_'))}
     placed = set()
+    filters = []
     out = ['/* written by sphinx/apiref.py from the XML of Doxygen */\n']
     for module in order:
         url, line = repository(module, readme)
@@ -644,10 +654,13 @@ def topics(order, modules, readme, docs, compounds):
                         '"%s"' % c.name if ' ' in c.name else c.name),
                         '\\ingroup %s' % hdr))
         if docs.get(module):
-            out.append(block('\\defgroup %s %s' % (
-                ident('mod', slug(module), DOCUMENTATION.lower()),
-                DOCUMENTATION), '\\ingroup %s' % mod, '',
-                *['- \\ref %s' % p.refid for p in docs[module]]))
+            doc = ident('mod', slug(module), DOCUMENTATION.lower())
+            out.append(block('\\defgroup %s %s' % (doc, DOCUMENTATION),
+                             '\\ingroup %s' % mod))
+            # the pages go in the group by an \ingroup in their own block,
+            # which doxygen/page_ingroup.py adds as the input filter
+            filters += ['"*%s=python3 doxygen/page_ingroup.py %s"'
+                        % (p.file, doc) for p in docs[module]]
     # the groups of no header, which would come before the modules in the
     # Topics, in one topic after them
     rest = sorted((g for n, g in groups.items() if n not in placed),
@@ -660,6 +673,9 @@ def topics(order, modules, readme, docs, compounds):
                       '\\ingroup headers_groups') for g in rest]
     with open(TOPICS, 'w') as f:
         f.write('\n'.join(out))
+    with open(PAGES, 'w') as f:
+        f.write('# written by sphinx/apiref.py\nFILTER_PATTERNS = %s\n'
+                % ' \\\n                  '.join(filters))
 
 
 def main():

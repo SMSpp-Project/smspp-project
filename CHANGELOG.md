@@ -176,6 +176,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the cells of the tables on more lines, where the descriptions of the
   modules, the headers and the classes ran out of the page
 
+- the tree of the Doxygen site: the pages of a module (the unit commitment
+  model of UCBlock) go in its group Documentation instead of at the top of
+  the tree, by `doxygen/page_ingroup.py`, an input filter that
+  `sphinx/apiref.py` sets on their headers in `doxygen/pages.cfg`; the
+  README, CONTRIBUTING and LICENSE of the umbrella, which are the pages of
+  the project on the Sphinx site, are no longer pages of the reference;
+  the forward declarations of ProxSuite are no longer classes of it; and a
+  family of Blocks that holds all the Blocks of its module (SVMBlock) is
+  the group Blocks, as in the other modules, and not "SVM Blocks"
+
 - the outline of a page of the Doxygen site gives the overloads of a
   method with the types of their parameters (`doxygen/outline-overloads.js`,
   appended to `navtree.js` by the pages job), e.g., `mirror_of(ColVariable

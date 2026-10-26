@@ -397,12 +397,14 @@ pages:
     # --- Doxygen site served at /smspp-project/ ---
     # a first run writes the XML alone, from which sphinx/apiref.py (called
     # by pages.py) writes the pages of the Sphinx reference and the groups
-    # of the Topics in doxygen/modules.dox; a second run with them writes
-    # the HTML
+    # of the Topics in doxygen/modules.dox, with the filters that put the
+    # pages of the modules in their groups in doxygen/pages.cfg; a second
+    # run with them writes the HTML
     - (cat doxygen/Doxyfile; echo "GENERATE_HTML = NO") | doxygen -
     - python3 sphinx/pages.py
-    - (cat doxygen/Doxyfile; echo "INPUT += doxygen/modules.dox";
-       echo "GENERATE_XML = NO") | doxygen -
+    - (cat doxygen/Doxyfile doxygen/pages.cfg;
+       echo "INPUT += doxygen/modules.dox"; echo "GENERATE_XML = NO") |
+      doxygen -
     # the outline of a page in navtree.js (Doxygen 1.17) turns its names
     # into entities and then sets them as text, which shows "&#x2F;" for "/"
     - sed -i 's/textContent = escapeHtml(\(text\|name\))/textContent = \1/'

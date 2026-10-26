@@ -26,6 +26,7 @@ doc/doctrees/
 sphinx/generated/
 sphinx/api/
 doxygen/modules.dox
+doxygen/pages.cfg
 sphinx/__pycache__/
 
 # Claude Code local notes and configuration (kept out of the repo)
