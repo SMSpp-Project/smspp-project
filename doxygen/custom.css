@@ -28,3 +28,22 @@ mjx-container[display="true"] {
     overflow-x: auto;
     overflow-y: hidden;
 }
+
+/* the types of the members on more lines where they are long, in a column
+   of a quarter of the table: kept on one line, the longest type (e.g., an
+   std::enable_if_t of a boost::multi_array) widens the column for every
+   member of the table and pushes the names out of the page */
+table.memberdecls td.memItemLeft,
+table.memberdecls td.mdescLeft {
+    width: 25%;
+    white-space: normal;
+}
+
+/* the title of a group of members in the colours of the theme, light or
+   dark, in place of the white shadow and the fixed blue of doxygen.css */
+div.groupHeader {
+    box-shadow: none;
+    color: var(--page-foreground-color);
+    border-bottom: 1px solid var(--separator-color);
+    padding-bottom: 4px;
+}

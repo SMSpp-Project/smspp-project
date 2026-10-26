@@ -403,6 +403,11 @@ pages:
     - python3 sphinx/pages.py
     - (cat doxygen/Doxyfile; echo "INPUT += doxygen/modules.dox";
        echo "GENERATE_XML = NO") | doxygen -
+    # the outline of a page in navtree.js (Doxygen 1.17) turns its names
+    # into entities and then sets them as text, which shows "&#x2F;" for "/"
+    - sed -i 's/textContent = escapeHtml(\(text\|name\))/textContent = \1/'
+             doc/html/navtree.js
+    - test "$(grep -c 'textContent = escapeHtml' doc/html/navtree.js)" = 0
     - mv doc/html/ public/
     # --- User Manual (MkDocs) served at /smspp-project/manual/ ---
     - pip install --no-cache-dir --break-system-packages mkdocs-material

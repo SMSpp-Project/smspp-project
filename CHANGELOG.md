@@ -164,6 +164,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- the Doxygen site: the outline of a page no longer shows "&#x2F;" for
+  "/" (the pages job takes out of `navtree.js` the escape that Doxygen
+  1.17 makes before setting the names as text), the types of the members
+  go on more lines in a quarter of the table, where the longest of them
+  pushed the names of all the others out of the page, and the titles of
+  the groups of members take the colours of the light and the dark theme
+
+- the Sphinx site: the signatures of the members on the dark theme, which
+  kept the light grey of the light one under names coloured for the dark
+
 - `extlib/makefile-libGUROBI` stops only if the header of Gurobi is there
   and its library is not: it stopped whenever Gurobi was not installed, so
   that nothing including the makefiles of MILPSolver built without it
