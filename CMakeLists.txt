@@ -26,12 +26,6 @@ include(CMakeSettings.txt OPTIONAL)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 
-# smspp_check_module(), which the modules call before SMS++ is added below
-# [see SMS++/cmake/CheckModule.cmake]
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake)
-endif ()
-
 # ----- Third-party sources of a release tarball ---------------------------- #
 # The release tarball carries FastFlow and RECORD in third-party/, at the
 # commits of packaging/modules.py [see packaging/third_party.py]: they are
@@ -264,6 +258,13 @@ macro(init_submodule name)
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif ()
 endmacro()
+
+# smspp_check_module(), which the modules call before SMS++ is added below
+# [see SMS++/cmake/CheckModule.cmake]: the core, which every module needs, is
+# initialized here, since a build of a single module (e.g., in its CI) may
+# start with no submodule checked out
+init_submodule(SMS++)
+include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake OPTIONAL)
 
 # ----- Testing ------------------------------------------------------------- #
 # Enable testing at the top level, so that the per-module tests are
