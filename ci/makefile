@@ -36,6 +36,10 @@
 #                                                                            #
 ##############################################################################
 
+# all is the default, though the makefiles of the modules, included before
+# it, define clean first
+.DEFAULT_GOAL := all
+
 # compiler and options- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 CC = g++
