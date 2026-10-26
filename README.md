@@ -57,8 +57,8 @@ several complex projects, such as:
   Layouts for Industry, E-fuels and Network
   Transition](https://resilient-project.github.io), where `SMS++` is being
   interfaced with the open-source, widely-used, multi-vector energy planning
-  tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
-  the more demanding energy models.
+  tool [PyPSA-Eur](https://github.com/pypsa/pypsa-eur) to provide solution
+  methods for the more demanding energy models.
 
 - The [CET Partnership Man0EUvRE - Energy System Modelling for Transition to a
   net-Zero 2050 for EU via REPowerEU](https://man0euvre.eu) where a methodology
@@ -87,7 +87,9 @@ Watch this space for more details and news as they become available.
 
 ## User Manual
 
-A complete user manual for SMS++ lives in [`manual/`](manual/), in two forms:
+A complete user manual for SMS++ lives in
+[`manual/`](https://gitlab.com/smspp/smspp-project/-/tree/develop/manual/),
+in two forms:
 
 - **PDF** - single, print-ready file: **[SMS++ - A User Manual (PDF)](manual/SMS++-manual.pdf)**
 
@@ -599,10 +601,9 @@ while developing and testing new code (please do, this is a community project).
 
 In both cases, all external dependencies should be automatically dealt with if
 they are installed in their default paths. These are specified in the `*_ROOT`
-values that are defined in the four files
-[`extlib/makefile-default-paths-linux`](extlib/makefile-default-paths-linux),
-[`extlib/makefile-default-paths-macos`](extlib/makefile-default-paths-macos),
-and [`extlib/makefile-default-paths-win`](extlib/makefile-default-paths-win)
+values that are defined in the files `makefile-default-paths-linux`,
+`makefile-default-paths-macos` and `makefile-default-paths-win` of
+[`extlib`](https://gitlab.com/smspp/smspp-project/-/tree/develop/extlib/)
 for the three major OS families; the one that gets used is automatically
 selected by the build process (both with CMake and the makefiles). If not, the
 suggested way to change them is to copy the (right one of these) file(s) into
@@ -730,14 +731,19 @@ tests/PolyhedralFunction
 tests/PolyhedralFunctionBlock
 ```
 
-and many others. Note that the [makefile-lib](SMS++/lib/makefile-lib) and
-[makefile-inc](SMS++/lib/makefile-inc) "listen" to the general macros `CC`
-and `SW` controlling the `C++` compiler and its main options; these can
-therefore be set in the "main" makefile and will be used throughout the
-whole compilation. This may be useful to set system-specific values.
+and many others. Note that the
+[makefile-lib](https://gitlab.com/smspp/smspp/-/blob/develop/lib/makefile-lib)
+and
+[makefile-inc](https://gitlab.com/smspp/smspp/-/blob/develop/lib/makefile-inc)
+"listen" to the general macros `CC` and `SW` controlling the `C++` compiler
+and its main options; these can therefore be set in the "main" makefile and
+will be used throughout the whole compilation. This may be useful to set
+system-specific values.
 
 Some settings may be needed (see, for instance, the comments about
-`--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
+`--force_link` in the
+[makefile](https://gitlab.com/smspp/tests/-/blob/develop/BoxSolver/makefile)
+of tests/BoxSolver).
 
 
 ## First steps
