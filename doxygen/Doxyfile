@@ -828,6 +828,7 @@ INPUT                  = doxygen/mainpage.md \
                          BranchAndXSolver/include \
                          BundleSolver/include \
                          CapacitatedFacilityLocationBlock/include \
+                         HQPBlock/include \
                          InvestmentBlock/include \
                          LagrangianDualSolver/include \
                          FrankWolfeSolver/include \
