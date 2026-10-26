@@ -144,9 +144,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from its headers, so that a name added to a header and not exported makes
   it fail
 
-- `BUILD_LagrangianDualSolver` no longer turns on `BUILD_BranchAndXSolver`,
-  since `BranchingRule.h` moved to LagrangianDualSolver
-
 - the recipe of MSYS2 builds with `-DSMSpp_BUILD_MODULE=OFF`, since the CMake
   of clang64 would otherwise build the C++20 modules, which no pipeline
   builds on Windows

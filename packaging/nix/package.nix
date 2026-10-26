@@ -214,7 +214,7 @@ let
     {
       dir = "LagrangianDualSolver";
       acr = "lds";
-      needs = [ "milp" "bnx" ];
+      needs = [ "milp" ];
       req = [ ];
       opt = [ ];
     }

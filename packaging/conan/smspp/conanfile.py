@@ -63,7 +63,7 @@ _MODULES = [
      'Bundle methods for nondifferentiable optimization'),
     ('SubGradSolver', 'subgrad', ['core'], [], [],
      'Subgradient methods for nondifferentiable optimization'),
-    ('LagrangianDualSolver', 'lds', ['milp', 'bnx'], [], [],
+    ('LagrangianDualSolver', 'lds', ['milp'], [], [],
      'Lagrangian dual Solver'),
     ('FrankWolfeSolver', 'frankwolfe', ['core'], [], [],
      'Frank-Wolfe and Dantzig-Wolfe decomposition Solver'),

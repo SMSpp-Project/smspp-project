@@ -283,7 +283,7 @@ package_libsmspp-subgrad() {
 
 package_libsmspp-lds() {
   pkgdesc="SMS++: Lagrangian dual Solver"
-  depends=(libsmspp-milp libsmspp-bnx)
+  depends=(libsmspp-milp)
   DESTDIR="$pkgdir" cmake --install build/LagrangianDualSolver
 }
 

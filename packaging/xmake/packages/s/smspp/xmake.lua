@@ -132,7 +132,7 @@ package("smspp")
          opt = {},
          desc = "Subgradient methods for nondifferentiable optimization"},
         {dir = "LagrangianDualSolver", acr = "lds",
-         lib = "LagrangianDualSolver", needs = {"milp", "bnx"},
+         lib = "LagrangianDualSolver", needs = {"milp"},
          req = {},
          opt = {},
          desc = "Lagrangian dual Solver"},

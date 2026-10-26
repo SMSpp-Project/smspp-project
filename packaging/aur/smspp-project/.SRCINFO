@@ -126,7 +126,6 @@ pkgname = libsmspp-subgrad
 pkgname = libsmspp-lds
 	pkgdesc = SMS++: Lagrangian dual Solver
 	depends = libsmspp-milp
-	depends = libsmspp-bnx
 
 pkgname = libsmspp-frankwolfe
 	pkgdesc = SMS++: Frank-Wolfe and Dantzig-Wolfe decomposition Solver
