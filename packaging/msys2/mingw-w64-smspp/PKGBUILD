@@ -54,7 +54,9 @@ prepare() {
 
 build() {
   # the modules whose dependencies MSYS2 does not carry are left out;
-  # CPLEX, Gurobi and MOSEK are not redistributable
+  # CPLEX, Gurobi and MOSEK are not redistributable; the C++20
+  # modules, which CMake would build with the Clang of clang64, are
+  # not built on Windows by the CI, hence they are left out too
   MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
     cmake -S smspp-project-$pkgver -B "build-${MSYSTEM}" -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
@@ -63,6 +65,7 @@ build() {
       -DBUILD_tests=OFF \
       -DBUILD_TESTING=OFF \
       -DBUILD_experiments=OFF \
+      -DSMSpp_BUILD_MODULE=OFF \
       -DBUILD_SDDPBlock=OFF \
       -DBUILD_InvestmentBlock=OFF \
       -DBUILD_MCFLemonSolver=OFF \

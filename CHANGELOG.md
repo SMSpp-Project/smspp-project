@@ -127,6 +127,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- the nightly job of the C++20 modules builds them with the default of
+  `SMSpp_BUILD_MODULE`, which turns them on with Clang [see
+  `SMS++/cmake/CheckModule.cmake`], and then checks that the interface of
+  every module is the one that `SMS++/cmake/smspp_module_exports.py` writes
+  from its headers, so that a name added to a header and not exported makes
+  it fail
+
+- `BUILD_LagrangianDualSolver` no longer turns on `BUILD_BranchAndXSolver`,
+  since `BranchingRule.h` moved to LagrangianDualSolver
+
+- the recipe of MSYS2 builds with `-DSMSpp_BUILD_MODULE=OFF`, since the CMake
+  of clang64 would otherwise build the C++20 modules, which no pipeline
+  builds on Windows
+
 - the Doxygen site has the navigation tree on the side, with the Topics
   first after the main page, holding the same tree as the API reference of
   the Sphinx site (module, group of headers, header, class), and the theme

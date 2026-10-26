@@ -122,9 +122,13 @@ nightly:build:
 # The C++20 modules [see SMS++/cmake/CheckModule.cmake], which the build
 # above leaves out, since its compiler is GCC, which does not build them, and
 # its generator Unix Makefiles: here all of them are built with Clang and
-# Ninja, and the test that imports the module of the core is run. A module
-# that could not be built would be turned off with a warning, hence the job
-# also checks that none was.
+# Ninja, where CMake turns them on by itself, and the test that imports the
+# module of the core is run. A module that could not be built would be
+# turned off with a message, hence the job also checks that none was. The
+# interface of each module is then written again from the headers [see
+# SMS++/cmake/smspp_module_exports.py], with the flags of this build, and
+# the job fails if any of them is not the one in the repository, e.g.,
+# because a header has gained a name that the module does not export.
 nightly:modules:
   extends: .nightly
   stage: check
@@ -144,13 +148,17 @@ nightly:modules:
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
             -DCMAKE_C_COMPILER_LAUNCHER=ccache
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-            -DBUILD_tests=OFF -DSMSpp_BUILD_MODULE=ON 2>&1 | tee cmake.log
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -DBUILD_tests=OFF 2>&1 | tee cmake.log
     - "! grep -q 'SMSpp_BUILD_MODULE is' cmake.log"
     - MODULES=$(ninja -C build-modules -t targets all |
                 sed -n 's/^\([A-Za-z+]*_module\):.*/\1/p')
     - test -n "$MODULES"
     - cmake --build build-modules -j$(nproc) --target $MODULES Module_test
     - ccache --show-stats
+    - python3 SMS++/cmake/smspp_module_exports.py --clang clang++
+              --compdb build-modules/compile_commands.json
+              --check --update */src/*.cppm
     - cd build-modules && ctest -R '^Module_test$' --output-on-failure
 
 # The makefiles of all the modules, which have to keep building what CMake
