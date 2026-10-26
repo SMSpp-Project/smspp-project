@@ -40,7 +40,7 @@
       checks = forAll (pkgs: {
         consumer = pkgs.stdenv.mkDerivation {
           name = "smspp-consumer";
-          src = ./consumer;
+          src = ../consumer;
           nativeBuildInputs = [ pkgs.cmake ];
           buildInputs = [
             self.packages.${pkgs.stdenv.hostPlatform.system}.smspp

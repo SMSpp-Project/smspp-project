@@ -18,6 +18,11 @@ never CPLEX, Gurobi or MOSEK.
     gen_recipes.py    the generator of the recipes from modules.py
     release.json      the version and the SHA-256 of the tarball that the
                       recipes build
+    tarball.sh        the tarball of a release, made out of a checkout of
+                      the umbrella, which the release job publishes
+    consumer/         a program that finds UCBlock and MILPSolver by CMake
+                      and makes a UCBlock and a HiGHSMILPSolver by the
+                      factories, built against each channel by the CI
     conan/            smspp, with netcdf-cxx4 and stopt, which Conan Center
                       does not carry
     spack/            a Spack repository (namespace smspp) with smspp, stopt
@@ -279,6 +284,59 @@ of `conan/smspp/conanfile.py`, `spack/.../smspp/package.py`,
 `CMAKE_NAME` and `ROOT_VAR` of `modules.py` when a Find module of SMS++ looks
 for it).
 
+## How the recipes are tested
+
+The pipeline of the umbrella builds the recipes from the tarball of the
+commit, before a release names them. The job `packaging:tarball` makes the
+tarball by `tarball.sh`, as the release job does, with the version of
+`release.json`, and keeps it as `dist/X.Y.Z/smspp-project-X.Y.Z.tar.gz`;
+then it writes the recipes for it by
+
+    gen_recipes.py --tarball dist/X.Y.Z/smspp-project-X.Y.Z.tar.gz \
+        --modules ucblock,milp,mcfclass
+
+i.e., with its SHA-256 and the address `file://` of its directory (which is
+the same in all the jobs of the pipeline), and with the PKGBUILDs restricted
+to those modules and to the ones they need. Each of the jobs below takes the
+tarball and the recipes and builds the package of one channel with the
+modules of the variable `SMSPP_PKG_MODULES` (the three above, which bring in
+the core and MCFBlock, and the tools). It then builds `consumer` against the
+package and runs it, and solves the example of the Unit Commitment tool with
+HiGHS, whose upper bound has to be the known one:
+
+- `packaging:spack`, on Ubuntu 24.04: `spack install smspp ~<the others>`,
+  with the compiler, CMake, Boost, Eigen and netCDF of Ubuntu as externals,
+  then `spack test run smspp`;
+- `packaging:conan`, on Ubuntu 24.04: `conan create` of netcdf-cxx4 and of
+  smspp with `-o "smspp/*:<the others>=False"`, which runs `test_package`;
+- `packaging:nix`, on nixos/nix: `nix-build nix/ci.nix`, i.e., the package
+  on the nixpkgs of `flake.lock` and the consumer;
+- `packaging:aur`, on archlinux:base-devel: `makepkg` of the split package
+  as a user, `namcap` and `pacman -U`;
+- `packaging:xmake`, on Ubuntu 24.04: a project with `add_repositories` of
+  `xmake/` and `add_requires("smspp")`;
+- `packaging:vcpkg`, on Ubuntu 24.04: `vcpkg install smspp[core,tools,...]`
+  on the triplet `x64-linux-dynamic` (the libraries being shared, as in
+  the other channels), with the ports of `vcpkg-registry` as overlays and
+  the tarball in the downloads of vcpkg;
+- `packaging:homebrew`, on macOS 15: the formula of the tap with the
+  tarball as its source, `brew install --build-from-source` and `brew test`
+  (with every module, since the formula has no option).
+
+The dependencies come from the binaries of the channel where it has them
+(Nix, Arch, Homebrew); Conan, xmake and vcpkg build the others, which the
+cache of the job keeps for the next pipelines. The jobs run when a push or
+a merge request touches `packaging/`, the `CMakeLists.txt` of the umbrella or
+the gitlink of `vcpkg-registry`, and in any pipeline with the variable
+`PACKAGING` set to `1`. Hence, they are run by hand from Build > Pipelines >
+Run pipeline, on the branch to check, with `PACKAGING` and the value `1`
+(and periodically by a schedule with that variable); a branch with an open
+merge request is checked by the pipeline of the latter. MSYS2 is not built,
+since a MinGW build of the sources still stops on the three defects of its
+section above. Neither are the PPA and the conda-forge feedstock: the
+pipeline of the PPA makes the signed source package, which Launchpad then
+builds, and the feedstock is built by the CI of conda-forge.
+
 ## How the recipes were tried
 
 I have built the recipes, the MSYS2 one excepted, on Linux x86_64, out of a
@@ -290,7 +348,7 @@ the check of the flake, and xmake by `xmake require` and a consumer project.
 The AUR packages were built by `makepkg` in an Arch container, then installed,
 and their tools solved the examples installed with them. A consumer that finds
 UCBlock and MILPSolver by CMake and makes a `UCBlock` and a `HiGHSMILPSolver`
-by the factories (`nix/consumer`) was built against each channel. The options
+by the factories (`consumer`) was built against each channel. The options
 of the solvers that are not redistributable were tried with the local
 installations of CPLEX 22.1.1, Gurobi 13.0.1 and MOSEK 11.0 (in Conan and Spack
 all three, in Nix Gurobi from nixpkgs and MOSEK from its directory), and

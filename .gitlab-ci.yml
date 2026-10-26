@@ -52,6 +52,9 @@ changelog_all:
     # nothing to do with this: each of the two schedules does its own thing
     - if: $NIGHTLY == "1"
       when: never
+    # nor with the one of the packaging [see .packaging]
+    - if: $PACKAGING == "1"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "schedule"
   variables:
     GIT_DEPTH: 0
@@ -384,6 +387,355 @@ integration:
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
                         -E "$CTEST_SKIP"
 
+# The recipes of packaging/, and the port of vcpkg-registry, built from the
+# tarball of the commit before a release names them: one job makes the
+# tarball as the release job does [see packaging/tarball.sh] and writes the
+# recipes for it, each of the others builds the package of one channel
+# with the modules of SMSPP_PKG_MODULES (and those they need), builds the
+# consumer of packaging/consumer against it, which makes a UCBlock and a
+# HiGHSMILPSolver by the factories, and solves the example of the Unit
+# Commitment tool with HiGHS. The builds are long, hence the jobs run only
+# when a push or a merge request touches what they check, or in a pipeline
+# with PACKAGING set to 1 (a schedule, or Run pipeline by hand).
+.packaging:
+  rules:
+    - if: $CI_COMMIT_TAG || $SMSPP_MODULE || $NIGHTLY == "1"
+      when: never
+    - if: $PACKAGING == "1"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: &packaging-changes
+        - packaging/**/*
+        - CMakeLists.txt
+        - vcpkg-registry
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop"
+      changes: *packaging-changes
+    # a branch with a merge request is checked by the pipeline of the latter
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    # a branch is compared with develop, since its first push has nothing
+    # else to be compared with
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH
+      changes:
+        paths: *packaging-changes
+        compare_to: refs/heads/develop
+  variables:
+    SMSPP_PKG_MODULES: ucblock,milp,mcfclass
+
+packaging:tarball:
+  extends: .packaging
+  stage: check
+  image: alpine
+  timeout: 30m
+  before_script:
+    - apk add --no-cache git python3 tar
+  script:
+    - V=$(python3 -c 'import json; f = open("packaging/release.json");
+                      print(json.load(f)["version"])')
+    - packaging/tarball.sh "$V" release-artifacts
+    - mkdir -p "dist/$V" && mv release-artifacts/*.tar.gz "dist/$V/"
+    # the recipes for the tarball, at file:// of its directory, which is the
+    # same in the jobs below; they take them with the tarball
+    - python3 packaging/gen_recipes.py --modules "$SMSPP_PKG_MODULES"
+              --tarball "dist/$V/smspp-project-$V.tar.gz"
+    - git status --short packaging
+  artifacts:
+    paths:
+      - dist/
+      - packaging/
+    expire_in: 3 days
+
+.packaging:build:
+  extends: .packaging
+  stage: deploy
+  needs: [packaging:tarball]
+  timeout: 3h
+  variables:
+    DEBIAN_FRONTEND: noninteractive
+  before_script: []
+
+# the consumer built against the installation in $P, with the prefixes in
+# $CMAKE_PREFIX_PATH; then the Unit Commitment tool of $P solves its example
+.packaging:check:
+  script:
+    - cmake -S packaging/consumer -B build-use -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_PREFIX_PATH="$P;$CMAKE_PREFIX_PATH"
+    - cmake --build build-use
+    - build-use/consumer
+    - UC=$(find "$P"/ -name smspp_ucblock_solver -type f -perm -u+x |
+           head -n 1)
+    - EX=$(find "$P"/ -path '*ucblock_solver/examples/Bus_Test.nc4' |
+           head -n 1)
+    - '"$UC" "$EX" | tee uc.log'
+    - grep -q 'Upper bound = 4.14035578e+05' uc.log
+
+# the modules left out, as acronyms: all those that SMSPP_PKG_MODULES does
+# not need
+.packaging:off:
+  script:
+    - OFF=$(python3 -c "import sys; sys.path.insert(0, 'packaging');
+              import modules as M;
+              on = M.closure('$SMSPP_PKG_MODULES'.split(','));
+              print(' '.join(m[1] for m in M.MODULES
+                             if m[1] not in on + ['core']))")
+    - echo "modules left out:" $OFF
+
+# Spack, with the repository of packaging/spack: the compiler, CMake, Boost,
+# Eigen and netCDF of Ubuntu as externals, HiGHS from the recipe of the
+# repository; then the tests of the package
+packaging:spack:
+  extends: .packaging:build
+  image: ubuntu:24.04
+  variables:
+    SPACK_VERSION: v1.2.2
+  script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends build-essential
+        ca-certificates curl file git gzip patch python3 unzip xz-utils
+        bzip2 cmake help2man libboost-dev libeigen3-dev
+        libnetcdf-c++4-dev libnetcdf-dev libhdf5-dev pkg-config
+    - git clone --quiet --depth 1 -b "$SPACK_VERSION"
+                https://github.com/spack/spack.git /opt/spack
+    - . /opt/spack/share/spack/setup-env.sh
+    - spack compiler find
+    - spack external find cmake help2man pkgconf
+    # the site scope, since spack external find writes the user one
+    - |
+      cat > /opt/spack/etc/spack/packages.yaml << END
+      packages:
+        boost:
+          buildable: false
+          externals:
+          - spec: boost@1.83.0
+            prefix: /usr
+        eigen:
+          buildable: false
+          externals:
+          - spec: eigen@3.4.0
+            prefix: /usr
+        netcdf-cxx4:
+          buildable: false
+          externals:
+          - spec: netcdf-cxx4@4.3.1
+            prefix: /usr
+      END
+    - spack config get packages
+    - spack repo add packaging/spack/spack_repo/smspp
+    - !reference [.packaging:off, script]
+    - spack spec -I smspp $(printf ' ~%s' $OFF)
+    - spack install --fail-fast smspp $(printf ' ~%s' $OFF)
+    - spack test run smspp
+    - eval "$(spack load --sh smspp)"
+    - P=$(spack location -i smspp)
+    - !reference [.packaging:check, script]
+
+# Conan, with the recipes of packaging/conan under smspp/stable and the
+# dependencies of Conan Center, built where Conan Center has no binary and
+# kept in the cache; the test package of the recipe is run by conan create
+packaging:conan:
+  extends: .packaging:build
+  image: ubuntu:24.04
+  variables:
+    CONAN_HOME: $CI_PROJECT_DIR/.conan2
+  cache:
+    key: packaging-conan
+    # what was built is kept also when the job fails later
+    when: always
+    paths:
+      - .conan2/p
+  script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends build-essential
+        ca-certificates cmake git pipx python3 help2man pkg-config
+    - pipx install conan && export PATH="$HOME/.local/bin:$PATH"
+    - conan profile detect --force
+    - U="--user smspp --channel stable"
+    - S="-s compiler.cppstd=20 -s build_type=Release"
+    - conan create packaging/conan/netcdf-cxx4 --version 4.3.1 $U $S
+                   --build=missing
+    - V=$(ls dist)
+    - !reference [.packaging:off, script]
+    - O=$(printf ' -o smspp/*:%s=False' $OFF)
+    - conan create packaging/conan/smspp --version "$V" $U $S $O
+                   --build=missing
+    # the package of smspp in the cache, and the prefixes of all the
+    # packages of its graph, where the consumer finds what it needs
+    # the binaries that the graph would skip are those of the static
+    # libraries, which the consumer links too
+    - conan install --requires="smspp/$V@smspp/stable" $S $O
+                    -c tools.graph:skip_binaries=False --format=json
+                    > graph.json
+    - |
+      eval "$(python3 - << 'END'
+      import json
+      g = json.load(open("graph.json"))["graph"]["nodes"].values()
+      d = [n["package_folder"] for n in g if n.get("package_folder")]
+      print("P=" + next(n["package_folder"] for n in g
+                        if (n.get("ref") or "").startswith("smspp/")))
+      print("CMAKE_PREFIX_PATH='" + ";".join(d) + "'")
+      print("export LD_LIBRARY_PATH=" + ":".join(x + "/lib" for x in d))
+      END
+      )"
+    - !reference [.packaging:check, script]
+
+# Nix, with the package of packaging/nix on the nixpkgs of its flake.lock
+# [see packaging/nix/ci.nix, which builds the consumer and runs the tool]
+packaging:nix:
+  extends: .packaging:build
+  image: nixos/nix:2.35.4
+  script:
+    - echo "sandbox = false" >> /etc/nix/nix.conf
+    - nix-build packaging/nix/ci.nix --argstr modules "$SMSPP_PKG_MODULES"
+    - result/bin/consumer
+
+# The AUR, with the split PKGBUILD of packaging/aur written for the modules
+# of SMSPP_PKG_MODULES alone, built by makepkg as a user and installed
+packaging:aur:
+  extends: .packaging:build
+  image: archlinux:base-devel
+  script:
+    - pacman -Syu --noconfirm --needed git cmake namcap
+    - pacman -S --noconfirm --needed $(sed -n 's/^\tmakedepends = //p'
+                packaging/aur/smspp-project/.SRCINFO)
+    - useradd -m builder
+    - mkdir -p /tmp/pkg && cp packaging/aur/smspp-project/PKGBUILD /tmp/pkg/
+    - chown -R builder /tmp/pkg
+    - su builder -c "cd /tmp/pkg && MAKEFLAGS=-j$(nproc)
+                     CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) makepkg --noconfirm"
+    - namcap /tmp/pkg/PKGBUILD /tmp/pkg/*.pkg.tar.zst || true
+    - pacman -U --noconfirm /tmp/pkg/*.pkg.tar.zst
+    - P=/usr
+    - !reference [.packaging:check, script]
+
+# xmake, with the repository of packaging/xmake: a project that requires
+# smspp with the modules of SMSPP_PKG_MODULES, whose dependencies xmake
+# builds and keeps in the cache, all of them, CMake comprised: the FindHDF5
+# of the CMake of Ubuntu does not find the static HDF5 of xmake
+packaging:xmake:
+  extends: .packaging:build
+  image: ubuntu:24.04
+  variables:
+    XMAKE_VERSION: v3.1.2
+    XMAKE_ROOT: "y"
+    XMAKE_GLOBALDIR: $CI_PROJECT_DIR/.xmake-global
+    # the packages are built inside the checkout, where git apply would take
+    # the patches of xmake-repo as relative to the umbrella, and skip them
+    GIT_CEILING_DIRECTORIES: $CI_PROJECT_DIR
+  cache:
+    key: packaging-xmake
+    # what was built is kept also when the job fails later
+    when: always
+    paths:
+      - .xmake-global/.xmake/packages
+  script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends build-essential
+        ca-certificates cmake curl git python3 help2man pkg-config unzip m4
+        libncurses6
+    - X=https://github.com/xmake-io/xmake/releases/download/$XMAKE_VERSION
+    - curl -fsSL -o /usr/local/bin/xmake
+           "$X/xmake-bundle-$XMAKE_VERSION.linux.x86_64"
+    - chmod +x /usr/local/bin/xmake
+    - !reference [.packaging:off, script]
+    - mkdir use && cp packaging/consumer/consumer.cpp use/
+    - |
+      cat > use/xmake.lua << END
+      add_repositories("smspp $CI_PROJECT_DIR/packaging/xmake")
+      add_requires("smspp", {configs = {$(printf '%s = false, ' $OFF)}})
+      add_requireconfs("**", {system = false})
+      target("consumer")
+          set_kind("binary")
+          set_languages("c++20")
+          add_files("consumer.cpp")
+          add_packages("smspp")
+      END
+    - cat use/xmake.lua
+    # -v makes xmake install the packages one at a time, which is what the
+    # memory of a runner affords, and writes their builds to the log
+    - (cd use && xmake f -y -c -v > ../xmake.log 2>&1) ||
+      { tail -n 200 xmake.log; exit 1; }
+    - (cd use && xmake -y && xmake run consumer)
+    - P=$(dirname $(dirname $(find "$XMAKE_GLOBALDIR"/.xmake/packages/s/smspp
+                                    -name smspp_ucblock_solver -type f |
+                               head -n 1)))
+    - '"$P/bin/smspp_ucblock_solver"
+       "$P/share/SMS++_tools/ucblock_solver/examples/Bus_Test.nc4" |
+       tee uc.log'
+    - grep -q 'Upper bound = 4.14035578e+05' uc.log
+  artifacts:
+    when: on_failure
+    paths:
+      - xmake.log
+    expire_in: 7 days
+
+# vcpkg, with the port of vcpkg-registry as an overlay, the tarball put in
+# the downloads of vcpkg under the name the port asks for; the binaries of
+# the dependencies are kept in the cache. The triplet is the dynamic one:
+# the libraries are shared in all the channels [see packaging/README.md]
+packaging:vcpkg:
+  extends: .packaging:build
+  image: ubuntu:24.04
+  variables:
+    VCPKG_VERSION: 2026.10.16
+    VCPKG_DEFAULT_BINARY_CACHE: $CI_PROJECT_DIR/.vcpkg-cache
+  cache:
+    key: packaging-vcpkg
+    # what was built is kept also when the job fails later
+    when: always
+    paths:
+      - .vcpkg-cache
+  script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends build-essential
+        ca-certificates cmake curl git ninja-build pkg-config python3 tar
+        unzip zip autoconf automake autoconf-archive libtool bison flex
+        linux-libc-dev help2man
+    - mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+    - git submodule update --init vcpkg-registry
+    - git clone --quiet --depth 1 -b "$VCPKG_VERSION"
+                https://github.com/microsoft/vcpkg.git /opt/vcpkg
+    - /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+    - V=$(ls dist)
+    - mkdir -p /tmp/dl && cp "dist/$V/smspp-project-$V.tar.gz" /tmp/dl/
+    - cp -R vcpkg-registry/ports /tmp/ports
+    - SHA=$(sha512sum < /tmp/dl/smspp-project-$V.tar.gz | cut -d' ' -f1)
+    # the first SHA512 is that of the tarball, the other that of FastFlow
+    - sed -i "0,/SHA512 /s|SHA512 [0-9a-f]*|SHA512 $SHA|"
+             /tmp/ports/smspp/portfile.cmake
+    - 'sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$V\"|"
+              /tmp/ports/smspp/vcpkg.json'
+    # out of the umbrella, whose vcpkg.json would make it a manifest
+    - (cd /tmp && /opt/vcpkg/vcpkg install
+         "smspp[core,tools,$SMSPP_PKG_MODULES]"
+         --overlay-ports=/tmp/ports --downloads-root=/tmp/dl
+         --x-install-root=/tmp/vcpkg-installed
+         --triplet=x64-linux-dynamic --host-triplet=x64-linux-dynamic)
+    - P=/tmp/vcpkg-installed/x64-linux-dynamic
+    - !reference [.packaging:check, script]
+
+# Homebrew, on macOS, with the formula of the tap of the project
+# (SMSpp-Project/homebrew-smspp) pointed at the tarball; the test of the
+# formula builds a consumer of UCBlock and runs the tools
+packaging:homebrew:
+  extends: .packaging:build
+  image: macos-15-xcode-16
+  tags: [saas-macos-medium-m1]
+  variables:
+    HOMEBREW_NO_AUTO_UPDATE: "1"
+  script:
+    - V=$(ls dist)
+    - TGZ="$CI_PROJECT_DIR/dist/$V/smspp-project-$V.tar.gz"
+    - SHA=$(shasum -a 256 "$TGZ" | cut -d' ' -f1)
+    - brew tap smspp-project/smspp
+    - brew trust smspp-project/smspp
+    - F="$(brew --repository smspp-project/smspp)/Formula/smspp.rb"
+    - sed -i '' -e "s|^  url .*|  url \"file://$TGZ\"|"
+                -e "s|^  sha256 .*|  sha256 \"$SHA\"|" "$F"
+    - brew install --build-from-source smspp-project/smspp/smspp
+    - brew test smspp-project/smspp/smspp
+    - P=$(brew --prefix smspp-project/smspp/smspp)
+    - CMAKE_PREFIX_PATH=$(brew --prefix)
+    - !reference [.packaging:check, script]
+
 pages:
   stage: deploy
   variables:
@@ -444,17 +796,10 @@ release_job:
     - echo "Creating GitLab Release..."
     - glab auth login --hostname gitlab.com --token $ANTONIO_PERSONAL_ACCESS_TOKEN --api-protocol https --git-protocol https
     - glab auth status
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-    # the tarball carries no .git, so every VERSION.txt gets the version of its
-    # repository here, as git archive would do from the export-subst
-    - echo "$CI_COMMIT_TAG" > VERSION.txt
-    - git submodule foreach --quiet --recursive 'v=$(git describe --tags --abbrev=0 2>/dev/null) && echo "$v" > VERSION.txt || true'
+    # the tarball of the release, which the packaging jobs make in the same
+    # way out of the commit they check [see packaging/tarball.sh]
+    - packaging/tarball.sh "$CI_COMMIT_TAG" release-artifacts
     - untagged=$(git submodule foreach --quiet --recursive 'git describe --tags --exact-match > /dev/null 2>&1 || echo "$displaypath"')
-    # FastFlow and RECORD, with their licenses, at the commits of
-    # packaging/modules.py: a build of the tarball fetches nothing
-    - python3 packaging/third_party.py third-party
-    - mkdir release-artifacts
     - previous_tag=$(git tag --sort=-creatordate | sed -n 2p)
     - echo "# Release $CI_COMMIT_TAG" >> release-artifacts/release_notes.md
     - echo "## Commits since $previous_tag:" >> release-artifacts/release_notes.md
@@ -465,7 +810,6 @@ release_job:
     # each module read between the gitlink of the previous tag and this one
     - ./changelog draft --from "$previous_tag" -o release-artifacts/changelog-draft.md
     - 'echo "## Draft of the changelog, in the changelog-draft.md of this release" >> release-artifacts/release_notes.md'
-    - tar --exclude=release-artifacts --exclude='*/.*' --exclude='UCBlock/data' --exclude='UCBlock/tools/mathpower2netCDF' --exclude='.git*' --exclude='wiki' --exclude='org-profile' --exclude='CapacitatedFacilityLocationBlock/data' --exclude='MCFBlock/data' -czvf release-artifacts/smspp-project-${CI_COMMIT_TAG}.tar.gz .
     - ls -lh release-artifacts
     # the tarball also goes to the generic package registry, at a path that the
     # vcpkg port computes from the version alone

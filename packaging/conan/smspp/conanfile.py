@@ -228,6 +228,10 @@ class SmsppConan(ConanFile):
         for e in self._externals():
             self.requires(_EXTERNALS[e], transitive_headers=True,
                           force=(e == "boost"))
+        # the core includes the error API of HDF5 (SMSnetCDF.cpp), whose
+        # headers the netcdf of Conan Center does not pass on: the HDF5 is
+        # the one that netcdf asks for
+        self.requires("hdf5/1.14.3", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 20)

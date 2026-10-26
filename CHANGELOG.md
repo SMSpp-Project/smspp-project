@@ -47,6 +47,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   modules of `packaging/modules.py`, with the steps of a release for each
   channel in `packaging/README.md`
 
+- The packaging jobs of the pipeline, which build the recipes before a
+  release names them: `packaging:tarball` makes the tarball of the commit
+  as the release job does and writes the recipes for it
+  (`gen_recipes.py --tarball`, and `--modules` for the PKGBUILDs), then
+  Spack, Conan, Nix, the AUR, xmake, vcpkg (the port of the registry) on
+  Linux and Homebrew (the formula of the tap) on macOS each build the
+  package with UCBlock, MILPSolver and MCFClassSolver, a consumer
+  (`packaging/consumer`) that makes a `UCBlock` and a `HiGHSMILPSolver` by
+  the factories, and the Unit Commitment tool, which solves its example
+  with HiGHS. They run when a push or a merge request touches
+  `packaging/`, the `CMakeLists.txt` of the umbrella or the gitlink of
+  `vcpkg-registry`, and in a pipeline with `PACKAGING=1`
+
 - The section "Build inside a CMake project" of the README, on building
   SMS++ along with a project by FetchContent or CPM.cmake
 
@@ -137,6 +150,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and then, with those groups, for the HTML; the groups that the headers
   define themselves go under their header, and the `Doxyfile` no longer
   sets the tags that Doxygen 1.17 calls obsolete
+
+- the release job makes its tarball by `packaging/tarball.sh`, which the
+  packaging jobs run too, so that they check the tarball the release
+  publishes
 
 - `extlib/makefile-libCPLEX`, `-libGUROBI`, `-libSCIP` and `-libHiGHS` give
   `CPLEX_PRESENT`, `GUROBI_PRESENT`, `SCIP_PRESENT` and `HiGHS_PRESENT`,
