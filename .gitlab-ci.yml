@@ -119,6 +119,91 @@ nightly:build:
     - cmake --build build -j$(nproc)
     - ccache --show-stats
 
+# The C++20 modules [see SMS++/cmake/CheckModule.cmake], which the build
+# above leaves out, since its compiler is GCC, which does not build them, and
+# its generator Unix Makefiles: here all of them are built with Clang and
+# Ninja, and the test that imports the module of the core is run. A module
+# that could not be built would be turned off with a warning, hence the job
+# also checks that none was.
+nightly:modules:
+  extends: .nightly
+  stage: check
+  timeout: 55m
+  cache:
+    key: nightly-modules-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+  script:
+    - set -o pipefail
+    - apt-get update && apt-get install -y --no-install-recommends
+                         ccache clang clang-tools ninja-build
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - ccache --zero-stats
+    - cmake -S . -B build-modules -G Ninja -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DBUILD_tests=OFF -DSMSpp_BUILD_MODULE=ON 2>&1 | tee cmake.log
+    - "! grep -q 'SMSpp_BUILD_MODULE is' cmake.log"
+    - MODULES=$(ninja -C build-modules -t targets all |
+                sed -n 's/^\([A-Za-z+]*_module\):.*/\1/p')
+    - test -n "$MODULES"
+    - cmake --build build-modules -j$(nproc) --target $MODULES Module_test
+    - ccache --show-stats
+    - cd build-modules && ctest -R '^Module_test$' --output-on-failure
+
+# The makefiles of all the modules, which have to keep building what CMake
+# builds [see ci/makefile]: first with g++, then with clang++ and the C++20
+# modules, which the test of the core then imports. FastFlow, which CMake
+# would fetch, is cloned.
+nightly:makefiles:
+  extends: .nightly
+  stage: check
+  timeout: 3h
+  cache:
+    key: nightly-makefiles-$CI_COMMIT_REF_SLUG
+    paths:
+      - .ccache
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends ccache
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - git clone --quiet --depth 1 https://github.com/fastflow/fastflow.git
+                /tmp/fastflow
+    - ccache --zero-stats
+    - |
+      MODULES=$(git config -f .gitmodules --get-regexp '\.path$' |
+                awk '{ print $2 }' | while read -r m; do
+                  if [ -f "$m/makefile-c" ] || [ -f "$m/lib/makefile-c" ];
+                  then echo "$m"; fi; done)
+      for m in $MODULES; do
+        make -f ci/makefile -j$(nproc) MODULE="$m" CC="ccache g++" \
+             FastFlow_ROOT=/tmp/fastflow || exit 1
+      done
+      # the makefiles of the tests, of the tools and of the experiments,
+      # on the objects just built; what needs a solver that the image does
+      # not have is left out by the makefile itself, the two experiments
+      # left out here by hand need sources from elsewhere [see their
+      # README.md]
+      for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
+                    tests/MMCFBlock/makefile-xcheck */test/makefile \
+                    */test/*/makefile */tools/makefile \
+                    experiments/*/*/makefile |
+                 grep -v 'generalized_bundle\|ipamir'); do
+        make -C "$(dirname "$f")" -f "$(basename "$f")" -j$(nproc) \
+             CC="ccache g++" FastFlow_ROOT=/tmp/fastflow || exit 1
+      done
+      make -f ci/makefile clean-all
+      for m in $MODULES; do
+        make -f ci/makefile -j$(nproc) MODULE="$m" CC="ccache clang++" \
+             SMSppMOD=1 FastFlow_ROOT=/tmp/fastflow || exit 1
+      done
+    - ccache --show-stats
+    - cd SMS++/test && make -f makefile-Module -j$(nproc) CC=clang++
+                           FastFlow_ROOT=/tmp/fastflow
+    - ./Module_test
+
 # the build is not carried from one job to another: what is carried is the
 # cache of ccache, which the job above fills, so that each of these compiles
 # again in a few minutes instead of taking a build tree made in another

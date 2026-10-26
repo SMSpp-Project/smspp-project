@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- the nightly job `nightly:makefiles`, which builds all the modules with
+  their makefiles, with g++ and then with clang++ and the C++20 modules,
+  and runs `Module_test`
+
+- `ci/makefile`, which builds a module and its dependencies with their
+  makefiles (`make -f ci/makefile MODULE=<module>`), reading the prefix of
+  the macros of the module from its makefile, so that the pipeline of every
+  module builds it also with the makefiles after CMake
+
+- the nightly job `nightly:modules`, which builds all the C++20 modules
+  with Clang and Ninja, checks that none was turned off, and runs the test
+  that imports the module of the core
+
 - `packaging/`, the recipes of SMS++ for Conan (with netcdf-cxx4 and stopt,
   for a remote of the project), Spack (a repository with smspp, stopt and
   highs), Nix (package.nix, stopt.nix and a flake), the AUR (the split
@@ -98,6 +111,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `extlib/makefile-libCPLEX`, `-libGUROBI`, `-libSCIP` and `-libHiGHS` give
+  `CPLEX_PRESENT`, `GUROBI_PRESENT`, `SCIP_PRESENT` and `HiGHS_PRESENT`,
+  non-empty if and only if the solver is installed, as
+  `makefile-libMOSEK` gives `MOSEK_PRESENT`, so that the makefiles build
+  what needs a solver only where it is there
+
+- the umbrella includes `SMS++/cmake/CheckModule.cmake` before the
+  modules, which call it to turn `SMSpp_BUILD_MODULE` off, with a warning,
+  where the C++20 modules cannot be built
+
 - the README asks for MOSEK 11.0.1 or later, the first version whose
   error codes MOSEKMILPSolver builds with
 
@@ -113,6 +136,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MOSEK 10 or later, and a license of MOSEK 12 serves the earlier versions
 
 ### Fixed
+
+- `extlib/makefile-libGUROBI` stops only if the header of Gurobi is there
+  and its library is not: it stopped whenever Gurobi was not installed, so
+  that nothing including the makefiles of MILPSolver built without it
 
 - INSTALL.sh builds ProxSuite 0.8.0, its latest release, which has no
   `cmake-module` submodule any more and needs cereal unless its
