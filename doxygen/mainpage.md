@@ -19,7 +19,7 @@ as decomposition approaches and structured Interior-Point methods.
 
 ## A general description of SMS++
 
-### Design Objectives of SMS++
+### Design objectives of SMS++
 
 The aim of SMS++ is to provide a system catering for the concepts that:
 
@@ -246,7 +246,7 @@ Upon this quite classical setting, SMS++ adds a number of twists:
   this may be useful also for the future planned support to distributed
   coarse-grained asynchronous computation on non-shared-memory systems.
 
-### Long-term Objectives of SMS++
+### Long-term objectives of SMS++
 
 The aim of SMS++ is primarily to provide a modelling system that allows
 experienced users to develop solution approaches advancing the state-of-the-art

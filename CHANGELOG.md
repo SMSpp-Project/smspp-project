@@ -176,6 +176,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the cells of the tables on more lines, where the descriptions of the
   modules, the headers and the classes ran out of the page
 
+- the titles of the Sphinx site in sentence case, as most of them were:
+  the captions of the menu, "API reference", "Release notes" and two
+  sections of the main page
+
 - the tree of the Doxygen site: the pages of a module (the unit commitment
   model of UCBlock) go in its group Documentation instead of at the top of
   the tree, by `doxygen/page_ingroup.py`, an input filter that

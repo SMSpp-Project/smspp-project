@@ -683,7 +683,7 @@ def main():
         shutil.rmtree(OUT)
     os.makedirs(OUT)
     if not os.path.isdir(XML):
-        write('index', title('API Reference') + 'Doxygen has not run.\n')
+        write('index', title('API reference') + 'Doxygen has not run.\n')
         return
     compounds, members = read_xml()
     modules = headers_of(compounds, members)
@@ -704,7 +704,7 @@ def main():
     order = sorted(modules, key=lambda m: (['Core library', 'Blocks',
                                             'Solvers', 'Tools']
                                            .index(kind_of(m)), m.lower()))
-    index = title('API Reference')
+    index = title('API reference')
     index += ('The classes of the core library and of each module, the '
               'headers of each module gathered by what they define (its '
               'Blocks, its Functions, its Solvers, ...); the same reference, '

@@ -43,10 +43,10 @@ README = {
 
 # the subsections of "A general description of SMS++" in doxygen/mainpage.md
 MAINPAGE = {
-    'Design Objectives of SMS++': 'user-guide/design-objectives.md',
+    'Design objectives of SMS++': 'user-guide/design-objectives.md',
     'Alternatives to SMS++': 'user-guide/alternatives.md',
     'Main features of SMS++': 'user-guide/main-features.md',
-    'Long-term Objectives of SMS++': 'user-guide/long-term-objectives.md',
+    'Long-term objectives of SMS++': 'user-guide/long-term-objectives.md',
 }
 
 # the files of the repository that are pages of the site
@@ -137,7 +137,7 @@ def main():
 
     for name, page in LOCAL.items():
         write(page, read(name))
-    log = read('CHANGELOG.md').replace('# Changelog', '# Release Notes', 1)
+    log = read('CHANGELOG.md').replace('# Changelog', '# Release notes', 1)
     write('project/release_notes.md', log)
 
     apiref.main()
