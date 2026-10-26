@@ -124,6 +124,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- the Doxygen site has the navigation tree on the side, with the Topics
+  first after the main page, holding the same tree as the API reference of
+  the Sphinx site (module, group of headers, header, class), and the theme
+  doxygen-awesome-css 2.5.0 (MIT, in `doxygen/awesome`), with the content
+  1300 px wide and the dark theme of the system: `sphinx/apiref.py` writes
+  the groups into `doxygen/modules.dox`, external documentation blocks that
+  change no header, and the pages job runs Doxygen twice, first for the XML
+  and then, with those groups, for the HTML; the groups that the headers
+  define themselves go under their header, and the `Doxyfile` no longer
+  sets the tags that Doxygen 1.17 calls obsolete
+
 - `extlib/makefile-libCPLEX`, `-libGUROBI`, `-libSCIP` and `-libHiGHS` give
   `CPLEX_PRESENT`, `GUROBI_PRESENT`, `SCIP_PRESENT` and `HiGHS_PRESENT`,
   non-empty if and only if the solver is installed, as

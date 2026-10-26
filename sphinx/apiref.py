@@ -14,6 +14,12 @@
 # a group of their own (the unit Blocks of UCBlock), and HEADERS below        #
 # places the headers that the inheritance does not place well. pages.py       #
 # calls it, after Doxygen and before Sphinx.                                  #
+#                                                                             #
+# The same tree goes to the Topics of the Doxygen site: apiref.py writes      #
+# doxygen/modules.dox, a group per module, in it a group per group of         #
+# headers and in that a group per header, which holds the header and its      #
+# classes; the file has only external documentation blocks, so no header      #
+# changes, and the second run of Doxygen in the pages job reads it.           #
 # --------------------------------------------------------------------------- #
 
 import collections
@@ -27,6 +33,7 @@ import xml.etree.ElementTree as ET
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML = os.path.join(ROOT, 'doc', 'xml')
 OUT = os.path.join(ROOT, 'sphinx', 'api')
+TOPICS = os.path.join(ROOT, 'doxygen', 'modules.dox')
 CORE = 'SMS++'
 NAMESPACE = 'SMSpp_di_unipi_it::'
 GITLAB = 'https://gitlab.com/smspp/'
@@ -539,6 +546,122 @@ def kind_of(module):
     return 'Solvers'
 
 
+def repository(module, readme):
+    """the repository and the one line of a module"""
+    return readme.get(slug(module).lower(),
+                      ('%s%s' % (GITLAB, module.lower()),
+                       LINES.get(module, '')))
+
+
+def grouped(hs):
+    """the headers of a module by group, the groups in the order of the
+    pages and the headers in each from the base to the derived classes"""
+    groups = collections.OrderedDict()
+    for h in sorted(sorted(hs, key=lambda h: h.order),
+                    key=lambda h: group_order(h.group)):
+        groups.setdefault(h.group, []).append(h)
+    return groups
+
+
+# ----- the Topics of the Doxygen site -------------------------------------- #
+
+def dox(line):
+    """a line of text in a comment of Doxygen, its commands escaped"""
+    return re.sub(r'([\\@&$#<>%])', r'\\\1', line)
+
+
+def ident(*words):
+    """the name of a group of Doxygen, which takes only letters, digits
+    and underscores"""
+    return '_'.join(re.sub(r'\W+', '_', w).strip('_') for w in words)
+
+
+def block(*lines):
+    """a documentation block of Doxygen with the given lines"""
+    return '/** %s\n%s */\n' % (lines[0], ''.join(
+        (' *  ' + line).rstrip() + '\n' for line in lines[1:]))
+
+
+def own_groups(h, groups):
+    """the groups that a header defines itself (its classes, its types, its
+    functions, ...), which the XML gives without the file"""
+    try:
+        with open(os.path.join(ROOT, h.file)) as f:
+            names = re.findall(r'[@\\]defgroup\s+(\w+)', f.read())
+    except OSError:
+        return []
+    return [groups[n] for n in names if n in groups]
+
+
+def topics(order, modules, readme, docs, compounds):
+    """the external documentation blocks that put the tree of the pages in
+    the Topics of the Doxygen site: a group per module, a group per group of
+    headers in it, a group per header in that, with the header, its classes
+    and the groups that the header defines itself, in which its classes
+    already are"""
+    groups = {c.name: c for c in compounds.values() if c.kind == 'group'
+              and not c.name.startswith(('mod_', 'hdr_', 'headers_'))}
+    placed = set()
+    out = ['/* written by sphinx/apiref.py from the XML of Doxygen */\n']
+    for module in order:
+        url, line = repository(module, readme)
+        mod = ident('mod', slug(module))
+        lines = ['\\defgroup %s %s' % (mod, module)]
+        if line:
+            lines.append('\\brief %s' % dox(line))
+        lines += ['', 'The repository of the module is %s .' % url]
+        if module == 'tools':
+            lines += [''] + ['- %s' % dox(i) for i in tools_items()]
+        out.append(block(*lines))
+        for group, hs in grouped(modules[module]).items():
+            grp = ident('mod', slug(module), group.lower())
+            out.append(block('\\defgroup %s %s' % (grp, group),
+                             '\\ingroup %s' % mod))
+            for h in hs:
+                hdr = ident('hdr', slug(module), h.page)
+                lines = ['\\defgroup %s %s' % (hdr, h.name),
+                         '\\ingroup %s' % grp]
+                if summary(h):
+                    lines.append('\\brief %s' % dox(summary(h)))
+                out.append(block(*lines))
+                out.append(block('\\file %s' % h.file,
+                                 '\\ingroup %s' % hdr))
+                inner = set()
+                for g in own_groups(h, groups):
+                    out.append(block('\\addtogroup %s' % g.name,
+                                     '\\ingroup %s' % hdr))
+                    placed.add(g.name)
+                    inner.update(g.inner)
+                for c in h.classes:
+                    # Doxygen cuts the name of a specialization on a
+                    # template, as in group_form< std::list< S > >, and
+                    # makes a class of its own of it: those stay on the
+                    # page of their header only
+                    if c.refid in inner or re.search(r'<.*<', c.name):
+                        continue
+                    out.append(block('\\%s %s' % (
+                        'struct' if c.kind == 'struct' else 'class',
+                        '"%s"' % c.name if ' ' in c.name else c.name),
+                        '\\ingroup %s' % hdr))
+        if docs.get(module):
+            out.append(block('\\defgroup %s %s' % (
+                ident('mod', slug(module), DOCUMENTATION.lower()),
+                DOCUMENTATION), '\\ingroup %s' % mod, '',
+                *['- \\ref %s' % p.refid for p in docs[module]]))
+    # the groups of no header, which would come before the modules in the
+    # Topics, in one topic after them
+    rest = sorted((g for n, g in groups.items() if n not in placed),
+                  key=lambda g: g.title.lower())
+    if rest:
+        out.append(block('\\defgroup headers_groups Other groups',
+                         '\\brief The groups of classes, types and '
+                         'functions of no header of the reference.'))
+        out += [block('\\addtogroup %s' % g.name,
+                      '\\ingroup headers_groups') for g in rest]
+    with open(TOPICS, 'w') as f:
+        f.write('\n'.join(out))
+
+
 def main():
     if os.path.isdir(OUT):
         shutil.rmtree(OUT)
@@ -569,14 +692,13 @@ def main():
     index += ('The classes of the core library and of each module, the '
               'headers of each module gathered by what they define (its '
               'Blocks, its Functions, its Solvers, ...); the same reference, '
-              'with the lists of all the classes and of all the files, is '
-              'on the `Doxygen site <%s>`__.\n\n' % DOXYGEN[3:])
+              'with the same tree under its Topics and with the lists of all '
+              'the classes and of all the files, is on the `Doxygen site '
+              '<%s>`__.\n\n' % DOXYGEN[3:])
     for kind in ['Core library', 'Blocks', 'Solvers', 'Tools']:
         rows = []
         for module in [m for m in order if kind_of(m) == kind]:
-            url, line = readme.get(slug(module).lower(),
-                                   ('%s%s' % (GITLAB, module.lower()),
-                                    LINES.get(module, '')))
+            url, line = repository(module, readme)
             rows.append((':doc:`%s <%s/index>`' % (escape(module),
                                                     slug(module)),
                          rst_inline(line)))
@@ -584,20 +706,17 @@ def main():
             index += rubric(kind) + table(rows, ('Module', 'Description'))
     index += toctree(['%s/index' % slug(m) for m in order])
     write('index', index)
+    topics(order, modules, readme, docs, compounds)
 
     for module in order:
         hs = sorted(modules[module], key=lambda h: h.order)
-        url, line = readme.get(slug(module).lower(),
-                               ('%s%s' % (GITLAB, module.lower()),
-                                LINES.get(module, '')))
+        url, line = repository(module, readme)
         out = title(escape(module))
         out += rst_inline(line) + '\n\n'
         out += 'The repository of the module is `%s <%s>`__.\n\n' % (url, url)
         if module == 'tools':
             out += tools_list()
-        groups = collections.OrderedDict()
-        for h in sorted(hs, key=lambda h: group_order(h.group)):
-            groups.setdefault(h.group, []).append(h)
+        groups = grouped(hs)
         out += start(module, groups, pages)
         if docs.get(module):
             groups[DOCUMENTATION] = []
