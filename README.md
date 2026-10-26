@@ -30,8 +30,9 @@ the solution of very-large-scale, demanding optimization problems arising
 in applications. Indeed, the `SMS++ Project` has already been instrumental in
 several complex projects, such as:
 
-- The [plan4res H2020 project](https://www.plan4res.eu) that funded the first
-  major expansion of `SMS++` capabilities.
+- The[plan4res - Synergistic Approach of Multi-Energy Models for an European
+  Optimal Energy System Management Tool - H2020 project](https://www.plan4res.eu)
+  that funded the first major expansion of `SMS++` capabilities.
 
 - The [openENTRANCE H2020 project](https://openentrance.eu), where `SMS++`
   contributed to [the open modelling platform developed by the
@@ -43,21 +44,24 @@ several complex projects, such as:
   modellers and stakeholders from both western and eastern Africa on how to use
   the tools to develop case studies at the level of the two regions.
 
-- The [CETPartnership "RESILIENT - Resilient Energy System Infrastructure
+- The [CET Partnership RESILIENT - Resilient Energy System Infrastructure
   Layouts for Industry, E-fuels and Network
-  Transition"](https://resilient-project.github.io), where `SMS++` is being
+  Transition](https://resilient-project.github.io), where `SMS++` is being
   interfaced with the open-source, widely-used, multi-vector energy planning
   tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
-  the more demanding energy models
+  the more demanding energy models.
 
-Furthermore, the use of `SMS++` is planned for several other projects; a
-recently accepted one is
-
-- The CETPartnership "Manoeuvre", where a methodology will be developed for
-  linking `SMS++` with the global energy model
-  [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case studies,
-  where `SMS++` will be run on a technologies mix calculated by GENeSYS-Mod and
+- The [CET Partnership Man0EUvRE - Energy System Modelling for Transition to a
+  net-Zero 2050 for EU via REPowerEU](https://man0euvre.eu) where a methodology
+  has been developed for linking `SMS++` with the global energy model
+  [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case
+  studies: `SMS++` is ran on a technologies mix calculated by GENeSYS-Mod and
   will send back some indicators that will allow to refine the previous solution.
+
+- The [PowerMax - Maximizing Cross-Grid Integration and Optimization of Long
+  Duration Energy Storage to synergize Revenue Streams - HE
+  project](https://powermax-project.eu) in which SMS++ and PyPSA provide the
+  main backbone of the computational tests for the case studies.
 
 Watch this space for more details and news as they become available.
 
