@@ -22,7 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ci/makefile`, which builds a module and its dependencies with their
   makefiles (`make -f ci/makefile MODULE=<module>`), reading the prefix of
   the macros of the module from its makefile, so that the pipeline of every
-  module builds it also with the makefiles after CMake
+  module builds it also with the makefiles after CMake; it compiles with
+  `-DNDEBUG`, like the release builds of the makefiles of the tests and of
+  the tools that link its objects, since `NDEBUG` changes the vtable of
+  `Block`
 
 - the nightly job `nightly:modules`, which builds all the C++20 modules
   with Clang and Ninja, checks that none was turned off, and runs the test

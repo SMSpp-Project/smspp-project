@@ -26,7 +26,7 @@
 #                                                                            #
 #   Input:  $(MODULE)        = the directory of the module (e.g., SMS++)     #
 #           $(CC), $(SW)     = compiler command and options (default g++,    #
-#                              -O1 -std=c++20)                               #
+#                              -O1 -std=c++20 -DNDEBUG)                      #
 #           $(SMSppMOD)      = not empty if the C++20 modules are built      #
 #           $(FastFlow_ROOT) = the directory of FastFlow                     #
 #                                                                            #
@@ -42,8 +42,16 @@
 
 # compiler and options- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# NDEBUG as in the release builds of the makefiles of the tests and of the
+# tools, which link these objects afterwards: it is part of the binary
+# interface, since without it Block and the classes derived from it declare
+# the virtual methods expected_dims() and expected_vars(), and an object
+# compiled the other way calls the virtual methods declared after those
+# through the wrong entry of the vtable (e.g., register_Solver(), so that a
+# BlockSolverConfig attaches no Solver, or load() in place of serialize());
+# whoever gives SW has to agree on NDEBUG with what links the objects
 CC = g++
-SW = -O1 -std=c++20
+SW = -O1 -std=c++20 -DNDEBUG
 
 # FastFlow, the one CMake fetched unless it is given on the command line: the
 # default paths of extlib would set /opt/fastflow, hence the override
