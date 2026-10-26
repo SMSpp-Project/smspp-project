@@ -393,10 +393,18 @@ pages:
     - git submodule update --init --recursive
     - if [ "$CI_COMMIT_BRANCH" == "master" ]; then git submodule foreach --recursive "git checkout master || git checkout main"; fi
     - if [ "$CI_COMMIT_BRANCH" == "develop" ]; then git submodule foreach --recursive "git checkout develop || git checkout master || git checkout main"; fi
-    - doxygen doxygen/Doxyfile
+    - apk add --no-cache python3 py3-pip
+    # --- Doxygen site served at /smspp-project/ ---
+    # a first run writes the XML alone, from which sphinx/apiref.py (called
+    # by pages.py) writes the pages of the Sphinx reference and the groups
+    # of the Topics in doxygen/modules.dox; a second run with them writes
+    # the HTML
+    - (cat doxygen/Doxyfile; echo "GENERATE_HTML = NO") | doxygen -
+    - python3 sphinx/pages.py
+    - (cat doxygen/Doxyfile; echo "INPUT += doxygen/modules.dox";
+       echo "GENERATE_XML = NO") | doxygen -
     - mv doc/html/ public/
     # --- User Manual (MkDocs) served at /smspp-project/manual/ ---
-    - apk add --no-cache python3 py3-pip
     - pip install --no-cache-dir --break-system-packages mkdocs-material
     - mkdocs build -f manual/build/mkdocs.yml -d "$CI_PROJECT_DIR/public/manual"
     # --- Sphinx site served at /smspp-project/sphinx/ ---
@@ -405,7 +413,6 @@ pages:
     # with the pages from the Markdown files
     - pip install --no-cache-dir --break-system-packages
                   -r sphinx/requirements.txt
-    - python3 sphinx/pages.py
     # the doctrees of Sphinx stay out of the site
     - sphinx-build -b html -d doc/doctrees sphinx
                    "$CI_PROJECT_DIR/public/sphinx"

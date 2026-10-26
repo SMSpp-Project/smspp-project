@@ -22,9 +22,10 @@ doc/xml/
 doc/doctrees/
 
 # The pages that sphinx/pages.py and sphinx/apiref.py write before Sphinx
-# builds the site
+# builds the site, and the groups of the Topics of the Doxygen site
 sphinx/generated/
 sphinx/api/
+doxygen/modules.dox
 sphinx/__pycache__/
 
 # Claude Code local notes and configuration (kept out of the repo)
