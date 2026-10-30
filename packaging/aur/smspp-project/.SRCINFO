@@ -184,7 +184,7 @@ pkgname = smspp-sddp
 	depends = libsmspp-milp
 
 pkgname = smspp-investment
-	pkgdesc = SMS++: capacity expansion solver
+	pkgdesc = SMS++: capacity expansion solver and design converter
 	depends = libsmspp
 	depends = libsmspp-ucblock
 	depends = libsmspp-stochastic

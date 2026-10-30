@@ -371,7 +371,7 @@ package_smspp-sddp() {
 }
 
 package_smspp-investment() {
-  pkgdesc="SMS++: capacity expansion solver"
+  pkgdesc="SMS++: capacity expansion solver and design converter"
   depends=(
     libsmspp
     libsmspp-ucblock
@@ -383,6 +383,7 @@ package_smspp-investment() {
     libsmspp-milp
   )
   DESTDIR="$pkgdir" cmake --install build/tools/investmentblock_solver
+  DESTDIR="$pkgdir" cmake --install build/tools/design_converter
 }
 
 package_smspp-svm() {
