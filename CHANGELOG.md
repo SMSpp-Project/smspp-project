@@ -189,6 +189,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `extlib/makefile-libPIPS` restores the `--as-needed` state it found
+  around the MPI libraries (`--push-state` / `--pop-state`) instead of
+  turning `--as-needed` on, which dropped from the link the libraries of the
+  modules that follow and that the program does not call directly
+
 - the Doxygen site: the outline of a page no longer shows "&#x2F;" for
   "/" (the pages job takes out of `navtree.js` the escape that Doxygen
   1.17 makes before setting the names as text), the types of the members
