@@ -103,5 +103,5 @@
 	url = ../hqpblock.git
 [submodule "BDMinQuadSolver"]
 	path = BDMinQuadSolver
-	url = ../../smspp-develop/bdminquadsolver.git
+	url = ../bdminquadsolver.git
 	update = none
