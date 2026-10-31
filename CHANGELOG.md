@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `.github/workflows/platforms.yml`, run every night on the mirror of
+  GitHub, by hand and on the branches `ci/*`: SMS++ on macOS by `INSTALL.sh`
+  and on Windows by `INSTALL.ps1` (MSVC and vcpkg) and by the compilers of
+  MSYS2 (UCRT64 and CLANG64) on its packages, each built by CMake, with the
+  unit tests, and by the makefiles of every module; `ci/makefiles`, the
+  makefiles of every module and then those of the tests, of the tools and
+  of the experiments, which the nightly pipeline of GitLab runs as well
+
 - `HQPBlock`, the module of the `Block` and the `Solver` of hierarchical
   (lexicographic) quadratic programs: the submodule, `BUILD_HQPBlock`, the
   feature `hqp` of the smspp port of the vcpkg registry, the module in
@@ -188,6 +196,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MOSEK 10 or later, and a license of MOSEK 12 serves the earlier versions
 
 ### Fixed
+
+- `INSTALL.sh` leaves a checkout that is on no branch with an upstream (the
+  one of a CI) at its commit instead of failing on `git pull`, clones the
+  umbrella without the private `experiments`, which the update of the
+  submodules then skips, and with `--without-stopt` turns off SDDPBlock
+  alone, InvestmentBlock no longer needing it
 
 - `extlib/makefile-libPIPS` restores the `--as-needed` state it found
   around the MPI libraries (`--push-state` / `--pop-state`) instead of

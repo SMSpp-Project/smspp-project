@@ -41,9 +41,9 @@
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
-#     looking for a missing library: --without-stopt disables SDDPBlock and
-#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
-#     --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
+#     looking for a missing library: --without-stopt disables SDDPBlock
+#     (and the tools that solve one), --without-lemon disables
+#     MCFLemonSolver, and --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
 #     for SATBlock, which builds the SAT solvers it finds, and RECORD is
 #     optional for BinaryKnapsackBlock, which builds RECORDBinaryKnapsackSolver
 #     if it finds it. COMBO, which BinaryKnapsackBlock can also use, is for
@@ -1630,13 +1630,8 @@ if [ "$install_smspp" -eq 1 ]; then
   else
     echo "Repository not found locally. Cloning SMSpp..."
     smspp_cloned=1
-    # Check if the script is not being executed on a server without display or interactive terminal
-    if [ -t 1 ] && [ -z "${CI:-}" ]; then
-      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    else
-      # no way to use ccmake interactively to choose submodules, so download it all
-      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    fi
+    # the submodules are fetched below, the private experiments left out
+    git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     cd "$SMSPP_ROOT"
   fi
 
@@ -1650,8 +1645,15 @@ if [ "$install_smspp" -eq 1 ]; then
     skip_experiments=(-c submodule.experiments.update=none
                       -c submodule.experiments.fetchRecurseSubmodules=false)
   fi
+  # a checkout that is on no branch, or on one with no upstream (say, the
+  # one of a CI), is left at its commit
   if [ -z "${smspp_cloned:-}" ]; then
-    git "${skip_experiments[@]}" pull
+    if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > /dev/null 2>&1
+    then
+      git "${skip_experiments[@]}" pull
+    else
+      echo "SMSpp is on no branch with an upstream: left at its commit."
+    fi
   fi
   git submodule sync --recursive
   git "${skip_experiments[@]}" submodule update --init --recursive
@@ -1711,9 +1713,8 @@ if [ "$install_smspp" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=OFF")
   fi
   if [ "$install_stopt" -eq 0 ]; then
-    # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON
-    # through CMake's dependency resolution, so disable both.
-    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF" "-DBUILD_InvestmentBlock=OFF")
+    # StOpt is required by SDDPBlock, and by the tools that solve one
+    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF")
   fi
   if [ "$install_lemon" -eq 0 ]; then
     # LEMON is required by MCFLemonSolver.

@@ -183,33 +183,13 @@ nightly:makefiles:
     - git clone --quiet --depth 1 https://github.com/fastflow/fastflow.git
                 /tmp/fastflow
     - ccache --zero-stats
-    - |
-      MODULES=$(git config -f .gitmodules --get-regexp '\.path$' |
-                awk '{ print $2 }' | while read -r m; do
-                  if [ -f "$m/makefile-c" ] || [ -f "$m/lib/makefile-c" ];
-                  then echo "$m"; fi; done)
-      for m in $MODULES; do
-        make -f ci/makefile -j$(nproc) MODULE="$m" CC="ccache g++" \
-             FastFlow_ROOT=/tmp/fastflow || exit 1
-      done
-      # the makefiles of the tests, of the tools and of the experiments,
-      # on the objects just built; what needs a solver that the image does
-      # not have is left out by the makefile itself, the two experiments
-      # left out here by hand need sources from elsewhere [see their
-      # README.md]
-      for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
-                    tests/MMCFBlock/makefile-xcheck */test/makefile \
-                    */test/*/makefile */tools/makefile \
-                    experiments/*/*/makefile |
-                 grep -v 'generalized_bundle\|ipamir'); do
-        make -C "$(dirname "$f")" -f "$(basename "$f")" -j$(nproc) \
-             CC="ccache g++" FastFlow_ROOT=/tmp/fastflow || exit 1
-      done
-      make -f ci/makefile clean-all
-      for m in $MODULES; do
-        make -f ci/makefile -j$(nproc) MODULE="$m" CC="ccache clang++" \
-             SMSppMOD=1 FastFlow_ROOT=/tmp/fastflow || exit 1
-      done
+    # the modules and the makefiles of the tests, of the tools and of the
+    # experiments [see ci/makefiles], then the modules again with clang++
+    # and the C++20 modules
+    - ci/makefiles CC="ccache g++" FastFlow_ROOT=/tmp/fastflow
+    - make -f ci/makefile clean-all
+    - MODULES_ONLY=1 ci/makefiles CC="ccache clang++" SMSppMOD=1
+                                  FastFlow_ROOT=/tmp/fastflow
     - ccache --show-stats
     - cd SMS++/test && make -f makefile-Module -j$(nproc) CC=clang++
                            FastFlow_ROOT=/tmp/fastflow

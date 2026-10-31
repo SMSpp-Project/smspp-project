@@ -1,0 +1,140 @@
+###############################################################################
+#                               platforms.yml                                 #
+#                                                                             #
+# Builds SMS++ on the platforms it is distributed on besides Linux, which the #
+# nightly pipeline of GitLab covers [see .gitlab-ci.yml]: by CMake and by the #
+# makefiles [see ci/makefile], with the dependencies installed as a user      #
+# installs them. On macOS INSTALL.sh installs the dependencies and builds and #
+# installs SMS++, after which the tests are built and the unit tests run, and #
+# the makefiles of every module build it again with the clang++ of Xcode; on  #
+# Windows INSTALL.ps1 does the same with MSVC and vcpkg, and the compilers of #
+# MSYS2 (the g++ of UCRT64 and the clang++ of CLANG64) build it by CMake on   #
+# the packages of MSYS2 and by the makefiles. The commercial solvers and SCIP #
+# are left out, as are the modules whose dependencies a platform does not     #
+# have. It runs every night, by hand, and on the branches ci/*.               #
+###############################################################################
+
+name: Platforms
+
+on:
+  schedule:
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ 'ci/**' ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # the unit tests of the modules, which need no solver the platforms lack
+  CTEST_UNIT: '_unit_test$'
+
+jobs:
+  # INSTALL.sh with the umbrella already checked out where it looks for it,
+  # i.e., in smspp-project under the root of the installation
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 360
+    env:
+      ROOT: ${{ github.workspace }}
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: smspp-project
+      - name: the submodules, the private experiments left out
+        working-directory: smspp-project
+        run: |
+          git -c submodule.experiments.update=none \
+              submodule update --init --recursive
+      - name: INSTALL.sh, the dependencies and SMS++
+        working-directory: smspp-project
+        run: |
+          ./INSTALL.sh --install-root="$ROOT" --without-cplex \
+                       --without-gurobi --without-mosek --without-scip \
+                       --without-pips --without-torch
+      - name: the tests by CMake, and the unit tests
+        working-directory: smspp-project
+        run: |
+          cmake -S . -B build -DBUILD_tests=ON
+          cmake --build build --parallel 3
+          ctest --test-dir build -R "$CTEST_UNIT" --output-on-failure
+      - name: the makefiles of every module
+        working-directory: smspp-project
+        run: ci/makefiles CC=clang++
+
+  # INSTALL.ps1, with MSVC and the packages of vcpkg
+  windows-msvc:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: smspp-project
+      - name: the submodules, the private experiments left out
+        working-directory: smspp-project
+        run: >
+          git -c submodule.experiments.update=none
+          submodule update --init --recursive
+      - name: INSTALL.ps1, the dependencies and SMS++
+        working-directory: smspp-project
+        run: >
+          ./INSTALL.ps1 -installRoot "${{ github.workspace }}"
+          -withoutCplex -withoutGurobi -withoutMosek -withoutSCIP
+          -withoutTorch -withoutDefenderExclusions
+      - name: the tests by CMake, and the unit tests
+        working-directory: smspp-project
+        run: |
+          cmake -S . -B build -DBUILD_tests=ON
+          cmake --build build --config Release --parallel 4
+          ctest --test-dir build -C Release -R "$env:CTEST_UNIT" `
+                --output-on-failure
+
+  # the compilers of MSYS2 on its packages, by CMake and by the makefiles;
+  # SDDPBlock (StOpt) and MCFLemonSolver (LEMON) have no package there
+  windows-msys2:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { msystem: UCRT64 , cc: gcc , cxx: g++ }
+          - { msystem: CLANG64 , cc: clang , cxx: clang++ }
+    runs-on: windows-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          install: make git
+          pacboy: >-
+            ${{ matrix.cc }}:p cmake:p ninja:p pkgconf:p boost:p eigen3:p
+            netcdf:p netcdf-cxx:p highs:p
+      - name: the submodules, the private experiments left out
+        run: |
+          git -c submodule.experiments.update=none \
+              submodule update --init --recursive
+      - name: SMS++ and its tests by CMake, and the unit tests
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} -DBUILD_tests=ON \
+                -DBUILD_experiments=OFF -DSMSpp_BUILD_MODULE=OFF \
+                -DBUILD_SDDPBlock=OFF -DBUILD_MCFLemonSolver=OFF \
+                -DUSE_MPI=OFF
+          cmake --build build --parallel 4
+          ctest --test-dir build -R "$CTEST_UNIT" --output-on-failure
+      - name: the makefiles of every module, on the packages of MSYS2
+        run: |
+          for v in Boost_ROOT Eigen3_ROOT netCDF_ROOT netCDFCxx_ROOT \
+                   HiGHS_ROOT; do
+            echo "$v = $MINGW_PREFIX"
+          done > extlib/makefile-paths
+          ci/makefiles CC=${{ matrix.cxx }}
