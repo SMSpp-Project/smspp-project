@@ -145,6 +145,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `vcpkg.json` takes LEMON as `lemon-ng`, from the SMS++ vcpkg registry,
+  instead of `liblemon`, whose port downloads from a server that no longer
+  answers
+
 - the nightly job of the C++20 modules builds them with the default of
   `SMSpp_BUILD_MODULE`, which turns them on with Clang [see
   `SMS++/cmake/CheckModule.cmake`], and then checks that the interface of

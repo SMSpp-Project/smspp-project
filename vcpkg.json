@@ -9,7 +9,7 @@
     "eigen3",
     "getopt",
     "highs",
-    "liblemon",
+    "lemon-ng",
     "liblinear",
     "libsvm",
     "msmpi",
@@ -45,9 +45,10 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "27b9d2e483361d999e5292cda7cc7d5a037b0587",
+        "baseline": "be898c210ea412d2905e792b6f156a3e7d43895f",
         "packages": [
           "daqp",
+          "lemon-ng",
           "piqp",
           "qpmad"
         ]
