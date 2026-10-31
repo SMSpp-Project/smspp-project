@@ -333,10 +333,16 @@ if ($OS -eq "Win32NT")
         Write-Host "Using Visual Studio installation at $vsInstallPath"
         & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
         # the generator of CMake for this Visual Studio, e.g. "Visual Studio
-        # 17 2022", out of its major version and of its year, so that CMake
-        # neither takes another compiler in the PATH nor a pinned version
+        # 17 2022", out of its major version and of its year (which vswhere
+        # does not give for Visual Studio 18), so that CMake neither takes
+        # another compiler in the PATH nor a pinned version
         $vsMajor = (& $vswhereCmd -path $vsInstallPath -property installationVersion).Split('.')[0]
-        $vsYear = & $vswhereCmd -path $vsInstallPath -property catalog_productLineVersion
+        $vsYears = @{ '15' = '2017'; '16' = '2019'; '17' = '2022'; '18' = '2026' }
+        if ($vsYears.ContainsKey($vsMajor)) {
+            $vsYear = $vsYears[$vsMajor]
+        } else {
+            $vsYear = & $vswhereCmd -path $vsInstallPath -property catalog_productLineVersion
+        }
         $vsGenerator = "Visual Studio $vsMajor $vsYear"
     } else {
         Write-Error "Failed to detect Visual Studio with required C++ components after installation."
@@ -592,8 +598,22 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    # the generator of the Visual Studio located above, whatever its version
-    & cmake -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
+    # the generator of the Visual Studio located above, whatever its version,
+    # with a CMake that has it: the one in the PATH, or else the one that
+    # comes with Visual Studio, as a CMake older than a Visual Studio does
+    # not know its generator
+    $cmakeExe = 'cmake'
+    if (-not ((& cmake --help) -match [regex]::Escape($vsGenerator))) {
+        $vsCmake = "$vsInstallPath\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+        if (Test-Path $vsCmake) {
+            $cmakeExe = $vsCmake
+        } else {
+            Write-Error "The CMake in the PATH has no generator $vsGenerator, and Visual Studio has no CMake of its own: install a newer CMake."
+            exit 1
+        }
+    }
+    Write-Host "Configuring with $cmakeExe and the generator $vsGenerator"
+    & $cmakeExe -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
@@ -605,8 +625,8 @@ if (-not $withoutSMSpp)
     & cmake '--install' 'build' '--config' 'Debug'#>
 
     # Build Release
-    & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
-    & cmake '--install' 'build' '--config' 'Release'
+    & $cmakeExe '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
+    & $cmakeExe '--install' 'build' '--config' 'Release'
 
     # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"

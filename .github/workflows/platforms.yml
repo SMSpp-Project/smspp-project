@@ -104,13 +104,19 @@ jobs:
           ./INSTALL.ps1 -installRoot "${{ github.workspace }}"
           -withoutCplex -withoutGurobi -withoutMosek -withoutSCIP
           -withoutTorch -withoutDefenderExclusions
+      # the CMake that INSTALL.ps1 has configured build with, which may be
+      # the one of Visual Studio, and its ctest
       - name: the tests by CMake, and the unit tests
         working-directory: smspp-project
         run: |
-          cmake -S . -B build -DBUILD_tests=ON
-          cmake --build build --config Release --parallel 4
-          ctest --test-dir build -C Release -R "$env:CTEST_UNIT" `
-                --output-on-failure
+          $m = Select-String -Path build/CMakeCache.txt `
+                             -Pattern '^CMAKE_COMMAND:INTERNAL=(.*)$'
+          $cmake = $m.Matches[0].Groups[1].Value
+          $ctest = Join-Path (Split-Path $cmake) 'ctest.exe'
+          & $cmake -S . -B build -DBUILD_tests=ON
+          & $cmake --build build --config Release --parallel 4
+          & $ctest --test-dir build -C Release -R "$env:CTEST_UNIT" `
+                   --output-on-failure
 
   # the compilers of MSYS2 on its packages, by CMake and by the makefiles;
   # SDDPBlock (StOpt) and MCFLemonSolver (LEMON) have no package there

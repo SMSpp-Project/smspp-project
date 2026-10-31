@@ -227,9 +227,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `INSTALL.ps1` configures with the generator of the Visual Studio that it has
-  found (e.g., `Visual Studio 17 2022`, out of its version and its year),
-  instead of the default of CMake, which took Ninja and the first compiler
-  in the `PATH`, e.g., the g++ of a MinGW-w64
+  found (e.g., `Visual Studio 17 2022`, out of its version and its year), by
+  the CMake of that Visual Studio when the one in the `PATH` does not know
+  it, instead of the default of CMake, which took Ninja and the first
+  compiler in the `PATH`, e.g., the g++ of a MinGW-w64, when it did not know
+  the generator of a Visual Studio newer than itself (e.g., 18, the 2026)
 
 - `INSTALL.ps1`, as `INSTALL.sh`, leaves a checkout that is on no branch
   with an upstream at its commit, and initializes the submodules (the private
