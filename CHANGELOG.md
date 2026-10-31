@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   makefiles of every module and then those of the tests, of the tools and
   of the experiments, which the nightly pipeline of GitLab runs as well
 
+- the style of the code and of the configurations of SMS++, checked on every
+  merge request: `.clang-format` at the root, `scripts/format.py` (clang-format
+  and what it has no option for, e.g., `return( x );` and a space before the
+  commas), `scripts/cfgformat.py` (the configurations read with the grammar of
+  the core and written again in their layout), `scripts/smspp-format`, which
+  runs the one or the other on the files given, their tests, and
+  `ci/style.yml`, the job that a module includes and that fails until the
+  lines changed by the merge request are in the style; `CONTRIBUTING.md` and
+  the page Code style of the wiki say how to use them, from the command line
+  and from the IDE
+
 - `HQPBlock`, the module of the `Block` and the `Solver` of hierarchical
   (lexicographic) quadratic programs: the submodule, `BUILD_HQPBlock`, the
   feature `hqp` of the smspp port of the vcpkg registry, the module in

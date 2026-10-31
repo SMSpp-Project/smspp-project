@@ -1,0 +1,73 @@
+# --------------------------------------------------------------------------- #
+# The layout of the code and of the configurations of a module, held to the   #
+# style of SMS++ on a merge request.                                          #
+#                                                                             #
+# Every module includes this file:                                            #
+#                                                                             #
+#   include:                                                                  #
+#     - project: smspp/smspp-project                                          #
+#       ref: develop                                                          #
+#       file: /ci/style.yml                                                   #
+#                                                                             #
+# and gets one job, in the build stage that every module has, which fetches   #
+# the formatters of the umbrella (scripts/format.py with the .clang-format    #
+# of its root, scripts/cfgformat.py) and runs them in --check mode on what    #
+# the merge request changes:                                                  #
+#                                                                             #
+#   - in a C++ source, only the lines it changes, so that the code around     #
+#     them stays as it was written;                                           #
+#                                                                             #
+#   - a .txt configuration, whole.                                            #
+#                                                                             #
+# The job fails, and the merge request cannot be merged, until they are in    #
+# the style; it prints the command that puts them there, i.e.                 #
+#                                                                             #
+#   scripts/smspp-format --since origin/develop <files>                       #
+#                                                                             #
+# run from the umbrella. A merge request that has to keep a layout of its     #
+# own says so with [skip style] in the title, and the job does not run.       #
+# --------------------------------------------------------------------------- #
+
+style:
+  stage: build                         # not .pre [see ci/changelog.yml]
+  needs: []
+  image: python:3.12-slim
+  variables:
+    GIT_DEPTH: 0                       # the base of the merge request
+    STYLE_RAW: "https://gitlab.com/smspp/smspp-project/-/raw/develop"
+  rules:
+    - if: $CI_MERGE_REQUEST_TITLE =~ /\[skip style\]/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git curl > /dev/null
+    - pip install -q "clang-format==22.1.5"
+    - curl -fsSL "$STYLE_RAW/.clang-format" -o .clang-format
+    - curl -fsSL "$STYLE_RAW/scripts/format.py" -o /tmp/format.py
+    - curl -fsSL "$STYLE_RAW/scripts/cfgformat.py" -o /tmp/cfgformat.py
+  script:
+    - git fetch --quiet origin "$CI_MERGE_REQUEST_DIFF_BASE_SHA" || true
+    - BASE="$CI_MERGE_REQUEST_DIFF_BASE_SHA"
+    - git diff --name-only --diff-filter=AMR "$BASE" HEAD > /tmp/changed
+    - grep -E '\.(h|hh|hpp|c|cc|cpp|cxx|inc)$' /tmp/changed > /tmp/code || true
+    - |
+      grep -E '\.txt$' /tmp/changed |
+        xargs -r grep -l '^# - - - - -' > /tmp/cfg || true
+    - |
+      bad=0
+      if [ -s /tmp/code ]; then
+        xargs -a /tmp/code python3 /tmp/format.py --check --since "$BASE" \
+          > /tmp/code-bad || bad=1
+      fi
+      if [ -s /tmp/cfg ]; then
+        xargs -a /tmp/cfg python3 /tmp/cfgformat.py --check \
+          > /tmp/cfg-bad || bad=1
+      fi
+      if [ $bad = 1 ]; then
+        echo "These files are not in the style of SMS++:"
+        cat /tmp/code-bad /tmp/cfg-bad 2>/dev/null
+        echo "Format them from the umbrella with"
+        echo "  scripts/smspp-format --since origin/develop <files>"
+        exit 1
+      fi
+      echo "the code and the configurations changed are in the style"
