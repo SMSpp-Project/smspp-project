@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the page Code style of the wiki say how to use them, from the command line
   and from the IDE
 
+- `BDMinQuadSolver`, the module of the `Solver` of the primal
+  `MasterProblemBlock` based on BDMinQuad, the active-set method for the
+  disaggregated master problem of the bundle methods: the submodule, still
+  private and therefore with `update = none`, and `BUILD_BDMinQuadSolver`,
+  which is `OFF` until the submodule is initialized by hand
+
 - `HQPBlock`, the module of the `Block` and the `Solver` of hierarchical
   (lexicographic) quadratic programs: the submodule, `BUILD_HQPBlock`, the
   feature `hqp` of the smspp port of the vcpkg registry, the module in
