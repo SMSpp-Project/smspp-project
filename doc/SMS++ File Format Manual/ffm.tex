@@ -2844,6 +2844,48 @@ passed to this method becomes the multiplier of the $i$-th function $g_i$ read
 from the file.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsection {\code{HQPBlock}}\label{sec:HQPBlock}
+
+The \code{HQPBlock} class implements the \Block concept for a hierarchical (lexicographic) Quadratic Program in $n$ real variables $x$ with $P$ levels $p = 0 , \ldots , P - 1$, level $0$ having the highest priority. Level $p$ has $m_p \geq 0$ equality rows and $l_p \geq 0$ inequality rows
+%
+\begin{equation*}
+ W^e_p ( A_p x - b_p ) = v_p \;\;, \qquad
+ W^i_p ( C_p x - d_p ) \leq w_p \;\;, \qquad w_p \geq 0 \;\;,
+\end{equation*}
+%
+where $W^e_p$ and $W^i_p$ are diagonal matrices of weights, and the problem of level $p$ minimizes $\frac{1}{2} \| v_p \|^2 + \frac{1}{2} \| w_p \|^2$, plus (possibly) the regularization $\frac{\varepsilon}{2} \sum_j r_j ( x_j - c_j )^2$, with the slacks of all the levels $q < p$ fixed at their optimal values (see the comments to \code{HQPBlock.h} for the details). Optionally, the \code{HQPBlock} also carries the stage structure of an optimal control problem over $N$ stages, i.e., the stage $k$ of each column, which is either a component of the input $u_k$ ($k < N$) or of the state $s_k$ ($k \leq N$), and the level whose equality rows are the dynamics $s_{k+1} = A_k s_k + B_k u_k + c_k$ (one for each component of each $s_{k+1}$, with an entry on it and on no other component of $s_{k+1}$, and the others on $s_k$ and $u_k$); the \code{HQPBlock} only keeps these data, which are read by the \dSolver that exploit them (e.g., \code{HQPStageSolver}).
+
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the \group representing the \code{HQPBlock} contains the following:
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumVar}, the number $n$ of variables, and the \dimension \cstr{NumLevels}, the number $P$ of levels;
+ %
+ \item the \dimension \cstr{NumEqRows}, the total number $\sum_p m_p$ of equality rows, and the \variable \cstr{EqRows}, of type \code{netCDF::NcUint} and indexed over \cstr{NumLevels}, whose $p$-th entry is $m_p$ (the rows of level $0$ come first, then those of level $1$, and so on);
+ %
+ \item the \dimension \cstr{NumEqElements}, the number of nonzero entries of all the $A_p$, and the \variables \cstr{EqStart} (of type \code{netCDF::NcUint}, indexed over \cstr{NumEqRows}), \cstr{EqIndex} (\code{netCDF::NcUint}) and \cstr{EqValue} (\code{netCDF::NcDouble}), both indexed over \cstr{NumEqElements}: the entries of row $i$ are those from \cstr{EqStart}$[ i ]$ to \cstr{EqStart}$[ i + 1 ] - 1$ (to \cstr{NumEqElements} $- 1$ for the last row), \cstr{EqIndex} giving the column and \cstr{EqValue} the coefficient (a row may have no entries);
+ %
+ \item the \variable \cstr{EqRHS} (\code{netCDF::NcDouble}, indexed over \cstr{NumEqRows}), the vectors $b_p$ one after the other, and the \variable \cstr{EqWeight}, of the same type and size, the diagonals of the $W^e_p$;
+ %
+ \item the \dimensions \cstr{NumIneqRows} and \cstr{NumIneqElements} and the \variables \cstr{IneqRows}, \cstr{IneqStart}, \cstr{IneqIndex}, \cstr{IneqValue}, \cstr{IneqRHS} and \cstr{IneqWeight}, as above for the $C_p$, the $d_p$ and the $W^i_p$;
+ %
+ \item the scalar \variable \cstr{Regularization} (\code{netCDF::NcDouble}), the weight $\varepsilon$, and the \variable \cstr{RegularizationWeight} (\code{netCDF::NcDouble}, indexed over \cstr{NumVar}), the weights $r_j > 0$;
+ %
+ \item the \dimension \cstr{NumStages}, the number $N$ of stages of the stage structure;
+ %
+ \item the \variables \cstr{VarStage} and \cstr{VarState}, of type \code{netCDF::NcUint} and indexed over \cstr{NumVar}, whose $j$-th entries are the stage of column $j$ and $1$ if column $j$ is a state, $0$ if it is an input;
+ %
+ \item the \variables \cstr{EqStage} and \cstr{IneqStage}, of type \code{netCDF::NcUint} and indexed over \cstr{NumEqRows} and \cstr{NumIneqRows}, respectively, the stage (smaller than $N$) of each row;
+ %
+ \item the scalar \variable \cstr{DynamicsLevel}, of type \code{netCDF::NcUint}, the level of the dynamics.
+\end{itemize}
+
+\smallskip
+\noindent
+The \dimensions \cstr{NumVar} and \cstr{NumLevels} are mandatory. If \cstr{NumEqRows} is missing (or $0$) there are no equality rows, and otherwise \cstr{EqRows}, \cstr{EqStart} and \cstr{EqRHS} are mandatory, as are \cstr{EqIndex} and \cstr{EqValue} if \cstr{NumEqElements} $> 0$; if \cstr{EqWeight} is missing all the weights are $1$; the same holds for the inequality rows. If \cstr{Regularization} is missing $\varepsilon = 0$, and if \cstr{RegularizationWeight} is missing all the $r_j$ are $1$. If \cstr{NumStages} is missing (or $0$) there is no stage structure, and its other data are ignored; otherwise \cstr{VarStage} and \cstr{VarState} are mandatory, \cstr{DynamicsLevel} is $0$ if missing, and if \cstr{EqStage} (\cstr{IneqStage}) is missing the stage of an equality (inequality) row is the largest $k$ such that the row has an entry on $u_k$ or on $s_{k+1}$. Hence, a file written before the stage structure was defined is read as before. Only the data is serialized: the current level, the fixed slacks and the center $c$ of the regularization are a state of the solution process, not of the model.
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \section{\BlockConfig for existing \dBlock}
 
