@@ -1650,7 +1650,8 @@ if [ "$install_smspp" -eq 1 ]; then
   if [ -z "${smspp_cloned:-}" ]; then
     if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > /dev/null 2>&1
     then
-      git "${skip_experiments[@]}" pull
+      # the submodules are updated below, to the commits pinned
+      git "${skip_experiments[@]}" -c fetch.recurseSubmodules=false pull
     else
       echo "SMSpp is on no branch with an upstream: left at its commit."
     fi

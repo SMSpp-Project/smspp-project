@@ -199,7 +199,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `INSTALL.ps1`, as `INSTALL.sh`, leaves a checkout that is on no branch
   with an upstream at its commit, and initializes the submodules (the private
-  `experiments` left out) of a clone, which it did not with `cmake-gui`
+  `experiments` left out) of a clone, which it did not with `cmake-gui`;
+  both pull the umbrella without fetching into the submodules, which are
+  then updated to the commits it pins, and `INSTALL.ps1` configures on the
+  newest Visual Studio CMake finds instead of asking for the 2022 one
 
 - `INSTALL.sh` leaves a checkout that is on no branch with an upstream (the
   one of a CI) at its commit instead of failing on `git pull`, clones the

@@ -552,7 +552,8 @@ if (-not $withoutSMSpp)
         git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null | Out-Null
         if ($LASTEXITCODE -eq 0) {
             Write-Host "SMSpp already exists. Pulling latest changes..."
-            git @skipExperiments pull
+            # the submodules are updated below, to the commits pinned
+            git @skipExperiments -c fetch.recurseSubmodules=false pull
         } else {
             Write-Host "SMSpp is on no branch with an upstream: left at its commit."
         }
@@ -585,7 +586,9 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
+    # the generator is the newest Visual Studio that CMake finds, the one
+    # located above, whatever its version
+    & cmake -S . -B 'build' "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
