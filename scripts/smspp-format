@@ -1,0 +1,28 @@
+#!/bin/bash
+# Formats the files given in the house style: the C++ sources with
+# format.py (clang-format with the .clang-format of the tree they are in,
+# and what clang-format has no option for), the .txt configurations of
+# SMS++ with cfgformat.py. Options (--check, --git, --since REF, --lines A:B)
+# are passed on to format.py; a configuration is always formatted whole.
+here=$(dirname "$(readlink -f "$0")")
+opts=() ; files=()
+while [ $# -gt 0 ] ; do
+  case "$1" in
+    --check|--git) opts+=("$1") ;;
+    --lines|--since) opts+=("$1" "$2") ; shift ;;
+    *) files+=("$1") ;;
+  esac
+  shift
+done
+rc=0
+for f in "${files[@]}" ; do
+  case "$f" in
+    *.h|*.hh|*.hpp|*.c|*.cc|*.cpp|*.cxx|*.inc)
+      python3 "$here/format.py" "${opts[@]}" "$f" || rc=1 ;;
+    *.txt)
+      cfg=() ; for o in "${opts[@]}" ; do [ "$o" = --check ] && cfg+=(--check) ; done
+      python3 "$here/cfgformat.py" "${cfg[@]}" "$f" || rc=1 ;;
+    *) echo "smspp-format: $f is neither C++ nor a configuration" >&2 ;;
+  esac
+done
+exit $rc

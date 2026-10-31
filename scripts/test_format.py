@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""Tests of format.py: each case is a source, and the checks on what the
+formatter makes of it. Run: python3 test_format.py (clang-format 22 and the
+.clang-format of this directory, or of the one above, are needed)."""
+
+import os
+import shutil
+import sys
+import tempfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import format as fmt  # noqa: E402
+
+CASES = [
+    # name, source, lines that the result must contain, and must not
+    ('return and throw in parentheses',
+     'int f( int x ) { if( x ) throw 3; return x + 1; }\n',
+     ['  throw( 3 );', ' return( x + 1 );'], []),
+    ('the return of a lambda inside a return',
+     'bool f( const std::vector< int > & v ) {\n'
+     ' return std::any_of( v.begin() , v.end() , []( int n ) { '
+     'return n > 0; } );\n}\n',
+     [], ['( ! n.empty() );', ')( ']),
+    ('a throw specification is no throw',
+     'struct E { const char * what() const throw() { return m; } };\n',
+     ['const throw() {'], ['throw( ()']),
+    ('a throw after the condition of an if or a while',
+     'void g() { if( x ) throw E(); while( y ) throw 1; throw; }\n',
+     ['  throw( E() );', '  throw( 1 );', ' throw;'], []),
+    ('a multi-line macro keeps its continuations',
+     '#define M( x ) \\\n  inline int h( int a ) \\\n  { return a + x ; }\n',
+     [], ['\n{']),
+    ('a throw in a macro ending without a semicolon',
+     '#define GOODN( n ) if( n <= 0 ) \\\n'
+     '  throw std::invalid_argument( "bad" )\n'
+     'REGISTER( X );\n',
+     ['REGISTER( X );'], ['REGISTER( X ) );']),
+    ('the #define of an include guard one space in, not a default',
+     '#ifndef GUARD_H\n#define GUARD_H\n#ifndef DIR\n#define DIR "."\n'
+     '#endif\n#endif\n',
+     [' #define GUARD_H', '\n#define DIR "."'], []),
+    ('a directive indented in the code stays where it is',
+     'void f()\n{\n if( x ) {\n  #ifndef NDEBUG\n  g();\n  #endif\n'
+     '  }\n}\n',
+     ['\n  #ifndef NDEBUG\n', '\n  #endif\n'], []),
+    ('a long #include stays on its line',
+     '#include BOOST_PP_STRINGIZE( BOOST_PP_CAT( BOOST_PP_CAT( CPX , '
+     'CPX_VERSION ) , _maps.h ) )\n',
+     ['#include BOOST_PP_STRINGIZE('], []),
+    ('a space before the commas and the semicolons of a for',
+     'void f() { for( int i = 0; i < n; ++i ) g( a, b ); }\n',
+     ['for( int i = 0 ; i < n ; ++i )', 'g( a , b );'], []),
+    ('the closing brace on the indentation of the block',
+     'void f() {\n if( x ) {\n  g();\n }\n}\n',
+     ['  }', ' }'], []),
+    ('the using-declarations keep their order',
+     'struct S : B {\n using B::set_par;\n using B::get_dbl_par;\n};\n',
+     [], []),
+    ('a long string literal is not split',
+     'void f() { g( "a string literal that is long enough to go past the '
+     'limit of the line" ); }\n',
+     [], ['" "']),
+]
+
+
+def generated_skipped():
+    """A file that says it is generated is left as it is."""
+    return fmt.generated('/* FILE GENERATED AUTOMATICALLY, DO NOT EDIT */\n') \
+        and not fmt.generated('int f( int x );\n')
+
+
+def run():
+    work = tempfile.mkdtemp()
+    style = os.path.join(HERE, '.clang-format')   # beside it, or one above
+    if not os.path.exists(style):
+        style = os.path.join(os.path.dirname(HERE), '.clang-format')
+    shutil.copy(style, work)
+    failed = 0
+    try:
+        for name, src, want, avoid in CASES:
+            path = os.path.join(work, 'case.cpp')
+            out = fmt.format_text(src, path=path)
+            bad = [w for w in want if w not in out] + \
+                  [a for a in avoid if a in out]
+            if name == 'the using-declarations keep their order':
+                if out.index('set_par') > out.index('get_dbl_par'):
+                    bad.append('order')
+            if bad:
+                failed += 1
+                print('FAIL %s: %s\n%s' % (name, bad, out))
+            else:
+                print('ok   %s' % name)
+    finally:
+        shutil.rmtree(work)
+    if generated_skipped():
+        print('ok   a generated file is left as it is')
+    else:
+        failed += 1
+        print('FAIL a generated file is left as it is')
+    print('%d of %d failed' % (failed, len(CASES) + 1))
+    return 1 if failed else 0
+
+
+if __name__ == '__main__':
+    sys.exit(run())
