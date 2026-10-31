@@ -1,0 +1,24 @@
+#!/bin/bash
+# Installs scripts/pre-commit as the pre-commit hook of git in the umbrella
+# and in every submodule, as a link, so that it follows the umbrella when
+# it changes. A repository that already has a pre-commit hook of its own is
+# left alone, and said.
+
+root=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+hook=$root/scripts/pre-commit
+install_in () {
+  local dir
+  dir=$(git -C "$1" rev-parse --path-format=absolute --git-path hooks) ||
+    return
+  mkdir -p "$dir"
+  if [ -e "$dir/pre-commit" ] && \
+     [ "$(readlink -f "$dir/pre-commit")" != "$hook" ] ; then
+    echo "$1: has a pre-commit hook of its own, left alone"
+    return
+  fi
+  ln -sf "$hook" "$dir/pre-commit"
+  echo "$1: installed"
+}
+install_in "$root"
+git -C "$root" submodule foreach --quiet 'echo $sm_path' |
+  while read -r m ; do install_in "$root/$m" ; done

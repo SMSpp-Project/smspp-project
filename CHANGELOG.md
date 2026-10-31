@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   makefiles of every module and then those of the tests, of the tools and
   of the experiments, which the nightly pipeline of GitLab runs as well
 
+- the check of the style of a merge request helps to meet it: its job keeps
+  the changes that put the files in the style as the artifact `style.patch`,
+  and `scripts/style-review.py` posts them on the merge request as
+  suggestions on its lines, when the variable `SMSPP_STYLE_TOKEN` of the
+  pipeline holds a project access token; `scripts/pre-commit`, which
+  `scripts/install-hooks` installs in the umbrella and in every submodule,
+  stops a commit whose files are not in the style
+
 - the style of the code and of the configurations of SMS++, checked on every
   merge request: `.clang-format` at the root, `scripts/format.py` (clang-format
   and what it has no option for, e.g., `return( x );` and a space before the
@@ -27,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   lines changed by the merge request are in the style; `CONTRIBUTING.md` and
   the page Code style of the wiki say how to use them, from the command line
   and from the IDE
+
+- `BDMinQuadSolver`, the module of the `Solver` of the primal
+  `MasterProblemBlock` based on BDMinQuad, the active-set method for the
+  disaggregated master problem of the bundle methods: the submodule, still
+  private and therefore with `update = none`, and `BUILD_BDMinQuadSolver`,
+  which is `OFF` until the submodule is initialized by hand
 
 - `HQPBlock`, the module of the `Block` and the `Solver` of hierarchical
   (lexicographic) quadratic programs: the submodule, `BUILD_HQPBlock`, the

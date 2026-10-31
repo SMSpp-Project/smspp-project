@@ -85,8 +85,14 @@ private `smspp-develop` group of the SMS++ developers): its
    configuration that SMS++ reads stay the same.
 
    An IDE can run the formatter on the file it shows, e.g., CLion as an
-   external tool bound to Ctrl+Alt+L. A merge request that has to keep a
-   layout of its own says so with `[skip style]` in its title.
+   external tool bound to Ctrl+Alt+L, and `scripts/install-hooks` installs
+   in the umbrella and in every submodule a pre-commit hook of git that
+   stops a commit whose files are not in the style. When the check of a
+   merge request fails, its job keeps the changes that put the files in the
+   style as the artifact `style.patch` (`git apply style.patch`), and posts
+   them on the merge request as suggestions that are applied with one
+   click. A merge request that has to keep a layout of its own says so with
+   `[skip style]` in its title.
 
 4. The version is derived automatically from the most recent git tag (see
    `cmake/DeriveVersion.cmake`), so there is no version number to bump by hand:
