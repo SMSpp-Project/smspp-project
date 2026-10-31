@@ -56,12 +56,29 @@ jobs:
                        --without-gurobi --without-mosek --without-scip \
                        --without-pips --without-torch
       - name: the tests by CMake, and the unit tests
+        id: unit
         working-directory: smspp-project
         run: |
           cmake -S . -B build -DBUILD_tests=ON
           cmake --build build --parallel 3
           ctest --test-dir build -R "$CTEST_UNIT" --output-on-failure
+      # each unit test that failed run again by lldb, for its backtrace
+      - name: the backtraces of the unit tests that failed
+        if: failure() && steps.unit.outcome == 'failure'
+        working-directory: smspp-project
+        run: |
+          f=build/Testing/Temporary/LastTestsFailed.log
+          [ -f "$f" ] || exit 0
+          for t in $(cut -d: -f2 "$f"); do
+            info=$(ctest --test-dir build -R "^$t\$" -N -V)
+            dir=$(sed -n 's/^.*Working Directory: //p' <<< "$info")
+            cmd=$(sed -n 's/^.*Test command: //p' <<< "$info")
+            echo "::group::$t"
+            ( cd "$dir" && eval lldb --batch -o run -k bt -k quit -- $cmd )
+            echo "::endgroup::"
+          done
       - name: the makefiles of every module
+        if: success() || steps.unit.outcome == 'failure'
         working-directory: smspp-project
         run: bash ci/makefiles CC=clang++
 
