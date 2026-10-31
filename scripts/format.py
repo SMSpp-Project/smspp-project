@@ -385,8 +385,9 @@ def align_continuations(text):
 
 
 def break_long(text):
-    """A line past the limit broken after the last comma that fits, the
-    rest aligned with the first argument of the call it is in."""
+    """A line past the limit broken after the last comma that fits, or the
+    last semicolon of the header of a for, the rest aligned with the first
+    argument of the call (or the first part of the for) it is in."""
     res = []
     inside = in_directive(text)
     pos = 0
@@ -399,7 +400,7 @@ def break_long(text):
         while len(line.expandtabs(8)) > LIMIT:
             m_line = mask(line)
             cut = -1
-            for m in re.finditer(r' ,', m_line):
+            for m in re.finditer(r' ,| ;(?= )', m_line):
                 if len(line[:m.end()].expandtabs(8)) <= LIMIT:
                     cut = m.end()
             if cut < 0:
