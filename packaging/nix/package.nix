@@ -135,7 +135,7 @@ let
     {
       dir = "InvestmentBlock";
       acr = "investment";
-      needs = [ "sddp" "tssb" "ucblock" ];
+      needs = [ "core" ];
       req = [ ];
       opt = [ ];
     }

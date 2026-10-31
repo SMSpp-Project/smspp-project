@@ -223,7 +223,7 @@ package_libsmspp-sddp() {
 
 package_libsmspp-investment() {
   pkgdesc="SMS++: Investment (capacity expansion) Block"
-  depends=(libsmspp-sddp libsmspp-tssb libsmspp-ucblock)
+  depends=(libsmspp)
   DESTDIR="$pkgdir" cmake --install build/InvestmentBlock
 }
 

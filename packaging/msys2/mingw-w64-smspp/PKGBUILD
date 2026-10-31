@@ -67,7 +67,6 @@ build() {
       -DBUILD_experiments=OFF \
       -DSMSpp_BUILD_MODULE=OFF \
       -DBUILD_SDDPBlock=OFF \
-      -DBUILD_InvestmentBlock=OFF \
       -DBUILD_MCFLemonSolver=OFF \
       -DUSE_MPI=OFF \
       -DFETCHCONTENT_SOURCE_DIR_FASTFLOW="$srcdir/fastflow-$_ff" \

@@ -41,7 +41,7 @@ _MODULES = [
      'Multi-stage stochastic Block'),
     ('SDDPBlock', 'sddp', ['stochastic'], ['stopt'], ['openmp'],
      'Stochastic Dual Dynamic Programming Block'),
-    ('InvestmentBlock', 'investment', ['sddp', 'tssb', 'ucblock'], [], [],
+    ('InvestmentBlock', 'investment', ['core'], [], [],
      'Investment (capacity expansion) Block'),
     ('SVMBlock', 'svm', ['core'], [], ['libsvm', 'liblinear'],
      'Support Vector Machine Block'),

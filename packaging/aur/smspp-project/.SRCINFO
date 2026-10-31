@@ -77,9 +77,7 @@ pkgname = libsmspp-sddp
 
 pkgname = libsmspp-investment
 	pkgdesc = SMS++: Investment (capacity expansion) Block
-	depends = libsmspp-sddp
-	depends = libsmspp-tssb
-	depends = libsmspp-ucblock
+	depends = libsmspp
 
 pkgname = libsmspp-svm
 	pkgdesc = SMS++: Support Vector Machine Block

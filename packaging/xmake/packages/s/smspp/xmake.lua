@@ -81,7 +81,7 @@ package("smspp")
          opt = {"openmp"},
          desc = "Stochastic Dual Dynamic Programming Block"},
         {dir = "InvestmentBlock", acr = "investment",
-         lib = "InvestmentBlock", needs = {"sddp", "tssb", "ucblock"},
+         lib = "InvestmentBlock", needs = {"core"},
          req = {},
          opt = {},
          desc = "Investment (capacity expansion) Block"},
