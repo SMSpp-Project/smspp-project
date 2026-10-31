@@ -20,12 +20,19 @@
 #   - a .txt configuration, whole.                                            #
 #                                                                             #
 # The job fails, and the merge request cannot be merged, until they are in    #
-# the style; it prints the command that puts them there, i.e.                 #
+# the style. It then runs the formatters on its copy of the files and keeps   #
+# what they change as the artifact style.patch, which the author applies      #
+# with git apply, and it prints the command that does the same from the       #
+# umbrella, i.e.                                                              #
 #                                                                             #
 #   scripts/smspp-format --since origin/develop <files>                       #
 #                                                                             #
-# run from the umbrella. A merge request that has to keep a layout of its     #
-# own says so with [skip style] in the title, and the job does not run.       #
+# If the variable SMSPP_STYLE_TOKEN is set (a project access token, of the    #
+# role Reporter and with the scope api, masked), scripts/style-review.py      #
+# also posts the changes on the merge request, as suggestions on its lines    #
+# that the author applies with one click, replacing the ones of the last      #
+# pipeline. A merge request that has to keep a layout of its own says so      #
+# with [skip style] in the title, and the job does not run.                   #
 # --------------------------------------------------------------------------- #
 
 style:
@@ -45,6 +52,7 @@ style:
     - curl -fsSL "$STYLE_RAW/.clang-format" -o .clang-format
     - curl -fsSL "$STYLE_RAW/scripts/format.py" -o /tmp/format.py
     - curl -fsSL "$STYLE_RAW/scripts/cfgformat.py" -o /tmp/cfgformat.py
+    - curl -fsSL "$STYLE_RAW/scripts/style-review.py" -o /tmp/style-review.py
   script:
     - git fetch --quiet origin "$CI_MERGE_REQUEST_DIFF_BASE_SHA" || true
     - BASE="$CI_MERGE_REQUEST_DIFF_BASE_SHA"
@@ -66,8 +74,24 @@ style:
       if [ $bad = 1 ]; then
         echo "These files are not in the style of SMS++:"
         cat /tmp/code-bad /tmp/cfg-bad 2>/dev/null
-        echo "Format them from the umbrella with"
+        if [ -s /tmp/code ]; then
+          xargs -a /tmp/code python3 /tmp/format.py --since "$BASE" > /dev/null
+        fi
+        if [ -s /tmp/cfg ]; then
+          xargs -a /tmp/cfg python3 /tmp/cfgformat.py > /dev/null
+        fi
+        git diff > style.patch
+        python3 /tmp/style-review.py style.patch "$BASE" || true
+        echo "Apply the artifact style.patch of this job with"
+        echo "  git apply style.patch"
+        echo "or format them from the umbrella with"
         echo "  scripts/smspp-format --since origin/develop <files>"
         exit 1
       fi
       echo "the code and the configurations changed are in the style"
+  artifacts:
+    when: on_failure
+    expose_as: style patch
+    paths:
+      - style.patch
+    expire_in: 2 weeks
