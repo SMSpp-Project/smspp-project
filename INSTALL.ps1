@@ -332,6 +332,12 @@ if ($OS -eq "Win32NT")
     if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
         Write-Host "Using Visual Studio installation at $vsInstallPath"
         & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+        # the generator of CMake for this Visual Studio, e.g. "Visual Studio
+        # 17 2022", out of its major version and of its year, so that CMake
+        # neither takes another compiler in the PATH nor a pinned version
+        $vsMajor = (& $vswhereCmd -path $vsInstallPath -property installationVersion).Split('.')[0]
+        $vsYear = & $vswhereCmd -path $vsInstallPath -property catalog_productLineVersion
+        $vsGenerator = "Visual Studio $vsMajor $vsYear"
     } else {
         Write-Error "Failed to detect Visual Studio with required C++ components after installation."
         exit 1
@@ -586,9 +592,8 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    # the generator is the newest Visual Studio that CMake finds, the one
-    # located above, whatever its version
-    & cmake -S . -B 'build' "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
+    # the generator of the Visual Studio located above, whatever its version
+    & cmake -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
