@@ -51,6 +51,10 @@ CASES = [
     ('a space before the commas and the semicolons of a for',
      'void f() { for( int i = 0; i < n; ++i ) g( a, b ); }\n',
      ['for( int i = 0 ; i < n ; ++i )', 'g( a , b );'], []),
+    ('a long header of a for broken after a semicolon',
+     'void f() { for( notifier()->first( arc ) ; arc != INVALID_ARC_VALUE ; '
+     'notifier()->next( arc ) ) g(); }\n',
+     [' for( notifier()->first( arc ) ; arc != INVALID_ARC_VALUE ;\n'], []),
     ('the closing brace on the indentation of the block',
      'void f() {\n if( x ) {\n  g();\n }\n}\n',
      ['  }', ' }'], []),
