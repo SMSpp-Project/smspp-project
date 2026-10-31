@@ -547,20 +547,23 @@ if (-not $withoutSMSpp)
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
-        Write-Host "SMSpp already exists. Pulling latest changes..."
-        git @skipExperiments pull
-        git submodule sync --recursive
-        git @skipExperiments submodule update --recursive
+        # a checkout that is on no branch, or on one with no upstream (say,
+        # the one of a CI), is left at its commit
+        git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "SMSpp already exists. Pulling latest changes..."
+            git @skipExperiments pull
+        } else {
+            Write-Host "SMSpp is on no branch with an upstream: left at its commit."
+        }
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
-        if (-not $HAS_CMAKE_GUI) {
-            # no way to use cmake-gui interactively to choose submodules, so download all
-            git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        } else {
-            git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        }
+        git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
         Set-Location $SMSPP_ROOT
     }
+    # the submodules, the private experiments left out unless asked for
+    git submodule sync --recursive
+    git @skipExperiments submodule update --init --recursive
     if ($withExperiments) {
         git config submodule.experiments.update checkout
         git submodule update --init experiments

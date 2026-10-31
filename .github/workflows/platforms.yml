@@ -52,7 +52,7 @@ jobs:
       - name: INSTALL.sh, the dependencies and SMS++
         working-directory: smspp-project
         run: |
-          ./INSTALL.sh --install-root="$ROOT" --without-cplex \
+          bash INSTALL.sh --install-root="$ROOT" --without-cplex \
                        --without-gurobi --without-mosek --without-scip \
                        --without-pips --without-torch
       - name: the tests by CMake, and the unit tests
@@ -63,7 +63,7 @@ jobs:
           ctest --test-dir build -R "$CTEST_UNIT" --output-on-failure
       - name: the makefiles of every module
         working-directory: smspp-project
-        run: ci/makefiles CC=clang++
+        run: bash ci/makefiles CC=clang++
 
   # INSTALL.ps1, with MSVC and the packages of vcpkg
   windows-msvc:
@@ -137,4 +137,4 @@ jobs:
                    HiGHS_ROOT; do
             echo "$v = $MINGW_PREFIX"
           done > extlib/makefile-paths
-          ci/makefiles CC=${{ matrix.cxx }}
+          bash ci/makefiles CC=${{ matrix.cxx }}
