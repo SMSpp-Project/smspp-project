@@ -173,6 +173,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- the formatters of the code are those of the repository code-style,
+  which the umbrella holds as the submodule `scripts/code-style` at a tag,
+  in place of its copies of `format.py`, its tests, `style_review.py`, the
+  hook of git and `.clang-format`: `scripts/smspp-format` runs its
+  `code-format`, which hands the configurations to `scripts/cfgformat.py`
+  as the `.code-format` at the root says, and `ci/style.yml` includes its
+  template of GitLab, fetching `cfgformat.py` before the check; the token
+  that posts the suggestions on a merge request is `STYLE_TOKEN`
+
 - `INSTALL.sh` and `INSTALL.ps1` bring up to date what they installed when
   they run again: every dependency built from its repository goes to its
   latest release (or to the head of its branch, for HiGHS, StOpt and

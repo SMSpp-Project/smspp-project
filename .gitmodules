@@ -105,3 +105,6 @@
 	path = BDMinQuadSolver
 	url = ../bdminquadsolver.git
 	update = none
+[submodule "scripts/code-style"]
+	path = scripts/code-style
+	url = https://github.com/dmeoli/code-style.git

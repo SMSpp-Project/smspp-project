@@ -68,10 +68,16 @@ private `smspp-develop` group of the SMS++ developers): its
    where a long line breaks and how its continuation aligns, and no
    formatter reproduces it), and a `.txt` configuration whole.
 
-   The C++ style is the one of the `.clang-format` at the root of the
-   umbrella (an indentation of one space, `if( x )`, `v[ i ]`,
+   The formatters are those of the repository
+   [code-style](https://github.com/dmeoli/code-style), which the umbrella
+   holds as the submodule `scripts/code-style` (at a tag, so that the
+   style changes only when the umbrella moves it), and `smspp-format` runs
+   its `code-format`: the C++ sources go to its `format.py`, the `.txt`
+   configurations to `scripts/cfgformat.py`, as the `.code-format` at the
+   root of the umbrella says. The C++ style is the one of its
+   `.clang-format` (an indentation of one space, `if( x )`, `v[ i ]`,
    `std::vector< int >`, `T * p`, 79 columns at most), with what
-   `scripts/format.py` adds to it: `return( x );` and `throw( e );`, a
+   `format.py` adds to it: `return( x );` and `throw( e );`, a
    space before every comma (`f( a , b )`), the closing brace of a block
    on the indentation of the block, the opening brace of a function
    defined out of a class on a line of its own. The configurations have
@@ -85,13 +91,16 @@ private `smspp-develop` group of the SMS++ developers): its
    configuration that SMS++ reads stay the same.
 
    An IDE can run the formatter on the file it shows, e.g., CLion as an
-   external tool bound to Ctrl+Alt+L, and `scripts/install-hooks` installs
-   in the umbrella and in every submodule a pre-commit hook of git that
-   stops a commit whose files are not in the style. When the check of a
-   merge request fails, its job keeps the changes that put the files in the
-   style as the artifact `style.patch` (`git apply style.patch`), and posts
-   them on the merge request as suggestions that are applied with one
-   click. A merge request that has to keep a layout of its own says so with
+   external tool (`scripts/code-style/ide-format`, which finds
+   `smspp-format`) bound to Ctrl+Alt+L, and
+   `scripts/code-style/hooks/install-hooks .` installs in the umbrella and
+   in every submodule a pre-commit hook of git that stops a commit whose
+   files are not in the style. When the check of a merge request fails, its
+   job keeps the changes that put the files in the style as the artifact
+   `style.patch` (`git apply style.patch`), and posts them on the merge
+   request as suggestions that are applied with one click, when the
+   variable `STYLE_TOKEN` of the group holds an access token. A merge
+   request that has to keep a layout of its own says so with
    `[skip style]` in its title.
 
 4. The version is derived automatically from the most recent git tag (see

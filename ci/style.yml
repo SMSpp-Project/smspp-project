@@ -9,89 +9,35 @@
 #       ref: develop                                                          #
 #       file: /ci/style.yml                                                   #
 #                                                                             #
-# and gets one job, in the build stage that every module has, which fetches   #
-# the formatters of the umbrella (scripts/format.py with the .clang-format    #
-# of its root, scripts/cfgformat.py) and runs them in --check mode on what    #
-# the merge request changes:                                                  #
-#                                                                             #
-#   - in a C++ source, only the lines it changes, so that the code around     #
-#     them stays as it was written;                                           #
-#                                                                             #
-#   - a .txt configuration, whole.                                            #
+# which includes the check of the repository code-style (gitlab/style.yml at  #
+# its tag v1, the one that the umbrella pins as scripts/code-style) and runs  #
+# it in the stage build: on what the merge request changes, the C++ sources   #
+# are checked in the style of its .clang-format and format.py, only in the    #
+# lines changed, and the .txt configurations by scripts/cfgformat.py of the   #
+# umbrella, whole, which STYLE_SETUP fetches before the check together with   #
+# the .code-format that names it.                                             #
 #                                                                             #
 # The job fails, and the merge request cannot be merged, until they are in    #
-# the style. It then runs the formatters on its copy of the files and keeps   #
-# what they change as the artifact style.patch, which the author applies      #
-# with git apply, and it prints the command that does the same from the       #
-# umbrella, i.e.                                                              #
-#                                                                             #
-#   scripts/smspp-format --since origin/develop <files>                       #
-#                                                                             #
-# If the variable SMSPP_STYLE_TOKEN is set (a project access token, of the    #
-# role Reporter and with the scope api, masked), scripts/style_review.py      #
-# also posts the changes on the merge request, as suggestions on its lines    #
-# that the author applies with one click, replacing the ones of the last      #
-# pipeline. A merge request that has to keep a layout of its own says so      #
-# with [skip style] in the title, and the job does not run.                   #
+# the style; the changes that put them there are kept as the artifact         #
+# style.patch, and posted on the merge request as suggestions on its lines if #
+# the variable STYLE_TOKEN (a project or group access token, of the role      #
+# Reporter and with the scope api, masked) is set. From the umbrella,         #
+# scripts/smspp-format --since origin/develop <files> does the same. A merge  #
+# request that has to keep a layout of its own says so with [skip style] in   #
+# the title.                                                                  #
 # --------------------------------------------------------------------------- #
 
+include:
+  - remote: >-
+      https://raw.githubusercontent.com/dmeoli/code-style/v1/gitlab/style.yml
+
+# the job of the template, in the build stage that every module has (not in
+# .pre, see ci/changelog.yml), with the formatter of the configurations
 style:
-  stage: build                         # not .pre [see ci/changelog.yml]
-  needs: []
-  image: python:3.12-slim
+  stage: build
   variables:
-    GIT_DEPTH: 0                       # the base of the merge request
-    STYLE_RAW: "https://gitlab.com/smspp/smspp-project/-/raw/develop"
-  rules:
-    - if: $CI_MERGE_REQUEST_TITLE =~ /\[skip style\]/
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq git curl > /dev/null
-    - pip install -q "clang-format==22.1.5"
-    - curl -fsSL "$STYLE_RAW/.clang-format" -o .clang-format
-    - curl -fsSL "$STYLE_RAW/scripts/format.py" -o /tmp/format.py
-    - curl -fsSL "$STYLE_RAW/scripts/cfgformat.py" -o /tmp/cfgformat.py
-    - curl -fsSL "$STYLE_RAW/scripts/style_review.py" -o /tmp/style_review.py
-  script:
-    - git fetch --quiet origin "$CI_MERGE_REQUEST_DIFF_BASE_SHA" || true
-    - BASE="$CI_MERGE_REQUEST_DIFF_BASE_SHA"
-    - git diff --name-only --diff-filter=AMR "$BASE" HEAD > /tmp/changed
-    - grep -E '\.(h|hh|hpp|c|cc|cpp|cxx|inc)$' /tmp/changed > /tmp/code || true
-    - |
-      grep -E '\.txt$' /tmp/changed |
-        xargs -r grep -l '^# - - - - -' > /tmp/cfg || true
-    - |
-      bad=0
-      if [ -s /tmp/code ]; then
-        xargs -a /tmp/code python3 /tmp/format.py --check --since "$BASE" \
-          > /tmp/code-bad || bad=1
-      fi
-      if [ -s /tmp/cfg ]; then
-        xargs -a /tmp/cfg python3 /tmp/cfgformat.py --check \
-          > /tmp/cfg-bad || bad=1
-      fi
-      if [ $bad = 1 ]; then
-        echo "These files are not in the style of SMS++:"
-        cat /tmp/code-bad /tmp/cfg-bad 2>/dev/null
-        if [ -s /tmp/code ]; then
-          xargs -a /tmp/code python3 /tmp/format.py --since "$BASE" > /dev/null
-        fi
-        if [ -s /tmp/cfg ]; then
-          xargs -a /tmp/cfg python3 /tmp/cfgformat.py > /dev/null
-        fi
-        git diff > style.patch
-        python3 /tmp/style_review.py style.patch "$BASE" || true
-        echo "Apply the artifact style.patch of this job with"
-        echo "  git apply style.patch"
-        echo "or format them from the umbrella with"
-        echo "  scripts/smspp-format --since origin/develop <files>"
-        exit 1
-      fi
-      echo "the code and the configurations changed are in the style"
-  artifacts:
-    when: on_failure
-    expose_as: style patch
-    paths:
-      - style.patch
-    expire_in: 2 weeks
+    SMSPP_RAW: "https://gitlab.com/smspp/smspp-project/-/raw/develop"
+    STYLE_SETUP: >-
+      python3 -c "import urllib.request as u;
+      u.urlretrieve('$SMSPP_RAW/scripts/cfgformat.py', '/tmp/cfgformat.py')"
+      && printf '*.txt  python3 /tmp/cfgformat.py\n' > .code-format
