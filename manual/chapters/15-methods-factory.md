@@ -62,9 +62,9 @@ densely enough populated to be worth consulting. SMS++ predefines
 six "method-set" signature families (`Block.h:665-680`),
 parameterised by two independent choices:
 
-- the **data type** carried: none, `MF_dbl_it` (a const iterator
-  into a `std::vector<double>`), or `MF_int_it` (into a
-  `std::vector<int>`);
+- the **data type** carried: none, `MF_dbl_sp` (a
+  `std::span<const double>`), or `MF_int_sp` (a
+  `std::span<const int>`);
 - the **slice form** addressing *which* elements change: a
   `Range` (a contiguous `[start, stop)` interval) or a `Subset`
   (an arbitrary set of indices, with a `bool` flag saying whether
@@ -76,24 +76,26 @@ The six resulting types are:
 |---|---|
 | `MS_rngd`     | `Range` |
 | `MS_sbst`     | `Subset &&, bool` |
-| `MS_dbl_rngd` | `MF_dbl_it, Range` |
-| `MS_dbl_sbst` | `MF_dbl_it, Subset &&, bool` |
-| `MS_int_rngd` | `MF_int_it, Range` |
-| `MS_int_sbst` | `MF_int_it, Subset &&, bool` |
+| `MS_sp_dbl_rngd` | `MF_dbl_sp, Range` |
+| `MS_sp_dbl_sbst` | `MF_dbl_sp, Subset &&, bool` |
+| `MS_sp_int_rngd` | `MF_int_sp, Range` |
+| `MS_sp_int_sbst` | `MF_int_sp, Subset &&, bool` |
 
-A function in the `MS_dbl_rngd` family thus has the shape
-"`(Block*, MF_dbl_it data, Range slice, ModParam, ModParam)`":
-"apply the `double` values starting at `data` to the contiguous
-range `slice` of the relevant data structure". This is precisely
-the shape of `BinaryKnapsackBlock::chg_weights(c_dblVec_it, Range,
-ModParam, ModParam)`, which `BinaryKnapsackBlock` registers into
-the factory under the name `"BinaryKnapsackBlock::chg_weights"`
-(`BinaryKnapsackBlock.h:1027`). It registers `chg_weights` and
-`chg_profits` in both the `MS_dbl_rngd` and the `MS_dbl_sbst`
-families, and `chg_capacity` in `MS_dbl_rngd`. `MCFBlock` does the
-same for its own data — `chg_costs`, `chg_ucaps`, `chg_dfcts` in
-the `MS_dbl_*` families and `close_arcs` / `open_arcs` in the
-`MS_*` ones (`MCFBlock.h:2131-2189`). The framework nudges
+A function in the `MS_sp_dbl_rngd` family thus has the shape
+"`(Block*, MF_dbl_sp data, Range slice, ModParam, ModParam)`":
+"apply the `double` values in `data`, the h-th to the h-th index,
+to the contiguous range `slice` of the relevant data structure".
+The span has to be at least as long as the slice, and a shorter
+one makes the function throw `std::invalid_argument` rather than
+read past its end. This is precisely the shape of
+`BinaryKnapsackBlock::chg_weights(MF_dbl_sp, Range, ModParam,
+ModParam)`, which `BinaryKnapsackBlock` registers into the factory
+under the name `"BinaryKnapsackBlock::chg_weights"`. It registers
+`chg_weights` and `chg_profits` in both the `MS_sp_dbl_rngd` and
+the `MS_sp_dbl_sbst` families, and `chg_capacity` in
+`MS_sp_dbl_rngd`. `MCFBlock` does the same for its own data —
+`chg_costs`, `chg_ucaps`, `chg_dfcts` in the `MS_sp_dbl_*`
+families and `close_arcs` / `open_arcs` in the `MS_*` ones. The framework nudges
 `:Block` authors to give their data-changing methods one of these
 six shapes, precisely so they slot into the factory for free.
 
@@ -132,14 +134,16 @@ void apply_new_doubles( Block * blk , const std::string & method_name ,
                         Block::Range slice )
 {
  // fetch the adapter registered under `method_name` in the
- // MS_dbl_rngd factory; no knowledge of the concrete :Block type
- auto fun = blk->get_method< Block::MS_dbl_rngd >( method_name );
+ // MS_sp_dbl_rngd factory; no knowledge of the concrete :Block type
+ auto fun = Block::get_method_fs( method_name ,
+                                  Block::MS_sp_dbl_rngd::args() );
  if( ! fun )
   throw( std::invalid_argument( "no such method: " + method_name ) );
 
  // call it on the Block: this changes the Block's data and issues
  // the appropriate Modification(s), just like a direct call would
- fun( blk , values.begin() , slice , eModBlck , eModBlck );
+ std::invoke( * fun , blk , Block::MF_dbl_sp( values ) , slice ,
+              eModBlck , eModBlck );
 }
 
 int main()
@@ -157,7 +161,7 @@ int main()
 
 The function `apply_new_doubles` has no compile-time dependency on
 `BinaryKnapsackBlock`: it works for *any* `:Block` that has
-registered an `MS_dbl_rngd` method under the given name. Passing
+registered an `MS_sp_dbl_rngd` method under the given name. Passing
 `"MCFBlock::chg_costs"` instead, with an `MCFBlock`, would change
 arc costs through the very same function. The string follows the
 recommended naming convention (`ClassName::method_name`) and is
