@@ -112,6 +112,14 @@ jobs:
           ./INSTALL.ps1 -installRoot "${{ github.workspace }}"
           -withoutCplex -withoutGurobi -withoutMosek -withoutSCIP
           -withoutTorch -withoutDefenderExclusions
+      # run again on what the first run installed: each dependency is found
+      # up to date, and SMS++ is not built twice
+      - name: INSTALL.ps1 again, the dependencies up to date
+        working-directory: smspp-project
+        run: >
+          ./INSTALL.ps1 -installRoot "${{ github.workspace }}"
+          -withoutCplex -withoutGurobi -withoutMosek -withoutSCIP
+          -withoutTorch -withoutDefenderExclusions -withoutSMSpp
       # the CMake that INSTALL.ps1 has configured build with, which may be
       # the one of Visual Studio, and its ctest
       - name: the tests by CMake, and the unit tests
