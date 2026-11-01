@@ -458,7 +458,8 @@ of the sources, which the instructions below are about.
 Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
 where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
 manager but Homebrew distributes (Debian and Ubuntu carry the older one of
-minisat.se), comes with a build from the sources. BinaryKnapsackBlock is
+minisat.se, and vcpkg the fork master-keying/minisat, which `INSTALL.ps1`
+uses), comes with a build from the sources. BinaryKnapsackBlock is
 packaged without the Solvers that hand its core to RECORD and to COMBO, which
 are built from the sources when these are found (RECORD, which `INSTALL.sh`
 checks out, in `RECORD_ROOT`, and COMBO, which is for academic or
@@ -541,7 +542,7 @@ according to the following options table:
 | `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
 | `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
 | `--without-quadprog` | *(via vcpkg)*   | skip quadprog (GPL) installation         |
-| `--without-clarabel` | *(not supported)* | skip Clarabel installation (needs cargo) |
+| `--without-clarabel` | `-withoutClarabel` | skip Clarabel installation (needs cargo) |
 | `--without-hpipm`  | *(not supported)* | skip HPIPM (and BLASFEO) installation    |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
@@ -549,19 +550,20 @@ according to the following options table:
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
 | `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
 | `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
-| `--without-minisat` | *(not supported)* | skip MiniSat installation               |
+| `--without-minisat` | *(via vcpkg)*    | skip MiniSat installation                |
 | `--without-record` | *(not supported)* | skip RECORD installation                 |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
-
-Run again, `INSTALL.sh` brings up to date what it installed: a dependency
-built from its repository goes to its latest release (or, for HiGHS and
-StOpt, to the head of its branch) and is built again only if something
-changed, and one installed from an archive (Gurobi, MOSEK, SCIP, Torch) is
-installed again when the version the script asks for changes, the old
-installation being kept until the new one is in place. CPLEX, whose
-installer comes with its license, is left as it is.
 | `--with-experiments` | `-withExperiments` | also fetch and build the private `experiments` submodule |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
+
+Run again, the scripts bring up to date what they installed: a dependency
+built from its repository goes to its latest release (or, for HiGHS and
+StOpt, to the head of its branch) and is built again only if something
+changed, and one installed from an archive or an installer (Gurobi, MOSEK,
+SCIP, Torch) is installed again when the version the script asks for
+changes, the old installation being kept until the new one is in place;
+on Windows, what comes from vcpkg follows the baseline of `vcpkg.json`.
+CPLEX, whose installer comes with its license, is left as it is.
 
 Note that CPLEX is not redistributable, so the scripts do not download it. To
 install it, point the script to your own installer via `--cplex-installer=<path>`

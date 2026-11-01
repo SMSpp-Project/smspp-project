@@ -12,6 +12,7 @@
     "lemon-ng",
     "liblinear",
     "libsvm",
+    "minisat-master-keying",
     "msmpi",
     "netcdf-cxx4",
     "osqp",
