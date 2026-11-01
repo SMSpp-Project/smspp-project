@@ -167,6 +167,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `INSTALL.sh` brings up to date what it installed when it runs again:
+  every dependency built from its repository goes through `git_latest` (its
+  latest release, or the head of its branch for HiGHS, StOpt and PIPS-IPM++,
+  built again only when something changed; CaDiCaL and MiniSat no longer
+  pinned to an old release, the sources of MiniSat kept), and Gurobi, MOSEK,
+  SCIP and Torch are installed again when the version asked for changes,
+  the version of an installation being kept in its `.smspp-version` and the
+  old installation put back if the new one fails; StOpt, which never pulled,
+  now does
+
 - `INSTALL.sh` installs Clarabel, building the C interface of its latest
   release with cargo (`--without-clarabel` leaves it out), and brings the
   dependencies it clones up to date when it runs again: `git_latest` moves a

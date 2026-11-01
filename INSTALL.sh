@@ -83,7 +83,57 @@ cleanup_on_error() {
   if [ -n "$CURRENT_INSTALL_FOLDER" ]; then
     rm -Rf "$CURRENT_INSTALL_FOLDER"
   fi
+  # an installation set aside to be replaced is put back [see set_aside]
+  if [ -n "${OLD_INSTALL_FOLDER:-}" ] && [ -d "${OLD_INSTALL_FOLDER}.old" ]; then
+    $AS_ROOT rm -rf "$OLD_INSTALL_FOLDER"
+    $AS_ROOT mv "${OLD_INSTALL_FOLDER}.old" "$OLD_INSTALL_FOLDER"
+  fi
   exit 1
+}
+
+# The command that moves and removes the installations of the dependencies
+# from an archive, which on macOS (where INSTALL.sh runs without sudo) the
+# installers of some leave to root
+if [ "$(uname)" == "Darwin" ] && [ "$(id -u)" -ne 0 ]; then
+  AS_ROOT="sudo"
+else
+  AS_ROOT=""
+fi
+
+# Whether the dependency installed from an archive in $1 is not at the
+# version $2, i.e., whether to install it (again): the version that an
+# installation is at is kept in its file .smspp-version, and an installation
+# made before that file existed is taken to be at the version asked for
+version_differs() {
+  [ -d "$1" ] || return 0
+  if [ ! -f "$1/.smspp-version" ]; then
+    echo "$2" | $AS_ROOT tee "$1/.smspp-version" > /dev/null
+    return 1
+  fi
+  [ "$(cat "$1/.smspp-version")" != "$2" ]
+}
+
+# Before a dependency is installed again, its installation is moved aside:
+# it is removed once the new one is in place [see mark_version], and put
+# back if the installation fails [see cleanup_on_error]
+set_aside() {
+  CURRENT_INSTALL_FOLDER=$1
+  if [ -d "$1" ]; then
+    $AS_ROOT rm -rf "$1.old"
+    $AS_ROOT mv "$1" "$1.old"
+    OLD_INSTALL_FOLDER=$1
+  fi
+}
+
+# The version $2 of the dependency just installed in $1, if it was (on some
+# systems a dependency is skipped), and the installation it replaced removed
+mark_version() {
+  [ -n "$1" ] || return 0
+  if [ -d "$1" ]; then
+    echo "$2" | $AS_ROOT tee "$1/.smspp-version" > /dev/null
+  fi
+  $AS_ROOT rm -rf "$1.old"
+  OLD_INSTALL_FOLDER=""
 }
 
 # Clone the repository $1 into the directory $2, or bring an existing clone
@@ -196,21 +246,19 @@ install_on_linux() {
     fi
   fi
 
-  # Install CaDiCaL from its source, where there is no package: its own
-  # configure script builds it in place (src/cadical.hpp and
+  # Install CaDiCaL from its latest release, where there is no package: its
+  # own configure script builds it in place (src/cadical.hpp and
   # build/libcadical.a), which is what SATBlock looks for in CADICAL_ROOT;
   # -fPIC lets the library be linked into a shared SATBlock
   if [ "$install_cadical" -eq 1 ] && [ "$cadical_from_source" -eq 1 ]; then
-    echo "Installing CaDiCaL from its source..."
+    echo "Installing or updating CaDiCaL from its source..."
     CADICAL_ROOT="$(resolve_dep_root cadical)"
-    CURRENT_INSTALL_FOLDER=${CADICAL_ROOT}
-    if [ ! -d "$CADICAL_ROOT" ]; then
-      git clone --branch rel-3.0.1 --depth 1 https://github.com/arminbiere/cadical.git "$CADICAL_ROOT"
+    if git_latest https://github.com/arminbiere/cadical.git "$CADICAL_ROOT" '^rel-[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$CADICAL_ROOT"
       ./configure -fPIC
       make -j "${MAX_JOBS}"
     else
-      echo "CaDiCaL already installed."
+      echo "CaDiCaL already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -220,26 +268,23 @@ install_on_linux() {
   # carries the 2010 code of minisat.se, older than the stp/minisat fork,
   # the one Homebrew packages, which compiles with the recent compilers as it
   # is; its CMakeLists.txt asks for CMake 2.6, which CMake 4 refuses unless
-  # told the policies it may assume
+  # told the policies it may assume. Its sources are kept in src/ of its
+  # directory, so that a run brings them up to date
   if [ "$install_minisat" -eq 1 ]; then
-    echo "Installing MiniSat..."
+    echo "Installing or updating MiniSat..."
     MINISAT_ROOT="$(resolve_dep_root minisat)"
-    CURRENT_INSTALL_FOLDER=${MINISAT_ROOT}
-    if [ ! -d "$MINISAT_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone --branch releases/2.2.1 --depth 1 https://github.com/stp/minisat.git minisat-src
-      cd minisat-src
+    if git_latest https://github.com/stp/minisat.git "$MINISAT_ROOT/src" '^releases/[0-9]+(\.[0-9]+)+$'; then
+      cd "$MINISAT_ROOT/src"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX="$MINISAT_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
-      rm -rf minisat-src
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${MINISAT_ROOT}/lib' > /etc/ld.so.conf.d/minisat.conf"
         ldconfig
       fi
     else
-      echo "MiniSat already installed."
+      echo "MiniSat already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -249,14 +294,15 @@ install_on_linux() {
   # itself, so there is nothing to build here; its repository also holds a
   # large set of benchmark data, hence only source/ is checked out
   if [ "$install_record" -eq 1 ]; then
-    echo "Installing RECORD..."
+    echo "Installing or updating RECORD..."
     RECORD_ROOT="$(resolve_dep_root record)"
-    CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
-    if [ ! -d "$RECORD_ROOT" ]; then
+    if [ ! -d "$RECORD_ROOT/.git" ]; then
+      CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
       git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
       git -C "$RECORD_ROOT" sparse-checkout set source
     else
-      echo "RECORD already installed."
+      git -C "$RECORD_ROOT" pull -q --ff-only
+      echo "RECORD brought up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -310,12 +356,12 @@ EOL
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
-    echo "Installing Gurobi..."
+    echo "Installing or updating Gurobi..."
     GUROBI_ROOT="$(resolve_dep_root gurobi)"
-    CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
-    if [ ! -d "$GUROBI_ROOT" ]; then
+    GUROBI_INSTALLER="gurobi13.0.1_linux64.tar.gz"
+    if version_differs "$GUROBI_ROOT" "$GUROBI_INSTALLER"; then
+      set_aside "$GUROBI_ROOT"
       cd "$INSTALL_ROOT"
-      GUROBI_INSTALLER="gurobi13.0.1_linux64.tar.gz"
       curl -O "https://packages.gurobi.com/13.0/$GUROBI_INSTALLER"
       tar -xzf "$GUROBI_INSTALLER"
       rm "$GUROBI_INSTALLER"
@@ -327,8 +373,9 @@ EOL
         sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
         ldconfig
       fi
+      mark_version "$GUROBI_ROOT" "$GUROBI_INSTALLER"
     else
-      echo "Gurobi already installed."
+      echo "Gurobi already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -338,19 +385,19 @@ EOL
   # archive unpacks as mosek/<major.minor>/tools/platform/<platform>, and
   # MOSEK_ROOT is the mosek directory, which holds one directory per version
   if [ "$install_mosek" -eq 1 ]; then
-    echo "Installing MOSEK..."
+    echo "Installing or updating MOSEK..."
     MOSEK_ROOT="$(resolve_dep_root mosek)"
-    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
-    if [ ! -d "$MOSEK_ROOT" ]; then
+    MOSEK_URL="https://download.mosek.com/stable"
+    MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+    if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+      MOSEK_VERSION="12.0.0"
+    fi
+    if version_differs "$MOSEK_ROOT" "$MOSEK_VERSION"; then
+      set_aside "$MOSEK_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         apt-get install -y -q bzip2
       fi
       cd "$INSTALL_ROOT"
-      MOSEK_URL="https://download.mosek.com/stable"
-      MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
-      if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
-        MOSEK_VERSION="12.0.0"
-      fi
       if [ "$(uname -m)" == "aarch64" ]; then
         MOSEK_PLATFORM="linuxaarch64"
       else
@@ -371,8 +418,9 @@ EOL
         sh -c "echo '${MOSEK_HOME}/bin' > /etc/ld.so.conf.d/mosek.conf"
         ldconfig
       fi
+      mark_version "$MOSEK_ROOT" "$MOSEK_VERSION"
     else
-      echo "MOSEK already installed."
+      echo "MOSEK already at its version."
     fi
     echo "MOSEK needs a license (free for academic use, see"
     echo "https://www.mosek.com/products/academic-licenses/): put it in"
@@ -382,15 +430,15 @@ EOL
 
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
-    echo "Installing SCIP..."
+    echo "Installing or updating SCIP..."
     SCIP_ROOT="$(resolve_dep_root scip)"
-    CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
-    if [ ! -d "$SCIP_ROOT" ]; then
+    SCIP_INSTALLER="scip-9.2.1"
+    if version_differs "$SCIP_ROOT" "$SCIP_INSTALLER"; then
+      set_aside "$SCIP_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         apt-get install -y -q gfortran libtbb-dev
       fi
       cd "$INSTALL_ROOT"
-      SCIP_INSTALLER="scip-9.2.1"
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar -xzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
@@ -420,8 +468,9 @@ EOL
         sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
         ldconfig
       fi
+      mark_version "$SCIP_ROOT" "$SCIP_INSTALLER"
     else
-      echo "SCIP already installed."
+      echo "SCIP already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -460,14 +509,10 @@ EOL
   # DAQP is built from its latest release, i.e., the latest tag of its
   # repository, rather than from its development branch.
   if [ "$install_daqp" -eq 1 ]; then
-    echo "Installing DAQP..."
+    echo "Installing or updating DAQP..."
     DAQP_ROOT="$(resolve_dep_root daqp)"
-    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
-    if [ ! -d "$DAQP_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+    if git_latest https://github.com/darnstrom/daqp.git "$DAQP_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$DAQP_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
@@ -476,7 +521,7 @@ EOL
         ldconfig
       fi
     else
-      echo "DAQP already installed."
+      echo "DAQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -490,14 +535,10 @@ EOL
   # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
   # unless told otherwise.
   if [ "$install_qpoases" -eq 1 ]; then
-    echo "Installing qpOASES..."
+    echo "Installing or updating qpOASES..."
     qpOASES_ROOT="$(resolve_dep_root qpOASES)"
-    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
-    if [ ! -d "$qpOASES_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+    if git_latest https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT" '^releases/[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpOASES_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
         -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
         -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -509,7 +550,7 @@ EOL
         ldconfig
       fi
     else
-      echo "qpOASES already installed."
+      echo "qpOASES already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -521,21 +562,17 @@ EOL
   # serialization that would need cereal, and only its headers and its CMake
   # configuration are installed.
   if [ "$install_proxsuite" -eq 1 ]; then
-    echo "Installing ProxSuite..."
+    echo "Installing or updating ProxSuite..."
     proxsuite_ROOT="$(resolve_dep_root proxsuite)"
-    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
-    if [ ! -d "$proxsuite_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+    if git_latest https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$proxsuite_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
         -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
         -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
         -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
       cmake --install build
     else
-      echo "ProxSuite already installed."
+      echo "ProxSuite already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -546,14 +583,10 @@ EOL
   # compiled library of its common templates and its headers), without the
   # C, Python and Matlab interfaces, the tests and the benchmarks.
   if [ "$install_piqp" -eq 1 ]; then
-    echo "Installing PIQP..."
+    echo "Installing or updating PIQP..."
     piqp_ROOT="$(resolve_dep_root piqp)"
-    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
-    if [ ! -d "$piqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+    if git_latest https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$piqp_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
         -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
         -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
@@ -564,7 +597,7 @@ EOL
         ldconfig
       fi
     else
-      echo "PIQP already installed."
+      echo "PIQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -575,15 +608,11 @@ EOL
   # and in double precision, without the demo and the unit tests; the
   # version is given to its CMake, which otherwise writes 0.0.0 in it.
   if [ "$install_osqp" -eq 1 ]; then
-    echo "Installing OSQP..."
+    echo "Installing or updating OSQP..."
     osqp_ROOT="$(resolve_dep_root osqp)"
-    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
-    if [ ! -d "$osqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+    if git_latest https://github.com/osqp/osqp.git "$osqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$osqp_ROOT"
-      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git checkout -q "$osqp_tag"
+      osqp_tag="$(git describe --tags --exact-match)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
         -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
         -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
@@ -594,7 +623,7 @@ EOL
         ldconfig
       fi
     else
-      echo "OSQP already installed."
+      echo "OSQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -604,18 +633,14 @@ EOL
   # qpmad is header-only: it is configured from its latest release, and only
   # its headers and its CMake configuration are installed.
   if [ "$install_qpmad" -eq 1 ]; then
-    echo "Installing qpmad..."
+    echo "Installing or updating qpmad..."
     qpmad_ROOT="$(resolve_dep_root qpmad)"
-    CURRENT_INSTALL_FOLDER=${qpmad_ROOT}
-    if [ ! -d "$qpmad_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/asherikov/qpmad.git "$qpmad_ROOT"
+    if git_latest https://github.com/asherikov/qpmad.git "$qpmad_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpmad_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$qpmad_ROOT"
       cmake --install build
     else
-      echo "qpmad already installed."
+      echo "qpmad already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -628,21 +653,21 @@ EOL
   # of the CI) also runs on a processor other than the one it was built on,
   # and the library of HPIPM finds that of BLASFEO next to it.
   if [ "$install_hpipm" -eq 1 ]; then
-    echo "Installing HPIPM..."
+    echo "Installing or updating HPIPM..."
     HPIPM_ROOT="$(resolve_dep_root hpipm)"
-    CURRENT_INSTALL_FOLDER=${HPIPM_ROOT}
-    if [ ! -d "$HPIPM_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src"
+    hpipm_blasfeo_new=0
+    if git_latest https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src" '^[0-9]+(\.[0-9]+)+$'; then
       cd "${HPIPM_ROOT}/blasfeo-src"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
         -DTARGET=GENERIC -DBLASFEO_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      git clone https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src"
+      hpipm_blasfeo_new=1
+    fi
+    # HPIPM is built again also when BLASFEO, which it is built on, changed
+    if git_latest https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src" '^[0-9]+(\.[0-9]+)+$' ||
+       [ "$hpipm_blasfeo_new" -eq 1 ]; then
       cd "${HPIPM_ROOT}/hpipm-src"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
         -DTARGET=GENERIC -DBLASFEO_PATH="$HPIPM_ROOT" -DHPIPM_TESTING=OFF \
         -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$ORIGIN'
@@ -653,7 +678,7 @@ EOL
         ldconfig
       fi
     else
-      echo "HPIPM already installed."
+      echo "HPIPM already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -716,79 +741,57 @@ EOL
   # PIPS-IPM++ is consumed from its build tree (no install step); the fully
   # open-source build uses MUMPS as inner linear solver.
   if [ "$install_pips" -eq 1 ]; then
-    echo "Installing PIPS-IPM++..."
+    echo "Installing or updating PIPS-IPM++..."
     PIPS_ROOT_DIR="$(resolve_dep_root pips-ipmpp)"
-    CURRENT_INSTALL_FOLDER=${PIPS_ROOT_DIR}
-    if [ ! -d "$PIPS_ROOT_DIR" ]; then
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        apt-get install -y -q libopenmpi-dev gfortran liblapack-dev libmetis-dev libmumps-dev
-      fi
-      cd "$INSTALL_ROOT"
-      git clone --recurse-submodules https://gitlab.com/pips-ipmpp/pips-ipmpp.git "$PIPS_ROOT_DIR"
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      apt-get install -y -q libopenmpi-dev gfortran liblapack-dev libmetis-dev libmumps-dev
+    fi
+    if git_latest https://gitlab.com/pips-ipmpp/pips-ipmpp.git "$PIPS_ROOT_DIR"; then
       cmake -S "$PIPS_ROOT_DIR" -B "$PIPS_ROOT_DIR/build" -DCMAKE_BUILD_TYPE=Release
       cmake --build "$PIPS_ROOT_DIR/build" -j "${MAX_JOBS}"
     else
-      echo "PIPS-IPM++ already installed."
+      echo "PIPS-IPM++ already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install StOpt
+  # StOpt follows its branch: a run pulls what is new and builds it again.
   if [ "$install_stopt" -eq 1 ]; then
-    echo "Installing StOpt..."
+    echo "Installing or updating StOpt..."
     StOpt_ROOT="$(resolve_dep_root StOpt)"
-    CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       # StOpt looks for BZip2 too, which the COIN-OR packages used to bring
       apt-get install -y -q zlib1g-dev libbz2-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
     fi
-    if [ ! -d "$StOpt_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://gitlab.com/stochastic-control/StOpt.git
-      cd StOpt
+    if git_latest https://gitlab.com/stochastic-control/StOpt.git "$StOpt_ROOT"; then
+      cd "$StOpt_ROOT"
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      cd "$INSTALL_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${StOpt_ROOT}/lib' > /etc/ld.so.conf.d/stopt.conf"
         ldconfig
       fi
     else
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        cd "$StOpt_ROOT"
-        LOCAL=$(git rev-parse @)
-        REMOTE=$(git rev-parse @{u})
-        # if the repository is not up to date
-        if [ "$LOCAL" != "$REMOTE" ]; then
-          git pull
-          cmake -S . -B build \
-                -DBUILD_PYTHON=OFF \
-                -DBUILD_TEST=OFF \
-                -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-          cmake --build build -j "${MAX_JOBS}"
-          cmake --install build
-        else
-          echo "StOpt already up to date."
-        fi
-        cd "$INSTALL_ROOT"
-      fi
+      echo "StOpt already up to date."
     fi
+    cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
-    echo "Installing Torch..."
+    echo "Installing or updating Torch..."
     Torch_ROOT="$(resolve_dep_root torch)"
-    CURRENT_INSTALL_FOLDER=${Torch_ROOT}
-    if [ ! -d "$Torch_ROOT" ]; then
+    TORCH_VERSION="2.12.0"
+    if version_differs "$Torch_ROOT" "$TORCH_VERSION"; then
+      set_aside "$Torch_ROOT"
       cd "$INSTALL_ROOT"
-      TORCH_VERSION="2.12.0"
       TORCH_INSTALLER="libtorch-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
       # -f fails on HTTP errors (no error page saved as a fake zip),
       # -L follows download.pytorch.org's redirect
@@ -802,8 +805,9 @@ EOL
         sh -c "echo '${Torch_ROOT}/lib' > /etc/ld.so.conf.d/torch.conf"
         ldconfig
       fi
+      mark_version "$Torch_ROOT" "$TORCH_VERSION"
     else
-      echo "Torch already installed."
+      echo "Torch already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -924,13 +928,15 @@ install_on_macos() {
   # Install RECORD: a single source file, which BinaryKnapsackBlock compiles
   # itself; only source/ of its repository is checked out
   if [ "$install_record" -eq 1 ]; then
-    echo "Installing RECORD..."
+    echo "Installing or updating RECORD..."
     RECORD_ROOT="${INSTALL_ROOT}/record"
-    if [ ! -d "$RECORD_ROOT" ]; then
+    if [ ! -d "$RECORD_ROOT/.git" ]; then
+      CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
       git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
       git -C "$RECORD_ROOT" sparse-checkout set source
     else
-      echo "RECORD already installed."
+      git -C "$RECORD_ROOT" pull -q --ff-only
+      echo "RECORD brought up to date."
     fi
   fi
 
@@ -983,12 +989,12 @@ install_on_macos() {
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
-    echo "Installing Gurobi..."
+    echo "Installing or updating Gurobi..."
     GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
-    CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
-    if [ ! -d "$GUROBI_ROOT" ]; then
+    GUROBI_INSTALLER="gurobi13.0.1_macos_universal2.pkg"
+    if version_differs "$GUROBI_ROOT" "$GUROBI_INSTALLER"; then
+      set_aside "$GUROBI_ROOT"
       cd "$INSTALL_ROOT"
-      GUROBI_INSTALLER="gurobi13.0.1_macos_universal2.pkg"
       curl -O "https://packages.gurobi.com/13.0/$GUROBI_INSTALLER"
       sudo installer -pkg "$GUROBI_INSTALLER" -target /
       rm "$GUROBI_INSTALLER"
@@ -1002,8 +1008,9 @@ install_on_macos() {
         install_name_tool -id "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib"
         codesign -s - -f "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib"
       fi
+      mark_version "$GUROBI_ROOT" "$GUROBI_INSTALLER"
     else
-      echo "Gurobi already installed."
+      echo "Gurobi already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -1011,21 +1018,21 @@ install_on_macos() {
   # Install MOSEK: the tools archive of the latest 12.0.x version, as on
   # Linux; MOSEK 12 is built for Apple Silicon only
   if [ "$install_mosek" -eq 1 ]; then
-    echo "Installing MOSEK..."
+    echo "Installing or updating MOSEK..."
     MOSEK_ROOT="${INSTALL_ROOT}/mosek"
-    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
-    if [ ! -d "$MOSEK_ROOT" ]; then
+    MOSEK_URL="https://download.mosek.com/stable"
+    MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+    if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+      MOSEK_VERSION="12.0.0"
+    fi
+    if version_differs "$MOSEK_ROOT" "$MOSEK_VERSION"; then
+      set_aside "$MOSEK_ROOT"
       cd "$INSTALL_ROOT"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
         echo "No MOSEK 12 for macOS x86_64; skipping MOSEK."
         install_mosek=0
         MOSEK_ROOT=""
       else # Apple Silicon arch
-        MOSEK_URL="https://download.mosek.com/stable"
-        MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
-        if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
-          MOSEK_VERSION="12.0.0"
-        fi
         MOSEK_INSTALLER="mosektoolsosxaarch64.tar.bz2"
         curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"
         mkdir -p mosek-src
@@ -1038,8 +1045,9 @@ install_on_macos() {
         export PATH="${PATH}:${MOSEK_HOME}/bin"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${MOSEK_HOME}/bin"
       fi
+      mark_version "$MOSEK_ROOT" "$MOSEK_VERSION"
     else
-      echo "MOSEK already installed."
+      echo "MOSEK already at its version."
     fi
     if [ "$install_mosek" -eq 1 ]; then
       echo "MOSEK needs a license (free for academic use, see"
@@ -1051,13 +1059,13 @@ install_on_macos() {
 
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
-    echo "Installing SCIP..."
+    echo "Installing or updating SCIP..."
     SCIP_ROOT="${INSTALL_ROOT}/scip"
-    CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
-    if [ ! -d "$SCIP_ROOT" ]; then
+    SCIP_INSTALLER="scip-9.2.1"
+    if version_differs "$SCIP_ROOT" "$SCIP_INSTALLER"; then
+      set_aside "$SCIP_ROOT"
       brew install gcc tbb
       cd "$INSTALL_ROOT"
-      SCIP_INSTALLER="scip-9.2.1"
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar -xzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
@@ -1085,8 +1093,9 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       export PATH="${PATH}:${SCIP_ROOT}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
+      mark_version "$SCIP_ROOT" "$SCIP_INSTALLER"
     else
-      echo "SCIP already installed."
+      echo "SCIP already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -1117,20 +1126,16 @@ install_on_macos() {
   # DAQP is built from its latest release, i.e., the latest tag of its
   # repository, rather than from its development branch.
   if [ "$install_daqp" -eq 1 ]; then
-    echo "Installing DAQP..."
+    echo "Installing or updating DAQP..."
     DAQP_ROOT="${INSTALL_ROOT}/daqp"
-    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
-    if [ ! -d "$DAQP_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+    if git_latest https://github.com/darnstrom/daqp.git "$DAQP_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$DAQP_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${DAQP_ROOT}/lib"
     else
-      echo "DAQP already installed."
+      echo "DAQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1144,14 +1149,10 @@ install_on_macos() {
   # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
   # unless told otherwise.
   if [ "$install_qpoases" -eq 1 ]; then
-    echo "Installing qpOASES..."
+    echo "Installing or updating qpOASES..."
     qpOASES_ROOT="${INSTALL_ROOT}/qpOASES"
-    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
-    if [ ! -d "$qpOASES_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+    if git_latest https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT" '^releases/[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpOASES_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
         -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
         -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -1160,7 +1161,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${qpOASES_ROOT}/lib"
     else
-      echo "qpOASES already installed."
+      echo "qpOASES already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1172,21 +1173,17 @@ install_on_macos() {
   # serialization that would need cereal, and only its headers and its CMake
   # configuration are installed.
   if [ "$install_proxsuite" -eq 1 ]; then
-    echo "Installing ProxSuite..."
+    echo "Installing or updating ProxSuite..."
     proxsuite_ROOT="${INSTALL_ROOT}/proxsuite"
-    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
-    if [ ! -d "$proxsuite_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+    if git_latest https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$proxsuite_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
         -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
         -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
         -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
       cmake --install build
     else
-      echo "ProxSuite already installed."
+      echo "ProxSuite already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1197,14 +1194,10 @@ install_on_macos() {
   # compiled library of its common templates and its headers), without the
   # C, Python and Matlab interfaces, the tests and the benchmarks.
   if [ "$install_piqp" -eq 1 ]; then
-    echo "Installing PIQP..."
+    echo "Installing or updating PIQP..."
     piqp_ROOT="${INSTALL_ROOT}/piqp"
-    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
-    if [ ! -d "$piqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+    if git_latest https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$piqp_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
         -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
         -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
@@ -1212,7 +1205,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${piqp_ROOT}/lib"
     else
-      echo "PIQP already installed."
+      echo "PIQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1223,15 +1216,11 @@ install_on_macos() {
   # and in double precision, without the demo and the unit tests; the
   # version is given to its CMake, which otherwise writes 0.0.0 in it.
   if [ "$install_osqp" -eq 1 ]; then
-    echo "Installing OSQP..."
+    echo "Installing or updating OSQP..."
     osqp_ROOT="${INSTALL_ROOT}/osqp"
-    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
-    if [ ! -d "$osqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+    if git_latest https://github.com/osqp/osqp.git "$osqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$osqp_ROOT"
-      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git checkout -q "$osqp_tag"
+      osqp_tag="$(git describe --tags --exact-match)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
         -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
         -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
@@ -1239,7 +1228,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${osqp_ROOT}/lib"
     else
-      echo "OSQP already installed."
+      echo "OSQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1249,18 +1238,14 @@ install_on_macos() {
   # qpmad is header-only: it is configured from its latest release, and only
   # its headers and its CMake configuration are installed.
   if [ "$install_qpmad" -eq 1 ]; then
-    echo "Installing qpmad..."
+    echo "Installing or updating qpmad..."
     qpmad_ROOT="${INSTALL_ROOT}/qpmad"
-    CURRENT_INSTALL_FOLDER=${qpmad_ROOT}
-    if [ ! -d "$qpmad_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/asherikov/qpmad.git "$qpmad_ROOT"
+    if git_latest https://github.com/asherikov/qpmad.git "$qpmad_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpmad_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$qpmad_ROOT"
       cmake --install build
     else
-      echo "qpmad already installed."
+      echo "qpmad already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1273,21 +1258,21 @@ install_on_macos() {
   # of the CI) also runs on a processor other than the one it was built on,
   # and the library of HPIPM finds that of BLASFEO next to it.
   if [ "$install_hpipm" -eq 1 ]; then
-    echo "Installing HPIPM..."
+    echo "Installing or updating HPIPM..."
     HPIPM_ROOT="${INSTALL_ROOT}/hpipm"
-    CURRENT_INSTALL_FOLDER=${HPIPM_ROOT}
-    if [ ! -d "$HPIPM_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src"
+    hpipm_blasfeo_new=0
+    if git_latest https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src" '^[0-9]+(\.[0-9]+)+$'; then
       cd "${HPIPM_ROOT}/blasfeo-src"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
         -DTARGET=GENERIC -DBLASFEO_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      git clone https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src"
+      hpipm_blasfeo_new=1
+    fi
+    # HPIPM is built again also when BLASFEO, which it is built on, changed
+    if git_latest https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src" '^[0-9]+(\.[0-9]+)+$' ||
+       [ "$hpipm_blasfeo_new" -eq 1 ]; then
       cd "${HPIPM_ROOT}/hpipm-src"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
         -DTARGET=GENERIC -DBLASFEO_PATH="$HPIPM_ROOT" -DHPIPM_TESTING=OFF \
         -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH=@loader_path
@@ -1295,7 +1280,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HPIPM_ROOT}/lib"
     else
-      echo "HPIPM already installed."
+      echo "HPIPM already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1356,51 +1341,34 @@ install_on_macos() {
   fi
 
   # Install StOpt
+  # StOpt follows its branch: a run pulls what is new and builds it again.
   if [ "$install_stopt" -eq 1 ]; then
-    echo "Installing StOpt..."
+    echo "Installing or updating StOpt..."
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
-    CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
-    if [ ! -d "$StOpt_ROOT" ]; then
-      brew install zlib boost-mpi
-      cd "$INSTALL_ROOT"
-      git clone https://gitlab.com/stochastic-control/StOpt.git
-      cd StOpt
+    brew install zlib boost-mpi
+    if git_latest https://gitlab.com/stochastic-control/StOpt.git "$StOpt_ROOT"; then
+      cd "$StOpt_ROOT"
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      cd "$INSTALL_ROOT"
     else
-      cd "$StOpt_ROOT"
-      LOCAL=$(git rev-parse @)
-      REMOTE=$(git rev-parse @{u})
-      # if the repository is not up to date
-      if [ "$LOCAL" != "$REMOTE" ]; then
-        git pull
-        cmake -S . -B build \
-              -DBUILD_PYTHON=OFF \
-              -DBUILD_TEST=OFF \
-              -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-        cmake --build build -j "${MAX_JOBS}"
-        cmake --install build
-      else
-        echo "StOpt already up to date."
-      fi
-      cd "$INSTALL_ROOT"
+      echo "StOpt already up to date."
     fi
+    cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
-    echo "Installing Torch..."
+    echo "Installing or updating Torch..."
     Torch_ROOT="${INSTALL_ROOT}/torch"
-    CURRENT_INSTALL_FOLDER=${Torch_ROOT}
-    if [ ! -d "$Torch_ROOT" ]; then
+    TORCH_VERSION="2.12.0"
+    if version_differs "$Torch_ROOT" "$TORCH_VERSION"; then
+      set_aside "$Torch_ROOT"
       cd "$INSTALL_ROOT"
-      TORCH_VERSION="2.12.0"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
         # no prebuilt libtorch for macOS x86_64 past 2.2.2; Torch is optional
         echo "No prebuilt libtorch for macOS x86_64; skipping Torch."
@@ -1415,8 +1383,9 @@ install_on_macos() {
         mv ./libtorch "$Torch_ROOT"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
       fi
+      mark_version "$Torch_ROOT" "$TORCH_VERSION"
     else
-      echo "Torch already installed."
+      echo "Torch already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi

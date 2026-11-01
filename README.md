@@ -552,6 +552,14 @@ according to the following options table:
 | `--without-minisat` | *(not supported)* | skip MiniSat installation               |
 | `--without-record` | *(not supported)* | skip RECORD installation                 |
 | `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
+
+Run again, `INSTALL.sh` brings up to date what it installed: a dependency
+built from its repository goes to its latest release (or, for HiGHS and
+StOpt, to the head of its branch) and is built again only if something
+changed, and one installed from an archive (Gurobi, MOSEK, SCIP, Torch) is
+installed again when the version the script asks for changes, the old
+installation being kept until the new one is in place. CPLEX, whose
+installer comes with its license, is left as it is.
 | `--with-experiments` | `-withExperiments` | also fetch and build the private `experiments` submodule |
 | *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
 
