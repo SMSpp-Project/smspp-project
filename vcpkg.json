@@ -47,7 +47,7 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "80b6045514bad27b9bf3cedda2cebc67dd634d6f",
+        "baseline": "416fa0c47b93a25469beb14a8c27e5639d21c891",
         "packages": [
           "daqp",
           "lemon-ng",
