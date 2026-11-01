@@ -24,8 +24,9 @@
 #     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-qpmad` option to skip the installation of qpmad.
 #     You can use the `--without-hpipm` option to skip the installation of HPIPM.
-#     You can use the `--with-quadprog` option to also install quadprog, which
-#     is under the GPL, so that a MILPSolver built with it is too.
+#     You can use the `--without-quadprog` option to skip the installation of
+#     quadprog, which is under the GPL, so that a MILPSolver built with it is
+#     too.
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -1394,7 +1395,7 @@ install_piqp=${install_piqp:-1}
 install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
 install_hpipm=${install_hpipm:-1}
-install_quadprog=${install_quadprog:-0}
+install_quadprog=${install_quadprog:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -1495,7 +1496,11 @@ do
     install_hpipm=0
     shift
     ;;
-    --with-quadprog)
+    --without-quadprog)
+    install_quadprog=0
+    shift
+    ;;
+    --with-quadprog)  # the default now, kept for the scripts that pass it
     install_quadprog=1
     shift
     ;;

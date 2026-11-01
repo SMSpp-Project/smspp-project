@@ -167,6 +167,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- quadprog, the solver of `QuadProgMILPSolver`, is installed by default: by
+  `INSTALL.sh` (`--without-quadprog` leaves it out, `--with-quadprog` is
+  kept for the scripts that pass it) and, as the port quadprog of the vcpkg
+  registry of SMS++, by `INSTALL.ps1`; the vcpkg manifest takes LEMON as
+  lemon-ng from the same registry
+
 - the nightly job of the C++20 modules builds them with the default of
   `SMSpp_BUILD_MODULE`, which turns them on with Clang [see
   `SMS++/cmake/CheckModule.cmake`], and then checks that the interface of

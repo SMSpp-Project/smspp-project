@@ -268,8 +268,8 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `QuadProgMILPSolver`, providing the interface with the open-source
     dual active-set solver [quadprog](https://github.com/quadprog/quadprog),
     the original implementation of the method of Goldfarb and Idnani (same
-    problems as `QPMADMILPSolver`); quadprog is under the GPL, hence it is
-    installed only if asked (`--with-quadprog`) and it is in no package
+    problems as `QPMADMILPSolver`); quadprog is under the GPL, hence a
+    MILPSolver built with it is too, and it is in no package
 
   - `HPIPMMILPSolver`, providing the interface with the open-source
     interior-point solver [HPIPM](https://github.com/giaf/hpipm), built on
@@ -541,7 +541,7 @@ according to the following options table:
 | `--without-piqp`   | *(via vcpkg)*     | skip PIQP installation                   |
 | `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
 | `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
-| `--with-quadprog`  | *(not supported)* | install quadprog (GPL)                   |
+| `--without-quadprog` | *(via vcpkg)*   | skip quadprog (GPL) installation         |
 | `--without-hpipm`  | *(not supported)* | skip HPIPM (and BLASFEO) installation    |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |

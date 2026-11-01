@@ -9,7 +9,7 @@
     "eigen3",
     "getopt",
     "highs",
-    "liblemon",
+    "lemon-ng",
     "liblinear",
     "libsvm",
     "msmpi",
@@ -19,6 +19,7 @@
     "proxsuite",
     "pthreads",
     "qpmad",
+    "quadprog",
     "qpoases",
     "stopt",
     "zlib"
@@ -45,11 +46,13 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "27b9d2e483361d999e5292cda7cc7d5a037b0587",
+        "baseline": "80b6045514bad27b9bf3cedda2cebc67dd634d6f",
         "packages": [
           "daqp",
+          "lemon-ng",
           "piqp",
-          "qpmad"
+          "qpmad",
+          "quadprog"
         ]
       }
     ]
