@@ -1,4 +1,4 @@
-# The layout of the code of lemon-ng; scripts/format.py applies it, and
+# The layout of the code of SMS++; scripts/format.py applies it, and
 # then what clang-format has no option for
 BasedOnStyle: LLVM
 ColumnLimit: 79
