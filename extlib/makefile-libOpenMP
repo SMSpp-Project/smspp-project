@@ -1,0 +1,39 @@
+##############################################################################
+############################# makefile-libOpenMP #############################
+##############################################################################
+#                                                                            #
+#   makefile of OpenMP                                                       #
+#                                                                            #
+#   Input:  $(OpenMP_ROOT), the directory of libomp (macOS only, where the   #
+#           clang++ of Xcode has no OpenMP runtime of its own)               #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libOpenMPLIB) = the options of the link for OpenMP             #
+#           $(libOpenMPINC) = the options of the compiler for OpenMP         #
+#                                                                            #
+#                                Donato Meoli                                #
+#                          Dipartimento di Informatica                       #
+#                              Universita' di Pisa                           #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic libomp directory without quotes, if any
+libOpenMPBSCDIR = $(subst $\",,$(OpenMP_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ifeq ($(UNAME_S),Darwin)
+    # the clang++ of Xcode takes OpenMP only through its preprocessor, and
+    # the runtime from libomp
+    libOpenMPINC = -Xpreprocessor -fopenmp -I"$(libOpenMPBSCDIR)/include"
+    libOpenMPLIB = -L"$(libOpenMPBSCDIR)/lib" -lomp
+else
+    libOpenMPINC = -fopenmp
+    libOpenMPLIB = -fopenmp
+endif
+
+######################## End of makefile-libOpenMP ###########################

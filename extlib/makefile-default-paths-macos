@@ -67,6 +67,7 @@ quadprog_ROOT = /Library/quadprog
 HPIPM_ROOT = /Library/hpipm
 StOpt_ROOT = /Library/StOpt
 FastFlow_ROOT = /Library/fastflow
+OpenMP_ROOT = /opt/homebrew/opt/libomp
 Torch_ROOT = /Library/torch
 
 #################### End of makefile-default-paths-macos #####################

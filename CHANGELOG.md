@@ -246,6 +246,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   submodules then skips, and with `--without-stopt` turns off SDDPBlock
   alone, InvestmentBlock no longer needing it
 
+- `extlib/makefile-libOpenMP` gives the options of OpenMP to the makefiles,
+  `-Xpreprocessor -fopenmp` and libomp (`OpenMP_ROOT`, by default the one
+  of Homebrew) on macOS, whose clang++ of Xcode takes no `-fopenmp`, and
+  `-fopenmp` elsewhere
+
 - `extlib/makefile-libPIPS` restores the `--as-needed` state it found
   around the MPI libraries (`--push-state` / `--pop-state`) instead of
   turning `--as-needed` on, which dropped from the link the libraries of the
