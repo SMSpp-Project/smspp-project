@@ -996,10 +996,23 @@ def build_index(files):
     return index
 
 
+def usage():
+    """The part of the documentation that says how to run the script."""
+    return __doc__[__doc__.index('Usage:'):].rstrip()
+
+
 def main(argv):
+    if '-h' in argv or '--help' in argv:
+        print(usage())
+        return 0
     check = '--check' in argv
     show = '--diff' in argv
     files = [a for a in argv if a not in ('--check', '--diff')]
+    unknown = [a for a in files if a.startswith('-')]
+    if unknown:
+        print('cfgformat.py: unknown option %s\n%s' % (unknown[0], usage()),
+              file=sys.stderr)
+        return 2
     index = build_index(files)
     changed, failed = [], []
     for path in files:

@@ -10,6 +10,9 @@ while [ $# -gt 0 ] ; do
   case "$1" in
     --check|--git) opts+=("$1") ;;
     --lines|--since) opts+=("$1" "$2") ; shift ;;
+    -h|--help) sed -n '2,/^here=/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//' ;
+               exit 0 ;;
+    -*) echo "smspp-format: unknown option $1 (see --help)" >&2 ; exit 2 ;;
     *) files+=("$1") ;;
   esac
   shift

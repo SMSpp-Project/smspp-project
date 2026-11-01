@@ -621,7 +621,15 @@ def generated(text):
     return re.search(r'DO NOT EDIT|@generated', head, re.I) is not None
 
 
+def usage():
+    """The part of the documentation that says how to run the script."""
+    return __doc__[__doc__.index('Usage:'):].rstrip()
+
+
 def main(argv):
+    if '-h' in argv or '--help' in argv:
+        print(usage())
+        return 0
     check = '--check' in argv
     use_git = '--git' in argv
     ref = 'HEAD'
@@ -640,6 +648,10 @@ def main(argv):
             ranges = [(int(lo), int(hi))]
             k += 2
             continue
+        if a.startswith('-') and a not in ('--check', '--git'):
+            print('format.py: unknown option %s\n%s' % (a, usage()),
+                  file=sys.stderr)
+            return 2
         if a not in ('--check', '--git'):
             files.append(a)
         k += 1

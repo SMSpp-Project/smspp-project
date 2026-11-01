@@ -245,6 +245,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `scripts/format.py`, `scripts/cfgformat.py` and `scripts/smspp-format`
+  print how to run them on `-h` and `--help`, and stop on an option they do
+  not know, which they took as the name of a file
+
 - `extlib/makefile-libOpenMP` gives the options of OpenMP to the makefiles,
   `-Xpreprocessor -fopenmp` and libomp (`OpenMP_ROOT`, by default the one
   of Homebrew) on macOS, whose clang++ of Xcode takes no `-fopenmp`, and
