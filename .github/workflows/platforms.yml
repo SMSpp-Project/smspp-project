@@ -55,6 +55,14 @@ jobs:
           bash INSTALL.sh --install-root="$ROOT" --without-cplex \
                        --without-gurobi --without-mosek --without-scip \
                        --without-pips --without-torch
+      # run again on what the first run installed: each dependency is found
+      # up to date, and SMS++ is not built twice
+      - name: INSTALL.sh again, the dependencies up to date
+        working-directory: smspp-project
+        run: |
+          bash INSTALL.sh --install-root="$ROOT" --without-cplex \
+                       --without-gurobi --without-mosek --without-scip \
+                       --without-pips --without-torch --without-smspp
       - name: the tests by CMake, and the unit tests
         id: unit
         working-directory: smspp-project
