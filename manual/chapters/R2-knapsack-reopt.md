@@ -133,10 +133,11 @@ edit made above through the concrete type can also be issued by
 *string name* on a base `Block*`:
 
 ```cpp
- auto fun = bkb.get_method< Block::MS_dbl_rngd >(
-                              "BinaryKnapsackBlock::chg_profits" );
- fun( & bkb , std::vector< double >{ 8.0 }.begin() ,
-      Block::Range( 2 , 3 ) , eModBlck , eModBlck );
+ auto fun = Block::get_method_fs( "BinaryKnapsackBlock::chg_profits" ,
+                                  Block::MS_sp_dbl_rngd::args() );
+ const std::vector< double > profit = { 8.0 };
+ std::invoke( * fun , & bkb , Block::MF_dbl_sp( profit ) ,
+              Block::Range( 2 , 3 ) , eModBlck , eModBlck );
 ```
 
 This is exactly how type-agnostic machinery (a `StochasticBlock`

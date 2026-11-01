@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Formats the C++ sources of lemon-ng.
+r"""Formats C++ sources in a house style.
 
-clang-format (with the .clang-format at the root of the repository) gives
+clang-format (with the .clang-format found up the tree of the file) gives
 the layout; this script adds what clang-format has no option for:
 
   - the expression of a return and of a throw in parentheses, with no
@@ -13,7 +13,10 @@ the layout; this script adds what clang-format has no option for:
   - the opening brace of a function defined out of a class on a line of
     its own;
   - a line that the spaces before the commas have brought past 79
-    columns broken after a comma.
+    columns broken after a comma, or after a semicolon of a for;
+  - the C++ in the \code ... \endcode blocks of the comments of
+    Doxygen, and of its pages (.dox), formatted as the rest, within the
+    columns that the prefix of the comment leaves.
 
 Usage: format.py [--check] [--lines FIRST:LAST | --git | --since REF]
                  FILE...
@@ -22,7 +25,9 @@ only those that touch the lines changed since HEAD, with --since REF the
 ones changed since REF (a file that git does not know is formatted
 whole), so that the code around is left as it is;
 with --check nothing is written, and the files that would change are
-listed, with exit status 1 if there are any.
+listed, with exit status 1 if there are any. A file with no .clang-format
+in its directory or above it is left as it is, with exit status 2. A .dox
+file only has its blocks of code formatted.
 """
 
 import re
@@ -384,10 +389,11 @@ def align_continuations(text):
     return '\n'.join(lines)
 
 
-def break_long(text):
+def break_long(text, limit=None):
     """A line past the limit broken after the last comma that fits, or the
     last semicolon of the header of a for, the rest aligned with the first
     argument of the call (or the first part of the for) it is in."""
+    limit = limit or LIMIT
     res = []
     inside = in_directive(text)
     pos = 0
@@ -397,11 +403,11 @@ def break_long(text):
         if inside(start):
             res.append(line)   # a directive is left to clang-format
             continue
-        while len(line.expandtabs(8)) > LIMIT:
+        while len(line.expandtabs(8)) > limit:
             m_line = mask(line)
             cut = -1
             for m in re.finditer(r' ,| ;(?= )', m_line):
-                if len(line[:m.end()].expandtabs(8)) <= LIMIT:
+                if len(line[:m.end()].expandtabs(8)) <= limit:
                     cut = m.end()
             if cut < 0:
                 break
@@ -429,9 +435,16 @@ def break_long(text):
     return '\n'.join(res)
 
 
-def format_text(text, clang_format='clang-format', path='file.h'):
+def format_code(text, clang_format='clang-format', path='file.h',
+                limit=None):
+    """The code formatted: clang-format, then the passes above."""
+    style = 'file'
+    if limit:
+        # the code of a comment, where a tab would show as Doxygen likes
+        style = ('{BasedOnStyle: InheritParentConfig, ColumnLimit: %d, '
+                 'UseTab: Never}' % limit)
     text = wrap_returns(text)
-    text = subprocess.run([clang_format, '--style=file',
+    text = subprocess.run([clang_format, '--style=' + style,
                            '--assume-filename=' + path],
                           input=text, capture_output=True, text=True,
                           check=True).stdout
@@ -441,13 +454,111 @@ def format_text(text, clang_format='clang-format', path='file.h'):
     text = indent_closing(text)
     text = column_zero(text)
     text = align_continuations(text)
-    text = break_long(text)
+    text = break_long(text, limit)
     return text
+
+
+# a line that opens or closes a block of code of Doxygen, in a comment
+# (///, //!, a * of a /** */ block, or nothing in a .dox page)
+CODE_OPEN = re.compile(r'^(\s*(?://[/!]|\*)?\s?)[\\@]code(\{[^}]*\})?\s*$')
+CODE_CLOSE = re.compile(r'^\s*(?://[/!]|\*)?\s*[\\@]endcode\s*$')
+
+
+# the tokens of C++, the operators of more characters as one token (so that
+# a << that became < < is a change), but >> as two >, which closes two
+# template argument lists as well as it shifts
+CPP_TOKEN = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|\w+|'
+                       r'<<=|->\*|\.\.\.|<<|->|::|\+\+|--|&&|\|\||==|!=|<=|'
+                       r'>=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|\S')
+
+
+def cpp_tokens(code, ignore=''):
+    """The tokens of the code, but the characters in ignore."""
+    return [t for t in CPP_TOKEN.findall(code) if t not in ignore]
+
+
+def looks_like_cpp(lines):
+    """Whether a block of code is C++, rather than, e.g., the sections of a
+    file format (lines that start with @) or a command of the shell."""
+    body = '\n'.join(lines)
+    if any(l.lstrip().startswith(('@', '$ ', '#!')) for l in lines):
+        return False
+    return re.search(r'[;{}()]|::|<[^<>]*>', body) is not None
+
+
+def format_doc_code(text, clang_format='clang-format', path='file.h'):
+    """The C++ of the blocks \\code ... \\endcode of the comments formatted
+    as the rest, within the columns that the prefix of the comment leaves;
+    a block that is no C++, that says it is another language, or that
+    clang-format would change in more than the spaces, is left alone."""
+    lines = text.split('\n')
+    out = []
+    k = 0
+    while k < len(lines):
+        m = CODE_OPEN.match(lines[k])
+        if not m:
+            out.append(lines[k])
+            k += 1
+            continue
+        j = k + 1
+        while j < len(lines) and not CODE_CLOSE.match(lines[j]):
+            j += 1
+        if j == len(lines):
+            out.extend(lines[k:])
+            break
+        lang = (m.group(2) or '').strip('{}.').lower()
+        marker = re.match(r'^\s*(?://[/!]|\*)?', lines[k]).group(0)
+        # the code one space after the marker of the comment, however the
+        # line of \code is written
+        prefix = marker + ' ' if marker.strip() else marker
+        body = lines[k + 1:j]
+        inner = []
+        ok = lang in ('', 'cpp', 'c++', 'cc', 'h')
+        for l in body:
+            if l.strip() == marker.strip() or not l.strip():
+                inner.append('')
+            elif l.startswith(marker):
+                inner.append(l[len(marker):].lstrip(' ') if marker.strip()
+                             else l)
+            else:
+                ok = False
+                break
+        if ok and inner and looks_like_cpp(inner):
+            width = len(prefix.expandtabs(8))
+            code = '\n'.join(inner).strip('\n') + '\n'
+            new = format_code(code, clang_format, path, LIMIT - width)
+            same = cpp_tokens(new) == cpp_tokens(code) or \
+                cpp_tokens(new, '()') == cpp_tokens(code, '()')
+            if same:
+                body = [(prefix + l).rstrip() if l.strip()
+                        else marker.rstrip()
+                        for l in new.rstrip('\n').split('\n')]
+        out.append(lines[k])
+        out.extend(body)
+        out.append(lines[j])
+        k = j + 1
+    return '\n'.join(out)
+
+
+def format_text(text, clang_format='clang-format', path='file.h'):
+    if path.endswith('.dox'):
+        return format_doc_code(text, clang_format, path)
+    text = format_code(text, clang_format, path)
+    return format_doc_code(text, clang_format, path)
+
+
+# the characters that a formatting may add to the tokens of the code: the
+# parentheses of wrap_returns, and the // and * of a comment split in two
+LAYOUT_TOKENS = '()/*'
 
 
 def restrict(old, new, ranges):
     """new, with only the changes that touch the lines of old in ranges
-    (pairs of 1-based first and last lines) taken, and old elsewhere."""
+    (pairs of 1-based first and last lines) taken, and old elsewhere. A
+    change is taken only if the lines of new have the tokens of the lines
+    of old they replace: when the two texts are far apart (e.g., formatted
+    in another style), the diff may pair lines of different code, and
+    taking them would drop or repeat it."""
     import difflib
     a, b = old.split('\n'), new.split('\n')
     out = []
@@ -457,7 +568,9 @@ def restrict(old, new, ranges):
             out.extend(a[i1:i2])
             continue
         lo, hi = i1 + 1, max(i2, i1 + 1)
-        if any(lo <= r[1] and r[0] <= hi for r in ranges):
+        if (any(lo <= r[1] and r[0] <= hi for r in ranges) and
+                cpp_tokens('\n'.join(a[i1:i2]), LAYOUT_TOKENS) ==
+                cpp_tokens('\n'.join(b[j1:j2]), LAYOUT_TOKENS)):
             out.extend(b[j1:j2])
         else:
             out.extend(a[i1:i2])
@@ -485,6 +598,20 @@ def git_ranges(path, ref='HEAD'):
         if count:
             ranges.append((first, first + count - 1))
     return ranges
+
+
+def has_style(path):
+    """Whether a .clang-format is in the directory of path or above it:
+    without one, clang-format formats in a style of its own."""
+    import os
+    d = os.path.dirname(os.path.abspath(path))
+    while True:
+        if any(os.path.isfile(os.path.join(d, n))
+               for n in ('.clang-format', '_clang-format')):
+            return True
+        if os.path.dirname(d) == d:
+            return False
+        d = os.path.dirname(d)
 
 
 def generated(text):
@@ -517,7 +644,14 @@ def main(argv):
             files.append(a)
         k += 1
     changed = []
+    status = 0
     for path in files:
+        if not has_style(path):
+            print('format.py: no .clang-format in the directory of %s or '
+                  'above it, the file is left as it is' % path,
+                  file=sys.stderr)
+            status = 2
+            continue
         with open(path, encoding='latin-1') as f:
             text = f.read()
         if generated(text):
@@ -535,7 +669,7 @@ def main(argv):
                     f.write(new)
     for p in changed:
         print(p)
-    return 1 if check and changed else 0
+    return status or (1 if check and changed else 0)
 
 
 if __name__ == '__main__':

@@ -100,3 +100,6 @@ ehthumbs.db
 .directory
 .fuse_hidden*
 .nfs*
+
+# the bytecode of the Python scripts
+__pycache__/

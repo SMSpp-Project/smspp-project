@@ -28,7 +28,7 @@
 #   scripts/smspp-format --since origin/develop <files>                       #
 #                                                                             #
 # If the variable SMSPP_STYLE_TOKEN is set (a project access token, of the    #
-# role Reporter and with the scope api, masked), scripts/style-review.py      #
+# role Reporter and with the scope api, masked), scripts/style_review.py      #
 # also posts the changes on the merge request, as suggestions on its lines    #
 # that the author applies with one click, replacing the ones of the last      #
 # pipeline. A merge request that has to keep a layout of its own says so      #
@@ -52,7 +52,7 @@ style:
     - curl -fsSL "$STYLE_RAW/.clang-format" -o .clang-format
     - curl -fsSL "$STYLE_RAW/scripts/format.py" -o /tmp/format.py
     - curl -fsSL "$STYLE_RAW/scripts/cfgformat.py" -o /tmp/cfgformat.py
-    - curl -fsSL "$STYLE_RAW/scripts/style-review.py" -o /tmp/style-review.py
+    - curl -fsSL "$STYLE_RAW/scripts/style_review.py" -o /tmp/style_review.py
   script:
     - git fetch --quiet origin "$CI_MERGE_REQUEST_DIFF_BASE_SHA" || true
     - BASE="$CI_MERGE_REQUEST_DIFF_BASE_SHA"
@@ -81,7 +81,7 @@ style:
           xargs -a /tmp/cfg python3 /tmp/cfgformat.py > /dev/null
         fi
         git diff > style.patch
-        python3 /tmp/style-review.py style.patch "$BASE" || true
+        python3 /tmp/style_review.py style.patch "$BASE" || true
         echo "Apply the artifact style.patch of this job with"
         echo "  git apply style.patch"
         echo "or format them from the umbrella with"

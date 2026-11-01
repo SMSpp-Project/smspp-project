@@ -12,6 +12,7 @@
     "lemon-ng",
     "liblinear",
     "libsvm",
+    "minisat-master-keying",
     "msmpi",
     "netcdf-cxx4",
     "osqp",
@@ -19,6 +20,7 @@
     "proxsuite",
     "pthreads",
     "qpmad",
+    "quadprog",
     "qpoases",
     "stopt",
     "zlib"
@@ -45,12 +47,13 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "6d25a981da2f9c7c822bed6d73fa9d55bc68eb28",
+        "baseline": "80b6045514bad27b9bf3cedda2cebc67dd634d6f",
         "packages": [
           "daqp",
           "lemon-ng",
           "piqp",
-          "qpmad"
+          "qpmad",
+          "quadprog"
         ]
       }
     ]

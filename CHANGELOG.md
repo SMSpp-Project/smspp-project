@@ -17,9 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   makefiles of every module and then those of the tests, of the tools and
   of the experiments, which the nightly pipeline of GitLab runs as well
 
+- `scripts/format.py` formats also the C++ of the `\code` blocks of the
+  comments of Doxygen and of its pages (`.dox`), within the columns that the
+  prefix of the comment leaves, and breaks after a semicolon of a `for` a
+  line past 79 columns; restricted to the lines changed, it takes a change
+  only if the change keeps the tokens of the lines it replaces, so that a
+  file far from the style loses or repeats no code, and it leaves alone a
+  file with no `.clang-format` in its directory or above it
+
 - the check of the style of a merge request helps to meet it: its job keeps
   the changes that put the files in the style as the artifact `style.patch`,
-  and `scripts/style-review.py` posts them on the merge request as
+  and `scripts/style_review.py` posts them on the merge request as
   suggestions on its lines, when the variable `SMSPP_STYLE_TOKEN` of the
   pipeline holds a project access token; `scripts/pre-commit`, which
   `scripts/install-hooks` installs in the umbrella and in every submodule,
@@ -136,9 +144,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the default vcpkg registry through `vcpkg.json`, and `extlib` has
   `makefile-libqpOASES` and the default paths of `qpOASES_ROOT`
 
-- `extlib` has `makefile-libClarabel` and the default paths of
-  `Clarabel_ROOT` for `ClarabelMILPSolver`, whose C interface no package
-  manager carries and `INSTALL.sh` does not install, as it needs Rust
+- Clarabel, the solver of `ClarabelMILPSolver`, whose C interface no
+  package manager carries: `INSTALL.sh` (`--without-clarabel`) and
+  `INSTALL.ps1` (`-withoutClarabel`) build the one of its latest release
+  with cargo, installing Rust if it is missing, and `extlib` has
+  `makefile-libClarabel` and the default paths of `Clarabel_ROOT`
 
 - MOSEK 11, the commercial solver of `MOSEKMILPSolver`, which needs a
   license of its own (free for academic use): `INSTALL.sh` downloads the
@@ -162,17 +172,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   INSTALL.ps1 takes it from the SMS++ vcpkg registry through `vcpkg.json`,
   and `extlib` has `makefile-libqpmad` and the default paths of `qpmad_ROOT`
 
-- quadprog, the QP solver of `QuadProgMILPSolver`: being under the GPL, it
-  is installed only by `INSTALL.sh --with-quadprog`, on Linux and macOS,
-  which compiles its C sources from its latest tag into `libquadprog`, which
-  exports only `qpgen2_`; it is in no package, and `extlib` has
+- quadprog, the QP solver of `QuadProgMILPSolver`, under the GPL, so that a
+  MILPSolver built with it is too: `INSTALL.sh` compiles its C sources from
+  its latest tag into `libquadprog`, which exports only `qpgen2_`, on Linux
+  and macOS (`--without-quadprog`), `INSTALL.ps1` takes it from the SMS++
+  vcpkg registry through `vcpkg.json`, and `extlib` has
   `makefile-libquadprog` and the default paths of `quadprog_ROOT`
 
 ### Changed
 
-- `vcpkg.json` takes LEMON as `lemon-ng`, from the SMS++ vcpkg registry,
-  instead of `liblemon`, whose port downloads from a server that no longer
-  answers
+- `INSTALL.sh` and `INSTALL.ps1` bring up to date what they installed when
+  they run again: every dependency built from its repository goes to its
+  latest release (or to the head of its branch, for HiGHS, StOpt and
+  PIPS-IPM++) and is built again only when something changed, CaDiCaL and
+  MiniSat being no longer pinned to an old release, and Gurobi, MOSEK, SCIP
+  and Torch are installed again when the version asked for changes, the
+  version of an installation being kept in its `.smspp-version`; an error
+  during an update puts back the installation that was there, HiGHS is built
+  again with the same BLAS as when it was installed, and StOpt, which never
+  pulled, now does
+
+- the vcpkg manifest takes LEMON as lemon-ng from the vcpkg registry of
+  SMS++, and MiniSat as the port minisat-master-keying of the default
+  registry, so that SATBlock has `MiniSATSolver` on Windows too
+
+- the chapter of the manual on the methods factory gives the families of a
+  setter with its data in a span, `MS_sp_dbl_rngd` and the like, the
+  iterator ones being gone, and its example takes the method with
+  `get_method_fs()` and passes it a span
 
 - the nightly job of the C++20 modules builds them with the default of
   `SMSpp_BUILD_MODULE`, which turns them on with Clang [see
