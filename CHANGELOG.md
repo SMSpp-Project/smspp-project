@@ -167,6 +167,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `INSTALL.sh` installs Clarabel, building the C interface of its latest
+  release with cargo (`--without-clarabel` leaves it out), and brings the
+  dependencies it clones up to date when it runs again: `git_latest` moves a
+  clone to the latest release tag, or pulls its branch (HiGHS), and the
+  dependency is built again only when something changed; an error during an
+  update no longer removes the installation that was there, and HiGHS is
+  built again with the same BLAS as when it was installed
+
 - quadprog, the solver of `QuadProgMILPSolver`, is installed by default: by
   `INSTALL.sh` (`--without-quadprog` leaves it out, `--with-quadprog` is
   kept for the scripts that pass it) and, as the port quadprog of the vcpkg

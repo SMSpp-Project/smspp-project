@@ -27,6 +27,8 @@
 #     You can use the `--without-quadprog` option to skip the installation of
 #     quadprog, which is under the GPL, so that a MILPSolver built with it is
 #     too.
+#     You can use the `--without-clarabel` option to skip the installation of
+#     Clarabel, whose C interface is built with the Rust toolchain (cargo).
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
 #     You can use the `--without-lemon` option to skip the installation of LEMON.
@@ -82,6 +84,33 @@ cleanup_on_error() {
     rm -Rf "$CURRENT_INSTALL_FOLDER"
   fi
   exit 1
+}
+
+# Clone the repository $1 into the directory $2, or bring an existing clone
+# up to date, and say whether there is something new to build (exit status
+# 0) or not (1): with a pattern $3 (an extended regular expression) the
+# clone goes to the latest tag that matches it, e.g., the latest release,
+# otherwise it follows its branch, pulling what is new, as HiGHS does. Only a
+# new clone is marked as the folder that an error removes, so that a failed
+# update leaves the installation that was there.
+git_latest() {
+  local url=$1 dir=$2 pattern=${3:-} fresh=0 before after tag
+  if [ ! -d "$dir/.git" ]; then
+    CURRENT_INSTALL_FOLDER=$dir
+    git clone -q "$url" "$dir"
+    fresh=1
+  fi
+  before=$(git -C "$dir" rev-parse HEAD)
+  if [ -n "$pattern" ]; then
+    git -C "$dir" fetch -q --tags --force origin
+    tag=$(git -C "$dir" tag --sort=-v:refname | grep -E "$pattern" | head -1)
+    [ -n "$tag" ] && git -C "$dir" checkout -q "$tag"
+  elif [ "$fresh" -eq 0 ]; then
+    git -C "$dir" pull -q --ff-only
+  fi
+  git -C "$dir" submodule update -q --init --recursive
+  after=$(git -C "$dir" rev-parse HEAD)
+  [ "$fresh" -eq 1 ] || [ "$before" != "$after" ]
 }
 
 # Resolve where a dependency lives (Linux only): reuse an existing install under
@@ -400,18 +429,16 @@ EOL
   # Install HiGHS
   # HIPO=ON builds the HiPO interior point solver (HiGHS >= 1.14), which is
   # the only HiGHS solver able to handle convex QPs reliably; it needs a
-  # system BLAS.
+  # system BLAS. HiGHS follows its branch: a run pulls what is new and builds
+  # it again.
   if [ "$install_highs" -eq 1 ]; then
-    echo "Installing HiGHS..."
+    echo "Installing or updating HiGHS..."
     HiGHS_ROOT="$(resolve_dep_root HiGHS)"
-    CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q libopenblas-dev
     fi
-    if [ ! -d "$HiGHS_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/ERGO-Code/HiGHS.git
-      cd HiGHS
+    if git_latest https://github.com/ERGO-Code/HiGHS.git "$HiGHS_ROOT"; then
+      cd "$HiGHS_ROOT"
       # BLA_VENDOR routes CMake to the system libopenblas: Ubuntu's
       # OpenBLASConfig.cmake advertises a lib/libopenblas.so path that
       # does not exist
@@ -423,21 +450,7 @@ EOL
         ldconfig
       fi
     else
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        cd "$HiGHS_ROOT"
-        git remote update
-        LOCAL=$(git rev-parse @)
-        REMOTE=$(git rev-parse @{u})
-        # if the repository is not up to date
-        if [ "$LOCAL" != "$REMOTE" ]; then
-          git pull
-          cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-          cmake --build build -j "${MAX_JOBS}"
-          cmake --install build
-        else
-          echo "HiGHS already up to date."
-        fi
-      fi
+      echo "HiGHS already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -650,16 +663,12 @@ EOL
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
   # since the others have names (dot, axpy, ...) that other libraries export.
-  # It is under the GPL, hence it is installed only if asked.
+  # It is under the GPL, hence a MILPSolver built with it is too.
   if [ "$install_quadprog" -eq 1 ]; then
-    echo "Installing quadprog..."
+    echo "Installing or updating quadprog..."
     quadprog_ROOT="$(resolve_dep_root quadprog)"
-    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
-    if [ ! -d "$quadprog_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+    if git_latest https://github.com/quadprog/quadprog.git "$quadprog_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$quadprog_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       mkdir -p lib
       echo "{ global: qpgen2_; local: *; };" > lib/quadprog.map
       cc -O2 -fPIC -shared -Wl,--version-script=lib/quadprog.map \
@@ -670,7 +679,34 @@ EOL
         ldconfig
       fi
     else
-      echo "quadprog already installed."
+      echo "quadprog already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install Clarabel
+  # The C interface of Clarabel (Clarabel.cpp) at its latest release, whose
+  # library is built by cargo from the Rust solver it carries as a submodule;
+  # its CMake installs nothing, hence the headers are taken from its include
+  # directory and the library is copied into its lib directory.
+  if [ "$install_clarabel" -eq 1 ]; then
+    echo "Installing or updating Clarabel..."
+    Clarabel_ROOT="$(resolve_dep_root clarabel)"
+    if ! command -v cargo > /dev/null 2>&1 && [ "$HAS_SUDO" -eq 1 ]; then
+      apt-get install -y -q cargo
+    fi
+    if git_latest https://github.com/oxfordcontrol/Clarabel.cpp.git "$Clarabel_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$Clarabel_ROOT/rust_wrapper"
+      cargo build --release
+      mkdir -p "$Clarabel_ROOT/lib"
+      cp target/release/libclarabel_c.so "$Clarabel_ROOT/lib/"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${Clarabel_ROOT}/lib' > /etc/ld.so.conf.d/clarabel.conf"
+        ldconfig
+      fi
+    else
+      echo "Clarabel already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1059,35 +1095,21 @@ install_on_macos() {
   # HIPO=ON builds the HiPO interior point solver (HiGHS >= 1.14), which is
   # the only HiGHS solver able to handle convex QPs reliably; on macOS the
   # BLAS is the Accelerate framework, so no extra dependency is needed.
+  # HiGHS follows its branch: a run pulls what is new and builds it again.
   if [ "$install_highs" -eq 1 ]; then
-    echo "Installing HiGHS..."
+    echo "Installing or updating HiGHS..."
     HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
-    CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
-    if [ ! -d "$HiGHS_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/ERGO-Code/HiGHS.git
-      cd HiGHS
+    if git_latest https://github.com/ERGO-Code/HiGHS.git "$HiGHS_ROOT"; then
+      cd "$HiGHS_ROOT"
       cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      cd "$INSTALL_ROOT"
-      export PATH="${PATH}:${HiGHS_ROOT}/bin"
-      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
     else
-      cd "$HiGHS_ROOT"
-      LOCAL=$(git rev-parse @)
-      REMOTE=$(git rev-parse @{u})
-      # if the repository is not up to date
-      if [ "$LOCAL" != "$REMOTE" ]; then
-        git pull
-        cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-        cmake --build build -j "${MAX_JOBS}"
-        cmake --install build
-      else
-        echo "HiGHS already up to date."
-      fi
-      cd "$INSTALL_ROOT"
+      echo "HiGHS already up to date."
     fi
+    export PATH="${PATH}:${HiGHS_ROOT}/bin"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
+    cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
@@ -1283,23 +1305,45 @@ install_on_macos() {
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
   # since the others have names (dot, axpy, ...) that other libraries export.
-  # It is under the GPL, hence it is installed only if asked.
+  # It is under the GPL, hence a MILPSolver built with it is too.
   if [ "$install_quadprog" -eq 1 ]; then
-    echo "Installing quadprog..."
+    echo "Installing or updating quadprog..."
     quadprog_ROOT="${INSTALL_ROOT}/quadprog"
-    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
-    if [ ! -d "$quadprog_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+    if git_latest https://github.com/quadprog/quadprog.git "$quadprog_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$quadprog_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       mkdir -p lib
       cc -O2 -fPIC -dynamiclib -Wl,-exported_symbol,_qpgen2_ \
         -install_name "${quadprog_ROOT}/lib/libquadprog.dylib" \
         -o lib/libquadprog.dylib quadprog/solve.QP.c \
         quadprog/linear-algebra.c quadprog/qr-update.c
     else
-      echo "quadprog already installed."
+      echo "quadprog already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install Clarabel
+  # The C interface of Clarabel (Clarabel.cpp) at its latest release, whose
+  # library is built by cargo from the Rust solver it carries as a submodule,
+  # with the Rust of Homebrew; its CMake installs nothing, hence the headers
+  # are taken from its include directory and the library is copied into its
+  # lib directory, with its own path as its install name.
+  if [ "$install_clarabel" -eq 1 ]; then
+    echo "Installing or updating Clarabel..."
+    Clarabel_ROOT="${INSTALL_ROOT}/clarabel"
+    if ! command -v cargo > /dev/null 2>&1; then
+      brew install rust
+    fi
+    if git_latest https://github.com/oxfordcontrol/Clarabel.cpp.git "$Clarabel_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$Clarabel_ROOT/rust_wrapper"
+      cargo build --release
+      mkdir -p "$Clarabel_ROOT/lib"
+      cp target/release/libclarabel_c.dylib "$Clarabel_ROOT/lib/"
+      install_name_tool -id "${Clarabel_ROOT}/lib/libclarabel_c.dylib" \
+        "$Clarabel_ROOT/lib/libclarabel_c.dylib"
+    else
+      echo "Clarabel already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1396,6 +1440,7 @@ install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
 install_hpipm=${install_hpipm:-1}
 install_quadprog=${install_quadprog:-1}
+install_clarabel=${install_clarabel:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -1498,6 +1543,10 @@ do
     ;;
     --without-quadprog)
     install_quadprog=0
+    shift
+    ;;
+    --without-clarabel)
+    install_clarabel=0
     shift
     ;;
     --with-quadprog)  # the default now, kept for the scripts that pass it
@@ -1681,6 +1730,7 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
       [ -n "${HPIPM_ROOT:-}" ] && echo "HPIPM_ROOT = ${HPIPM_ROOT}"
       [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
+      [ -n "${Clarabel_ROOT:-}" ] && echo "Clarabel_ROOT = ${Clarabel_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"

@@ -242,8 +242,7 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `ClarabelMILPSolver`, providing the interface with the open-source
     interior-point solver [Clarabel](https://clarabel.org) (convex QP and LP
     problems with linear constraints, sparse, no integer variables), whose C
-    interface is built with a Rust toolchain and installed by hand [see the
-    README of MILPSolver]
+    interface `INSTALL.sh` builds with the Rust toolchain (cargo)
 
   - `ProxQPMILPSolver`, providing the interface with the open-source
     proximal augmented Lagrangian solver ProxQP of
@@ -542,6 +541,7 @@ according to the following options table:
 | `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
 | `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
 | `--without-quadprog` | *(via vcpkg)*   | skip quadprog (GPL) installation         |
+| `--without-clarabel` | *(not supported)* | skip Clarabel installation (needs cargo) |
 | `--without-hpipm`  | *(not supported)* | skip HPIPM (and BLASFEO) installation    |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
