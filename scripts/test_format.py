@@ -93,6 +93,39 @@ def dox_page():
         'Dijkstra<>::SetPredMap< NullMap< Node , Arc > >::Create' in out
 
 
+def restrict_keeps_code():
+    """A change that the diff pairs with lines of other code (here, the
+    lines b() and c() of the old text with c() alone) is not taken: the
+    lines restricted to drop or repeat no code."""
+    old = 'void f()\n{\n a();\n b();\n c();\n }\n'
+    new = 'void f()\n{\n  a();\n  c();\n}\n'
+    out = fmt.restrict(old, new, [(4, 5)])
+    return fmt.cpp_tokens(out, fmt.LAYOUT_TOKENS) == \
+        fmt.cpp_tokens(old, fmt.LAYOUT_TOKENS)
+
+
+def style_needed():
+    """A file with no .clang-format above it is not formatted."""
+    work = tempfile.mkdtemp()
+    try:
+        path = os.path.join(work, 'case.cpp')
+        with open(path, 'w') as f:
+            f.write('int f(int x){return x;}\n')
+        import contextlib
+        import io
+        with contextlib.redirect_stderr(io.StringIO()):
+            status = fmt.main([path])
+        if fmt.has_style(path) or status != 2:
+            return False
+        with open(path) as f:
+            if f.read() != 'int f(int x){return x;}\n':
+                return False
+        open(os.path.join(work, '.clang-format'), 'w').close()
+        return fmt.has_style(path)
+    finally:
+        shutil.rmtree(work)
+
+
 def generated_skipped():
     """A file that says it is generated is left as it is."""
     return fmt.generated('/* FILE GENERATED AUTOMATICALLY, DO NOT EDIT */\n') \
@@ -132,7 +165,16 @@ def run():
     else:
         failed += 1
         print('FAIL a generated file is left as it is')
-    print('%d of %d failed' % (failed, len(CASES) + 2))
+    for check, name in ((restrict_keeps_code, 'a change paired with other '
+                         'code is not taken'),
+                        (style_needed, 'a file with no .clang-format above '
+                         'it is left as it is')):
+        if check():
+            print('ok   %s' % name)
+        else:
+            failed += 1
+            print('FAIL %s' % name)
+    print('%d of %d failed' % (failed, len(CASES) + 4))
     return 1 if failed else 0
 
 

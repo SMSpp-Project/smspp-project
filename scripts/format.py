@@ -25,8 +25,9 @@ only those that touch the lines changed since HEAD, with --since REF the
 ones changed since REF (a file that git does not know is formatted
 whole), so that the code around is left as it is;
 with --check nothing is written, and the files that would change are
-listed, with exit status 1 if there are any. A .dox file only has its
-blocks of code formatted.
+listed, with exit status 1 if there are any. A file with no .clang-format
+in its directory or above it is left as it is, with exit status 2. A .dox
+file only has its blocks of code formatted.
 """
 
 import re
@@ -546,9 +547,18 @@ def format_text(text, clang_format='clang-format', path='file.h'):
     return format_doc_code(text, clang_format, path)
 
 
+# the characters that a formatting may add to the tokens of the code: the
+# parentheses of wrap_returns, and the // and * of a comment split in two
+LAYOUT_TOKENS = '()/*'
+
+
 def restrict(old, new, ranges):
     """new, with only the changes that touch the lines of old in ranges
-    (pairs of 1-based first and last lines) taken, and old elsewhere."""
+    (pairs of 1-based first and last lines) taken, and old elsewhere. A
+    change is taken only if the lines of new have the tokens of the lines
+    of old they replace: when the two texts are far apart (e.g., formatted
+    in another style), the diff may pair lines of different code, and
+    taking them would drop or repeat it."""
     import difflib
     a, b = old.split('\n'), new.split('\n')
     out = []
@@ -558,7 +568,9 @@ def restrict(old, new, ranges):
             out.extend(a[i1:i2])
             continue
         lo, hi = i1 + 1, max(i2, i1 + 1)
-        if any(lo <= r[1] and r[0] <= hi for r in ranges):
+        if (any(lo <= r[1] and r[0] <= hi for r in ranges) and
+                cpp_tokens('\n'.join(a[i1:i2]), LAYOUT_TOKENS) ==
+                cpp_tokens('\n'.join(b[j1:j2]), LAYOUT_TOKENS)):
             out.extend(b[j1:j2])
         else:
             out.extend(a[i1:i2])
@@ -586,6 +598,20 @@ def git_ranges(path, ref='HEAD'):
         if count:
             ranges.append((first, first + count - 1))
     return ranges
+
+
+def has_style(path):
+    """Whether a .clang-format is in the directory of path or above it:
+    without one, clang-format formats in a style of its own."""
+    import os
+    d = os.path.dirname(os.path.abspath(path))
+    while True:
+        if any(os.path.isfile(os.path.join(d, n))
+               for n in ('.clang-format', '_clang-format')):
+            return True
+        if os.path.dirname(d) == d:
+            return False
+        d = os.path.dirname(d)
 
 
 def generated(text):
@@ -618,7 +644,14 @@ def main(argv):
             files.append(a)
         k += 1
     changed = []
+    status = 0
     for path in files:
+        if not has_style(path):
+            print('format.py: no .clang-format in the directory of %s or '
+                  'above it, the file is left as it is' % path,
+                  file=sys.stderr)
+            status = 2
+            continue
         with open(path, encoding='latin-1') as f:
             text = f.read()
         if generated(text):
@@ -636,7 +669,7 @@ def main(argv):
                     f.write(new)
     for p in changed:
         print(p)
-    return 1 if check and changed else 0
+    return status or (1 if check and changed else 0)
 
 
 if __name__ == '__main__':
