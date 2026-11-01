@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/format.py` formats also the C++ of the `\code` blocks of the
+  comments of Doxygen and of its pages (`.dox`), within the columns that the
+  prefix of the comment leaves, and breaks after a semicolon of a `for` a
+  line past 79 columns
+
 - the check of the style of a merge request helps to meet it: its job keeps
   the changes that put the files in the style as the artifact `style.patch`,
-  and `scripts/style-review.py` posts them on the merge request as
+  and `scripts/style_review.py` posts them on the merge request as
   suggestions on its lines, when the variable `SMSPP_STYLE_TOKEN` of the
   pipeline holds a project access token; `scripts/pre-commit`, which
   `scripts/install-hooks` installs in the umbrella and in every submodule,

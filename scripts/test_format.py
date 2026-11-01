@@ -61,11 +61,36 @@ CASES = [
     ('the using-declarations keep their order',
      'struct S : B {\n using B::set_par;\n using B::get_dbl_par;\n};\n',
      [], []),
+    ('the C++ of a block of code of a comment formatted as the rest',
+     '/// An example:\n///\\code\n///  AddMap<M1,M2> am(m1,m2);\n'
+     '///  while (!q.empty()) {\n///    q.pop();\n///  }\n'
+     '///\\endcode\nint f();\n',
+     ['/// AddMap< M1 , M2 > am( m1 , m2 );\n',
+      '/// while( ! q.empty() ) {\n///  q.pop();\n'], []),
+    ('a block of code that is no C++ is left alone',
+     '///\\code\n///@nodes\n///label  coordinates\n///0  (20,100)\n'
+     '///\\endcode\nint f();\n',
+     ['///label  coordinates\n///0  (20,100)\n'], []),
+    ('a block of code with a token clang-format would change is left alone',
+     '///\\code\n///  std::cout << "a" <<\n///    << "b";\n'
+     '///\\endcode\nint f();\n',
+     ['///  std::cout << "a" <<\n'], ['< <']),
     ('a long string literal is not split',
      'void f() { g( "a string literal that is long enough to go past the '
      'limit of the line" ); }\n',
      [], ['" "']),
 ]
+
+
+def dox_page():
+    """A page of Doxygen has its blocks of code formatted, the text not."""
+    import tempfile as tf
+    src = ('/**\n\\page p A page\n\nSome text, with(odd , spacing).\n\n'
+           '\\code\nDijkstra<>::SetPredMap<NullMap<Node,Arc> >::Create\n'
+           '\\endcode\n*/\n')
+    out = fmt.format_text(src, path=os.path.join(HERE, 'page.dox'))
+    return 'Some text, with(odd , spacing).' in out and \
+        'Dijkstra<>::SetPredMap< NullMap< Node , Arc > >::Create' in out
 
 
 def generated_skipped():
@@ -97,12 +122,17 @@ def run():
                 print('ok   %s' % name)
     finally:
         shutil.rmtree(work)
+    if dox_page():
+        print('ok   a page of Doxygen has only its blocks of code formatted')
+    else:
+        failed += 1
+        print('FAIL a page of Doxygen has only its blocks of code formatted')
     if generated_skipped():
         print('ok   a generated file is left as it is')
     else:
         failed += 1
         print('FAIL a generated file is left as it is')
-    print('%d of %d failed' % (failed, len(CASES) + 1))
+    print('%d of %d failed' % (failed, len(CASES) + 2))
     return 1 if failed else 0
 
 

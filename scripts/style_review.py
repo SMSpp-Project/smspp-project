@@ -11,7 +11,7 @@ formatted whole) go together in one note, as a patch. The notes of the last
 run are deleted first, so that a merge request carries only the ones of its
 last pipeline; they are told by a marker in their body.
 
-Usage: style-review.py [--dry-run] PATCH BASE
+Usage: style_review.py [--dry-run] PATCH BASE
 The variables of a merge-request pipeline say where to post (CI_API_V4_URL,
 CI_PROJECT_ID, CI_MERGE_REQUEST_IID) and SMSPP_STYLE_TOKEN is the token of
 the user that posts (a project access token with the role Reporter and the
