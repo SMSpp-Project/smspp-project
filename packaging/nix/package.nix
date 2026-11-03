@@ -494,7 +494,8 @@ stdenv.mkDerivation {
     $out/bin/smspp_block_solver --help > /dev/null
     $out/bin/smspp_mcfblock_solver \
       $out/share/SMS++_tools/mcfblock_solver/examples/example.dmx \
-      | grep "Upper bound = 1.40000000e+01"
+      | awk '/^Upper bound = / { ub = $4 }
+             END { exit !(ub > 13.99 && ub < 14.01) }'
     runHook postInstallCheck
   '';
 

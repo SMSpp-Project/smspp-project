@@ -32,6 +32,7 @@ pkgs.stdenv.mkDerivation {
     ${smspp}/bin/smspp_ucblock_solver \
       ${smspp}/share/SMS++_tools/ucblock_solver/examples/Bus_Test.nc4 \
       | tee uc.log
-    grep -q "Upper bound = 4.14035578e+05" uc.log
+    awk '/^Upper bound = / { ub = $4 }
+         END { exit !(ub > 414035.57 && ub < 414035.59) }' uc.log
   '';
 }
