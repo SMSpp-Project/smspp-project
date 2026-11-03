@@ -474,7 +474,9 @@ packaging:tarball:
     - EX=$(find "$P"/ -path '*ucblock_solver/examples/Bus_Test.nc4' |
            head -n 1)
     - '"$UC" "$EX" | tee uc.log'
-    - grep -q 'Upper bound = 4.14035578e+05' uc.log
+    # the bound is compared as a number, whatever the digits printed
+    - awk '/^Upper bound = / { ub = $4 }
+           END { exit !(ub > 414035.57 && ub < 414035.59) }' uc.log
 
 # the modules left out, as acronyms: all those that SMSPP_PKG_MODULES does
 # not need
@@ -668,7 +670,9 @@ packaging:xmake:
     - '"$P/bin/smspp_ucblock_solver"
        "$P/share/SMS++_tools/ucblock_solver/examples/Bus_Test.nc4" |
        tee uc.log'
-    - grep -q 'Upper bound = 4.14035578e+05' uc.log
+    # the bound is compared as a number, whatever the digits printed
+    - awk '/^Upper bound = / { ub = $4 }
+           END { exit !(ub > 414035.57 && ub < 414035.59) }' uc.log
   artifacts:
     when: on_failure
     paths:

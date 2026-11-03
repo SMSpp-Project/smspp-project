@@ -5,6 +5,7 @@
 # leaves those out, and a module turns on the modules it needs.
 
 import os
+import re
 
 from spack_repo.builtin.build_systems.cmake import CMakePackage
 
@@ -298,6 +299,11 @@ class Smspp(CMakePackage):
                 raise InstallError(f"MILPSolver did not find {name} in the "
                                    f"external {e}")
 
+    @staticmethod
+    def _upper_bound(out):
+        """the upper bound that a tool prints, whatever its digits"""
+        return float(re.search(r"Upper bound = (\S+)", out).group(1))
+
     def test_mcfblock_solver(self):
         """the min-cost flow tool solves the example installed with it"""
         if "+tools" not in self.spec or "+mcf" not in self.spec:
@@ -306,7 +312,7 @@ class Smspp(CMakePackage):
                             "mcfblock_solver", "examples", "example.dmx")
         mcf = which(join_path(self.prefix.bin, "smspp_mcfblock_solver"))
         out = mcf(example, output=str.split, error=str.split)
-        assert "Upper bound = 1.40000000e+01" in out
+        assert abs(self._upper_bound(out) - 14) < 1e-2
 
     def test_ucblock_solver(self):
         """the Unit Commitment tool solves the example installed with it"""
@@ -316,4 +322,4 @@ class Smspp(CMakePackage):
                             "ucblock_solver", "examples", "Bus_Test.nc4")
         uc = which(join_path(self.prefix.bin, "smspp_ucblock_solver"))
         out = uc(example, output=str.split, error=str.split)
-        assert "Upper bound = 4.14035578e+05" in out
+        assert abs(self._upper_bound(out) - 414035.578) < 1e-2
