@@ -716,8 +716,8 @@ packaging:vcpkg:
          "smspp[core,tools,$SMSPP_PKG_MODULES]"
          --overlay-ports=/tmp/ports --downloads-root=/tmp/dl
          --x-install-root=/tmp/vcpkg-installed
-         --triplet=x64-linux-dynamic --host-triplet=x64-linux-dynamic)
-    - P=/tmp/vcpkg-installed/x64-linux-dynamic
+         --triplet=x64-linux --host-triplet=x64-linux)
+    - P=/tmp/vcpkg-installed/x64-linux
     - !reference [.packaging:check, script]
 
 # Homebrew, on macOS, with the formula of the tap of the project
