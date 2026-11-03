@@ -809,9 +809,10 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
 conduct, and the process for submitting merge requests to us. To contribute
 to the individual projects, see the Contribute section for those. The code
 and the configurations follow a style that the pipeline of every merge
-request checks, and `scripts/smspp-format` applies (see CONTRIBUTING.md and
-the page [Code style](https://gitlab.com/smspp/smspp-project/-/wikis/Code-style)
-of the wiki, which also says how to install the hook of git that checks a
+request checks, and `scripts/smspp-format` applies with the formatters of
+the submodule `scripts/code-style` (see CONTRIBUTING.md and the page
+[Code style](https://gitlab.com/smspp/smspp-project/-/wikis/Code-style) of
+the wiki, which also says how to install the hook of git that checks a
 commit of SMS++ before it is made).
 
 Contributing entirely new subprojects, i.e., either new `:Block` for your
