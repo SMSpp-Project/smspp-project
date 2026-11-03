@@ -132,9 +132,9 @@ ROOT_VAR = {
 }
 
 # the solvers that are never packaged: PIPS-IPM++, the C interface of
-# Clarabel and HPIPM are in no package, quadprog is under the GPL and Torch
-# is not wanted in a package
-NEVER = ["PIPS", "Clarabel", "quadprog", "HPIPM", "Torch"]
+# Clarabel, HPIPM and PERMON are in no package, quadprog is under the GPL
+# and Torch is not wanted in a package
+NEVER = ["PIPS", "Clarabel", "quadprog", "HPIPM", "PERMON", "Torch"]
 
 # the solvers that are not redistributable, which a package never carries
 # but which the recipes of Conan, Spack and Nix can build against a local

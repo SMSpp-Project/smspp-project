@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- PERMON and PETSc, the QP solvers of `PERMONMILPSolver` and the library
+  they are built on: `INSTALL.sh` builds PERMON from its latest release and
+  PETSc of the version it follows, sequential, into the same directory, only
+  if asked (`--with-permon`), since PETSc is large, INSTALL.ps1 says that
+  they are not installed on Windows, `extlib` has `makefile-libPERMON` and
+  the default paths of `PERMON_ROOT`, and the packages never take them,
+  being in no channel
+
 - `scripts/format.py` formats also the C++ of the `\code` blocks of the
   comments of Doxygen and of its pages (`.dox`), within the columns that the
   prefix of the comment leaves, and breaks after a semicolon of a `for` a

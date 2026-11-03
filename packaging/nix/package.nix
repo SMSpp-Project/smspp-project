@@ -262,7 +262,7 @@ let
     }
   ];
   # the solvers that are never packaged
-  never = [ "PIPS" "Clarabel" "quadprog" "HPIPM" "Torch" ];
+  never = [ "PIPS" "Clarabel" "quadprog" "HPIPM" "PERMON" "Torch" ];
   # the solvers that are not redistributable: CMake name and
   # variable of the installation
   local = {

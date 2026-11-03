@@ -65,6 +65,7 @@ osqp_ROOT = /opt/osqp
 qpmad_ROOT = /opt/qpmad
 quadprog_ROOT = /opt/quadprog
 HPIPM_ROOT = /opt/hpipm
+PERMON_ROOT = /opt/permon
 PIPSIPMPP_ROOT = /opt/pips-ipmpp
 StOpt_ROOT = /opt/StOpt
 FastFlow_ROOT = /opt/fastflow
