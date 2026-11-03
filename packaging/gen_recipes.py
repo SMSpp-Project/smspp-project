@@ -437,8 +437,8 @@ package() {{
 
 # ----- MSYS2 -------------------------------------------------------------- #
 # the packages are mingw-w64-<arch>-<name>; StOpt, LEMON, CaDiCaL, MiniSat,
-# libsvm, liblinear and SCIP are not in MSYS2, so SDDPBlock, InvestmentBlock
-# and MCFLemonSolver are left out and SATBlock and SVMBlock come without the
+# libsvm, liblinear and SCIP are not in MSYS2, so SDDPBlock and
+# MCFLemonSolver are left out and SATBlock and SVMBlock come without the
 # solvers they wrap
 
 MSYS2 = {

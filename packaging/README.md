@@ -76,8 +76,8 @@ backends of its packages, differ somewhat from channel to channel:
 | libsvm, liblinear (SVMBlock) | libsvm | no | yes | yes | no | libsvm |
 
 where "ours" is a recipe of this directory. A module whose required dependency
-is missing is left out of the channel (SDDPBlock, InvestmentBlock and
-MCFLemonSolver in MSYS2), while a missing optional one only takes away the
+is missing is left out of the channel (SDDPBlock and MCFLemonSolver in
+MSYS2), while a missing optional one only takes away the
 Solvers that wrap it (e.g., SATBlock and SVMBlock are built without their
 solvers). OSQP is left out of the AUR package, since the static library of the
 Arch package, which MILPSolver prefers, is made of slim LTO objects that a
