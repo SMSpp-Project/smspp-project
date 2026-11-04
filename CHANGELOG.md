@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/format.py` spaces the arguments of a template in the code within
+  the prose of the comments of Doxygen and of its pages, as in the code
+  (e.g., `GR::EdgeMap< bool >` in the text of `\ref`, after `\c` or `\p`, in
+  `<tt>`, `<code>` and backticks), so that the check of the style of a merge
+  request holds the documentation to the convention of the code
+
 ### Changed
 
 - `MCFLemonSolver` needs [abLEMON](https://github.com/dmeoli/abLEMON) 1.7.0
