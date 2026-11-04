@@ -73,7 +73,7 @@ makedepends=(
   minisat
   highs
   scip
-  coin-or-lemon
+  ablemon>=1.7.0
 )
 # link-time optimization of a code base this large is a memory sink
 options=('!lto')
@@ -313,8 +313,8 @@ package_libsmspp-mcfclass() {
 }
 
 package_libsmspp-mcflemon() {
-  pkgdesc="SMS++: Min-cost flow Solvers of LEMON"
-  depends=(libsmspp-mcf coin-or-lemon)
+  pkgdesc="SMS++: Min-cost flow Solvers of abLEMON"
+  depends=(libsmspp-mcf ablemon>=1.7.0)
   DESTDIR="$pkgdir" cmake --install build/MCFLemonSolver
 }
 

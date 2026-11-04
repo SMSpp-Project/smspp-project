@@ -1,0 +1,39 @@
+# Maintainer: Donato Meoli <donato.meoli.95@gmail.com>
+#
+# Written by packaging/gen_recipes.py of the SMS++ umbrella from its
+# packaging/modules.py: edit those, not this file.
+
+pkgname=ablemon
+pkgver=1.7.0
+pkgrel=1
+pkgdesc="Maintained fork of LEMON, a C++ library of graphs and networks"
+arch=('x86_64' 'aarch64')
+url="https://github.com/dmeoli/abLEMON"
+license=('BSL-1.0 AND BSD-3-Clause')
+makedepends=(cmake)
+_tarball=abLEMON-$pkgver.tar.gz
+source=("$_tarball::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('6ca9da3d115557c2dc914f58f3dbcdb2186808ed98c92a306160b1dc7b4d50ee')
+
+build() {
+  cmake -S abLEMON-$pkgver -B build \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=ON \
+    -DLEMON_VERSION=$pkgver \
+    -DLEMON_BUILD_TESTS=OFF \
+    -DLEMON_BUILD_DEMOS=OFF \
+    -DLEMON_BUILD_TOOLS=OFF \
+    -DLEMON_BUILD_DOC=OFF \
+    -DLEMON_ENABLE_GLPK=OFF \
+    -DLEMON_ENABLE_ILOG=OFF \
+    -DLEMON_ENABLE_COIN=OFF \
+    -DLEMON_ENABLE_SOPLEX=OFF
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 abLEMON-$pkgver/LICENSE \
+    -t "$pkgdir/usr/share/licenses/$pkgname"
+}
