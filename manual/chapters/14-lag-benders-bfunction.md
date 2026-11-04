@@ -172,7 +172,7 @@ generic `:Solver` on $(B)$, and maintains the linearization pools.
 
 It also maps changes in its inner `Block` $(B)$ into the
 `FunctionMod*` types of [§13.3](13-function-family.md#sec-13-3), with the same reoptimization
-intent described for `LagBFunction` above. **At version 0.7.0,
+intent described for `LagBFunction` above. **At version 0.7.1,
 however, the `BendersBFunction` translation is more limited than
 `LagBFunction`'s**: fewer kinds of inner change are mapped to the
 fine-grained, directionally-typed `FunctionMod`s that would let an

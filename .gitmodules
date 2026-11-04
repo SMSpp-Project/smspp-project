@@ -91,7 +91,20 @@
 [submodule "MultiKnapsackAssignBlock"]
 	path = MultiKnapsackAssignBlock
 	url = ../multiknapsackassignblock.git
+[submodule "SubGradSolver"]
+	path = SubGradSolver
+	url = ../subgradsolver.git
 [submodule "experiments"]
 	path = experiments
 	url = https://gitlab.com/smspp-develop/experiments.git
 	update = none
+[submodule "HQPBlock"]
+	path = HQPBlock
+	url = ../hqpblock.git
+[submodule "BDMinQuadSolver"]
+	path = BDMinQuadSolver
+	url = ../bdminquadsolver.git
+	update = none
+[submodule "scripts/code-style"]
+	path = scripts/code-style
+	url = https://github.com/dmeoli/code-style.git

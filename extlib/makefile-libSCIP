@@ -11,6 +11,7 @@
 #                                                                            #
 #           $(libSCIPLIB) = external libraries + -L< libdirs > for libSCIP   #
 #           $(libSCIPINC) = the -I$(include directories) for libSCIP         #
+#           $(SCIP_PRESENT) = non-empty if and only if scip.h is there       #
 #                                                                            #
 #                              Antonio Frangioni                             #
 #                          Dipartimento di Informatica                       #
@@ -29,8 +30,11 @@ ifeq ($(UNAME_S),Linux)
     libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -lscip -ltbb
 endif
 ifeq ($(UNAME_S),Darwin)
-    libSCIPLIB = -rpath "$(libSCIPBSCDIR)/lib" -L"$(libSCIPBSCDIR)/lib" -lscip -ltbb
+    libSCIPLIB = -rpath "$(libSCIPBSCDIR)/lib" -L"$(libSCIPBSCDIR)/lib" \
+	-lscip -ltbb
 endif
 libSCIPINC = -I"$(libSCIPBSCDIR)/include"
+
+SCIP_PRESENT := $(wildcard $(libSCIPBSCDIR)/include/scip/scip.h)
 
 ######################### End of makefile-libSCIP ############################

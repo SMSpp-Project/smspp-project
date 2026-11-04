@@ -1,42 +1,60 @@
 /*
- * This stylesheet contains only the customizations,
- * it gets loaded after Doxygen default CSS.
- * See HTML_EXTRA_STYLESHEET in Doxyfile.
+ * What the Doxygen site of SMS++ changes in doxygen-awesome-css, loaded
+ * after it [see HTML_EXTRA_STYLESHEET in the Doxyfile].
  */
 
-body, table, div, p, dl {
-    font-family: -apple-system, Roboto, sans-serif;
-    color: #2c3e50;
+/* the content as wide as on the Sphinx site [see sphinx/_static/smspp.css],
+   where the formulae and the signatures of the API need it */
+html {
+    --content-maxwidth: 1300px;
 }
 
-div.header {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+/* the logo and the title in the side panel, which has the width that
+   doxygen-awesome-sidebar-only.css wants: the logo smaller and the title
+   on two lines, or they would be cut */
+#projectlogo img {
+    max-width: 120px;
+    height: auto;
 }
 
-div.contents {
-    padding: .7rem 1.5rem;
+#projectname {
+    white-space: normal;
 }
 
-.fragment, pre.fragment, div.fragment {
-    color: #fff;
-    padding: 1.25rem 1.5rem;
-    margin: 1.25rem 1.5rem;
-    background-color: #282c34;
-    border-radius: 6px;
-    font-family: Monaco, Andale Mono, Ubuntu Mono, monospace;
+/* a display formula wider than the page scrolls in its own box, and does
+   not spill over the margin */
+mjx-container[display="true"] {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-div.line {
-    color: #fff;
-    font-family: Monaco, Andale Mono, Ubuntu Mono, monospace;
-    line-height: 1.5;
+/* the types of the members on more lines where they are long, in a column
+   of a quarter of the table: kept on one line, the longest type (e.g., an
+   std::enable_if_t of a boost::multi_array) widens the column for every
+   member of the table and pushes the names out of the page */
+table.memberdecls td.memItemLeft,
+table.memberdecls td.mdescLeft {
+    width: 25%;
+    white-space: normal;
 }
 
-#titlearea {
-    padding: 3rem 1.5rem 0.7rem;
+/* the title of a group of members in the colours of the theme, light or
+   dark, in place of the white shadow and the fixed blue of doxygen.css */
+div.groupHeader {
+    box-shadow: none;
+    color: var(--page-foreground-color);
+    border-bottom: 1px solid var(--separator-color);
+    padding-bottom: 4px;
 }
 
-#projectbrief {
-    color: #6a8bad;
+/* the entries of the outline on the right on more lines, where the types
+   of the parameters of the overloads make them wider than the panel */
+#page-nav-contents div.item {
+    white-space: normal;
+}
+
+#page-nav-contents div.item > a {
+    display: inline;
+    overflow-wrap: anywhere;
 }

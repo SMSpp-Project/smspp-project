@@ -23,7 +23,7 @@
 #             entry names one of the files it touches or enough of the words  #
 #             of its subject [see --overlap].                                 #
 #                                                                             #
-#   links     rewrites the link references of every CHANGELOG from its own     #
+#   links     rewrites the link references of every CHANGELOG from its own    #
 #             releases, each version comparing against the one below it and   #
 #             the oldest pointing at its tag, so that they are all there and  #
 #             all right; without -w it only says what would change.           #

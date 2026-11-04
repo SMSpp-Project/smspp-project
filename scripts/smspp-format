@@ -1,0 +1,15 @@
+#!/bin/bash
+# Formats the files given in the style of SMS++: code-format of the
+# submodule scripts/code-style, which formats the C++ sources (in the style
+# of its .clang-format and format.py) and hands the .txt configurations to
+# scripts/cfgformat.py, as the .code-format at the root of the umbrella
+# says. The options (--check, --git, --since REF, --lines A:B) are those of
+# code-format; a configuration is always formatted whole.
+here=$(dirname "$(readlink -f "$0")")
+fmt=$here/code-style/code-format
+if [ ! -f "$fmt" ] ; then
+  echo "smspp-format: scripts/code-style is not there; run" >&2
+  echo "  git submodule update --init scripts/code-style" >&2
+  exit 2
+fi
+exec python3 "$fmt" "$@"

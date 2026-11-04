@@ -53,9 +53,21 @@ COMBO_ROOT = /Library/combo
 CPLEX_ROOT = /Applications/CPLEX_Studio
 SCIP_ROOT = /Library/scip
 GUROBI_ROOT = /Library/gurobi
+MOSEK_ROOT = /Library/mosek
 HiGHS_ROOT = /Library/HiGHS
+DAQP_ROOT = /Library/daqp
+PBeFS_ROOT = /Library/PBeFS
+qpOASES_ROOT = /Library/qpOASES
+Clarabel_ROOT = /Library/clarabel
+proxsuite_ROOT = /Library/proxsuite
+piqp_ROOT = /Library/piqp
+osqp_ROOT = /Library/osqp
+qpmad_ROOT = /Library/qpmad
+quadprog_ROOT = /Library/quadprog
+HPIPM_ROOT = /Library/hpipm
 StOpt_ROOT = /Library/StOpt
 FastFlow_ROOT = /Library/fastflow
+OpenMP_ROOT = /opt/homebrew/opt/libomp
 Torch_ROOT = /Library/torch
 
 #################### End of makefile-default-paths-macos #####################

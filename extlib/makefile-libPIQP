@@ -1,0 +1,51 @@
+##############################################################################
+############################## makefile-libPIQP ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libPIQP                                                      #
+#                                                                            #
+#   Input:  $(piqp_ROOT), the directory where PIQP is installed, i.e., the   #
+#           headers are in $(piqp_ROOT)/include/piqp and the library, if     #
+#           any, is in $(piqp_ROOT)/lib                                      #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libPIQPLIB) = external libraries + -L< libdirs > for libPIQP   #
+#           $(libPIQPINC) = the -I$(include directories) for libPIQP         #
+#                                                                            #
+#   If PIQP has been built with its common templates instantiated in the     #
+#   library libpiqp (the default), the code is compiled against it;          #
+#   otherwise PIQP is used header-only, and $(libPIQPLIB) is empty. It       #
+#   needs Eigen, whose -I is in $(SMS++INC).                                 #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic PIQP directory without quotes, if any
+libPIQPBSCDIR = $(subst $\",,$(piqp_ROOT))
+
+# non-empty if and only if the compiled library of PIQP is there
+libPIQPSO = $(wildcard $(libPIQPBSCDIR)/lib/libpiqp.*)
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libPIQPINC = -I"$(libPIQPBSCDIR)/include"
+
+ifneq ($(libPIQPSO),)
+    libPIQPINC += -DPIQP_WITH_TEMPLATE_INSTANTIATION
+    ifeq ($(UNAME_S),Linux)
+        libPIQPLIB = -L"$(libPIQPBSCDIR)/lib" \
+	-Wl,-rpath,"$(libPIQPBSCDIR)/lib" -lpiqp
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        libPIQPLIB = -rpath "$(libPIQPBSCDIR)/lib" \
+	-L"$(libPIQPBSCDIR)/lib" -lpiqp
+    endif
+endif
+
+######################## End of makefile-libPIQP #############################

@@ -8,7 +8,7 @@
 #       ref: develop                                                          #
 #       file: /ci/changelog.yml                                               #
 #                                                                             #
-# and gets one job, in the .pre stage that every pipeline has, which fetches  #
+# and gets one job, in the build stage that every module has, which fetches   #
 # the `changelog` of the umbrella and runs it on the module alone:            #
 #                                                                             #
 #   - `check` holds the CHANGELOG to the format: the sections of Keep a       #
@@ -22,10 +22,18 @@
 #                                                                             #
 # A commit that changes nothing worth telling says so in its message, with    #
 # [skip changelog] anywhere in it, and the job does not run.                  #
+#                                                                             #
+# The job is in the build stage, started at once by `needs: []`, and not in   #
+# .pre, because GitLab creates no pipeline whose jobs are all in .pre or      #
+# .post: a commit that touches only the CHANGELOG, for which the build and    #
+# the test of a module are skipped by their `changes`, would get no pipeline  #
+# at all, and a broken CHANGELOG would show only at the next commit to the    #
+# code.                                                                       #
 # --------------------------------------------------------------------------- #
 
 changelog:
-  stage: .pre
+  stage: build                         # not .pre [see above]
+  needs: []
   image: alpine
   variables:
     GIT_DEPTH: 0                       # the tags, which the links name

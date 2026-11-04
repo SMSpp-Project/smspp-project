@@ -10,6 +10,8 @@
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #           $(libHiGHSLIB) = external libraries + -L< libdirs > for libHiGHS #
 #           $(libHiGHSINC) = the -I$(include directories) for libHiGHS       #
+#           $(HiGHS_PRESENT) = non-empty if and only if Highs.h is in one    #
+#                              of them                                       #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                             Enrico Calandrini                              #
@@ -46,8 +48,10 @@ libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 
 ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
-    libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
-	    -I"$(libHiGHSBSCDIR)/highs" -I"$(libHiGHSBSCDIR)/highs/interfaces" \
+    libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" \
+	    -I"$(libHiGHSBSCDIR)/src/interfaces" \
+	    -I"$(libHiGHSBSCDIR)/highs" \
+	    -I"$(libHiGHSBSCDIR)/highs/interfaces" \
 	    -I"$(libHiGHSBSCDIR)/build" -I"$(libHiGHSBSCDIR)/include/highs"
 else
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/lib
@@ -61,5 +65,8 @@ endif
 ifeq ($(UNAME_S),Darwin)
     libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -L"$(libHiGHSLIBBSC)" -lhighs
 endif
+
+HiGHS_PRESENT := $(firstword $(wildcard $(addsuffix /Highs.h,\
+	$(subst $\",,$(patsubst -I%,%,$(libHiGHSINC))))))
 
 ######################## End of makefile-libHiGHS ############################

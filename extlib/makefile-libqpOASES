@@ -1,0 +1,42 @@
+##############################################################################
+############################ makefile-libqpOASES #############################
+##############################################################################
+#                                                                            #
+#   makefile of libqpOASES                                                   #
+#                                                                            #
+#   Input:  $(qpOASES_ROOT), the directory where qpOASES is installed, i.e., #
+#           the header qpOASES.hpp is in $(qpOASES_ROOT)/include (the        #
+#           others in $(qpOASES_ROOT)/include/qpOASES) and the library is    #
+#           in $(qpOASES_ROOT)/lib                                           #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libqpOASESLIB) = external libraries + -L< libdirs > for        #
+#                              libqpOASES                                    #
+#           $(libqpOASESINC) = the -I$(include directories) for libqpOASES   #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic qpOASES directory without quotes, if any
+libqpOASESBSCDIR = $(subst $\",,$(qpOASES_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libqpOASESINC = -I"$(libqpOASESBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libqpOASESLIB = -L"$(libqpOASESBSCDIR)/lib" \
+	-Wl,-rpath,"$(libqpOASESBSCDIR)/lib" -lqpOASES
+endif
+ifeq ($(UNAME_S),Darwin)
+    libqpOASESLIB = -rpath "$(libqpOASESBSCDIR)/lib" \
+	-L"$(libqpOASESBSCDIR)/lib" -lqpOASES
+endif
+
+####################### End of makefile-libqpOASES ###########################

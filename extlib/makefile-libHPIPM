@@ -1,0 +1,41 @@
+##############################################################################
+############################# makefile-libHPIPM ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libHPIPM                                                     #
+#                                                                            #
+#   Input:  $(HPIPM_ROOT), the directory where HPIPM and BLASFEO, the        #
+#           linear algebra it is built on, are installed, i.e., their        #
+#           headers are in $(HPIPM_ROOT)/include and their libraries in      #
+#           $(HPIPM_ROOT)/lib                                                #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libHPIPMLIB) = external libraries + -L< libdirs > for libHPIPM #
+#           $(libHPIPMINC) = the -I$(include directories) for libHPIPM       #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic HPIPM directory without quotes, if any
+libHPIPMBSCDIR = $(subst $\",,$(HPIPM_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libHPIPMINC = -I"$(libHPIPMBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libHPIPMLIB = -L"$(libHPIPMBSCDIR)/lib" \
+	-Wl,-rpath,"$(libHPIPMBSCDIR)/lib" -lhpipm -lblasfeo -lm
+endif
+ifeq ($(UNAME_S),Darwin)
+    libHPIPMLIB = -rpath "$(libHPIPMBSCDIR)/lib" -L"$(libHPIPMBSCDIR)/lib" \
+	-lhpipm -lblasfeo
+endif
+
+######################## End of makefile-libHPIPM ############################

@@ -10,7 +10,7 @@
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #                                                                            #
-#           $(libNtCDFINC) = the -I$(include directories) for NetCDF	     #
+#           $(libNtCDFINC) = the -I$(include directories) for NetCDF         #
 #           $(libNtCDFLIB) = external libraries + -L< libdirs > for NetCDF   #
 #                                                                            #
 #                             Antonio Frangioni                              #

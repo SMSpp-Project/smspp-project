@@ -2,7 +2,7 @@
 
 *Internal document for whoever (human or AI assistant) maintains this
 manual. It is deliberately excluded from the MkDocs site and from the
-PDF build. Last updated 2026-10-12, for SMS++ **0.7.0**.*
+PDF build. Last updated 2026-11-03, for SMS++ **0.7.1**.*
 
 Read this first. It captures what the manual is, the rules it was
 written by, how it is built and deployed, and the traps already hit so
@@ -13,7 +13,7 @@ they are not re-hit.
 ## 1. What this is
 
 A user manual for **SMS++** (open-source C++-20 framework for
-structured optimization), version **0.7.0** (October 2026). Audience:
+structured optimization), version **0.7.1** (November 2026). Audience:
 algorithm developers, `:Block`/`:Solver` authors, and sophisticated end
 users who already write C++-20. It is a *companion* to the Doxygen API
 reference and the project Wiki, not a replacement.

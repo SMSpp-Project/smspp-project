@@ -1,0 +1,38 @@
+##############################################################################
+############################ makefile-libquadprog ############################
+##############################################################################
+#                                                                            #
+#   makefile of libquadprog                                                  #
+#                                                                            #
+#   Input:  $(quadprog_ROOT), the directory where quadprog is installed,     #
+#           i.e., the library compiled from its sources by INSTALL.sh is in  #
+#           $(quadprog_ROOT)/lib; quadprog has no header                     #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libquadprogLIB) = external libraries + -L< libdirs > for       #
+#                               libquadprog                                  #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic quadprog directory without quotes, if any
+libquadprogBSCDIR = $(subst $\",,$(quadprog_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ifeq ($(UNAME_S),Linux)
+    libquadprogLIB = -L"$(libquadprogBSCDIR)/lib" \
+	-Wl,-rpath,"$(libquadprogBSCDIR)/lib" -lquadprog
+endif
+ifeq ($(UNAME_S),Darwin)
+    libquadprogLIB = -rpath "$(libquadprogBSCDIR)/lib" \
+	-L"$(libquadprogBSCDIR)/lib" -lquadprog
+endif
+
+###################### End of makefile-libquadprog ###########################

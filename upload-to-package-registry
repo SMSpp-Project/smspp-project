@@ -27,7 +27,7 @@
 #                                                                             #
 # The version is the one the CMakeLists.txt of the module downloads (its      #
 # DATA_VERSION), and the data/upload-* script of the module passes it. A      #
-# published version is never replaced, so that whoever has downloaded it     #
+# published version is never replaced, so that whoever has downloaded it      #
 # keeps the same data: new data need a new version, and the script refuses    #
 # one that is already there. The same file also replaces `latest`, which is   #
 # what the modules that do not name a version yet still download.             #

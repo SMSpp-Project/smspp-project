@@ -1,19 +1,27 @@
 {
   "name": "smspp",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "dependencies": [
     "boost",
     "boost-mpi",
     "bzip2",
+    "daqp",
     "eigen3",
     "getopt",
     "highs",
-    "liblemon",
+    "lemon-ng",
     "liblinear",
     "libsvm",
+    "minisat-master-keying",
     "msmpi",
     "netcdf-cxx4",
+    "osqp",
+    "piqp",
+    "proxsuite",
     "pthreads",
+    "qpmad",
+    "quadprog",
+    "qpoases",
     "stopt",
     "zlib"
   ],
@@ -34,6 +42,18 @@
         "baseline": "b1c4b10ee58fad9b2f60b40c8ffd04cf10fabbdf",
         "packages": [
           "stopt"
+        ]
+      },
+      {
+        "kind": "git",
+        "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
+        "baseline": "36c3e594eaec772ddc207b9e2d96bb3f36bb8e0e",
+        "packages": [
+          "daqp",
+          "lemon-ng",
+          "piqp",
+          "qpmad",
+          "quadprog"
         ]
       }
     ]

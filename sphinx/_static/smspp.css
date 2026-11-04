@@ -1,0 +1,50 @@
+/* ------------------------------------------------------------------------
+   smspp.css: what the site of SMS++ changes in the theme of Read the Docs
+   ------------------------------------------------------------------------ */
+
+/* the content as wide as the formulae and the signatures of the API need:
+   at 1300 pixels 1 display formula in 253 and 65 signatures in 6916 of the
+   core and of UCBlock are still wider (800, the default of the theme, cuts
+   27 and 686), and the signatures longer than
+   maximum_signature_line_length go one parameter per line anyway */
+.wy-nav-content {
+    max-width: 1300px;
+}
+
+/* the content in the middle of the room the menu leaves, on a screen
+   wider than the menu and the content, instead of against the menu */
+.wy-nav-content {
+    margin: 0 auto;
+}
+
+/* a display formula wider than the page scrolls in its own box, and does
+   not spill over the margin */
+mjx-container[display="true"],
+div.math {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* the names in the signatures, which the dark theme leaves black */
+html[data-theme="dark"] .rst-content dl .sig-name,
+html[data-theme="dark"] .rst-content dl .sig-name * {
+    color: #e6e6e6 !important;
+}
+
+/* the signatures of the members, which the dark theme leaves on the light
+   grey of the light one (whose selector, made of many :not(), outweighs
+   its own), under the names coloured above */
+html[data-theme="dark"] .rst-content dl.cpp dt {
+    background: #2b2b2b !important;
+    color: #d0d0d0 !important;
+    border-color: #555555 !important;
+}
+
+/* the cells of the tables on more lines: the theme keeps them on one, so
+   that the descriptions of the modules, the headers and the classes run
+   out of the page and have to be scrolled */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+    white-space: normal;
+}

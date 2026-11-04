@@ -1,0 +1,42 @@
+##############################################################################
+############################# makefile-libPBeFS ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libPBeFS                                                     #
+#                                                                            #
+#   Input:  $(PBeFS_ROOT), the directory where PBeFS is                      #
+#           installed, i.e., the headers are in                              #
+#           $(PBeFS_ROOT)/include/PBeFS and the library is in                #
+#           $(PBeFS_ROOT)/lib (e.g., by make install                         #
+#           PREFIX=$(PBeFS_ROOT) in the sources of PBeFS)                    #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libPBeFSLIB) = external libraries + -L< libdirs >              #
+#           $(libPBeFSINC) = the -I$(include directories)                    #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic PBeFS directory without quotes, if any
+libPBeFSBSCDIR = $(subst $\",,$(PBeFS_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libPBeFSINC = -I"$(libPBeFSBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libPBeFSLIB = -L"$(libPBeFSBSCDIR)/lib" \
+	-Wl,-rpath,"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libPBeFSLIB = -rpath "$(libPBeFSBSCDIR)/lib" \
+	-L"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
+endif
+
+########################## End of makefile-libPBeFS ##########################

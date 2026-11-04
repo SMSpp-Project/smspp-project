@@ -1,0 +1,74 @@
+##############################################################################
+############################# makefile-libMOSEK ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libMOSEK                                                     #
+#                                                                            #
+#   Input:  $(MOSEK_ROOT), the directory where MOSEK is installed: either    #
+#           the one of a version, which holds tools/platform, or the one     #
+#           above it, which holds a directory per version (the last of them  #
+#           in alphabetical order is then taken)                             #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libMOSEKLIB) = external libraries + -L< libdirs > for          #
+#                            libMOSEK                                        #
+#           $(libMOSEKINC) = the -I$(include directories) for libMOSEK       #
+#           $(MOSEK_PRESENT) = non-empty if and only if mosek.h is there     #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic MOSEK directory without quotes, if any
+libMOSEKROOTDIR = $(subst $\",,$(MOSEK_ROOT))
+
+# the directory of the version: MOSEK_ROOT itself if it has tools/, else the
+# last of its subdirectories that has
+ifneq ($(wildcard $(libMOSEKROOTDIR)/tools/platform),)
+    libMOSEKVERDIR = $(libMOSEKROOTDIR)
+else
+    libMOSEKVERDIR = $(patsubst %/tools/platform,%,$(lastword \
+	$(sort $(wildcard $(libMOSEKROOTDIR)/*/tools/platform))))
+endif
+
+# the platform directory, named after the OS and the architecture
+libMOSEKMACHINE := $(shell uname -m)
+ifeq ($(UNAME_S),Linux)
+    ifeq ($(libMOSEKMACHINE),aarch64)
+        libMOSEKPLATFORM = linuxaarch64
+    else
+        libMOSEKPLATFORM = linux64x86
+    endif
+endif
+ifeq ($(UNAME_S),Darwin)
+    ifeq ($(libMOSEKMACHINE),arm64)
+        libMOSEKPLATFORM = osxaarch64
+    else
+        libMOSEKPLATFORM = osx64x86
+    endif
+endif
+
+libMOSEKBSCDIR = $(libMOSEKVERDIR)/tools/platform/$(libMOSEKPLATFORM)
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+MOSEK_PRESENT := $(wildcard $(libMOSEKBSCDIR)/h/mosek.h)
+
+libMOSEKINC = -I"$(libMOSEKBSCDIR)/h"
+
+ifeq ($(UNAME_S),Linux)
+    libMOSEKLIB = -L"$(libMOSEKBSCDIR)/bin" \
+	-Wl,-rpath,"$(libMOSEKBSCDIR)/bin" -lmosek64 -lpthread
+endif
+ifeq ($(UNAME_S),Darwin)
+    libMOSEKLIB = -rpath "$(libMOSEKBSCDIR)/bin" \
+	-L"$(libMOSEKBSCDIR)/bin" -lmosek64
+endif
+
+######################## End of makefile-libMOSEK ############################

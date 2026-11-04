@@ -1,0 +1,9 @@
+# written by packaging/gen_recipes.py of the SMS++ umbrella
+sources:
+  "0.7.99":
+    smspp:
+      url: "https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/generic/smspp-project/0.7.99/smspp-project-0.7.99.tar.gz"
+      sha256: "a33859ae4ca6ca2ab9d6bfce67804e501051eae1780b4f148ef489f52978d91a"
+    fastflow:
+      url: "https://github.com/fastflow/fastflow/archive/d476f66ab924d8d122f54b4b90aee00ef979aea8.tar.gz"
+      sha256: "fca23ce672fe12fe7cdbfa6955a982d6eb75816a00d2d97a93deba9b351f9c53"

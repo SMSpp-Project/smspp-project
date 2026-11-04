@@ -1750,6 +1750,8 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  which of course boils down to \cstr{h = i} when each arc has exactly one piece.
  \item The \variable \cstr{ConstantTerm}, of type \code{netCDF::NcDouble} and indexed over the set \code{\{0 , \dots, TotalNumberPieces - 1\}}. \code{ConstantTerm[ h ]} gives the constant term $b_h$ of the linear function $a_h f + b_h$ that defines the concave flow-to-active-power function for some unit; see the comments to \cstr{LinearTerm} for details.
  %
+ \item The \variable \cstr{ExactFlowToPower}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberArcs}. A nonzero \code{ExactFlowToPower[ l ]} says that arc $l$, a turbine with a single piece $h$, produces exactly $a_h f + b_h$, i.e., that the water it passes always gives power, as in a model whose turbines have a fixed efficiency (e.g., the hydro storage of PyPSA, where the water released without producing is the spillage, a flow of its own); its flow-to-active-power relation is then an equality rather than the inequality of a concave function. This \variable is optional; if it is not provided, every entry is $0$.
+ %
  \item The \variable \cstr{InertiaPower}, of type \code{netCDF::NcDouble} and indexed both over the \dimensions \cstr{NumberIntervals} and \cstr{NumberArcs}. The first \dimension may have either size $1$ or size \cstr{NumberIntervals}  (if \cstr{NumberIntervals} is not provided, then the size can also be \cstr{TimeHorizon}) whereas the second one always has size \cstr{NumberArcs} (if it is provided at all). This is meant to represent the matrix \code{IP[ t , l ]} which, for each time instant $t$ and arc $l$, contains the contribution that the unit can give to the inertia constraint which depends on the active power that it is currently generating (basically, the constant to be multiplied to the active power variable) at time $t$ for arc $l$. The variable is optional; if it is not defined, \code{IP[ t , l ] == 0} for each time instants $t$ and arc $l$. If the first \dimension has size $1$ then the entry \code{IP[ 0 , l ]} is assumed to contain the inertia power value for arc $l$ and all time instants $t$. Otherwise, \code{InertiaPower[ i , l ]} is the fixed value of \code{IP[ t , l ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ]= 0} and all $l$. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \code{ChangeIntervals}, which in fact is not loaded.
  %
  \item The \variable \cstr{InitialFlowRate}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberArcs}. Each entry \code{InFR[ i ]} indicates the amount of the flow that was going along arc $i$ at time instant $-1$. This is necessary to compute ramp-up and ramp-down limits (cf. \cstr{DeltaRampUp} and \cstr{DeltaRampDown}), and therefore it is useless if there are no ramp constraints on \highlight{any} unit (arc), in which case it is not loaded.
@@ -1860,6 +1862,62 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the group must conta
  \item The \variable \cstr{SecondaryCost}, of type \code{netCDF::NcDouble} and either of size 1 or indexed over the \dimension \cstr{NumberIntervals}  (if \cstr{NumberIntervals} is not provided, then this \variable can also be indexed over \cstr{TimeHorizon}). This is meant to represent the vector \code{SC[ t ]} that, for each time instant $t$, contains the cost of producing one unit of secondary reserve at the corresponding time step. This \variable is optional; if it is not provided then it's taken to be zero (but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{SecondaryCost} has length $1$ then \code{SC[ t ]} contains the same value for $t$. Otherwise, \code{SecondaryCost[ i ]} is the fixed value of \code{SC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
  %
  \item The \variable \cstr{InertiaCost}, of type \code{netCDF::NcDouble} and either of size 1 or indexed over the \dimension \cstr{NumberIntervals}  (if \cstr{NumberIntervals} is not provided, then this \variable can also be indexed over \cstr{TimeHorizon}). This is meant to represent the vector \code{IC[ t ]} that, for each time instant $t$, contains the cost of producing ``one unit'' of inertia. Since the inertia-producing variable is \code{u[ t ]}, which is in the interval \code{[ 0 , 1 ]}, the cost of \code{u[ t ]} is \code{MaxI[ t ] * IC[ t ]}; in other words, \code{u[ t ]} represents the fraction of the maximum possible amount of inertia (\code{MaxI[ t ]}) that can be produced at time step $t$. This \variable is optional; if it is not provided then it's taken to be zero(but this is a very strange setting, cf. the discussion in \code{ActivePowerCost}). If \cstr{InertiaCost} has length $1$ then \code{IC[ t ]} contains the same value for $t$. Otherwise, \code{InertiaCost[ i ]} is the fixed value of \code{IC[ t ]} for all $t$ in the interval \code{[ ChangeIntervals[ i - 1 ] , ChangeIntervals[ i ] ]}, with the assumption that \code{ChangeIntervals[ - 1 ] = 0}. If \code{NumberIntervals <= 1} or \code{NumberIntervals >= TimeHorizon} then the mapping clearly does not require \cstr{ChangeIntervals}, which in fact is not loaded.
+\end{itemize}
+
+
+\subsubsection {\code{ConversionUnitBlock}}\label{sec:ConversionUnitBlock}
+The \code{ConversionUnitBlock} class derives from \code{UnitBlock} and implements a unit that is switched on and off as a whole and has $G \geq 1$ generators, each of which is placed on its own node by \cstr{GeneratorNode} of the \code{UCBlock}: a plant that converts energy among several carriers (a combined heat and power plant, an electrolyser with its heat, a heat pump or a power-to-gas unit with commitment), whose outputs are generators of nonnegative power and whose inputs (the fuel drawn from a gas node, the electricity drawn from an electric node) are generators of nonpositive power. When the unit is on at the instant $t$, the powers $p_{t,g}$ of its generators lie in the operating region given by the bounds $P^{mn}_{t,g} \leq p_{t,g} \leq P^{mx}_{t,g}$ and by $M$ operating rows $\underline{b}_{t,m} \leq \sum_g a_{t,m,g} p_{t,g} \leq \bar{b}_{t,m}$, whose coefficients may change with the instant; when it is off they are all $0$. A generator may deliver its power with a delay of some instants, the rows being written at the instant of operation; the unit may be made of identical modules committed one by one, the commitment being then the number of modules on; and it may have a design variable, with the convention of the other units (\cstr{InvestmentCost}, \cstr{MinCapacityDesign}, \cstr{MaxCapacityDesign}). The commitment of the unit is exposed to the \code{UCBlock} through one generator only, so that the fixed consumption and the inertia per unit of commitment are counted at the node of that generator.
+
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the group must contain all the data required by the base \code{UnitBlock}, as described in the comments to \code{UnitBlock::deserialize}( \code{netCDF::NcGroup} ). In particular, we refer to that description for the crucial \dimensions \cstr{TimeHorizon}, \cstr{NumberIntervals} and \cstr{ChangeIntervals}. Below, a \variable ``indexed over the instants'' is of type \code{netCDF::NcDouble} and has as its first \dimension either one of size $1$ (the same value at every instant) or \cstr{NumberIntervals} (or \cstr{TimeHorizon} if \cstr{NumberIntervals} is not provided), with the same meaning as for the \code{ThermalUnitBlock}; a \variable indexed over the instants and over the generators has \cstr{NumberGenerators} (or a \dimension of size $1$, for the same value for all the generators) as its second \dimension, and similarly for the operating rows and the ramps. The \code{netCDF::NcGroup} must then also contain:
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumberGenerators}, the number $G$ of generators; it is optional, with default $1$;
+ %
+ \item the scalar \variable \cstr{CommitmentGenerator}, of type \code{netCDF::NcUint}, the generator through which the commitment is exposed (\code{get\_commitment( g )} returns \code{nullptr} for every other generator); it is optional, with default $0$;
+ %
+ \item the \variables \cstr{MinPower} and \cstr{MaxPower}, indexed over the instants and over the generators, the bounds $P^{mn}_{t,g} \leq P^{mx}_{t,g}$ of the power of each generator when the unit is on, which may be negative and must be finite; \cstr{MaxPower} is mandatory, \cstr{MinPower} is optional with default $0$;
+ %
+ \item the \dimension \cstr{NumberOperatingRows}, the number $M$ of operating rows (optional, default $0$), the \variable \cstr{OperatingMatrix}, of type \code{netCDF::NcDouble}, their coefficients $a_{t,m,g}$, either indexed over \cstr{NumberOperatingRows} and \cstr{NumberGenerators}, the same at every instant, or with a first \dimension indexed over the instants as the other data (of size $1$, \cstr{NumberIntervals} or \cstr{TimeHorizon}) followed by those two, and the \variables \cstr{OperatingLHS} and \cstr{OperatingRHS}, indexed over the instants and over \cstr{NumberOperatingRows}, their sides $\underline{b}_{t,m} \leq \bar{b}_{t,m}$ (an equality row having equal sides), each optional with default $-\infty$ and $+\infty$ respectively, a row having a finite side at some instant;
+ %
+ \item the \dimension \cstr{NumberRampRows} and the \variable \cstr{RampMatrix}, indexed over \cstr{NumberRampRows} and \cstr{NumberGenerators}, the coefficients $c_{k,g}$ of the combinations of the powers whose changes the ramps limit; both optional, and without them there is one combination per generator, i.e., the ramps are on each generator;
+ %
+ \item the \variables \cstr{DeltaRampUp} and \cstr{DeltaRampDown}, indexed over the instants and over \cstr{NumberRampRows} (over \cstr{NumberGenerators} if \cstr{RampMatrix} is not provided), the largest increase and decrease $\Delta^{\pm}_{t,k} \geq 0$ of the combination $k$ from $t - 1$ to $t$; each optional, and without it there are no ramp constraints of that kind;
+ %
+ \item the \variables \cstr{StartUpLimit} and \cstr{StartUpLowerLimit}, indexed over the instants and over the generators, the largest and the smallest power of each generator at the instant of a start-up, and the \variables \cstr{ShutDownLimit} and \cstr{ShutDownLowerLimit}, the largest and the smallest power at the instant before a shut-down; all optional, with default the bounds of the power (no limit);
+ %
+ \item the \variables \cstr{PrimaryRho} and \cstr{SecondaryRho}, indexed over the instants and over the generators, the largest fractions of the absolute value of the power of each generator that it can offer as primary and secondary spinning reserve; optional, a generator with a zero fraction offering no reserve, and a generator that offers one must have a power of the same sign at every instant;
+ %
+ \item the \variable \cstr{ReserveDirection}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberGenerators} twice, whose entry \code{[ h ][ g ]} is the change of the power of the generator $h$ per unit of reserve of the generator $g$ deployed (with \code{[ g ][ g ] == 1} for a generator that offers a reserve); optional, with default the identity;
+ %
+ \item the \variables \cstr{PrimarySpinningReserveCost} and \cstr{SecondarySpinningReserveCost}, indexed over the instants and over the generators, the costs of one unit of reserve; optional with default $0$;
+ %
+ \item the \variables \cstr{QuadTerm} and \cstr{LinearTerm}, indexed over the instants and over the generators, the coefficients of the cost $a_{t,g} p_{t,g}^2 + b_{t,g} p_{t,g}$ of each generator, with $a_{t,g} \geq 0$; optional with default $0$;
+ %
+ \item the \variables \cstr{ConstTerm}, \cstr{StartUpCost} and \cstr{ShutDownCost}, of type \code{netCDF::NcDouble} and indexed over the instants only, the cost of the unit being on and the costs of a start-up and of a shut-down; optional with default $0$;
+ %
+ \item the \variable \cstr{InitialPower}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberGenerators}, the powers of the generators before the horizon, used only if the unit is on before the horizon, in which case they must lie in the operating region of the instant $0$; optional with default $0$;
+ %
+ \item the scalar \variables \cstr{InitUpDownTime} (of type \code{netCDF::NcInt}), \cstr{MinUpTime} and \cstr{MinDownTime} (of type \code{netCDF::NcUint}), with the same meaning and defaults as for the \code{ThermalUnitBlock};
+ %
+ \item the \variables \cstr{FixedConsumption} and \cstr{InertiaCommitment}, indexed over the instants only, the power the unit draws when it is off and the inertia it gives when it is on, both counted at the node of the commitment generator; optional with default $0$;
+ %
+ \item the \variable \cstr{InertiaPower}, indexed over the instants and over the generators, the inertia of each generator per unit of power; optional with default $0$;
+ %
+ \item the scalar \variable \cstr{Scale}, of type \code{netCDF::NcDouble}, the scale factor of the unit (cf. \code{UnitBlock::scale()}); optional with default $1$;
+ %
+ \item the \variable \cstr{Delay}, of type \code{netCDF::NcUint} and indexed over \cstr{NumberGenerators} (or a scalar), the number $d_g$ of instants after which the node of each generator receives the power of the operation of the unit at an instant, all the rows being written at the instant of operation; optional with default $0$;
+ %
+ \item the \variable \cstr{CyclicDelay}, of type \code{netCDF::NcInt} and indexed over \cstr{NumberGenerators} (or a scalar), nonzero for a generator whose delay wraps around the horizon, i.e., the power of the last $d_g$ instants of operation reaches its node at the first $d_g$ instants; optional with default $0$, in which case the power of the last $d_g$ instants of operation is delivered after the horizon and the first $\min\{ d_g , T \}$ instants receive the power of the operation before it;
+ %
+ \item the \variable \cstr{InitialDelayedPower}, of type \code{netCDF::NcDouble} and indexed over a \dimension (say, \cstr{NumberDelayedInstants}) of size $1$ or at least the largest $\min\{ d_g , T \}$ over the generators whose delay is not cyclic and over \cstr{NumberGenerators}, whose entry \code{[ s ][ g ]} is the power that the generator $g$ delivers at the instant $s < \min\{ d_g , T \}$ as the result of the operation before the horizon; optional with default $0$, and independent of \cstr{InitialPower}; a generator with a delay offers no spinning reserve;
+ %
+ \item the scalar \variable \cstr{Modules}, of type \code{netCDF::NcUint}, the number $N \geq 1$ of identical modules of the unit, committed one by one: the commitment, start-up and shut-down variables are then the numbers of modules on, started up and shut down, integer between $0$ and $N$, and every other datum is of one module; optional with default $1$, and not allowed together with \cstr{Scale} $\neq 1$ or with \cstr{FixedConsumption};
+ %
+ \item the scalar \variable \cstr{InitialCommitment}, of type \code{netCDF::NcUint}, the number of modules on before the horizon if \cstr{InitUpDownTime} $> 0$, \cstr{InitialPower} being their total power; optional with default $N$;
+ %
+ \item the scalar \variables \cstr{InvestmentCost}, \cstr{MinCapacityDesign} and \cstr{MaxCapacityDesign}, of type \code{netCDF::NcDouble}, with the meaning and the sign convention of the \code{IntermittentUnitBlock}: a nonzero \cstr{InvestmentCost} $c^{inv}$ gives a design variable $x$ of cost $c^{inv} x$ (times \cstr{Scale}), between \cstr{MinCapacityDesign} (default $0$) and $|$\cstr{MaxCapacityDesign}$|$ (default $-1$); \cstr{MaxCapacityDesign} $= -1$ makes $x$ binary, the unit (all its modules) being built or not, \cstr{MaxCapacityDesign} $= -N < -1$ makes $x$ the integer number of modules built, each committed by itself, and $N$ the number of modules (\cstr{Modules}, if given, must be $N$), while \cstr{MaxCapacityDesign} $\geq 0$ makes $x$ continuous, every bound and side of the operating rows being per unit of $x$, the commitment binary, and the product of $x$ and of the commitment relaxed by big-M rows on \cstr{MaxCapacityDesign}, which are exact for an integer commitment but weak in the continuous relaxation; in this case the ramps and the start-up and shut-down limits are also per unit of $x$ and written in the same big-M form, the indicators of the start-up, of the shut-down and of the unit being on at two consecutive instants in place of the commitment, while several modules are not allowed; a unit with a design has no \cstr{FixedConsumption}, and if it is on before the horizon it is built ($x = 1$ for a binary design, $x$ at least \cstr{InitialCommitment} for an integer one, and a capacity $x$ that covers \cstr{InitialPower} for a continuous one, i.e., $x$ times \cstr{MaxPower} at least the positive initial powers and $x$ times \cstr{MinPower} at most the negative ones); \cstr{Scale} $\neq 1$ is not allowed together with $|$\cstr{MaxCapacityDesign}$| > 1$. The continuous relaxation of $N$ modules is that of one module with \cstr{Scale} $= N$, so that an investment in a number of modules through an \code{InvestmentBlock} is given by the \cstr{Scale} of one module, the exact form with modules committed one by one being \cstr{MaxCapacityDesign} $= -N$.
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1992,7 +2050,7 @@ Deserialize a \code{DCNetworkData} out of a \code{netCDF::NcGroup}, which should
  \noindent
  If \code{NumberNodes == 1} (equivalently, it is not provided), the network is a ``bus'' formed of only one node, and therefore all the subsequent information need not to be present since it is not loaded. If \code{NumberNodes > 1}, then all the subsequent information is mandatory:
  %
- \item the \dimension \cstr{NumberLines} containing the number of lines in the transmission network;
+ \item the \dimension \cstr{NumberLines} containing the number of lines in the transmission network; it may be $0$ (e.g., nodes of different carriers coupled only by units), in which case none of the \variables indexed over it is needed and every node is balanced by the units on it;
  %
  \item the \variable \cstr{StartLine}, of type \code{netCDF::NcUint} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of the variable is the starting point of the line (a number in \code{0, \dots, NumberLines - 1}). Note that lines are not oriented, but the flow of energy is; that is, a positive flow along line $i$ means that energy is being taken away from \code{StartLine[ i ]} and delivered to \code{EndLine[ i ]} (see next), a negative flow means vice-versa. Note that lines names here go from $0$ to \code{NLines.getSize() - 1};
  %
@@ -2023,9 +2081,9 @@ The specific attributes that must be deserialized from a \code{netCDF::NCGroup} 
 %
  \item the \variable \cstr{LineShiftAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the shift angle of line $i$.
 %
- \item the \variable \cstr{LineMinAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the minimum angle of line $i$.
+ \item the \variable \cstr{LineMinAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the minimum angle difference of line $i$, in degrees. This variable and \cstr{LineMaxAngle} are optional, but either both are there or neither is; when they are absent the angle differences are not bounded. As in MATPOWER, a minimum $\le -360$, a maximum $\ge 360$, a NaN, or both bounds equal to 0 mean that the corresponding side is not bounded; with one side not bounded, or with the two bounds more than 360 apart, no row on the angle difference of line $i$ is generated, since the formulation only sees the angle modulo $2\pi$.
 %
- \item the \variable \cstr{LineMaxAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the maximum angle of line $i$.
+ \item the \variable \cstr{LineMaxAngle}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberLines}; the $i$-th entry of this variable is assumed to contain the maximum angle difference of line $i$, in degrees (see \cstr{LineMinAngle}); two finite bounds with the minimum above the maximum are refused.
 %
  \item the \variable \cstr{NodeSusceptance}, of type \code{netCDF::NcDouble} and indexed over the \dimension \cstr{NumberNodes}; the $n$-th entry of this variable is assumed to contain the susceptance of node $n$. Note that this is strictly a positive value.
 %
@@ -2784,6 +2842,48 @@ $g_i$ but no active \Variable, and the multipliers have to be given to it
 afterwards by \code{LagBFunction::set\_variables()}; the $i$-th element of the vector
 passed to this method becomes the multiplier of the $i$-th function $g_i$ read
 from the file.
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsection {\code{HQPBlock}}\label{sec:HQPBlock}
+
+The \code{HQPBlock} class implements the \Block concept for a hierarchical (lexicographic) Quadratic Program in $n$ real variables $x$ with $P$ levels $p = 0 , \ldots , P - 1$, level $0$ having the highest priority. Level $p$ has $m_p \geq 0$ equality rows and $l_p \geq 0$ inequality rows
+%
+\begin{equation*}
+ W^e_p ( A_p x - b_p ) = v_p \;\;, \qquad
+ W^i_p ( C_p x - d_p ) \leq w_p \;\;, \qquad w_p \geq 0 \;\;,
+\end{equation*}
+%
+where $W^e_p$ and $W^i_p$ are diagonal matrices of weights, and the problem of level $p$ minimizes $\frac{1}{2} \| v_p \|^2 + \frac{1}{2} \| w_p \|^2$, plus (possibly) the regularization $\frac{\varepsilon}{2} \sum_j r_j ( x_j - c_j )^2$, with the slacks of all the levels $q < p$ fixed at their optimal values (see the comments to \code{HQPBlock.h} for the details). Optionally, the \code{HQPBlock} also carries the stage structure of an optimal control problem over $N$ stages, i.e., the stage $k$ of each column, which is either a component of the input $u_k$ ($k < N$) or of the state $s_k$ ($k \leq N$), and the level whose equality rows are the dynamics $s_{k+1} = A_k s_k + B_k u_k + c_k$ (one for each component of each $s_{k+1}$, with an entry on it and on no other component of $s_{k+1}$, and the others on $s_k$ and $u_k$); the \code{HQPBlock} only keeps these data, which are read by the \dSolver that exploit them (e.g., \code{HQPStageSolver}).
+
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the \group representing the \code{HQPBlock} contains the following:
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumVar}, the number $n$ of variables, and the \dimension \cstr{NumLevels}, the number $P$ of levels;
+ %
+ \item the \dimension \cstr{NumEqRows}, the total number $\sum_p m_p$ of equality rows, and the \variable \cstr{EqRows}, of type \code{netCDF::NcUint} and indexed over \cstr{NumLevels}, whose $p$-th entry is $m_p$ (the rows of level $0$ come first, then those of level $1$, and so on);
+ %
+ \item the \dimension \cstr{NumEqElements}, the number of nonzero entries of all the $A_p$, and the \variables \cstr{EqStart} (of type \code{netCDF::NcUint}, indexed over \cstr{NumEqRows}), \cstr{EqIndex} (\code{netCDF::NcUint}) and \cstr{EqValue} (\code{netCDF::NcDouble}), both indexed over \cstr{NumEqElements}: the entries of row $i$ are those from \cstr{EqStart}$[ i ]$ to \cstr{EqStart}$[ i + 1 ] - 1$ (to \cstr{NumEqElements} $- 1$ for the last row), \cstr{EqIndex} giving the column and \cstr{EqValue} the coefficient (a row may have no entries);
+ %
+ \item the \variable \cstr{EqRHS} (\code{netCDF::NcDouble}, indexed over \cstr{NumEqRows}), the vectors $b_p$ one after the other, and the \variable \cstr{EqWeight}, of the same type and size, the diagonals of the $W^e_p$;
+ %
+ \item the \dimensions \cstr{NumIneqRows} and \cstr{NumIneqElements} and the \variables \cstr{IneqRows}, \cstr{IneqStart}, \cstr{IneqIndex}, \cstr{IneqValue}, \cstr{IneqRHS} and \cstr{IneqWeight}, as above for the $C_p$, the $d_p$ and the $W^i_p$;
+ %
+ \item the scalar \variable \cstr{Regularization} (\code{netCDF::NcDouble}), the weight $\varepsilon$, and the \variable \cstr{RegularizationWeight} (\code{netCDF::NcDouble}, indexed over \cstr{NumVar}), the weights $r_j > 0$;
+ %
+ \item the \dimension \cstr{NumStages}, the number $N$ of stages of the stage structure;
+ %
+ \item the \variables \cstr{VarStage} and \cstr{VarState}, of type \code{netCDF::NcUint} and indexed over \cstr{NumVar}, whose $j$-th entries are the stage of column $j$ and $1$ if column $j$ is a state, $0$ if it is an input;
+ %
+ \item the \variables \cstr{EqStage} and \cstr{IneqStage}, of type \code{netCDF::NcUint} and indexed over \cstr{NumEqRows} and \cstr{NumIneqRows}, respectively, the stage (smaller than $N$) of each row;
+ %
+ \item the scalar \variable \cstr{DynamicsLevel}, of type \code{netCDF::NcUint}, the level of the dynamics.
+\end{itemize}
+
+\smallskip
+\noindent
+The \dimensions \cstr{NumVar} and \cstr{NumLevels} are mandatory. If \cstr{NumEqRows} is missing (or $0$) there are no equality rows, and otherwise \cstr{EqRows}, \cstr{EqStart} and \cstr{EqRHS} are mandatory, as are \cstr{EqIndex} and \cstr{EqValue} if \cstr{NumEqElements} $> 0$; if \cstr{EqWeight} is missing all the weights are $1$; the same holds for the inequality rows. If \cstr{Regularization} is missing $\varepsilon = 0$, and if \cstr{RegularizationWeight} is missing all the $r_j$ are $1$. If \cstr{NumStages} is missing (or $0$) there is no stage structure, and its other data are ignored; otherwise \cstr{VarStage} and \cstr{VarState} are mandatory, \cstr{DynamicsLevel} is $0$ if missing, and if \cstr{EqStage} (\cstr{IneqStage}) is missing the stage of an equality (inequality) row is the largest $k$ such that the row has an entry on $u_k$ or on $s_{k+1}$. Hence, a file written before the stage structure was defined is read as before. Only the data is serialized: the current level, the fixed slacks and the center $c$ of the regularization are a state of the solution process, not of the model.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

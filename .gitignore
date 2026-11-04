@@ -6,6 +6,9 @@
 # Local override of external-library paths (gitignored on purpose)
 extlib/makefile-paths
 
+# FastFlow and RECORD, which the release job puts there for the tarball
+/third-party/
+
 # Install tree produced by `make install` / CMake install
 bin/
 lib/
@@ -15,6 +18,16 @@ include/
 # Doxygen output
 doc/html/
 doc/latex/
+doc/xml/
+doc/doctrees/
+
+# The pages that sphinx/pages.py and sphinx/apiref.py write before Sphinx
+# builds the site, and the groups of the Topics of the Doxygen site
+sphinx/generated/
+sphinx/api/
+doxygen/modules.dox
+doxygen/pages.cfg
+sphinx/__pycache__/
 
 # Claude Code local notes and configuration (kept out of the repo)
 CLAUDE.md
@@ -87,3 +100,6 @@ ehthumbs.db
 .directory
 .fuse_hidden*
 .nfs*
+
+# the bytecode of the Python scripts
+__pycache__/

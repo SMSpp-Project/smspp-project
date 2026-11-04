@@ -1,0 +1,32 @@
+##############################################################################
+############################# makefile-libqpmad ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libqpmad                                                     #
+#                                                                            #
+#   Input:  $(qpmad_ROOT), the directory where qpmad is installed, i.e.,     #
+#           the headers are in $(qpmad_ROOT)/include/qpmad                   #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libqpmadINC) = the -I$(include directories) for libqpmad       #
+#                                                                            #
+#   qpmad is header-only, hence there is no $(libqpmadLIB); it needs Eigen,  #
+#   whose -I is in $(SMS++INC).                                              #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic qpmad directory without quotes, if any
+libqpmadBSCDIR = $(subst $\",,$(qpmad_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libqpmadINC = -I"$(libqpmadBSCDIR)/include"
+
+##################### End of makefile-libqpmad ###############################

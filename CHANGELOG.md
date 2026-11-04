@@ -7,12 +7,330 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-04
+
 ### Added
+
+- `scripts/format.py` formats also the C++ of the `\code` blocks of the
+  comments of Doxygen and of its pages (`.dox`), within the columns that the
+  prefix of the comment leaves, and breaks after a semicolon of a `for` a
+  line past 79 columns; restricted to the lines changed, it takes a change
+  only if the change keeps the tokens of the lines it replaces, so that a
+  file far from the style loses or repeats no code, and it leaves alone a
+  file with no `.clang-format` in its directory or above it
+
+- the check of the style of a merge request helps to meet it: its job keeps
+  the changes that put the files in the style as the artifact `style.patch`,
+  and `scripts/style_review.py` posts them on the merge request as
+  suggestions on its lines, when the variable `SMSPP_STYLE_TOKEN` of the
+  pipeline holds a project access token; `scripts/pre-commit`, which
+  `scripts/install-hooks` installs in the umbrella and in every submodule,
+  stops a commit whose files are not in the style
+
+- the style of the code and of the configurations of SMS++, checked on every
+  merge request: `.clang-format` at the root, `scripts/format.py` (clang-format
+  and what it has no option for, e.g., `return( x );` and a space before the
+  commas), `scripts/cfgformat.py` (the configurations read with the grammar of
+  the core and written again in their layout), `scripts/smspp-format`, which
+  runs the one or the other on the files given, their tests, and
+  `ci/style.yml`, the job that a module includes and that fails until the
+  lines changed by the merge request are in the style; `CONTRIBUTING.md` and
+  the page Code style of the wiki say how to use them, from the command line
+  and from the IDE
+
+- `BDMinQuadSolver`, the module of the `Solver` of the primal
+  `MasterProblemBlock` based on BDMinQuad, the active-set method for the
+  disaggregated master problem of the bundle methods: the submodule, still
+  private and therefore with `update = none`, and `BUILD_BDMinQuadSolver`,
+  which is `OFF` until the submodule is initialized by hand
+
+- `HQPBlock`, the module of the `Block` and the `Solver` of hierarchical
+  (lexicographic) quadratic programs: the submodule, `BUILD_HQPBlock`, the
+  feature `hqp` of the smspp port of the vcpkg registry, the module in
+  `packaging/modules.py`, with the recipes written again, and its headers
+  in the `INPUT` of `doxygen/Doxyfile`
+
+- the nightly job `nightly:makefiles`, which builds all the modules with
+  their makefiles, with g++ and then with clang++ and the C++20 modules,
+  and runs `Module_test`
+
+- `ci/makefile`, which builds a module and its dependencies with their
+  makefiles (`make -f ci/makefile MODULE=<module>`), reading the prefix of
+  the macros of the module from its makefile, so that the pipeline of every
+  module builds it also with the makefiles after CMake
+
+- the nightly job `nightly:modules`, which builds all the C++20 modules
+  with Clang and Ninja, checks that none was turned off, and runs the test
+  that imports the module of the core
+
+- HPIPM and BLASFEO, the QP solver of `HPIPMMILPSolver` and the linear
+  algebra it is built on: `INSTALL.sh` builds them from their latest tags
+  into the same directory, BLASFEO for a generic processor
+  (`--without-hpipm`), INSTALL.ps1 says that they are not installed on
+  Windows, `extlib` has `makefile-libHPIPM` and the default paths of
+  `HPIPM_ROOT`, and the packages never take them, being in no channel
+
+- `packaging/`, the recipes of SMS++ for Conan (with netcdf-cxx4 and stopt,
+  for a remote of the project), Spack (a repository with smspp, stopt and
+  highs), Nix (package.nix, stopt.nix and a flake), the AUR (the split
+  package smspp-project, one package per module and per tool as in the PPA,
+  and stopt), MSYS2 and xmake (a repository with smspp, netcdf-cxx4 and
+  stopt), all written by `packaging/gen_recipes.py` from the table of the
+  modules of `packaging/modules.py`, with the steps of a release for each
+  channel in `packaging/README.md`
+
+- The packaging jobs of the pipeline, which build the recipes before a
+  release names them: `packaging:tarball` makes the tarball of the commit
+  as the release job does and writes the recipes for it
+  (`gen_recipes.py --tarball`, and `--modules` for the PKGBUILDs), then
+  Spack, Conan, Nix, the AUR, xmake, vcpkg (the port of the registry) on
+  Linux and Homebrew (the formula of the tap) on macOS each build the
+  package with UCBlock, MILPSolver and MCFClassSolver, a consumer
+  (`packaging/consumer`) that makes a `UCBlock` and a `HiGHSMILPSolver` by
+  the factories, and the Unit Commitment tool, which solves its example
+  with HiGHS. They run when a push or a merge request touches
+  `packaging/`, the `CMakeLists.txt` of the umbrella or the gitlink of
+  `vcpkg-registry`, and in a pipeline with `PACKAGING=1`
+
+- The section "Build inside a CMake project" of the README, on building
+  SMS++ along with a project by FetchContent or CPM.cmake
+
+- `SMSPP_EXTLIB_DEFAULTS`, ON by default, which with OFF leaves out the
+  default paths of `extlib/makefile-default-paths-*`, several under `/opt`,
+  so that a package is not built against what its building machine has
+  there; with the default nothing changes, `extlib/makefile-paths` is read
+  either way
+
+- A second site of the documentation, built by Sphinx with the theme of
+  Read the Docs from `sphinx/` and served at `/smspp-project/sphinx/` next
+  to the Doxygen site and the user manual: its pages come from the
+  README.md, the general description of `doxygen/mainpage.md`,
+  CONTRIBUTING.md and this CHANGELOG, and its API reference, rendered by
+  Breathe from the XML that `doxygen/Doxyfile` now writes into `doc/xml`
+  along with the HTML, is a tree that `sphinx/apiref.py` writes from that
+  XML: the modules, in each module its headers gathered by what they
+  define (its Blocks, its Functions, its Solvers, ...), then the headers
+  and, below each, its classes, each with the diagram of its hierarchy
+  from the Doxygen site; a fixed sidebar with the branch of the page, an
+  index of the classes and members, content wide enough for the formulae
+  (which scroll in their box when wider), copy buttons and a dark theme.
+  The Doxyfile now also reads BendersDecompositionSolver and
+  BranchAndXSolver, and expands `SMSpp_insert_in_factory_h` to nothing,
+  which it took for a member of every class that uses it
+
+- SubGradSolver, the deflected and projected subgradient methods for the
+  same problems as BundleSolver (`BUILD_SubGradSolver`), and its feature
+  `subgrad` in the smspp port of the vcpkg registry; the battery of
+  MultiKnapsackAssignBlock cross-checks it as the inner `Solver` of
+  `LagrangianDualSolver`
 
 - `--with-experiments` in INSTALL.sh and `-withExperiments` in INSTALL.ps1,
   which fetch and build the private `experiments` submodule
 
+- DAQP, the QP solver of `DAQPMILPSolver`: `INSTALL.sh` builds it from its
+  latest tag (`--without-daqp`), INSTALL.ps1 takes it from the SMS++ vcpkg
+  registry through `vcpkg.json`, and `extlib` has `makefile-libDAQP` and the
+  default paths of `DAQP_ROOT`
+
+- qpOASES, the QP solver of `QPOASESMILPSolver`: `INSTALL.sh` builds it
+  from its latest tag as a shared library whose BLAS and LAPACK
+  replacements are renamed (`--without-qpoases`), INSTALL.ps1 takes it from
+  the default vcpkg registry through `vcpkg.json`, and `extlib` has
+  `makefile-libqpOASES` and the default paths of `qpOASES_ROOT`
+
+- Clarabel, the solver of `ClarabelMILPSolver`, whose C interface no
+  package manager carries: `INSTALL.sh` (`--without-clarabel`) and
+  `INSTALL.ps1` (`-withoutClarabel`) build the one of its latest release
+  with cargo, installing Rust if it is missing, and `extlib` has
+  `makefile-libClarabel` and the default paths of `Clarabel_ROOT`
+
+- MOSEK 11, the commercial solver of `MOSEKMILPSolver`, which needs a
+  license of its own (free for academic use): `INSTALL.sh` downloads the
+  tools archive of the latest 11.0.x version on Linux and on Apple Silicon
+  macOS (`--without-mosek`), `INSTALL.ps1` its installer on Windows
+  (`-withoutMosek`), both say where the license goes, and `extlib` has
+  `makefile-libMOSEK` and the default paths of `MOSEK_ROOT`; the CI image
+  has it, its license coming from the file CI/CD variable
+  `MOSEKLM_LICENSE_FILE` of each project
+
+- ProxSuite, PIQP and OSQP, the QP solvers of `ProxQPMILPSolver`,
+  `PIQPMILPSolver` and `OSQPMILPSolver`: `INSTALL.sh` builds them from
+  their latest tag on Linux and macOS (`--without-proxsuite`,
+  `--without-piqp`, `--without-osqp`), INSTALL.ps1 takes them from vcpkg
+  through `vcpkg.json` (PIQP from the SMS++ vcpkg registry), and `extlib` has
+  `makefile-libProxSuite`, `makefile-libPIQP`, `makefile-libOSQP` and the
+  default paths of `proxsuite_ROOT`, `piqp_ROOT` and `osqp_ROOT`
+
+- qpmad, the QP solver of `QPMADMILPSolver`: `INSTALL.sh` installs its
+  headers from its latest tag on Linux and macOS (`--without-qpmad`),
+  INSTALL.ps1 takes it from the SMS++ vcpkg registry through `vcpkg.json`,
+  and `extlib` has `makefile-libqpmad` and the default paths of `qpmad_ROOT`
+
+- quadprog, the QP solver of `QuadProgMILPSolver`, under the GPL, so that a
+  MILPSolver built with it is too: `INSTALL.sh` compiles its C sources from
+  its latest tag into `libquadprog`, which exports only `qpgen2_`, on Linux
+  and macOS (`--without-quadprog`), `INSTALL.ps1` takes it from the SMS++
+  vcpkg registry through `vcpkg.json`, and `extlib` has
+  `makefile-libquadprog` and the default paths of `quadprog_ROOT`
+
+### Changed
+
+- the formatters of the code are those of the repository code-style,
+  which the umbrella holds as the submodule `scripts/code-style` at a tag,
+  in place of its copies of `format.py`, its tests, `style_review.py`, the
+  hook of git and `.clang-format`: `scripts/smspp-format` runs its
+  `code-format`, which hands the configurations to `scripts/cfgformat.py`
+  as the `.code-format` at the root says, and `ci/style.yml` includes its
+  template of GitLab, fetching `cfgformat.py` before the check; the token
+  that posts the suggestions on a merge request is `STYLE_TOKEN`
+
+- `INSTALL.sh` and `INSTALL.ps1` bring up to date what they installed when
+  they run again: every dependency built from its repository goes to its
+  latest release (or to the head of its branch, for HiGHS, StOpt and
+  PIPS-IPM++) and is built again only when something changed, CaDiCaL and
+  MiniSat being no longer pinned to an old release, and Gurobi, MOSEK, SCIP
+  and Torch are installed again when the version asked for changes, the
+  version of an installation being kept in its `.smspp-version`; an error
+  during an update puts back the installation that was there, HiGHS is built
+  again with the same BLAS as when it was installed, and StOpt, which never
+  pulled, now does
+
+- the vcpkg manifest takes LEMON as lemon-ng from the vcpkg registry of
+  SMS++, and MiniSat as the port minisat-master-keying of the default
+  registry, so that SATBlock has `MiniSATSolver` on Windows too
+
+- the chapter of the manual on the methods factory gives the families of a
+  setter with its data in a span, `MS_sp_dbl_rngd` and the like, the
+  iterator ones being gone, and its example takes the method with
+  `get_method_fs()` and passes it a span
+
+- the nightly job of the C++20 modules builds them with the default of
+  `SMSpp_BUILD_MODULE`, which turns them on with Clang [see
+  `SMS++/cmake/CheckModule.cmake`], and then checks that the interface of
+  every module is the one that `SMS++/cmake/smspp_module_exports.py` writes
+  from its headers, so that a name added to a header and not exported makes
+  it fail
+
+- the recipe of MSYS2 builds with `-DSMSpp_BUILD_MODULE=OFF`, since the CMake
+  of clang64 would otherwise build the C++20 modules, which no pipeline
+  builds on Windows
+
+- the Doxygen site has the navigation tree on the side, with the Topics
+  first after the main page, holding the same tree as the API reference of
+  the Sphinx site (module, group of headers, header, class), and the theme
+  doxygen-awesome-css 2.5.0 (MIT, in `doxygen/awesome`), with the content
+  1300 px wide and the dark theme of the system: `sphinx/apiref.py` writes
+  the groups into `doxygen/modules.dox`, external documentation blocks that
+  change no header, and the pages job runs Doxygen twice, first for the XML
+  and then, with those groups, for the HTML; the groups that the headers
+  define themselves go under their header, and the `Doxyfile` no longer
+  sets the tags that Doxygen 1.17 calls obsolete
+
+- the release job makes its tarball by `packaging/tarball.sh`, which the
+  packaging jobs run too, so that they check the tarball the release
+  publishes
+
+- `extlib/makefile-libCPLEX`, `-libGUROBI`, `-libSCIP` and `-libHiGHS` give
+  `CPLEX_PRESENT`, `GUROBI_PRESENT`, `SCIP_PRESENT` and `HiGHS_PRESENT`,
+  non-empty if and only if the solver is installed, as
+  `makefile-libMOSEK` gives `MOSEK_PRESENT`, so that the makefiles build
+  what needs a solver only where it is there
+
+- the umbrella includes `SMS++/cmake/CheckModule.cmake` before the
+  modules, which call it to turn `SMSpp_BUILD_MODULE` off, with a warning,
+  where the C++20 modules cannot be built
+
+- the README asks for MOSEK 11.0.1 or later, the first version whose
+  error codes MOSEKMILPSolver builds with
+
+- the release tarball carries FastFlow and RECORD, with their licenses, in
+  `third-party/`, at the commits of `packaging/modules.py`
+  (`packaging/third_party.py`), and the `CMakeLists.txt` of the umbrella
+  uses them in place of the FastFlow that SMS++ fetches and of a RECORD
+  checkout, so that a build of the tarball fetches nothing
+
+- `INSTALL.sh` and `INSTALL.ps1` install the latest MOSEK 12.0.x in place
+  of 11.0.x (12.0.0 if its number cannot be read), so does the image of
+  the CI that is built by `INSTALL.sh`; MOSEKMILPSolver still builds with
+  MOSEK 10 or later, and a license of MOSEK 12 serves the earlier versions
+
 ### Fixed
+
+- `INSTALL.sh` run without sudo uses as they are the installations it
+  cannot write, e.g., those of root under `/opt`, instead of trying to update
+  them and stopping, and takes CaDiCaL from its system package when there is
+  one, so that it puts nothing but SMS++ in the home
+
+- the vcpkg manifest takes lemon-ng 1.4.1#1 from the vcpkg registry of
+  SMS++, whose port downloads the sources from `dmeoli/abLEMON`, the new
+  name of the repository, whose tag archive has another SHA512, so that
+  the download of 1.4.1#0 failed its check
+
+- `scripts/format.py`, `scripts/cfgformat.py` and `scripts/smspp-format`
+  print how to run them on `-h` and `--help`, and stop on an option they do
+  not know, which they took as the name of a file
+
+- `extlib/makefile-libOpenMP` gives the options of OpenMP to the makefiles,
+  `-Xpreprocessor -fopenmp` and libomp (`OpenMP_ROOT`, by default the one
+  of Homebrew) on macOS, whose clang++ of Xcode takes no `-fopenmp`, and
+  `-fopenmp` elsewhere
+
+- `extlib/makefile-libPIPS` restores the `--as-needed` state it found
+  around the MPI libraries (`--push-state` / `--pop-state`) instead of
+  turning `--as-needed` on, which dropped from the link the libraries of the
+  modules that follow and that the program does not call directly
+
+- the Doxygen site: the outline of a page no longer shows "&#x2F;" for
+  "/" (the pages job takes out of `navtree.js` the escape that Doxygen
+  1.17 makes before setting the names as text), the types of the members
+  go on more lines in a quarter of the table, where the longest of them
+  pushed the names of all the others out of the page, and the titles of
+  the groups of members take the colours of the light and the dark theme
+
+- the Sphinx site: the signatures of the members on the dark theme, which
+  kept the light grey of the light one under names coloured for the dark,
+  and the cells of the tables on more lines, where the descriptions of the
+  modules, the headers and the classes ran out of the page
+
+- the Sphinx site: the content in the middle of the room the menu leaves on
+  a wide screen, instead of against the menu, and the tables of the API
+  reference as wide as the content, so that those of a page line up
+
+- the titles of the Sphinx site in sentence case, as most of them were:
+  the captions of the menu, "API reference", "Release notes" and two
+  sections of the main page
+
+- the tree of the Doxygen site: the pages of a module (the unit commitment
+  model of UCBlock) go in its group Documentation instead of at the top of
+  the tree, by `doxygen/page_ingroup.py`, an input filter that
+  `sphinx/apiref.py` sets on their headers in `doxygen/pages.cfg`; the
+  README, CONTRIBUTING and LICENSE of the umbrella, which are the pages of
+  the project on the Sphinx site, are no longer pages of the reference;
+  the forward declarations of ProxSuite are no longer classes of it; and a
+  family of Blocks that holds all the Blocks of its module (SVMBlock) is
+  the group Blocks, as in the other modules, and not "SVM Blocks"
+
+- the outline of a page of the Doxygen site gives the overloads of a
+  method with the types of their parameters (`doxygen/outline-overloads.js`,
+  appended to `navtree.js` by the pages job), e.g., `mirror_of(ColVariable
+  *)` and `mirror_of(RowConstraint *)`, and its entries go on more lines
+  where they are wider than the panel
+
+- `extlib/makefile-libGUROBI` stops only if the header of Gurobi is there
+  and its library is not: it stopped whenever Gurobi was not installed, so
+  that nothing including the makefiles of MILPSolver built without it
+
+- INSTALL.sh builds ProxSuite 0.8.0, its latest release, which has no
+  `cmake-module` submodule any more and needs cereal unless its
+  serialization is turned off
+
+- the tests of the modules are reachable by ctest from the build root in
+  a fresh build too, where `BUILD_TESTING` was not yet defined when it was
+  checked and the build root had no test
+
+- the tests run from the build root have no timeout, as before the
+  umbrella included CTest, whose default of 1500 s stopped the batteries
+  of LagBFunction and PolyhedralFunctionBlock in the CI of BundleSolver
 
 - INSTALL.sh and INSTALL.ps1 no longer touch the private `experiments`
   submodule unless asked to, whatever the local git configuration says, so
@@ -255,7 +573,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - significant changes in installation scripts and cmake / makefiles
 
-[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...develop
+[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.1...develop
+[0.7.1]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...0.7.1
 [0.7.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.3...0.7.0
 [0.6.3]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.2...0.6.3
 [0.6.2]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.1...0.6.2

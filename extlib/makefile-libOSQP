@@ -1,0 +1,53 @@
+##############################################################################
+############################## makefile-libOSQP ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libOSQP                                                      #
+#                                                                            #
+#   Input:  $(osqp_ROOT), the directory where OSQP is installed, i.e., the   #
+#           headers are in $(osqp_ROOT)/include/osqp and the library is in   #
+#           $(osqp_ROOT)/lib                                                 #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libOSQPLIB) = external libraries + -L< libdirs > for libOSQP   #
+#           $(libOSQPINC) = the -I$(include directories) for libOSQP         #
+#                                                                            #
+#   OSQP exports its internal functions, some of which have the name of      #
+#   functions of other libraries (e.g., csc_copy, also in HiGHS), and on     #
+#   Linux the first library loaded gives the function to both. Hence, on     #
+#   Linux, the static library libosqpstatic is used if it is there, with     #
+#   its symbols kept local to the executable, and the shared one otherwise.  #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic OSQP directory without quotes, if any
+libOSQPBSCDIR = $(subst $\",,$(osqp_ROOT))
+
+# non-empty if and only if the static library of OSQP is there
+libOSQPSTATIC = $(wildcard $(libOSQPBSCDIR)/lib/libosqpstatic.a)
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libOSQPINC = -I"$(libOSQPBSCDIR)/include/osqp"
+
+ifeq ($(UNAME_S),Linux)
+    ifneq ($(libOSQPSTATIC),)
+        libOSQPLIB = "$(libOSQPBSCDIR)/lib/libosqpstatic.a" \
+	-Wl,--exclude-libs,libosqpstatic.a
+    else
+        libOSQPLIB = -L"$(libOSQPBSCDIR)/lib" \
+	-Wl,-rpath,"$(libOSQPBSCDIR)/lib" -losqp
+    endif
+endif
+ifeq ($(UNAME_S),Darwin)
+    libOSQPLIB = -rpath "$(libOSQPBSCDIR)/lib" -L"$(libOSQPBSCDIR)/lib" -losqp
+endif
+
+######################## End of makefile-libOSQP #############################
