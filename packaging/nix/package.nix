@@ -29,7 +29,7 @@
   qpoases,
   cadical,
   minisat,
-  lemon-graph,
+  ablemon,
   libsvm,
   liblinear,
   stopt,
@@ -250,7 +250,7 @@ let
       dir = "MCFLemonSolver";
       acr = "mcflemon";
       needs = [ "mcf" ];
-      req = [ "lemon" ];
+      req = [ "ablemon" ];
       opt = [ ];
     }
     {
@@ -304,6 +304,8 @@ let
     "LEMON_ROOT"
   ];
   noSources = [ "COMBO_ROOT" "RECORD_ROOT" ];
+  # the least version of abLEMON that MCFLemonSolver takes
+  ablemonMin = "1.7.0";
   # END of the table written by gen_recipes.py
 
   # the packages of each external of packaging/modules.py, none where
@@ -331,7 +333,12 @@ let
     daqp = [ ];
     piqp = [ ];
     qpmad = [ ];
-    lemon = [ lemon-graph ];
+    # the recipe of this directory, at least at the version that
+    # MCFLemonSolver needs
+    ablemon =
+      assert lib.assertMsg (lib.versionAtLeast ablemon.version ablemonMin)
+        "MCFLemonSolver needs abLEMON ${ablemonMin} or later";
+      [ ablemon ];
   };
   has = e: externals.${e} != [ ];
 

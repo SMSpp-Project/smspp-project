@@ -73,8 +73,8 @@ _MODULES = [
      'Generic Benders decomposition Solver'),
     ('MCFClassSolver', 'mcfclass', ['mcf'], [], [],
      'Min-cost flow Solvers of MCFClass'),
-    ('MCFLemonSolver', 'mcflemon', ['mcf'], ['lemon'], [],
-     'Min-cost flow Solvers of LEMON'),
+    ('MCFLemonSolver', 'mcflemon', ['mcf'], ['ablemon'], [],
+     'Min-cost flow Solvers of abLEMON'),
     ('ScenarioReductionSolver', 'srs', ['tssb'], [], [],
      'Scenario reduction Solvers'),
 ]
@@ -85,6 +85,8 @@ _LOCAL = {
     'mosek': ('MOSEK', 'MOSEK_ROOT'),
 }
 _NO_SOURCES = ['COMBO_ROOT', 'RECORD_ROOT']
+# the least version of abLEMON that MCFLemonSolver takes
+_ABLEMON_MIN = '1.7.0'
 _CMAKE_NAME = {
     'highs': 'HiGHS',
     'scip': 'SCIP',
@@ -113,16 +115,17 @@ _ROOT_VAR = {
     'libsvm': 'LIBSVM_ROOT',
     'liblinear': 'LIBLINEAR_ROOT',
     'stopt': 'StOpt_ROOT',
-    'lemon': 'LEMON_ROOT',
+    'ablemon': 'LEMON_ROOT',
 }
 # END of the table written by gen_recipes.py
 
 # the Conan package of each external of packaging/modules.py, None where
-# there is none that the modules can use: netcdf-cxx4 and stopt are recipes
-# of the SMS++ remote (under the user and channel smspp/stable, which the
-# Conan registry of GitLab wants in every reference), the osqp of Conan Center is 0.6 while MILPSolver needs
-# the API of 1.0, and its minisat is 2.2.0, older than the one SATBlock
-# needs; CPLEX, Gurobi and MOSEK are not redistributable
+# there is none that the modules can use: netcdf-cxx4, stopt and ablemon
+# (at least at the version MCFLemonSolver needs) are recipes of the SMS++
+# remote (under the user and channel smspp/stable, which the Conan registry
+# of GitLab wants in every reference), the osqp of Conan Center is 0.6 while
+# MILPSolver needs the API of 1.0, and its minisat is 2.2.0, older than the
+# one SATBlock needs; CPLEX, Gurobi and MOSEK are not redistributable
 _EXTERNALS = {
     "boost": "boost/1.88.0",
     "eigen": "eigen/3.4.0",
@@ -141,7 +144,7 @@ _EXTERNALS = {
     "daqp": None,
     "piqp": None,
     "qpmad": None,
-    "lemon": "coin-lemon/1.3.1",
+    "ablemon": f"ablemon/[>={_ABLEMON_MIN}]@smspp/stable",
 }
 
 # the source of the backend of MILPSolver of each of those solvers
@@ -313,11 +316,11 @@ class SmsppConan(ConanFile):
             tc.cache_variables[v] = "OFF"
         tc.cache_variables["SMSPP_EXTLIB_DEFAULTS"] = False
         # the Find module of LEMON looks for the name lemon everywhere before
-        # the name emon of its CMake build, and would take the liblemon of
-        # the system
-        if "lemon" in exts:
+        # the name emon of the library of abLEMON, and would take the
+        # liblemon of the system
+        if "ablemon" in exts:
             tc.cache_variables["LEMON_LIBRARY"] = os.path.join(
-                self.dependencies["coin-lemon"].package_folder, "lib",
+                self.dependencies["ablemon"].package_folder, "lib",
                 "libemon.a").replace("\\", "/")
         # FindBoost, which the Find module of StOpt calls for the timer of
         # Boost, looks for its libraries in the package of Boost, since the

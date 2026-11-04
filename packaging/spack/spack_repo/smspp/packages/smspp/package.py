@@ -81,8 +81,8 @@ _MODULES = [
      'Generic Benders decomposition Solver'),
     ('MCFClassSolver', 'mcfclass', ['mcf'], [], [],
      'Min-cost flow Solvers of MCFClass'),
-    ('MCFLemonSolver', 'mcflemon', ['mcf'], ['lemon'], [],
-     'Min-cost flow Solvers of LEMON'),
+    ('MCFLemonSolver', 'mcflemon', ['mcf'], ['ablemon'], [],
+     'Min-cost flow Solvers of abLEMON'),
     ('ScenarioReductionSolver', 'srs', ['tssb'], [], [],
      'Scenario reduction Solvers'),
 ]
@@ -93,6 +93,8 @@ _LOCAL = {
     'mosek': ('MOSEK', 'MOSEK_ROOT'),
 }
 _NO_SOURCES = ['COMBO_ROOT', 'RECORD_ROOT']
+# the least version of abLEMON that MCFLemonSolver takes
+_ABLEMON_MIN = '1.7.0'
 _CMAKE_NAME = {
     'highs': 'HiGHS',
     'scip': 'SCIP',
@@ -121,14 +123,15 @@ _ROOT_VAR = {
     'libsvm': 'LIBSVM_ROOT',
     'liblinear': 'LIBLINEAR_ROOT',
     'stopt': 'StOpt_ROOT',
-    'lemon': 'LEMON_ROOT',
+    'ablemon': 'LEMON_ROOT',
 }
 # END of the table written by gen_recipes.py
 
 # the Spack package of each external of packaging/modules.py, None where
-# Spack has none that the modules can use: SCIP is there only as a manual
-# download, the OSQP is 0.6, while MILPSolver needs the API of 1.0, and the
-# libsvm installs neither its header nor the link of its library
+# Spack has none that the modules can use (abLEMON and StOpt are recipes of
+# this repository): SCIP is there only as a manual download, the OSQP is
+# 0.6, while MILPSolver needs the API of 1.0, and the libsvm installs neither
+# its header nor the link of its library
 _EXTERNALS = {
     "boost": "boost",
     "eigen": "eigen",
@@ -147,7 +150,7 @@ _EXTERNALS = {
     "daqp": None,
     "piqp": None,
     "qpmad": None,
-    "lemon": "lemon",
+    "ablemon": "ablemon",   # the recipe of this repository
 }
 
 
@@ -190,6 +193,8 @@ class Smspp(CMakePackage):
     variant("tools", default=True, description="The command-line tools")
     # the timer of Boost, which SDDPBlock asks for along with StOpt
     depends_on("boost+timer", when="+sddp")
+    # abLEMON at least at the version that has what MCFLemonSolver asks of it
+    depends_on(f"ablemon@{_ABLEMON_MIN}:", when="+mcflemon")
 
     # CPLEX, Gurobi and MOSEK are never in a package: a variant builds the
     # backend of MILPSolver against the installation of the solver, which
@@ -248,12 +253,11 @@ class Smspp(CMakePackage):
         args.append(self.define("SMSPP_EXTLIB_DEFAULTS", False))
         args += self._local_args()
         # the Find module of LEMON looks for the name lemon everywhere before
-        # the name emon of its CMake build, and would take the liblemon of
-        # the system
+        # the name emon of the library of abLEMON, and would take the
+        # liblemon of the system
         if "+mcflemon" in spec:
-            args.append(self.define(
-                "LEMON_LIBRARY", join_path(spec["lemon"].prefix.lib,
-                                           "libemon.a")))
+            args.append(self.define("LEMON_LIBRARY",
+                                    spec["ablemon"].libs[0]))
         return args
 
     def _local_args(self):

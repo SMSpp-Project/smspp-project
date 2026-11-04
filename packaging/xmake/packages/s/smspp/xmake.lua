@@ -158,9 +158,9 @@ package("smspp")
          desc = "Min-cost flow Solvers of MCFClass"},
         {dir = "MCFLemonSolver", acr = "mcflemon",
          lib = "MCFLemonSolver", needs = {"mcf"},
-         req = {"lemon"},
+         req = {"ablemon"},
          opt = {},
-         desc = "Min-cost flow Solvers of LEMON"},
+         desc = "Min-cost flow Solvers of abLEMON"},
         {dir = "ScenarioReductionSolver", acr = "srs",
          lib = "ScenarioReductionSolver", needs = {"tssb"},
          req = {},
@@ -200,23 +200,26 @@ package("smspp")
         libsvm = "LIBSVM_ROOT",
         liblinear = "LIBLINEAR_ROOT",
         stopt = "StOpt_ROOT",
-        lemon = "LEMON_ROOT",
+        ablemon = "LEMON_ROOT",
     }
     local no_sources = {"COMBO_ROOT", "RECORD_ROOT"}
+    -- the least version of abLEMON that MCFLemonSolver takes
+    local ablemon_min = "1.7.0"
     -- END of the table written by gen_recipes.py
 
     -- the package of xmake-repo of each external of packaging/modules.py,
-    -- none where there is none that the modules can use: netcdf-cxx4 and
-    -- stopt are in this repository, the osqp of xmake-repo is 0.6 while
-    -- MILPSolver needs the API of 1.0; CPLEX, Gurobi and MOSEK are not
-    -- redistributable
+    -- none where there is none that the modules can use: netcdf-cxx4,
+    -- stopt and ablemon are in this repository, the osqp of xmake-repo is
+    -- 0.6 while MILPSolver needs the API of 1.0; CPLEX, Gurobi and MOSEK are
+    -- not redistributable
     local externals = {
         boost = "boost", eigen = "eigen", ["netcdf-cxx4"] = "netcdf-cxx4",
         stopt = "stopt", libsvm = "libsvm", highs = "highs",
-        qpoases = "qpoases", lemon = "lemon"}
+        qpoases = "qpoases", ablemon = "ablemon"}
     -- the oldest version that the modules can use, where it is not the
-    -- oldest of xmake-repo: HiGHSMILPSolver needs the callbacks of HiGHS
-    local minimum = {highs = ">=1.10.0"}
+    -- oldest of the package: HiGHSMILPSolver needs the callbacks of HiGHS,
+    -- MCFLemonSolver what abLEMON has from ablemon_min on
+    local minimum = {highs = ">=1.10.0", ablemon = ">=" .. ablemon_min}
 
     -- the classes of a module register themselves in the factories from
     -- static objects, which a static library loses unless whoever links it

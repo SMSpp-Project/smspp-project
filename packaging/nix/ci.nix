@@ -15,8 +15,9 @@ let
     sha256 = lock.locked.narHash;
   }) { };
   stopt = pkgs.callPackage ./stopt.nix { };
+  ablemon = pkgs.callPackage ./ablemon.nix { };
   smspp = pkgs.callPackage ./package.nix {
-    inherit stopt;
+    inherit stopt ablemon;
     modules = pkgs.lib.splitString "," modules;
   };
 in

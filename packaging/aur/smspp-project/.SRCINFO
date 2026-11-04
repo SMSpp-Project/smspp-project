@@ -18,7 +18,7 @@ pkgbase = smspp-project
 	makedepends = minisat
 	makedepends = highs
 	makedepends = scip
-	makedepends = coin-or-lemon
+	makedepends = ablemon>=1.7.0
 	noextract = smspp-project-0.7.99.tar.gz
 	options = !lto
 	source = smspp-project-0.7.99.tar.gz::https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/generic/smspp-project/0.7.99/smspp-project-0.7.99.tar.gz
@@ -142,9 +142,9 @@ pkgname = libsmspp-mcfclass
 	depends = libsmspp-mcf
 
 pkgname = libsmspp-mcflemon
-	pkgdesc = SMS++: Min-cost flow Solvers of LEMON
+	pkgdesc = SMS++: Min-cost flow Solvers of abLEMON
 	depends = libsmspp-mcf
-	depends = coin-or-lemon
+	depends = ablemon>=1.7.0
 
 pkgname = libsmspp-srs
 	pkgdesc = SMS++: Scenario reduction Solvers

@@ -23,16 +23,17 @@ never CPLEX, Gurobi or MOSEK.
     consumer/         a program that finds UCBlock and MILPSolver by CMake
                       and makes a UCBlock and a HiGHSMILPSolver by the
                       factories, built against each channel by the CI
-    conan/            smspp, with netcdf-cxx4 and stopt, which Conan Center
-                      does not carry
-    spack/            a Spack repository (namespace smspp) with smspp, stopt
-                      and highs, which the builtin one does not carry
-    nix/              package.nix and stopt.nix in the style of nixpkgs, and
-                      a flake that builds them
-    aur/              the split PKGBUILD of smspp-project and the one of
-                      stopt, with their .SRCINFO
+    conan/            smspp, with netcdf-cxx4, stopt and ablemon, which
+                      Conan Center does not carry
+    spack/            a Spack repository (namespace smspp) with smspp, stopt,
+                      ablemon and highs, which the builtin one does not carry
+    nix/              package.nix, stopt.nix and ablemon.nix in the style of
+                      nixpkgs, and a flake that builds them
+    aur/              the split PKGBUILD of smspp-project and those of stopt
+                      and ablemon, with their .SRCINFO
     msys2/            the PKGBUILD of mingw-w64-smspp
-    xmake/            an xmake repository with smspp, netcdf-cxx4 and stopt
+    xmake/            an xmake repository with smspp, netcdf-cxx4, stopt
+                      and ablemon
 
 ## How a module is packaged in each channel
 
@@ -71,13 +72,15 @@ backends of its packages, differ somewhat from channel to channel:
 | qpOASES | yes | no | yes | no | no | yes |
 | ProxQP, OSQP | no | no | yes | no | no | no |
 | StOpt (SDDPBlock) | ours | ours | ours | ours | no | ours |
-| LEMON (MCFLemonSolver) | yes | yes | yes | yes | no | yes |
+| abLEMON (MCFLemonSolver) | ours | ours | ours | ours | no | ours |
 | CaDiCaL, MiniSat (SATBlock) | no | no | yes | yes | no | no |
 | libsvm, liblinear (SVMBlock) | libsvm | no | yes | yes | no | libsvm |
 
-where "ours" is a recipe of this directory. A module whose required dependency
-is missing is left out of the channel (SDDPBlock and MCFLemonSolver in
-MSYS2), while a missing optional one only takes away the
+where "ours" is a recipe of this directory; that of abLEMON is at least at the
+version that has what MCFLemonSolver asks of it (`ABLEMON` in `modules.py`),
+and so is the dependency of smspp on it where the channel can say so. A module
+whose required dependency is missing is left out of the channel (SDDPBlock and
+MCFLemonSolver in MSYS2), while a missing optional one only takes away the
 Solvers that wrap it (e.g., SATBlock and SVMBlock are built without their
 solvers). OSQP is left out of the AUR package, since the static library of the
 Arch package, which MILPSolver prefers, is made of slim LTO objects that a
@@ -156,7 +159,8 @@ need an account on the channel, and none of them is automated here).
 
 ### Conan
 
-Conan Center carries neither netCDF-C++, which the core needs, nor StOpt.
+Conan Center carries neither netCDF-C++, which the core needs, nor StOpt and
+abLEMON.
 Its rules also want the libraries of a recipe described as components, while
 this one uses the CMake configuration that SMS++ installs. Hence, the recipes
 are meant for a remote of the project, the Conan registry of the GitLab
@@ -168,7 +172,8 @@ for production use due to limited functionality"; a remote is per project,
 addressed by the numeric ID of the project (15006687 for smspp-project),
 package names are lowercase, and every reference carries a user and a
 channel (`name/version@user/channel`), which here are `smspp/stable`, also in
-the references of `conan/smspp/conanfile.py` to netcdf-cxx4 and stopt. I have
+the references of `conan/smspp/conanfile.py` to netcdf-cxx4, stopt and
+ablemon. I have
 not tried an upload, which needs an account; the steps are
 
     conan remote add smspp \
@@ -177,12 +182,13 @@ not tried an upload, which needs an account; the steps are
     U="--user smspp --channel stable"
     conan create packaging/conan/netcdf-cxx4 --version 4.3.1 $U --build=missing
     conan create packaging/conan/stopt --version 7.1 $U --build=missing
+    conan create packaging/conan/ablemon --version 1.7.0 $U --build=missing
     conan create packaging/conan/smspp --version X.Y.Z $U --build=missing \
         -s compiler.cppstd=20
     conan upload "netcdf-cxx4/*@smspp/stable" "stopt/*@smspp/stable" \
-        "smspp/*@smspp/stable" -r smspp -c
+        "ablemon/*@smspp/stable" "smspp/*@smspp/stable" -r smspp -c
 
-The first two are uploaded once, and again only when their versions
+The first three are uploaded once, and again only when their versions
 change; a user then writes
 
     conan remote add smspp \
@@ -201,11 +207,12 @@ The repository can be used as it is from a checkout of the umbrella,
     spack install smspp
     spack test run smspp
 
-For the builtin repository of Spack, the three packages go to a fork of
+For the builtin repository of Spack, the four packages go to a fork of
 [spack/spack-packages](https://github.com/spack/spack-packages) under
-`repos/spack_repo/builtin/packages/` (as `smspp`, `stopt` and `highs`), with
-the maintainer added by `maintainers("<github user>")`; then `spack style`
-and `spack audit packages smspp stopt highs` check them, and one pull request
+`repos/spack_repo/builtin/packages/` (as `smspp`, `stopt`, `ablemon` and
+`highs`), with the maintainer added by `maintainers("<github user>")`; then
+`spack style` and `spack audit packages smspp stopt ablemon highs` check
+them, and one pull request
 proposes them.
 
 ### Nix
@@ -216,24 +223,27 @@ The flake builds the release with nothing else installed,
     nix flake check "gitlab:smspp/smspp-project?dir=packaging/nix"
 
 and `nix flake update` in `packaging/nix` moves `flake.lock` to a newer
-nixpkgs. For nixpkgs, `stopt.nix` and `package.nix` go to a fork of
-[NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) as
-`pkgs/by-name/st/stopt/package.nix` and `pkgs/by-name/sm/smspp/package.nix`,
+nixpkgs. For nixpkgs, `stopt.nix`, `ablemon.nix` and `package.nix` go to a
+fork of [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) as
+`pkgs/by-name/st/stopt/package.nix`, `pkgs/by-name/ab/ablemon/package.nix`
+and `pkgs/by-name/sm/smspp/package.nix`,
 with the maintainer added to `maintainers/maintainer-list.nix` and to their
 `meta.maintainers`; they are formatted by `nixfmt` and built by `nix-build -A
 smspp` before the pull request.
 
 ### AUR
 
-The two packages are git repositories of the AUR, pushed from an account
-with an SSH key, `stopt` first, since `smspp-project` builds on it:
+The three packages are git repositories of the AUR, pushed from an account
+with an SSH key, `stopt` and `ablemon` first, since `smspp-project` builds on
+them:
 
     git clone ssh://aur@aur.archlinux.org/stopt.git
     cp packaging/aur/stopt/{PKGBUILD,.SRCINFO} stopt/
     (cd stopt && git add PKGBUILD .SRCINFO && git commit -m "X.Y" && git push)
 
-and the same with `smspp-project`. The `.SRCINFO` is written by the
-generator, the same file that `makepkg --printsrcinfo` writes on Arch.
+and the same with `ablemon` and then `smspp-project`. The `.SRCINFO` is
+written by the generator, the same file that `makepkg --printsrcinfo` writes
+on Arch.
 `liblinear` is in the AUR too, and an AUR helper usually builds it first.
 
 ### MSYS2
@@ -265,10 +275,10 @@ From a checkout of the umbrella the repository can be used as it is,
 
 or with `add_repositories("smspp <checkout>/packaging/xmake")` in the
 `xmake.lua` of a project. For
-[xmake-repo](https://github.com/xmake-io/xmake-repo) the three directories of
+[xmake-repo](https://github.com/xmake-io/xmake-repo) the four directories of
 `xmake/packages` go to a fork, on the branch `dev`, in a pull request whose CI
-builds them on its platforms; `netcdf-cxx4` and `stopt` can also be proposed
-first, by themselves.
+builds them on its platforms; `netcdf-cxx4`, `stopt` and `ablemon` can also
+be proposed first, by themselves.
 
 ## A new module
 
