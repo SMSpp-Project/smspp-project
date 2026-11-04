@@ -20,9 +20,9 @@
     so there is no related option.
     Note that PERMON (PERMONMILPSolver), which is in no vcpkg registry, is not installed on Windows,
     so there is no related option.
-    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, quadprog, StOpt, LEMON (as
-    lemon-ng), LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options:
-    DAQP, PIQP, qpmad, quadprog and lemon-ng, which the default registry of vcpkg does not carry,
+    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, quadprog, StOpt, abLEMON (the
+    port ablemon), LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options:
+    DAQP, PIQP, qpmad, quadprog and ablemon, which the default registry of vcpkg does not carry,
     come from the SMS++ vcpkg registry (https://gitlab.com/smspp/vcpkg-registry). quadprog is
     under the GPL, so that a MILPSolver built with it is too.
     Note that MiniSat comes from vcpkg (vcpkg.json, the port minisat-master-keying), while
