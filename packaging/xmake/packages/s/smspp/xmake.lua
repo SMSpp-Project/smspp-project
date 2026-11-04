@@ -171,7 +171,7 @@ package("smspp")
     -- optional externals, the variables that tell where an
     -- external is and the sources not to compile in
     local never = {"CPLEX", "GUROBI", "MOSEK", "PIPS",
-                   "Clarabel", "quadprog", "HPIPM", "Torch"}
+                   "Clarabel", "quadprog", "HPIPM", "PERMON", "Torch"}
     local cmake_name = {
         highs = "HiGHS",
         scip = "SCIP",

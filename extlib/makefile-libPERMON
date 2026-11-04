@@ -1,0 +1,42 @@
+##############################################################################
+############################ makefile-libPERMON ##############################
+##############################################################################
+#                                                                            #
+#   makefile of libPERMON                                                    #
+#                                                                            #
+#   Input:  $(PERMON_ROOT), the directory where PERMON and PETSc, the        #
+#           library it is built on, are installed, i.e., their headers are   #
+#           in $(PERMON_ROOT)/include and their libraries in                 #
+#           $(PERMON_ROOT)/lib                                               #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libPERMONLIB) = external libraries + -L< libdirs > for         #
+#                             libPERMON                                      #
+#           $(libPERMONINC) = the -I$(include directories) for libPERMON     #
+#                                                                            #
+#                                Donato Meoli                                #
+#                         Dipartimento di Informatica                        #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic PERMON directory without quotes, if any
+libPERMONBSCDIR = $(subst $\",,$(PERMON_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libPERMONINC = -I"$(libPERMONBSCDIR)/include"
+
+ifeq ($(UNAME_S),Linux)
+    libPERMONLIB = -L"$(libPERMONBSCDIR)/lib" \
+	-Wl,-rpath,"$(libPERMONBSCDIR)/lib" -lpermon -lpetsc -lm
+endif
+ifeq ($(UNAME_S),Darwin)
+    libPERMONLIB = -rpath "$(libPERMONBSCDIR)/lib" \
+	-L"$(libPERMONBSCDIR)/lib" -lpermon -lpetsc
+endif
+
+####################### End of makefile-libPERMON ############################

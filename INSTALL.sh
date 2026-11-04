@@ -24,6 +24,9 @@
 #     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-qpmad` option to skip the installation of qpmad.
 #     You can use the `--without-hpipm` option to skip the installation of HPIPM.
+#     You can use the `--with-permon` option to install PERMON (and PETSc,
+#     which is large and is built from its sources), which is not installed
+#     otherwise.
 #     You can use the `--without-quadprog` option to skip the installation of
 #     quadprog, which is under the GPL, so that a MILPSolver built with it is
 #     too.
@@ -174,6 +177,42 @@ git_latest() {
   git -C "$dir" submodule update -q --init --recursive
   after=$(git -C "$dir" rev-parse HEAD)
   [ "$fresh" -eq 1 ] || [ "$before" != "$after" ]
+}
+
+# Build PERMON, whose clone is in $1/permon-src, and PETSc, which it is built
+# on, into $1: PETSc of the version that the release of PERMON follows (the
+# major and minor numbers of its tag), from the latest tarball of that
+# version, sequential (without MPI and Fortran, with the BLAS and LAPACK that
+# PETSc downloads, so that no system library is needed), built again only
+# when that version changes; PERMON has no install target, hence its headers
+# and its library are copied next to those of PETSc
+build_permon() {
+  local root=$1 tag minor petsc
+  tag=$(git -C "$root/permon-src" describe --tags --exact-match)
+  minor=$(echo "$tag" | sed -E 's/^v([0-9]+\.[0-9]+)\..*/\1/')
+  petsc=$(git ls-remote --tags --refs https://gitlab.com/petsc/petsc.git "v${minor}.*" |
+            sed 's|.*/v||' | sort -V | tail -1)
+  [ -n "$petsc" ] || { echo "No PETSc ${minor} for PERMON ${tag}"; return 1; }
+  if [ "$(cat "$root/.smspp-petsc-version" 2>/dev/null)" != "$petsc" ]; then
+    cd "$root"
+    curl -fsSL -o "petsc-${petsc}.tar.gz" \
+      "https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-${petsc}.tar.gz"
+    rm -rf "petsc-${petsc}"
+    tar xzf "petsc-${petsc}.tar.gz"
+    cd "petsc-${petsc}"
+    ./configure --prefix="$root" PETSC_ARCH=arch-smspp --with-mpi=0 --with-fc=0 \
+      --with-debugging=0 --with-shared-libraries=1 --with-x=0 \
+      --download-f2cblaslapack COPTFLAGS=-O2 CXXOPTFLAGS=-O2
+    make PETSC_DIR="$PWD" PETSC_ARCH=arch-smspp MAKE_NP="${MAX_JOBS}" all
+    make PETSC_DIR="$PWD" PETSC_ARCH=arch-smspp install
+    cd "$root"
+    rm -rf "petsc-${petsc}" "petsc-${petsc}.tar.gz"
+    echo "$petsc" > "$root/.smspp-petsc-version"
+  fi
+  cd "$root/permon-src"
+  make PETSC_DIR="$root" PETSC_ARCH= PERMON_DIR="$PWD" -j "${MAX_JOBS}"
+  cp -a include/. "$root/include/"
+  cp -a lib/libpermon.* "$root/lib/"
 }
 
 # Resolve where a dependency lives (Linux only): reuse an existing install under
@@ -697,6 +736,28 @@ EOL
       fi
     else
       echo "HPIPM already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PERMON
+  # PERMON, whose QP solvers PERMONMILPSolver uses, is built from its latest
+  # release together with PETSc [see build_permon]; the library of PERMON
+  # finds that of PETSc in the same directory.
+  if [ "$install_permon" -eq 1 ]; then
+    echo "Installing or updating PERMON..."
+    PERMON_ROOT="$(resolve_dep_root permon)"
+    mkdir -p "$PERMON_ROOT"
+    if git_latest https://github.com/permon/permon.git "${PERMON_ROOT}/permon-src" '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
+       [ ! -f "${PERMON_ROOT}/lib/libpermon.so" ]; then
+      build_permon "$PERMON_ROOT"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${PERMON_ROOT}/lib' > /etc/ld.so.conf.d/permon.conf"
+        ldconfig
+      fi
+    else
+      echo "PERMON already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1306,6 +1367,24 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install PERMON
+  # PERMON, whose QP solvers PERMONMILPSolver uses, is built from its latest
+  # release together with PETSc [see build_permon].
+  if [ "$install_permon" -eq 1 ]; then
+    echo "Installing or updating PERMON..."
+    PERMON_ROOT="${INSTALL_ROOT}/permon"
+    mkdir -p "$PERMON_ROOT"
+    if git_latest https://github.com/permon/permon.git "${PERMON_ROOT}/permon-src" '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
+       [ ! -f "${PERMON_ROOT}/lib/libpermon.dylib" ]; then
+      build_permon "$PERMON_ROOT"
+    else
+      echo "PERMON already up to date."
+    fi
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${PERMON_ROOT}/lib"
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install quadprog
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
@@ -1428,6 +1507,7 @@ install_piqp=${install_piqp:-1}
 install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
 install_hpipm=${install_hpipm:-1}
+install_permon=${install_permon:-0}
 install_quadprog=${install_quadprog:-1}
 install_clarabel=${install_clarabel:-1}
 install_stopt=${install_stopt:-1}
@@ -1528,6 +1608,10 @@ do
     ;;
     --without-hpipm)
     install_hpipm=0
+    shift
+    ;;
+    --with-permon)
+    install_permon=1
     shift
     ;;
     --without-quadprog)
@@ -1718,6 +1802,7 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
       [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
       [ -n "${HPIPM_ROOT:-}" ] && echo "HPIPM_ROOT = ${HPIPM_ROOT}"
+      [ -n "${PERMON_ROOT:-}" ] && echo "PERMON_ROOT = ${PERMON_ROOT}"
       [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
       [ -n "${Clarabel_ROOT:-}" ] && echo "Clarabel_ROOT = ${Clarabel_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
@@ -1745,9 +1830,9 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES/
-  # ProxQP/PIQP/OSQP/qpmad/quadprog/HPIPM backends in MILPSolver, LIBSVM and
-  # LIBLINEAR in SVMBlock) degrade gracefully on their own and need no
-  # mapping here.
+  # ProxQP/PIQP/OSQP/qpmad/quadprog/HPIPM/PERMON backends in MILPSolver,
+  # LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their own and
+  # need no mapping here.
   smspp_cmake_flags=()
   if [ "$install_experiments" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=ON")

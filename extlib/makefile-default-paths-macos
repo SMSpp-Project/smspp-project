@@ -65,6 +65,7 @@ osqp_ROOT = /Library/osqp
 qpmad_ROOT = /Library/qpmad
 quadprog_ROOT = /Library/quadprog
 HPIPM_ROOT = /Library/hpipm
+PERMON_ROOT = /Library/permon
 StOpt_ROOT = /Library/StOpt
 FastFlow_ROOT = /Library/fastflow
 OpenMP_ROOT = /opt/homebrew/opt/libomp

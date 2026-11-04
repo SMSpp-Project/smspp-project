@@ -277,6 +277,14 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     problems with linear constraints, dense, no integer variables); it is in
     no package
 
+  - `PERMONMILPSolver`, providing the interface with PermonQP, the solvers
+    of [PERMON](https://github.com/permon/permon) on
+    [PETSc](https://petsc.org) for large sparse convex QPs, e.g., the duals
+    of Support Vector Machines (convex QP problems with linear constraints
+    whose Hessian is positive definite on the equalities, sparse, no
+    integer variables); PETSc is large, hence `INSTALL.sh` installs them
+    only if asked (`--with-permon`), and they are in no package
+
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
   current version is rather crude and in desperate need of some love.
@@ -544,6 +552,7 @@ according to the following options table:
 | `--without-quadprog` | *(via vcpkg)*   | skip quadprog (GPL) installation         |
 | `--without-clarabel` | `-withoutClarabel` | skip Clarabel installation (needs cargo) |
 | `--without-hpipm`  | *(not supported)* | skip HPIPM (and BLASFEO) installation    |
+| `--with-permon`    | *(not supported)* | install PERMON (and PETSc, large)        |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
 | `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |

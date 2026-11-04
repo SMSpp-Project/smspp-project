@@ -18,6 +18,8 @@
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
     Note that HPIPM (HPIPMMILPSolver), which is in no vcpkg registry, is not installed on Windows,
     so there is no related option.
+    Note that PERMON (PERMONMILPSolver), which is in no vcpkg registry, is not installed on Windows,
+    so there is no related option.
     Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, quadprog, StOpt, LEMON (as
     lemon-ng), LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options:
     DAQP, PIQP, qpmad, quadprog and lemon-ng, which the default registry of vcpkg does not carry,
