@@ -254,6 +254,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `INSTALL.sh` run without sudo uses as they are the installations it
+  cannot write, e.g., those of root under `/opt`, instead of trying to update
+  them and stopping, and takes CaDiCaL from its system package when there is
+  one, so that it puts nothing but SMS++ in the home
+
 - `scripts/format.py`, `scripts/cfgformat.py` and `scripts/smspp-format`
   print how to run them on `-h` and `--help`, and stop on an option they do
   not know, which they took as the name of a file

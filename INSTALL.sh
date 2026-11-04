@@ -100,12 +100,24 @@ else
   AS_ROOT=""
 fi
 
+# Whether the installation in $1 is one that this run cannot change, e.g.,
+# one under /opt made by root, when the script runs without sudo: it is then
+# used as it is, neither updated nor installed again
+read_only() {
+  if [ -d "$1" ] && [ ! -w "$1" ]; then
+    echo "$1 is not writable, so it is used as it is."
+    return 0
+  fi
+  return 1
+}
+
 # Whether the dependency installed from an archive in $1 is not at the
 # version $2, i.e., whether to install it (again): the version that an
 # installation is at is kept in its file .smspp-version, and an installation
 # made before that file existed is taken to be at the version asked for
 version_differs() {
   [ -d "$1" ] || return 0
+  read_only "$1" && return 1
   if [ ! -f "$1/.smspp-version" ]; then
     echo "$2" | $AS_ROOT tee "$1/.smspp-version" > /dev/null
     return 1
@@ -145,6 +157,7 @@ mark_version() {
 # update leaves the installation that was there.
 git_latest() {
   local url=$1 dir=$2 pattern=${3:-} fresh=0 before after tag
+  read_only "$dir" && return 1
   if [ ! -d "$dir/.git" ]; then
     CURRENT_INSTALL_FOLDER=$dir
     git clone -q "$url" "$dir"
@@ -244,6 +257,9 @@ install_on_linux() {
         cadical_from_source=0
       fi
     fi
+  elif [ -f /usr/include/cadical.hpp ]; then
+    # without sudo, the package installed by the administrator is used
+    cadical_from_source=0
   fi
 
   # Install CaDiCaL from its latest release, where there is no package: its
@@ -296,7 +312,9 @@ install_on_linux() {
   if [ "$install_record" -eq 1 ]; then
     echo "Installing or updating RECORD..."
     RECORD_ROOT="$(resolve_dep_root record)"
-    if [ ! -d "$RECORD_ROOT/.git" ]; then
+    if read_only "$RECORD_ROOT"; then
+      :
+    elif [ ! -d "$RECORD_ROOT/.git" ]; then
       CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
       git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
       git -C "$RECORD_ROOT" sparse-checkout set source
@@ -930,7 +948,9 @@ install_on_macos() {
   if [ "$install_record" -eq 1 ]; then
     echo "Installing or updating RECORD..."
     RECORD_ROOT="${INSTALL_ROOT}/record"
-    if [ ! -d "$RECORD_ROOT/.git" ]; then
+    if read_only "$RECORD_ROOT"; then
+      :
+    elif [ ! -d "$RECORD_ROOT/.git" ]; then
       CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
       git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
       git -C "$RECORD_ROOT" sparse-checkout set source
