@@ -34,7 +34,8 @@
 #     Clarabel, whose C interface is built with the Rust toolchain (cargo).
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
-#     You can use the `--without-lemon` option to skip the installation of LEMON.
+#     You can use the `--without-lemon` option to skip the installation of
+#     abLEMON, the maintained fork of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
 #     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
 #     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
@@ -269,12 +270,6 @@ install_on_linux() {
     # Install NetCDF-C++
     echo "Installing NetCDF-C++..."
     apt-get install -y -q libnetcdf-c++4-dev
-
-    # Install LEMON
-    if [ "$install_lemon" -eq 1 ]; then
-      echo "Installing LEMON..."
-      apt-get install -y -q liblemon-dev
-    fi
 
     # Install LIBSVM
     if [ "$install_libsvm" -eq 1 ]; then
@@ -557,6 +552,31 @@ EOL
       fi
     else
       echo "HiGHS already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install abLEMON
+  # abLEMON, the maintained fork of LEMON that MCFLemonSolver needs, has no
+  # Debian package: it is built from its latest release, i.e., the latest tag
+  # of its repository.
+  if [ "$install_lemon" -eq 1 ]; then
+    echo "Installing or updating abLEMON..."
+    LEMON_ROOT="$(resolve_dep_root abLEMON)"
+    if git_latest https://github.com/dmeoli/abLEMON.git "$LEMON_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$LEMON_ROOT"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DCMAKE_INSTALL_PREFIX="$LEMON_ROOT" -DLEMON_BUILD_TESTS=NO \
+        -DLEMON_BUILD_DEMOS=NO -DLEMON_BUILD_TOOLS=NO -DLEMON_BUILD_DOC=NO
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${LEMON_ROOT}/lib' > /etc/ld.so.conf.d/ablemon.conf"
+        ldconfig
+      fi
+    else
+      echo "abLEMON already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -944,40 +964,13 @@ install_on_macos() {
   echo "Installing NetCDF..."
   brew install hdf5 netcdf netcdf-cxx
 
-  # Install LEMON
-  # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
-  # parser generator) and the community taps are unmaintained, so we use the
-  # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source only
-  # when genuinely absent (Xcode Command Line Tools, installed above, are its
-  # only prereq); when LEMON is already present the whole step is skipped, so
-  # no recompilation and no sudo prompt on repeated runs.
+  # Install abLEMON, the maintained fork of LEMON that MCFLemonSolver needs,
+  # from its Homebrew tap
   if [ "$install_lemon" -eq 1 ]; then
-    echo "Installing LEMON..."
-    # Surface an already-installed MacPorts even if /opt/local/bin is off PATH
-    # (otherwise it would be re-bootstrapped from source on every run).
-    if ! command -v port >/dev/null 2>&1 && [ -x /opt/local/bin/port ]; then
-      export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-    fi
-    if [ -d /opt/local/include/lemon ] || [ -d /usr/local/include/lemon ]; then
-      echo "LEMON already installed; skipping."
-    else
-      # Bootstrap MacPorts from source only when it is genuinely absent.
-      if ! command -v port >/dev/null 2>&1; then
-        echo "MacPorts not found. Bootstrapping from source..."
-        MACPORTS_SRC="${INSTALL_ROOT}/macports-base"
-        if [ ! -d "$MACPORTS_SRC" ]; then
-          git clone --depth 1 https://github.com/macports/macports-base.git "$MACPORTS_SRC"
-        fi
-        cd "$MACPORTS_SRC"
-        ./configure
-        make
-        sudo make install
-        # MacPorts installs into /opt/local; make port visible for the rest of run
-        export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-        sudo port -v selfupdate
-      fi
-      sudo port install coinor-liblemon
-    fi
+    echo "Installing or updating abLEMON..."
+    brew install dmeoli/ablemon/ablemon
+    brew upgrade dmeoli/ablemon/ablemon
+    LEMON_ROOT="$(brew --prefix ablemon)"
   fi
 
   # Install LIBSVM
@@ -1845,8 +1838,11 @@ if [ "$install_smspp" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF" "-DBUILD_InvestmentBlock=OFF")
   fi
   if [ "$install_lemon" -eq 0 ]; then
-    # LEMON is required by MCFLemonSolver.
+    # abLEMON is required by MCFLemonSolver.
     smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
+  elif [ -n "${LEMON_ROOT:-}" ]; then
+    # abLEMON is not where extlib says (the LEMON of the system)
+    smspp_cmake_flags+=("-DLEMON_ROOT=${LEMON_ROOT}")
   fi
   # a CaDiCaL built from its source is not where extlib says (the package)
   if [ "${cadical_from_source:-0}" -eq 1 ] && [ -n "${CADICAL_ROOT:-}" ]; then
