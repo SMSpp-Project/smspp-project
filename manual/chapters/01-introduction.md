@@ -93,7 +93,7 @@ commitment in its many flavours (`UCBlock`, `ThermalUnitBlock`,
 `StochasticBlock`, `TwoStageStochasticBlock`), strategic investment
 (`InvestmentBlock`), and several others. Existing `:Solver` classes
 include wrappers to external libraries (`MCFSolver` wrapping
-`MCFClass`, `MCFLemonSolver` wrapping LEMON, the `MILPSolver` family
+`MCFClass`, `MCFLemonSolver` wrapping abLEMON, the `MILPSolver` family
 wrapping CPLEX, Gurobi, HiGHS and SCIP, `SDDPSolver` wrapping StOpt),
 SMS++-native specialised solvers
 (`DPBinaryKnapsackSolver`, `ThermalUnitDPSolver`,
@@ -153,7 +153,7 @@ own native specialised solvers, but it also relies on wrappers to a
 range of external libraries: CPLEX, Gurobi, HiGHS and SCIP (through
 the
 [`MILPSolver`](https://smspp.gitlab.io/smspp-project/d7/d97/class_s_m_spp__di__unipi__it_1_1_m_i_l_p_solver.html)
-family); `MCFClass` and LEMON for min-cost flow; StOpt for
+family); `MCFClass` and abLEMON for min-cost flow; StOpt for
 stochastic dual dynamic programming. The user chooses which of these
 external dependencies to install ([Chapter 2](02-installation.md#ch-2)).
 

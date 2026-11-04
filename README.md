@@ -186,12 +186,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
 - [MCFLemonSolver](https://gitlab.com/smspp/mcflemonsolver), a `Solver` for
-  `MCFBlock` based on interfacing the min-cost flow algorithms from the
-  [LEMON project](https://lemon.cs.elte.hu/trac/lemon). It is not a single
-  solver but a whole family of `Solver` variants, obtained by instantiating
-  LEMON's `NetworkSimplex`, `CostScaling`, `CycleCanceling` and
-  `CapacityScaling` algorithms on different graph types and on different
-  (`int`, `long`, `double`) cost/capacity numeric types.
+  `MCFBlock` based on interfacing the min-cost flow algorithms of
+  [abLEMON](https://github.com/dmeoli/abLEMON) 1.7.0 or later, the
+  maintained fork of the [LEMON project](https://lemon.cs.elte.hu/trac/lemon).
+  It is not a single solver but a whole family of `Solver` variants,
+  obtained by instantiating its `NetworkSimplex`, `CostScaling`,
+  `CycleCanceling` and `CapacityScaling` algorithms on different graph types
+  and on different (`int`, `long`, `double`) cost/capacity numeric types.
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general `MILPSolver` `Solver` that aims at being able to solve any `Block`
@@ -555,7 +556,7 @@ according to the following options table:
 | `--with-permon`    | *(not supported)* | install PERMON (and PETSc, large)        |
 | `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
 | `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
-| `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
+| `--without-lemon`  | *(via vcpkg)*     | skip abLEMON installation                |
 | `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
 | `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
 | `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
@@ -662,7 +663,7 @@ a release (which carries every submodule), by FetchContent or by
 targets of the project, e.g., `SMS++::UCBlock`, and `BUILD_<module>` turns off
 those that are not wanted or whose dependencies are not installed (here
 SDDPBlock and InvestmentBlock, which need StOpt, and MCFLemonSolver, which
-needs LEMON):
+needs abLEMON):
 
 ```cmake
 set(SMSPP_VERSION 0.7.1)
