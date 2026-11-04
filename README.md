@@ -656,7 +656,7 @@ SDDPBlock and InvestmentBlock, which need StOpt, and MCFLemonSolver, which
 needs LEMON):
 
 ```cmake
-set(SMSPP_VERSION 0.7.0)
+set(SMSPP_VERSION 0.7.1)
 string(CONCAT SMSPP_URL
     "https://gitlab.com/api/v4/projects/smspp%2Fsmspp-project/packages/"
     "generic/smspp-project/${SMSPP_VERSION}/"

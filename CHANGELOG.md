@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-04
+
 ### Added
 
 - `scripts/format.py` formats also the C++ of the `\code` blocks of the
@@ -258,6 +260,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cannot write, e.g., those of root under `/opt`, instead of trying to update
   them and stopping, and takes CaDiCaL from its system package when there is
   one, so that it puts nothing but SMS++ in the home
+
+- the vcpkg manifest takes lemon-ng 1.4.1#1 from the vcpkg registry of
+  SMS++, whose port downloads the sources from `dmeoli/abLEMON`, the new
+  name of the repository, whose tag archive has another SHA512, so that
+  the download of 1.4.1#0 failed its check
 
 - `scripts/format.py`, `scripts/cfgformat.py` and `scripts/smspp-format`
   print how to run them on `-h` and `--help`, and stop on an option they do
@@ -566,7 +573,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - significant changes in installation scripts and cmake / makefiles
 
-[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...develop
+[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.1...develop
+[0.7.1]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...0.7.1
 [0.7.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.3...0.7.0
 [0.6.3]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.2...0.6.3
 [0.6.2]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.1...0.6.2
