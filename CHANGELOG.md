@@ -22,7 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for the port `ablemon` of the registry with `version>=` 1.8.0, `INSTALL.sh`
   builds abLEMON from its latest release on Linux and installs or upgrades it
   from its Homebrew tap on macOS, and the makefiles link its `libemon` from
-  `/opt/abLEMON` or the Homebrew prefix; the README and the manual say so
+  `/opt/abLEMON` or the Homebrew prefix; the README and the manual say so;
+  in `packaging/`, the AUR, Conan, Nix, Spack and xmake have a recipe
+  `ablemon`, written by `gen_recipes.py` from `ABLEMON` of `modules.py`, and
+  smspp depends on it with that least version
 
 ## [0.7.1] - 2026-11-04
 
