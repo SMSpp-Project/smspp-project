@@ -12,15 +12,15 @@ class Ablemon(CMakePackage):
 
     homepage = "https://github.com/dmeoli/abLEMON"
     url = ("https://github.com/dmeoli/abLEMON/archive/refs/tags/"
-           "1.7.0.tar.gz")
+           "1.8.0.tar.gz")
 
     license("BSL-1.0 AND BSD-3-Clause")
 
     # BEGIN of the table written by gen_recipes.py
     version(
-        '1.7.0',
-        sha256='6ca9da3d115557c2dc914f58f3dbcdb2'
-        '186808ed98c92a306160b1dc7b4d50ee',
+        '1.8.0',
+        sha256='323455e65310c4c25b32278635c7a22f'
+        'b96930f605de8e744201e539998b27a7',
     )
     # END of the table written by gen_recipes.py
 

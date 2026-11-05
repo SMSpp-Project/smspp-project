@@ -198,12 +198,12 @@ STOPT = {
 # version that has what MCFLemonSolver asks of it, which the recipes of
 # this directory carry as the Homebrew tap of abLEMON does
 ABLEMON = {
-    "version": "1.7.0",
-    "min": "1.7.0",
+    "version": "1.8.0",
+    "min": "1.8.0",
     "url": "https://github.com/dmeoli/abLEMON/archive/refs/tags/"
-           "1.7.0.tar.gz",
-    "sha256": "6ca9da3d115557c2dc914f58f3dbcdb2"
-              "186808ed98c92a306160b1dc7b4d50ee",
+           "1.8.0.tar.gz",
+    "sha256": "323455e65310c4c25b32278635c7a22f"
+              "b96930f605de8e744201e539998b27a7",
 }
 
 # netCDF-C++, which the core needs and which Conan Center and xmake-repo do
