@@ -4,7 +4,7 @@
 # packaging/modules.py: edit those, not this file.
 
 pkgname=ablemon
-pkgver=1.7.0
+pkgver=1.8.0
 pkgrel=1
 pkgdesc="Maintained fork of LEMON, a C++ library of graphs and networks"
 arch=('x86_64' 'aarch64')
@@ -13,7 +13,7 @@ license=('BSL-1.0 AND BSD-3-Clause')
 makedepends=(cmake)
 _tarball=abLEMON-$pkgver.tar.gz
 source=("$_tarball::$url/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('6ca9da3d115557c2dc914f58f3dbcdb2186808ed98c92a306160b1dc7b4d50ee')
+sha256sums=('323455e65310c4c25b32278635c7a22fb96930f605de8e744201e539998b27a7')
 
 build() {
   cmake -S abLEMON-$pkgver -B build \
