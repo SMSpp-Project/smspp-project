@@ -9,8 +9,8 @@
 
 let
   # BEGIN of the table written by gen_recipes.py
-  version = "1.8.0";
-  hash = "sha256-MjRV5lMQxMJbMieGNceiL7lpMPYF3o50QgHlOZmLJ6c=";
+  version = "1.8.1";
+  hash = "sha256-o+Aoran6JBH38+HNem+jM8YcYeWlCCmSdAdzsOJcj50=";
   # END of the table written by gen_recipes.py
 in
 stdenv.mkDerivation {
