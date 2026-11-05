@@ -1,13 +1,13 @@
 pkgbase = ablemon
 	pkgdesc = Maintained fork of LEMON, a C++ library of graphs and networks
-	pkgver = 1.8.0
+	pkgver = 1.8.1
 	pkgrel = 1
 	url = https://github.com/dmeoli/abLEMON
 	arch = x86_64
 	arch = aarch64
 	license = BSL-1.0 AND BSD-3-Clause
 	makedepends = cmake
-	source = abLEMON-1.8.0.tar.gz::https://github.com/dmeoli/abLEMON/archive/refs/tags/1.8.0.tar.gz
-	sha256sums = 323455e65310c4c25b32278635c7a22fb96930f605de8e744201e539998b27a7
+	source = abLEMON-1.8.1.tar.gz::https://github.com/dmeoli/abLEMON/archive/refs/tags/1.8.1.tar.gz
+	sha256sums = a3e028ada9fa2411f7f3e1cd7a6fa333c61c61e5a5082992740773b0e25c8f9d
 
 pkgname = ablemon
