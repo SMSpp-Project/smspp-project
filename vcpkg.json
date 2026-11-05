@@ -4,7 +4,7 @@
   "dependencies": [
     {
       "name": "ablemon",
-      "version>=": "1.7.0"
+      "version>=": "1.8.0"
     },
     "boost",
     "boost-mpi",
@@ -50,7 +50,7 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "e2439dd08d91f094f147569b56f068ac516f5a0f",
+        "baseline": "5544d7820f62118750f6a8dc5fe554e61ea0f6f7",
         "packages": [
           "ablemon",
           "daqp",
