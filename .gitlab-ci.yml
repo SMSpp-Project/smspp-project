@@ -82,7 +82,7 @@ changelog_all:
 # the build and run their share of the suites, each of them well inside the
 # hour a job is given.
 .nightly:
-  image: registry.gitlab.com/smspp/smspp-project
+  image: ghcr.io/smspp-project/smspp-project:latest
   rules:
     - if: $NIGHTLY == "1"
   variables:
