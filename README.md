@@ -187,7 +187,7 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 - [MCFLemonSolver](https://gitlab.com/smspp/mcflemonsolver), a `Solver` for
   `MCFBlock` based on interfacing the min-cost flow algorithms of
-  [abLEMON](https://github.com/dmeoli/abLEMON) 1.8.0 or later, the
+  [abLEMON](https://github.com/dmeoli/abLEMON) 1.9.0 or later, the
   maintained fork of the [LEMON project](https://lemon.cs.elte.hu/trac/lemon).
   It is not a single solver but a whole family of `Solver` variants,
   obtained by instantiating its `NetworkSimplex`, `CostScaling`,

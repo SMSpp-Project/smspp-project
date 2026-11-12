@@ -86,7 +86,7 @@ _LOCAL = {
 }
 _NO_SOURCES = ['COMBO_ROOT', 'RECORD_ROOT']
 # the least version of abLEMON that MCFLemonSolver takes
-_ABLEMON_MIN = '1.8.0'
+_ABLEMON_MIN = '1.9.0'
 _CMAKE_NAME = {
     'highs': 'HiGHS',
     'scip': 'SCIP',

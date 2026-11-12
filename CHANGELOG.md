@@ -22,9 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds
   the latest release of PIQP
 
-- `MCFLemonSolver` needs [abLEMON](https://github.com/dmeoli/abLEMON) 1.8.0
+- `MCFLemonSolver` needs [abLEMON](https://github.com/dmeoli/abLEMON) 1.9.0
   or later, the maintained fork of LEMON, in place of LEMON: `vcpkg.json` asks
-  for the port `ablemon` of the registry with `version>=` 1.8.0, `INSTALL.sh`
+  for the port `ablemon` of the registry with `version>=` 1.9.0, `INSTALL.sh`
   builds abLEMON from its latest release on Linux and installs or upgrades it
   from its Homebrew tap on macOS, and the makefiles link its `libemon` from
   `/opt/abLEMON` or the Homebrew prefix; the README and the manual say so;

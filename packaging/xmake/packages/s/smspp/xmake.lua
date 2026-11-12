@@ -204,7 +204,7 @@ package("smspp")
     }
     local no_sources = {"COMBO_ROOT", "RECORD_ROOT"}
     -- the least version of abLEMON that MCFLemonSolver takes
-    local ablemon_min = "1.8.0"
+    local ablemon_min = "1.9.0"
     -- END of the table written by gen_recipes.py
 
     -- the package of xmake-repo of each external of packaging/modules.py,

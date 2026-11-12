@@ -8,8 +8,8 @@ package("ablemon")
     add_urls("https://github.com/dmeoli/abLEMON/archive/refs/tags/"
              .. "$(version).tar.gz")
     -- BEGIN of the table written by gen_recipes.py
-    add_versions("1.8.1",
-        "a3e028ada9fa2411f7f3e1cd7a6fa333c61c61e5a5082992740773b0e25c8f9d")
+    add_versions("1.9.0",
+        "18ff7a91f4fa6e36ddab584f9012181f1a23e917be77ea9f8512ec4eae0648d6")
     -- END of the table written by gen_recipes.py
 
     add_deps("cmake")

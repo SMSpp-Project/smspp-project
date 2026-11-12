@@ -182,7 +182,7 @@ not tried an upload, which needs an account; the steps are
     U="--user smspp --channel stable"
     conan create packaging/conan/netcdf-cxx4 --version 4.3.1 $U --build=missing
     conan create packaging/conan/stopt --version 7.1 $U --build=missing
-    conan create packaging/conan/ablemon --version 1.8.1 $U --build=missing
+    conan create packaging/conan/ablemon --version 1.9.0 $U --build=missing
     conan create packaging/conan/smspp --version X.Y.Z $U --build=missing \
         -s compiler.cppstd=20
     conan upload "netcdf-cxx4/*@smspp/stable" "stopt/*@smspp/stable" \
