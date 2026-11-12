@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
+  gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
+  of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds
+  the latest release of PIQP
+
 - `MCFLemonSolver` needs [abLEMON](https://github.com/dmeoli/abLEMON) 1.8.0
   or later, the maintained fork of LEMON, in place of LEMON: `vcpkg.json` asks
   for the port `ablemon` of the registry with `version>=` 1.8.0, `INSTALL.sh`
