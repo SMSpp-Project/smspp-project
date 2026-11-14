@@ -3,306 +3,391 @@
 [Source: `SMS++/include/Block.h`, `MCFBlock/include/MCFBlock.h`,
 `BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
 
-This chapter makes precise what [Chapter 3](03-mental-model.md#ch-3) introduced informally:
-a `Block` carries two representations of the same mathematical model
-and the framework's machinery is designed to let both coexist
-without forcing the user to pick one. It also closes the
-"`Variable`s are always materialised" caveat already flagged in
-[§3.3](03-mental-model.md#sec-3-3), by stating the current limitation precisely and indicating
-the direction the API is intended to take.
+In this chapter we make precise what [Chapter 3](03-mental-model.md#ch-3)
+introduced informally: a `Block` carries two representations of the
+same model, and the machinery of the framework lets both coexist
+without forcing the user to pick one. It also states precisely what
+is still missing for the "on demand" rule to cover the `Variable`s
+(cf. [§3.3](03-mental-model.md#sec-3-3)), and the direction in which the
+interface is meant to evolve.
 
 ## 7.1 Two faces of the same model {#sec-7-1}
 
-A concrete `:Block` exposes its model along two complementary
-faces.
+The *physical* representation (sometimes called the *semantic* one) is
+the data of the problem in their natural form, stored by the `:Block`
+in ordinary fields. For `MCFBlock` these are the current numbers of
+nodes and arcs `NNodes` and `NArcs`, the arrays `SN[a]` and `EN[a]` of
+the start and end nodes of each arc `a` (numbered from 1), and the
+vectors `U[a]` and `C[a]` of the capacities and costs of the arcs. To
+these one adds the vector `B[i]` of the deficits of the nodes and the
+counters of the static and dynamic nodes and arcs. For
+`BinaryKnapsackBlock` they are the capacity `f_C`, the vectors of
+weights `v_W` and of profits `v_P`, and the vector of integrality
+flags `v_I`. For `CapacitatedFacilityLocationBlock` they are the
+numbers `f_n_facilities` and `f_n_customers`, the maximum number
+`f_max_facilities` of open facilities, the vectors of the demands, of
+the capacities and of the fixed costs, and the matrix of the
+transportation costs.
 
-The **physical** representation, sometimes called the *semantic*
-representation, is the problem data in its natural form. The
-`:Block` stores it as ordinary C++ data members. For `MCFBlock` the
-physical representation is essentially the seven pieces
-`NNodes`, `NArcs`, two arrays of node indices `SN[a]` and `EN[a]`
-that encode the start and end nodes of every arc `a`, a vector of
-arc capacities `U[a]`, a vector of arc costs `C[a]`, and a vector
-of node deficits `B[i]`. For `BinaryKnapsackBlock` the physical
-representation is a capacity `f_C`, a vector of weights `v_W`, a
-vector of profits `v_P` and a boolean integrality vector `v_I`.
-For `CapacitatedFacilityLocationBlock` the physical representation
-is a triple of dimensions (`f_n_facilities`, `f_n_customers`,
-`f_max_facilities`), the demand and capacity vectors, the
-fixed-cost vector and the transportation-cost matrix.
+The *abstract* representation (sometimes called the *syntactic* one)
+is the same model written with the `Variable`s, `Constraint`s and
+`Objective` of [Chapter 5](05-variable-constraint-objective.md#ch-5),
+i.e., in the form that a general-purpose solver expects. For
+`MCFBlock` it consists of four parts, each of which has a
+`std::vector` for the static nodes or arcs and a `std::list` for the
+dynamic ones: the `ColVariable`s of the flows (`NStaticArcs` of them
+in the vector), the `FRowConstraint`s of the flow conservation
+constraints (`NStaticNodes` in the vector), possibly the
+`LB0Constraint`s of the bounds given by the capacities, and an
+`FRealObjective` carrying a `LinearFunction` for the total cost of the
+flow. The `LB0Constraint`s can be omitted only when no capacity is
+given (all of them are infinite) *and* the `Configuration` of
+`generate_abstract_constraints()` requires it (cf.
+[§7.3](07-physical-abstract.md#sec-7-3)); then the bound $x_a \ge 0$
+is carried by the type `kNonNegative` of the `ColVariable`s. The
+`LinearFunction` of the `Objective` is always "dense", i.e., all the
+flow `ColVariable`s are active in it, even those with a zero cost.
 
-The **abstract** representation, sometimes called the *syntactic*
-representation, is the same model expressed as the explicit
-`Variable`s, `Constraint`s and `Objective` introduced in
-[Chapter 5](05-variable-constraint-objective.md#ch-5): it is the form a general-purpose solver would expect.
-For `MCFBlock` the abstract representation consists of one
-`std::vector< ColVariable >` of size `NStaticArcs` (and possibly a
-`std::list< ColVariable >` for the dynamic arcs) for the arc flows,
-one `std::vector< FRowConstraint >` of size `NStaticNodes` (and
-possibly a `std::list< FRowConstraint >` for the dynamic nodes)
-for the flow-conservation constraints, optionally a
-`std::vector< LB0Constraint >` of size `NStaticArcs` (and possibly
-a `std::list< LB0Constraint >` for dynamic arcs) for the arc
-capacity bound constraints, and an `FRealObjective` carrying a
-linear `Function` for the total flow cost. The latter two groups
-are constructed only when needed: the `LB0Constraint`s are skipped
-when all capacities are infinite, and the `Objective` shape can
-be tuned between "dense" and "sparse" by an option (cf.
-`generate_objective()` in [§7.3](07-physical-abstract.md#sec-7-3)).
+Both representations are meant to describe the same problem, i.e., to
+have the same feasible solutions with the same objective values. This
+is a property that each `:Block` has to guarantee, and which one can
+check on its code; for `MCFBlock` it reads as follows. Let an
+`MCFBlock` have $n$ nodes and $m$ arcs, all of them static, none of
+them a loop ($SN_a \ne EN_a$), and let its three groups and its
+`Objective` have been generated. Let $K$ be the set of the *closed*
+arcs, i.e., those whose flow `ColVariable` is fixed (the test of
+`is_closed( a )`), and whose value is then 0, since `close_arc()` sets
+it before fixing (`load()` closes the arcs whose given cost is
+$+\infty$, giving them the cost 0). With $b_i = B_i$ ($b_i = 0$ if `B`
+is empty) and $u_a = U_a$ ($u_a = +\infty$ if `U` is empty), the
+physical problem is
 
-The two representations refer to the same model and are
-*conceptually equivalent*: a feasible solution in one is a
-feasible solution in the other, with the same objective value, up
-to numerical tolerance.
+$$
+(P) \qquad \min \Bigl\{\, \sum_{a \notin K} C_a x_a \;:\;
+\sum_{a : EN_a = i} x_a - \sum_{a : SN_a = i} x_a = b_i \,,\;
+i = 1, \dots, n \,,\;\; 0 \le x_a \le u_a \,,\; x_a = 0 \;\, a \in K \,\Bigr\}
+$$
+
+where a negative deficit is a source and a positive one a sink. The
+abstract problem $(A)$ is the one defined by the `ColVariable`s, the
+`Constraint`s and the `Objective` of the `MCFBlock`.
+
+**Proposition 7.1** (Equivalence of the two representations of
+`MCFBlock`). *Under the above hypotheses, $(P)$ and $(A)$ have the
+same feasible set, and the same objective value at each feasible point.*
+
+*Proof.* We read $(A)$ off the code of
+`MCFBlock::generate_abstract_variables()`,
+`generate_abstract_constraints()` and `generate_objective()`. The
+`ColVariable` $x_a$ of each arc has `is_positive( true )`, i.e., the
+type `kNonNegative`, which enforces $x_a \ge 0$, and it is fixed at 0
+if and only if $a \in K$. The flow conservation `FRowConstraint` $E_i$
+of node $i$ has `set_both( b_i )`, i.e., $l = u = b_i$. Its
+`LinearFunction` has the coefficient $-1$ for each arc $a$ with $SN_a
+= i$ and $+1$ for each arc with $EN_a = i$, and no `ColVariable`
+appears twice in it, since no arc is a loop; hence $E_i$ is the $i$-th
+equation of $(P)$. The `LB0Constraint` of arc $a$ has the right-hand
+side $u_a$ and the left-hand side 0, i.e., it is the bound $0 \le x_a
+\le u_a$; when these constraints are omitted, all the $u_a$ are
+$+\infty$, and the bound reduces to $x_a \ge 0$, which the type of
+$x_a$ enforces. Hence the feasible sets coincide. Finally, the
+`LinearFunction` of the `Objective` has the coefficient $C_a$ for each
+arc that is not deleted (0 for $a \in K$, by construction) and no
+constant term. Since $x_a = 0$ for $a \in K$ on the feasible set, its
+value there is $\sum_{a \notin K} C_a x_a$, whatever the coefficients
+of the closed arcs, and the two objective values coincide. $\square$
+
+We remark that the hypotheses can be relaxed with some (rather
+tedious) bookkeeping. The dynamic nodes and arcs are handled as the
+static ones, in their lists; a deleted arc keeps a fixed `ColVariable`
+with a zero coefficient in the rows of its nodes (as the code of
+`generate_abstract_constraints()` documents), and therefore it
+contributes to neither problem. The changes made after the generation
+are covered by the Janus discipline of [Chapter
+8](08-modification-janus.md#ch-8), which keeps the two representations
+in step (Proposition 8.3).
 
 ## 7.2 Why two representations {#sec-7-2}
 
-The reason for keeping both faces around is that different
-`:Solver`s have different needs.
+Both faces exist because different `:Solver`s have different needs. A
+*specialized* `:Solver`, written for a specific `:Block`, knows the
+problem and reads its physical representation directly: the
+`MCFSolver< MCFC >` of [Chapter 6](06-solver.md#ch-6), for instance,
+hands the arrays of the `MCFBlock` to the underlying algorithm of
+`MCFClass`, and never looks at the abstract representation. This is
+typically the fastest way, and (usually) the one that uses the least
+memory.
 
-A *specialised* `:Solver` written for a specific `:Block` knows
-the problem and reads the physical representation directly. The
-`MCFSolver< MCFC >` of [Chapter 6](06-solver.md#ch-6), for instance, hands the seven
-arrays of `MCFBlock` to an underlying `MCFClass` algorithm; it
-does not look at the abstract representation at all. The
-specialised path is typically the fastest one and the cheapest
-one in memory.
+A *general-purpose* `:Solver`, such as a `:MILPSolver`, does not know
+about min-cost flow, and reads the abstract representation instead: it
+goes through the `Variable`s, builds the matrix of the constraints out
+of the `FRowConstraint`s that carry a `LinearFunction`, reads the
+`Objective`, and hands the resulting MILP to the underlying MIP
+solver. This works on any `:Block` that exposes a suitable abstract
+representation, at the price of holding the explicit `Variable`s,
+`Constraint`s and `Objective` in memory. Having only the physical face
+would exclude the general-purpose `:Solver`s, and having only the
+abstract one would give up the speed of the specialized ones; SMS++
+keeps both, and each `:Solver` reads the one it needs.
 
-A *general-purpose* `:Solver` such as `:MILPSolver`, by contrast,
-knows nothing about min-cost flow specifically. It reads the
-abstract representation: it iterates the `Variable`s, builds the
-constraint matrix from the linear-`Function`-carrying
-`FRowConstraint`s, walks the `Objective`, and hands the resulting
-MILP to its underlying back-end (CPLEX, Gurobi, HiGHS, SCIP).
-This path works on any `:Block` that exposes a suitable abstract
-representation, at the price of carrying the explicit
-`Variable`/`Constraint`/`Objective` objects in memory.
+## 7.3 Construction of the abstract representation on demand {#sec-7-3}
 
-Having only the physical face would lock out general-purpose
-`:Solver`s; having only the abstract face would forbid the speed
-gains of specialisation. SMS++ keeps both faces around and lets
-the user pick, on a per-`Solver` basis, which one to consume.
+The physical representation exists as soon as the `:Block` has been
+loaded (cf. [§4.5](04-block.md#sec-4-5)), while the abstract one is
+built *on demand*, and its cost is paid only when a `:Solver` that
+needs it is attached. The construction is done by five virtual
+methods, which the concrete `:Block`s override:
 
-## 7.3 On-demand construction of the abstract representation {#sec-7-3}
+```cpp
+virtual void generate_abstract_variables( Configuration * stvv = nullptr );
+virtual void generate_abstract_constraints( Configuration * stcc = nullptr );
+virtual void generate_dynamic_variables( Configuration * dyvv = nullptr );
+virtual void generate_dynamic_constraints( Configuration * dycc = nullptr );
+virtual void generate_objective( Configuration * objc = nullptr );
+```
 
-The physical representation exists as soon as the `:Block` has
-been loaded (cf. [§4.5](04-block.md#sec-4-5)). The abstract representation, by contrast,
-is *built on demand*: a `:Block` does not pay the cost of
-constructing it until a `:Solver` that needs it is attached. The
-construction is triggered by five virtual methods that every
-concrete `:Block` overrides:
+which construct, respectively, the static groups of `Variable`s, the
+static groups of `Constraint`s, the dynamic groups of `Variable`s
+(typically empty at first), the dynamic groups of `Constraint`s, and
+the `Objective`. Each takes a `Configuration *` that selects the
+optional parts of the construction, which the `:Block` interprets as
+it sees fit (in fact, there is no general format); the passed
+`Configuration` overrides the corresponding field of the `BlockConfig`
+of the `:Block` (cf. [Chapter 11](11-configuration.md#ch-11)), which
+is used when the argument is `nullptr`. Its usual form is a
+`SimpleConfiguration< int >` whose `f_value` is a bit mask of the
+parts to construct. For instance, `MCFBlock` uses the `Configuration`
+of `generate_abstract_constraints()` to decide whether the
+`LB0Constraint`s of the capacities are omitted, which is allowed only
+if all the capacities are infinite (`MCFBlock.h:513-580`), while
+`CapacitatedFacilityLocationBlock` goes further, and uses the
+`Configuration` of `generate_abstract_variables()` to choose one of
+the four formulations of [§3.5](03-mental-model.md#sec-3-5)
+(`CapacitatedFacilityLocationBlock.h:473-626`). When the same
+`Configuration`s have to be applied to a tree of `Block`s, the
+recursive `[C/O/R]BlockConfig` classes of [Chapter
+11](11-configuration.md#ch-11) carry those of the five methods (plus a
+few others), and propagate them into the sub-`Block`s.
 
-- `generate_abstract_variables(Configuration*)` constructs the
-  static `Variable` groups.
-- `generate_abstract_constraints(Configuration*)` constructs the
-  static `Constraint` groups.
-- `generate_dynamic_variables(Configuration*)` constructs the
-  dynamic `Variable` lists (typically empty initially).
-- `generate_dynamic_constraints(Configuration*)` constructs the
-  dynamic `Constraint` lists.
-- `generate_objective(Configuration*)` constructs the `Objective`.
-
-Each takes a `Configuration*` that *gates* optional parts of the
-construction. The `:Block` may interpret it as it wishes; the
-canonical pattern is that the `Configuration*` is a
-`SimpleConfiguration< int >` whose `f_value` is a bit-mask of
-"which groups to materialise". For instance, `MCFBlock` interprets
-the `Configuration*` of `generate_abstract_constraints` to decide
-whether the arc-bound `LB0Constraint`s are skipped (which is
-allowed only if all arc capacities are infinite, in which case the
-bound is already encoded in the `ColVariable`s' `kNonNegative`
-type); see `MCFBlock.h:513-580`. `CapacitatedFacilityLocationBlock`
-goes further and uses the `Configuration*` of
-`generate_abstract_variables` to select one of the four
-formulations described in [§3.5](03-mental-model.md#sec-3-5); see
-`CapacitatedFacilityLocationBlock.h:472-625`.
-
-When the same `Configuration` parameters need to be applied across
-a whole `Block` tree, the recursive `[C/O/R]BlockConfig` family of
-[Chapter 11](11-configuration.md#ch-11) is the supported way to do it; it carries the
-`Configuration` for `generate_abstract_variables`,
-`generate_abstract_constraints`, `generate_dynamic_*`,
-`generate_objective`, plus a few other slots, and propagates them
-recursively into the sub-`Block`s.
-
-The user-facing rule is simple: if only specialised `:Solver`s
-are attached, the abstract representation need not be constructed
-at all (with the caveat in [§7.6](07-physical-abstract.md#sec-7-6) below); as soon as a `:Solver`
-that reads the abstract face is attached, the corresponding
-`generate_*` methods are called once and the abstract face becomes
-populated. The two faces are then kept in sync by the mechanisms
-of [Chapter 8](08-modification-janus.md#ch-8).
+For the user, the rule is that if only specialized `:Solver`s are
+attached the abstract representation need not be constructed at all
+(with the exception of [§7.6](07-physical-abstract.md#sec-7-6)). A
+`:Solver` that reads the abstract face calls the `generate_*` methods
+it needs when it is registered (as `MILPSolver::set_Block()` does),
+each of which returns at once if its part has already been
+constructed. Both faces are then kept in step by the mechanisms of
+[Chapter 8](08-modification-janus.md#ch-8).
 
 ## 7.4 The lifetime of the abstract representation {#sec-7-4}
 
-Once constructed, the abstract representation lives for as long as
-the `:Block` lives, with two exceptions.
+Once constructed, the abstract representation lives as long as the
+`:Block`, with two exceptions. First, a `:Block` may be reset by
+another `load(...)` (or by `deserialize(...)`), which replaces the
+instance altogether. By convention, `load(...)` issues a single
+`NBModification` (the nuclear option of [§4.6](04-block.md#sec-4-6))
+to the listening `:Solver`s, and the abstract representation of the
+old instance is deleted (in `MCFBlock`, by the same code as the
+destructor, after the `Constraint`s have been emptied so that they do
+not unregister from `Variable`s that are being deleted anyway). Of the
+new instance, only the parts that `load(...)` constructs exist
+afterwards (for `MCFBlock` and `BinaryKnapsackBlock`, the
+`Variable`s); the other ones are constructed again when a `:Solver`
+that needs them calls the `generate_*` methods, typically while it
+processes the `NBModification`, which is consistent with the "on
+demand" rule.
 
-First, a `:Block` may be *reset* by another `load(...)` call (or
-by `deserialize(...)`), which replaces the problem instance
-wholesale. The framework convention is that `load(...)` issues a
-single `NBModification` (the "nuclear option" of [§4.6](04-block.md#sec-4-6)) to every
-listening `:Solver`, and the abstract representation is rebuilt
-the next time it is needed. The `:Block`'s `generate_*` methods
-are *not* called automatically; they are called when a `:Solver`
-that needs them next reads it. This is consistent with the
-"on demand" rule.
+Second, the dynamic groups of `Variable`s and `Constraint`s can grow
+and shrink at any time, through `add_dynamic_variables()`,
+`remove_dynamic_variable[s]()`, `add_dynamic_constraints()` and
+`remove_dynamic_constraint[s]()`. These support column and row
+generation; they issue the dedicated `Modification`s `BlockModAdd`
+and `BlockModRmv` (cf. [Chapter 8](08-modification-janus.md#ch-8)),
+which are processed by the `:Solver`s that can handle them.
 
-Second, dynamic groups of `Variable` or `Constraint` may be added
-to or removed from the abstract representation at any time
-through the dedicated `add_dynamic_variables`,
-`remove_dynamic_variable[s]`, `add_dynamic_constraints`,
-`remove_dynamic_constraint[s]` operations. These are the support for
-column generation and row generation; they issue dedicated
-`Modification`s (`BlockModAdd` / `BlockModRmv`, see [Chapter 8](08-modification-janus.md#ch-8)) and
-are consumed by `:Solver`s that know how to handle them.
+## 7.5 Checks of feasibility and optimality on both faces {#sec-7-5}
 
-## 7.5 Feasibility and optimality checks across both faces {#sec-7-5}
+Three virtual methods of `Block` express the duality between the two
+representations:
 
-Three closely related virtual methods on the `Block` class
-encapsulate the duality between the two representations:
-`is_feasible(useabstract, Configuration*)`,
-`is_optimal(useabstract, Configuration*)`,
-`is_empty(useabstract, Configuration*)`. All three take a
-boolean `useabstract`:
+```cpp
+virtual bool is_feasible( bool useabstract = false ,
+                          Configuration * fsbc = nullptr );
+virtual bool is_optimal( bool useabstract = false ,
+                         Configuration * optc = nullptr );
+virtual bool is_empty( bool useabstract = false ,
+                       Configuration * optc = nullptr );
+```
 
-- `useabstract = false` (the default) asks the `:Block` to check
-  the current candidate solution against the *physical*
-  representation. This path is typically much cheaper: the
-  `:Block` walks its own arrays directly and applies the
-  problem-specific definition of feasibility. For `MCFBlock`,
-  `is_feasible(false)` calls `flow_feasible(...)` and
-  `bound_feasible(...)`, both of which read the arc-flow values
-  and check them against the physical data
-  (`MCFBlock.h:987-1029`).
-- `useabstract = true` asks the `:Block` to check against the
-  *abstract* representation by iterating the `Constraint`s and
-  calling `feasible()` on each. This path only works if the
-  abstract representation has been built, and is generally
-  slower; its principal use is by general-purpose `:Solver`s that
-  do not know the physical representation and have no faster
-  alternative.
+Here `is_empty()` returns `true` if the `Block` provably has no
+feasible solution and a certificate is at hand. For a convex problem
+this amounts to checking that the dual solution held by the `Block` is
+a ray along which the dual objective is unbounded; the base class
+returns `false`.
 
-The two answers must agree up to numerical tolerance under the
-`Configuration*` parameter that sets the tolerance; the
-`Configuration*` is documented per `:Block` and typically reads
-from the `:Block`'s `BlockConfig::f_is_feasible_Configuration`.
-The two answers may, however, *genuinely* disagree in edge cases
-where the abstract representation has not been fully synchronised
-yet — most notably when dynamic `Constraint`s have not yet been
-generated. The comments to `Block::is_feasible()`
-(`Block.h:4607-4646`) discuss this in detail and we refer the
-reader to that source for the precise contract.
+With `useabstract == false` (the default) the `:Block` checks the
+current solution against its *physical* representation. This is
+typically much cheaper, since the `:Block` goes through its arrays and
+applies the definition of feasibility of its problem: for `MCFBlock`,
+`is_feasible( false )` calls `flow_feasible()` and `bound_feasible()`,
+which check the flows against the physical data
+(`MCFBlock.h:987-1029`). With `useabstract == true` the `:Block`
+checks the solution against its *abstract* representation, by
+computing each `Constraint` and calling its `feasible()`; this
+requires the abstract representation to have been built, and it is
+generally slower, its main use being by general-purpose `:Solver`s
+that do not know the physical representation.
 
-For `MCFBlock`, `is_optimal` is exactly `is_feasible && dual_feasible &&
-complementary_slackness`; it requires *both* the primal and the
-dual solutions to have been written into the appropriate
-`Variable`s and `Constraint`s, which in turn requires the
-abstract representation to carry both groups.
+The `Configuration *` gives the tolerance, and its form is documented
+by each `:Block` (typically, a `SimpleConfiguration< double >`, taken
+from the field `f_is_feasible_Configuration` of the `BlockConfig` when
+the argument is `nullptr`). Under the same tolerance the two answers
+should agree, by a property such as Proposition 7.1 of the `:Block` at
+hand. They can genuinely differ only when the abstract representation
+is not complete, notably when some dynamic `Constraint`s have not been
+generated yet; the comment of `Block::is_feasible()`
+(`Block.h:4582-4686`) gives the precise contract. For `MCFBlock`,
+`is_optimal()` checks, within the tolerances, that the flows are
+feasible, that the duals of the flow conservation and bound
+constraints are dual feasible, and that the two satisfy the
+complementary slackness conditions. This requires both the `Variable`s
+and the `Constraint`s to have been generated, and the dual solution to
+have been written into the `Constraint`s.
 
-Each of the first two methods has a counterpart that checks a
-`Solution` ([Chapter 9](09-solution.md#ch-9)) rather than the values held by the
-`Variable`s: `is_sol_feasible(Solution*, Configuration*)` and
-`is_sol_optimal(Solution*, Configuration*)`, with the same meaning
-of the `Configuration*`. Their default implementation writes the
-`Solution` into the `Variable`s, calls `is_feasible(true)` (resp.
-`is_optimal(true)`) and puts back what was there, hence it requires
-the abstract representation; a `:Block` that can read its own
-`:Solution` directly overrides them, and says so by returning
-`true` from `is_sol_feasible_physical()` (resp.
-`is_sol_optimal_physical()`), in which case the `Variable`s are not
-touched and need not even exist. `MCFBlock` does this for
-`MCFSolution`, while `BinaryKnapsackBlock` (for
-`BinaryKnapsackSolution`) and `ThermalUnitBlock` (for the schedule
-of a unit) do it for feasibility only. The names differ from those of `is_feasible` and `is_optimal`
-on purpose: since a pointer converts silently to `bool`, an
-overload of the same name would turn a call meant to check a
-`Solution` into `is_feasible(true)` in any `:Block` that only
-overrides the latter.
+Also, the first two methods have a counterpart that checks a `Solution`
+(cf. [Chapter 9](09-solution.md#ch-9)) instead of the values held by the
+`Variable`s:
+
+```cpp
+virtual bool is_sol_feasible( Solution * sol , Configuration * fsbc = nullptr );
+virtual bool is_sol_optimal( Solution * sol , Configuration * optc = nullptr );
+```
+
+with the same meaning of the `Configuration *`. Their names differ
+from those of `is_feasible()` and `is_optimal()` on purpose: since a
+pointer converts silently to `bool`, an overload with the same name
+would turn a call meant to check a `Solution` into `is_feasible( true
+)` in any `:Block` that only overrides the latter. The default
+implementation, which requires the abstract representation, writes the
+`Solution` into the `Variable`s, calls `is_feasible( true )` (or
+`is_optimal( true )`), and puts back what was there. In pseudocode,
+for a `Block` $B$, a `Solution` $s$ and a test $T$ (one of the two),
+it reads
+
+```
+check(B, s, T):
+  if s = null: return false
+  if s holds a direction and B cannot hold one: return false
+  c <- B.get_Solution(null, false)      // all of the current state
+  if c = null: throw logic_error
+  d <- B.is_direction()
+  if s holds a direction: B.is_direction(true)
+  try: s.write(B); r <- T(B)
+  catch domain_error: r <- false      // s gives a fixed Variable another value
+  B.is_direction(d)
+  c.write(B); delete c
+  return r
+```
+
+The property it relies upon is the round-trip contract of a
+`Solution`, which all the `:Solution`s are required to satisfy (cf.
+[§9.2](09-solution.md#sec-9-2)). (R) If $c$ is obtained by
+`B.get_Solution( nullptr , false )`, then after any sequence of writes
+into the `Variable`s (and the duals of the `Constraint`s) of $B$ that
+neither adds nor removes any of them, `c.write( B )` gives each of
+them back the value it had when $c$ was obtained.
+
+**Lemma 7.2** (The default checks leave the `Block` as they find
+it). *Let $B$ satisfy (R), and let $T$ either return or throw
+`std::domain_error`. Then `is_sol_feasible( s )` and
+`is_sol_optimal( s )` return the value of $T$ on the state written by
+$s$ (or `false`), and afterwards the values of the `Variable`s and of
+the duals of $B$, and its flag `is_direction()`, are those it had
+before the call.*
+
+*Proof.* If one of the two early returns is taken, no value has been
+written. Otherwise $c$ is taken before anything is written; then $s$
+writes into $B$, which (writing values only) adds or removes no
+`Variable` and no `Constraint`, and the test reads them. If $T$ throws
+`std::domain_error` the exception is caught, so in both cases control
+reaches the two restoring steps: the flag is set back to the value $d$
+saved before it was changed, and `c.write( B )` restores the values by
+(R). $\square$
+
+The hypothesis on the exceptions is necessary. If $T$, or the write
+of $s$, throws an exception of another type, the restoring steps are
+skipped: the `Variable`s keep the values of $s$, the flag may stay
+raised, and $c$ is leaked (`SMS++/src/Block.cpp:649-663`; a guard
+object that restores and deletes in its destructor would remove the
+hypothesis).
+
+A `:Block` that can read its `:Solution` directly overrides the two
+methods, and declares it by returning `true` from
+`is_sol_feasible_physical()` (or `is_sol_optimal_physical()`), in
+which case the `Variable`s are not touched and need not even exist.
+`MCFBlock` does this for `MCFSolution`, while `BinaryKnapsackBlock`
+(for `BinaryKnapsackSolution`) and `ThermalUnitBlock` (for the
+schedule of a unit) do it for feasibility only.
 
 ## 7.6 Status — under development: the half-baked `Solution` {#sec-7-6}
 
-The framing of [§7.1](07-physical-abstract.md#sec-7-1), "two faces coexist and neither is privileged",
-is not, at version 0.8.0, a faithful description of the
-implementation: it is the framing we are working towards.
+The picture of [§7.1](07-physical-abstract.md#sec-7-1), two faces that
+coexist with neither being privileged, is not, at version 0.8.0, a
+faithful description of the implementation, but the one towards which
+it is moving. Today, the situation is the following. The `Constraint`s
+and the `Objective` of the abstract representation are built genuinely
+on demand, i.e., only if a `:Solver` that needs them is attached. The
+`Variable`s, instead, are *always* constructed by the `:Block`s of the
+running examples, whether or not any `:Solver` reads them, since the
+standard way for a `:Solver` to report its solution is
+`get_var_solution()`, which *writes into* the `Variable`s of the
+`Block`. Even an `MCFBlock` attached only to an `MCFSolver< MCFSimplex
+>` has its `std::vector< ColVariable >` of size `NStaticArcs`
+allocated by `load(...)`, where the `:Solver` can put the optimal
+flows.
 
-What is true today is the following:
-
-- `Constraint`s and the `Objective` of the abstract representation
-  are *genuinely on demand*: they are constructed only if a
-  `:Solver` that needs them is attached, and the cost of
-  constructing them is paid only when it is needed.
-- `Variable`s of the abstract representation are, in the current
-  `:Block`s, *always materialised*, regardless of whether any
-  `:Solver` actually reads them, because the standard way for a
-  `:Solver` to report its solution is `get_var_solution()`, which
-  *writes into* the abstract `Variable`s of the `Block`. Even an
-  `MCFBlock` attached to an `MCFSolver< MCFSimplex >` that has
-  never asked for the abstract representation still has a
-  `std::vector< ColVariable >` of size `NStaticArcs` allocated by
-  `load(...)`, so that the `:Solver` has somewhere to deposit the
-  optimal flows.
-
-The asymmetry is visible to any reader of the framework code: it
-explains why a `:Block`'s `generate_abstract_variables()` is
-called even when the only `:Solver` registered is specialised,
-and why a `:Block` whose constructor allocates no `Variable` is
-nonetheless not the canonical way to build a memory-thin
-specialised-only `:Block`.
-
-The resolution is to let a `:Solver` return a `Solution` object
-*directly*, instead of writing the solution component-by-component
-into the abstract `Variable`s, and the solution side of it is now
-in the API: `Solver::get_Solution(Configuration*)` returns a
-`:Block`-specific `Solution` (such as `MCFSolution`; full
-discussion in [Chapter 9](09-solution.md#ch-9)), and a "physical" `:Solver` that
-builds it out of its own data structures, without touching the
-`Variable`s, says so by returning `true` from
-`is_get_Solution_physical()`. `MCFSolver`, `MCFLemonSolver`, the
-`:Solver`s of `BinaryKnapsackBlock` and `ThermalUnitDPSolver`, among
-others, do so; the `Solution` can then be checked with
-`is_sol_feasible()` / `is_sol_optimal()` ([§7.5](07-physical-abstract.md#sec-7-5)), again without
-the `Variable`s. What is still missing is the other half: the
-`:Block`s of the running examples still construct their `Variable`s
-in `load(...)`, so that a `:Block` attached to a specialised
-`:Solver` only does not yet skip the `generate_abstract_variables()`
-step.
-
-The above is one of several places where the SMS++ public API is
-not yet fully settled at version 0.8.0; the convention adopted by
-the manual is to flag such places with **Status — under
-development** and to let the reader know that user code written
-today should not assume the asymmetry will persist. [Chapter 9](09-solution.md#ch-9)
-returns to this point with the corresponding `Solution`-side
-discussion.
+The way out is to let a `:Solver` return a `Solution` object
+*directly*, instead of writing the solution component by component
+into the `Variable`s, and this half is now in the interface.
+`Solver::get_Solution( Configuration * )` returns a `Solution`
+specific to the `:Block` (such as `MCFSolution`, see [Chapter
+9](09-solution.md#ch-9)); a "physical" `:Solver`, which builds it out
+of its data structures without touching the `Variable`s, declares it
+by returning `true` from `is_get_Solution_physical()`. `MCFSolver`,
+`MCFLemonSolver`, the `:Solver`s of `BinaryKnapsackBlock` and
+`ThermalUnitDPSolver`, among others, do so, and the `Solution` can
+then be checked by `is_sol_feasible()` and `is_sol_optimal()` (cf.
+[§7.5](07-physical-abstract.md#sec-7-5)), again without the
+`Variable`s. Still missing is the other half: the `:Block`s of the
+running examples still construct their `Variable`s in `load(...)`, and
+therefore a `:Block` attached only to specialized `:Solver`s does not
+yet skip them. This is one of several places where the interface of
+SMS++ is not settled at version 0.8.0, and code written today should
+not assume that the present arrangement will persist; in [Chapter
+9](09-solution.md#ch-9) we return to the point from the side of
+`Solution`.
 
 ## 7.7 Idioms {#sec-7-7}
 
-**Build the abstract representation lazily.** User code does not
-need to call `generate_abstract_*()` and `generate_objective()`
-explicitly; the framework invokes them when the first
-abstract-using `:Solver` is registered and the corresponding
-information is requested. Calling them by hand is only useful in
-two situations: when the user wants the abstract representation
-to be present for inspection or for the `is_feasible(true)` check,
-and when the user wants to pass a `Configuration*` that differs
-from the one carried by the `:Block`'s `BlockConfig`.
+Code that uses a `:Block` need not call the `generate_*()` methods,
+since the `:Solver`s that need the abstract representation call them
+when they are registered. Calling them by hand is useful in two cases
+only: when the abstract representation has to be present for
+inspection or for `is_feasible( true )`, and when a `Configuration`
+different from the one in the `BlockConfig` of the `:Block` has to be
+passed.
 
-**Use `is_feasible(false)` for cheap sanity checks.** When the
-solution sitting in the `:Block`'s `Variable`s has been put there
-by a specialised `:Solver`, the physical-path `is_feasible(false)`
-is both cheaper and more reliable; the abstract path adds nothing
-beyond what the specialised `:Solver` already knows. Reserve
-`is_feasible(true)` for cases where the abstract representation is
-the only one available, or for debugging discrepancies between the
-two.
+When the solution in the `Variable`s of a `:Block` has been put there
+by a specialized `:Solver`, the physical check `is_feasible( false )`
+is both cheaper and more reliable, since the abstract one does not add
+to what the specialized `:Solver` already knows. The check
+`is_feasible( true )` is meant for the cases where the abstract
+representation is the only one available, and for debugging the
+differences between the two.
 
-**Treat the abstract `Variable`s as the solution channel, not the
-problem definition.** Until the API is reworked along the lines
-of [§7.6](07-physical-abstract.md#sec-7-6), the abstract `Variable`s of a `:Block` are best thought
-of as "the place where the `:Solver` writes the solution", not as
-"the syntactic spelling of the problem". When the abstract face
-of a `:Block` is needed in full (e.g. for an `:MILPSolver` to
-operate on), the framework constructs it on demand; user code
-that reads the solution should go through the `:Block`'s physical
-accessors, not through the `Variable`s.
+Until the interface evolves along the lines of
+[§7.6](07-physical-abstract.md#sec-7-6), the abstract `Variable`s of a
+`:Block` are best thought of as the place where a `:Solver` writes the
+solution, rather than as the syntactic form of the problem. When the
+abstract face is needed in full (say, by a `:MILPSolver`) it is
+constructed on demand, while the code that reads the solution goes
+through the methods of the `:Block` or through a `Solution`.
