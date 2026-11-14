@@ -1,6 +1,6 @@
-# [Recipe R2](R2-knapsack-reopt.md#rec-R2) — Reoptimizing a Binary Knapsack {#rec-R2}
+# Recipe R2: reoptimizing a Binary Knapsack {#rec-R2}
 
-> **Counterpart in the source tree:**
+> *Counterpart in the source tree:*
 > `tests/BinaryKnapsackBlock/test.cpp`, which exercises the same
 > `chg_*` reoptimization paths (and cross-checks the result against
 > a second solver).
@@ -10,17 +10,20 @@
 Solve a small knapsack with the specialised
 `DPBinaryKnapsackSolver`; then change the data *incrementally* and
 re-solve, letting the solver *reoptimize* from its previous state
-rather than starting over. This is the smallest illustration of
-SMS++'s pervasive reoptimization theme (Chapters [8](08-modification-janus.md#ch-8) and [13](13-function-family.md#ch-13)).
+rather than starting over. This is the smallest illustration of the
+reoptimization theme of SMS++ (Chapters [8](08-modification-janus.md#ch-8)
+and [13](13-function-family.md#ch-13)).
 
 ## Concepts used
 
-- `Block` construction and `load(...)` — [Chapter 4](04-block.md#ch-4).
-- A *native* specialised `Solver` — [Chapter 6](06-solver.md#ch-6).
-- `Modification` from a physical `chg_*()` change — [Chapter 8](08-modification-janus.md#ch-8).
-- Reoptimization, and what a solver may reuse across a change —
-  [Chapter 13](13-function-family.md#ch-13).
-- (Variation) the `Change` family — [Chapter 16](16-change.md#ch-16).
+- the construction of a `Block` and `load()`
+  ([Chapter 4](04-block.md#ch-4));
+- a *native* specialised `Solver` ([Chapter 6](06-solver.md#ch-6));
+- the `Modification` of a physical `chg_*()` change
+  ([Chapter 8](08-modification-janus.md#ch-8));
+- reoptimization, and what a `Solver` may reuse across a change
+  ([Chapter 13](13-function-family.md#ch-13));
+- (variation) the `Change` family ([Chapter 16](16-change.md#ch-16)).
 
 ## The code
 
@@ -50,9 +53,9 @@ int main()
  const std::vector< double > P = { 3.0 , 4.0 , 5.0 , 1.0 };  // profits
  bkb.load( 4 , /* capacity = */ 5.0 , W , P );   // maximization by default
 
- // the Variable where the solution is written, and the Objective
- // that get_objective_value() computes
- bkb.generate_abstract_variables();
+  // load() has constructed the Variable; the Objective is what
+ // get_objective_value() computes
+ bkb.generate_abstract_variables();   // nothing to do, already there
  bkb.generate_objective();
 
  auto * solver = new DPBinaryKnapsackSolver();
@@ -75,27 +78,28 @@ int main()
 
 ## Walk-through
 
-- `load(4, 5.0, W, P)` sets the physical data of the knapsack; the
-  default sense is maximisation (`set_objective_sense(false)`
+- `load( 4 , 5.0 , W , P )` sets the physical data of the knapsack,
+  all the items being binary since the integrality vector is omitted;
+  the default sense is maximisation (`set_objective_sense( false )`
   would switch it to minimisation). The `DPBinaryKnapsackSolver`
-  requires the *weights* to be integer — they are — while
-  capacity and profits may be real.
+  requires the *weights* to be integer (they are), while the capacity
+  and the profits may be real.
 - `DPBinaryKnapsackSolver` is a *native* SMS++ specialised solver
-  ([Chapter 6](06-solver.md#ch-6)): a dynamic-programming recursion over the items, no
-  external dependency. It reads the physical representation, so —
-  as in R1 — it needs no abstract representation to solve; but, as
-  in R1, the solution that `get_var_solution()` writes goes into the
-  `ColVariable`s of the `Block`, and `get_objective_value()` computes
-  its `Objective`, so these are generated before the solution is
-  read back through the `Block`'s accessors `get_objective_value()`
-  / `get_x(i)` (without them, `get_x(i)` throws and
-  `get_objective_value()` returns $+\infty$).
+    ([Chapter 6](06-solver.md#ch-6)): a dynamic-programming recursion
+  over the items, with no external dependency. It reads the physical
+  representation, and therefore, as in R1, it needs no abstract
+  representation to solve. The solution that `get_var_solution()`
+  writes goes into the `ColVariable`s of the `Block`, which `load()`
+  constructs, and `get_objective_value()` computes the `Objective` of
+  the `Block`, which has to be generated: without
+  `generate_objective()` it returns $+\infty$, while `get_x( i )`
+  works in any case.
 - `chg_profit(8.0, 2)` changes the profit of item 2 in the
   physical representation and issues the corresponding
   `BinaryKnapsackBlockMod` ([Chapter 8](08-modification-janus.md#ch-8)). Because the solver is
   registered, it receives the `Modification` in its pending list.
 - The second `compute()` consumes that one `Modification` and
-  **reoptimizes**: a single-profit change does not invalidate the
+  *reoptimizes*: a single-profit change does not invalidate the
   whole DP table, and the solver reuses what it can rather than
   rebuilding from scratch. The
   `DPBinaryKnapsackSolver` exposes a `dblReopt` parameter
@@ -103,20 +107,28 @@ int main()
   reoptimizes: it decides how many of the intermediate label sets of
   the recursion are stored, and the second `compute()` restarts from
   the last stored one before the first changed item. With the
-  default `dblReopt = 0` only the final labels are kept, so a change
+    default `dblReopt = 0` only the final labels are kept, so a change
   of item 2 restarts the recursion from the first item; with
   `dblReopt = 1`, as set above, all are kept and the recursion
-  restarts from item 2. This is the recipe-scale instance of the
+  restarts from item 2, and in between $2^k$ equally spaced label sets
+  are kept. The parameter is set here with `set_par()` to keep the
+  recipe self-contained; a tool or a test reads it from the
+  `ComputeConfig` of a configuration file
+  ([Chapter 11](11-configuration.md#ch-11)). This is the recipe-scale instance of the
   reoptimization theme that, at scale, lets a `BundleSolver`
   reuse its bundle across changes to an inner `Block` ([Chapter 13](13-function-family.md#ch-13),
   [Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
 
 ## Expected output
 
-The first solve: with weights `(2,3,4,1)`, profits `(3,4,5,1)`,
-capacity 5, the best subset is items {0,1} (weight 2+3 = 5, profit
-3+4 = 7). After raising item 2's profit to 8, the best subset
-becomes {2,3} (weight 4+1 = 5, profit 8+1 = 9):
+With weights (2, 3, 4, 1), profits (3, 4, 5, 1) and capacity 5, the
+feasible subsets with at least two items are {0, 1} (weight 5, profit
+7), {0, 3} (weight 3, profit 4), {1, 3} (weight 4, profit 5) and
+{2, 3} (weight 5, profit 6), and no single item has a profit above 5;
+hence, the first optimum is {0, 1}, of value 7. After the profit of
+item 2 is raised to 8, {2, 3} has profit 9 and {2} has profit 8, while
+the other subsets are unchanged, and the optimum becomes {2, 3}, of
+value 9:
 
 ```
 objective = 7 ; x = (1,1,0,0)
@@ -125,25 +137,25 @@ objective = 9 ; x = (0,0,1,1)
 
 ## Variations
 
-**Change several items at once, by range or subset.**
-`chg_profits(it, Range)` and `chg_profits(it, Subset&&, bool)`
-(and the analogous `chg_weights`) change a contiguous interval or
-an arbitrary subset of items in one call, issuing a single
+*Several items at once, by range or subset.*
+`chg_profits( MF_dbl_sp , Range )` and
+`chg_profits( MF_dbl_sp , Subset && , bool )` (and the analogous
+`chg_weights()`) change a contiguous interval or an arbitrary subset of
+items in one call, issuing a single
 `Rngd` / `Sbst` `Modification` that the solver can react to as a
-unit ([Chapter 8](08-modification-janus.md#ch-8)). `chg_capacity(newC)` changes the knapsack
-capacity.
+unit ([Chapter 8](08-modification-janus.md#ch-8)), and
+`chg_capacity( NC )` changes the capacity of the knapsack.
 
-**Apply the change as a `Change` (beta) instead.** Because
+*The change as a `Change` (beta).* Since
 `BinaryKnapsackBlock` ships a `Change` family ([Chapter 16](16-change.md#ch-16)), the
 same edit can be expressed as a `BinaryKnapsackBlockRngdChange`,
 `apply()`-ed with `doUndo = true` to obtain the inverse, the
 modified block explored, and the change rolled back with the
-returned UndoChange. This is the right tool when the edit must be
-*serialised*, *transmitted*, or *undone* — not for an ordinary
-in-process re-solve, for which the `chg_*()` path above is
-simpler. **Status — beta.**
+returned UndoChange (Lemma 16.1). This is the right tool when the edit
+must be serialised, transmitted, or undone, while for an ordinary
+in-process re-solve the `chg_*()` path above is simpler.
 
-**Change the data by name, through the methods factory.**
+*The data changed by name, through the methods factory.*
 `BinaryKnapsackBlock` registers `chg_weights`, `chg_profits` and
 `chg_capacity` in the methods factory ([Chapter 15](15-methods-factory.md#ch-15)), so the same
 edit made above through the concrete type can also be issued by
@@ -157,7 +169,6 @@ edit made above through the concrete type can also be issued by
               Block::Range( 2 , 3 ) , eModBlck , eModBlck );
 ```
 
-This is exactly how type-agnostic machinery (a `StochasticBlock`
-scenario realiser, a meta-configuration driver) changes a
-`BinaryKnapsackBlock`'s data without a compile-time dependency on
-its type.
+This is how type-agnostic machinery (the `DataMapping`s of a
+`StochasticBlock`, a meta-configuration driver) changes the data of a
+`BinaryKnapsackBlock` without a compile-time dependency on its type.

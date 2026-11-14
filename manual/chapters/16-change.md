@@ -1,6 +1,6 @@
 # 16. Change {#ch-16}
 
-> **Status — beta.** The `Change` concept is in `develop` but its
+> *Status: beta.* The `Change` concept is in `develop` but its
 > interface and semantics may change in incompatible ways. Only a
 > small number of `:Change` classes exist at version 0.8.0
 > (notably for `BinaryKnapsackBlock` and `SATBlock`, besides the
@@ -22,13 +22,11 @@ A
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
 is, like a `Modification`, an object that describes a change to a
 `Block`. The two are duals of each other in *time*
-(`Change.h:69-98`):
-
-- a `Modification` ([Chapter 8](08-modification-janus.md#ch-8)) *notifies* of a change that **has
-  already occurred** in a `Block`, so that listening `:Solver`s
-  can react;
-- a `Change` *represents* a change that **may be applied later**,
-  carrying all the data needed to perform it.
+(`Change.h:69-98`): a `Modification`
+([Chapter 8](08-modification-janus.md#ch-8)) *notifies* of a change
+that has already occurred in a `Block`, so that the listening
+`:Solver`s can react, while a `Change` *represents* a change that may
+be applied later, carrying all the data needed to perform it.
 
 This difference in orientation has a concrete consequence: a
 `Change` must contain *all the new data* of the change, because it
@@ -46,22 +44,45 @@ Change * apply( Block * block ,
                 ModParam issueAMod = eNoBlck );
 ```
 
-which applies the change to `block` (issuing `Modification`s in
-the usual way, governed by the two `ModParam`s), and — if `doUndo`
-is `true` — returns an **UndoChange**: a freshly minted `:Change`
-that, applied to `block`, would restore it to the state it was in
-before (`Change.h:413-430`).
+which applies the change to `block` (issuing `Modification`s in the
+usual way, governed by the two `ModParam`s) and, if `doUndo` is `true`,
+returns an *UndoChange*, i.e., a new `:Change` that, applied to
+`block`, restores it to the state it was in before
+(`Change.h:413-430`); the caller owns the UndoChange. That this
+contract composes is what makes the search schemes of
+[§16.3](16-change.md#sec-16-3) possible.
+
+**Lemma 16.1.** *Let $C_1, \ldots, C_n$ be `Change`s applied in this
+order to a `Block` in state $s_0$, each with `doUndo` true, leading to
+the states $s_1, \ldots, s_n$, and let $U_k$ be the UndoChange returned
+by $C_k$, so that $U_k$ applied in state $s_k$ gives $s_{k-1}$. Then
+applying $U_n, U_{n-1}, \ldots, U_1$ in this order in state $s_n$ gives
+$s_0$. In particular, the UndoChange of a `GroupChange` of
+$C_1, \ldots, C_n$, which is the `GroupChange` of $U_n, \ldots, U_1$,
+restores the state before the `GroupChange`.*
+
+*Proof.* By induction on $j = n, n - 1, \ldots, 0$, after applying
+$U_n, \ldots, U_{j+1}$ the state is $s_j$: this holds for $j = n$, and
+if it holds for $j$, applying $U_j$ in state $s_j$ gives $s_{j-1}$ by
+hypothesis. For $j = 0$ the state is $s_0$. `GroupChange::apply()` with
+`doUndo` applies its sub-`Change`s in order and pushes each UndoChange
+at the front of the new `GroupChange`, which therefore holds them in
+reverse order (`Change.h:571-588`). $\square$
+
+We remark that the hypothesis is on each $U_k$ in the state $s_k$ in
+which it was produced: an UndoChange applied after other changes of the
+`Block` restores what it recorded (e.g., the old weights of its items),
+not the state before its `Change`.
 
 ## 16.2 Abstract and specific `Change`s {#sec-16-2}
 
-Like `Modification`s and `Block`s, `Change`s come in two flavours:
-
-- an **abstract** `:Change` operates on the abstract
-  representation and therefore applies to *any* `Block` (it fixes
-  a `Variable`, relaxes a `Constraint`, ...);
-- a **specific** `:Change` is written for a particular `:Block`
-  and uses that `:Block`'s specialised interface to change its
-  physical representation directly.
+Like `Modification`s and `Block`s, `Change`s come in two flavours. An
+*abstract* `:Change` operates on the abstract representation and
+therefore applies to any `Block` (as `AbstractChange` does, fixing a
+`ColVariable` or changing one of its bounds, its integrality or its
+objective coefficient, or the sense of the `Objective`); a
+*specific* `:Change` is written for a particular `:Block` and uses its
+specialised interface to change its physical representation directly.
 
 A specific `:Change` can support at most the changes that its
 target `:Block` supports. It may deliberately support *fewer*, for
@@ -85,13 +106,13 @@ a `Modification`,
 
 `Change` carries a class-name factory (`Change::new_Change(name)`,
 `Change::deserialize(NcGroup)`) of exactly the same kind as
-`Block`, `Solver` and `Solution` ([Chapter 18](18-factories-netcdf.md#ch-18)), so a `:Change`
+`Block`, `Solver` and `Solution` ([Chapter 18](18-factories-netcdf.md#ch-18)), and a `:Change`
 read from a netCDF group is reconstructed as the right concrete
 type and then `apply()`-ed. This makes a `Change` something a
 `Modification` can never be: a portable, storable, *transmissible*
-instruction. The intended downstream use is **message-passing
-distributed computation** — a process computes a `Change`,
-serialises it, ships it to another process holding a copy of the
+instruction. The intended downstream use is message-passing
+distributed computation, in which a process computes a `Change`,
+serialises it and ships it to another process holding a copy of the
 `Block`, which deserialises and `apply()`s it. The `Change`
 mechanism is, in this sense, the groundwork for the distributed
 `:Solver`s exchanging `Change`s that the project plans but does not
@@ -101,35 +122,35 @@ yet ship.
 
 A second, equally important reason for `Change` to exist is that
 it makes it possible to write search algorithms in terms of
-abstract **moves** that are *independent of the `:Block` they are
-applied to*. A branch-and-bound, a branch-and-X (B&X) scheme, a
-large-neighbourhood search, a local-search metaheuristic — all of
-these are, at heart, "apply a move, explore, then undo or commit".
+abstract *moves* that are independent of the `:Block` they are
+applied to. A branch-and-bound, a Branch-and-X (B&X) scheme, a
+large-neighbourhood search and a local-search metaheuristic are all,
+at heart, "apply a move, explore, then undo or commit".
 If the move is a `Change`, the *search driver* need know nothing
 about the concrete `:Block`: it applies `Change`s and rolls them
 back, and the same driver works for any problem class that
-supplies the appropriate `:Change`s. The undo facility ([§16.1](16-change.md#sec-16-1)) is
-what makes the roll-back free: an automatically-produced
-UndoChange restores the previous state wherever the `:Change`
-supports it.
+supplies the appropriate `:Change`s. The undo facility
+([§16.1](16-change.md#sec-16-1)) is what makes the roll-back free:
+by Lemma 16.1, the UndoChanges applied in reverse order restore any
+previous state of the path, wherever the `:Change`s support the undo.
 
 The B&X case is the most telling, and it shows why the `:Change`
 abstraction is more than a convenience. The idea is that the
-`Change`s encode the **branching rule**, and that they are
-*produced by the `:Solver` that solves the relaxation*. Because
+`Change`s encode the *branching rule*, and that they are produced by
+the `:Solver` that solves the relaxation. Because
 that `:Solver` may be a *specialised* one, it can construct the
 branching `Change`s tailored not only to the structure of the
-problem but also to its own ability to **reoptimize efficiently**
-after the branch — choosing moves that its warm-start machinery
-([Chapter 13](13-function-family.md#ch-13)'s reoptimization vocabulary) can absorb cheaply. The
+problem but also to its own ability to reoptimize after the branch, choosing moves that its
+warm-start machinery (cf. the reoptimization vocabulary of
+[Chapter 13](13-function-family.md#ch-13)) can absorb cheaply. The
 search driver, meanwhile, stays completely generic: it receives
 `Change`s from the relaxation `:Solver`, applies them to descend
 the tree, and uses the UndoChanges to backtrack, without any
-problem-specific code of its own. This decoupling — a generic
-B&X driver on one side, a problem-and-`Solver`-specific source of
-branching `Change`s on the other — is one of the more ambitious
-uses the `Change` concept is meant to enable; its current form is
-described in [§16.5](16-change.md#sec-16-5).
+problem-specific code of its own. This decoupling of a generic B&X
+driver from a source of branching `Change`s specific to the problem and
+to the `Solver` is one of the more ambitious uses of the `Change`
+concept, and its current form is described in
+[§16.5](16-change.md#sec-16-5).
 
 ## 16.4 The reference example: `BinaryKnapsackBlock`'s `Change`s {#sec-16-4}
 
@@ -137,49 +158,51 @@ described in [§16.5](16-change.md#sec-16-5).
 `Change` family at version 0.8.0. It ships three specific
 `:Change` classes:
 
-- [`BinaryKnapsackBlockChange`](https://smspp.gitlab.io/smspp-project/d8/d50/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block_change.html)
-  — a "whole-object" change;
-- `BinaryKnapsackBlockRngdChange` — a *range*-based change (a
-  contiguous interval of items);
-- `BinaryKnapsackBlockSbstChange` — a *subset*-based change (an
-  arbitrary set of items),
+- [`BinaryKnapsackBlockChange`](https://smspp.gitlab.io/smspp-project/d8/d50/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block_change.html),
+  the base, which holds a type (`eChgWeight`, `eChgProfit`,
+  `eChgIntegrality`, `eChgCapacity`, `eFixX`, `eUnfixX`, `eChgSense`
+  or `eEmpty`) and a vector of data;
+- `BinaryKnapsackBlockRngdChange`, a change of a contiguous range of
+  items;
+- `BinaryKnapsackBlockSbstChange`, a change of an arbitrary subset of
+  items,
 
 mirroring, on the `Change` side, the `Rngd` / `Sbst` distinction
 that the `Modification` family draws ([Chapter 8](08-modification-janus.md#ch-8)) and that the
 methods factory draws ([Chapter 15](15-methods-factory.md#ch-15)). Each carries the new data
 (weights, profits, capacity, fixings) for the items it covers, can
-be serialised to netCDF, applied to a `BinaryKnapsackBlock`, and —
-within the subset it supports — produce its UndoChange.
+be serialised to netCDF, applied to a `BinaryKnapsackBlock`, and produce
+its UndoChange within the subset it supports. Any other `Block` makes
+`apply()` throw `std::invalid_argument`, as does a data vector whose
+size differs from that of the range; for a change of weights the
+UndoChange is the change with the old weights of the same items, which
+satisfies the hypothesis of Lemma 16.1.
 
 ```cpp
 #include "BinaryKnapsackBlock.h"
 
 using namespace SMSpp_di_unipi_it;
 
-int main()
+int main( void )
 {
  BinaryKnapsackBlock bkb;
- bkb.load( /* ... */ );
+ bkb.load( 3 , 10 , { 1 , 2 , 3 } , { 4 , 5 , 6 } , { true , true , true } );
 
- // build a Change that sets new weights on items [0,3)
- // (constructed directly here; in a distributed setting it would
- //  instead be deserialized from a netCDF group shipped by another
- //  process via Change::deserialize(...))
- Change * chg = /* a BinaryKnapsackBlockRngdChange carrying the new
-                   weights for items 0..2 */ ;
+ // a Change setting new weights on the items [ 0 , 3 ); in a distributed
+ // setting it would rather be read with Change::deserialize() out of the
+ // netCDF group shipped by another process
+ BinaryKnapsackBlockRngdChange chg( BinaryKnapsackBlockChange::eChgWeight ,
+                                    { 5 , 6 , 7 } , Block::Range( 0 , 3 ) );
 
- // apply it, asking for the inverse so we can roll back later
- Change * undo = chg->apply( & bkb , /* doUndo = */ true );
+ // apply it, asking for the UndoChange to roll back later
+ Change * undo = chg.apply( & bkb , true );
 
- // ... explore the modified Block ...
+ // ... explore the changed Block ...
 
- // restore the original state
- undo->apply( & bkb );
-
- delete chg;
+ undo->apply( & bkb );  // back to the weights 1 , 2 , 3
  delete undo;
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 ## 16.5 `ChangeSolver`, `RelaxationSolver` and `BranchAndXSolver` {#sec-16-5}
@@ -195,7 +218,7 @@ Neither derives from `Solver`: a concrete class derives from one
 of them *alongside* its problem-specific `:Solver` base, with plain
 inheritance, and whoever drives it discovers the trait on a
 registered `Solver` by a `dynamic_cast` cross-cast. A
-`ChangeSolver` can `apply( Change * chg , bool doUndo )` a `Change`
+`ChangeSolver` can `apply( Change * chg , bool doUndo = false )` a `Change`
 to the `Block` it works on, returning the UndoChange if asked; the
 simplest implementation forwards to `Change::apply()`, but a
 `:Solver` can rather intercept the `Change`s it understands and
@@ -237,20 +260,20 @@ learns its branching rule online, and the `SATSolver`s of
 
 ## 16.6 `Change` versus `Modification`: which to use {#sec-16-6}
 
-For ordinary, in-process model edits — the bread-and-butter "change
-a cost, re-solve" of Chapters [8](08-modification-janus.md#ch-8) and [10](10-r3block.md#ch-10) — the `Modification`
-mechanism, driven by the `:Block`'s `chg_*()` methods, remains the
+For ordinary, in-process model edits (the "change a cost, re-solve" of
+Chapters [8](08-modification-janus.md#ch-8) and
+[10](10-r3block.md#ch-10)) the `Modification` mechanism, driven by the `:Block`'s `chg_*()` methods, remains the
 right tool, and is the one the rest of this manual uses. `Change`
 is the right tool when one needs one of the things a `Modification`
 cannot provide:
 
-- to **serialise** an edit and apply it elsewhere or later;
-- to **transmit** an edit across a process boundary (the
+- to *serialise* an edit and apply it elsewhere or later;
+- to *transmit* an edit across a process boundary (the
   distributed-`:Solver` use case);
-- to **undo** an edit cheaply via an automatically-generated
+- to *undo* an edit cheaply through an automatically generated
   inverse.
 
-Because the concept is **beta** and implemented for only a few
+Since the concept is beta and implemented for only a few
 `:Block`s, a `:Block` author should regard adding a `Change`
 family as an *optional* and forward-looking step ([Appendix C](C-writing-modification.md#app-C)), not
 a requirement; and a user should reach for `Change` only when one
