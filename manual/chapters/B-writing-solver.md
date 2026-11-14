@@ -5,7 +5,10 @@ first-fit greedy heuristic for the `BinPackingBlock` of [Appendix A](A-writing-b
 as the worked example. As there, the code is illustrative rather
 than production-grade. For the repository scaffolding around a new
 `:Solver` module (builds, CI, tests, boilerplate) start from the
-[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository, as
+[ModuleTemplate](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module) repository
+(`./init.sh --name FirstFitBPSolver`: a name ending in `Solver` puts the
+module among the `:Solver`s of the umbrella, while the stub class it
+generates is a `:Block` all the same, to be replaced by the `:Solver`), as
 described in the wiki page
 [Creating a new module](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module).
 
@@ -32,17 +35,20 @@ no dual information, so it derives from `Solver`.
   returns `kOK` / `kUnbounded` / `kInfeasible` when it concludes;
   a *heuristic* one that finds a feasible solution but cannot
   prove optimality returns `kLowPrecision`; resource-limited stops
-  return `kStopTime` / `kStopIter`; unrecoverable errors return a
-  value $\ge$ `kError` ([§6.3](06-solver.md#sec-6-3)).
+  return `kStopTime` / `kStopIter`, and a stop at one of the cutoffs
+  (`dblUpCutOff` / `dblLwCutOff`) returns `kCutOff`; unrecoverable
+  errors return a value $\ge$ `kError` ([§6.3](06-solver.md#sec-6-3)).
 - honour `changedvars` ([§6.1](06-solver.md#sec-6-1)): with `false`, the caller guarantees
   the relevant `Variable` values are unchanged since the last call,
   so the `:Solver` may resume; with `true` it must assume they may
   have changed. (A one-shot heuristic can simply ignore the hint
   and recompute.)
-- record the solution so that it can later be read. A `:Solver`
-  deposits its solution into the `Block` — for a `:Block` with
-  abstract `Variable`s, by writing their values; the user then
-  reads it through the `Block` ([§6.9](06-solver.md#sec-6-9)).
+- record the solution so that it can later be read. `compute()`
+  keeps it in the `:Solver`, and `get_var_solution()` (the one
+  method, besides `compute()`, that every `:Solver` must implement)
+  deposits it into the `Block` when the user asks for it — for a
+  `:Block` with abstract `Variable`s, by writing their values; the
+  user then reads it through the `Block` ([§6.9](06-solver.md#sec-6-9)).
 
 ## B.3 Parameters {#sec-B-3}
 
@@ -63,7 +69,22 @@ The framework fills the `:Solver`'s pending list with the
 an exact, reoptimizing solver uses the fine-grained information to
 warm-start ([Chapter 13](13-function-family.md#ch-13)); a one-shot heuristic may simply note "the
 data changed, recompute from scratch", clearing the list. Either
-way, the `:Solver` is responsible for emptying its own list.
+way, the `:Solver` is responsible for emptying its own list, which it
+does through the protected methods `pop()` / `front()` /
+`pop_front()` / `mod_clear()` of `Solver`, since these take the lock
+that guards the list against the `Modification`s arriving meanwhile
+from other threads.
+
+Which `Modification`s reach the list at all is for the `:Solver` to
+say, by overriding `concerned_by()`: it returns the
+`Modification::ModConcern` mask of the kinds it reads
+([§C.2](C-writing-modification.md#sec-C-2)), all of them in the base class, and the `Block`
+passes it only the `Modification`s of those kinds. A `:Solver` that
+only reads the physical representation, as `DPBinaryKnapsackSolver`
+and the heuristic below, returns `Modification::eModPhys` and is
+spared the abstract `Modification`s altogether; one that only reads
+the abstract representation, as the `MILPSolver` family, returns
+abstract kinds only and is spared the physical ones.
 
 ## B.5 Optional: `compute_async` and `State` {#sec-B-5}
 
@@ -81,7 +102,7 @@ The heuristic reads the physical representation of the
 `BinPackingBlock` (the sizes and capacity, through the accessors of
 [§A.2](A-writing-block.md#sec-A-2)), places each item into the first bin that has room (opening a
 new bin when none does), and deposits the resulting assignment into
-the `Block`. It also computes a cheap *lower* bound — no packing can
+the `Block` when `get_var_solution()` is called. It also computes a cheap *lower* bound — no packing can
 use fewer than $\lceil (\sum_i s_i) / C \rceil$ bins — alongside the
 *upper* bound given by the feasible solution it just built (the
 number of bins it actually used). It reports these separately
@@ -99,6 +120,8 @@ namespace SMSpp_di_unipi_it {
 class FirstFitBPSolver : public Solver
 {
  public:
+  using Index = Block::Index;
+
   void set_Block( Block * block ) override {
    f_bp = dynamic_cast< BinPackingBlock * >( block );
    if( block && ! f_bp )
@@ -109,7 +132,7 @@ class FirstFitBPSolver : public Solver
   int compute( bool /* changedvars */ = true ) override {
    // consume any pending Modifications: this heuristic just restarts,
    // so we clear the list and recompute from scratch
-   v_mod.clear();
+   mod_clear();
 
    const Index  n = f_bp->get_NItems();
    const double C = f_bp->get_Capacity();
@@ -130,8 +153,7 @@ class FirstFitBPSolver : public Solver
     if( j + 1 > nbins )  nbins = j + 1;         // a new bin was opened
    }
 
-   // deposit the solution into the Block (compact + abstract; §B.6)
-   f_bp->set_assignment( bin_of );
+   v_bin_of = std::move( bin_of );             // keep the solution
 
    // upper bound: the value of the feasible solution just built
    f_ub = OFValue( nbins );
@@ -146,11 +168,22 @@ class FirstFitBPSolver : public Solver
   OFValue get_lb( void ) override { return( f_lb ); }
   OFValue get_ub( void ) override { return( f_ub ); }
 
+  // deposit the solution into the Block (compact + abstract; see below)
+  void get_var_solution( Configuration * = nullptr ) override {
+   f_bp->set_assignment( v_bin_of );
+  }
+
+  // only the physical representation is read: no abstract Modification
+  Modification::ModConcern concerned_by( void ) const override {
+   return( Modification::eModPhys );
+  }
+
   // a one-shot heuristic keeps no warm-startable state
   // (get_State() inherits the nullptr default)
 
  private:
   BinPackingBlock * f_bp = nullptr;
+  std::vector< Index > v_bin_of;      // bin of each item, as last computed
   OFValue f_lb = -Inf< OFValue >();   // valid lower bound (none yet)
   OFValue f_ub =  Inf< OFValue >();   // best feasible value (none yet)
 
@@ -165,7 +198,7 @@ class FirstFitBPSolver : public Solver
 SMSpp_insert_in_factory_cpp_0( FirstFitBPSolver );  // ctor takes 0 args
 ```
 
-The `set_assignment` helper the solver calls is the `Block`-side
+The `set_assignment` helper that `get_var_solution()` calls is the `Block`-side
 method declared in [§A.2](A-writing-block.md#sec-A-2). It is worth seeing in full, because it
 makes a point that is easy to gloss over: the *compact* (physical)
 form of a solution and the *abstract* form generally have very
@@ -211,7 +244,8 @@ A few points to read off:
   does not, honestly signalling a feasible but not proven-optimal
   solution ([§6.3](06-solver.md#sec-6-3)). The two bounds are exposed separately through the
   inherited `get_lb()` / `get_ub()`.
-- the solution is written *into the `Block`* through `set_assignment`,
+- the solution is kept in the `:Solver` by `compute()` and written
+  *into the `Block`* by `get_var_solution()` through `set_assignment`,
   which keeps both the compact physical solution and the abstract
   `x` / `y` values, so the user can read it back through the `Block`
   in either form, as for any `:Solver` ([§6.9](06-solver.md#sec-6-9)).

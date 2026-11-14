@@ -47,11 +47,21 @@ namespace SMSpp_di_unipi_it {
 class BinPackingBlockMod : public Modification
 {
  public:
+  // what a size change does: it is physical, it changes coefficients of
+  // the (capacity) Constraints, and the region may shrink or grow
+  static constexpr ModConcern size_changes =
+   eModPhys | eModCnsCoef | eRegnShrink | eRegnGrow;
+
   BinPackingBlockMod( BinPackingBlock * blk , Block::Index item )
-   : f_block( blk ) , f_item( item ) {}
+   : Modification( size_changes ) , f_block( blk ) , f_item( item ) {}
 
   Block * get_Block( void ) const override { return( f_block ); }
   Block::Index item( void ) const { return( f_item ); }
+
+ protected:
+  void print( std::ostream & output ) const override {
+   output << "BinPackingBlockMod[" << this << "]: size of item " << f_item;
+  }
 
  private:
   BinPackingBlock * f_block;
@@ -60,6 +70,36 @@ class BinPackingBlockMod : public Modification
 
 }  // namespace
 ```
+
+Besides `get_Block()`, the one other method a `:Modification` must
+implement is the protected `print()`, which `operator<<` dispatches
+to. The value passed to the constructor of `Modification` is the
+`ModConcern` returned by `changes()`: a bit mask saying what *kind*
+of thing the `Modification` changes (`eModPhys` for the physical
+representation, and `eModVarData`, `eModVarType`, `eModVarSet`,
+`eModCnsSide`, `eModCnsCoef`, `eModCnsSet`, `eModObj` for the parts
+of the model) and what *effect* it may have on the problem
+(`eRegnShrink` / `eRegnGrow` for the feasible region, `eObjUp` /
+`eObjDown` for the objective), an effect bit not set being a
+guarantee. The default, `eModPhys | eEffAny` ("physical, anything may
+happen"), is always correct for a physical `:Modification`; saying
+more is what lets a `:Solver` that only reads some kinds be spared
+the others (`Solver::concerned_by()`, [§B.4](B-writing-solver.md#sec-B-4)), lets the `:Block`
+avoid issuing the `Modification` when nobody listening reads its
+kind (the two-argument `issue_pmod( issueMod , kind )` used in
+[§A.5](A-writing-block.md#sec-A-5)), and lets a reader keep what is still valid, e.g., a
+solution when the region cannot shrink. The masks `ePhysObj`,
+`ePhysSides`, `ePhysCns` and `ePhysVars` cover the common physical
+cases, and the bits are to be read through the static methods of
+`Modification` (`is_physical()`, `changes_only_sides()`,
+`may_shrink_region()`, ...) rather than tested one by one. A
+physical `:Modification` reaches only those who read `eModPhys`,
+whatever other kinds it says it changes (only one that says it
+changes everything, `eModAll`, as the `NBModification`, reaches
+anyone): these tell what the change
+is in terms of the model, but those who only read the abstract
+representation see the change in the abstract `Modification`s that
+come with it.
 
 A `RngdMod` / `SbstMod` would carry a `Range` / `Subset` instead of
 a single index, mirroring the `Rngd` / `Sbst` shapes of the methods
@@ -132,8 +172,10 @@ for those cases ([§16.2](16-change.md#sec-16-2)).
 
 - Define a `<Block>Mod` (and `Rngd` / `Sbst` variants as needed)
   deriving from `Modification`, carrying the description of a
-  physical change, with `concerns_Block() == false` ([§C.2](C-writing-modification.md#sec-C-2)). Issue
-  it from the corresponding `chg_*()` mutator ([§A.5](A-writing-block.md#sec-A-5)).
+  physical change, with `concerns_Block() == false`, implementing
+  `get_Block()` and `print()`, and passing its `ModConcern` to the
+  constructor ([§C.2](C-writing-modification.md#sec-C-2)). Issue it from the corresponding `chg_*()`
+  mutator ([§A.5](A-writing-block.md#sec-A-5)).
 - Rely on the framework's existing abstract-stream `Modification`s
   (`C05FunctionMod`, `VariableMod`, ...) for changes made through
   the abstract face; intercept and mirror them in
@@ -146,4 +188,4 @@ for those cases ([§16.2](16-change.md#sec-16-2)).
 ---
 
 *This is the end of the SMS++ User Manual, version 0.1, for SMS++
-0.7.1.*
+0.8.0.*
