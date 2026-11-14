@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- the user manual is for SMS++ 0.8.0, every chapter checked against the
+  code: its code snippets compile and give what they say, the recipes use
+  the present tests and configuration files, and it describes the weights of
+  a Block, `ModConcern`, the `ChangeSolver` and Branch-and-X, the other
+  parallel Solvers, the stacked netCDF groups, the meta-configurations and
+  the text format of the configuration files, the channels of installation
+  and the modules of the distribution; the File Format Manual describes the
+  Solution and State files, the weights, the image in memory, the
+  meta-configurations, the vector parameters and the stacked groups; the
+  links to ModuleTemplate point to the wiki page on creating a module
+
 - `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
   gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
   of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds
