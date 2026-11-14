@@ -9,234 +9,221 @@
 
 The three primitives that live inside a `Block` are
 [`Variable`](https://smspp.gitlab.io/smspp-project/df/d67/class_s_m_spp__di__unipi__it_1_1_variable.html),
-[`Constraint`](https://smspp.gitlab.io/smspp-project/d2/d03/class_s_m_spp__di__unipi__it_1_1_constraint.html),
+[`Constraint`](https://smspp.gitlab.io/smspp-project/d2/d03/class_s_m_spp__di__unipi__it_1_1_constraint.html)
 and
 [`Objective`](https://smspp.gitlab.io/smspp-project/d3/d23/class_s_m_spp__di__unipi__it_1_1_objective.html).
-A `Block` contains, conceptually, any number of `Variable`s and
-`Constraint`s organised in *groups*, and at most one `Objective`.
-Together they constitute the *abstract representation* of the
-mathematical model carried by the `Block` ([Chapter 7](07-physical-abstract.md#ch-7)); when a
-`Block` is solved by a general-purpose `:Solver`, this is what the
-`:Solver` reads.
+A `Block` contains any number of `Variable`s and `Constraint`s,
+organized in groups, and at most one `Objective`; together they form
+the *abstract representation* of the model of the `Block` (cf.
+[Chapter 7](07-physical-abstract.md#ch-7)), i.e., the part of the
+model that a general-purpose `:Solver` reads.
 
-All three classes share two architectural traits:
+These three classes share two traits. Each instance belongs to one
+`Block` (returned by its `get_Block()`), and the *name* of an instance
+is its memory address. Hence, as discussed for `Block` in
+[§4.2](04-block.md#sec-4-2), an instance cannot be moved once
+constructed: the dynamic groups live in `std::list`s, and the static
+ones in `std::vector`s or `boost::multi_array`s that are sized once
+and never reallocated.
 
-- each instance **belongs to one `Block`** (its `f_Block` field
-  points to the owning `Block`);
-- the *name* of an instance is its **memory address**, with the
-  consequence — discussed for `Block` in [§4.2](04-block.md#sec-4-2) — that an instance
-  cannot be moved once constructed. Dynamic groups therefore live
-  in `std::list`; static groups live in `std::vector` or
-  `boost::multi_array` whose storage is allocated once and never
-  reallocated.
-
-`Constraint` and `Objective` further share two interfaces inherited
-from common base classes:
-
-- they derive from
-  [`ThinVarDepInterface`](https://smspp.gitlab.io/smspp-project/da/df9/class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface.html):
-  each `Constraint` and each `Objective` depends on a specific set
-  of *active* `Variable`s, queryable through that interface;
-- they derive from
-  [`ThinComputeInterface`](https://smspp.gitlab.io/smspp-project/d9/d1b/class_s_m_spp__di__unipi__it_1_1_thin_compute_interface.html):
-  a `Constraint`'s satisfaction status and an `Objective`'s value
-  must be `compute()`-d before being read, and computation is
-  expected to be potentially costly (for instance, an `Objective`
-  given by a multi-dimensional integral, or a `Constraint` given by
-  the solution of a hard sub-problem).
-
-`Variable`, by contrast, derives from neither: its "value" is
-specified by derived classes, not by the base, and it has no
-notion of computation (only of being fixed or not).
+`Constraint` and `Objective` also share two interfaces, inherited from
+common base classes. Both derive from
+[`ThinVarDepInterface`](https://smspp.gitlab.io/smspp-project/da/df9/class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface.html),
+since each `Constraint` and each `Objective` depends on a specific set
+of *active* `Variable`s, which can be queried through that interface.
+Also, both derive from
+[`ThinComputeInterface`](https://smspp.gitlab.io/smspp-project/d9/d1b/class_s_m_spp__di__unipi__it_1_1_thin_compute_interface.html),
+since whether a `Constraint` is satisfied and what value an
+`Objective` has must be `compute()`-d before being read, a computation
+which may be somewhat costly (say, an `Objective` given by a
+multi-dimensional integral, or a `Constraint` given by the solution of
+a hard subproblem). `Variable`, instead, derives from neither: its
+value is defined by the derived classes, not by the base one, and it
+has no notion of computation (only that of being fixed or not).
 
 ## 5.2 Variable {#sec-5-2}
 
-The base class `Variable` makes very few assumptions:
-
-- a `Variable` belongs to one `Block` (`get_Block()`);
-- a `Variable` influences a set of *active stuff* (instances of
-  `ThinVarDepInterface`: `Constraint`s, `Objective`s, `Function`s);
-  the set is exposed through `v_iterator`s and queried through
-  `is_active(...)`;
-- a `Variable` can be (temporarily) *fixed* via
-  `is_fixed(bool, ModParam)`; the current state is read by
-  `is_fixed()` with no arguments.
-
-No method to *read the value* of a `Variable` exists in the base
-class, because that requires knowing what kind of value it is.
+The base class `Variable` makes few assumptions. A `Variable` belongs
+to one `Block`, and it influences a set of *active* objects (instances
+of `ThinVarDepInterface`, i.e., `Constraint`s, `Objective`s and
+`Function`s), which one can count with `get_num_active()`, read with
+`get_active( i )` and searched with `is_active( stuff )`. It can also
+be (temporarily) *fixed* with `is_fixed( bool , ModParam )`, the
+current state being read by `is_fixed()` with no arguments. Note that
+the base class has no method to read the value of a `Variable`, since
+this requires knowing what kind of value it is.
 
 ### `ColVariable`
 
-The overwhelmingly common concrete `:Variable` is
+By far the most common concrete `:Variable` is
 [`ColVariable`](https://smspp.gitlab.io/smspp-project/dc/d32/class_s_m_spp__di__unipi__it_1_1_col_variable.html),
-which holds a single real value (`VarValue = double`). The name is
-a deliberate reminiscence of the column structure of a linear
-programming coefficient matrix.
+which holds a single real value (`VarValue` is `double`); the name
+recalls the columns of the coefficient matrix of a Linear Program.
+`ColVariable` extends `Variable` in two ways. First, it gives the
+value, through `set_value( VarValue )` and `get_value()`. Second, it
+can be restricted to a subset of the reals by its *type* (the enum
+`col_var_type`), whose 16 values are the following:
 
-`ColVariable` extends `Variable` in two directions. First, it gives
-the value: `set_value(VarValue)`, `get_value()`. Second, it can be
-restricted to a subset of the reals by setting a *type*
-(`col_var_type` enum); the 16 possible types are
+| type | allowed values | type | allowed values |
+|---|---|---|---|
+| `kContinuous` | any real | `kInteger` | any integer |
+| `kNonNegative` | any real $\ge 0$ | `kNatural` | any integer $\ge 0$ |
+| `kNonPositive` | any real $\le 0$ | `kNegative` | any integer $\le 0$ |
+| `kZeroReal` | 0 (real) | `kZeroInteger` | 0 (integer) |
+| `kUnitary` | any real in $[-1, 1]$ | `kTernary` | $-1$, 0 or 1 |
+| `kPosUnitary` | any real in $[0, 1]$ | `kBinary` | 0 or 1 |
+| `kNegUnitary` | any real in $[-1, 0]$ | `kNegBinary` | $-1$ or 0 |
+| `kZeroRealU` | 0 (real, in $[-1, 1]$) | `kZeroIntU` | 0 (integer, in $[-1, 1]$) |
 
-```
-kContinuous    any real value
-kInteger       any integer value
-kNonNegative   any non-negative real value
-kNatural       any non-negative integer value
-kNonPositive   any non-positive real value
-kNegative      any non-positive integer value
-kZeroReal      any real value provided it is 0
-kZeroInteger   any integer value provided it is 0
-kUnitary       any real value in [-1, 1]
-kTernary       either -1, 0, or 1
-kPosUnitary    any real value in [0, 1]
-kBinary        either 0 or 1
-kNegUnitary    any real value in [-1, 0]
-kNegBinary     either -1 or 0
-kZeroRealU     any real value in [-1, 1] provided it is 0
-kZeroIntU      any integer value in [-1, 1] provided it is 0
-```
-
-Combined with the "fixed / not fixed" state, these cover most of
-the bound, sign and integrality restrictions found in practical
-models. Crucially, all of these are *type* restrictions stored
-inside the `ColVariable` itself, *not* `Constraint`s in the
-`Block`: this saves a substantial amount of memory in models where
-most variables are, say, simply non-negative or binary.
+The type is composed of independent flags, set by `is_integer( bool ,
+ModParam )`, `is_positive( bool , ModParam )`, `is_negative( bool ,
+ModParam )` and `is_unitary( bool , ModParam )` (or all at once by
+`set_type()`), and read by `get_type()`. Together with the state
+"fixed or not", the types cover most of the restrictions of bound,
+sign and integrality found in practical models. Since they are stored
+in the `ColVariable` instead of as `Constraint`s of the `Block`, they
+save a substantial amount of memory in models where most variables
+are, say, simply nonnegative or binary.
 
 ## 5.3 Constraint {#sec-5-3}
 
-The base class `Constraint`, beyond what its base classes already
-provide, supports:
-
-- *relaxation*: `relax(bool, ModParam)` temporarily disables the
-  `Constraint`; `is_relaxed()` reads the current state;
-- *feasibility checking*: `feasible()` returns `true` if the
-  `Constraint` is satisfied at the current values of its active
-  `Variable`s. This is a pure virtual method; it relies on
-  `compute()` having been called first.
-
-`Constraint` is otherwise abstract: it specifies nothing about
-*what* it constrains.
+The base class `Constraint`, beyond what its base classes provide,
+supports *relaxation*: `relax( bool , ModParam )` temporarily disables
+the `Constraint`, and `is_relaxed()` reads the current state. It also
+supports *feasibility checking*, by which the pure virtual
+`feasible()` returns `true` if the `Constraint` is satisfied by the
+values of its active `Variable`s at the time of the last `compute()`
+(which therefore has to be called first). `Constraint` is otherwise
+abstract, i.e., it does not specify *what* it constrains.
 
 ### `RowConstraint`
 
 [`RowConstraint`](https://smspp.gitlab.io/smspp-project/d1/dbf/class_s_m_spp__di__unipi__it_1_1_row_constraint.html)
-specialises `Constraint` to the case "*a real-valued left-hand side
-lies between a lower and an upper bound*", i.e. the canonical row
-constraint of a linear (or non-linear) program:
+specializes `Constraint` to the case of a real-valued expression
+$g(x)$ of the active `Variable`s that has to lie between two bounds,
+i.e., the canonical row of a linear (or nonlinear) program,
 
 $$
-\mathrm{lhs}\_\mathrm{bound} \le \mathrm{LHS} \le \mathrm{rhs}\_\mathrm{bound}.
+l \le g(x) \le u \,,
 $$
 
-Two `RHSValue`s store the lower and upper bounds, accessed via
-`get_lhs()` / `get_rhs()` / `set_lhs(...)` / `set_rhs(...)` /
-`set_both(...)`. Either bound may be infinite (sentinel `RHSINF`).
-A single real dual variable is attached, accessed via `get_dual()`
-and set by `set_dual(...)`. The actual real-valued left-hand side
-expression is *not* defined in `RowConstraint`; that is left to
-subclasses.
-
-Two principal subclasses cover the common cases.
+where $l$ and $u$ (of type `RHSValue`) are read by `get_lhs()` and
+`get_rhs()` and set by `set_lhs(...)`, `set_rhs(...)` and
+`set_both(...)` (the latter sets $l = u$). Either of them can be
+infinite, the value being `RowConstraint::RHSINF` (or its opposite). A
+single real dual variable is attached to the `Constraint`, read by
+`get_dual()` and set by `set_dual(...)`. However, the expression $g$
+is not defined in `RowConstraint`, but in its derived classes, of
+which two cover the common cases.
 
 ### `OneVarConstraint`
 
 [`OneVarConstraint`](https://smspp.gitlab.io/smspp-project/d1/d37/class_s_m_spp__di__unipi__it_1_1_one_var_constraint.html)
-is the case "*the real-valued left-hand side is the value of one
-single `ColVariable`*", i.e. a bound (or pair of bounds) on a
-single variable. The class ships with several pre-defined refinements:
-`BoxConstraint`, `LB0Constraint`, `UB0Constraint`, `LBConstraint`,
-`UBConstraint`, `NNConstraint` (non-negativity, `≥ 0`),
-`NPConstraint` (non-positivity, `≤ 0`), `ZOConstraint`
-(`x ∈ [0,1]`). The most common of these, `LB0Constraint`, encodes
-"`0 ≤ x ≤ ub`", and is the variant used by `MCFBlock` for the arc
-capacity constraints when the per-arc upper bound is not infinite
-([§4.5](04-block.md#sec-4-5) and [Chapter 7](07-physical-abstract.md#ch-7)).
+is the case where $g(x)$ is the value of a single `ColVariable`, i.e.,
+a bound (or a pair of bounds) on one variable. The class has several
+predefined refinements: `BoxConstraint` ($l \le x \le u$, both free),
+`LB0Constraint` ($0 \le x \le u$), `UB0Constraint` ($l \le x \le 0$),
+`LBConstraint` ($l \le x$), `UBConstraint` ($x \le u$), `NNConstraint`
+($x \ge 0$), `NPConstraint` ($x \le 0$) and `ZOConstraint` ($0 \le x
+\le 1$). `MCFBlock` uses `LB0Constraint` for the capacities of the
+arcs (cf. [§7.1](07-physical-abstract.md#sec-7-1)).
 
 ### `FRowConstraint`
 
 [`FRowConstraint`](https://smspp.gitlab.io/smspp-project/db/d90/class_s_m_spp__di__unipi__it_1_1_f_row_constraint.html)
-is the case "*the real-valued left-hand side is computed by a
-`Function`*", and is the workhorse of essentially every "real"
-linear or non-linear constraint in the framework. The `Function`
-inside is set with `set_function(Function*)` and retrieved with
-`get_function()`. The framework takes ownership of the `Function*`
-passed to `set_function`: passing `nullptr` releases it.
+is the case where $g(x)$ is computed by a `Function`, and it carries
+essentially all the nontrivial linear or nonlinear constraints of the
+framework. The `Function` is set by
 
-The `Function` family ([Chapter 13](13-function-family.md#ch-13)) covers linear, quadratic, and
-polyhedral cases, plus the two specialised "`Block` + `Function`"
-hybrids `LagBFunction` and `BendersBFunction`. For a "row of a
-linear program" the standard combination is `FRowConstraint`
-carrying a `Function` that evaluates a linear expression in
-`ColVariable`s, which is exactly what `MCFBlock` uses for its
-flow-conservation constraints.
+```cpp
+void set_function( Function * const function = nullptr ,
+                   ModParam issueMod = eModBlck , bool deleteold = true );
+```
+
+and read by `get_function()`. The `Function` passed becomes property
+of the `FRowConstraint`, which deletes it in its destructor; the
+previous `Function`, if any, is deleted if `deleteold` is `true` (the
+default), while with `deleteold == false` the caller is assumed to
+hold another pointer to it and to dispose of it. Hence
+`set_function()` with no argument empties the `FRowConstraint`, and
+deletes its `Function` unless told otherwise. Also, the
+`FRowConstraint` registers with the `Variable`s of the `Function` (and
+follows the changes of that set), which is why a `Function` cannot be
+shared between two `FRowConstraint`s.
+
+In turn, the family of `Function`s (cf. [Chapter
+13](13-function-family.md#ch-13)) covers the linear, quadratic and
+polyhedral cases, plus the two hybrids of a `Block` and a `Function`,
+`LagBFunction` and `BendersBFunction`. For a row of a Linear Program
+the standard combination is an `FRowConstraint` carrying a
+`LinearFunction`, as `MCFBlock` uses for its flow conservation
+constraints.
 
 ## 5.4 Objective {#sec-5-4}
 
-The base class `Objective` adds two facts to its base classes:
+The base class `Objective` adds two facts to its base classes. First,
+it has a *sense*, either `Objective::eMin` (whose value is $-1$:
+minimization, lower values are better) or `Objective::eMax` (whose
+value is $+1$: maximization), read by `get_sense()` and set by
+`set_sense( int , ModParam )`. Here the values of the `Objective` are
+assumed to be totally ordered, in which case minimizing and maximizing
+make sense; a vector-valued objective would require extending the
+class. Second, the type of the value is *not* defined in `Objective`,
+which leaves room for multi-objective extensions; the derived class
+`RealObjective` (and `FRealObjective` below) fixes it to an *extended*
+real (`RealObjective::OFValue`, i.e., `double`, read by `value()`), in
+which $+\infty$ and $-\infty$ can encode infeasibility and
+unboundedness.
 
-- it has a *sense* (`int f_sense`), either `eMin = -1`
-  (minimisation, lower values are better) or `eMax = +1`
-  (maximisation). The sense is read by `get_sense()` and set by
-  `set_sense(int, ModParam)`. The base class assumes the value of
-  the `Objective` is totally ordered, so that minimising vs
-  maximising is well defined; problems with vector-valued
-  objectives would extend the class.
-- a value type is *not* defined in `Objective` directly, leaving
-  room for multi-objective extensions. A derived class
-  `RealObjective` (and `FRealObjective` below) fixes the value
-  type to be an *extended* real (`RealObjective::OFValue`, the
-  same as the value type of `RealFunction`), so that `+∞` and
-  `-∞` are representable to encode infeasibility and unboundedness.
-
-The composition rule for sub-`Block`s is also fixed at the
-`Objective` level: the `Objective` of a sub-`Block` is summed into
-the `Objective` of its father `Block`. This is what gives the
-recursive `Block` tree a single, well-defined `Objective` overall.
-The sum may be weighted: `Block::set_objective_weight(double)` gives
-the `Objective` of a `Block` a positive weight (1 by default), and
-`get_objective_weight(ancestor)` returns the product of the weights
-along the path from the `Block` up to `ancestor` (excluded), i.e.,
-the factor by which a `:Solver` attached to `ancestor` multiplies the
-`Objective` of the `Block` (say, the probability of a scenario times
-the discount factor of its period). Analogously,
-`set_variable_weight(double)` gives a factor by which the
+The rule by which the `Objective`s of the sub-`Block`s compose is
+fixed at this level: the `Objective` of a sub-`Block` is added to that
+of its father, which gives a tree of `Block`s a single, well-defined
+`Objective`. Indeed, such a sum may be weighted.
+`Block::set_objective_weight( double w )` gives the `Objective` of a
+`Block` a nonnegative finite weight $w$ (1 by default); a negative or
+non-finite weight makes the method throw `std::invalid_argument`, and
+a weight of 0 makes the `Objective` irrelevant. Then
+`get_objective_weight( ancestor )` returns the product of the weights
+along the path from the `Block` up to `ancestor`, the latter excluded,
+i.e., the factor by which a `:Solver` attached to `ancestor`
+multiplies the `Objective` of the `Block` (say, the probability of a
+scenario times the discount factor of its period). Analogously,
+`set_variable_weight( double )` gives the factor by which the
 coefficients of the `Variable`s of a `Block` are multiplied in the
-`Constraint`s of an ancestor (say, the number of identical copies of
-a unit).
+`Constraint`s of an ancestor (say, the number of identical copies of a
+unit), and `set_weight()` sets both. Note that the `Block` is not
+changed by a weight, which is applied by the `:Solver`s that assemble
+a problem out of nested `Block`s; a change of a weight issues a
+`BlockWeightMod`, and if a `:Solver` attached to an ancestor cannot
+handle it (`Solver::handles_weight_change()`) the method throws
+`std::logic_error` before changing anything.
 
 ### `FRealObjective`
 
 [`FRealObjective`](https://smspp.gitlab.io/smspp-project/dd/d7c/class_s_m_spp__di__unipi__it_1_1_f_real_objective.html)
-is to `Objective` what `FRowConstraint` is to `Constraint`: the
-value is computed by a `Function`. The interface is the same:
-`set_function(Function*)` (the framework takes ownership) and
-`get_function()`. `FRealObjective` is the standard choice for any
-`Block` whose `Objective` is best described by a `Function`,
-which in practice is "essentially every `Block` with a non-trivial
-objective".
+is to `Objective` what `FRowConstraint` is to `Constraint`: its value
+is computed by a `Function`, which is set by `set_function()` (with
+the same ownership rules) and read by `get_function()`. It is the
+standard choice for any `Block` whose `Objective` is described by a
+`Function`, i.e., in practice, for essentially all the `Block`s with a
+nontrivial objective. There is no separate class for a linear
+objective: a linear form of `ColVariable`s is an `FRealObjective`
+carrying a `LinearFunction`. On the side of the constraints,
+`LinearConstraint` is an `FRowConstraint` whose `Function` is forced
+to be a `LinearFunction`, of which it exposes the coefficients
+(`get_coefficient()`, `modify_coefficient()`,
+`modify_coefficients()`).
 
-There is no separate class for a linear objective: a plain linear
-form in `ColVariable`s is an `FRealObjective` carrying a
-`LinearFunction`. On the constraint side, `LinearConstraint` is an
-`FRowConstraint` whose `Function` is forced to be a `LinearFunction`,
-part of whose interface (the coefficients) it exposes directly.
+## 5.5 Example: the abstract representation of `BinaryKnapsackBlock` {#sec-5-5}
 
-## 5.5 Inline example: the abstract representation of `BinaryKnapsackBlock` {#sec-5-5}
-
-A reader who reaches this point may be tempted to construct a
-`Block`'s abstract representation by hand: instantiate a vector of
-`ColVariable`s, build an `FRowConstraint` carrying a linear
-`Function`, build an `FRealObjective` likewise, and connect
-everything by hand. **That is not how the framework works.** The
-abstract representation of a concrete `:Block` is built *by the
-`:Block` itself*, on demand, through its
-`generate_abstract_variables()`, `generate_abstract_constraints()`
-and `generate_objective()` overrides. User code typically *triggers*
-these calls but does not *populate* what they produce.
-
-For `BinaryKnapsackBlock`, the trigger is as small as:
+The abstract representation of a concrete `:Block` is built *by the
+`:Block`*, on demand, through its overrides of
+`generate_abstract_variables()`, `generate_abstract_constraints()` and
+`generate_objective()`. Code that uses a `:Block` triggers these
+calls, but it does not fill in what they produce; constructing the
+`ColVariable`s, the `FRowConstraint` and the `FRealObjective` by hand
+is done with an `AbstractBlock` (see below). For
+`BinaryKnapsackBlock`, the trigger is as small as the following.
 
 ```cpp
 #include "BinaryKnapsackBlock.h"
@@ -264,95 +251,97 @@ int main()
 }
 ```
 
-What `BinaryKnapsackBlock` constructs in response — and what the
-three primitives of this chapter look like in concrete — is
-documented in the `:Block`'s own source comments and reflected in
-its protected data members (`BinaryKnapsackBlock.h:1021-1023`):
+The method used is
 
-- one *static* group of `Variable`s, materialised as
-  `std::vector< ColVariable > v_x` of size $n$ (one per item), of
-  `col_var_type` either `kBinary` (integer items) or `kPosUnitary`
-  (continuous items), according to the integrality vector;
-- one *static* group of `Constraint`s, consisting of a single
-  `FRowConstraint f_cnst` whose `Function` is a linear expression
-  $\sum_i W_i x_i$ with right-hand side equal to the capacity
-  $C$ and no lower bound;
-- a single `FRealObjective f_obj` carrying a linear `Function`
-  with coefficients $P_i$, whose sense is `eMax` by default and
-  can be flipped to `eMin` by `bkb.set_objective_sense(false)`.
+```cpp
+void load( Index n , double Capacity , c_doubleVec & Weights ,
+           c_doubleVec & Profits , c_boolVec & Integrality = {} ,
+           const std::vector< unsigned char > fxd = {} );
+```
 
-The three protected fields are accessible to the rest of the
-framework (and to a derived `:Block`), but they are not part of the
-public interface of `Block` and should not be reached at by user
-code; the framework convention is to read the *physical*
-representation through the `:Block`-specific accessors
-(`get_Var(i)`, `get_objective_value()`, `get_x(...)`, ...) rather
-than to walk the abstract groups directly. Code that needs to look
-at the abstract representation of a `:Block` it does not know
-iterates over its groups: `get_static_variable_groups()`,
-`get_static_constraint_groups()` and their dynamic counterparts
-return them as `BaseGroup` objects (`Group.h`), each of which gives
-its name, its shape and its elements as `Variable` or `Constraint`;
-`elements_are< T >()` says once for the whole group whether the
-elements derive from `T`, `for_each_as()` and `for_each_cell_as()`
-run loops typed on the element, meant for hot paths, and
-`for_each()` serves the cold ones. The order in which the elements
-come out (the storage order) is part of the contract.
+where an empty `Integrality` makes all the items integer and `fxd`
+optionally fixes some of them. In response to the three calls,
+`BinaryKnapsackBlock` constructs the objects that its comments
+describe, held in three protected fields
+(`BinaryKnapsackBlock.h:1021-1023`). These are (i) one static group of
+`Variable`s, the `std::vector< ColVariable > v_x` of size $n$ (one per
+item), each of type `kBinary` for an integer item and `kPosUnitary`
+for a continuous one; (ii) one static group of `Constraint`s, the
+single `FRowConstraint f_cnst`, whose `LinearFunction` is $\sum_i W_i
+x_i$, with right-hand side equal to the capacity $C$ and no lower
+bound; and (iii) the `FRealObjective f_obj`, which carries the
+`LinearFunction` $\sum_i P_i x_i$ and whose sense is `eMax` by default
+(`bkb.set_objective_sense( false )` makes it `eMin`).
 
-The deliberately small `AbstractBlock` class ([Chapter 1](01-introduction.md#ch-1)) is the converse case: a `Block` *without*
-a problem class of its own, whose abstract representation *is*
-constructed by user code from the outside. `AbstractBlock` is the
-correct vehicle if the goal is to assemble a `Variable` /
-`Constraint` / `Objective` arrangement by hand — typically when
-loading a `.mps` or `.lp` file — and the construction patterns of
-this section are the canonical way to do so. The interested reader
-will find `AbstractBlock`s built from scratch, with
-`add_static_variable()` and `add_static_constraint()`, in the core's
-tests (`SMS++/test/AbstractBlockGenerator.h`, used by
-`tests_AbstractBlock.cpp`), while [Appendix A](A-writing-block.md#app-A) develops a fresh
-`:Block` from scratch.
+The three fields are accessible to a derived `:Block`, but they are
+not part of the interface of `Block`. Code that uses a
+`BinaryKnapsackBlock` reads it through the methods of the `:Block`
+instead: the physical data through `get_Weight()`, `get_Profit()`,
+`get_Capacity()` and their siblings, the solution through `get_x()`
+and `get_objective_value()`, and the single `ColVariable`s, if needed,
+through `get_Var( i )`. Code that has to look at the abstract
+representation of a `:Block` it does not know iterates over its
+groups. The methods `get_static_variable_groups()`,
+`get_static_constraint_groups()` and their dynamic counterparts return
+them as `BaseGroup` objects (`Group.h`), each of which gives its name,
+its shape and its elements as `Variable` or `Constraint`. Then
+`elements_are< T >()` checks once for the group whether the elements
+derive from `T`, `for_each_as()` and `for_each_cell_as()` run loops
+typed on the element, meant for the hot paths, and `for_each()` serves
+the others. Furthermore, the order in which the elements are visited
+(the order of the storage) is part of the contract.
 
-## 5.6 API outline {#sec-5-6}
+`AbstractBlock` is the converse case: a `Block` *without* a specific
+class of problems, whose abstract representation is constructed by the
+code that uses it, typically when a `.mps` or `.lp` file is read. It
+is the right vehicle to assemble a set of `Variable`s, `Constraint`s
+and an `Objective` by hand, through `add_static_variable()`,
+`add_static_constraint()` and their dynamic counterparts; the tests of
+the core contain `AbstractBlock`s built in this way
+(`SMS++/test/AbstractBlockGenerator.h`, used by
+`tests_AbstractBlock.cpp`), while [Appendix
+A](A-writing-block.md#app-A) develops a new `:Block` from scratch.
 
-| Class | Key methods |
+## 5.6 Outline of the interface {#sec-5-6}
+
+| Class | Main methods |
 |---|---|
-| `Variable` | `get_Block()`, `is_fixed()`, `is_fixed(bool, ModParam)`, iterators on active stuff |
-| `ColVariable` | `set_value(VarValue)`, `get_value()`, `is_integer(bool, ModParam)`, `is_positive(...)`, `is_unitary(...)`, `get_type()` |
+| `Variable` | `get_Block()`, `is_fixed()`, `is_fixed(bool, ModParam)`, `get_num_active()`, `get_active(Index)`, `is_active(...)` |
+| `ColVariable` | `set_value(VarValue)`, `get_value()`, `is_integer(bool, ModParam)`, `is_positive(...)`, `is_negative(...)`, `is_unitary(...)`, `set_type(...)`, `get_type()` |
 | `Constraint` | `relax(bool, ModParam)`, `is_relaxed()`, `feasible()`, `compute(bool)` |
 | `RowConstraint` | `set_lhs`, `set_rhs`, `set_both`, `get_lhs`, `get_rhs`, `get_dual`, `set_dual` |
-| `OneVarConstraint` | accepts a single `ColVariable`; the bounds are the only data |
-| `FRowConstraint` | `set_function(Function*)`, `get_function()`; LHS is the `Function`'s value |
+| `OneVarConstraint` | the single `ColVariable` and the bounds are the only data |
+| `FRowConstraint` | `set_function(Function*, ModParam, bool)`, `get_function()`; $g$ is the value of the `Function` |
 | `Objective` | `set_sense(int, ModParam)`, `get_sense()`, `compute(bool)` |
-| `RealObjective` | adds `OFValue` and the `value()` accessor (in `Objective.h`) |
-| `FRealObjective` | `set_function(Function*)`, `get_function()` |
+| `RealObjective` | `OFValue` and `value()` (in `Objective.h`) |
+| `FRealObjective` | `set_function(Function*, ModParam, bool)`, `get_function()` |
 | `LinearConstraint` | an `FRowConstraint` with a `LinearFunction`, whose coefficients it exposes |
 
-For the exhaustive list of public methods, see the corresponding
-Doxygen page of each class.
+For the complete list of the public methods, one can see the Doxygen page of
+each class.
 
 ## 5.7 Idioms {#sec-5-7}
 
-**Pointer-identity equality.** Anywhere a `Variable*` or a
-`Constraint*` appears, it is compared with `==`; two pointers
-referring to the same memory address are the same object. This is
-not just an optimisation: it is the only sense of "equality" the
-framework recognises. In particular, two `ColVariable`s with the
-same value are *not* the same variable; copying a `ColVariable`
-into a different vector slot makes a new, distinct `ColVariable`.
+Wherever a `Variable *` or a `Constraint *` appears, it is compared
+with `==`: two pointers to the same address are the same object, and
+this is the only sense of equality that the framework recognizes. In
+particular, two `ColVariable`s with the same value are *not* the same
+variable, and copying a `ColVariable` into another slot of a vector
+makes a new, distinct `ColVariable`.
 
-**Ownership transfer to wrappers.** `FRowConstraint::set_function`
-and `FRealObjective::set_function` *take ownership* of the
-`Function*` passed in. The caller must not delete it, must not
-re-attach it to a second wrapper, and should not keep a
-pre-existing pointer to it for later use (the wrapper may replace
-or destroy the function in response to a `Modification`). Passing
-`nullptr` releases the currently held `Function*` (and deletes it).
+`FRowConstraint::set_function()` and `FRealObjective::set_function()`
+take ownership of the `Function *` passed to them (unless told
+otherwise by `deleteold`, as described in
+[§5.3](05-variable-constraint-objective.md#sec-5-3)): the caller must
+not delete it, and must not attach it to a second `FRowConstraint` or
+`FRealObjective`, which would register both with the same
+`Variable`s and delete it twice.
 
-**Composition of `Objective`s in a `Block` tree.** When a
-sub-`Block` carries an `Objective`, it contributes additively to
-the `Objective` of its father (and recursively up). A `Block` can
-have no `Objective` of its own and still expose a non-trivial
-overall `Objective` made up entirely of those of its sub-`Block`s;
-this is the standard pattern for "master" `Block`s that only
-carry linking constraints, as in `CapacitatedFacilityLocationBlock`
-in the Knapsack Formulation ([Chapter 12](12-sub-block.md#ch-12), [Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
+When a sub-`Block` has an `Objective`, it contributes to that of its
+father (and recursively upwards), possibly weighted. A `Block` can
+therefore carry no `Objective` and still expose a nontrivial overall
+`Objective`, made of those of its sub-`Block`s; this is the standard
+pattern of the "master" `Block`s that only carry linking constraints,
+as `CapacitatedFacilityLocationBlock` in its knapsack formulation
+([Chapter 12](12-sub-block.md#ch-12), [Recipe
+R4](R4-cfl-lagrangian.md#rec-R4)).

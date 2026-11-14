@@ -1,351 +1,364 @@
 # 3. The mental model {#ch-3}
 
-Before turning to the precise definitions of Part II, this chapter
-gives a high-level picture of the SMS++ framework. Its goal is to
-build the reader's intuition: what a `Block` is for, what role a
-`Solver` plays, why two representations of the same model coexist,
-how a `Block` typically lives across its lifetime, and how the three
-running examples used throughout the manual fit into this picture.
-None of what follows is rigorous in the sense of Part II; everything
-will be made precise there.
+Before the precise definitions of Part II, this chapter gives an
+overall picture of the framework, meant to build the intuition of the
+reader. We describe what a `Block` is for, what role a `Solver` plays,
+why two representations of the same model coexist, how a `Block`
+typically lives, and how the three running examples of the manual fit
+into this picture. Nothing in this chapter is meant to be rigorous; we
+make everything precise in Part II.
 
-## 3.1 Block: a sub-problem with semantics {#sec-3-1}
+## 3.1 Block: a sub-problem with a semantic {#sec-3-1}
 
-The cornerstone of SMS++ is the abstract class
-[`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html).
-The intuition behind it is captured by a single sentence: *a `Block`
-is a fragment of a mathematical model with a well-understood
-semantic*. "Fragment" because a `Block` is rarely the whole model;
-it is more often one of several pieces that compose into a larger
-model. "Semantic" because what a `Block` represents is not a list of
-variables and constraints in some general-purpose syntax, but a
-specific *kind* of problem: a min-cost flow, a knapsack, a
-unit-commitment, a two-stage stochastic program. The kind is encoded
-by the concrete `:Block` class derived from the abstract `Block`.
+The central abstraction of SMS++ is the class
+[`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html),
+whose intuition is captured by one sentence: a `Block` is a fragment
+of a mathematical model with a well-understood semantic. It is a
+"fragment" because a `Block` is seldom the complete model, being more
+often one of several pieces that are composed into a larger one. It
+has a "semantic" because it represents a specific *kind* of problem (a
+min-cost flow, a knapsack, a Unit Commitment, a two-stage stochastic
+program), rather than a list of variables and constraints written in
+some general-purpose syntax; the kind is encoded by the concrete
+`:Block` class derived from `Block`.
 
-![A `Block` carries the semantics of a mathematical sub-problem.](../figures/SMSglobal0a.svg)
+![A `Block` carries the semantics of a mathematical
+sub-problem.](../figures/SMSglobal0a.svg)
 
-A concrete `:Block` knows its problem class. It knows what the data
-of an instance looks like (a graph, a table of weights, a network of
-generation units), how to load it from a text or binary file, how to
-serialise it back, what makes a candidate solution feasible for it,
-what the optimal value of the problem is conceptually, and what
-algorithmic operations (changes to the data, reformulations, copies)
-are meaningful for it. A user of the framework who wants to *solve*
-an instance of that problem class typically does not write a new
-`:Block`; the existing `:Block` of the relevant class is used and
-configured. A user who wants to *introduce a new problem class*
-writes a new `:Block`; this is the topic of [Appendix A](A-writing-block.md#app-A).
+A concrete `:Block` knows its class of problems. It knows what the
+data of an instance look like (a graph, a table of weights, a network
+of generating units) and how to load them from a file and save them
+back; it also knows what makes a candidate solution feasible, what the
+optimal value of the problem is (conceptually), and which operations
+on it (changes of the data, reformulations, copies) are meaningful.
+One who wants to *solve* an instance of that class of problems does
+not usually write a new `:Block`, but uses and configures the existing
+one; one who wants to *introduce* a new class of problems writes a new
+`:Block`, which is the subject of [Appendix
+A](A-writing-block.md#app-A).
 
 ## 3.2 Solver: anything that can compute on a Block {#sec-3-2}
 
-Once a `Block` carries an instance, the framework needs an algorithm
-to compute on it. In SMS++ the role is played by
+Once a `Block` holds an instance, an algorithm is needed to compute on
+it. This is the role of
 [`Solver`](https://smspp.gitlab.io/smspp-project/df/d44/class_s_m_spp__di__unipi__it_1_1_solver.html),
 an abstract class that represents "anything that can compute on a
-`Block`". A concrete `:Solver` is one specific algorithm: a simplex
-implementation for min-cost flow problems, a dynamic-programming
-procedure for binary knapsack, a state-of-the-art commercial MIP
-solver, a Lagrangian dual driver, a bundle method, a stochastic dual
-dynamic programming engine.
+`Block`". A concrete `:Solver` is one specific algorithm (a simplex
+method for min-cost flow problems, a dynamic programming procedure for
+the knapsack problem, a commercial MIP solver, a Lagrangian dual
+method, a bundle method, an SDDP engine).
 
-![Any number of `:Solver`s may attach to a `Block`; changes flow to them as `Modification`s.](../figures/SMSglobal1a.svg)
+![Any number of `:Solver`s may attach to a `Block`; changes flow to
+them as `Modification`s.](../figures/SMSglobal1a.svg)
 
-Any number of `:Solver` can be attached to the same `Block` at the
-same time. A specialised `:Solver` is one written for a specific
-`:Block` class: it knows the problem and can exploit the structure;
-the price is that it works only for that one `:Block`. A
-general-purpose `:Solver` knows nothing about the specific structure
-but can handle a large family of `:Block` through the abstract
-representation ([Section 3.3](03-mental-model.md#sec-3-3)). The two coexist: the user picks, at
-configuration time, which `:Solver` is attached to a given `:Block`.
-Switching from one to the other is usually a one-line change to a
-configuration file ([Chapter 11](11-configuration.md#ch-11)), with no change to user code.
+One can attach any number of `:Solver`s to the same `Block` at the
+same time. A *specialized* `:Solver` is written for a specific
+`:Block` class: it knows the problem and can exploit its structure, at
+the price of working only for that `:Block`. A *general-purpose*
+`:Solver` ignores the specific structure, but it can handle a large
+family of `:Block`s through their abstract representation (cf.
+[§3.3](03-mental-model.md#sec-3-3)). Both kinds coexist, and which
+`:Solver` is attached to a given `:Block` is decided at configuration
+time; switching from one to the other is usually a change of one line
+in a configuration file (cf. [Chapter 11](11-configuration.md#ch-11)),
+with no change to the code of the user.
 
-Any concrete `:Solver` exposes a uniform interface, regardless of how
-it works internally. It accepts integer / double / string parameters;
-it can be told to stop after a time limit, an iteration limit, or a
-target accuracy; it can be invoked synchronously or asynchronously;
-when it terminates it reports a return code (optimal, infeasible,
-unbounded, time limit, iteration limit, error, ...); on demand it
-yields one or more solutions of the problem, primal and (where it
-makes sense) dual. The `Solver` interface, in this sense, is the
-*lingua franca* of SMS++.
+All the `:Solver`s expose the same interface, however they work
+internally. A `:Solver` accepts parameters of integer, real and string
+type (and vectors of them), and it can be told to stop after a time
+limit, an iteration limit or when a given accuracy is reached. It can
+be invoked synchronously or asynchronously; when it stops, it reports
+a return code (optimal, infeasible, unbounded, stopped at a limit,
+error, and so on), and on demand it delivers one or more solutions of
+the problem, primal and (where this makes sense) dual. In this sense
+the interface of `Solver` is the common language of SMS++.
 
 ## 3.3 Two representations of the same model {#sec-3-3}
 
-A `Block` represents a mathematical model. SMS++ allows the same
-`Block` to expose two distinct representations of that model, which
-coexist and refer to the same underlying problem.
+A `Block` represents a mathematical model, and SMS++ allows the same
+`Block` to expose two distinct representations of it, which coexist
+and refer to the same underlying problem.
 
-The first is the **physical** representation, sometimes called the
-*semantic* representation: the problem data in its natural form. For
-a min-cost flow problem this is a directed graph plus arc costs and
-capacities plus node deficits, stored as compact arrays. For a
-knapsack problem it is a capacity, a vector of weights, a vector of
-profits. For a unit-commitment problem it is a network, a set of
-generation units each described by its own technological parameters,
-a demand profile. The physical representation is the form a domain
-expert would write down on a whiteboard.
+The first is the *physical* representation (sometimes called the
+*semantic* one), i.e., the data of the problem in their natural form.
+For a min-cost flow problem these are a directed graph, the costs and
+capacities of its arcs and the deficits of its nodes, stored as
+compact arrays, and for a knapsack problem a capacity, a vector of
+weights and a vector of profits. For a Unit Commitment problem they
+are a network, a set of generating units, each described by its
+technical parameters, and a profile of the demand. This is the form in
+which a domain expert would write the problem on a whiteboard.
 
-The second is the **abstract** representation: an explicit list of
-`Variable` objects, an explicit list of `Constraint` objects, an
-explicit `Objective` object — that is, the model in the form a
-general-purpose solver would expect. For the same min-cost flow
-problem this is a vector of flow variables, a vector of
-flow-conservation row constraints, a vector of box constraints, a
-linear objective. The abstract representation is what the framework
-hands over when a general-purpose `:Solver` (an LP solver, a MIP
-solver) is attached.
+The second is the *abstract* representation, i.e., an explicit list of
+`Variable` objects, an explicit list of `Constraint` objects and an
+explicit `Objective` object: the model in the form a general-purpose
+solver expects. For the same min-cost flow problem, these are a vector
+of flow variables, a vector of flow conservation constraints, a vector
+of bound constraints and a linear objective, which the framework hands
+over to a general-purpose `:Solver` (an LP or a MIP solver) when it is
+attached. For a graph $G = (N, A)$ with arc costs $c_{ij}$, arc
+capacities $u_{ij}$ and node deficits $b_i$, the correspondence is the
+following:
 
-```
-              physical                     abstract
-              data                         Variable/Constraint/Objective
-              -------                      ---------------
-              graph G                      x[i,j] for arc (i,j)
-              cost C[i,j]                  sum x[i,j] - sum x[j,i] = b[i]
-              capacity U[i,j]              0 <= x[i,j] <= U[i,j]
-              deficit b[i]                 min sum C[i,j] x[i,j]
-```
+| physical | abstract |
+|---|---|
+| graph $G = (N, A)$ | one `ColVariable` $x_{ij}$ per arc $(i, j) \in A$ |
+| deficits $b_i$ | $\sum_{(k,i) \in A} x_{ki} - \sum_{(i,k) \in A} x_{ik} = b_i$ for each $i \in N$ |
+| capacities $u_{ij}$ | $0 \le x_{ij} \le u_{ij}$ for each $(i,j) \in A$ |
+| costs $c_{ij}$ | $\min \sum_{(i,j) \in A} c_{ij} x_{ij}$ |
 
-![The two faces of a `Block`: the physical (semantic) data and the abstract `Variable` / `Constraint` / `Objective` representation.](../figures/SMSglobal4a.svg)
+(a negative deficit denotes a source, a positive one a sink;
+Proposition 7.1 in [§7.1](07-physical-abstract.md#sec-7-1) proves that
+the abstract representation built by `MCFBlock` is this one).
 
-Why two representations? Because a specialised `:Solver` does not
-need the explicit `Variable` and `Constraint`: it knows the problem
-and can read the physical data directly, much faster and at much
-lower memory cost. A general-purpose `:Solver`, on the other hand,
-*does* need the explicit `Variable` and `Constraint`: it does not
-know what the problem is and has no choice but to consume the model
-in its abstract form. Having only one of the two would force a
-compromise; having both is the simplest design that lets the user
-keep both kinds of `:Solver` on the same `Block` without paying the
-abstract-representation cost when only a specialised `:Solver` is in
-use.
+![The two faces of a `Block`: the physical (semantic) data and the
+abstract `Variable` / `Constraint` / `Objective`
+representation.](../figures/SMSglobal4a.svg)
 
-The abstract representation is built **on demand**. The `Constraint`s
-and the `Objective` are constructed only when a `:Solver` that needs
-them is attached. The methods that build them are
-`generate_abstract_variables()`,
-`generate_abstract_constraints()`,
-`generate_dynamic_variables()`,
-`generate_dynamic_constraints()`,
-`generate_objective()`. Each accepts a `Configuration` that gates
-optional parts of the construction. [Chapter 7](07-physical-abstract.md#ch-7) makes this precise.
+Two representations are needed because a specialized `:Solver` does
+not need the explicit `Variable`s and `Constraint`s: it knows the
+problem, and it can read the physical data directly, much faster and
+with much less memory. A general-purpose `:Solver`, on the other
+hand, does need them, since it does not know what the problem is and
+can only consume the model in its abstract form. Having only one of
+the two representations would force a compromise; having both lets
+the user keep both kinds of `:Solver` on the same `Block`, without
+paying the cost of the abstract representation when only a
+specialized `:Solver` is in use.
 
-> **Status — under development.** The `Variable`s of the abstract representation
-> used to be an exception to the "on demand" rule: they were always
-> materialised, because every `:Solver` reported its solution by
-> *writing into* the `Variable`s of the `Block`, so that even a
-> `:Block` solved exclusively by a specialised `:Solver` that reads
-> only the physical representation had to construct the abstract
-> `Variable`s, just so that the `:Solver` had somewhere to write the
+Hence, the abstract representation is built *on demand*: the
+`Constraint`s and the `Objective` are constructed only when a
+`:Solver` that needs them is attached. They are built by
+`generate_abstract_variables()`, `generate_abstract_constraints()`,
+`generate_dynamic_variables()`, `generate_dynamic_constraints()` and
+`generate_objective()`, each of which accepts a `Configuration` that
+selects the optional parts of the construction; [Chapter
+7](07-physical-abstract.md#ch-7) makes this precise.
+
+> **Status — under development.** The `Variable`s of the abstract
+> representation used to be an exception to the "on demand" rule.
+> They were always constructed, because the `:Solver`s reported their
+> solution by *writing* it into the `Variable`s of the `Block`; hence,
+> even a `:Block` solved only by a specialized `:Solver`, which reads
+> the physical representation, had to construct its abstract
+> `Variable`s just to give the `:Solver` a place where to write the
 > solution.
 >
-> The resolution is `Solver::get_Solution()`, which returns a
-> `Solution` object directly. Its default implementation still goes
-> through the `Variable`s (it calls `get_var_solution()` and then
+> The way out is `Solver::get_Solution()`, which returns a `Solution`
+> object directly. Its default implementation still goes through the
+> `Variable`s (it calls `get_var_solution()` and then
 > `Block::get_Solution()`), but a "physical" `:Solver` re-implements
-> it to fill the `:Solution` out of its own data structures, without writing
-> into the `Variable`s and without `lock()`-ing the `Block`, and says
-> so by returning `true` from `is_get_Solution_physical()`; this is
-> the case of `MCFSolver`, `MCFLemonSolver`, the `:Solver`s of
-> `BinaryKnapsackBlock` derived from `BinaryKnapsackSolver`,
-> `ThermalUnitDPSolver`, `ThermalUnitExtDPSolver` and the `:Solver`s
-> of `SVMBlock`. A `:Block` attached to such `:Solver`s only can
-> therefore skip constructing the abstract `Variable`s altogether.
-> The mechanism is not yet used uniformly across the catalogue
-> (`MCFBlock` and `BinaryKnapsackBlock` still construct their abstract
-> `Variable`s in `load()`; see [§7.6](07-physical-abstract.md#sec-7-6)
-> and [§9.7](09-solution.md#sec-9-7)), and this is one of several
-> examples in the manual where the API is not yet fully settled (see
-> also [Chapter 16](16-change.md#ch-16) on `Change`).
+> it to fill the `:Solution` out of its data structures, without
+> writing into the `Variable`s and without `lock()`-ing the `Block`,
+> and it declares this by returning `true` from
+> `is_get_Solution_physical()`. This is the case of `MCFSolver`,
+> `MCFLemonSolver`, the `:Solver`s of `BinaryKnapsackBlock` derived
+> from `BinaryKnapsackSolver`, `ThermalUnitDPSolver`,
+> `ThermalUnitExtDPSolver`, and the `:Solver`s of `SVMBlock`. A
+> `:Block` attached only to such `:Solver`s can therefore avoid
+> constructing its abstract `Variable`s altogether. This mechanism is
+> not yet used uniformly across the catalogue (`MCFBlock` and
+> `BinaryKnapsackBlock` still construct their abstract `Variable`s in
+> `load()`; see [§7.6](07-physical-abstract.md#sec-7-6) and
+> [§9.7](09-solution.md#sec-9-7)), and this is one of the places of
+> the manual where the interface is not yet settled (another is
+> `Change`, see [Chapter 16](16-change.md#ch-16)).
 
-Keeping the two representations in sync, when one is modified
-through one face and a `:Solver` is reading the other, is non-trivial
-and is the topic of [Chapter 8](08-modification-janus.md#ch-8) (the *Janus discipline*).
+Keeping the two representations in step, when one is modified while a
+`:Solver` reads the other, is somewhat delicate, and it is the subject
+of [Chapter 8](08-modification-janus.md#ch-8) (the Janus discipline).
 
 ## 3.4 The lifecycle of a Block {#sec-3-4}
 
-A `Block` typically goes through five stages along its lifetime:
-*build*, *configure*, *attach*, *solve*, *modify*. After the first
-*solve* it loops over *modify* and *solve* zero or more times. The
-last two stages — *modify* and *re-solve* — are not an afterthought;
-they are explicit design objectives, and a good deal of the
-framework's internal machinery exists to make them efficient.
+A `Block` typically goes through five stages (build, configure,
+attach, solve, modify), and after the first solve it loops over
+modify and solve zero or more times. These last two stages are
+explicit objectives of the design, and a good part of the machinery
+of the framework exists to make them efficient.
 
-![The lifecycle of a `Block`: build, configure, attach a `:Solver`, solve, then loop over modify and re-solve.](../figures/block-lifecycle.svg)
+![The lifecycle of a `Block`: build, configure, attach a `:Solver`,
+solve, then loop over modify and
+re-solve.](../figures/block-lifecycle.svg)
 
-- **Build.** The `Block` is constructed and populated from data.
-  The data may come from in-memory arrays (typically passed to a
-  `:Block`-specific `load(...)` overload), from a text file (passed
-  to `load(std::istream&, char)`), or from a netCDF group (passed to
-  `deserialize(const netCDF::NcGroup&)`). Of these three routes, only the
-  netCDF one is supported uniformly across the `:Block` catalogue;
-  the in-memory overloads exist, and the text-file one (which every
-  `:Block` must declare, since it is pure virtual in `Block`) does
-  something meaningful, only for those
-  `:Block` classes (such as `MCFBlock` and `MMCFBlock`) that have a
-  historically established input format and for which it made sense
-  to support it. For most other `:Block` classes the canonical route
-  is netCDF (plus, of course, programmatic construction by the
-  application code that owns the `:Block`).
-- **Configure.** The optional behaviours of the `Block` (which parts
-  of the abstract representation to generate, with which options;
-  which `:Solver` to attach; which parameters to feed them) are set
-  via a `Configuration` tree that mirrors the `Block` tree. The
-  configuration can be loaded from a text file or from netCDF.
-- **Attach.** One or more `:Solver` are registered with the `Block`.
-  Registration calls the `Solver`'s `set_Block()`, in which a
-  `:Solver` typically reads the `Block` data it needs (a
+- *Build.* First, the `Block` is constructed and filled with data,
+  which may come from arrays in memory (typically passed to a
+  `load(...)` method specific to the `:Block`), from a text file
+  (passed to `load(std::istream&, char)`), or from a netCDF group
+  (passed to `deserialize(const netCDF::NcGroup&)`). Only the netCDF
+  route is supported uniformly across the catalogue. The text one is
+  declared by all the `:Block`s, since it is pure virtual in `Block`,
+  but it reads something meaningful only for those that have an
+  established text format. Among them are the three running examples
+  (`MCFBlock` reading the DIMACS format), `MMCFBlock`, `SATBlock` and
+  `LukFiBlock`; the overloads from memory exist only where they have
+  been written. For most other `:Block`s the intended routes are
+  netCDF and the construction by the application that owns the
+  `:Block`.
+- *Configure.* The optional behaviors of the `Block` are set by a tree
+  of `Configuration` objects that mirrors the tree of `Block`s, and
+  which can be loaded from a text file or from netCDF. They comprise
+  which parts of the abstract representation to generate (and with
+  which options), and which `:Solver`s to attach (and with which
+  parameters).
+- *Attach.* One or more `:Solver`s are registered with the `Block`.
+  Registration calls the `set_Block()` method of the `Solver`, where a
+  `:Solver` typically reads the data of the `Block` it needs; a
   general-purpose one also has the abstract representation generated
-  there and loads it into its back-end); the computation proper does
-  not start until its `compute()` method is called.
-- **Solve.** A registered `:Solver` is asked to `compute()`. It
-  consumes the `Block` data (physical or abstract, as appropriate),
-  runs its algorithm, and produces a return code together with a
-  pool of solutions and a pool of pending `Modification`s emptied
-  on entry.
-- **Modify and re-solve.** The user changes the data of the `Block`
-  through one of the documented mutation methods. Each mutation
+  there, and loads it into its back-end. The computation does not
+  start until the `compute()` method of the `:Solver` is called.
+- *Solve.* Then `compute()` is called on a registered `:Solver`. The
+  `:Solver` first processes the `Modification`s it has received since
+  the previous call, then reads the data of the `Block` (physical or
+  abstract, as appropriate) and runs its algorithm; it returns a code
+  that describes how it stopped, after which the solutions it has
+  found can be retrieved.
+- *Modify and solve again.* Afterwards, the user changes the data of
+  the `Block` through one of its documented methods. Each change
   produces zero or more `Modification` objects, which are dispatched
-  to every `:Solver` currently attached to the `Block` or to any of
-  its ancestor `Block`s. The next call to `compute()` on any of them
-  starts with that list of pending `Modification`s; if the
-  `:Solver` is able to reoptimize, it does so.
+  to the `:Solver`s attached to the `Block` or to one of its
+  ancestors; the next call to `compute()` of each of them starts by
+  processing them, and a `:Solver` that is able to reoptimize does so.
 
 ## 3.5 The three running examples {#sec-3-5}
 
-Three concrete `:Block` are used throughout the manual to make the
-concepts tangible. Each is introduced briefly here and revisited in
-Part II.
+Three concrete `:Block`s are used throughout the manual to make the
+concepts tangible; we introduce each of them briefly here, and revisit
+it in Part II.
 
-### `MCFBlock` — a leaf Block with a wrapper Solver
+### `MCFBlock`: a leaf Block with a wrapper Solver
 
 [`MCFBlock`](https://smspp.gitlab.io/smspp-project/d0/d51/_m_c_f_block_8h.html)
 represents a linear min-cost flow problem on a directed graph. It is
-a *leaf* `Block` (no sub-`Block`) with a small, well-defined physical
-representation: arrays of arc start and end nodes, arc costs and
-capacities, node deficits, plus a few counters for static / dynamic
-arcs and nodes. It supports a partly dynamic graph (a static initial
-set of nodes and arcs, plus up to a configurable maximum number of
-dynamic nodes and arcs that can be added or deleted at runtime).
+a *leaf* `Block` (it has no sub-`Block`) with a small physical
+representation: the arrays of the start and end nodes of the arcs,
+of the costs and capacities of the arcs and of the deficits of the
+nodes, plus the counters of the static and dynamic nodes and arcs.
+Its graph is partly dynamic, i.e., to a static set of nodes and arcs
+one can add (and later remove) dynamic nodes and arcs, up to maximum
+numbers given when the instance is loaded.
 
-`MCFBlock` is paired with the templated specialised `:Solver`
-[`MCFSolver< MCFC >`](https://smspp.gitlab.io/smspp-project/d2/dd2/class_s_m_spp__di__unipi__it_1_1_m_c_f_solver.html),
-which wraps any concrete algorithm from the legacy `MCFClass`
-project. The template parameter `MCFC` lets the user choose between
-simplex, relaxation, cost-scaling and other classical algorithms.
-This is the SMS++ example of a *wrapper* specialised `:Solver`: the
-implementation lives in an external library that predates SMS++ by
-years and continues to be developed in its own right; SMS++ exposes
+`MCFBlock` is paired with the specialized template `:Solver`
+[`MCFSolver< MCFC
+>`](https://smspp.gitlab.io/smspp-project/d2/dd2/class_s_m_spp__di__unipi__it_1_1_m_c_f_solver.html),
+which wraps a concrete algorithm of the `MCFClass` library. The
+template parameter `MCFC` chooses among a primal or dual network
+simplex (`MCFSimplex`), a relaxation method (`RelaxIV`), a
+cost-scaling method (`CS2`), a shortest path tree method for the
+uncapacitated case (`SPTree`), the network simplex of ZIB (`MCFZIB`)
+and the network solver of CPLEX (`MCFCplex`). This is the example of a
+*wrapper* `:Solver`: the implementation lives in an external library
+that predates SMS++ and is developed independently, and SMS++ exposes
 it through the `:Solver` interface.
 
-Through `MCFBlock` the manual will introduce: the basics of a leaf
+Through `MCFBlock` we introduce the basics of a leaf
 `Block`, the construction of the abstract representation, the two
-parallel streams of `Modification`s, `is_feasible(useabstract)` and
-`is_optimal(useabstract)` written on both representations, the
-trivial copy `R3Block`, and the `MCFSolution` class.
+streams of `Modification`s, the methods `is_feasible(useabstract)`
+and `is_optimal(useabstract)` written on both representations, the
+`R3Block` that is a plain copy, and the class `MCFSolution`.
 
-### `BinaryKnapsackBlock` — a leaf Block with a native Solver
+### `BinaryKnapsackBlock`: a leaf Block with a native Solver
 
 [`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html)
-represents a mixed-integer knapsack problem (despite the "Binary" in
-its name, the boolean integrality vector lets each variable be
-declared either binary or continuous). It is again a *leaf* `Block`,
-even smaller than `MCFBlock`: the physical data is a capacity, a
-vector of weights, a vector of profits, and a boolean integrality
-vector.
+represents a knapsack problem with binary and continuous items
+(despite the "Binary" in its name, a vector of integrality flags
+declares each item either binary or continuous). It is again a *leaf*
+`Block`, even smaller than `MCFBlock`: its physical data are a
+capacity, a vector of weights, a vector of profits and the vector of
+integrality flags.
 
-It is paired with a *native* specialised `:Solver`,
+It is paired with a *native* specialized `:Solver`,
 [`DPBinaryKnapsackSolver`](https://smspp.gitlab.io/smspp-project/d5/d6a/class_s_m_spp__di__unipi__it_1_1_d_p_binary_knapsack_solver.html),
-implemented entirely inside SMS++. The implementation is a classical
-dynamic programming procedure on the integer part of the problem
-combined with an exact greedy algorithm for the continuous part. The
-algorithm requires integer weights (any non-integer weight raises an
-exception); capacities and profits can be `double`. This is the SMS++
-example of a *natively-implemented* specialised `:Solver`. The module
-also carries other native `:Solver`s derived from
-`BinaryKnapsackSolver`: an exact *core* dynamic program
-(`CoreDPBinaryKnapsackSolver`), which enumerates only the
-non-dominated states around the break item and is orders of
-magnitude faster on hard instances, those that hand its core to the
-external RECORD and COMBO codes, and a greedy one for the continuous
-relaxation (`GreedyRelaxationBinaryKnapsackSolver`).
+written entirely within SMS++: a classical dynamic program on the
+integer items, combined with the exact greedy algorithm for the
+continuous ones. This dynamic program requires the weights to be
+integer (a fractional weight makes `DPBinaryKnapsackSolver` throw an
+exception), while the capacity is rounded down and the profits can be
+any `double`. This is the example of a *native* specialized `:Solver`.
+The module also carries other native `:Solver`s derived from
+`BinaryKnapsackSolver`. One is an exact *core* dynamic program
+(`CoreDPBinaryKnapsackSolver`), which only enumerates the
+non-dominated states around the break item (and on hard instances is
+orders of magnitude faster); two hand its core to the external RECORD
+and COMBO codes, and a greedy one solves the continuous relaxation
+(`GreedyRelaxationBinaryKnapsackSolver`).
 
-`BinaryKnapsackBlock` is also the reference example of the new beta
-**`Change`** family
+`BinaryKnapsackBlock` is also the reference example of the family of
+`Change`s, in beta
 ([`BinaryKnapsackBlockChange`](https://smspp.gitlab.io/smspp-project/d8/d50/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block_change.html),
-plus the `Rngd` and `Sbst` variants). Through it the manual will
-introduce: the methods factory, the `Solution` class as a
-Block-specific object, and the `Change` concept that complements
-`Modification` ([Chapter 16](16-change.md#ch-16)).
+with its variants `BinaryKnapsackBlockRngdChange` and
+`BinaryKnapsackBlockSbstChange`). Through it we introduce the methods
+factory, the `Solution` as an object specific to a `Block`, and the
+concept of `Change` that complements the one of `Modification` (cf.
+[Chapter 16](16-change.md#ch-16)).
 
-### `CapacitatedFacilityLocationBlock` — a non-leaf Block with multiple formulations
+### `CapacitatedFacilityLocationBlock`: a non-leaf Block with several formulations
 
 [`CapacitatedFacilityLocationBlock`](https://smspp.gitlab.io/smspp-project/dc/d34/class_s_m_spp__di__unipi__it_1_1_capacitated_facility_location_block.html)
-represents the basic capacitated facility location problem (also
-known as capacitated warehouse location). It is explicitly described
-in its own source comments as a "didactic" `Block`, designed to
-showcase several SMS++ features at once.
+represents the classical capacitated facility location problem (also
+known as capacitated warehouse location), and its comments describe it
+as a "didactic" `Block`, meant to show several features of SMS++ at
+once.
 
 `CapacitatedFacilityLocationBlock` supports four formulations of the
-same problem, selected via a single integer in its
-`f_static_variables_Configuration`:
+problem, selected by the two lowest bits of an integer read from the
+`f_static_variables_Configuration` of its `BlockConfig` (or from the
+`Configuration` passed to `generate_abstract_variables()`):
 
-- the **Natural Formulation** (StdForm, the standard MILP) has no
-  sub-`Block`, and the abstract representation contains the design
-  variables `Y[i]`, the transportation variables `X[i,j]`, the
-  customer satisfaction constraints, the facility capacity
-  constraints, and a linear objective;
+- the *natural* formulation (value 0, `StdForm`), i.e., the standard
+  MILP, which has no sub-`Block` and whose abstract representation
+  contains the design variables $y_i$, the transportation variables
+  $x_{ij}$, the constraints that satisfy the customers, the capacity
+  constraints of the facilities and a linear objective;
+- the *knapsack* formulation (value 1, `KskForm`), in which the
+  `Block` has one sub-`Block` of type `BinaryKnapsackBlock` per
+  facility, carrying the capacity constraint of the facility, its
+  transportation variables and its design variable, while the
+  `Block` itself only carries the constraints that link the
+  sub-`Block`s (those that satisfy the customers);
+- two *Benders* formulations (values 2 and 3, `BenForm`), in which the
+  abstract representation only has the design variables $y_i$ and a
+  single continuous epigraphic variable $v$, while the transportation
+  subproblem is hidden inside a `BendersBFunction` that wraps an
+  `MCFBlock` (which is not a sub-`Block`). In the first variant the
+  inner `MCFBlock` has slack arcs, which make the subproblem always
+  feasible, and only optimality cuts are generated; in the second it
+  has none, and when the subproblem is infeasible a feasibility cut is
+  generated through the vertical linearization of the
+  `BendersBFunction`.
 
-- the **Knapsack Formulation** (KskForm) makes the `Block` grow one
-  sub-`BinaryKnapsackBlock` per facility (each carrying the
-  facility's capacity constraint and the transportation/design
-  variables for that facility); the master `Block` carries the
-  customer satisfaction linking constraints;
+A third bit of the same integer makes the transportation variables
+$x_{ij}$ integer (the *unsplittable* problem); it is only allowed
+with the natural and the knapsack formulations, since the Benders
+subproblem requires the splittable case.
 
-- the **Benders Formulation** (BenForm) has only the design
-  variables `Y[i]` plus a single continuous epigraphic variable `v`
-  in the master, and the transportation sub-problem is hidden inside
-  a `BendersBFunction` wrapping an `MCFBlock`. Two sub-variants are
-  available, one with slack arcs in the inner `MCFBlock` (the
-  sub-problem is then always feasible, only optimality cuts are
-  emitted) and one without (feasibility cuts are emitted via the
-  vertical-linearization machinery when the inner sub-problem is
-  infeasible).
+`CapacitatedFacilityLocationBlock` also produces a nontrivial
+`R3Block`: besides the plain copy, it can produce an `MCFBlock` that
+represents the continuous flow relaxation of the problem. This
+construction is also used internally by the Benders formulations, and
+from the outside it can serve as a fast producer of lower bounds.
 
-A further bit of the same integer makes the transportation variables
-`X[i,j]` integer (the *unsplittable* problem); it is only allowed with
-the natural and the knapsack formulations, since the Benders
-sub-problem requires the splittable case.
-
-In addition, `CapacitatedFacilityLocationBlock` produces a
-non-trivial `R3Block`: besides the trivial copy, it can produce an
-`MCFBlock` that represents the *continuous flow relaxation* of CFL.
-The same construction is used internally by the BenForm formulation;
-externally it can be used as a fast lower-bound producer.
-
-Through `CapacitatedFacilityLocationBlock` the manual will introduce:
-sub-`Block` and the recursive flow of `Modification`s, multiple
-formulations selected by `Configuration`, the non-trivial `R3Block`,
-`LagBFunction` and `BendersBFunction` as the two `Function`+`Block`
-hybrids that wrap an inner `Block`, the
+Through `CapacitatedFacilityLocationBlock` we introduce the
+sub-`Block`s and the recursive flow of the `Modification`s, the choice
+among several formulations by a `Configuration`, and the nontrivial
+`R3Block`. We also introduce `LagBFunction` and `BendersBFunction`,
+the two hybrids of a `Function` and a `Block` that wrap an inner
+`Block`, the
 [`LagrangianDualSolver`](https://smspp.gitlab.io/smspp-project/d4/dc3/class_s_m_spp__di__unipi__it_1_1_lagrangian_dual_solver.html)
-and the derived `PrimalProximalHeur`, and the user-cut callback
-pattern of `MILPSolver` for Benders cuts.
+and its derived class `PrimalProximalHeur`, and the callback of
+`MILPSolver` that issues Benders cuts.
 
-## 3.6 How Part II reuses the three running examples {#sec-3-6}
+## 3.6 How Part II uses the three running examples {#sec-3-6}
 
-Part II — *Concepts and Idioms* — introduces one concept per chapter,
-in an order that ensures every concept is defined before it is used.
-Each chapter follows the same skeleton (definition, structure, inline
-example, API outline, idioms) and uses one of the three running
-examples to instantiate the concept under discussion. The three
-examples are chosen so that they collectively exercise every major
-SMS++ concept once; the reader who has worked through Part II should
-be ready to write a new `:Block` ([Appendix A](A-writing-block.md#app-A)) or to assemble one of
-the Recipes in Part III.
+Part II introduces one concept per chapter, in an order such that each
+concept is defined before it is used. Each chapter follows the same
+scheme (definition, structure, example, outline of the interface,
+idioms), and uses one of the three running examples to instantiate the
+concept under discussion; together, the three exercise the major
+concepts of SMS++. A reader who has worked through Part II should be
+able to write a new `:Block` (cf. [Appendix
+A](A-writing-block.md#app-A)) or to assemble one of the recipes of
+Part III.
 
-A small but useful summary table appears at the end of the manual as
-[Appendix D](D-concept-block-map.md#app-D); the reader who wants to know which concept is
-illustrated by which `:Block` and in which chapter can consult it.
+A reader who wants to know which concept is illustrated by which
+`:Block`, and in which chapter, can consult the table of
+[Appendix D](D-concept-block-map.md#app-D).
