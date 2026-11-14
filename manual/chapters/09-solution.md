@@ -88,10 +88,30 @@ meaningfully scaled or summed. A *discrete* `Solution` (one whose
 stored values are integral by nature) may refuse to be combined,
 or may produce a "more general" `Solution` that no longer carries
 the integrality. The base-class comments to `scale()` and
-`sum()` (`Solution.h:417-469`) describe the contract; a
+`sum()` (`Solution.h:541-626`) describe the contract; a
 `:Solution` is free to convert itself, on demand, into a "more
 general" `Solution` type when a combination would otherwise be
 impossible.
+
+Two further pieces of the base interface concern a `Solution` that
+is kept while its `Block` changes. First, a `Solution` knows
+whether it holds a solution or a *direction*, i.e., a ray of the
+feasible region along which the `Objective` is unbounded
+(`is_direction()`, set by `read()` from `Block::is_direction()` or
+by whoever fills it); `clone()`, `scale()` and the serialisation
+keep it, while a `sum()` is a direction only if all its terms are.
+Second, `adapt(block, mod, dropped)` tells the `Solution` that its
+`Block` has undergone the `Modification` `mod`
+([Chapter 8](08-modification-janus.md#ch-8)), and the answer is `kUnchanged`, `kAdapted` (the values
+of removed dynamic `Variable`s or `Constraint`s, or of what a
+physical `Modification` removes, have been dropped and written in
+`dropped`) or `kInvalid` (e.g., after an `NModification`); which
+kinds of `Modification` a `:Solution` has to look at is said by
+`adapts()`. Whether the values left are still feasible is not
+`adapt()`'s business but that of `Block::is_sol_feasible()`
+([§7.5](07-physical-abstract.md#sec-7-5)). This is what the global pools of `LagBFunction` and
+`BendersBFunction` use to keep the `Solution`s they store in step
+with the inner `Block`.
 
 ## 9.4 The standard abstract `Solution`s {#sec-9-4}
 
@@ -121,13 +141,12 @@ that stores the solution in terms of the *physical*
 representation, which is usually far more compact than the
 abstract one. The three running examples each ship one:
 
-- `MCFSolution` (declared in `MCFBlock.h:2508`) stores the arc
-  flows and, optionally, the node potentials and arc reduced
-  costs — the natural primal and dual data of a min-cost flow
-  problem.
+- `MCFSolution` (declared in `MCFBlock.h:2682`) stores the arc
+  flows and/or the node potentials — the natural primal and dual
+  data of a min-cost flow problem.
 - [`BinaryKnapsackSolution`](https://smspp.gitlab.io/smspp-project/dc/d61/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_solution.html)
-  stores the per-item values and, where meaningful, the dual
-  value of the knapsack constraint.
+  stores the per-item values (as `double`s, so that it can be
+  scaled and summed).
 - [`CapacitatedFacilityLocationSolution`](https://smspp.gitlab.io/smspp-project/db/d25/class_s_m_spp__di__unipi__it_1_1_capacitated_facility_location_solution.html)
   stores the design (`y`) and transportation (`x`) values, with a
   `Configuration`-selectable choice of which part to keep.
@@ -154,13 +173,14 @@ int main()
  // solution sits in cfl ...
 
  // ask the Block for a Solution object holding the current solution
- Solution * sol = cfl.get_Solution();   // a CapacitatedFacilityLocationSolution
+ // (emptys = false: the default true would give an empty one)
+ Solution * sol = cfl.get_Solution( nullptr , /* emptys = */ false );
 
  // persist it to a netCDF file
  sol->serialize( "cfl-solution.nc4" );
 
  // ... later, possibly in another run ...
- Solution * sol2 = cfl.get_Solution( nullptr , /* emptys = */ true );
+ Solution * sol2 = cfl.get_Solution();   // empty, to be filled
  sol2->deserialize( /* the NcGroup read from "cfl-solution.nc4" */ );
 
  // restore the stored solution into the Block
@@ -192,31 +212,43 @@ relation to the abstract `Variable`s.
 
 The relevant facts, restated here in full:
 
-- Every `:Solver`, today, reports its result by *writing the
-  solution into the abstract `Variable`s* of the `Block`. After
-  `compute()` returns `kOK`, the optimal values sit in the
-  `ColVariable`s; the user (or the `Block`) reads them from there,
-  or calls `get_Solution()` to snapshot them into a `Solution`
+- Every `:Solver` reports its result through
+  `get_var_solution()`, i.e., by *writing the solution into the
+  abstract `Variable`s* of the `Block`. After `compute()` returns
+  `kOK`, the optimal values sit in the `ColVariable`s; the user
+  (or the `Block`) reads them from there, or calls
+  `Block::get_Solution()` to snapshot them into a `Solution`
   object.
 - Because the abstract `Variable`s are the channel through which
-  the solution is communicated, they must *always* be
-  materialised — even for a `Block` solved exclusively by a
+  the solution is communicated, the current `:Block`s always
+  materialise them — even for a `Block` solved exclusively by a
   specialised `:Solver` that reads only the physical
   representation and would otherwise have no need for them. This
   is the asymmetry flagged in [§7.6](07-physical-abstract.md#sec-7-6): `Constraint`s and `Objective`
   are genuinely on demand, but `Variable`s are not.
 
 The `Solution` machinery of this chapter is precisely what makes
-the *intended* fix possible. Under the planned revision of the
-API, a `:Solver` would, at the end of `compute()`, hand back a
+the fix possible, and its solution side is in the API.
+`Solver::get_Solution(Configuration*)` hands back a
 `:Block`-specific `Solution` object — an `MCFSolution`, a
-`BinaryKnapsackSolution`, ... — and the `Block` would *adopt* it,
-absorbing the solution directly into its physical representation.
-The abstract `Variable`s would then no longer be the obligatory
-communication channel; a `Block` attached to a specialised
-`:Solver` only would be able to skip
-`generate_abstract_variables()` entirely, holding only the
-physical data and the `:Solution` that carries the result.
+`BinaryKnapsackSolution`, ... — whose ownership passes to the
+caller. Its default implementation goes through the `Variable`s
+(it `lock()`s the `Block`, calls `get_var_solution()`, then
+`Block::get_Solution()`), but a "physical" `:Solver` re-implements
+it to fill the `Solution` out of its own data structures, without
+writing into the `Block` and hence without `lock()`-ing it, so
+that several `:Solver`s attached to the same `Block` can produce
+their `Solution`s in parallel; it says so by returning `true` from
+`is_get_Solution_physical()`, which the caller can ask *before*
+the call. `MCFSolver`, `MCFLemonSolver`, the `:Solver`s of
+`BinaryKnapsackBlock` and `ThermalUnitDPSolver`, among others, do
+this. The `Solution` so obtained can be checked against the
+physical data with `Block::is_sol_feasible()` /
+`is_sol_optimal()` ([§7.5](07-physical-abstract.md#sec-7-5)). What has not happened yet is the
+step that removes the asymmetry: the `:Block`s of the running
+examples still construct their `Variable`s in `load(...)`, so that
+a `Block` attached to a specialised `:Solver` only does not yet
+skip `generate_abstract_variables()`.
 
 The `Block`-specific physical `Solution`s of [§9.5](09-solution.md#sec-9-5) are designed
 with exactly this in mind: each can read and write the `Block`'s
@@ -224,14 +256,15 @@ physical data without touching the abstract representation, which
 is the prerequisite for letting a `Block` be solved, and its
 solution communicated, with no abstract `Variable`s in sight.
 
-Until that revision lands, the convention to follow in user code
+Until that step is taken, the convention to follow in user code
 is the one stated in [§7.7](07-physical-abstract.md#sec-7-7): treat the abstract `Variable`s as the
 present-day solution channel, read the solution back through the
 `Block`'s physical accessors or through a `Solution` object
-obtained from `get_Solution()`, and do not write code that
+obtained from `get_Solution()` (of the `Block` or of the
+`:Solver`), and do not write code that
 assumes the `Variable`s-as-channel arrangement will persist. This
 remains one of the clearest signs that the SMS++ public interface
-is not yet fully settled at version 0.7.1. **Status — under
+is not yet fully settled at version 0.8.0. **Status — under
 development.**
 
 ## 9.8 API outline {#sec-9-8}
@@ -245,12 +278,16 @@ development.**
 | `clone(bool empty)` | copy (or empty copy) of the `Solution` |
 | `scale(double)` | scaled copy |
 | `sum(const Solution*, double)` | add a scaled `Solution` into this one |
+| `is_direction()` / `is_direction(bool)` | whether it holds a direction rather than a solution |
+| `adapt(block, mod, dropped)` / `adapts()` | follow a `Modification` of the `Block` |
 | `Solution::new_Solution(name)` | factory: construct a `:Solution` by class name |
 
 The `Block`-side entry point is `Block::get_Solution(Configuration*
 solc, bool emptys)`: `solc` selects which part of the solution to
-keep (permanently), and `emptys == true` prepares the object
-without immediately reading a solution.
+keep (permanently), and `emptys == true` (the default) prepares
+the object without immediately reading a solution. The
+`Solver`-side one is `Solver::get_Solution(Configuration* solc)`
+([§9.7](09-solution.md#sec-9-7)).
 
 ## 9.9 Idioms {#sec-9-9}
 
@@ -258,7 +295,10 @@ without immediately reading a solution.
 The canonical place to obtain a `Solution` is
 `Block::get_Solution()`. The `Block` knows which `:Solution` type
 fits it; the `:Solver` is merely the agent that put the values in
-place.
+place. The exception is a "physical" `:Solver`
+(`is_get_Solution_physical()`), whose `Solver::get_Solution()`
+gives the same kind of `:Solution` without writing into the
+`Variable`s ([§9.7](09-solution.md#sec-9-7)).
 
 **Configure once, at construction.** The part of the solution a
 `Solution` stores is fixed when the object is created. To store a
