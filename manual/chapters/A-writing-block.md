@@ -19,8 +19,11 @@ fit in an appendix.
 > harness and the standard boilerplate every SMS++ module shares — do not
 > start from scratch: clone the
 > [ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository and
-> run its `init.sh`, which generates a complete module skeleton in the
-> standard layout (see the wiki page
+> run its `init.sh` (e.g., `./init.sh --name BinPackingBlock`, adding
+> `--umbrella <path>` to also register the module in a checkout of the
+> umbrella project), which generates a complete module skeleton in the
+> standard layout, with a stub `:Block` already registered in the factory
+> that the class of this appendix replaces (see the wiki page
 > [Creating a new module](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module)).
 
 The Bin Packing problem: given $n$ items of sizes $s_0, \dots,
@@ -319,8 +322,9 @@ void BinPackingBlock::chg_size( double new_size , Index item ,
  if( v_s[ item ] == new_size )  return;     // nothing to do
  v_s[ item ] = new_size;                    // physical change
 
- // physical Modification, for a specialised Solver
- if( issue_pmod( issueMod ) )
+ // physical Modification, for a specialised Solver: issued only if
+ // someone listening reads its kind (§C.2)
+ if( issue_pmod( issueMod , BinPackingBlockMod::size_changes ) )
   add_Modification( std::make_shared< BinPackingBlockMod >(
                       this , item ) , Observer::par2chnl( issueMod ) );
 
