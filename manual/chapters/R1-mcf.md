@@ -1,6 +1,6 @@
 # [Recipe R1](R1-mcf.md#rec-R1) — Solving a Min-Cost Flow instance {#rec-R1}
 
-> **Counterpart in the source tree:** `MCFBlock/test/test.cpp`.
+> **Counterpart in the source tree:** `MCFClassSolver/test/test.cpp`.
 > The program below is a didactic distillation of that tester; the
 > tester itself is the runnable, fully-checked version.
 
@@ -18,8 +18,9 @@ a `Block`, attaches a `Solver`, and reads a solution.
 
 - `Block` construction and `load(...)` — [Chapter 4](04-block.md#ch-4).
 - `Solver` attachment, `compute()`, `sol_type` — [Chapter 6](06-solver.md#ch-6).
-- Physical vs abstract representation (why the `MILPSolver`
-  variant needs `generate_*`) — [Chapter 7](07-physical-abstract.md#ch-7).
+- Physical vs abstract representation (where the solution is
+  written, and why the `MILPSolver` variant needs `generate_*`) —
+  [Chapter 7](07-physical-abstract.md#ch-7).
 - Reading the solution through the `Block`'s physical accessors —
   [Chapter 9](09-solution.md#ch-9).
 - (Variation) selecting the solver through a `BlockSolverConfig` —
@@ -50,14 +51,21 @@ int main()
 
  MCFBlock mcf;                                  // a root MCFBlock
 
- MCFBlock::Subset      pSn = { 0 , 1 , 0 };     // arc starting nodes
- MCFBlock::Subset      pEn = { 1 , 2 , 2 };     // arc ending nodes
+ // the arcs give the node "names", 1 to n, i.e., node k is k + 1
+ MCFBlock::Subset      pSn = { 1 , 2 , 1 };     // arc starting nodes
+ MCFBlock::Subset      pEn = { 2 , 3 , 3 };     // arc ending nodes
  MCFBlock::Vec_FNumber pU  = { 3.0 , 3.0 , 3.0 };  // arc capacities
  MCFBlock::Vec_CNumber pC  = { 2.0 , 3.0 , 4.0 };  // arc costs
  MCFBlock::Vec_FNumber pB  = { -2.0 , 0.0 , +2.0 };  // node deficits
 
  // NOTE: load() takes ending nodes (pEn) before starting nodes (pSn)
  mcf.load( 3 , 3 , pEn , pSn , pU , pC , pB );
+
+ // the Variable and Constraint where the solution is written, and
+ // the Objective that get_objective_value() computes
+ mcf.generate_abstract_variables();
+ mcf.generate_abstract_constraints();
+ mcf.generate_objective();
 
  // ---- attach a specialised Solver and solve ---------------------
  auto * solver = new MCFSolver< MCFSimplex >();
@@ -67,6 +75,9 @@ int main()
 
  // ---- read the solution -----------------------------------------
  if( status == Solver::kOK ) {
+  solver->get_var_solution();                   // flows into mcf
+  solver->get_dual_solution();                  // potentials into mcf
+
   std::cout << "objective = " << mcf.get_objective_value() << '\n';
 
   MCFBlock::Vec_FNumber x( mcf.get_NArcs() );
@@ -98,7 +109,10 @@ int main()
   min-cost flow instance ([Chapter 7](07-physical-abstract.md#ch-7)): start/end node of each arc,
   arc capacities, arc costs, node deficits. `load(...)` copies
   them into the `MCFBlock` ([Chapter 4](04-block.md#ch-4)); recall its idiosyncratic
-  parameter order, ending nodes before starting nodes.
+  parameter order, ending nodes before starting nodes, and that the
+  nodes of the arcs are named from 1 to $n$ (`load(...)` throws
+  `std::invalid_argument` otherwise), while the deficits are indexed
+  from 0.
 - `new MCFSolver< MCFSimplex >()` constructs the specialised
   solver, templated on the classical primal-simplex MCFClass
   algorithm; `register_Solver` enrols it on the `MCFBlock`
@@ -109,19 +123,24 @@ int main()
   `sol_type` ([Chapter 6](06-solver.md#ch-6), [§6.3](06-solver.md#sec-6-3)); `kOK` means an optimal solution
   was found.
 - The solution is read *through the `MCFBlock`*, not through the
-  solver (the convention of [§6.9](06-solver.md#sec-6-9) and [Chapter 9](09-solution.md#ch-9)):
+  solver (the convention of [§6.9](06-solver.md#sec-6-9) and [Chapter 9](09-solution.md#ch-9)): `get_var_solution()`
+  and `get_dual_solution()` write it in the `MCFBlock`, then
   `get_objective_value()`, `get_x(...)` for the primal flows, and
   `get_pi(...)` for the dual node potentials. `get_rc(...)` would
   give the arc reduced costs; together the three are the natural
   primal–dual data of a min-cost flow, exactly what an
   `MCFSolution` would store ([§9.5](09-solution.md#sec-9-5)).
-- Note that this program never calls `generate_abstract_*()`: the
-  specialised `MCFSolver` reads the physical representation
-  directly and needs no abstract `Variable`s or `Constraint`s.
-  (The flows are nonetheless deposited into the always-materialised
-  abstract `Variable`s as well — the [§7.6](07-physical-abstract.md#sec-7-6) "half-baked" caveat —
-  but the recommended way to read them is the physical accessor
-  used here.)
+- The specialised `MCFSolver` reads the physical representation
+  directly and needs no abstract `Variable`s or `Constraint`s to
+  solve. Yet the `MCFBlock` keeps the flows in its `ColVariable`s
+  and the potentials in the duals of its flow conservation
+  `Constraint`s, which exist only once generated (the [§7.6](07-physical-abstract.md#sec-7-6)
+  "half-baked" caveat): without the three `generate_*()` calls,
+  `get_var_solution()` and `get_dual_solution()` silently write
+  nothing, `get_pi(...)` throws `std::logic_error`, and
+  `get_objective_value()` returns $+\infty$. The optimal value alone
+  is also given, with no abstract representation, by
+  `solver->get_ub()`.
 
 ## Expected output
 
@@ -152,15 +171,14 @@ linear program, so it can also be solved by any `:MILPSolver`
 *surrounding logic does not change* — construct the solver,
 `register_Solver`, `compute()`, read the solution through the
 `MCFBlock` — but a general-purpose solver reads the *abstract*
-representation, which must therefore be built first:
+representation, which the three `generate_*()` calls above have
+already built and which here is not optional:
 
 ```cpp
- mcf.generate_abstract_variables();
- mcf.generate_abstract_constraints();
- mcf.generate_objective();
  auto * milp = new SCIPMILPSolver();    // or CPX/HiGHS/GRB
  mcf.register_Solver( milp );
  milp->compute();
+ milp->get_var_solution();
  // ... read mcf.get_objective_value(), mcf.get_x(...) exactly as before
 ```
 
@@ -175,7 +193,10 @@ SMS++ way is to read a `BlockSolverConfig` from a text file
 ([Chapter 11](11-configuration.md#ch-11)) and `apply()` it to the `MCFBlock`. The same
 executable then solves with `MCFSolver`, `CPXMILPSolver`, or any
 other registered `:Solver` purely by editing the configuration
-file — no recompilation. [Recipe R3](R3-cfl-three-ways.md#rec-R3) uses exactly this pattern to
+file — no recompilation. The installed tool `smspp_mcfblock_solver`
+(`tools/mcfblock_solver/`) is such an executable: it reads an
+`MCFBlock` from a DIMACS or netCDF file, and the `:Solver`s from a
+`BlockSolverConfig` file (`-S`, `BSCfg.txt` by default). [Recipe R3](R3-cfl-three-ways.md#rec-R3) uses exactly this pattern to
 solve a CFL problem three different ways with one executable.
 
 **Reoptimize after a data change.** Change an arc cost with
