@@ -62,7 +62,10 @@ The principal interactions between `Block` and `Solver` are four:
   required to verify it.
 - **solution retrieval**: after `compute()` returns, the user
   calls `new_var_solution(...)` / `get_var_solution(...)` to
-  iterate through the primal solutions the `Solver` has produced.
+  iterate through the primal solutions the `Solver` has produced,
+  which `get_var_solution()` writes into the `Variable`s of the
+  `Block`, or `get_Solution()` to have the current one as a
+  `Solution` object ([§3.3](03-mental-model.md#sec-3-3)).
   Similarly, a
   [`CDASolver`](https://smspp.gitlab.io/smspp-project/d7/d8b/class_s_m_spp__di__unipi__it_1_1_c_d_a_solver.html)
   ("Convex Duality Aware") exposes
@@ -74,7 +77,7 @@ computational resources and no error condition, they will always
 eventually return one among `kOK`, `kUnbounded`, `kInfeasible`. An
 exact `:Solver` is not required to do so under any *bounded*
 budget: when forced to stop early, an exact `:Solver` may well
-return `kStopTime`, `kStopIter` or `kLowPrecision`, exactly like a
+return `kStopTime`, `kStopIter` or `kCutOff`, exactly like a
 heuristic one would. A genuinely *heuristic* `:Solver` differs in
 that it cannot in principle guarantee optimality even given
 unbounded resources, and may therefore return `kLowPrecision` as
@@ -143,20 +146,25 @@ the specific value, carries semantic meaning. The convention is:
 - values strictly between `kOK` and `kError` mean *the computation
   was stopped early in a recoverable state*. The principal codes
   are `kStopTime` (time limit hit), `kStopIter` (iteration limit
-  hit), and `kLowPrecision` (a feasible solution was found, but
-  optimality to within the required accuracy could not be
-  certified). Calling `compute()` again with a fresh time or
-  iteration budget allows the search to continue from where it
-  stopped; this range is therefore not terminal.
+  hit), and `kCutOff` (one of the cutoffs `dblUpCutOff` /
+  `dblLwCutOff` was reached, which is what was asked for, but is
+  not a certificate of optimality). Calling `compute()` again with a
+  fresh time or iteration budget allows the search to continue from
+  where it stopped; this range is therefore not terminal.
 - values $\ge$ `kError` mean *the computation hit an
   unrecoverable error and is unlikely to make progress on a
   subsequent call*. The error need not be "non-numerical": typical
   cases include numerical failures (a linear system that cannot
   be factorised, an iterate that diverges, ...) as well as
   structural failures such as `kBlockLocked` (the `Block` could
-  not be acquired, see [Chapter 17](17-parallel.md#ch-17)). The convention is that
+  not be acquired, see [Chapter 17](17-parallel.md#ch-17)). The range also holds
+  `kLowPrecision`, by which an intrinsically heuristic `:Solver`
+  says that it found at least one feasible solution but, by its
+  very nature and not for a resource limit, could not reach the
+  required accuracy. The convention is that
   `kError` is the *smallest* value in this range and that each
-  concrete `:Solver` may extend the range past it with
+  concrete `:Solver` may extend the range past it (from
+  `kLastSolverError` onwards) with
   `:Solver`-specific codes that encode the exact kind of error
   (e.g. "ran out of memory", "callback raised an exception",
   ...). The user code should therefore treat *any* return value
@@ -173,21 +181,22 @@ The principal values defined by `Solver::sol_type` on top of
 | `kUnEval` | sentinel | `compute()` has not been called yet. |
 | `kUnbounded` | $\le$ `kOK` | The model is provably unbounded; the `Solver` can produce feasible solutions of arbitrarily large (or small) objective on demand. |
 | `kInfeasible` | $\le$ `kOK` | The model is provably infeasible. |
-| `kBothInfeasible` | $\le$ `kOK` | Both the primal and the dual are infeasible. |
+| `kBothInfeasible` | $\le$ `kOK` | Both the primal and the dual are infeasible (defined by `CDASolver`). |
 | `kOK` | sentinel | An optimal solution to within the required accuracy was found. |
 | `kStopTime` | $<$ `kError` | Stopped because `dblMaxTime` was reached; calling `compute()` again resets the timer. |
 | `kStopIter` | $<$ `kError` | Stopped because `intMaxIter` was reached; calling `compute()` again resets the iteration count. |
-| `kLowPrecision` | $<$ `kError` | A feasible solution was found but optimality could not be certified; an exact `:Solver` returns this only when forced to stop early, a heuristic `:Solver` may return it as its terminal status. |
-| `kBlockLocked` | $\ge$ `kError` | Could not acquire the lock on the `Block`. |
+| `kCutOff` | $<$ `kError` | Stopped because a cutoff was reached; `get_lb()` and `get_ub()` tell which one, and by how much. |
 | `kError` | sentinel | Generic unrecoverable error; a concrete `:Solver` typically extends the range with more specific codes. |
+| `kBlockLocked` | $>$ `kError` | Could not acquire the lock on the `Block`. |
+| `kLowPrecision` | $>$ `kError` | A feasible solution was found but optimality could not be certified, because the `:Solver` is intrinsically heuristic (not because of a resource limit). |
 
 ## 6.4 Parameters {#sec-6-4}
 
 A `Solver` exposes a uniform parameter interface inherited from
 `ThinComputeInterface` and extended for the optimisation case.
-Parameters are indexed by an integer enum and have one of three
-value types: `int`, `double`, `std::string`. The principal
-predefined slots are:
+Parameters are indexed by an integer enum and have one of six
+value types: `int`, `double`, `std::string` and the vectors of each
+of them. The principal predefined slots are:
 
 - *integer parameters* (`int_par_type_S`):
     - `intMaxIter` — maximum number of "iterations" the `Solver`
@@ -195,7 +204,9 @@ predefined slots are:
       "iteration" is `:Solver`-specific.
     - `intMaxSol` — maximum number of distinct solutions to keep
       and report on demand.
-    - `intLogVerb` — verbosity level of the log (0 = silent).
+    - `intLogVerb` — verbosity level of the log (0 = silent);
+- *string parameters* (`str_par_type_S`):
+    - `strLogFileName` — the name of the log file.
 - *double parameters* (`dbl_par_type_S`):
     - `dblMaxTime` — maximum wall-clock time before returning
       `kStopTime`.
@@ -211,9 +222,11 @@ predefined slots are:
 A specific `:Solver` typically extends both enums with its own
 parameters (for instance, `DPBinaryKnapsackSolver` adds
 `dblReopt`, and `LagrangianDualSolver` adds a number of parameters
-controlling the inner method). All parameters are read and
-written through `get_par(idx)` and
-`set_par(idx, value)`; in addition, the same parameters can be
+controlling the inner method). All parameters are written through
+`set_par(idx, value)`, overloaded on the value type, and read
+through `get_int_par(idx)`, `get_dbl_par(idx)`, `get_str_par(idx)`,
+`get_vint_par(idx)`, ... (each also by the name of the parameter);
+in addition, the same parameters can be
 bundled into a
 [`ComputeConfig`](https://smspp.gitlab.io/smspp-project/da/daf/class_s_m_spp__di__unipi__it_1_1_compute_config.html)
 object that loads from text files or netCDF ([Chapter 11](11-configuration.md#ch-11)).
@@ -230,9 +243,10 @@ on the `Block` to make this manageable ([Chapter 17](17-parallel.md#ch-17)).
 
 ## 6.6 Feasibility and optimality checks {#sec-6-6}
 
-Three closely-related methods on the `Block` are used to verify
-the *result* of a `Solver`'s computation: `is_feasible()`,
-`is_dual_feasible()`, `is_optimal()`. All three take a boolean
+Two closely-related methods on the `Block` are used to verify
+the *result* of a `Solver`'s computation: `is_feasible()` and
+`is_optimal()` (which, for a convex problem, amounts to checking
+dual feasibility). Both take a boolean
 `useabstract`:
 
 - `useabstract = false` (the default) asks the `Block` to check
@@ -245,14 +259,14 @@ the *result* of a `Solver`'s computation: `is_feasible()`,
 The two answers should agree up to numerical tolerance. They may
 genuinely disagree only in edge cases (for instance when dynamic
 `Constraint`s have not yet been generated by the abstract path).
-A specialised `:Solver` typically calls
-`Block::is_optimal(false)` after its own `compute()` returns
-`kOK`, as a final sanity check on the physical representation.
+The testers typically call `is_feasible()` on the solution that a
+`:Solver` has written into the `Block`, as a final sanity check
+(see, e.g., `UCBlock/test`).
 
 The full discussion of why both paths exist — and of the
 particular asymmetry caused by the current "always materialised
 `Variable`s" implementation (already flagged in [§3.3](03-mental-model.md#sec-3-3) as
-**Status — under development**) — is the topic of [Chapter 7](07-physical-abstract.md#ch-7).
+**Status — beta**) — is the topic of [Chapter 7](07-physical-abstract.md#ch-7).
 
 ## 6.7 Inline example: attaching an `MCFSolver` to an `MCFBlock` {#sec-6-7}
 
@@ -266,14 +280,17 @@ implementation shipped in the `MCFClass` external library).
 #include "MCFSolver.h"
 #include "MCFSimplex.h"
 
+#include <iostream>
+#include <memory>
+
 using namespace SMSpp_di_unipi_it;
 
 int main()
 {
  // construct the MCFBlock and load the instance (as in §4.5)
  MCFBlock mcf;
- MCFBlock::Subset      pSn = { 0, 1, 0 };
- MCFBlock::Subset      pEn = { 1, 2, 2 };
+ MCFBlock::Subset      pSn = { 1, 2, 1 };
+ MCFBlock::Subset      pEn = { 2, 3, 3 };
  MCFBlock::Vec_FNumber pU  = { 3.0, 3.0, 3.0 };
  MCFBlock::Vec_CNumber pC  = { 2.0, 3.0, 4.0 };
  MCFBlock::Vec_FNumber pB  = { -2.0, 0.0, +2.0 };
@@ -288,13 +305,15 @@ int main()
 
  // interpret the return code
  if( code == Solver::kOK ) {
-  // optimal solution found; primal flows have been written into the
-  // ColVariable of the MCFBlock by the Solver. Read them back via the
-  // MCFBlock's own physical accessors.
-  std::cout << "objective = " << mcf.get_objective_value() << '\n';
-  MCFBlock::Vec_FNumber x( mcf.get_NArcs() );
-  mcf.get_x( x.begin() );
-  for( MCFBlock::Index a = 0 ; a < mcf.get_NArcs() ; ++a )
+  // optimal solution found: the value is asked to the Solver, the
+  // flows to the MCFSolution that it fills out of its own data
+  // structures, without writing into the ColVariable of the MCFBlock
+  // (which have not been generated)
+  std::cout << "objective = " << solver->get_var_value() << '\n';
+  std::unique_ptr< MCFSolution > sol( static_cast< MCFSolution * >(
+                                            solver->get_Solution() ) );
+  const auto & x = sol->get_x();
+  for( std::size_t a = 0 ; a < x.size() ; ++a )
    std::cout << "  flow on arc " << a << " = " << x[ a ] << '\n';
   }
  else if( code == Solver::kInfeasible ) {
@@ -325,45 +344,59 @@ Four things to notice.
    list. Ownership is the caller's. The convenience flag
    `deleteold = true` on `unregister_Solver` asks the framework
    to `delete` the `Solver` once it has been detached.
-3. The primal solution is written by the `Solver` into the
-   `ColVariable`s of the `Block`. Because `MCFBlock` is here
-   solved by a specialised `Solver` that has not built the
-   abstract representation, this materialisation is logically
-   unnecessary — but it is what currently happens (cf. [§3.3](03-mental-model.md#sec-3-3),
-   "always materialised"). The recommended way to read the
-   solution from a specialised `:Solver` is via the `Block`'s
-   physical accessors, here `get_x(...)` and
-   `get_objective_value()`, not via iterating over the
-   `ColVariable`s directly.
+3. The primal solution is *not* written into the `ColVariable`s
+   of the `Block`, which have not been generated. `MCFSolver` is a
+   "physical" `:Solver` (`is_get_Solution_physical()` returns
+   `true`): its `get_Solution()` fills an `MCFSolution` out of the
+   data of the `MCFClass` object, and the caller owns it (cf.
+   [§3.3](03-mental-model.md#sec-3-3)). The `MCFBlock`'s own accessors `get_x(...)` and
+   `get_objective_value()` read the abstract representation
+   instead, and would only be of use after
+   `generate_abstract_variables()` and `generate_objective()` and a
+   call to `solver->get_var_solution()`, which writes the flows into
+   the `ColVariable`s.
 4. Swapping `MCFSolver< MCFSimplex >` for a generic
    `:MILPSolver` (say, `CPXMILPSolver`) requires no change to
    the surrounding code: the user calls
    `mcf.register_Solver(milp)`, `milp->compute()`, then reads
    the solution as before. What does change, however, is that
-   `MILPSolver` *needs* the abstract representation, which means
-   `mcf.generate_abstract_variables()`,
-   `mcf.generate_abstract_constraints()`,
-   `mcf.generate_objective()` must have been called first. This
+   `MILPSolver` *needs* the abstract representation, which it has
+   generated (`generate_abstract_variables()`,
+   `generate_abstract_constraints()`, `generate_objective()`) when
+   it is registered, and that its `get_Solution()` goes through the
+   `ColVariable`s of the `Block` (it calls `get_var_solution()` and
+   then `MCFBlock::get_Solution()`). This
    is exactly the trade-off [Chapter 7](07-physical-abstract.md#ch-7) makes precise.
 
 ## 6.8 API outline {#sec-6-8}
 
 The principal public methods of `Solver`, grouped by purpose:
 
-- *attachment*: `set_Block(p_Block)`, `get_Block()`;
+- *attachment*: `set_Block(p_Block)`, `get_Block()`, and
+  `set_excluded_blocks(...)` / `set_excluded_objectives(...)` to
+  leave parts of the target out of the computation;
 - *computation*: `compute(bool changedvars)`,
   `compute_async()`;
-- *parameters*: `set_par(idx, int|double|string)`,
-  `get_par(idx)`, plus `set_ComputeConfig(ComputeConfig*)` for
-  bulk configuration;
-- *primal solutions*: `new_var_solution(...)`,
-  `get_var_solution(...)`, `sol_count()`;
+- *parameters*: `set_par(idx, value)` (for `int`, `double`,
+  `std::string` and their vectors), `get_int_par(idx)`,
+  `get_dbl_par(idx)`, `get_str_par(idx)`, ..., plus
+  `set_ComputeConfig(const ComputeConfig*)` for bulk configuration;
+- *primal solutions*: `has_var_solution()`,
+  `new_var_solution()`, `get_var_solution(Configuration*)`,
+  `is_var_feasible()`, `get_var_value()`, `get_Solution(Configuration*)`,
+  `is_get_Solution_physical()`, and `has_var_direction()` /
+  `get_var_direction(...)` for the unbounded directions;
 - *dual solutions* (on `CDASolver` only):
-  `new_dual_solution(...)`, `get_dual_solution(...)`,
-  `dsol_count()`;
-- *bounds and value*: `get_lb()`, `get_ub()`, `get_value()`;
-- *events*: `register_event(...)` for user-callbacks invoked
-  periodically by `compute()`;
+  `has_dual_solution()`, `new_dual_solution()`,
+  `get_dual_solution(Configuration*)`, `is_dual_feasible()`, and the
+  corresponding `*_dual_direction()` methods;
+- *bounds*: `get_lb()`, `get_ub()`;
+- *events*: `set_event_handler(type, handler)` and
+  `reset_event_handler(type, id)` for user callbacks invoked by
+  `compute()` at the given kind of event;
+- *Modifications*: `concerned_by()`, the kinds of `Modification`
+  the `:Solver` reads ([§4.6](04-block.md#sec-4-6) and [Appendix B](B-writing-solver.md#sec-B-4)), and
+  `inhibit_Modification()`;
 - *logging*: `set_log(std::ostream*)`,
   `set_par(intLogVerb, level)`.
 
@@ -390,7 +423,12 @@ physical accessors, and in its `Solution` objects produced by
 `get_Solution()`). The `Solver` is the *agent* that put the
 solution there; it is *not* the canonical place from which to
 read it back. This makes specialised and general-purpose
-`:Solver`s interchangeable from the reader's point of view.
+`:Solver`s interchangeable from the reader's point of view. The one
+twist is a "physical" `:Solver`, whose `Solver::get_Solution()`
+returns the `:Solution` without writing into the `Block`
+([§3.3](03-mental-model.md#sec-3-3) and [§6.7](06-solver.md#sec-6-7)); the object is still the `:Solution` that
+the `:Block` defines, so that the interchangeability is preserved
+for whoever reads it through `get_Solution()`.
 
 **`Solver::new_Solver` for runtime selection.** When the choice
 of `:Solver` is itself a runtime parameter (read from a
