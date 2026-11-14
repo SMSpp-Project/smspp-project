@@ -1,8 +1,9 @@
 # [Recipe R4](R4-cfl-lagrangian.md#rec-R4) — CFL via Lagrangian decomposition with `PrimalProximalHeur` {#rec-R4}
 
 > **Counterpart in the source tree:**
-> `tests/CapacitatedFacilityLocation/LD/` (the `LD` configuration
-> folder of the `CFL_test` executable of [Recipe R3](R3-cfl-three-ways.md#rec-R3)).
+> `tests/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt` (the
+> `LD` arrangement of the `CFL_test` executable of [Recipe R3](R3-cfl-three-ways.md#rec-R3), run
+> by `batches/batch-ld`).
 
 ## Goal
 
@@ -24,20 +25,22 @@ of Chapters [12](12-sub-block.md#ch-12) and [14](14-lag-benders-bfunction.md#ch-
 
 ## What the configuration sets up
 
-The driver is the same `CFL_test` of [Recipe R3](R3-cfl-three-ways.md#rec-R3); only the `LD/`
-configuration files matter here. They arrange:
+The driver is the same `CFL_test` of [Recipe R3](R3-cfl-three-ways.md#rec-R3); only the files
+that `CFLBForm-ld.txt` names for the R3Block matter here. They
+arrange:
 
-- `BPar2.txt` puts the (R3-copy) CFL `Block` in the **Knapsack
+- `CFLBCfg-KF-LD.txt` puts the (R3-copy) CFL `Block` in the **Knapsack
   formulation** (`SimpleConfiguration<int>` value `1`). As [Chapter
   12](12-sub-block.md#ch-12) described, this grows one `BinaryKnapsackBlock` sub-`Block`
   per facility, leaving only the customer-satisfaction linking
   constraints $\sum_i X_{ij} = 1$ in the master.
-- `BSPar2.txt` attaches a single solver named
+- `CFLBSCfg-ld-LDS.txt` attaches a single solver named
   **`LagrangianDualSolver`**, with a (large) `ComputeConfig` whose
   parameters configure the inner `BundleSolver` that drives the
   dual (norm-based stopping, bundle size per component, master-
   problem solver, the `m1`/`m2`/`m3` serious/null-step thresholds,
-  ...).
+  ...), and whose `str_LagBF_BSCfg` names the `BlockSolverConfig`
+  of the per-facility knapsacks (`LPBSCfg-K-DP.txt`).
 
 What `LagrangianDualSolver` does with this ([Chapter 14](14-lag-benders-bfunction.md#ch-14), [§14.2](14-lag-benders-bfunction.md#sec-14-2)):
 it stealthily builds a hidden `LagrangianDualBlock`, wraps each
@@ -45,7 +48,9 @@ per-facility `BinaryKnapsackBlock` in a `LagBFunction` that
 dualises the linking constraints, and runs the inner `BundleSolver`
 over the sum of those `LagBFunction`s. Each `LagBFunction` is
 evaluated by solving its inner knapsack — by a
-`DPBinaryKnapsackSolver` or an `:MILPSolver`, as configured on the
+`CoreDPBinaryKnapsackSolver` in `LPBSCfg-K-DP.txt`, or by an
+`:MILPSolver` (`LPBSCfg-K-CX.txt`, or `LPBSCfg-K-LP.txt` for the
+continuous relaxation of the knapsack), as configured on the
 leaf — and the resulting per-facility solutions are combined into
 the *convexified* primal solution that the dual returns alongside
 the bound.
@@ -65,6 +70,9 @@ In a program (rather than via the configuration files) the same
 arrangement is:
 
 ```cpp
+#include <fstream>
+#include <iostream>
+
 #include "CapacitatedFacilityLocationBlock.h"
 #include "LagrangianDualSolver.h"
 #include "BlockSolverConfig.h"
@@ -96,10 +104,11 @@ int main()
  std::ifstream cfg( "BSPar-LDS.txt" ); bsc->load( cfg );
  bsc->apply( & cfl );
 
- cfl.get_registered_solvers().front()->compute();   // solve the dual
+ auto * lds = cfl.get_registered_solvers().front();
+ lds->compute();                                     // solve the dual
 
- std::cout << "Lagrangian bound = " << cfl.get_valid_lower_bound() << '\n';
- // the convexified primal solution now sits in cfl's variables
+ std::cout << "Lagrangian bound = " << lds->get_lb() << '\n';
+ lds->get_var_solution();   // the convexified primal solution in cfl
 
  bsc->clear(); bsc->apply( & cfl ); delete bsc;      // cleanup (cf. §11.8)
  return 0;
@@ -122,8 +131,11 @@ int main()
   wrongly duplicate the capacity constraints at the master level.
 - `LagrangianDualSolver`, once attached, is a `CDASolver`
   ([Chapter 6](06-solver.md#ch-6)): `compute()` solves the Lagrangian dual, and the
-  bound is read with `get_valid_lower_bound()`, the convexified
-  primal solution from the `Block`'s variables.
+  bound is read with `get_lb()`, the convexified primal solution
+  from the `Block`'s variables once `get_var_solution()` has
+  written it there. (`Block::get_valid_lower_bound()` is a
+  different thing: a bound that the `:Block` knows from its own
+  data, not the one a `:Solver` computes.)
 - The reoptimization theme of [Chapter 13](13-function-family.md#ch-13) is what makes the inner
   loop efficient: as the `BundleSolver` moves the multipliers, the
   changes to each inner `BinaryKnapsackBlock` are mapped by its
@@ -140,13 +152,17 @@ is a *drop-in derived solver* ([§14.2](14-lag-benders-bfunction.md#sec-14-2)): 
 `LagrangianDualSolver`, so it sets up the same dual, and adds the
 Lagrangian-based primal-proximal heuristic on top — compute the
 convexified solution, round it, add a quadratic penalty
-$M \lVert x - \lceil x \rfloor \rVert$ to push subsequent dual
+$M \lVert x - \lceil x \rfloor \rVert^2$ to push subsequent dual
 solutions towards that rounding, and iterate. Switching to it is a
-one-line change in `BSPar2.txt`: replace `LagrangianDualSolver`
-with `PrimalProximalHeur`. The new solver exposes two extra
-parameters, `dbl_penaltyFactor` (the $M$) and `intMaxIterLD` (the
-number of inner Lagrangian-dual iterations), in addition to all of
-`LagrangianDualSolver`'s.
+one-line change in `CFLBSCfg-ld-LDS.txt`: replace
+`LagrangianDualSolver` with `PrimalProximalHeur`. The new solver
+adds a few parameters, chiefly `dbl_penaltyFactor` (the $M$, 0 by
+default), and gives its own meaning to `intMaxSol` (how many of the
+feasible solutions found are kept) and to `intMaxIter`, which counts
+the iterations of the heuristic, those of each inner Lagrangian dual
+being set in the `ComputeConfig` of the inner `:Solver`; all of
+`LagrangianDualSolver`'s are available besides
+(`PrimalProximalHeur.h`).
 
 ## Expected behaviour
 
@@ -154,9 +170,9 @@ On a typical CFL instance:
 
 - `LagrangianDualSolver` returns a *strong* lower bound — equal,
   in theory, to the LP-with-strong-cuts bound of [Recipe R3](R3-cfl-three-ways.md#rec-R3)'s
-  `cuts/` (the Dantzig–Wolfe equivalence noted there) — together
+  `cuts` (the Dantzig–Wolfe equivalence noted there) — together
   with a convexified primal solution that is markedly *less
-  fractional* than the `MCF/` relaxation's, but still not
+  fractional* than the `MCF` relaxation's, but still not
   integer-feasible in general.
 - `PrimalProximalHeur` returns the same bound plus a *feasible*
   (integer, rounded) primal solution, i.e. a valid *upper* bound,
@@ -167,13 +183,14 @@ On a typical CFL instance:
 ## Variations
 
 **Choose the leaf solver.** The per-facility knapsacks can be
-solved by `DPBinaryKnapsackSolver` (fast, exact for integer
-weights) or by an `:MILPSolver`; this is a configuration choice on
-the leaf `Block`s, not a change to the decomposition.
+solved by `CoreDPBinaryKnapsackSolver` or `DPBinaryKnapsackSolver`
+(fast, exact for integer weights) or by an `:MILPSolver`; this is a
+configuration choice on the leaf `Block`s (the file named by
+`str_LagBF_BSCfg`), not a change to the decomposition.
 
 **Go parallel.** Replacing `BundleSolver` with
-`ParallelBundleSolver` in the inner configuration evaluates the
-per-facility `LagBFunction`s concurrently ([Chapter 17](17-parallel.md#ch-17), [§17.4](17-parallel.md#sec-17-4)) —
+`ParallelBundleSolver` as the inner `:Solver` (`str_LDSlv_ISName`)
+evaluates the per-facility `LagBFunction`s concurrently ([Chapter 17](17-parallel.md#ch-17), [§17.4](17-parallel.md#sec-17-4)) —
 the decomposition into independent knapsacks is exactly what makes
 this sound.
 

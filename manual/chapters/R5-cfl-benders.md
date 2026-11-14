@@ -1,8 +1,9 @@
 # [Recipe R5](R5-cfl-benders.md#rec-R5) — CFL via Benders cuts with a user-cut callback {#rec-R5}
 
 > **Counterpart in the source tree:**
-> `tests/CapacitatedFacilityLocation/Ben/` (the `Ben` configuration
-> folder of the `CFL_test` executable of [Recipe R3](R3-cfl-three-ways.md#rec-R3)).
+> `tests/CapacitatedFacilityLocationBlock/CFLBForm-ben.txt` (the
+> Benders arrangement of the `CFL_test` executable of [Recipe R3](R3-cfl-three-ways.md#rec-R3),
+> run by `batches/batch-ben`).
 
 ## Goal
 
@@ -27,9 +28,10 @@ generation of [Chapter 7](07-physical-abstract.md#ch-7) working together.
 
 ## What the configuration sets up
 
-Again the driver is `CFL_test`; the `Ben/` files arrange:
+Again the driver is `CFL_test`; the files that `CFLBForm-ben.txt`
+names for the R3Block (a copy of the original `Block`) arrange:
 
-- `BPar2.txt` puts the CFL `Block` in the **Benders formulation**
+- `CFLBCfg-BF.txt` puts the CFL `Block` in the **Benders formulation**
   (`SimpleConfiguration<int>` value `3`, the *feasibility-cuts*
   variant; value `2` selects the slack-arcs variant). The master
   abstract representation then has only the design variables $y_i$,
@@ -42,20 +44,32 @@ Again the driver is `CFL_test`; the `Ben/` files arrange:
 - That hidden `BendersBFunction` and its inner `MCFBlock` cannot be
   reached by the recursive configuration machinery (the inner
   `Block` has no father), so they are configured through
-  `f_extra_Configuration` ([§11.6](11-configuration.md#sec-11-6)): in `Ben/BPar2.txt` it is a
+  `f_extra_Configuration` ([§11.6](11-configuration.md#sec-11-6)): in `CFLBCfg-BF.txt` it is a
   `SimpleConfiguration<std::pair<Configuration*,Configuration*>>`
   whose first element carries the R3-Block / slack-scaling
   parameters and whose second is the `ComputeConfig` of the
   `BendersBFunction` (which in turn configures, and attaches a
-  `:Solver` to, the inner `MCFBlock`).
-- `BSPar2.txt` attaches the master solver — a `GRBMILPSolver`
+  `:Solver` to, the inner `MCFBlock`, through the
+  `"BlockSolverConfig"` key of the map in its extra
+  `Configuration`). The shipped file attaches a `GRBMILPSolver`
+  solving the `MCFBlock` as an LP rather than an `MCFSolver`, whose
+  duals on closed or zero-capacity arcs, which the cuts depend on,
+  are not reliable.
+- `BenBSCfg.txt` attaches the master solver — a `GRBMILPSolver`
   (Gurobi) in the shipped configuration; any `:MILPSolver` works.
+  The shipped one has `intRelaxIntVars = 2` and `intCutSepPar = 1`,
+  i.e., it solves the continuous relaxation of the master with the
+  cut-separation loop of `MILPSolver` ([§6.4](06-solver.md#sec-6-4)), and its bound is
+  compared with the continuous relaxation of the natural
+  formulation of the original `Block` (`CFLBCfg-NF.txt`,
+  `CFLBSCfg-ben.txt`); the branch-and-cut described below is the
+  one of `intRelaxIntVars = 0` with a nonzero `intCutSepPar`.
 
 ## How a solve proceeds
 
 1. The `:MILPSolver` works on the master MIP over $(y, v)$.
 2. Whenever it has a candidate design $\hat y$, its user-cut /
-   lazy callback fires and calls the CFL `Block`'s
+   lazy callback (installed when `intCutSepPar` is nonzero) fires and calls the CFL `Block`'s
    `generate_dynamic_constraints()` ([§7.3](07-physical-abstract.md#sec-7-3)).
 3. That evaluates the `BendersBFunction` at $\hat y$ — *one solve
    of the hidden `MCFBlock`* — to obtain the transportation cost
@@ -79,7 +93,7 @@ supplies the `BendersBFunction` evaluation and the cut, the
   `f_static_variables_Configuration` ([§11.8](11-configuration.md#sec-11-8)) — value `2` or `3`
   choosing the slack-arcs or feasibility-cuts variant.
 - The hidden `MCFBlock` is the same flow relaxation that [Recipe R3](R3-cfl-three-ways.md#rec-R3)'s
-  `MCF/` configuration uses directly ([§10.5](10-r3block.md#sec-10-5)); here it is *internal*
+  `MCF` arrangement uses directly ([§10.5](10-r3block.md#sec-10-5)); here it is *internal*
   to the `BendersBFunction` rather than a user-visible R3Block, the
   double duty noted in [§10.5](10-r3block.md#sec-10-5).
 - The cut emission rides on the existing dynamic-constraint
@@ -94,11 +108,16 @@ master `:MILPSolver`, and therefore no Benders-specific `:Solver` is
 needed. Since version 0.7.0 the master can also be built
 automatically by `BendersDecompositionSolver` ([§14.3](14-lag-benders-bfunction.md#sec-14-3)), the
 Benders counterpart of `LagrangianDualSolver` ([Recipe R4](R4-cfl-lagrangian.md#rec-R4)). On the CFL
-this is exercised by `tests/CapacitatedFacilityLocationBlock/test_bds.cpp`,
-which writes the instance as a two-level `AbstractBlock` (the design
-`Variable`s at the root, the transportation subproblems below) and
-compares the value given by both regimes with that of the monolithic
-solve of the same model. The two arrangements differ, however, in
+this is exercised by `tests/CapacitatedFacilityLocationBlock/test_bds.cpp`
+(the `CFL_BDS_test` of `ctest`, built where
+`BendersDecompositionSolver` is), which writes the instance as a
+two-level `AbstractBlock` (the design `Variable`s at the root, the
+transportation subproblems below) and compares the value given by
+both regimes (`BSPar-BDS.txt` for the convex one,
+`BSPar-BDS-MILP.txt` and `BSPar-BDS-Pareto.txt` for the MILP one,
+without and with the Pareto-optimal cuts) with that of the
+monolithic solve of the same model and with that of the
+Benders formulation of this recipe. The two arrangements differ, however, in
 where the cuts go. With the callback they enter the branch-and-cut of the
 master while it proceeds; with `BendersDecompositionSolver` the
 master is usually solved again after each round of cuts (MILP
@@ -107,7 +126,7 @@ regime), or stabilized by a bundle method (convex regime).
 ## Expected behaviour
 
 The Benders master converges to the *same optimum* as the direct
-MILP of [Recipe R3](R3-cfl-three-ways.md#rec-R3)'s `cuts/` (it is the same problem, decomposed),
+MILP of the natural formulation of [Recipe R3](R3-cfl-three-ways.md#rec-R3) (it is the same problem, decomposed),
 solving a sequence of cheap `MCFBlock` transportation problems
 instead of carrying the transportation variables in the master.
 Whether this is faster than the monolithic MILP depends on the
@@ -128,7 +147,7 @@ under modifications; the slack-arcs variant is the choice when a
 finite $\varphi$ is preferred over an explicit infeasibility report.
 
 **Swap the master MIP back-end.** As in [Recipe R3](R3-cfl-three-ways.md#rec-R3), the
-`GRBMILPSolver` in `BSPar2.txt` can be replaced by
+`GRBMILPSolver` in `BenBSCfg.txt` can be replaced by
 `CPXMILPSolver`, `SCIPMILPSolver` or `HiGHSMILPSolver` with no
 other change.
 

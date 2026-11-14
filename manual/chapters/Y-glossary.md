@@ -12,6 +12,13 @@ API reference.
 specialised ones usually do not. The counterpart of the *physical
 representation* ([Chapter 7](07-physical-abstract.md#ch-7)).
 
+**AbstractChange.** The `Change` that edits the abstract
+representation of any `:Block` (the coefficients and the sense of its
+`Objective`, the integrality, fixing and bounds of its `ColVariable`s),
+with no knowledge of its physical data; the generic
+counterpart of the `:Block`-specific `Change` families
+([Chapter 16](16-change.md#ch-16)).
+
 **AModification.** The abstract base for `Modification`s that describe
 a change made through the *abstract* face of a `:Block` (a `Variable`,
 `Constraint`, `Function` …). Its `concerns_Block()` is `true` until
@@ -33,8 +40,9 @@ number of registered `Solver`s ([Chapter 4](04-block.md#ch-4)).
 
 **BlockConfig.** A `Configuration` that configures the *generation* of
 a `:Block`'s abstract representation; the `[C/O/R]BlockConfig` family
-selects which constraints (**C**), objective (**O**) and whether the
-configuration recurses into sub-`Block`s (**R**) are built
+adds the `ComputeConfig`s of its `Constraint`s (**C**) and of its
+`Objective` (**O**), and the `BlockConfig`s of its sub-`Block`s
+(**R**), so that the configuration recurses down the tree
 ([Chapter 11](11-configuration.md#ch-11)).
 
 **BlockSolverConfig.** A `Configuration` that says which `Solver`s are
@@ -124,6 +132,12 @@ method optimise the dual ([Chapter 14](14-lag-benders-bfunction.md#ch-14)).
 subgradient defining a supporting hyperplane; pools of linearizations
 drive bundle methods and Benders/Lagrangian schemes (Chapters [13](13-function-family.md#ch-13), [14](14-lag-benders-bfunction.md#ch-14)).
 
+**Methods factory.** A name (`std::string`) → function map of the
+`chg_*()` / `set_*()` methods (and of the queries) of the `:Block`s,
+grouped by signature, registered with `register_method()` and
+retrieved with `get_method()`, so that type-agnostic code can change
+the data of a `:Block` through a base `Block*` ([Chapter 15](15-methods-factory.md#ch-15)).
+
 **Modification.** A lazily-propagated notification that something
 changed in a `Block`; the framework appends it to the pending list of
 every `Solver` registered with the `Block` or any ancestor, and the
@@ -178,10 +192,10 @@ upward to the `Solver`s of every ancestor ([Chapter 12](12-sub-block.md#ch-12)).
 
 **ThinComputeInterface / ThinVarDepInterface.** The two lightweight
 mix-in interfaces underlying the framework: the first gives an object a
-`compute()` and a parameter machinery (so `Block`, `Solver`,
-`Function` are all computable); the second gives an object the notion
-of being "active" in a set of `Variable`s (so `Constraint` and
-`Function` track their variables) (Chapters [5](05-variable-constraint-objective.md#ch-5), [6](06-solver.md#ch-6), [13](13-function-family.md#ch-13)).
+`compute()` and a parameter machinery (so `Solver`, `Function`,
+`Constraint` and `Objective` are all computable); the second gives an
+object the notion of being "active" in a set of `Variable`s (so
+`Constraint`, `Objective` and `Function` track their variables) (Chapters [5](05-variable-constraint-objective.md#ch-5), [6](06-solver.md#ch-6), [13](13-function-family.md#ch-13)).
 
 **UpdateSolver.** A pseudo-`Solver` whose job is not to optimise but to
 forward `Modification`s from one `Block` to another, the canonical glue
@@ -190,3 +204,11 @@ that keeps an `R3Block` in sync with its origin ([Chapter 10](10-r3block.md#ch-1
 **Variable.** The primitive representing a decision variable;
 `ColVariable` is the concrete single-variable form. A `Function` never
 copies a `Variable`, it references it by address ([Chapter 5](05-variable-constraint-objective.md#ch-5)).
+
+**Weight (of a `Block`).** The factor by which the `Objective` of a
+`Block` (`set_objective_weight()`), or the coefficients of its
+`Variable`s in the `Constraint`s outside of it
+(`set_variable_weight()`), count in the problems of its ancestors,
+1 by default; a `:Solver` attached to the `Block` itself does not
+see it. A change issues a `BlockWeightMod`, refused if a `:Solver`
+of an ancestor does not handle it ([§12.2](12-sub-block.md#sec-12-2)).
