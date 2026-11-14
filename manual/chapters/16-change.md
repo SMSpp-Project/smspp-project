@@ -2,11 +2,15 @@
 
 > **Status — beta.** The `Change` concept is in `develop` but its
 > interface and semantics may change in incompatible ways. Only a
-> small number of `:Change` classes exist at version 0.7.1
+> small number of `:Change` classes exist at version 0.8.0
 > (notably for `BinaryKnapsackBlock` and `SATBlock`, besides the
 > `AbstractChange` of the core, a change of the abstract representation
 > of a `Block`: the objective coefficient, the integrality, the fixing or
-> a bound of a `ColVariable`, or the sense of an `Objective`). Code written against it
+> a bound of a `ColVariable`, or the sense of an `Objective`, the
+> `GroupChange` of the core, a sequence of `Change`s applied as one, and
+> the `LagrangianChange` of `LagrangianDualRelaxationSolver`). They are
+> used by the generic Branch-and-X of `BranchAndXSolver`
+> ([§16.5](16-change.md#sec-16-5)). Code written against it
 > today should expect to be revisited.
 
 [Source: `SMS++/include/Change.h`,
@@ -18,7 +22,7 @@ A
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
 is, like a `Modification`, an object that describes a change to a
 `Block`. The two are duals of each other in *time*
-(`Change.h:55-84`):
+(`Change.h:69-98`):
 
 - a `Modification` ([Chapter 8](08-modification-janus.md#ch-8)) *notifies* of a change that **has
   already occurred** in a `Block`, so that listening `:Solver`s
@@ -46,7 +50,7 @@ which applies the change to `block` (issuing `Modification`s in
 the usual way, governed by the two `ModParam`s), and — if `doUndo`
 is `true` — returns an **UndoChange**: a freshly minted `:Change`
 that, applied to `block`, would restore it to the state it was in
-before (`Change.h:404-416`).
+before (`Change.h:413-430`).
 
 ## 16.2 Abstract and specific `Change`s {#sec-16-2}
 
@@ -64,7 +68,7 @@ target `:Block` supports. It may deliberately support *fewer*, for
 a reason peculiar to `Change`: producing the UndoChange of an
 arbitrary change can be complicated or impossible, so a `:Change`
 that wants to guarantee an undo may restrict itself to the subset
-of changes it can reliably invert (`Change.h:74-84`).
+of changes it can reliably invert (`Change.h:88-98`).
 
 ## 16.3 Why `Change` exists {#sec-16-3}
 
@@ -90,7 +94,8 @@ distributed computation** — a process computes a `Change`,
 serialises it, ships it to another process holding a copy of the
 `Block`, which deserialises and `apply()`s it. The `Change`
 mechanism is, in this sense, the groundwork for the distributed
-`:Solver`s that the project plans but does not yet ship.
+`:Solver`s exchanging `Change`s that the project plans but does not
+yet ship.
 
 ### Support for generic search schemes
 
@@ -123,13 +128,13 @@ the tree, and uses the UndoChanges to backtrack, without any
 problem-specific code of its own. This decoupling — a generic
 B&X driver on one side, a problem-and-`Solver`-specific source of
 branching `Change`s on the other — is one of the more ambitious
-uses the `Change` concept is meant to enable, and it is
-**currently under development**.
+uses the `Change` concept is meant to enable; its current form is
+described in [§16.5](16-change.md#sec-16-5).
 
 ## 16.4 The reference example: `BinaryKnapsackBlock`'s `Change`s {#sec-16-4}
 
 `BinaryKnapsackBlock` is the reference implementation of the
-`Change` family at version 0.7.1. It ships three specific
+`Change` family at version 0.8.0. It ships three specific
 `:Change` classes:
 
 - [`BinaryKnapsackBlockChange`](https://smspp.gitlab.io/smspp-project/d8/d50/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block_change.html)
@@ -177,7 +182,60 @@ int main()
 }
 ```
 
-## 16.5 `Change` versus `Modification`: which to use {#sec-16-5}
+## 16.5 `ChangeSolver`, `RelaxationSolver` and `BranchAndXSolver` {#sec-16-5}
+
+[Source: `SMS++/include/ChangeSolver.h`,
+`BranchAndXSolver/include/BranchAndXSolver.h`]
+
+The search schemes of [§16.3](16-change.md#sec-16-3) rest on two *traits* of the core,
+[`ChangeSolver`](https://smspp.gitlab.io/smspp-project/d9/d60/class_s_m_spp__di__unipi__it_1_1_change_solver.html)
+and
+[`RelaxationSolver`](https://smspp.gitlab.io/smspp-project/db/d72/class_s_m_spp__di__unipi__it_1_1_relaxation_solver.html).
+Neither derives from `Solver`: a concrete class derives from one
+of them *alongside* its problem-specific `:Solver` base, with plain
+inheritance, and whoever drives it discovers the trait on a
+registered `Solver` by a `dynamic_cast` cross-cast. A
+`ChangeSolver` can `apply( Change * chg , bool doUndo )` a `Change`
+to the `Block` it works on, returning the UndoChange if asked; the
+simplest implementation forwards to `Change::apply()`, but a
+`:Solver` can rather intercept the `Change`s it understands and
+apply them *internally*, to its own state and without touching the
+`Block`, which is what makes moving along a sequence of related
+problems cheap. It also receives a `GlobalInformation`, through
+which the cooperating `:Solver`s share what is global to the search
+(the incumbent, globally valid cuts). A `RelaxationSolver` is a
+`ChangeSolver` that solves a *relaxation* of the problem: besides
+the relaxation value (a valid bound), it may produce true solutions
+of the original problem (`get_true_lb()` / `get_true_ub()`,
+`get_true_var_solution()`), and `branch()` returns the `Change`s
+that generate the children of the current node, the most promising
+first.
+
+[`BranchAndXSolver`](https://smspp.gitlab.io/smspp-project/d9/d56/class_s_m_spp__di__unipi__it_1_1_branch_and_x_solver.html)
+is the generic driver built on them (the Relaxation-Agnostic
+Branch-and-X): nothing in it depends on the `:Block` being solved.
+A node of its enumeration tree is identified by the `Change` that
+generates it from its father, and owns that `Change`, its UndoChange
+and its bound; a branching decision that touches several things at
+once is a `GroupChange`, whose undo is the composition of the undos
+in reverse order. A node is evaluated by the `:Solver`s described
+by a `BlockSolverConfig` (`strNameOfBlockSolverConfigurationFile`):
+one or more `:RelaxationSolver`s, the tightest of which gives the
+bound and branches the node, and zero or more plain `:ChangeSolver`s
+acting as primal heuristics. The tree is explored depth-first,
+breadth-first, best-first (possibly with dives) or by best estimate
+(`intSolveMethod`), in parallel both across the tree and across the
+`:Solver`s of a node ([Chapter 17](17-parallel.md#ch-17)), and can be retained across
+`compute()` calls for reoptimization (`intReoptimize`). At version
+0.8.0 the `:RelaxationSolver`s are
+`GreedyRelaxationBinaryKnapsackSolver` (for `BinaryKnapsackBlock`),
+`LagrangianDualRelaxationSolver` (the Lagrangian dual of a `Block`,
+with the primal solutions recovered by `PrimalProximalHeur`, see
+[Chapter 14](14-lag-benders-bfunction.md#ch-14)), its variant `LagrangianDualRelaxationSolverML`, which
+learns its branching rule online, and the `SATSolver`s of
+`SATBlock`.
+
+## 16.6 `Change` versus `Modification`: which to use {#sec-16-6}
 
 For ordinary, in-process model edits — the bread-and-butter "change
 a cost, re-solve" of Chapters [8](08-modification-janus.md#ch-8) and [10](10-r3block.md#ch-10) — the `Modification`
