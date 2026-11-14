@@ -5,7 +5,7 @@ first-fit greedy heuristic for the `BinPackingBlock` of [Appendix A](A-writing-b
 as the worked example. As there, the code is illustrative rather
 than production-grade. For the repository scaffolding around a new
 `:Solver` module (builds, CI, tests, boilerplate) start from the
-[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository
+[ModuleTemplate](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module) repository
 (`./init.sh --name FirstFitBPSolver`: a name ending in `Solver` puts the
 module among the `:Solver`s of the umbrella, while the stub class it
 generates is a `:Block` all the same, to be replaced by the `:Solver`), as
