@@ -132,7 +132,7 @@ them is attached. The methods that build them are
 `generate_objective()`. Each accepts a `Configuration` that gates
 optional parts of the construction. [Chapter 7](07-physical-abstract.md#ch-7) makes this precise.
 
-> **Status — beta.** The `Variable`s of the abstract representation
+> **Status — under development.** The `Variable`s of the abstract representation
 > used to be an exception to the "on demand" rule: they were always
 > materialised, because every `:Solver` reported its solution by
 > *writing into* the `Variable`s of the `Block`, so that even a
@@ -153,9 +153,12 @@ optional parts of the construction. [Chapter 7](07-physical-abstract.md#ch-7) ma
 > `ThermalUnitDPSolver`, `ThermalUnitExtDPSolver` and the `:Solver`s
 > of `SVMBlock`. A `:Block` attached to such `:Solver`s only can
 > therefore skip constructing the abstract `Variable`s altogether.
-> The mechanism is not yet used uniformly across the catalogue, and
-> this is one of several examples in the manual where the API is not
-> yet fully settled (see also [Chapter 16](16-change.md#ch-16) on `Change`).
+> The mechanism is not yet used uniformly across the catalogue
+> (`MCFBlock` and `BinaryKnapsackBlock` still construct their abstract
+> `Variable`s in `load()`; see [§7.6](07-physical-abstract.md#sec-7-6)
+> and [§9.7](09-solution.md#sec-9-7)), and this is one of several
+> examples in the manual where the API is not yet fully settled (see
+> also [Chapter 16](16-change.md#ch-16) on `Change`).
 
 Keeping the two representations in sync, when one is modified
 through one face and a `:Solver` is reading the other, is non-trivial

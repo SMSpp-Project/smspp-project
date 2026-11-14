@@ -2,7 +2,7 @@
 
 *Internal document for whoever (human or AI assistant) maintains this
 manual. It is deliberately excluded from the MkDocs site and from the
-PDF build. Last updated 2026-11-03, for SMS++ **0.7.1**.*
+PDF build. Last updated 2026-11-14, for SMS++ **0.8.0**.*
 
 Read this first. It captures what the manual is, the rules it was
 written by, how it is built and deployed, and the traps already hit so
@@ -13,7 +13,7 @@ they are not re-hit.
 ## 1. What this is
 
 A user manual for **SMS++** (open-source C++-20 framework for
-structured optimization), version **0.7.1** (November 2026). Audience:
+structured optimization), version **0.8.0** (November 2026). Audience:
 algorithm developers, `:Block`/`:Solver` authors, and sophisticated end
 users who already write C++-20. It is a *companion* to the Doxygen API
 reference and the project Wiki, not a replacement.
@@ -258,8 +258,10 @@ Result: Doxygen at `…/smspp-project/`, manual at `…/smspp-project/manual/`.
    these are the most likely to have moved:
    - `Change` mechanism (Ch16, **beta**) — has the interface settled?
    - "half-baked Solution" / always-materialised abstract `Variable`s
-     (Ch7 §7.6, Ch9 §9.7, **under development**) — is the `Solver`-
-     returns-`Solution` adoption path in?
+     (Ch3 §3.3, Ch7 §7.6, Ch9 §9.7, **under development**) — is the
+     `Solver`-returns-`Solution` adoption path in? (`Solver::get_Solution()`
+     exists; `MCFBlock` and `BinaryKnapsackBlock` still construct their
+     abstract `Variable`s in `load()`.)
    - parallelism write-starvation (Ch17, **under development**).
    - `BendersDecompositionSolver` landed in 0.7.0: §14.3 and R5 describe
      it; R5 could be rewritten as a configuration of it, and an example

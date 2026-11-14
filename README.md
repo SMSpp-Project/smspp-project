@@ -743,12 +743,12 @@ those in
 ```sh
 MCFClassSolver/test
 MILPSolver/test_*
-tests/CapacitatedFacilityLocationBlock 
-tests/LagBFunction 
+tests/CapacitatedFacilityLocationBlock
+tests/SMS++/LagBFunction
 tests/MMCFBlock
 tests/UCBlock
-tests/PolyhedralFunction
-tests/PolyhedralFunctionBlock
+tests/SMS++/PolyhedralFunction
+tests/SMS++/PolyhedralFunctionBlock
 ```
 
 and many others. Note that the
@@ -762,8 +762,8 @@ system-specific values.
 
 Some settings may be needed (see, for instance, the comments about
 `--force_link` in the
-[makefile](https://gitlab.com/smspp/tests/-/blob/develop/BoxSolver/makefile)
-of tests/BoxSolver).
+[makefile](https://gitlab.com/smspp/tests/-/blob/develop/SMS++/BoxSolver/makefile)
+of tests/SMS++/BoxSolver).
 
 
 ## First steps
@@ -771,7 +771,7 @@ of tests/BoxSolver).
 Besides the [User Manual](#user-manual), the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
 first look at possible ways of using `SMS++`. In particular the three
-tests `LagrangianDualSolver_Box`, `MMCFBlock` and
+tests `LagrangianDualSolver_Box` (in `tests/SMS++/AbstractBlock`), `MMCFBlock` and
 `UCBlock` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register the `Solver` (such as a `:MILPSolver` and a
 `LagrangianDualSolver`) to it, properly configure them if needed (mostly,
@@ -780,7 +780,7 @@ to verify that they give the same answer. The `LagrangianDualSolver_Box`
 test also shows how one can use SMS++ to build "normal" models a-la
 algebraic modelling language using `AbstractBlock`, as opposed to
 programming a whole `Block` from scratch, more of which can be found, e.g.,
-in `tests/LagBFunction` and `tests/PolyhedralFunction`. Furthermore,
+in `tests/SMS++/LagBFunction` and `tests/SMS++/PolyhedralFunction`. Furthermore,
 provides an example on how to (randomly) modify the `:Block` and re-solve
 it many times (still checking that the results agree), showcasing the
 crucial `Modification` `SMS++` concept whereby changes in the `:Block` are
