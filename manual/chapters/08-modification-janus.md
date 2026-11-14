@@ -41,7 +41,7 @@ last interested party has dropped it, the object is gone.
 The two basic methods involved are
 `Block::add_Modification(sp_Mod, ChnlName)`, which routes a fresh
 `Modification` to all interested `:Solver`s, and
-`Solver::add_Modification(sp_Mod, ChnlName)`, which appends the
+`Solver::add_Modification(sp_Mod)`, which appends the
 `Modification` to the `:Solver`'s pending list. The first is
 called by the `:Block` (or by one of its `Variable` / `Constraint`
 / `Function` instances); the second is called by the framework
@@ -55,30 +55,31 @@ subclasses, all in `SMS++/include/Modification.h`, are:
 - `Modification` (line 357) — the abstract base. Carries a
   pointer to the `:Block` that originated the change
   (`get_Block()`), a `concerns_Block()` flag (default `false`),
-  and the channel the `Modification` is sent on. Concrete
+  and the `changes()` bit mask that says, in coarse terms, what
+  kind of change it is ([§8.7](08-modification-janus.md#sec-8-7)). Concrete
   subclasses encode *what* changed.
-- `AModification` (line 451) — the abstract "abstract"
+- `AModification` (line 739) — the abstract "abstract"
   `Modification`. This is the base class for every `Modification`
   issued *by the abstract representation*: a `Variable` being
   fixed, a `Constraint` being relaxed, a `Function`'s coefficient
   being changed, and so on. `AModification` is exactly the kind
   of `Modification` whose `concerns_Block()` is `true` by default,
   to signal to the receiving `:Block` that it should react.
-- `NModification` (line 522) — "nuclear" `Modification`. Used as
+- `NModification` (line 814) — "nuclear" `Modification`. Used as
   a base for the few cases where the entire content of an object
   is replaced.
-- `NBModification` (line 572) — "nuclear `Block`" `Modification`:
+- `NBModification` (line 864) — "nuclear `Block`" `Modification`:
   issued by `Block::load(...)` and by `deserialize(...)` to
   signal that the entire `Block` has been re-loaded from scratch
   and any prior computation must be discarded. This is the
   "nuclear option" of [§4.6](04-block.md#sec-4-6).
-- `GroupModification` (line 635) — a `GroupModification` bundles
+- `GroupModification` (line 931) — a `GroupModification` bundles
   several `Modification`s into one logical unit. A receiving
   `:Solver` may either react to each sub-`Modification` in turn
   or treat the whole group as a single atomic change. This is the
   principal way to express that several individual changes have
   happened together and should be reacted to together.
-- `VariableGroupMod` (line 778) — a `GroupModification` that
+- `VariableGroupMod` (line 1107) — a `GroupModification` that
   specifically groups `Variable`-related Modifications; rarely
   used directly by user code, but produced by some `:Block`
   operations that touch multiple `Variable`s at once.
@@ -87,13 +88,13 @@ Each concrete `:Block` typically defines its own `:Modification`
 subclasses for the changes that its physical representation
 supports. For `MCFBlock`, the classes are:
 
-- `MCFBlockMod` (`MCFBlock.h:2275`), the base for all
+- `MCFBlockMod` (`MCFBlock.h:2424`), the base for all
   `MCFBlock`-specific physical changes;
-- `MCFBlockRngdMod` (`MCFBlock.h:2355`), a *range-based* change:
+- `MCFBlockRngdMod` (`MCFBlock.h:2529`), a *range-based* change:
   a contiguous range of arcs or nodes has had its costs,
   capacities, or deficits modified, or has been added or
   removed;
-- `MCFBlockSbstMod` (`MCFBlock.h:2406`), a *subset-based* change:
+- `MCFBlockSbstMod` (`MCFBlock.h:2580`), a *subset-based* change:
   an arbitrary subset of arcs or nodes has been similarly
   modified.
 
@@ -117,8 +118,9 @@ their `concerns_Block()` returns `false`, because the change in
 the `:Block` has *already happened* by the time the `Modification`
 is constructed. A specialised `:Solver` consumes these and reacts
 by recomputing what it can. An `MCFBlock` cost-change, for
-instance, produces an `MCFBlockRngdMod` with the indices of the
-changed arcs and the old / new costs (`MCFBlock.h:1665-1693`).
+instance, produces an `MCFBlockRngdMod` with the type
+`eChgCost` and the range of the changed arcs, the new costs being
+read from the `:Block` itself (`MCFBlock.h:1770-1822`).
 
 The **abstract** stream consists of `Modification`s issued by the
 `:Block`'s abstract representation when something inside it
@@ -133,8 +135,9 @@ representation accordingly", as discussed in [§8.4](08-modification-janus.md#se
 
 A general-purpose `:Solver` such as `:MILPSolver` consumes the
 abstract stream and is essentially indifferent to the physical
-one (it does not know what to do with an `MCFBlockRngdMod` and
-would simply discard it). Conversely, a specialised `:Solver`
+one (it does not know what to do with an `MCFBlockRngdMod`, and
+since it declares that it only reads the abstract kinds, cf.
+[§8.7](08-modification-janus.md#sec-8-7), the physical `Modification` does not even reach it). Conversely, a specialised `:Solver`
 typically consumes the physical stream and may safely discard
 the abstract `Modification`s issued by a change that has produced
 both (because reacting to the same change twice would be
@@ -191,7 +194,7 @@ When the change originates on the abstract face, the sequence of
 events at the `:Block` is precise and worth spelling out, because
 it is exactly the recipe a `:Block` author has to follow (see
 also [Appendix A](A-writing-block.md#app-A)) and the canonical override scheme documented at
-`Block.h:5394-5402`:
+`Block.h:5752-5762`:
 
 1. *Someone modifies the abstract representation* — a `Variable`
    is fixed, a `Constraint`'s bound is changed, a coefficient of
@@ -224,9 +227,14 @@ of the `:Block`'s own physical `chg_*()` mutators, with the two
 
 In short: an abstract-origin change becomes, inside the `:Block`,
 a physical change issued with `(eNoBlck, eDryRun)`. A
-physical-origin change, conversely, is issued with `(eModBlck,
-eModBlck)` (the defaults) and the abstract side is updated as a
-genuine second action.
+physical-origin change, conversely, is issued with `(eNoBlck,
+eNoBlck)` (the defaults of the `:Block` mutators) and the abstract
+side is updated as a genuine second action; passing `eModBlck`
+there makes no difference, since a physical `Modification` is
+issued as under `eNoBlck` (`Observer::issue_pmod()`) and the
+mutator downgrades the abstract one to `eNoBlck` itself
+(`Observer::un_ModBlock()`), the `:Block` having already applied
+the change.
 
 ### Why the `:Block` sees the abstract `Modification` immediately
 
@@ -245,7 +253,7 @@ since been deleted, forcing the `:Block` to carry logic to detect
 whether that has happened and to cope with it.
 
 The framework rules this out. As documented at
-`Block.h:5404-5427`, the `:Block`'s `add_Modification(...)`
+`Block.h:5764-5787`, the `:Block`'s `add_Modification(...)`
 override sees the abstract `Modification` "naked" — *before* the
 base-class machinery packs it into any `GroupModification`, even
 when the `Modification` is being sent to a non-zero channel
@@ -276,8 +284,9 @@ adding or removing arcs through the abstract representation (such
 an operation would also require changing the structure of the
 flow-conservation `FRowConstraint`s, which is more complex than
 the current `add_Modification` implementation supports). The
-refusal is concrete: the override throws a `std::logic_error`
-with a descriptive message. The convention is that *failing loud*
+refusal is concrete: the override throws a `std::invalid_argument`
+(or a `std::logic_error`, for the forbidden changes of a flow
+`ColVariable`) with a descriptive message. The convention is that *failing loud*
 is the safe default; a `:Block` that wants to support a
 particular abstract change must do so explicitly.
 
@@ -285,9 +294,13 @@ particular abstract change must do so explicitly.
 
 Every mutator that may issue a `Modification` takes one or two
 `ModParam` arguments — `issueMod` for the physical
-`Modification`, `issueAMod` for the abstract one — with default
-value `eModBlck`. The enum
-`amododification_type` (`Modification.h:908-913`) takes four
+`Modification`, `issueAMod` for the abstract one. The default
+value is `eModBlck` for the mutators of the abstract
+representation (`ColVariable::is_fixed()`, the methods of
+`RowConstraint`, `LinearFunction`, ...) and `eNoBlck` for the
+physical mutators of the `:Block`s (`MCFBlock::chg_cost()`, ...).
+The enum
+`amododification_type` (`Modification.h:1237-1242`) takes four
 values:
 
 | `ModParam` | Numeric | Semantics |
@@ -297,8 +310,12 @@ values:
 | `eNoBlck` | 2 | The mutator performs the change and issues the `Modification`, *but only if there is anyone listening* (cf. `anyone_there()`); furthermore, `concerns_Block()` is set to `false`, telling the receiving `:Block` (if any) that it must not re-apply the change to its physical representation. This is the value the framework uses internally when forwarding an abstract `Modification` after the `:Block` has already intercepted and applied it. |
 | `eModBlck` | 3 | The mutator performs the change and issues the `Modification` unconditionally, with `concerns_Block()` set to `true`. This is the default, "most conservative" value: it ensures that everybody who may need to know is informed, and it makes the abstract `Modification` carry the flag that asks the `:Block` to also apply the change to its physical face if needed. |
 
-The two parameters `issueMod` and `issueAMod` are independent and
-both default to `eModBlck`. They can also carry a *channel name*
+The distinction between `eNoBlck` and `eModBlck` only matters
+for an abstract `Modification`: a physical one is issued only if
+there is anyone listening, whichever of the two is passed
+(`Observer::issue_pmod()`), and it never asks the `:Block` to
+react. The two parameters `issueMod` and `issueAMod` are
+independent. They can also carry a *channel name*
 encoded in the upper bits (`Observer::make_par(iM, chnl)`), which
 is the mechanism for routing related `Modification`s to a specific
 channel so that they can be grouped; channels are the subject of
@@ -312,8 +329,8 @@ dispatched the instant it is issued. That is the default, but it
 is not the only possibility: SMS++ provides a mechanism to *batch*
 a set of logically related `Modification`s and deliver them
 together, as a single `GroupModification`. The mechanism is built
-on **channels** ([Source: `Observer.h:303-374`,
-`Block.h:5429-5442`]).
+on **channels** ([Source: `Observer.h:333-453`,
+`Block.h:5793-5832`]).
 
 ### Opening and closing a channel
 
@@ -340,6 +357,14 @@ A `Modification` is issued "on channel `c`" by passing `c` to the
 *default channel* can be set once with `set_default_channel(c)`,
 so that subsequent mutators called with a plain `eModBlck` /
 `eNoBlck` are automatically routed to `c`.
+
+What has been sent to a channel can also be thrown away rather
+than shipped: `close_channel(c, force, true)` deletes the group
+that `close_channel(c, force)` would have dispatched, and
+`clear_channel(c)` empties the current group of the channel while
+leaving it open, so that a long sequence of changes known to have
+no net effect does not pile up in it; in both cases nobody
+receives anything.
 
 ### Nesting
 
@@ -411,19 +436,51 @@ listening?*" in the `f_at` field of `Block`, updated by
 recursively. The query method is `anyone_there()`. Mutators that
 take `issueMod = eNoBlck` consult the cache before constructing
 the `Modification`: if `anyone_there()` is `false`, the
-`Modification` is silently dropped. Mutators called with the
-default `eModBlck` do not consult the cache: they issue the
-`Modification` anyway, because the `concerns_Block() == true`
-flag may still need to reach the `:Block` itself even when no
-`:Solver` is listening (for instance, to apply the corresponding
-physical change in the Janus discipline).
+`Modification` is silently dropped; so do physical mutators
+whatever their `issueMod` (`Observer::issue_pmod()`). Mutators of
+the abstract representation called with the default `eModBlck`
+do not consult the cache: they issue the `Modification` anyway,
+because the `concerns_Block() == true` flag may still need to
+reach the `:Block` itself even when no `:Solver` is listening
+(for instance, to apply the corresponding physical change in the
+Janus discipline).
 
-A concrete `:Block` may override `anyone_there()` to return
-`true` unconditionally whenever its abstract representation is
-constructed (because abstract `Modification`s must then flow
-regardless of the registered `:Solver`s, to keep the two faces
-in sync). `MCFBlock` does exactly this; `BinaryKnapsackBlock`
-also has the analogous override.
+For this reason a concrete `:Block` need not override
+`anyone_there()` to return `true` whenever its abstract
+representation is constructed: abstract `Modification`s issued
+with `eModBlck` flow regardless of the registered `:Solver`s,
+and with any other value the abstract representation has already
+been changed. `MCFBlock` and `BinaryKnapsackBlock` used to carry
+such an override, which is now commented out in their headers
+with exactly this explanation.
+
+### What a listener reads
+
+The filter is finer than "is anyone there". Every `Modification`
+says, through `Modification::changes()`, what kind of change it
+is, as a `ModConcern` bit mask: whether it is physical
+(`eModPhys`), and otherwise whether it changes the data, the
+integrality or the set of the `Variable`s, the sides, the
+coefficients or the set of the `Constraint`s, or the `Objective`;
+further bits say what effect it may have on the problem (the
+feasible region may shrink or grow, the objective may increase or
+decrease). Symmetrically, every `:Solver` says which kinds it
+reads with `Solver::concerned_by()` (all of them in the base
+class; only the abstract ones for `:MILPSolver`), a `:Block` says
+which ones it reads itself with `Block::concerned_by()`, and
+`Observer::concerned()` returns the "or" of what anyone listening
+to a `:Block` reads. A `:Block` passes each `:Solver` only the
+`Modification`s that are of concern to it
+(`Modification::is_of_concern()`): a physical `Modification`
+reaches only those who read `eModPhys`, whatever else it says it
+changes, unless it changes everything (`eModAll`, as an
+`NBModification` does), while an abstract one reaches those who
+read one of its kinds. Before building a `Modification` at all, a
+mutator can ask `anyone_there_for(...)`, or the variants of
+`issue_mod()` / `issue_pmod()` that take the kind, so that a
+change nobody reads costs nothing. The details, and what an
+author of a `:Modification` has to declare, are in
+[§C.2](C-writing-modification.md#sec-C-2).
 
 ## 8.8 Inline example: a cost change in `MCFBlock`, observed from both faces {#sec-8-8}
 
@@ -436,6 +493,7 @@ in its pending list.
 ```cpp
 #include "MCFBlock.h"
 #include "FakeSolver.h"
+#include <iostream>
 
 using namespace SMSpp_di_unipi_it;
 
@@ -444,8 +502,8 @@ int main()
  // construct and load an MCFBlock (as in §4.5)
  MCFBlock mcf;
  mcf.load( 3 , 3 ,
-           MCFBlock::Subset      { 1, 2, 2 } ,   // pEn
-           MCFBlock::Subset      { 0, 1, 0 } ,   // pSn
+           MCFBlock::Subset      { 2, 3, 3 } ,   // pEn (nodes 1 .. n)
+           MCFBlock::Subset      { 1, 2, 1 } ,   // pSn
            MCFBlock::Vec_FNumber { 3.0, 3.0, 3.0 } ,  // pU
            MCFBlock::Vec_CNumber { 2.0, 3.0, 4.0 } ,  // pC
            MCFBlock::Vec_FNumber { -2.0, 0.0, +2.0 } );
@@ -467,17 +525,18 @@ int main()
                /* issueMod  = */ eModBlck ,
                /* issueAMod = */ eModBlck );
  // The framework issues:
- //   - one physical MCFBlockRngdMod with rng = [0, 1) and the
- //     new cost vector,
- //   - one abstract C05FunctionMod (with concerns_Block() == false)
- //     reflecting the change in the linear Function inside f_obj.
+ //   - one physical MCFBlockRngdMod of type eChgCost with
+ //     rng = [0, 1),
+ //   - one abstract C05FunctionModLinRngd (with concerns_Block() ==
+ //     false) reflecting the change in the LinearFunction of the
+ //     Objective.
 
  // ---- abstract-side change: close arc 1 by fixing its flow to 0 ----
  // The idiomatic abstract-face counterpart of MCFBlock::close_arc(1)
  // is fixing the corresponding ColVariable to 0. This is a pure
  // abstract change; the framework intercepts it and applies the
  // matching physical operation.
- ColVariable * x1 = mcf.get_Var( /* arc index = */ 1 );
+ ColVariable * x1 = mcf.i2p_x( /* arc index = */ 1 );
  x1->set_value( 0.0 );
  x1->is_fixed( true , eModBlck );
  // The framework issues:
@@ -489,7 +548,7 @@ int main()
  //     concerns_Block() rewritten to false.
 
  // examine the tap's pending list
- for( auto & mod : tap->get_Modifications() )
+ for( auto & mod : tap->get_Modification_list() )
   std::cout << *mod << '\n';
 
  mcf.unregister_Solver( tap , /* deleteold = */ true );
@@ -524,7 +583,8 @@ The salient observations:
 ## 8.9 Idioms {#sec-8-9}
 
 **Default to `eModBlck`.** The default value of `issueMod` and
-`issueAMod` is `eModBlck` for a reason: it is the safest. Anything
+`issueAMod` in the mutators of the abstract representation is
+`eModBlck` for a reason: it is the safest. Anything
 else is an optimisation that should be applied only when the user
 has thought through what the listeners need.
 
@@ -566,5 +626,7 @@ object, and (where the `:Block` chooses to support it) can be
 *undone* via an automatically-generated inverse `Change`. The
 intended downstream use is message-passing distributed
 computation; only a small number of `:Change` classes exist at
-version 0.7.1 (in particular for `BinaryKnapsackBlock` and `SATBlock`) and the
-interface is subject to change. **Status — beta.**
+version 0.8.0 (`AbstractChange` and `GroupChange` in the core, the
+former for the abstract representation of any `Block`, and those
+of `BinaryKnapsackBlock` and `SATBlock`) and the interface is
+subject to change. **Status — beta.**
