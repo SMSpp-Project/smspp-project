@@ -78,8 +78,10 @@ into that vector.
 
 The same rule applies to a `Block`: a `Block` is referenced by
 pointer (`p_Block = Block*`), and its sub-`Block`s are stored as a
-`std::vector` of pointers (`v_Block` of type `Vec_Block`). Copying a
-`Block` produces a different `Block`, not the same one; if two
+`std::vector` of pointers (`v_Block` of type `Vec_Block`). The copy
+constructor of `Block` is deleted; a copy, which is anyway a
+different `Block` and not the same one, is obtained through
+`get_R3_Block()`, and if two
 `Block`s must be kept "the same up to data", the `R3Block` mechanism
 ([Chapter 10](10-r3block.md#ch-10)) is the supported way to do it.
 
@@ -97,7 +99,12 @@ distinction:
 Sub-`Block`s are always static: their number and their concrete
 type cannot change after the parent `Block` has been built. This
 restriction does not hurt expressiveness in practice and considerably
-simplifies the framework's internal logic.
+simplifies the framework's internal logic. (The one exception is
+`set_structure()`, by which a `:Block` whose tree of sub-`Block` is a
+modelling choice makes that choice, meant to be called before any
+abstract representation is generated and any `:Solver` attached;
+changing the tree later is a "nuclear option" that issues an
+`NBModification`.)
 
 Static contents allow storage by index; dynamic contents allow
 storage in a `std::list` only, and are addressed by an iterator or
@@ -118,7 +125,7 @@ brevity):
 - a list of `Solver*` currently registered with this `Block`
   (`v_Solver`);
 - a flag `f_at` that caches "is there any `:Solver` listening to
-  this `Block` or to any of its ancestor `Block`s?";
+  any of the ancestor `Block`s of this `Block`?";
 - machinery for concurrent access (`lock()`, `read_lock()`, an
   owner thread id), discussed in [Chapter 17](17-parallel.md#ch-17);
 - a pointer to a `BlockConfig`, the `Configuration` object that
@@ -141,9 +148,10 @@ The principal public methods, grouped by purpose:
   `unregister_Solver(Solver*)`, `unregister_Solvers()`,
   `replace_Solver(Solver*, ...)`, `get_registered_solvers()`;
 - *Modification handling*: `add_Modification(sp_Mod, ChnlName)`,
-  `anyone_there()`, `concerns_Block()`;
+  `anyone_there()`, `anyone_there_for(...)`, `concerned()`,
+  `concerned_by()`;
 - *checking*: `is_feasible(bool useabstract, Configuration*)`,
-  `is_dual_feasible(...)`, `is_optimal(...)`;
+  `is_optimal(bool useabstract, Configuration*)`;
 - *bounds*: `get_objective_sense()`,
   `get_valid_upper_bound(bool conditional)`,
   `get_valid_lower_bound(bool conditional)`;
@@ -154,8 +162,11 @@ The principal public methods, grouped by purpose:
 - *reformulation*: `get_R3_Block(Configuration*, base, father)`,
   `map_back_solution(...)`, `map_forward_solution(...)`,
   `map_forward_Modification(...)`, `map_back_Modification(...)`;
-- *configuration*: `set_BlockConfig(BlockConfig*)`,
-  `get_BlockConfig()`.
+- *configuration*: `set_BlockConfig(BlockConfig*, bool)`,
+  `get_BlockConfig()`, `set_structure(Configuration*)` (which
+  chooses the tree of sub-`Block` of a `:Block` for which it is a
+  modelling choice rather than a datum);
+- *solutions*: `get_Solution(Configuration*, bool)`.
 
 The full list of public methods, with their precise signatures and
 their detailed specification, is in
@@ -170,6 +181,7 @@ representation nor attaches a `:Solver`. Both will be added in
 
 ```cpp
 #include "MCFBlock.h"
+#include <iostream>
 
 using namespace SMSpp_di_unipi_it;
 
@@ -180,15 +192,16 @@ int main()
 
  // a tiny 3-node, 3-arc instance:
  //
- //     (0) --1--> (1) --1--> (2)
+ //     (1) --1--> (2) --1--> (3)
  //      |                     ^
  //      +--------- 1 ---------+
  //
  // node deficits b = (-2, 0, +2)
  // arc capacities U = (3, 3, 3); arc costs C = (2, 3, 4)
 
- MCFBlock::Subset      pSn = { 0, 1, 0 };  // arc starting nodes
- MCFBlock::Subset      pEn = { 1, 2, 2 };  // arc ending nodes
+ // node names go from 1 to n
+ MCFBlock::Subset      pSn = { 1, 2, 1 };  // arc starting nodes
+ MCFBlock::Subset      pEn = { 2, 3, 3 };  // arc ending nodes
  MCFBlock::Vec_FNumber pU  = { 3.0, 3.0, 3.0 };
  MCFBlock::Vec_CNumber pC  = { 2.0, 3.0, 4.0 };
  MCFBlock::Vec_FNumber pB  = { -2.0, 0.0, +2.0 };
@@ -209,8 +222,9 @@ A few things are worth noticing.
   `MCFBlock` with no father. The variant `MCFBlock(Block* father)`
   installs the new `MCFBlock` as a sub-`Block` of `father`.
 - The `load(...)` method populates the physical representation. It
-  takes ending nodes (`pEn`) before starting nodes (`pSn`); this is
-  the signature documented in `MCFBlock.h`.
+  takes ending nodes (`pEn`) before starting nodes (`pSn`), whose
+  node names go from 1 to `n` (`load()` throws on a name outside of
+  this range); this is the signature documented in `MCFBlock.h`.
 - No call to `generate_abstract_*()` has been made. The abstract
   representation does not exist yet; it will be created lazily
   later, only if a `:Solver` that needs it is attached.
@@ -226,7 +240,7 @@ A few things are worth noticing.
 
 The same `MCFBlock` could equivalently have been built by reading a
 DIMACS-formatted text file (with `load(std::istream&)`) or a netCDF
-file (with `deserialize(netCDF::NcGroup&)`); both are documented
+file (with `deserialize(const netCDF::NcGroup&)`); both are documented
 forms of construction.
 
 ## 4.6 Common idioms {#sec-4-6}
@@ -261,24 +275,34 @@ The cache is updated automatically by `register_Solver()` /
 `unregister_Solver()` and propagated to all sub-`Block`s
 recursively. `:Block` implementers can check it through
 `anyone_there()` before paying the cost of constructing a
-`Modification`. The default implementation of `anyone_there()` in
-the base class returns the cached value; a concrete `:Block` may
-override `anyone_there()` to always return `true` when the abstract
-representation is currently constructed, because abstract
-`Modification`s must be issued anyway in order to keep the two
-representations in sync ([Chapter 8](08-modification-janus.md#ch-8)).
+`Modification`; `anyone_there()` returns the cached value, or `true`
+if a `:Solver` is registered with the `Block` itself.
+
+A finer test is `anyone_there_for(what)`. Each `Modification`
+declares, as a `Modification::ModConcern` bit mask, what it changes
+(`eModPhys` for the physical representation, `eModVarData`,
+`eModCnsSide`, `eModObj`, ... for the parts of the abstract one), and
+each `:Solver` declares, by `Solver::concerned_by()`, the kinds it
+reads; `Block::concerned()` is the "or" of what the `:Solver`s of the
+`Block` and those of its ancestors read and of what the `:Block`
+reads itself (its own `concerned_by()`, typically the abstract
+`Modification`s that it has to follow to keep its physical
+representation in sync, [Chapter 8](08-modification-janus.md#ch-8)). A `:Block` can therefore
+skip constructing a `Modification` of a kind that nobody reads.
 
 ### The `father` argument of the constructor
 
 A concrete `:Block` constructor typically takes one optional
 argument, a pointer to a father `Block` (default `nullptr`). Passing
-a non-null father makes the new `Block` a sub-`Block` of the father;
-the framework will automatically install the new `Block` in the
-father's `v_Block`. This is the canonical way to assemble a `Block`
-tree from the leaves up; it is exemplified by
-`CapacitatedFacilityLocationBlock` in its Knapsack Formulation,
-which constructs its `BinaryKnapsackBlock` sub-`Block`s by passing
-itself as the father ([Chapter 12](12-sub-block.md#ch-12)).
+a non-null father records it as the father of the new `Block`; the
+constructor does not install the new `Block` in the father's
+`v_Block`, which is done by the father itself (either writing into
+its own `v_Block` or calling `add_nested_Block()`, which also sets the
+father pointer). This is the canonical way to assemble a `Block`
+tree; it is exemplified by `CapacitatedFacilityLocationBlock` in its
+Knapsack Formulation, which constructs its `BinaryKnapsackBlock`
+sub-`Block`s by passing itself as the father and stores them in its
+`v_Block` ([Chapter 12](12-sub-block.md#ch-12)).
 
 ---
 
