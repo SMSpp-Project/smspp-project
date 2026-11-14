@@ -2,8 +2,8 @@
 
 [Source: `SMS++/include/Variable.h`, `ColVariable.h`, `Constraint.h`,
 `RowConstraint.h`, `OneVarConstraint.h`, `FRowConstraint.h`,
-`Objective.h`, `RealObjective.h`, `FRealObjective.h`,
-`LinearObjective.h`]
+`Objective.h` (also `RealObjective`), `FRealObjective.h`,
+`LinearConstraint.h`, `Group.h`]
 
 ## 5.1 Concept {#sec-5-1}
 
@@ -194,6 +194,17 @@ The composition rule for sub-`Block`s is also fixed at the
 `Objective` level: the `Objective` of a sub-`Block` is summed into
 the `Objective` of its father `Block`. This is what gives the
 recursive `Block` tree a single, well-defined `Objective` overall.
+The sum may be weighted: `Block::set_objective_weight(double)` gives
+the `Objective` of a `Block` a positive weight (1 by default), and
+`get_objective_weight(ancestor)` returns the product of the weights
+along the path from the `Block` up to `ancestor` (excluded), i.e.,
+the factor by which a `:Solver` attached to `ancestor` multiplies the
+`Objective` of the `Block` (say, the probability of a scenario times
+the discount factor of its period). Analogously,
+`set_variable_weight(double)` gives a factor by which the
+coefficients of the `Variable`s of a `Block` are multiplied in the
+`Constraint`s of an ancestor (say, the number of identical copies of
+a unit).
 
 ### `FRealObjective`
 
@@ -206,9 +217,11 @@ value is computed by a `Function`. The interface is the same:
 which in practice is "essentially every `Block` with a non-trivial
 objective".
 
-A simpler `LinearObjective` exists for the case where the objective
-is a plain linear form in `ColVariable`s; it stores the
-coefficients directly without the `Function` indirection.
+There is no separate class for a linear objective: a plain linear
+form in `ColVariable`s is an `FRealObjective` carrying a
+`LinearFunction`. On the constraint side, `LinearConstraint` is an
+`FRowConstraint` whose `Function` is forced to be a `LinearFunction`,
+part of whose interface (the coefficients) it exposes directly.
 
 ## 5.5 Inline example: the abstract representation of `BinaryKnapsackBlock` {#sec-5-5}
 
@@ -254,7 +267,7 @@ int main()
 What `BinaryKnapsackBlock` constructs in response — and what the
 three primitives of this chapter look like in concrete — is
 documented in the `:Block`'s own source comments and reflected in
-its protected data members (`BinaryKnapsackBlock.h:940-942`):
+its protected data members (`BinaryKnapsackBlock.h:1021-1023`):
 
 - one *static* group of `Variable`s, materialised as
   `std::vector< ColVariable > v_x` of size $n$ (one per item), of
@@ -274,25 +287,30 @@ public interface of `Block` and should not be reached at by user
 code; the framework convention is to read the *physical*
 representation through the `:Block`-specific accessors
 (`get_Var(i)`, `get_objective_value()`, `get_x(...)`, ...) rather
-than to walk the abstract groups directly. The mechanism for
-*iterating* over the abstract groups of an arbitrary `Block` is at
-present mediated by `boost::any`, an arrangement scheduled for
-revision in a future release; for the moment, code that needs to
-look at the abstract representation of a `:Block` it does not know
-should go through the `:Block`'s own getters.
+than to walk the abstract groups directly. Code that needs to look
+at the abstract representation of a `:Block` it does not know
+iterates over its groups: `get_static_variable_groups()`,
+`get_static_constraint_groups()` and their dynamic counterparts
+return them as `BaseGroup` objects (`Group.h`), each of which gives
+its name, its shape and its elements as `Variable` or `Constraint`;
+`elements_are< T >()` says once for the whole group whether the
+elements derive from `T`, `for_each_as()` and `for_each_cell_as()`
+run loops typed on the element, meant for hot paths, and
+`for_each()` serves the cold ones. The order in which the elements
+come out (the storage order) is part of the contract.
 
-The deliberately small `AbstractBlock` class ([Chapter 1](01-introduction.md#ch-1), also
-discussed in [Chapter 4](04-block.md#ch-4)) is the converse case: a `Block` *without*
+The deliberately small `AbstractBlock` class ([Chapter 1](01-introduction.md#ch-1)) is the converse case: a `Block` *without*
 a problem class of its own, whose abstract representation *is*
 constructed by user code from the outside. `AbstractBlock` is the
 correct vehicle if the goal is to assemble a `Variable` /
 `Constraint` / `Objective` arrangement by hand — typically when
 loading a `.mps` or `.lp` file — and the construction patterns of
 this section are the canonical way to do so. The interested reader
-will find a worked example of an `AbstractBlock` built from
-scratch in [Recipe R3](R3-cfl-three-ways.md#rec-R3) (where the MCF flow relaxation of CFLB is
-described) and a more systematic treatment in [Appendix A](A-writing-block.md#app-A), where a
-fresh `:Block` is developed from scratch.
+will find `AbstractBlock`s built from scratch, with
+`add_static_variable()` and `add_static_constraint()`, in the core's
+tests (`SMS++/test/AbstractBlockGenerator.h`, used by
+`tests_AbstractBlock.cpp`), while [Appendix A](A-writing-block.md#app-A) develops a fresh
+`:Block` from scratch.
 
 ## 5.6 API outline {#sec-5-6}
 
@@ -305,9 +323,9 @@ fresh `:Block` is developed from scratch.
 | `OneVarConstraint` | accepts a single `ColVariable`; the bounds are the only data |
 | `FRowConstraint` | `set_function(Function*)`, `get_function()`; LHS is the `Function`'s value |
 | `Objective` | `set_sense(int, ModParam)`, `get_sense()`, `compute(bool)` |
-| `RealObjective` | adds `OFValue` and the `value()` accessor |
+| `RealObjective` | adds `OFValue` and the `value()` accessor (in `Objective.h`) |
 | `FRealObjective` | `set_function(Function*)`, `get_function()` |
-| `LinearObjective` | direct linear-form storage, no `Function*` indirection |
+| `LinearConstraint` | an `FRowConstraint` with a `LinearFunction`, whose coefficients it exposes |
 
 For the exhaustive list of public methods, see the corresponding
 Doxygen page of each class.
