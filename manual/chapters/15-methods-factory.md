@@ -43,7 +43,7 @@ tied to the concrete class and would defeat the purpose. Instead,
 each entry is an *adapter* function whose first parameter is a
 base `Block*`; the adapter `static_cast`s the pointer to the
 concrete `:Block` and forwards to the real method
-(`Block.h:5799-5855`). The framework can build these adapters
+(`Block.h:6048-6090`). The framework can build these adapters
 automatically for member functions that already have the right
 shape, or a user can write one by hand to bridge any existing
 `:Block` method (even one that changes a single item at a time)
@@ -54,13 +54,13 @@ the familiar two `ModParam`s (`issuePMod`, `issueAMod`) so that
 the factory-driven change participates in the Janus discipline of
 [Chapter 8](08-modification-janus.md#ch-8) exactly as a direct call would.
 
-## 15.3 The six standard signature families {#sec-15-3}
+## 15.3 The standard signature families {#sec-15-3}
 
 To make the factory useful, the data-changing functions need a
 small, shared vocabulary of signatures, so that the factory is
 densely enough populated to be worth consulting. SMS++ predefines
-six "method-set" signature families (`Block.h:665-680`),
-parameterised by two independent choices:
+a few "method-set" signature families (`Block.h:723-777`); the six
+basic ones are parameterised by two independent choices:
 
 - the **data type** carried: none, `MF_dbl_sp` (a
   `std::span<const double>`), or `MF_int_sp` (a
@@ -97,7 +97,25 @@ the `MS_sp_dbl_sbst` families, and `chg_capacity` in
 `chg_costs`, `chg_ucaps`, `chg_dfcts` in the `MS_sp_dbl_*`
 families and `close_arcs` / `open_arcs` in the `MS_*` ones. The framework nudges
 `:Block` authors to give their data-changing methods one of these
-six shapes, precisely so they slot into the factory for free.
+shapes, precisely so they slot into the factory for free.
+
+Four more setter families cover data that do not fit the six
+basic shapes: `MS_sp_dbl2_rngd` and `MS_sp_dbl2_sbst` take two
+`MF_dbl_sp` before the slice, for items that carry two values of
+the same kind (the h-th value of each span going to the h-th index
+of the slice), while `MS_dbl` and `MS_dbl2` take one or two
+`double` and no slice at all, for a parameter that is a single
+scalar (say, the size of a unit). Finally, the factory also holds
+*queries*, i.e., adapters of `const` member functions that *read*
+data rather than change them: their type is
+`QueryType< Args... >`, a function of a `const Block *` with no
+`ModParam`, and the families `MS_qry_dbl_rngd`, `MS_qry_dbl_sbst`,
+`MS_qry_int_rngd`, `MS_qry_int_sbst`, `MS_qry_dbl2_rngd`,
+`MS_qry_dbl2_sbst`, `MS_qry_dbl` and `MS_qry_dbl2` mirror the
+setters, writing the answer through a mutable span (`MF_dbl_msp`
+or `MF_int_msp`, the h-th value for the h-th index of the slice)
+or into a `double &`, and taking a `c_Subset &`, which is not
+consumed, in place of the `Subset &&`.
 
 ## 15.4 `register_method`, `get_method`, `get_method_name` {#sec-15-4}
 
@@ -112,6 +130,12 @@ The three operations on the factory are:
 - `get_method_name(function)` — the reverse lookup (the map is
   bi-directional).
 
+The variants `get_method_fs()` and `get_method_name_fs()` select
+the factory by the parameter type list of the function, given
+either as template arguments or by a final `MS_..._S::args()`
+dummy parameter (as in the example below); `get_query_fs()` does
+the same for the query factories.
+
 Registration is conventionally done once, in the `:Block`'s
 protected `static_initialization()` function, so that the
 `:Block`'s data-changing methods are available in the factory as
@@ -119,7 +143,7 @@ soon as the class is loaded. The methods are nonetheless *public*,
 so any code with access to a `:Block` may register additional
 adapter functions — useful when the `:Block` author did not
 anticipate a particular form of bulk change, or simply did not get
-around to registering one (`Block.h:5857-5874`).
+around to registering one (`Block.h:6282-6299`).
 
 ## 15.5 Inline example: changing weights by name {#sec-15-5}
 
@@ -225,7 +249,7 @@ registration in the source.
 
 ## 15.8 Idioms {#sec-15-8}
 
-**Give data-changing methods one of the six standard shapes.** A
+**Give data-changing methods one of the standard shapes.** A
 `:Block` author who writes `chg_*()` methods in the
 `MS[_dbl/int]_[rngd/sbst]` shapes gets factory registration almost
 for free and makes the `:Block` usable by all the type-agnostic

@@ -32,7 +32,7 @@ form, are left to derived classes.
 Crucially, the base `Function` also *advertises* a number of
 mathematical properties that a `:Solver` can rely on to choose its
 algorithm. These are exposed through a family of `is_*()`
-predicates (`Function.h:567-615`):
+predicates (`Function.h:577-634`):
 
 - `is_convex()` and `is_concave()` — whether the function is
   convex / concave (both default to `false`; a function that is
@@ -68,7 +68,7 @@ registering with the `Variable`s falls on the
 added to or removed from the `Function`, the `Function` issues a
 `FunctionModVars` `Modification`, which the containing object
 observes and reacts to by registering / unregistering itself with
-that `Variable` (`Function.h:90-119`). The practical consequence
+that `Variable` (`Function.h:91-120`). The practical consequence
 for a user is that `Function`s are always handed to a carrier
 (`set_function(...)`, [§5.3](05-variable-constraint-objective.md#sec-5-3)) that takes care of this; one does not
 normally hold a bare `Function` and expect it to maintain its own
@@ -76,7 +76,7 @@ normally hold a bare `Function` and expect it to maintain its own
 
 ## 13.2 `C05Function`: first-order information and linearization pools {#sec-13-2}
 
-[`C05Function`](https://smspp.gitlab.io/smspp-project/d3/de3/_c05_function_8h.html)
+[`C05Function`](https://smspp.gitlab.io/smspp-project/dd/d96/class_s_m_spp__di__unipi__it_1_1_c05_function.html)
 extends `Function` with *first-order* information: not necessarily
 continuous, in the form of **linearizations**. Assuming the active
 `Variable`s are single reals (`ColVariable`s), a linearization is
@@ -93,7 +93,7 @@ function $f(x) = \max \lbrace cu + x(b - Au) \mid u \in U \rbrace$: any
 optimal $u^*$ of the inner problem yields both $f(x) = cu^* +
 x(b - Au^*)$ and the linearization $(g, \alpha) = (b - Au^*,
 cu^*)$, which supports the graph of $f$ everywhere
-(`C05Function.h:96-133`). This is exactly the mechanism that
+(`C05Function.h:97-135`). This is exactly the mechanism that
 `LagBFunction` exploits ([Chapter 14](14-lag-benders-bfunction.md#ch-14)).
 
 `C05Function` organises linearizations into two **pools**:
@@ -141,7 +141,7 @@ The base
 `FunctionMod` describes a change to the *value* of a function, and
 its single payload — the extended real returned by `shift()` —
 encodes not just the magnitude but the *predictability and
-direction* of the change (`Function.h:798-841`). Four cases:
+direction* of the change (`Function.h:813-857`). Four cases:
 
 - a **finite, non-NaN** `shift()`: the value changed by *exactly*
   that amount at *every* point — the most informative case, "the
@@ -174,7 +174,7 @@ When the change is the *addition or removal of active
 `Variable`s*, the relevant `Modification` is a `FunctionModVars`,
 which carries the affected `Variable`s and, again through a
 `shift()` value, declares whether the change is **quasi-additive**
-(`Function.h:1008-1059`). Adding `Variable`s $y$ to a function
+(`Function.h:1034-1062`). Adding `Variable`s $y$ to a function
 $f_{\text{old}}(x)$ is quasi-additive if
 
 $$f(x, 0) = f_{\text{old}}(x) + \text{shift()} \quad\text{for all } x,$$
@@ -196,7 +196,7 @@ as well. This requires a stronger property. The
 `C05FunctionModVarsAddd` `Modification` signals that a
 variable-set change is **strongly quasi-additive** (which in
 practice usually means the function is convex or concave;
-`C05Function.h:2259-2285`). When it is, the linearizations already
+`C05Function.h:2205-2240`). When it is, the linearizations already
 in the global pool remain valid (suitably interpreted) after the
 change, so a bundle / cutting-plane `:Solver` can keep its whole
 model. When a change is only ordinarily quasi-additive — a base
@@ -232,8 +232,10 @@ For functions that have a simple closed algebraic form, evaluating
 them and producing their (trivial) linearizations costs essentially
 nothing, and SMS++ provides concrete leaf classes with no overhead:
 
-- a linear `Function` — a plain linear form $\sum_i a_i x_i$ in
-  `ColVariable`s — is the recipient inside an `FRowConstraint`
+- a linear `Function` —
+  [`LinearFunction`](https://smspp.gitlab.io/smspp-project/d9/d23/class_s_m_spp__di__unipi__it_1_1_linear_function.html),
+  a plain linear form $\sum_i a_i x_i$ in
+  `ColVariable`s plus a constant — is the recipient inside an `FRowConstraint`
   that encodes a "row of a linear program" or inside an
   `FRealObjective` that encodes a linear objective; this is what
   `MCFBlock`, `BinaryKnapsackBlock` and the natural formulation of
@@ -253,6 +255,19 @@ nothing, and SMS++ provides concrete leaf classes with no overhead:
   wraps one as a `Block`. `PolyhedralFunction` is, for instance,
   where the Benders cuts produced inside an `SDDPBlock` are
   accumulated ([Chapter 14](14-lag-benders-bfunction.md#ch-14) mentions this in passing).
+- [`C05SumFunction`](https://smspp.gitlab.io/smspp-project/d9/d47/class_s_m_spp__di__unipi__it_1_1_c05_sum_function.html)
+  is the sum $f(x) = \sum_{h \in G} f_h(x)$ of a given group $G$ of
+  `C05Function`s, its members, which it neither owns nor changes: its
+  active `Variable`s are the union of theirs, its value, global
+  bounds and Lipschitz constant are the sums of theirs, and a
+  linearization of the group is the sum of linearizations stored
+  under the same name in the global pools of the members. It is
+  (by default) the `Observer` of its members, so that what happens
+  to them is seen as happening to the sum; the members can be
+  evaluated in parallel (`set_members_at_once()`), possibly on the
+  threads of whoever drives the group (`set_member_runner()`).
+  `BundleSolver` uses it to put several components of its function
+  into one.
 
 ## 13.6 Where the family points next {#sec-13-6}
 

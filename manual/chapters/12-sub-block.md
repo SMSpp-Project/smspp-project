@@ -48,6 +48,27 @@ the tree add up to a single coherent model:
   `Objective` of its own still has a well-defined overall
   objective, made up entirely of those of its sub-`Block`s.
 
+Both rules can be qualified by a *weight*. A `Block` has a weight
+of its `Objective` (`set_objective_weight()`, 1 by default), by
+which its `Objective` counts in any problem it is part of (e.g.,
+the probability of the scenario it describes times the discount
+factor of its period), and a weight of its `Variable`s
+(`set_variable_weight()`), by which the coefficients of its
+`Variable`s, and of those of its sub-`Block`s, are multiplied in
+the `Constraint`s outside of it (e.g., the number of identical
+copies of a unit); `set_weight()` sets both, i.e., scales the
+whole `Block`. The `Block` itself is not changed: a `:Solver`
+attached to an ancestor multiplies the `Objective` of the `Block`
+by the product of the `Objective` weights along the path up to the
+ancestor, the latter excluded (`get_objective_weight( ancestor )`),
+and similarly for the `Variable` weights
+(`get_variable_weight( cblock )`), while a `:Solver` attached to the
+`Block` does not see its weight. Weights are finite and
+non-negative (0 makes the `Block` count for nothing); a change of
+them issues a `BlockWeightMod`, and is refused before anything
+changes if a `:Solver` attached to an ancestor does not handle it
+(`Solver::handles_weight_change()`, `false` by default).
+
 What may, at first, look like a third rule — "a `Constraint` lives
 in the parent and links the `Variable`s of its children" — is in
 fact only the *most common pattern*, not a constraint imposed by
@@ -144,8 +165,8 @@ one per facility. The split is exactly as [§12.2](12-sub-block.md#sec-12-2) des
   $\sum_i X_{ij} = 1$, which couple `Variable`s living in
   different sub-`Block`s;
 - the overall objective is the sum of the per-facility knapsack
-  objectives (the parent carries no objective of its own in this
-  formulation).
+  objectives (the parent's own `FRealObjective` has a
+  `LinearFunction` with no `Variable` in this formulation).
 
 ```cpp
 #include "CapacitatedFacilityLocationBlock.h"

@@ -44,6 +44,21 @@ The pattern both follow is the same:
   `C05FunctionMod` ([Chapter 8](08-modification-janus.md#ch-8), [Chapter 13](13-function-family.md#ch-13)) to whoever is solving
   the outer problem.
 
+Both hybrids also apply the weight of the `Objective` of their
+inner `Block` ([§12.2](12-sub-block.md#sec-12-2)), which the `:Solver` of $(B)$ does not
+see: the value, the linearizations and the constant term of a
+`BendersBFunction` are those of its inner `:Solver` multiplied by
+the weight of $(B)$ and by its own, and a `LagBFunction` does the
+same with the value and the constants of its linearizations, while
+it writes in the `Objective` of each `Block` of $(B)$ the
+Lagrangian term divided by the weight of that `Objective` (so that
+the Lagrangian term enters with no weight), and divides the
+cutoffs and the absolute accuracy it gives to the inner `:Solver`
+by the weight of $(B)$. A change of the weights inside $(B)$
+reaches the hybrid as a `BlockWeightMod`, which a `LagBFunction`
+turns into new Lagrangian costs and an `AlphaChanged`
+`LagBFunctionMod`.
+
 Because the inner `Block` may be "almost any" `Block`, and is
 solved by "almost any" `:Solver`, these two classes give a generic
 way to build the two most important decomposition functions over
@@ -69,12 +84,12 @@ Lagrangian fashion; the multipliers $y_i$ are the outer
 `Variable`s of the `LagBFunction` — `ColVariable`s that the
 `LagBFunction` does *not* own (they are "conceptually fixed" while
 $(B)$ is solved). $\varphi$ is convex in $y$ (concave if $(B)$ is
-a maximisation, as written), being a pointwise optimum of affine
+a minimisation), being a pointwise optimum of affine
 functions of $y$; at a point $y$, an (approximately) optimal inner
 solution $x(y)$ gives the (sub/super)gradient $g(x(y)) = [g_i(
 x(y))]_i$ — the linearization. Hence `LagBFunction` is, in
 general, a non-smooth `C05Function`
-(`LagBFunction.h:77-147`).
+(`LagBFunction.h:76-155`).
 
 `LagBFunction` automates the whole apparatus: turning $(B)$ into
 $\varphi$, evaluating it by calling a `:Solver` on $(B)$,
@@ -104,14 +119,26 @@ deep inside a decomposed model propagates outward as a precisely
 typed `FunctionMod`, and the outer `:Solver` does the least work
 the change allows.
 
+Two general facts support the translation. First, the hybrid only
+reads the kinds of `Modification` of $(B)$ that can affect it (its
+`concerned_by()`); a `Modification` it does not recognise is judged
+by what that `Modification` says it changes
+(`Modification::changes()`, [Chapter 8](08-modification-janus.md#ch-8)), rather than taken as
+a change of everything. Second, the primal `Solution`s stored in
+the global pool are adapted to a change of $(B)$
+(`Solution::adapt()`, which answers whether a `Solution` is
+unchanged, adapted or invalid), so that, say, the global pool of a
+`LagBFunction` survives the removal of an inner `Variable`.
+
 ### The `LagrangianDualSolver`
 
 A user rarely constructs a `LagBFunction` by hand. The usual route
 is the
 [`LagrangianDualSolver`](https://smspp.gitlab.io/smspp-project/d4/dc3/class_s_m_spp__di__unipi__it_1_1_lagrangian_dual_solver.html),
 a `CDASolver` that solves the Lagrangian dual of a "generic"
-`Block` $(B)$ with block-diagonal structure: no `Variable`s and no
-`Objective` of its own, at least one sub-`Block`, and all of its
+`Block` $(B)$ with block-diagonal structure: no `Variable`s of its
+own, no `Objective` or one with no `Variable` (its constant term
+being part of the dual value), at least one sub-`Block`, and all of its
 `Constraint`s being the *linear linking constraints* between the
 sub-`Block`s. Given such a $(B)$, `LagrangianDualSolver`
 *stealthily* builds a hidden `LagrangianDualBlock`: for each
@@ -121,7 +148,7 @@ the user-chosen inner `:Solver` to drive the dual (a
 `BundleSolver`, typically). The original $(B)$ still "believes" the
 $(B_i)$ are its own sub-`Block`s; the framework keeps both views
 consistent through the `Modification` mechanism
-(`LagrangianDualSolver.h:55-130`). The output is a *dual* bound
+(`LagrangianDualSolver.h:63-140`). The output is a *dual* bound
 and a *convexified* primal solution — the convex combination of
 inner solutions corresponding to the optimal multipliers, which is
 "better" than any single inner solution in the precise sense of
@@ -159,7 +186,7 @@ $$\varphi(x) = \min \lbrace c(y) \mid (g - Fx) \le E(y) \le (h - Fx), \ y \in Y 
 i.e. the value of $(B)$ once its constraint sides have been set to
 $M(x)$. The outer `Variable`s $x$ are the active `Variable`s of
 the `BendersBFunction`; each corresponds to one column of $A$
-(`BendersBFunction.h:64-141`). Evaluating $\varphi(x)$ is one
+(`BendersBFunction.h:65-143`). Evaluating $\varphi(x)$ is one
 solve of $(B)$; the dual solution of $(B)$ gives the
 linearization (a *Benders optimality cut*), and when $(B)$ is
 infeasible at a given $x$ the Farkas ray gives a *vertical*
@@ -172,14 +199,22 @@ generic `:Solver` on $(B)$, and maintains the linearization pools.
 
 It also maps changes in its inner `Block` $(B)$ into the
 `FunctionMod*` types of [§13.3](13-function-family.md#sec-13-3), with the same reoptimization
-intent described for `LagBFunction` above. **At version 0.7.1,
-however, the `BendersBFunction` translation is more limited than
-`LagBFunction`'s**: fewer kinds of inner change are mapped to the
-fine-grained, directionally-typed `FunctionMod`s that would let an
-outer `:Solver` reoptimize maximally, and more of them fall back
-to a coarser "value changed" signal. This is an implementation
-gap, not a design one, and it is expected to be narrowed in future
-revisions; the underlying mechanism is the same.
+intent described for `LagBFunction` above. The dual solutions in
+its global pool are what the translation has to preserve, and the
+cases are distinguished accordingly (`BendersBFunction.cpp`,
+`add_Modification()`): a change that only moves the sides of some
+`Constraint` of $(B)$ (including relaxing or enforcing one) keeps
+them all dual feasible, so that only the constants of the
+linearizations are computed again, and the value moves up or down
+with the feasible region when this moves one way only; removing
+`Variable`s from $(B)$ also keeps the pool, the value changing
+unpredictably; adding a `Constraint` keeps the pool, and removing
+one keeps the entries in which its multiplier is zero. Any other
+change of the model of $(B)$ may take away the feasibility of the
+dual solutions, and is still reported as the "nuclear"
+`FunctionMod`; the mapping is therefore coarser than that of
+`LagBFunction` for changes of the coefficients and of the
+`Objective` of $(B)$.
 
 **The running example.** CFL in the Benders Formulation
 ([§3.5](03-mental-model.md#sec-3-5)) is built on exactly this: the master carries the design
@@ -194,7 +229,7 @@ sub-variant). [Recipe R5](R5-cfl-benders.md#rec-R5) develops this end to end.
 
 `BendersBFunction` is also the component that produces the cuts in
 an `SDDPBlock`: there, the Benders cuts generated at each stage are
-accumulated into a `PolyhedralFunction` ([§13.4](13-function-family.md#sec-13-4)) representing the
+accumulated into a `PolyhedralFunction` ([§13.5](13-function-family.md#sec-13-5)) representing the
 recourse-cost approximation of the following stage.
 
 **The Benders master.** Since version 0.7.0 the enclosing Benders

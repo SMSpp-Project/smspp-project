@@ -40,7 +40,7 @@ must always proceed *top-down* the tree, because locks naturally
 travel downward and a bottom-up attempt can deadlock against a
 top-down one. The corollary is convenient: *to lock any set of
 `Block`s safely, lock their nearest common ancestor* — one of the
-contenders is then guaranteed to succeed (`Block.h:1700-1714`).
+contenders is then guaranteed to succeed (`Block.h:1900-1916`).
 
 > **Status — under development.** Write starvation is not yet
 > handled: a steady stream of readers can, in principle, keep a
@@ -87,7 +87,7 @@ Any `ThinComputeInterface` — so any `Solver`, but also any
 evaluated asynchronously. `compute_async(changedvars)` is a thin
 wrapper that launches `compute()` in a separate task and returns a
 `std::future< int >` on which the caller can later wait for the
-`sol_type` result (`ThinComputeInterface.h:1271`). This is the
+`sol_type` result (`ThinComputeInterface.h:1287`). This is the
 primitive on top of which coarse-grained parallel solution is
 built: a driver can fire off the `compute_async()` of several
 independent sub-problems and collect their results as the futures
@@ -104,7 +104,7 @@ makes that achievable when a `:Solver` delegates to inner
 A `ThinComputeInterface` may expose a
 [`State`](https://smspp.gitlab.io/smspp-project/d6/dff/class_s_m_spp__di__unipi__it_1_1_state.html)
 object — a snapshot of its internal algorithmic state — through
-`get_State()` / `put_State()` (`ThinComputeInterface.h:1980-2018`).
+`get_State()` / `put_State()` (`ThinComputeInterface.h:1998-2050`).
 A `State` can be serialised to netCDF, stored, and later restored
 into a (compatible) `:Solver`, which serves three purposes:
 
@@ -142,22 +142,63 @@ of those knapsacks, which are independent and therefore
 parallelisable. The
 [`ParallelBundleSolver`](https://smspp.gitlab.io/smspp-project/df/d0d/_parallel_bundle_solver_8h.html)
 — the parallel variant of `BundleSolver` — exploits exactly this:
-it evaluates the per-facility `LagBFunction`s concurrently
-(through their `compute_async()`), gathers the linearizations, and
-drives the bundle method as usual.
+it evaluates the per-facility `LagBFunction`s concurrently,
+gathers the linearizations, and drives the bundle method as usual.
+The evaluations run on a fixed set of threads, started the first
+time they are needed and kept waiting between one evaluation and
+the next, so that no thread is created per evaluation; their number
+is the minimum between `intMaxThread` (the parameter of
+`ThinComputeInterface` that `BundleSolver` ignores) and the number
+of the hard components. The parameter `intParFrm` chooses how the
+results are consumed: in completion order (the fastest, but the
+trajectory of the algorithm then depends on the timing of the
+threads and is not reproducible), or in a fixed order, which makes
+the run deterministic, optionally processing exactly the same
+components as the sequential `BundleSolver` or evaluating all the
+components at each iteration.
 
 From the user's point of view, switching from serial to parallel
 solution of the Lagrangian dual is, once again, a *configuration
 change*: the `BlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)) names
 `ParallelBundleSolver` instead of `BundleSolver`, and sets the
-number of threads. The decomposition structure ([Chapter 12](12-sub-block.md#ch-12)), the
+number of threads (`intMaxThread`). The decomposition structure ([Chapter 12](12-sub-block.md#ch-12)), the
 `LagBFunction`s ([Chapter 14](14-lag-benders-bfunction.md#ch-14)), the recursive locking ([§17.1](17-parallel.md#sec-17-1)) and
 the asynchronous evaluation ([§17.2](17-parallel.md#sec-17-2)) do the rest; the surrounding
 user code does not change. This is the payoff the energy-system
 results in the slide decks rely on: thirty-seven scenarios solved
 on as many processes, each with a parallel bundle method inside.
 
-## 17.5 Idioms {#sec-17-5}
+## 17.5 Other parallel `Solver`s {#sec-17-5}
+
+The same pattern, independent sub-problems evaluated concurrently
+by a `:Solver` that holds their common ancestor, recurs in several
+`:Solver`s, which take the number of threads from `intMaxThread`
+(whose default gives a sequential run):
+
+- `BendersDecompositionSolver` ([§14.3](14-lag-benders-bfunction.md#sec-14-3)) evaluates the subproblems of
+  a round in parallel in its MILP regime, while in the convex one
+  the parallelism is that of the bundle-type master
+  (`ParallelBundleSolver`);
+- `PrimalProximalHeur` solves the components of its consensus
+  recovery in parallel;
+- `FrankWolfeSolver` runs the linear minimization oracles of its
+  sub-`Block`s in parallel, each on its own sub-`Block`, lending
+  its identity to their `:Solver`s ([§17.1](17-parallel.md#sec-17-1)) so that their locks
+  never contend;
+- `C05SumFunction` ([§13.5](13-function-family.md#sec-13-5)), which is a `Function` and not a
+  `:Solver`, can evaluate its members in parallel
+  (`set_members_at_once()`), possibly on the threads of whoever
+  drives it, which is how
+  `ParallelBundleSolver` evaluates the groups of components of
+  `BundleSolver`;
+- `BranchAndXSolver` ([§16.5](16-change.md#sec-16-5)) explores the enumeration tree with
+  several workers, each driving its own copy of the inner
+  `:Solver`s, so that applying the `Change`s needs no
+  synchronization, and can also run the `:Solver`s of a single
+  node concurrently (`intThreadForDifferentSolvers`), the
+  reduction of their results staying serial.
+
+## 17.6 Idioms {#sec-17-6}
 
 **Lock the nearest common ancestor.** To operate atomically on a
 set of `Block`s, do not lock them one by one (risking a deadlock
