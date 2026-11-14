@@ -52,29 +52,41 @@ algorithms that SMS++ implements and that are mentioned in the text.
    bundle-method theory behind
    `BundleSolver`, the engine of the Lagrangian dual (Chapters [13](13-function-family.md#ch-13)–[14](14-lag-benders-bfunction.md#ch-14)).
 
-8. T. L. Magnanti, R. T. Wong. *Accelerating Benders decomposition:
+8. A. M. Geoffrion. *Lagrangean relaxation for integer programming.*
+   Mathematical Programming Study **2** (1974), 82–114,
+   doi:10.1007/BFb0120690. The equality of the Lagrangian dual and of the
+   convexified relaxation (Theorem 14.2 and [Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
+
+9. T. L. Magnanti, R. T. Wong. *Accelerating Benders decomposition:
    algorithmic enhancement and model selection criteria.* Operations
    Research **29**(3) (1981), 464–484, doi:10.1287/opre.29.3.464. The
    Pareto-optimal Benders cuts, compared on the CFL in [Recipe R5](R5-cfl-benders.md#rec-R5).
 
-9. M. V. F. Pereira, L. M. V. G. Pinto. *Multi-stage stochastic
-   optimization applied to energy planning.* Mathematical Programming
-   **52** (1991), 359–375, doi:10.1007/BF01582895. Stochastic Dual
-   Dynamic Programming, the
-   archetype application of the polyhedral / Benders machinery
-   referenced in [Chapter 13](13-function-family.md#ch-13).
+10. M. V. F. Pereira, L. M. V. G. Pinto. *Multi-stage stochastic
+    optimization applied to energy planning.* Mathematical Programming
+    **52** (1991), 359–375, doi:10.1007/BF01582895. Stochastic Dual
+    Dynamic Programming, the archetype application of the polyhedral and
+    Benders machinery referenced in [Chapter 13](13-function-family.md#ch-13).
+
+## The programming language
+
+11. ISO/IEC 14882:2020. *Programming languages: C++.* International
+    Organization for Standardization, Geneva, 2020,
+    <https://www.iso.org/standard/79358.html>. The rules of invalidation
+    of the iterators of `std::vector` and `std::list` ([vector.modifiers],
+    [list.modifiers]) cited in [§4.2](04-block.md#sec-4-2).
 
 ## Serialisation
 
-10. R. Rew, G. Davis. *NetCDF: an interface for scientific data
+12. R. Rew, G. Davis. *NetCDF: an interface for scientific data
     access.* IEEE Computer Graphics and Applications **10**(4) (1990),
     76–82, doi:10.1109/38.56302. The serialisation format used
     throughout SMS++ ([Chapter 18](18-factories-netcdf.md#ch-18)).
 
 ## Funding acknowledgement
 
-11. **RESILIENT** — *Resilient Energy System Infrastructure Layouts for
-    Industry, E-Fuels and Network Transition* — a project of the Clean
+13. RESILIENT, *Resilient Energy System Infrastructure Layouts for
+    Industry, E-Fuels and Network Transition*, a project of the Clean
     Energy Transition (CET) Partnership, co-funded by the European
     Union under the Horizon Europe research and innovation programme,
     grant agreement no. 101069750

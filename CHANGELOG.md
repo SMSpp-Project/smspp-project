@@ -26,7 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the modules of the distribution; the File Format Manual describes the
   Solution and State files, the weights, the image in memory, the
   meta-configurations, the vector parameters and the stacked groups; the
-  links to ModuleTemplate point to the wiki page on creating a module
+  links to ModuleTemplate point to the wiki page on creating a module;
+  each property the manual claims (the delivery of the Modifications, the
+  consistency of the two faces of a Block, the Lagrangian dual against the
+  convexified relaxation, the validity of the Benders cuts, the undo of the
+  Changes, the locking, the bounds of the recipes) is stated as a lemma or
+  a theorem with its proof, and every example compiles against the headers
 
 - `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
   gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
