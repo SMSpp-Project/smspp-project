@@ -451,8 +451,8 @@ vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one featur
 
 The vcpkg port is not in the default registry of vcpkg but in the
 [SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry), whose README
-shows how a project routes `smspp` (and its dependencies `stopt`, `cadical`
-and `daqp`) to it.
+shows how a project routes `smspp` (and its dependencies `stopt`, `ablemon`,
+`cadical`, `daqp`, `piqp`, `qpmad` and `quadprog`) to it.
 
 On Ubuntu the framework is one package per module and one per tool, so that a
 project installs only what it uses: `libsmspp-<module>` holds a shared
@@ -768,7 +768,7 @@ of tests/BoxSolver).
 
 ## First steps
 
-Although sadly a proper User Manual is still missing, the
+Besides the [User Manual](#user-manual), the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
 first look at possible ways of using `SMS++`. In particular the three
 tests `LagrangianDualSolver_Box`, `MMCFBlock` and
