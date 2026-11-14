@@ -1,4 +1,4 @@
-# [Appendix D](D-concept-block-map.md#app-D) — Concept-to-Block map {#app-D}
+# Appendix D: concept-to-Block map {#app-D}
 
 The manual threads three running `Block`s through the whole of Part II
 and Part III, using whichever one shows a given concept most clearly:
@@ -8,8 +8,7 @@ and Part III, using whichever one shows a given concept most clearly:
 with four formulations, a non-trivial `R3Block`, and a hidden
 `BendersBFunction`). This appendix is the cross-index: for each
 concept, it names the `Block` (or other class) that carries the worked
-example and the section(s) where the example is developed. It is a
-navigation aid, not a substitute for the chapters themselves.
+example and the sections where the example is developed.
 
 | Concept | Illustrated mainly by | Section(s) |
 |---|---|---|
@@ -56,7 +55,7 @@ row, and the abstract bases of a module (e.g., `UnitBlock`,
 
 | Module | `:Block`s | `:Solver`s |
 |------|----------|----------|
-| `SMS++` (core) | `AbstractBlock`, `PolyhedralFunctionBlock`, `MasterProblemBlock`, `BendersBlock` | `UpdateSolver`, `BoxSolver`, `FakeSolver` |
+| `SMS++` (core) | `AbstractBlock`, `PolyhedralFunctionBlock`, `MasterProblemBlock`, `BendersBlock`, `LagBFunction` and `BendersBFunction` (also `C05Function`s) | `UpdateSolver`, `BoxSolver`, `FakeSolver` |
 | `MCFBlock` | `MCFBlock` | |
 | `MCFClassSolver` | | `MCFSolver` (a template over the `MCFClass` solvers) |
 | `MCFLemonSolver` | | `MCFLemonSolver` |
@@ -72,7 +71,7 @@ row, and the abstract bases of a module (e.g., `UnitBlock`,
 | `SDDPBlock` | `SDDPBlock` | `SDDPSolver`, `ParallelSDDPSolver`, `SDDPGreedySolver`, `SDDPSimulationSolver` |
 | `ScenarioReductionSolver` | | `ScenarioReductionSolver`, `CSSCScenarioReductionSolver` |
 | `LukFiBlock` | `LukFiBlock` | |
-| `SVMBlock` | `SVMBlock`, `SVCBlock`, `SVRBlock` | `SMOSolver`, `LIBSVMSolver`, `LIBLINEARSolver` |
+| `SVMBlock` | `SVCBlock`, `SVRBlock` | `SMOSolver`, `LIBSVMSolver`, `LIBLINEARSolver` |
 | `SingleFlowDCRBlock` | `SingleFlowDCRBlock`, `MultiFlowDCRBlock` | `SingleFlowDCRBendersSolver` |
 | `SATBlock` | `SATBlock` | `CaDiCaLSATSolver`, `MiniSATSolver` |
 | `SatellitesBlock` | `SatelliteBlock`, `SingleTargetBlock`, `MultiTargetBlock`, `MultiTargetBlockv2`, `ConstellationBlock`, `DiscreteSatelliteBlock`, `DiscreteConstellationBlock` | `SatelliteSolver`, `DiscreteSatelliteSolver` |
@@ -82,6 +81,6 @@ row, and the abstract bases of a module (e.g., `UnitBlock`,
 | `BDMinQuadSolver` | | `BDMinQuadSolver` (a `:Solver` of the `MasterProblemBlock`) |
 | `SubGradSolver` | | `SubGradSolver` |
 | `FrankWolfeSolver` | | `FrankWolfeSolver`, `IntegralityBarrierSolver` |
-| `LagrangianDualSolver` | | `LagrangianDualSolver`, `PrimalProximalHeur`, `LagrangianDualRelaxationSolver`, `LagrangianDualRelaxationSolverML` |
+| `LagrangianDualSolver` | | `LagrangianDualSolver`, `PrimalProximalHeur`, `LagrangianDualRelaxationSolver`, `LagrangianDualRelaxationSolverML`, `FakeCDASolver` (the default inner `Solver`, which does nothing) |
 | `BendersDecompositionSolver` | | `BendersDecompositionSolver` |
 | `BranchAndXSolver` | | `BranchAndXSolver` |
