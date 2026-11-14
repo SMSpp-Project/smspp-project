@@ -20,8 +20,8 @@ example and the sections where the example is developed.
 | Physical vs abstract representation | `MCFBlock`, `BinaryKnapsackBlock` | [§7](07-physical-abstract.md#ch-7) |
 | `Modification`, abstract `Modification`, the Janus discipline | `MCFBlock`, `BinaryKnapsackBlock` | [§8](08-modification-janus.md#ch-8) |
 | `Solution` (`Block`-specific, physical and abstract) | `MCFSolution`, `BinaryKnapsackSolution` | [§9](09-solution.md#ch-9) |
-| `R3Block` (non-trivial reformulation) | CFL → `MCFBlock` flow relaxation | [§10](10-r3block.md#ch-10), [R3](R3-cfl-three-ways.md#rec-R3) |
-| Keeping an `R3Block` in sync (`UpdateSolver`) | CFL → `MCFBlock` flow relaxation | [§10.6](10-r3block.md#sec-10-6), [R3](R3-cfl-three-ways.md#rec-R3) |
+| R3 Block (non-trivial relaxation) | CFL, `MCFBlock` flow relaxation | [§10](10-r3block.md#ch-10), [R3](R3-cfl-three-ways.md#rec-R3) |
+| Keeping an R3 Block in sync (`UpdateSolver`) | CFL, `MCFBlock` flow relaxation | [§10.6](10-r3block.md#sec-10-6), [R3](R3-cfl-three-ways.md#rec-R3) |
 | `Configuration` tree, `[C/O/R]BlockConfig` | CFL formulations | [§11](11-configuration.md#ch-11) |
 | Sub-`Block` composition and recursive `Modification` flow | CFL / KskForm with `BinaryKnapsackBlock` sub-`Block`s | [§12](12-sub-block.md#ch-12), [R4](R4-cfl-lagrangian.md#rec-R4) |
 | The `Function` family (C05/C15, linear / quadratic / polyhedral) | `MCFBlock`, `BinaryKnapsackBlock` | [§13](13-function-family.md#ch-13) |
