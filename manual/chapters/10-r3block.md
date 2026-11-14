@@ -9,7 +9,7 @@
 A central design objective of SMS++ is that a model may need to be
 *transformed* for algorithmic reasons, producing a different
 `Block` that is related to the original in one of three ways
-([Source: `Block.h:67-85`]):
+([Source: `Block.h:67-84`]):
 
 - a **Reformulation** — a different `Block` that encodes a problem
   whose optimal solutions are optimal also for the original
@@ -30,7 +30,9 @@ Restriction). The set of R3 Blocks a given `Block` supports is
 decided by the `Block` itself; the base `Block` class provides no
 general R3 Block. A concrete `:Block` that wishes to support one
 must implement it explicitly — there is no automatic mechanism
-("forget 'auto' here", as the slide decks put it).
+("forget 'auto' here", as the slide decks put it), with the one
+exception of the copy of the abstract representation that an
+`AbstractBlock` can make of any `Block` ([§10.4](10-r3block.md#sec-10-4)).
 
 ## 10.2 Why an R3 Block, and not a copy of the `Variable`s {#sec-10-2}
 
@@ -56,7 +58,11 @@ and one of its R3 Blocks.
 
 All of the following are virtual methods of `Block`; a concrete
 `:Block` overrides the ones it chooses to support and leaves the
-rest to throw.
+rest to throw (the default `map_*_solution` throw unless the R3
+Block is a mirror, [§10.4](10-r3block.md#sec-10-4); the default `map_*_Modification`
+hand a `Modification` of a sub-`Block` to the same sub-`Block`,
+and return `false`, i.e., "not mapped", for one of the `Block`
+itself).
 
 - `get_R3_Block(Configuration* r3bc, Block* base, Block* father)`
   produces an R3 Block. The `Configuration*` selects *which* R3
@@ -120,7 +126,7 @@ that the R3 Block is correctly nested in the surrounding tree.
 (`Block` is abstract and cannot itself be instantiated, which is
 why the base-class default implementation requires a non-null
 `base` whenever the `Block` has inner `Block`s: it has no way to
-allocate the right concrete type otherwise; `Block.h:4761-4775`.)
+allocate the right concrete type otherwise; `Block.h:5123-5155`.)
 
 ### Dynamic `Variable`s and `Constraint`s in an R3 Block
 
@@ -150,7 +156,7 @@ pricing procedures. These are surely available to the *original*
 `Block`, but may or may not be available to the *R3* `Block`. If
 they are, the R3 Block may generate dynamic stuff independently
 and have it "imported back" into the original via
-`map_back_Modification` (`Block.h:4750-4759`). If they are not,
+`map_back_Modification` (`Block.h:5087-5121`). If they are not,
 dynamic `Variable`s/`Constraint`s can only be generated on the
 original `Block` and then, where supported, pushed forward to the
 R3 Block via `map_forward_Modification`. A `:Block` author who
@@ -173,9 +179,48 @@ original is a genuine value-by-value transfer, not a pointer
 aliasing.
 
 For `MCFBlock`, `get_R3_Block(nullptr)` produces a copy
-(`MCFBlock.h:1096-1105`); `map_back_solution` / `map_forward_solution`
+(`MCFBlock.h:1220-1229`); `map_back_solution` / `map_forward_solution`
 move the flows, potentials and reduced costs between the two,
 with a `solc` selecting "primal only" / "dual only" / "both".
+
+### A copy for every `Block`: the mirror
+
+A `:Block` that implements no R3 Block at all still has one copy
+available, made not by the `:Block` itself but by an
+`AbstractBlock` ([Source: `AbstractBlock.h`, "Mirroring the
+abstract representation of another Block"]).
+`AbstractBlock::mirror(Block* blck)` builds the (empty)
+`AbstractBlock` as a copy of the *abstract representation* of
+`blck`: one `ColVariable` per `ColVariable`, one `Constraint` per
+`Constraint`, the `Objective`, and one inner `AbstractBlock` per
+sub-`Block`, recursively, the groups keeping their shape and their
+order; a `Variable` living outside the mirrored subtree (one that a
+`Constraint` coupling `blck` to the rest is written in) is not
+copied but shared. What cannot be written on other `Variable`s —
+any `Function` but a `LinearFunction` and a `DQuadFunction` — is
+skipped and recorded in `get_mirror_issues()`: an empty list means
+that the copy is faithful, a nonempty one that it is a
+*Relaxation*, and the caller decides whether that is of any use.
+The weights of the `Objective` and of the `Variable`s of `blck`
+and of its sub-`Block`s are carried over.
+
+The copy knows which object of the original each of its own
+corresponds to (`mirror_of()`, `mirrored_of()`), and the base
+`Block` class dispatches `map_back_solution()`,
+`map_forward_solution()` and `map_forward_Modification()` to it
+whenever the R3 Block it is given is a mirror of itself
+(`mirror_write()`, `mirror_read()` and
+`mirror_forward_Modification()`; `mirror_write_duals()` copies the
+dual values back). Hence a mirror is an R3 Block of *any* `Block`,
+an `UpdateSolver` ([§10.6](10-r3block.md#sec-10-6)) attached to the original keeps it in sync
+like any other, and the original has not had to implement
+anything. `mirror_forward_Modification()` follows the changes of
+coefficients, sides, bounds, fixing, integrality, relaxing and
+enforcing, the sense of the `Objective`, and dynamic `Constraint`s
+and `ColVariable`s added (and `Constraint`s removed); an
+`NBModification`, or a dynamic `Variable` removed, require
+`mirror()` to be called again on a fresh `AbstractBlock`, and
+`false` is returned, meaning "the copy is stale".
 
 ## 10.5 The non-trivial case: CFL's MCF flow relaxation {#sec-10-5}
 
@@ -183,7 +228,7 @@ The instructive R3 Block is the one offered by
 `CapacitatedFacilityLocationBlock`: besides the copy, it can
 produce a **`MCFBlock` that represents the continuous flow
 relaxation** of the CFL problem
-(`CapacitatedFacilityLocationBlock.h:1048-1099`). The
+(`CapacitatedFacilityLocationBlock.h:1100-1169`). The
 `Configuration*` selects it:
 
 - `SimpleConfiguration<int>(0)` (or `nullptr`): the copy, another
@@ -196,13 +241,20 @@ relaxation** of the CFL problem
 The flow relaxation is a genuine *Relaxation* in the R3 sense: its
 optimal value is a valid lower bound on the CFL optimum, and it is
 much cheaper to solve (a min-cost flow rather than a MILP). The
-graph it builds has `f_n_facilities + f_n_customers + 1` nodes —
-one per facility, one per customer, plus a super-source — and
-`f_n_facilities * (f_n_customers + 1)` arcs: a "facility arc" from
+graph it builds has `f_n_facilities + f_n_customers + 2` nodes —
+one per facility, one per customer, a super-source and a
+"constant" node — and at least
+`f_n_facilities * (f_n_customers + 2)` arcs: a "facility arc" from
 the super-source to each facility (capacity = facility capacity,
-cost = fixed cost / capacity) and a "transportation arc" from each
+cost = fixed cost / capacity, or 0 if the fixed cost is paid
+whatever the flow, i.e., the facility is fixed-open or its fixed
+cost is negative), a "transportation arc" from each
 facility to each customer (capacity infinite, cost = unitary
-transportation cost). When the `(2)` variant is requested, an
+transportation cost), and, last, one arc per facility from the
+super-source to the constant node, with capacity 1, that the
+deficits force to carry one unit and that carries the constant
+that the facilities paying their fixed cost anyway add to the
+objective. When the `(2)` variant is requested, an
 extra arc from the super-source to each customer, with very large
 cost, absorbs any unmet demand and so guarantees feasibility.
 
@@ -240,7 +292,7 @@ produce it, an options bit-mask (forward vs back; map vs pass
 through unchanged; restrict to `Modification`s concerning the
 `Block` itself vs its sub-`Block`s; restrict by
 `concerns_Block()`), and the `issuePMod` / `issueAMod` values to
-pass on to the mapping methods (`UpdateSolver.h:79-129`).
+pass on to the mapping methods (`UpdateSolver.h:76-125`).
 
 The canonical idiom — used verbatim in the CFL test ([Recipe R3](R3-cfl-three-ways.md#rec-R3)) —
 is: build the original `Block`, produce its R3 Block via
@@ -287,7 +339,7 @@ int main()
   mcfs->compute();                       // solve the (cheap) relaxation
   cfl.map_back_solution( R3B , & r3bc ); // bring its solution into cfl
   // ... use the (fractional) relaxation solution to adjust cfl's
-  //     facility costs (slope scaling); each chg_cost on cfl is
+  //     facility costs (slope scaling); each chg_facility_cost on cfl is
   //     automatically forwarded to the MCFBlock by `upd` ...
  }
 
@@ -302,7 +354,7 @@ The salient points: `get_R3_Block` returns an independent
 `MCFBlock` (its `Variable`s are not those of `cfl`);
 `map_back_solution` is what brings the relaxation's solution into
 `cfl`; and the `UpdateSolver` removes the need to manually
-forward each cost change — a `chg_cost` on `cfl` reaches the
+forward each cost change — a `chg_facility_cost` on `cfl` reaches the
 `MCFBlock` through `map_forward_Modification` without any explicit
 call. [Recipe R3](R3-cfl-three-ways.md#rec-R3) develops this into a complete, runnable program
 and compares it with the alternative of using a
