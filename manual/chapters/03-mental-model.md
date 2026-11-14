@@ -132,27 +132,30 @@ them is attached. The methods that build them are
 `generate_objective()`. Each accepts a `Configuration` that gates
 optional parts of the construction. [Chapter 7](07-physical-abstract.md#ch-7) makes this precise.
 
-> **Status — under development.** In the current implementation the
-> `Variable`s of the abstract representation are an exception to the
-> "on demand" rule: they are always materialised, because every
-> `:Solver` reports its solution by *writing into* the `Variable`s of
-> the `Block`. This means that even a `:Block` solved exclusively by
-> a specialised `:Solver` that reads only the physical representation
-> still has to construct the abstract `Variable`s, just so that the
-> `:Solver` has somewhere to write the solution. The framework
-> framing — "physical and abstract coexist, neither is privileged" —
-> is therefore not, today, a faithful description of the
-> implementation: at present the abstract `Variable`s are privileged
-> and unavoidable.
+> **Status — beta.** The `Variable`s of the abstract representation
+> used to be an exception to the "on demand" rule: they were always
+> materialised, because every `:Solver` reported its solution by
+> *writing into* the `Variable`s of the `Block`, so that even a
+> `:Block` solved exclusively by a specialised `:Solver` that reads
+> only the physical representation had to construct the abstract
+> `Variable`s, just so that the `:Solver` had somewhere to write the
+> solution.
 >
-> The intended resolution, expected in a future revision, is to let
-> a `:Solver` return a `Solution` object directly and to let the
-> `:Block` *adopt* that `Solution` instead of writing it into the
-> abstract `Variable`s. Once that mechanism is in place, a `:Block`
-> attached to a specialised `:Solver` only will be able to skip
-> constructing the abstract `Variable`s altogether. This is one of
-> several examples in the manual where the API is not yet fully
-> settled (see also [Chapter 16](16-change.md#ch-16) on `Change`).
+> The resolution is `Solver::get_Solution()`, which returns a
+> `Solution` object directly. Its default implementation still goes
+> through the `Variable`s (it calls `get_var_solution()` and then
+> `Block::get_Solution()`), but a "physical" `:Solver` re-implements
+> it to fill the `:Solution` out of its own data structures, without writing
+> into the `Variable`s and without `lock()`-ing the `Block`, and says
+> so by returning `true` from `is_get_Solution_physical()`; this is
+> the case of `MCFSolver`, `MCFLemonSolver`, the `:Solver`s of
+> `BinaryKnapsackBlock` derived from `BinaryKnapsackSolver`,
+> `ThermalUnitDPSolver`, `ThermalUnitExtDPSolver` and the `:Solver`s
+> of `SVMBlock`. A `:Block` attached to such `:Solver`s only can
+> therefore skip constructing the abstract `Variable`s altogether.
+> The mechanism is not yet used uniformly across the catalogue, and
+> this is one of several examples in the manual where the API is not
+> yet fully settled (see also [Chapter 16](16-change.md#ch-16) on `Change`).
 
 Keeping the two representations in sync, when one is modified
 through one face and a `:Solver` is reading the other, is non-trivial
@@ -172,10 +175,12 @@ framework's internal machinery exists to make them efficient.
 - **Build.** The `Block` is constructed and populated from data.
   The data may come from in-memory arrays (typically passed to a
   `:Block`-specific `load(...)` overload), from a text file (passed
-  to `load(std::istream&)`), or from a netCDF group (passed to
-  `deserialize(netCDF::NcGroup)`). Of these three routes, only the
+  to `load(std::istream&, char)`), or from a netCDF group (passed to
+  `deserialize(const netCDF::NcGroup&)`). Of these three routes, only the
   netCDF one is supported uniformly across the `:Block` catalogue;
-  the in-memory and text-file overloads exist only for those
+  the in-memory overloads exist, and the text-file one (which every
+  `:Block` must declare, since it is pure virtual in `Block`) does
+  something meaningful, only for those
   `:Block` classes (such as `MCFBlock` and `MMCFBlock`) that have a
   historically established input format and for which it made sense
   to support it. For most other `:Block` classes the canonical route
@@ -187,8 +192,11 @@ framework's internal machinery exists to make them efficient.
   via a `Configuration` tree that mirrors the `Block` tree. The
   configuration can be loaded from a text file or from netCDF.
 - **Attach.** One or more `:Solver` are registered with the `Block`.
-  Registration is a constant-time operation; the `Solver` does not
-  consume the `Block` data until its `compute()` method is called.
+  Registration calls the `Solver`'s `set_Block()`, in which a
+  `:Solver` typically reads the `Block` data it needs (a
+  general-purpose one also has the abstract representation generated
+  there and loads it into its back-end); the computation proper does
+  not start until its `compute()` method is called.
 - **Solve.** A registered `:Solver` is asked to `compute()`. It
   consumes the `Block` data (physical or abstract, as appropriate),
   runs its algorithm, and produces a return code together with a
@@ -252,7 +260,14 @@ dynamic programming procedure on the integer part of the problem
 combined with an exact greedy algorithm for the continuous part. The
 algorithm requires integer weights (any non-integer weight raises an
 exception); capacities and profits can be `double`. This is the SMS++
-example of a *natively-implemented* specialised `:Solver`.
+example of a *natively-implemented* specialised `:Solver`. The module
+also carries other native `:Solver`s derived from
+`BinaryKnapsackSolver`: an exact *core* dynamic program
+(`CoreDPBinaryKnapsackSolver`), which enumerates only the
+non-dominated states around the break item and is orders of
+magnitude faster on hard instances, those that hand its core to the
+external RECORD and COMBO codes, and a greedy one for the continuous
+relaxation (`GreedyRelaxationBinaryKnapsackSolver`).
 
 `BinaryKnapsackBlock` is also the reference example of the new beta
 **`Change`** family
@@ -296,6 +311,11 @@ same problem, selected via a single integer in its
   vertical-linearization machinery when the inner sub-problem is
   infeasible).
 
+A further bit of the same integer makes the transportation variables
+`X[i,j]` integer (the *unsplittable* problem); it is only allowed with
+the natural and the knapsack formulations, since the Benders
+sub-problem requires the splittable case.
+
 In addition, `CapacitatedFacilityLocationBlock` produces a
 non-trivial `R3Block`: besides the trivial copy, it can produce an
 `MCFBlock` that represents the *continuous flow relaxation* of CFL.
@@ -324,5 +344,5 @@ be ready to write a new `:Block` ([Appendix A](A-writing-block.md#app-A)) or to 
 the Recipes in Part III.
 
 A small but useful summary table appears at the end of the manual as
-back matter; the reader who wants to know which concept is
+[Appendix D](D-concept-block-map.md#app-D); the reader who wants to know which concept is
 illustrated by which `:Block` and in which chapter can consult it.
