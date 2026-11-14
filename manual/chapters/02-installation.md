@@ -13,33 +13,59 @@ consulting them.
 The core SMS++ library requires a C++-20 compiler (a recent
 `g++`, `clang++`, or MSVC), [Boost](https://www.boost.org), the
 C++ interface to [netCDF](https://www.unidata.ucar.edu/software/netcdf/)
-(`netCDF-cxx4`), and [Eigen](https://eigen.tuxfamily.org).
+(`netCDF-cxx4`), and [Eigen](https://eigen.tuxfamily.org); the
+CMake build also fetches the header-only
+[FastFlow](https://github.com/fastflow/fastflow) at configure time,
+and therefore needs the network unless a local copy is given.
 
 Beyond the core, individual modules pull in optional dependencies,
 each of which can be omitted if the corresponding functionality is
 not needed:
 
 - the `MILPSolver` family wraps the MIP back-ends CPLEX, Gurobi,
-  [SCIP](https://scipopt.org/) and [HiGHS](https://highs.dev) (the
-  last two open-source);
+  MOSEK, [SCIP](https://scipopt.org/) and [HiGHS](https://highs.dev)
+  (the last two open-source), the interior-point solver PIPS-IPM++
+  for LPs, and the open-source convex QP solvers DAQP, qpOASES,
+  ProxQP, PIQP, OSQP, qpmad, HPIPM, quadprog, Clarabel and PermonQP;
 - `MCFSolver` wraps the legacy
   [MCFClass](https://github.com/frangio68/Min-Cost-Flow-Class)
   algorithms, `MCFLemonSolver` wraps
   [abLEMON](https://github.com/dmeoli/abLEMON), the maintained fork of
   [LEMON](https://lemon.cs.elte.hu);
 - `SDDPSolver` wraps the SDDP engine of the
-  [StOpt](https://gitlab.com/stochastic-control/StOpt) project.
+  [StOpt](https://gitlab.com/stochastic-control/StOpt) project;
+- the `:Solver`s of `SATBlock` wrap CaDiCaL and MiniSat, those of
+  `SVMBlock` LIBSVM and LIBLINEAR, two of those of
+  `BinaryKnapsackBlock` RECORD and COMBO, and `BundleSolverML` uses
+  Torch.
 
 For a first installation, the project provides "zero-waste"
 scripts that fetch and install the dependencies in default
-locations: `INSTALL.sh` (Linux / macOS) and `INSTALL.ps1`
-(Windows), each accepting `--without-<dependency>` flags
-(`--without-cplex`, `--without-gurobi`, `--without-scip`,
-`--without-highs`, `--without-stopt`, `--without-lemon`,
-`--without-smspp`) to skip the parts not wanted. The exact
-invocations are in the project `README.md`; the Wiki's
+locations: `INSTALL.sh` (Linux / macOS), which accepts
+`--without-<dependency>` flags (`--without-cplex`,
+`--without-gurobi`, `--without-scip`, `--without-highs`,
+`--without-stopt`, `--without-lemon`, `--without-smspp`, ...), and
+`INSTALL.ps1` (Windows), which accepts the corresponding
+`-without<Dependency>` switches (`-withoutCplex`, `-withoutGurobi`,
+`-withoutSCIP`, `-withoutSMSpp`, ...; most of the open-source
+dependencies come there from vcpkg and have no switch), to skip the
+parts not wanted. Run again, the scripts bring up to date what they
+installed. The exact invocations, and the full table of the options,
+are in the project `README.md`; the Wiki's
 [requirements guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements)
 has the detail.
+
+SMS++ is also distributed ready-made: as Ubuntu packages from the PPA
+`ppa:smspp-project/smspp` (one package per module and per tool, plus
+the metapackage `smspp-project`), on conda-forge (`smspp-project`), in
+the Homebrew tap `SMSpp-Project/smspp`, and as a vcpkg port (one
+feature per module) in the
+[SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry); the
+recipes for Conan, Spack, Nix, the AUR, MSYS2 and xmake are in the
+umbrella's `packaging/` directory. The packages carry only some of
+the back-ends of `MILPSolver` (HiGHS, DAQP and qpOASES in all of
+them): CPLEX, Gurobi and MOSEK cannot be redistributed, and a build
+against them, or against SCIP, is a build from the sources.
 
 ## 2.2 The umbrella project and its modules {#sec-2-2}
 
@@ -55,7 +81,13 @@ composite `:Block`s (`MCFBlock`, `BinaryKnapsackBlock`,
 `SDDPBlock`, `StochasticBlock`, `TwoStageStochasticBlock`,
 `InvestmentBlock`, ...), the `:Solver`s (`MILPSolver`,
 `LagrangianDualSolver`, `BundleSolver`, ...), and the shared
-`tests` and `tools` repositories. Cloning the umbrella (with its
+`tests` and `tools` repositories. It also carries, as sub-modules
+that are initialized only on request, the Python packages `pySMSpp`
+(the Python interface of SMS++, which builds the netCDF files of
+SMS++ models, runs the SMS++ tools on them and reads their results
+back) and `pypsa2smspp` (which translates a PyPSA energy-system
+network into the corresponding SMS++ model); CMake does not build
+them, and they are installed by `pip`. Cloning the umbrella (with its
 sub-modules) is the recommended way to obtain a coherent set.
 
 ## 2.3 Two build systems, two use cases {#sec-2-3}
@@ -74,7 +106,11 @@ never thinks about it again. The standard interactive front-end
 makes the configuration step pleasant: it presents the available
 options — which optional solver interfaces to enable, where
 dependencies live, debug vs release — as a menu to toggle, without
-hand-editing any file. Several configuration options are
+hand-editing any file. Each module is switched on and off by its
+own `BUILD_<module>` option (e.g., `BUILD_UCBlock`,
+`BUILD_MILPSolver`), which is on by default for every sub-module
+that is checked out and which also switches on the modules it
+requires. Several configuration options are
 documented in the Wiki's
 [customisation page](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-configuration).
 
@@ -103,7 +139,7 @@ brings in the core — **and include every other module through its
 `makefile-s`.** This keeps the core's headers and objects in the
 build exactly once while letting an executable compose any set of
 modules. The existing testers (`MCFClassSolver/test`,
-`tests/CapacitatedFacilityLocation`, ...) are the reference
+`tests/CapacitatedFacilityLocationBlock`, ...) are the reference
 examples to copy from.
 
 In both build systems, external dependencies are found
@@ -125,14 +161,14 @@ that `:Block`s and `:Solver`s are independent). This is precisely
 why `tests/` is a **separate repository**: the testers that need
 both a `:Block` and a `:Solver` from different modules live there,
 not inside any one module. Among the running examples,
-`tests/CapacitatedFacilityLocation` is the one used by Recipes [R3](R3-cfl-three-ways.md#rec-R3)–[R5](R5-cfl-benders.md#rec-R5).
+`tests/CapacitatedFacilityLocationBlock` is the one used by Recipes [R3](R3-cfl-three-ways.md#rec-R3)–[R5](R5-cfl-benders.md#rec-R5).
 
-Some modules, however, *do* carry their own tester under a local
-`test/` directory — namely those that bundle a `:Solver` and so are
-self-contained: `MCFClassSolver` (whose `MCFSolver` solves an
-`MCFBlock`), `BinaryKnapsackBlock` (with
-`DPBinaryKnapsackSolver`), `CapacitatedFacilityLocationBlock`, and
-`SDDPBlock`. Building and running one of these is the quickest way
+Most modules, however, *do* carry their own tester under a local
+`test/` directory, and in particular those that bundle a `:Solver`
+and so are self-contained: `MCFClassSolver` (whose `MCFSolver`
+solves an `MCFBlock`), `BinaryKnapsackBlock` (with
+`DPBinaryKnapsackSolver`), and `CapacitatedFacilityLocationBlock`.
+Building and running one of these is the quickest way
 to confirm that the toolchain, the dependencies and the paths are
 all in order. The `MCFClassSolver/test` tester — the runnable
 counterpart of [Recipe R1](R1-mcf.md#rec-R1) — is a good first target: it builds the
