@@ -35,6 +35,7 @@ using namespace SMSpp_di_unipi_it;
 static void solve_and_report( BinaryKnapsackBlock & bkb , Solver * s )
 {
  if( s->compute() != Solver::kOK ) { std::cout << "not solved\n"; return; }
+ s->get_var_solution();                     // write x in the Block
  std::cout << "objective = " << bkb.get_objective_value() << " ; x = (";
  for( BinaryKnapsackBlock::Index i = 0 ; i < bkb.get_NItems() ; ++i )
   std::cout << ( i ? "," : "" ) << bkb.get_x( i );
@@ -49,7 +50,13 @@ int main()
  const std::vector< double > P = { 3.0 , 4.0 , 5.0 , 1.0 };  // profits
  bkb.load( 4 , /* capacity = */ 5.0 , W , P );   // maximization by default
 
+ // the Variable where the solution is written, and the Objective
+ // that get_objective_value() computes
+ bkb.generate_abstract_variables();
+ bkb.generate_objective();
+
  auto * solver = new DPBinaryKnapsackSolver();
+ solver->set_par( DPBinaryKnapsackSolver::dblReopt , 1.0 );  // keep all labels
  bkb.register_Solver( solver );
 
  // ---- first solve ----
@@ -76,9 +83,13 @@ int main()
 - `DPBinaryKnapsackSolver` is a *native* SMS++ specialised solver
   ([Chapter 6](06-solver.md#ch-6)): a dynamic-programming recursion over the items, no
   external dependency. It reads the physical representation, so —
-  as in R1 — no `generate_abstract_*()` call is needed, and the
-  solution is read back through the `Block`'s accessors
-  `get_objective_value()` / `get_x(i)`.
+  as in R1 — it needs no abstract representation to solve; but, as
+  in R1, the solution that `get_var_solution()` writes goes into the
+  `ColVariable`s of the `Block`, and `get_objective_value()` computes
+  its `Objective`, so these are generated before the solution is
+  read back through the `Block`'s accessors `get_objective_value()`
+  / `get_x(i)` (without them, `get_x(i)` throws and
+  `get_objective_value()` returns $+\infty$).
 - `chg_profit(8.0, 2)` changes the profit of item 2 in the
   physical representation and issues the corresponding
   `BinaryKnapsackBlockMod` ([Chapter 8](08-modification-janus.md#ch-8)). Because the solver is
@@ -89,7 +100,13 @@ int main()
   rebuilding from scratch. The
   `DPBinaryKnapsackSolver` exposes a `dblReopt` parameter
   (`DPBinaryKnapsackSolver.h`) governing how aggressively it
-  reoptimizes. This is the recipe-scale instance of the
+  reoptimizes: it decides how many of the intermediate label sets of
+  the recursion are stored, and the second `compute()` restarts from
+  the last stored one before the first changed item. With the
+  default `dblReopt = 0` only the final labels are kept, so a change
+  of item 2 restarts the recursion from the first item; with
+  `dblReopt = 1`, as set above, all are kept and the recursion
+  restarts from item 2. This is the recipe-scale instance of the
   reoptimization theme that, at scale, lets a `BundleSolver`
   reuse its bundle across changes to an inner `Block` ([Chapter 13](13-function-family.md#ch-13),
   [Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
