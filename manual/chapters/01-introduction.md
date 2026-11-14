@@ -6,7 +6,7 @@ SMS++ is a C++-20 software framework for *structured* mathematical
 optimization, designed primarily for researchers and practitioners who
 need to build, combine and solve mathematical models in which the
 problem structure is exploited algorithmically rather than ignored.
-The version covered by this manual is **0.7.1**, released in November
+The version covered by this manual is **0.8.0**, released in November
 2026, and is distributed under the GNU Lesser General Public Licence
 v3.0.
 
@@ -64,9 +64,10 @@ change made via either representation produces the appropriate
 `Modification` notification with the data needed to *apply* the
 change to a different copy of the `Block` and, if requested, to
 *undo* it. **Status — beta**: only a small number of `:Change` classes
-exist at version 0.7.1 (in particular for
+exist at version 0.8.0 (in particular for
 [`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html)
-and `SATBlock`),
+and `SATBlock`, plus the core's `AbstractChange`, which changes the
+abstract representation of any `Block`),
 and the interface is subject to change.
 
 The framework supports *algorithmic reformulation* of a `Block`
@@ -90,16 +91,22 @@ mixed-integer binary knapsack (`BinaryKnapsackBlock`), unit
 commitment in its many flavours (`UCBlock`, `ThermalUnitBlock`,
 `BatteryUnitBlock`, `IntermittentUnitBlock`, `DCNetworkBlock`,
 `SlackUnitBlock`), stochastic multi-stage programs (`SDDPBlock`,
-`StochasticBlock`, `TwoStageStochasticBlock`), strategic investment
-(`InvestmentBlock`), and several others. Existing `:Solver` classes
+`StochasticBlock`, `TwoStageStochasticBlock`,
+`MultiStageStochasticBlock`), strategic investment
+(`InvestmentBlock`), and several others (e.g., support vector machines
+in `SVMBlock`, SAT and weighted MaxSAT in `SATBlock`, hierarchical
+quadratic programs in `HQPBlock`). Existing `:Solver` classes
 include wrappers to external libraries (`MCFSolver` wrapping
 `MCFClass`, `MCFLemonSolver` wrapping abLEMON, the `MILPSolver` family
-wrapping CPLEX, Gurobi, HiGHS and SCIP, `SDDPSolver` wrapping StOpt),
+wrapping CPLEX, Gurobi, MOSEK, HiGHS, SCIP and a number of convex QP
+solvers, `SDDPSolver` wrapping StOpt),
 SMS++-native specialised solvers
 (`DPBinaryKnapsackSolver`, `ThermalUnitDPSolver`,
 `SDDPGreedySolver`), and SMS++-native generic structure-exploiting
 solvers (`LagrangianDualSolver` and its derived `PrimalProximalHeur`,
-`BundleSolver` and its parallel variant `ParallelBundleSolver`).
+`BundleSolver` and its parallel variant `ParallelBundleSolver`,
+`SubGradSolver`, `FrankWolfeSolver`, `BendersDecompositionSolver`,
+`BranchAndXSolver`).
 
 This manual focuses on the framework, not on the catalogue. Three
 `:Block` are used pervasively as worked examples — `MCFBlock`,
@@ -138,7 +145,7 @@ in this scenario, however, the framework's idioms and the role of
 configuration are not always intuitive, and reading at least Part I
 of this manual is recommended.
 
-SMS++ is **not interface-stable**. Version 0.7.1 is the current
+SMS++ is **not interface-stable**. Version 0.8.0 is the current
 public release; the framework is under active development and a
 non-negligible amount of further evolution is expected, including
 changes that may not preserve backward compatibility. Concrete
@@ -150,8 +157,8 @@ flag.
 
 SMS++ is **not bundled with one solver**. The framework provides its
 own native specialised solvers, but it also relies on wrappers to a
-range of external libraries: CPLEX, Gurobi, HiGHS and SCIP (through
-the
+range of external libraries: CPLEX, Gurobi, MOSEK, HiGHS, SCIP and
+several convex QP solvers (through the
 [`MILPSolver`](https://smspp.gitlab.io/smspp-project/d7/d97/class_s_m_spp__di__unipi__it_1_1_m_i_l_p_solver.html)
 family); `MCFClass` and abLEMON for min-cost flow; StOpt for
 stochastic dual dynamic programming. The user chooses which of these
@@ -236,10 +243,12 @@ with Benders cuts emitted via a user-cut callback. Each recipe is
 three to five pages, lists the concepts used, gives the full code,
 walks through it line by line, and reports expected output.
 
-**Part IV — Developer's Guide** (Appendices [A](A-writing-block.md#app-A)–[C](C-writing-modification.md#app-C)) is the manual for
+**Part IV — Developer's Guide** (Appendices [A](A-writing-block.md#app-A)–[D](D-concept-block-map.md#app-D)) is the manual for
 *extending* the framework: writing a new `:Block`, a new `:Solver`, a
 new `:Modification` or a new `:Change`. [Appendix A](A-writing-block.md#app-A) develops a small
-but complete `BinPackingBlock` from scratch as a pedagogical example.
+but complete `BinPackingBlock` from scratch as a pedagogical example;
+[Appendix D](D-concept-block-map.md#app-D) maps every concept of the manual to the running
+`Block` and the section that exercise it.
 
 A pragmatic reader who already knows the concepts and just wants a
 working program may read Part I and jump directly to the relevant
@@ -285,7 +294,7 @@ not substitute for, either the Doxygen reference or the Wiki.
 When the three sources of documentation disagree, the source code is
 the ultimate authority, the Doxygen reference comes second, and this
 manual comes third. We have tried to keep all three consistent at the
-version covered (0.7.1), but in case of discrepancy the reader is
+version covered (0.8.0), but in case of discrepancy the reader is
 invited to file an issue against the umbrella project.
 
 ## 1.6 A note on style {#sec-1-6}
@@ -308,7 +317,7 @@ optimization frameworks will find that material elsewhere.
 
 We **prefer code to abstract description** wherever a short snippet
 clarifies more than a paragraph of English. Every snippet in the
-manual is written against the SMS++ source tree of version 0.7.1.
+manual is written against the SMS++ source tree of version 0.8.0.
 
 We **cite precisely**. Whenever we make a claim about how a class
 behaves, we point to either its Doxygen page or a `file:line` in the
