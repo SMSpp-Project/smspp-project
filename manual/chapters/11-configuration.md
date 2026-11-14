@@ -62,15 +62,31 @@ recur as the way to configure a *whole `Block` tree* at once:
   type within a given parent to require *different*
   `Block[Solver]Config`s. This by-type meta-configuration is the
   idiom to reach for when configuring a large or
-  programmatically-built tree.
+  programmatically-built tree. Two `Configuration`s of the core
+  carry such a map: `MetaBlockConfig` (`RBlockConfig.h`) and
+  `MetaBlockSolverConfig` (`BlockSolverConfig.h`) are a
+  `BlockConfig` and a `BlockSolverConfig`, respectively, for the
+  `Block` they are applied to, plus the map saying which
+  `BlockConfig` (`BlockSolverConfig`) is applied to each of its
+  descendants according to their `classname()`, the special key
+  `"*"` acting as the default for the classnames that match no
+  other key. The descendants are visited father-first, so that a
+  `BlockConfig` changing the structure of a `Block`
+  ([§11.3](11-configuration.md#sec-11-3)) is applied before its new sub-`Block`s are looked up.
 
 ## 11.3 `BlockConfig` and the `[C/O/R]` family {#sec-11-3}
 
 A
 [`BlockConfig`](https://smspp.gitlab.io/smspp-project/d6/d34/class_s_m_spp__di__unipi__it_1_1_block_config.html)
 gathers, in one object, every `Configuration` slot that a `Block`
-exposes. Its fields (`Block.h:8516-8525`) are:
+exposes. Its fields (`Block.h:9836-9863`) are:
 
+- `f_structure_Configuration` — passed to `set_structure()`, which
+  chooses the tree of sub-`Block`s of the `Block` when this is a
+  modelling choice rather than a datum of the instance; it comes
+  first, since the structure comes before any part of the abstract
+  representation, and `set_BlockConfig()` calls `set_structure()`
+  as soon as it has digested the `BlockConfig`;
 - `f_static_variables_Configuration` — passed to
   `generate_abstract_variables()`;
 - `f_static_constraints_Configuration` — passed to
@@ -95,7 +111,7 @@ A `BlockConfig` carries a `f_diff` flag indicating whether it is a
 explicitly sets, leaving the others untouched — as opposed to a
 complete one that resets every slot.
 
-The nine slots above are what the *base* `BlockConfig` carries,
+The ten slots above are what the *base* `BlockConfig` carries,
 and they configure *one* `Block`, the one the object is applied
 to. The `[C/O/R]` family of derived classes adds two further,
 distinct capabilities on top of that base.
@@ -119,7 +135,7 @@ framework provides for it. The named slot
 `compute()`-d. The two are different things at different points
 of the lifecycle.
 
-Three internal handlers (`RBlockConfig.h:100-779`) implement the
+Three internal handlers (`RBlockConfig.h:100-778`) implement the
 three capabilities, and the concrete classes are the non-empty
 combinations of the corresponding letters (always written in the
 fixed order O, C, R):
@@ -134,7 +150,7 @@ fixed order O, C, R):
   `constraint_group_id` is either the name or the index of the
   group, and `constraint_index` is the position of the
   `Constraint` within that group (the `Block::ConstraintID`
-  convention; `RBlockConfig.h:374-418`). A `C`-flavoured config
+  convention; `RBlockConfig.h:373-393`). A `C`-flavoured config
   thus says, in effect, "give *this* `ComputeConfig` to the
   `Constraint` at index `j` of group `g`".
 - **R** — `RHandler`: applies the whole configuration recursively
@@ -151,7 +167,7 @@ fixed order O, C, R):
 | `OCRBlockConfig` | ● | ● | ● | both, recursively |
 
 Every one of these is *also* a `BlockConfig`, so it carries the
-nine named slots in addition to the handler-specific data; the
+ten named slots in addition to the handler-specific data; the
 prefix only says which extra capabilities it brings.
 
 The practical upshot: to apply one configuration to a `Block` and
@@ -166,9 +182,19 @@ While a `BlockConfig` configures the *model*, a
 [`BlockSolverConfig`](https://smspp.gitlab.io/smspp-project/d1/de4/class_s_m_spp__di__unipi__it_1_1_block_solver_config.html)
 configures the *solving*: it specifies which `:Solver`(s) are
 registered with a `Block` and, for each, the `ComputeConfig` (the
-solver parameters, [§11.5](11-configuration.md#sec-11-5)) to apply. Applying a `BlockSolverConfig`
-to a `Block` registers the listed `:Solver`s; clearing it
-unregisters them. This is the object that makes "switching solver
+solver parameters, [§11.5](11-configuration.md#sec-11-5)) to apply. How it is applied depends on
+its mode: in *setting* mode (`eSetMode`) the `:Solver`s already
+registered are replaced by the listed ones, in *differential* mode
+(`eDiffMode`) a `:Solver` whose name is empty is kept and a
+`nullptr` `ComputeConfig` leaves its parameters as they are, and in
+*additive* mode (`eAddMode`) the listed `:Solver`s are registered in
+addition to the existing ones, which are never touched. A
+`BlockSolverConfig` remembers, per `Block`, which `:Solver`s it has
+created and registered (`get_Solvers(block)`); `clear()` empties it
+and puts it in setting mode, and applying the cleared object
+unregisters and deletes all and only the `:Solver`s that this very
+object had registered to that `Block`, leaving those put there by
+anybody else alone. This is the object that makes "switching solver
 is a one-line change" literally true: the choice of `:Solver` is a
 line in a text file read into a `BlockSolverConfig`.
 
@@ -190,8 +216,13 @@ any `Function` or other computing object. It bundles the integer,
 double and string parameters introduced in [§6.4](06-solver.md#sec-6-4) (`intMaxIter`,
 `dblMaxTime`, `dblRelAcc`, ...) into one serialisable object,
 plus an optional "extra" `Configuration` for object-specific
-settings. A `BlockSolverConfig` holds one `ComputeConfig` per
-`:Solver` it manages; `Solver::set_ComputeConfig(ComputeConfig*)`
+settings. Like a `BlockConfig`, it is either *differential*
+(`diff()`: the parameters it does not mention are left as they
+are) or not (they are reset to their default value), and it can be
+*relaxed* (`relax()`: the names of parameters that the object does
+not know are ignored, rather than raising an exception). A
+`BlockSolverConfig` holds one `ComputeConfig` per
+`:Solver` it manages; `set_ComputeConfig(const ComputeConfig*)`
 applies one directly.
 
 ## 11.6 The `f_extra_Configuration` escape hatch {#sec-11-6}
@@ -211,7 +242,7 @@ therefore cannot reach it. The configuration of that hidden
 `BlockSolverConfig` that attaches a `:Solver` to the inner
 `MCFBlock`, which BenForm requires — is passed through
 `f_extra_Configuration`, in the precise format documented at
-`CapacitatedFacilityLocationBlock.h:756-818`
+`CapacitatedFacilityLocationBlock.h:782-843`
 (a `SimpleConfiguration< std::pair< Configuration*, Configuration* > >`
 whose first element is the R3-Block configuration of the inner
 `MCFBlock` and whose second is the `ComputeConfig` of the
@@ -225,10 +256,13 @@ sub-`Block` tree.
 A `Configuration` (of any of the above kinds) can be:
 
 - constructed programmatically, by setting its fields directly;
-- loaded from a text file with `Configuration::load(std::istream&)`
-  — the form used by the configuration files shipped in the
-  `tests/` directories (the `BPar*.txt`, `BSPar*.txt` files of the
-  CFL tests, [Recipe R3](R3-cfl-three-ways.md#rec-R3) / R4 / R5);
+- loaded from a text file with the static
+  `Configuration::deserialize(const std::string& filename)` (or
+  `Configuration::deserialize(std::istream&)`, or `operator>>` on an
+  object of the right type) — the form used by the configuration
+  files shipped in the `tests/` directories (the `*BCfg*.txt`
+  `BlockConfig`s and the `*BSCfg*.txt`, `BSPar*.txt`
+  `BlockSolverConfig`s of the CFL tests, [Recipe R3](R3-cfl-three-ways.md#rec-R3) / R4 / R5);
 - `[de]serialize`-d to / from a netCDF group, like every other
   first-class SMS++ object.
 
@@ -237,6 +271,58 @@ the right concrete `:Configuration` from a class name, which is
 what lets a text or netCDF file specify, say, an
 `RBlockSolverConfig` without the reading code knowing the type at
 compile time ([Chapter 18](18-factories-netcdf.md#ch-18)).
+
+### The text format
+
+A text file holds a `Configuration` as its classname, as known to
+the factory, followed by the body that the `load()` of that class
+reads; `#` starts a comment that runs to the end of the line, and
+the comments of each `load()` describe its body. Wherever a
+`Configuration` is expected — a slot of a `BlockConfig`, a
+`ComputeConfig` of a `BlockSolverConfig`, the "extra"
+`Configuration` of a `ComputeConfig`, an entry of a
+meta-configuration — three forms are accepted
+(`Configuration::deserialize(std::istream&)`):
+
+- the classname and the body, written in place;
+- `*` followed by whitespace, which means `nullptr` (in a
+  differential object, "leave this one as it is");
+- `*file.txt`, with no whitespace after the `*`, which reads the
+  `Configuration` out of that file; a name not ending in `.txt` is
+  taken as an SMS++ netCDF file, possibly followed by `[idx]` to
+  select the idx-th `Configuration` in it, and a relative name is
+  taken relative to the prefix set by
+  `Configuration::set_filename_prefix()`, if any.
+
+The third form has a differential variant, `*file.txt +`: the
+`Configuration` is read out of the file and the body that follows
+the `+` is merged on top of it (`merge_overrides()`), so that a
+file can share a common fragment and only restate what differs.
+The base class refuses it; among the `Configuration`s of the core
+only `ComputeConfig` supports it, each parameter of the body
+replacing the one of the same name, or being added, and the others
+being kept. For instance, the second `ComputeConfig` of a
+`BlockSolverConfig` that takes all the parameters of
+`BX-baseCfg.txt` but one reads
+
+```
+*BX-baseCfg.txt +
+1                  # differential: only what follows is changed
+1                  # number of integer parameters
+intSolveMethod 3
+0 0 0 0 0          # no double, string, vector parameters
+```
+
+where the "extra" `Configuration` of the base file is kept since
+the trailing slot is omitted; if present, it replaces that of the
+base file (and `*` there makes it `nullptr`). Two more
+details of the bodies are worth knowing: the body of a
+`BlockConfig` starts with the differential flag and the version of
+the format (currently `2`), followed by the ten slots in the order
+of [§11.3](11-configuration.md#sec-11-3), and a file of the earlier format, without the version,
+is refused with a message; a `double` parameter of a
+`ComputeConfig` can be written `inf`, `+inf`, `-inf` or `infinity`
+(in any case), and is then read as an infinite value.
 
 ## 11.8 Inline example: selecting a CFL formulation and a solver {#sec-11-8}
 
@@ -259,9 +345,8 @@ int main()
 
  // configure the SOLVING: attach a LagrangianDualSolver, reading
  // the chosen solver and its parameters from a text file
- auto * bsc = new BlockSolverConfig;
- std::ifstream cfg( "BSPar-LDS.txt" );
- bsc->load( cfg );
+ auto * bsc = dynamic_cast< BlockSolverConfig * >(
+                     Configuration::deserialize( "BSPar-LDS.txt" ) );
  bsc->apply( & cfl );         // registers (and constructs) the Solver(s)
  bsc->clear();                // empty the config but keep it for cleanup
 
