@@ -42,7 +42,7 @@ tied to the concrete class and would defeat the purpose. Instead,
 each entry is an *adapter* function whose first parameter is a
 base `Block*`; the adapter `static_cast`s the pointer to the
 concrete `:Block` and forwards to the real method
-([`Block.h:6048-6090`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L6048-6090)). Their types are
+([`Block.h:6078-6119`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L6078-6119)). Their types are
 
 ```cpp
 template< typename... Args >
@@ -180,7 +180,7 @@ soon as the class is loaded. The methods are nonetheless *public*,
 so any code with access to a `:Block` may register additional
 adapter functions, which is useful when the `:Block` author did not
 anticipate a particular form of bulk change, or simply did not get
-around to registering one ([`Block.h:6282-6299`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L6282-6299)).
+around to registering one ([`Block.h:6312-6324`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L6312-6324)).
 
 ## 15.5 Example: changing weights by name {#sec-15-5}
 

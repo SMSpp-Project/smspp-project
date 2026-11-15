@@ -46,7 +46,7 @@ objects by class name.
 ### Registering a class
 
 A concrete class joins its factory through two macros
-([`SMSFactory.h:56-130`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L56-130) and [`SMSFactory.h:355-470`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L355-470)):
+([`SMSFactory.h:56-128`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L56-128) and [`SMSFactory.h:354-472`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L354-472)):
 
 - in the class declaration (private part of the `.h`):
   `SMSpp_insert_in_factory_h;`
@@ -295,7 +295,7 @@ name, with no compile-time knowledge of the type.
 
 At the top level, a SMS++ netCDF file carries an `int` attribute
 `SMS++_file_type`, one of the values of the enum
-`smspp_netCDF_file_type` ([`SMSTypedefs.h:110-167`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h#L110-167)), which says how
+`smspp_netCDF_file_type` ([`SMSTypedefs.h:108-165`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h#L108-165)), which says how
 its child groups are organised: `eProbFile` (child groups
 `Prob_0`, `Prob_1`, ..., each with the three child groups `Block`,
 `BlockConfig` and `BlockSolver`), `eBlockFile` (`Block_0`,

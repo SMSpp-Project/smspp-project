@@ -183,7 +183,7 @@ This is what the framework does: `Block::add_Modification( mod , chnl )`
 first hands the `Modification` to the father, which does the same,
 recursively up to the root, and then gives it to each `:Solver`
 registered to the `Block` whose `concerned_by()` says that it reads
-that kind of `Modification` ([`Block.cpp:769-814`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L769-814)). The "anyone
+that kind of `Modification` ([`Block.cpp:777-823`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L777-823)). The "anyone
 listening" flag `f_at` ([§8.7](08-modification-janus.md#sec-8-7))
 records, at each `Block`, whether some ancestor has a `:Solver`
 registered, and `add_Modification()` returns at once if neither

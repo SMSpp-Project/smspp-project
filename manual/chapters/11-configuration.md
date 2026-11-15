@@ -80,7 +80,7 @@ recur as the way to configure a *whole `Block` tree* at once:
 A
 [`BlockConfig`](https://smspp.gitlab.io/smspp-project/d6/d34/class_s_m_spp__di__unipi__it_1_1_block_config.html)
 gathers, in one object, every `Configuration` slot that a `Block`
-exposes. Its fields ([`Block.h:9836-9863`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L9836-9863)), in the order in which they
+exposes. Its fields ([`Block.h:9861-9893`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L9861-9893)), in the order in which they
 are declared and in which the text format lists them, are the
 following.
 
@@ -130,7 +130,7 @@ of that slot in the last $c_h$, $h \ge h_0$, in which it is not
 `nullptr`, and it is `nullptr` if there is no such $c_h$.*
 
 *Proof.* By induction on $k$, using the semantics documented for
-`set_BlockConfig()` ([`Block.h:2306-2340`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L2306-2340)). A non-differential $c_h$ is
+`set_BlockConfig()` ([`Block.h:2307-2344`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L2307-2344)). A non-differential $c_h$ is
 moved into the `Block`, the previous `BlockConfig` being deleted, and
 hence after it each slot is that of $c_h$, which is the statement for
 $k = h = h_0$. A differential $c_h$ is moved as it is if the `Block`
@@ -188,7 +188,7 @@ fixed order O, C, R):
   `constraint_group_id` is either the name or the index of the group,
   and `constraint_index` is the position of the `Constraint` within
   that group (the `Block::ConstraintID` convention;
-  [`RBlockConfig.h:375-394`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L375-394)). A C-flavoured configuration thus says
+  [`RBlockConfig.h:374-395`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L374-395)). A C-flavoured configuration thus says
   "give this `ComputeConfig` to the `Constraint` at index $j$ of
   group $g$".
 - R, `RHandler`: applies the whole configuration recursively to the
@@ -307,7 +307,7 @@ therefore cannot reach it. The configuration of that hidden
 `BlockSolverConfig` that attaches a `:Solver` to the inner
 `MCFBlock`, which BenForm requires) is passed through
 `f_extra_Configuration`. Its format is documented at
-[`CapacitatedFacilityLocationBlock.h:781-843`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L781-843), and it is a
+[`CapacitatedFacilityLocationBlock.h:801-854`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L801-854), and it is a
 `SimpleConfiguration< std::pair< Configuration * , Configuration * > >`
 whose first element is the R3 Block configuration of the inner
 `MCFBlock` (of which only the scale of the cost of the slack arcs is

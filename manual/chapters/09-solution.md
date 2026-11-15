@@ -86,10 +86,10 @@ the same groups of `Variable`s, with the same sizes, at the time of
 `Block` with `for_each_as< ColVariable >()`, storing `get_value()` of
 each element in the order of the storage, then through the dynamic
 groups in the same way, then recursively through the sub-`Block`s
-([`SMS++/src/ColVariableSolution.cpp:370-418`](https://gitlab.com/smspp/smspp/-/blob/develop/src/ColVariableSolution.cpp#L370-418)). `write()` goes through
+([`SMS++/src/ColVariableSolution.cpp:372-420`](https://gitlab.com/smspp/smspp/-/blob/develop/src/ColVariableSolution.cpp#L372-420)). `write()` goes through
 the same groups in the same order, and calls `set_value()` with the
 stored value of each element
-([`SMS++/src/ColVariableSolution.cpp:420-441`](https://gitlab.com/smspp/smspp/-/blob/develop/src/ColVariableSolution.cpp#L420-441)). Since the order of
+([`SMS++/src/ColVariableSolution.cpp:424-445`](https://gitlab.com/smspp/smspp/-/blob/develop/src/ColVariableSolution.cpp#L424-445)). Since the order of
 `for_each_as()` is the order of the storage, which is part of the
 contract of `BaseGroup` (cf.
 [§5.5](05-variable-constraint-objective.md#sec-5-5)), and the groups
@@ -211,7 +211,7 @@ on a mismatch.
 A concrete `:Block` typically defines a `:Solution`, which stores the
 solution in terms of its *physical* representation, usually far more
 compactly than the abstract one; each of the three running examples
-has one. `MCFSolution` ([`MCFBlock.h:2682`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2682)) stores the flows of the
+has one. `MCFSolution` ([`MCFBlock.h:2681`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2681)) stores the flows of the
 arcs and/or the potentials of the nodes, i.e., the natural primal and
 dual data of a min-cost flow problem.
 [`BinaryKnapsackSolution`](https://smspp.gitlab.io/smspp-project/dc/d61/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_solution.html)

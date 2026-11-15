@@ -44,7 +44,7 @@ re-entry. Recording the owner lets the protocol distinguish
 
 The one rule the user must respect is the *direction*: an entity that
 owns a sub-`Block` never tries to own a `Block` that includes it, and
-no entity tries to own two different `Block`s ([`Block.h:1880-1916`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L1880-1916)).
+no entity tries to own two different `Block`s ([`Block.h:1886-1916`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L1886-1916)).
 Under this rule the protocol cannot deadlock, which is the following
 statement.
 

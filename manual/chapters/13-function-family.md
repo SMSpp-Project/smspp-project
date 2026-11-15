@@ -210,7 +210,7 @@ the relevant `Modification` is a `FunctionModVars` (`FunctionModVarsAddd`
 for an addition, `FunctionModVarsRngd` and `FunctionModVarsSbst` for the
 removal of a range or of a subset), which carries the affected
 `Variable`s and, again through a `shift()` value, says whether the
-change is *quasi-additive* ([`Function.h:1034-1146`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h#L1034-1146)). Adding `Variable`s
+change is *quasi-additive* ([`Function.h:1036-1146`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h#L1036-1146)). Adding `Variable`s
 $y$ to a function $f_{\text{old}}(x)$ is quasi-additive if
 
 $$
@@ -249,7 +249,7 @@ For a `C05Function`, reusing *values* is not enough: one would like to
 reuse *linearizations*, i.e., the contents of the global pool, as well.
 A `C05FunctionModVarsAddd` (respectively, `C05FunctionModVarsRngd` and
 `C05FunctionModVarsSbst` for a removal) says that the change is
-*strongly* quasi-additive ([`C05Function.h:2205-2240`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C05Function.h#L2205-2240)), which means that
+*strongly* quasi-additive ([`C05Function.h:2205-2243`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C05Function.h#L2205-2243)), which means that
 the linearizations in the global pool can be updated to linearizations
 of the new function: for an addition, by computing the $N$ new entries
 of their vector $g$ with `get_linearization_coefficients()`, for a

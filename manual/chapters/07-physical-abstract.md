@@ -159,11 +159,11 @@ is used when the argument is `nullptr`. Its usual form is a
 parts to construct. For instance, `MCFBlock` uses the `Configuration`
 of `generate_abstract_constraints()` to decide whether the
 `LB0Constraint`s of the capacities are omitted, which is allowed only
-if all the capacities are infinite ([`MCFBlock.h:513-580`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L513-580)), while
+if all the capacities are infinite ([`MCFBlock.h:526-593`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L526-593)), while
 `CapacitatedFacilityLocationBlock` goes further, and uses the
 `Configuration` of `generate_abstract_variables()` to choose one of
 the four formulations of [§3.5](03-mental-model.md#sec-3-5)
-([`CapacitatedFacilityLocationBlock.h:473-626`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L473-626)). When the same
+([`CapacitatedFacilityLocationBlock.h:474-627`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L474-627)). When the same
 `Configuration`s have to be applied to a tree of `Block`s, the
 recursive `[C/O/R]BlockConfig` classes of [Chapter
 11](11-configuration.md#ch-11) carry those of the five methods (plus a
@@ -228,7 +228,7 @@ typically much cheaper, since the `:Block` goes through its arrays and
 applies the definition of feasibility of its problem: for `MCFBlock`,
 `is_feasible( false )` calls `flow_feasible()` and `bound_feasible()`,
 which check the flows against the physical data
-([`MCFBlock.h:987-1029`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L987-1029)). With `useabstract == true` the `:Block`
+([`MCFBlock.h:972-1014`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L972-1014)). With `useabstract == true` the `:Block`
 checks the solution against its *abstract* representation, by
 computing each `Constraint` and calling its `feasible()`; this
 requires the abstract representation to have been built, and it is
@@ -243,7 +243,7 @@ should agree, by a property such as Proposition 7.1 of the `:Block` at
 hand. They can genuinely differ only when the abstract representation
 is not complete, notably when some dynamic `Constraint`s have not been
 generated yet; the comment of `Block::is_feasible()`
-([`Block.h:4582-4686`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L4582-4686)) gives the precise contract. For `MCFBlock`,
+([`Block.h:4605-4709`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L4605-4709)) gives the precise contract. For `MCFBlock`,
 `is_optimal()` checks, within the tolerances, that the flows are
 feasible, that the duals of the flow conservation and bound
 constraints are dual feasible, and that the two satisfy the
@@ -280,9 +280,13 @@ check(B, s, T):
   if s holds a direction: B.is_direction(true)
   try: s.write(B); r <- T(B)
   catch domain_error: r <- false      // s gives a fixed Variable another value
+  catch any other e: restore(B, c, d); throw e
+  restore(B, c, d)
+  return r
+
+restore(B, c, d):
   B.is_direction(d)
   c.write(B); delete c
-  return r
 ```
 
 The property it relies upon is the round-trip contract of a
@@ -294,28 +298,30 @@ neither adds nor removes any of them, `c.write( B )` gives each of
 them back the value it had when $c$ was obtained.
 
 **Lemma 7.2** (The default checks leave the `Block` as they find
-it). *Let $B$ satisfy (R), and let $T$ either return or throw
-`std::domain_error`. Then `is_sol_feasible( s )` and
-`is_sol_optimal( s )` return the value of $T$ on the state written by
-$s$ (or `false`), and afterwards the values of the `Variable`s and of
-the duals of $B$, and its flag `is_direction()`, are those it had
-before the call.*
+it). *Let $B$ satisfy (R). Then `is_sol_feasible( s )` and
+`is_sol_optimal( s )` either return the value of $T$ on the state written
+by $s$ (or `false`), or pass on the exception that $T$ or the write of
+$s$ throws when it is not a `std::domain_error`; in both cases, afterwards
+the values of the `Variable`s and of the duals of $B$, and its flag
+`is_direction()`, are those it had before the call.*
 
 *Proof.* If one of the two early returns is taken, no value has been
 written. Otherwise $c$ is taken before anything is written; then $s$
 writes into $B$, which (writing values only) adds or removes no
-`Variable` and no `Constraint`, and the test reads them. If $T$ throws
-`std::domain_error` the exception is caught, so in both cases control
-reaches the two restoring steps: the flag is set back to the value $d$
-saved before it was changed, and `c.write( B )` restores the values by
-(R). $\square$
+`Variable` and no `Constraint`, and the test reads them. If $T$, or the
+write of $s$, throws `std::domain_error` the exception is caught and the
+answer is `false`; if it throws an exception of any other type, the
+handler runs the restoring steps before passing it on. Hence control
+reaches the restoring steps in every case: the flag is set back to the
+value $d$ saved before it was changed, and `c.write( B )` restores the
+values by (R). $\square$
 
-The hypothesis on the exceptions is necessary. If $T$, or the write
-of $s$, throws an exception of another type, the restoring steps are
-skipped: the `Variable`s keep the values of $s$, the flag may stay
-raised, and $c$ is leaked ([`SMS++/src/Block.cpp:649-663`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L649-663); a guard
-object that restores and deletes in its destructor would remove the
-hypothesis).
+The restoring steps are a single function, which also deletes $c$ (it
+is held by a `std::unique_ptr`), called both on the normal exit and in
+the handler of the exceptions of the other types
+([`SMS++/src/Block.cpp:645-671`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L645-671)); we remark that the lemma takes for
+granted that `c.write( B )` itself does not throw, as the proof of (R)
+for the `ColVariableSolution` in [§9.2](09-solution.md#sec-9-2) shows.
 
 A `:Block` that can read its `:Solution` directly overrides the two
 methods, and declares it by returning `true` from
