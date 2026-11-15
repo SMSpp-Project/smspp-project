@@ -47,6 +47,11 @@ theme:
   # the fonts of the PDF, served with the site [see extra.css]
   font: false
 
+# the displays set apart from their paragraphs and the names of the files
+# linked to their repositories [see hooks.py]
+hooks:
+  - hooks.py
+
 markdown_extensions:
   - admonition
   - footnotes

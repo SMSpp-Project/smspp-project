@@ -137,7 +137,8 @@ manual/
     block-lifecycle.{tex,pdf,svg}      # authored TikZ figure
   build/
     Makefile  pandoc.yaml  preamble.tex  mkdocs.yml
-    figure-ext.lua  break-code.lua  katex-init.js
+    figure-ext.lua  source-links.lua  break-code.lua  katex-init.js
+    hooks.py  extra.css  fonts/
 ```
 
 The three running Blocks: `MCFBlock` (leaf, wrapper solver),
@@ -186,6 +187,13 @@ cause):
 - `break-code.lua` — makes inline `\texttt` breakable (zero-penalty
   `\allowbreak` after each char) so long paths/URLs/signatures don't
   overflow the right margin.
+- `source-links.lua` (PDF) and `hooks.py` (MkDocs) — link a file or
+  folder written as code, and not yet within a link, to its submodule's
+  repository on GitLab, among the files that git tracks under
+  `SMSPP_ROOT` (default: the umbrella, with the submodules checked out;
+  set it when building from a worktree). `hooks.py` also sets each `$$`
+  display apart from its paragraph, which MkDocs needs to hand it to
+  KaTeX untouched.
 - `figure-ext.lua` — rewrites figure `.svg` → `.pdf` for the LaTeX
   build only. **Therefore every figure must exist in both `.svg` and
   `.pdf`.**

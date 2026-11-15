@@ -49,6 +49,7 @@ resource-path:
 filters:
   - figure-ext.lua
   - crossref-link.lua
+  - source-links.lua
   - break-code.lua
 
 pdf-engine: pdflatex

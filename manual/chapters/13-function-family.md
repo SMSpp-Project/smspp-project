@@ -88,8 +88,10 @@ canonical case is the Lagrangian function of a structured problem
 and $b$ a vector of compatible sizes, and consider
 
 $$
-(P) \quad \max \{\, c u : A u = b ,\; u \in U \,\} , \qquad
-f(x) = \max \{\, c u + x (b - A u) : u \in U \,\} ,
+\begin{aligned}
+(P) \quad & \max \{\, c u : A u = b ,\; u \in U \,\} , \\
+& f(x) = \max \{\, c u + x (b - A u) : u \in U \,\} ,
+\end{aligned}
 \tag{13.1}
 $$
 

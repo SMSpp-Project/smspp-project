@@ -281,8 +281,8 @@ all $x$, with equality at $\bar x$ if $(\lambda, \mu)$ is dual optimal
 there and $\varphi(\bar x)$ is finite; hence $\varphi$ is convex on its
 domain. (ii) For every $(\lambda, \mu) \ge 0$ with $(\lambda - \mu) E =
 0$ and the same zeros, every $x$ at which $(B)$ is feasible satisfies
-$\lambda w(x) - \mu z(x) \le 0$; if $\lambda w(\bar x) - \mu z(\bar x)
-> 0$, the inequality is violated at $\bar x$ and cuts it off.*
+$\lambda w(x) - \mu z(x) \le 0$; if
+$\lambda w(\bar x) - \mu z(\bar x) > 0$, the inequality is violated at $\bar x$ and cuts it off.*
 
 *Proof.* (i) If $y$ is feasible at $x$, then $\lambda w(x) \le \lambda
 E y$ and $\mu z(x) \ge \mu E y$ (the terms with infinite sides having

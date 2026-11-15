@@ -392,10 +392,13 @@ $i$, $X_{ij} \in [0, 1]$ the fraction of it that is served, and
 $Y_i \in \{0, 1\}$ says whether $i$ is open. The problem reads
 
 $$
-\min \Big\{ \sum_{i \in I} \sum_{j \in J} C_{ij} X_{ij} +
-\sum_{i \in I} F_i Y_i \;:\; \sum_{i \in I} X_{ij} = 1 \;\; j \in J ,
-\;\; \sum_{j \in J} D_j X_{ij} \le Q_i Y_i \;\; i \in I ,
-\;\; X \in [0,1]^{m \times n} ,\; Y \in \{0,1\}^m \Big\}
+\begin{aligned}
+\min \;& \sum_{i \in I} \sum_{j \in J} C_{ij} X_{ij} +
+\sum_{i \in I} F_i Y_i \\
+& \sum_{i \in I} X_{ij} = 1 && j \in J , \\
+& \sum_{j \in J} D_j X_{ij} \le Q_i Y_i && i \in I , \\
+& X \in [0,1]^{m \times n} ,\; Y \in \{0,1\}^m
+\end{aligned}
 \tag{10.1}
 $$
 

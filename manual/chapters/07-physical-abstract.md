@@ -63,9 +63,12 @@ is empty) and $u_a = U_a$ ($u_a = +\infty$ if `U` is empty), the
 physical problem is
 
 $$
-(P) \qquad \min \Bigl\{\, \sum_{a \notin K} C_a x_a \;:\;
-\sum_{a : EN_a = i} x_a - \sum_{a : SN_a = i} x_a = b_i \,,\;
-i = 1, \dots, n \,,\;\; 0 \le x_a \le u_a \,,\; x_a = 0 \;\, a \in K \,\Bigr\}
+(P) \qquad \begin{aligned}
+\min \;& \sum_{a \notin K} C_a x_a \\
+& \sum_{a : EN_a = i} x_a - \sum_{a : SN_a = i} x_a = b_i &&
+i = 1, \dots, n , \\
+& 0 \le x_a \le u_a ,\;\; x_a = 0 && a \in K
+\end{aligned}
 $$
 
 where a negative deficit is a source and a positive one a sink. The

@@ -47,6 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in its repository on the branch `develop` (with the lines, for the
   references of the form `file:line`), in the PDF and in the web site
 
+- in the web site of the user manual a displayed formula within a paragraph
+  is rendered by KaTeX as in the PDF, the number of an equation stays off
+  its formula, and the wide formulas of chapters 7, 10 and 13 are set over
+  several lines; a file or folder named as code and not yet within a link is
+  linked to its repository by `manual/build/hooks.py` on the web site and by
+  `manual/build/source-links.lua` in the PDF
+
 - `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
   gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
   of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds
