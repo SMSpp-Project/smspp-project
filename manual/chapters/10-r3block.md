@@ -150,26 +150,25 @@ meaning is as follows.
   remark that, at the time of writing, the default advances its
   iterator before using it, and it should not be relied upon).
 
-The base class gives every method a default. `get_R3_Block()` returns
-`base` if the `Block` has no sub-`Block`. Otherwise it requires a
-non-null `base`, and throws `std::invalid_argument` if there is none,
-since `Block` is abstract and the method cannot allocate the right
-concrete type; it then empties the sub-`Block`s of `base` and fills them with the R3
-Blocks of the sub-`Block`s of `this`, each produced with `father =
-base` and, if `r3bc` is a `SimpleConfiguration< std::vector<
-Configuration * > >`, with the $i$-th element of the vector as its own
-`r3bc` (`nullptr` otherwise, which by convention asks for the copy;
-`Block.h:5144-5172`). The default `map_back_solution()` and
-`map_forward_solution()` serve the mirror of [§10.4](10-r3block.md#sec-10-4)
-and throw `std::invalid_argument` for any other R3 Block. The default
-`map_forward_Modification()` serves the mirror first; otherwise it
-returns `false` for a `Modification` of the `Block` itself, and hands a
-`Modification` of a sub-`Block` to the same sub-`Block`, paired with
-the sub-`Block` of `R3B` in the same position (and with the
+The base class gives every method a default. `get_R3_Block()` returns `base`
+if the `Block` has no sub-`Block`. Otherwise it requires a non-null `base`,
+and throws `std::invalid_argument` if there is none, since `Block` is abstract
+and the method cannot allocate the right concrete type; it then empties the
+sub-`Block`s of `base` and fills them with the R3 Blocks of the sub-`Block`s
+of `this`, each produced with `father = base` and, if `r3bc` is a
+`SimpleConfiguration< std::vector< Configuration * > >`, with the $i$-th
+element of the vector as its own `r3bc` (`nullptr` otherwise, which by
+convention asks for the copy; `Block.h:5144-5172`). The default
+`map_back_solution()` and `map_forward_solution()` serve the mirror of
+[§10.4](10-r3block.md#sec-10-4) and throw `std::invalid_argument` for any
+other R3 Block. The default `map_forward_Modification()` serves the mirror
+first; otherwise it returns `false` for a `Modification` of the `Block`
+itself, and hands a `Modification` of a sub-`Block` to the same sub-`Block`,
+paired with the sub-`Block` of `R3B` in the same position (and with the
 corresponding element of `r3bc`, as above). The default
-`map_back_Modification()` does the same, without the mirror. Hence a
-leaf `:Block` that wants any R3 Block other than the mirror has to
-implement it in full, the copy included.
+`map_back_Modification()` does the same, without the mirror. Hence a leaf
+`:Block` that wants any R3 Block other than the mirror has to implement it in
+full, the copy included.
 
 In every case the `Configuration` passed to a mapping method must be
 the *same* (or an identical) `Configuration` that was used to produce
@@ -401,8 +400,8 @@ $$
 $$
 
 where some $Y_i$ may be fixed to 0 or to 1. The R3 Block is selected by
-`r3bc`, a `SimpleConfiguration< int >` or a `SimpleConfiguration<
-std::pair< int , double > >` whose `int` is
+`r3bc`, a `SimpleConfiguration< int >` or a
+`SimpleConfiguration< std::pair< int , double > >` whose `int` is
 
 - 0 (also assumed if `r3bc` is `nullptr`): the copy, another
   `CapacitatedFacilityLocationBlock`;
@@ -545,15 +544,15 @@ immediate: `add_Modification()` locks `R3B` (throwing
 it, and nothing is stored; `compute()` does nothing and returns
 `kError`.
 
-**Lemma 10.4.** *Let an `UpdateSolver` with bits 0 to 5 of `options`
-equal to 0 be registered to a `Block` $B$, with `R3B` $= R$ produced by
+**Lemma 10.4.** *Let an `UpdateSolver` with bits 0 to 5 of `options` equal to
+0 be registered to a `Block` $B$, with `R3B` $= R$ produced by
 `B->get_R3_Block( r3bc )` and the same `r3bc`. Suppose that, for every
-`Modification` $\mu$ issued by $B$, `map_forward_Modification( R , mu ,
-r3bc )` either returns `false` or changes $R$ into the R3 Block that
-`get_R3_Block( r3bc )` would produce from $B$ after the change described
-by $\mu$. If every call returns `true`, then after any sequence of
-changes of $B$, made while the `UpdateSolver` is registered and with
-`Modification`s not inhibited, $R$ is the R3 Block of the current $B$.*
+`Modification` $\mu$ issued by $B$,
+`map_forward_Modification( R , mu , r3bc )` either returns `false` or changes
+$R$ into the R3 Block that `get_R3_Block( r3bc )` would produce from $B$ after
+the change described by $\mu$. If every call returns `true`, then after any
+sequence of changes of $B$, made while the `UpdateSolver` is registered and
+with `Modification`s not inhibited, $R$ is the R3 Block of the current $B$.*
 
 *Proof.* By induction on the number $k$ of changes. For $k = 0$, $R$ is
 the R3 Block of $B$ by construction. Each change of $B$ issues its
@@ -598,30 +597,30 @@ using namespace SMSpp_di_unipi_it;
 int main( int argc , char ** argv )
 {
  CapacitatedFacilityLocationBlock cfl;
- std::ifstream in( argv[ 1 ] );     // a CFL instance in ORLib format
+ std::ifstream in( argv[ 1 ] );  // a CFL instance in ORLib format
  cfl.load( in );
  cfl.generate_abstract_variables();  // map_back_solution() writes them
 
  // the MCF flow relaxation (R3 Block, "always feasible" variant)
  SimpleConfiguration< int > r3bc( 2 );
- Block * R3B = cfl.get_R3_Block( & r3bc );  // an MCFBlock
+ Block * R3B = cfl.get_R3_Block( &r3bc );  // an MCFBlock
  R3B->generate_abstract_variables();
  auto mcfs = new MCFSolver< MCFSimplex >();
  R3B->register_Solver( mcfs );
 
  // every Modification of cfl is mapped forward to the MCFBlock
- auto upd = new UpdateSolver( R3B , & r3bc );
+ auto upd = new UpdateSolver( R3B , &r3bc );
  cfl.register_Solver( upd );
 
  auto m = cfl.get_NFacilities();
- const auto F = cfl.get_Fixed_Costs();     // the original fixed costs
+ const auto F = cfl.get_Fixed_Costs();  // the original fixed costs
  CapacitatedFacilityLocationBlock::CntSolution y( m );
 
- for( int it = 0 ; it < 10 ; ++it ) {      // slope scaling
+ for( int it = 0 ; it < 10 ; ++it ) {  // slope scaling
   if( mcfs->compute() != Solver::kOK )
    break;
-  mcfs->get_var_solution();                // flows into the MCFBlock
-  cfl.map_back_solution( R3B , & r3bc );   // and from there into cfl
+  mcfs->get_var_solution();             // flows into the MCFBlock
+  cfl.map_back_solution( R3B , &r3bc );  // and from there into cfl
   cfl.get_facility_solution( y.begin() );
 
   // the fixed cost of an open facility, spread on its actual use

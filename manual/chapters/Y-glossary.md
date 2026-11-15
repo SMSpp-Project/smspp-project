@@ -85,9 +85,9 @@ done ([Chapter 8](08-modification-janus.md#ch-8)).
 
 **Configuration.** A tree-shaped object mirroring the `Block` tree that
 parameterises generation, solving, and computation;
-`SimpleConfiguration<T>`, the `[C/O/R]BlockConfig` family,
-`BlockSolverConfig`, and `ComputeConfig` are its concrete forms
-([Chapter 11](11-configuration.md#ch-11)).
+`SimpleConfiguration< T >`, the `[C/O/R]BlockConfig` family,
+`BlockSolverConfig`, and `ComputeConfig` are its concrete forms ([Chapter
+11](11-configuration.md#ch-11)).
 
 **Constraint.** A primitive living inside a `Block`. `RowConstraint`
 has a real-valued left/right-hand side; `FRowConstraint` carries a

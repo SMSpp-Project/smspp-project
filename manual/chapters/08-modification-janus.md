@@ -35,13 +35,13 @@ to, and drops each entry once it has reacted; hence, a `Modification`
 is deallocated as soon as the last `:Solver` (or `:Block`) holding it
 drops its pointer.
 
-Two methods are involved: `Block::add_Modification( sp_Mod ,
-ChnlName )`, which routes a new `Modification` to whoever is
-listening, and `Solver::add_Modification( sp_Mod )`, which appends it
-to the list of the `:Solver`. the first is called by the `:Block`, or
-by one of its `Variable`s, `Constraint`s and `Function`s (which hold
-a pointer to the object that observes them, ultimately the `Block`);
-the second is called by the `Block` on behalf of the `:Solver`.
+Two methods are involved: `Block::add_Modification( sp_Mod , ChnlName )`,
+which routes a new `Modification` to whoever is listening, and
+`Solver::add_Modification( sp_Mod )`, which appends it to the list of the
+`:Solver`. the first is called by the `:Block`, or by one of its `Variable`s,
+`Constraint`s and `Function`s (which hold a pointer to the object that
+observes them, ultimately the `Block`); the second is called by the `Block` on
+behalf of the `:Solver`.
 
 ## 8.2 The hierarchy of Modifications {#sec-8-2}
 
@@ -55,21 +55,21 @@ classes, all in `SMS++/include/Modification.h`, are the following.
   derived directly from it); the concrete derived classes describe
   *what* has changed, and their method `get_Block()` returns the
   `Block` that has changed.
-- `AModification` (line 739) is the base of every "abstract"
-  `Modification`, i.e., of those issued by the abstract representation
-  when a `Variable` is fixed, a `Constraint` is relaxed, a coefficient
-  of a `Function` is changed, and so on. Its `concerns_Block()` is
-  stored in the object, `true` by default, and `concerns_Block( false
-  )` resets it; the value `true` means that the receiving `:Block` has
-  to react (cf. [§8.4](08-modification-janus.md#sec-8-4)).
+- `AModification` (line 739) is the base of every "abstract" `Modification`,
+  i.e., of those issued by the abstract representation when a `Variable` is
+  fixed, a `Constraint` is relaxed, a coefficient of a `Function` is changed,
+  and so on. Its `concerns_Block()` is stored in the object, `true` by
+  default, and `concerns_Block( false )` resets it; the value `true` means
+  that the receiving `:Block` has to react
+  (cf. [§8.4](08-modification-janus.md#sec-8-4)).
 - `NModification` (line 814) is the "nuclear" `Modification`, the base
   of the few cases in which the content of an object is replaced
   altogether.
 - `NBModification` (line 864) is the "nuclear `Block`" one, issued by
-  `load(...)` and `deserialize(...)` of a `:Block` when the `Block`
-  has been loaded anew, so that any previous computation has to be
-  discarded (its `changes()` is `eModAll`). This is the nuclear option
-  of [§4.6](04-block.md#sec-4-6).
+  `load( ... )` and `deserialize( ... )` of a `:Block` when the `Block` has
+  been loaded anew, so that any previous computation has to be discarded (its
+  `changes()` is `eModAll`). This is the nuclear option of
+  [§4.6](04-block.md#sec-4-6).
 - `GroupModification` (line 931), derived from `AModification`,
   bundles several `Modification`s (its `sub_Modifications()`) into
   one; a receiving `:Solver` can react to each of them in turn or to
@@ -132,10 +132,10 @@ only.
 
 ### The delivery
 
-Routing is done by the base method `Block::add_Modification( mod ,
-chnl )` (`SMS++/src/Block.cpp:769-815`), which the overrides of the
-`:Block`s call at their end. In pseudocode it reads as follows (the
-channels are discussed in [§8.6](08-modification-janus.md#sec-8-6)):
+Routing is done by the base method `Block::add_Modification( mod , chnl )`
+(`SMS++/src/Block.cpp:769-815`), which the overrides of the `:Block`s call at
+their end. In pseudocode it reads as follows (the channels are discussed in
+[§8.6](08-modification-janus.md#sec-8-6)):
 
 ```
 Block::add_Modification(B, mod, chnl):
@@ -333,23 +333,22 @@ $B$ receives at most one physical and at most one abstract
 `Modification` for the change, neither of which has `concerns_Block()
 == true`.*
 
-*Proof.* In case (a), by (J2) the method changes the physical data
-once and the abstract representation once, which keeps them
-consistent. The abstract change is made with `un_ModBlock( issueAMod
-)`, which is never `eModBlck`; hence the abstract `Modification`, if
-issued at all, has `concerns_Block() == false`, and the override of
-$B$ only forwards it. By construction, the physical `Modification` has
-`concerns_Block() == false`. By Lemma 8.1, each of the two
-`Modification`s reaches each listening `Solver` at most once. In case
-(b), the abstract representation has been changed once by the method.
-By Lemma 8.2 the override of $B$ sees the abstract `Modification`
-immediately, with `concerns_Block() == true`; it resets it to `false`
-and, by (J1), makes the physical change with `issueAMod == eDryRun`,
-which by (J2) changes the physical data only, and by (J3) restores the
-consistency. The physical `Modification` is issued (if anyone is
-listening) with `concerns_Block() == false`, and the abstract one is
-then forwarded with `concerns_Block() == false`. Again by Lemma 8.1,
-each of them reaches each listening `Solver` at most once. $\square$
+*Proof.* In case (a), by (J2) the method changes the physical data once and
+the abstract representation once, which keeps them consistent. The abstract
+change is made with `un_ModBlock( issueAMod )`, which is never `eModBlck`;
+hence the abstract `Modification`, if issued at all, has
+`concerns_Block() == false`, and the override of $B$ only forwards it. By
+construction, the physical `Modification` has `concerns_Block() == false`. By
+Lemma 8.1, each of the two `Modification`s reaches each listening `Solver` at
+most once. In case (b), the abstract representation has been changed once by
+the method. By Lemma 8.2 the override of $B$ sees the abstract `Modification`
+immediately, with `concerns_Block() == true`; it resets it to `false` and, by
+(J1), makes the physical change with `issueAMod == eDryRun`, which by (J2)
+changes the physical data only, and by (J3) restores the consistency. The
+physical `Modification` is issued (if anyone is listening) with
+`concerns_Block() == false`, and the abstract one is then forwarded with
+`concerns_Block() == false`. Again by Lemma 8.1, each of them reaches each
+listening `Solver` at most once. $\square$
 
 We remark that the hypotheses of case (b) are not idle. An abstract
 change made with `eNoBlck` issues a `Modification` with
@@ -613,12 +612,11 @@ int main()
 {
  // construct and load an MCFBlock (as in §4.5)
  MCFBlock mcf;
- mcf.load( 3 , 3 ,
-           MCFBlock::Subset      { 2, 3, 3 } ,   // pEn (nodes 1 .. n)
-           MCFBlock::Subset      { 1, 2, 1 } ,   // pSn
-           MCFBlock::Vec_FNumber { 3.0, 3.0, 3.0 } ,  // pU
-           MCFBlock::Vec_CNumber { 2.0, 3.0, 4.0 } ,  // pC
-           MCFBlock::Vec_FNumber { -2.0, 0.0, +2.0 } );
+ mcf.load( 3 , 3 , MCFBlock::Subset{ 2 , 3 , 3 } ,       // pEn (nodes 1 .. n)
+           MCFBlock::Subset{ 1 , 2 , 1 } ,             // pSn
+           MCFBlock::Vec_FNumber{ 3.0 , 3.0 , 3.0 } ,  // pU
+           MCFBlock::Vec_CNumber{ 2.0 , 3.0 , 4.0 } ,  // pC
+           MCFBlock::Vec_FNumber{ -2.0 , 0.0 , +2.0 } );
 
  // attach a tap: FakeSolver simply accumulates every Modification
  // it receives without ever doing anything with them. This is the
@@ -664,8 +662,8 @@ int main()
   std::cout << *mod << '\n';
 
  mcf.unregister_Solver( tap , /* deleteold = */ true );
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 The physical change issues an `MCFBlockRngdMod` of type `eChgCost` on

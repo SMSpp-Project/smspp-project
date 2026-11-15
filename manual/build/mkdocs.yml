@@ -27,6 +27,7 @@ exclude_docs: |
   build/*.lua
   build/*.tex
   build/*.py
+  build/fonts/README.md
   OUTLINE.md
   MAINTENANCE.md
   model.html
@@ -41,8 +42,10 @@ theme:
     - content.code.copy
   palette:
     - scheme: default
-      primary: indigo
-      accent: indigo
+      primary: white
+      accent: deep purple
+  # the fonts of the PDF, served with the site [see extra.css]
+  font: false
 
 markdown_extensions:
   - admonition
@@ -64,6 +67,7 @@ extra_javascript:
 
 extra_css:
   - https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css
+  - build/extra.css
 
 nav:
   - Front matter: index.md

@@ -27,21 +27,21 @@ treatment.
 ## 11.2 `SimpleConfiguration<T>` {#sec-11-2}
 
 The simplest concrete `Configuration` is the template
-[`SimpleConfiguration<T>`](https://smspp.gitlab.io/smspp-project/d9/d88/class_s_m_spp__di__unipi__it_1_1_simple_configuration.html),
-which wraps a single value of type `T` in a public field
-`f_value`. `T` is typically `int`, `double`, a `std::pair<>`, or a
-`std::vector<>` of such; nesting is allowed, so a
-`SimpleConfiguration< std::vector< Configuration * > >` is itself
-a perfectly good `Configuration` carrying a list of sub-configurations.
+[`SimpleConfiguration< T >`](https://smspp.gitlab.io/smspp-project/d9/d88/class_s_m_spp__di__unipi__it_1_1_simple_configuration.html),
+which wraps a single value of type `T` in a public field `f_value`. `T` is
+typically `int`, `double`, a `std::pair<>`, or a `std::vector<>` of such;
+nesting is allowed, so a
+`SimpleConfiguration< std::vector< Configuration * > >` is itself a perfectly
+good `Configuration` carrying a list of sub-configurations.
 
-`SimpleConfiguration<T>` is the workhorse for the many places
-where a `:Block` needs "one number" to gate a decision. The four
-formulations of `CapacitatedFacilityLocationBlock` are selected by
-a `SimpleConfiguration< int >` whose `f_value` is the bit-mask
-`wf` ([§3.5](03-mental-model.md#sec-3-5)); the sparsity option of `MCFBlock`'s objective is a
-`SimpleConfiguration< double >`; the R3 Block selector of [§10.5](10-r3block.md#sec-10-5) is
-a `SimpleConfiguration< int >`. Each `:Block` documents the exact
-type and meaning it expects.
+`SimpleConfiguration< T >` is the workhorse for the many places where a
+`:Block` needs "one number" to gate a decision. The four formulations of
+`CapacitatedFacilityLocationBlock` are selected by a
+`SimpleConfiguration< int >` whose `f_value` is the bit-mask `wf`
+([§3.5](03-mental-model.md#sec-3-5)); the sparsity option of `MCFBlock`'s
+objective is a `SimpleConfiguration< double >`; the R3 Block selector of
+[§10.5](10-r3block.md#sec-10-5) is a `SimpleConfiguration< int >`. Each
+`:Block` documents the exact type and meaning it expects.
 
 Two container instantiations deserve special mention because they
 recur as the way to configure a *whole `Block` tree* at once:
@@ -218,25 +218,24 @@ the `O`, `C`, or `OC` prefix accordingly.
 
 While a `BlockConfig` configures the *model*, a
 [`BlockSolverConfig`](https://smspp.gitlab.io/smspp-project/d1/de4/class_s_m_spp__di__unipi__it_1_1_block_solver_config.html)
-configures the *solving*: it specifies which `:Solver`(s) are
-registered with a `Block` and, for each, the `ComputeConfig` (the
-solver parameters, [§11.5](11-configuration.md#sec-11-5)) to apply. It is applied to a `Block` with
+configures the *solving*: it specifies which `:Solver`(s) are registered with
+a `Block` and, for each, the `ComputeConfig` (the solver parameters,
+[§11.5](11-configuration.md#sec-11-5)) to apply. It is applied to a `Block`
+with
 `apply( Block * block , const std::unordered_set< Block * > * ignored = nullptr )`,
-where `ignored`, if given, is the set of the `Block`s of the tree that
-the new `Solver`s must ignore, passed to `Solver::set_excluded_blocks()`
-before the `Solver` is registered. How it is applied depends on
-its mode: in *setting* mode (`eSetMode`) the `:Solver`s already
-registered are replaced by the listed ones, in *differential* mode
-(`eDiffMode`) a `:Solver` whose name is empty is kept and a
-`nullptr` `ComputeConfig` leaves its parameters as they are, and in
-*additive* mode (`eAddMode`) the listed `:Solver`s are registered in
-addition to the existing ones, which are never touched. A
-`BlockSolverConfig` remembers, per `Block`, which `:Solver`s it has
-created and registered (`get_Solvers(block)`); `clear()` empties it
-and puts it in setting mode, and applying the cleared object
-unregisters and deletes all and only the `:Solver`s that this very
-object had registered to that `Block`, leaving those put there by
-anybody else alone. The precise statement is the following.
+where `ignored`, if given, is the set of the `Block`s of the tree that the new
+`Solver`s must ignore, passed to `Solver::set_excluded_blocks()` before the
+`Solver` is registered. How it is applied depends on its mode: in *setting*
+mode (`eSetMode`) the `:Solver`s already registered are replaced by the listed
+ones, in *differential* mode (`eDiffMode`) a `:Solver` whose name is empty is
+kept and a `nullptr` `ComputeConfig` leaves its parameters as they are, and in
+*additive* mode (`eAddMode`) the listed `:Solver`s are registered in addition
+to the existing ones, which are never touched. A `BlockSolverConfig`
+remembers, per `Block`, which `:Solver`s it has created and registered
+(`get_Solvers( block )`); `clear()` empties it and puts it in setting mode,
+and applying the cleared object unregisters and deletes all and only the
+`:Solver`s that this very object had registered to that `Block`, leaving those
+put there by anybody else alone. The precise statement is the following.
 
 **Lemma 11.2.** *Let $c$ be a `BlockSolverConfig` that has been applied
 to a `Block` $B$ (possibly several times, in any mode), and let $S$ be
@@ -278,20 +277,18 @@ for instance, a `LagrangianDualSolver` on the master and a
 
 A
 [`ComputeConfig`](https://smspp.gitlab.io/smspp-project/da/daf/class_s_m_spp__di__unipi__it_1_1_compute_config.html)
-configures any `ThinComputeInterface`, hence any `Solver`, but also
-any `Function` or other computing object. It bundles the integer,
-double and string parameters introduced in
-[§6.4](06-solver.md#sec-6-4) (`intMaxIter`, `dblMaxTime`, `dblRelAcc`,
-and so on), and the vectors of integer, double and string parameters,
-into one serialisable object, plus an optional "extra" `Configuration`
-(`f_extra_Configuration`) for object-specific settings. Like a `BlockConfig`, it is either *differential*
-(`diff()`: the parameters it does not mention are left as they
-are) or not (they are reset to their default value), and it can be
-*relaxed* (`relax()`: the names of parameters that the object does
-not know are ignored, rather than raising an exception). A
-`BlockSolverConfig` holds one `ComputeConfig` per
-`:Solver` it manages; `set_ComputeConfig(const ComputeConfig*)`
-applies one directly.
+configures any `ThinComputeInterface`, hence any `Solver`, but also any
+`Function` or other computing object. It bundles the integer, double and
+string parameters introduced in [§6.4](06-solver.md#sec-6-4) (`intMaxIter`,
+`dblMaxTime`, `dblRelAcc`, and so on), and the vectors of integer, double and
+string parameters, into one serialisable object, plus an optional "extra"
+`Configuration` (`f_extra_Configuration`) for object-specific settings. Like a
+`BlockConfig`, it is either *differential* (`diff()`: the parameters it does
+not mention are left as they are) or not (they are reset to their default
+value), and it can be *relaxed* (`relax()`: the names of parameters that the
+object does not know are ignored, rather than raising an exception). A
+`BlockSolverConfig` holds one `ComputeConfig` per `:Solver` it manages;
+`set_ComputeConfig( const ComputeConfig * )` applies one directly.
 
 ## 11.6 The `f_extra_Configuration` escape hatch {#sec-11-6}
 
@@ -342,23 +339,20 @@ A `Configuration` (of any of the above kinds) can be:
 - `[de]serialize`-d to / from a netCDF group, like every other
   first-class SMS++ object.
 
-The factory `Configuration::new_Configuration(...)` reconstructs
-the right concrete `:Configuration` from a class name, which is
-what lets a text or netCDF file specify, say, an
-`RBlockSolverConfig` without the reading code knowing the type at
-compile time ([Chapter 18](18-factories-netcdf.md#ch-18)).
+The factory `Configuration::new_Configuration( ... )` reconstructs the right
+concrete `:Configuration` from a class name, which is what lets a text or
+netCDF file specify, say, an `RBlockSolverConfig` without the reading code
+knowing the type at compile time ([Chapter 18](18-factories-netcdf.md#ch-18)).
 
 ### The text format
 
-A text file holds a `Configuration` as its classname, as known to
-the factory, followed by the body that the `load()` of that class
-reads; `#` starts a comment that runs to the end of the line, and
-the comments of each `load()` describe its body. Wherever a
-`Configuration` is expected (a slot of a `BlockConfig`, a
-`ComputeConfig` of a `BlockSolverConfig`, the "extra"
-`Configuration` of a `ComputeConfig`, an entry of a
-meta-configuration) three forms are accepted
-(`Configuration::deserialize(std::istream&)`):
+A text file holds a `Configuration` as its classname, as known to the factory,
+followed by the body that the `load()` of that class reads; `#` starts a
+comment that runs to the end of the line, and the comments of each `load()`
+describe its body. Wherever a `Configuration` is expected (a slot of a
+`BlockConfig`, a `ComputeConfig` of a `BlockSolverConfig`, the "extra"
+`Configuration` of a `ComputeConfig`, an entry of a meta-configuration) three
+forms are accepted (`Configuration::deserialize( std::istream & )`):
 
 - the classname and the body, written in place;
 - `*` followed by whitespace, which means `nullptr` (in a
@@ -422,14 +416,14 @@ using namespace SMSpp_di_unipi_it;
 int main( int argc , char ** argv )
 {
  CapacitatedFacilityLocationBlock cfl;
- std::ifstream in( argv[ 1 ] );     // a CFL instance in ORLib format
+ std::ifstream in( argv[ 1 ] );  // a CFL instance in ORLib format
  cfl.load( in );
 
  // configure the MODEL: the BlockConfig of the file selects the
  // Knapsack Formulation (wf = 1)
  auto bc = dynamic_cast< BlockConfig * >(
-                 Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
- bc->apply( & cfl );
+   Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
+ bc->apply( &cfl );
  delete bc;                          // apply() has moved its slots
  cfl.generate_abstract_variables();  // KskForm, with its sub-Block
  cfl.generate_abstract_constraints();
@@ -437,16 +431,16 @@ int main( int argc , char ** argv )
 
  // configure the SOLVING: the Solver(s) and their parameters
  auto bsc = dynamic_cast< BlockSolverConfig * >(
-                 Configuration::deserialize( "BSPar-LDS.txt" ) );
- bsc->apply( & cfl );                // constructs and registers them
- bsc->clear();                       // empty, but it keeps the record
+   Configuration::deserialize( "BSPar-LDS.txt" ) );
+ bsc->apply( &cfl );  // constructs and registers them
+ bsc->clear();        // empty, but it keeps the record
 
  auto slvr = cfl.get_registered_solvers().front();
  slvr->compute();
 
  // cleanup: the clear()-ed object, applied again, unregisters and
  // deletes the Solver(s) it had registered (Lemma 11.2)
- bsc->apply( & cfl );
+ bsc->apply( &cfl );
  delete bsc;
  return( 0 );
  }

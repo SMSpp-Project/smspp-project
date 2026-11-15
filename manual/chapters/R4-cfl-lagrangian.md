@@ -92,14 +92,14 @@ using namespace SMSpp_di_unipi_it;
 int main( int argc , char ** argv )
 {
  CapacitatedFacilityLocationBlock cfl;
- std::ifstream in( argv[ 1 ] );     // a CFL instance in ORLib format
+ std::ifstream in( argv[ 1 ] );  // a CFL instance in ORLib format
  cfl.load( in );
 
  // the Knapsack Formulation (wf = 1), whose static constraints value 1
  // builds the customer satisfaction ("sat") linking constraints alone
  auto bc = dynamic_cast< BlockConfig * >(
-                 Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
- bc->apply( & cfl );
+   Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
+ bc->apply( &cfl );
  delete bc;
  cfl.generate_abstract_variables();    // one BinaryKnapsackBlock each
  cfl.generate_abstract_constraints();  // the "sat" constraints
@@ -108,17 +108,16 @@ int main( int argc , char ** argv )
  // a LagrangianDualSolver, whose ComputeConfig names the inner
  // BundleSolver and the BlockSolverConfig of the knapsacks
  auto bsc = dynamic_cast< BlockSolverConfig * >(
-                 Configuration::deserialize( "CFLBSCfg-ld-LDS.txt" ) );
- bsc->apply( & cfl );
+   Configuration::deserialize( "CFLBSCfg-ld-LDS.txt" ) );
+ bsc->apply( &cfl );
  bsc->clear();
 
- auto lds = static_cast< CDASolver * >(
-                                   cfl.get_registered_solvers().front() );
- lds->compute();                       // solves the Lagrangian dual
+ auto lds = static_cast< CDASolver * >( cfl.get_registered_solvers().front() );
+ lds->compute();  // solves the Lagrangian dual
  std::cout << "Lagrangian bound = " << lds->get_lb() << std::endl;
- lds->get_var_solution();              // the convexified solution in cfl
+ lds->get_var_solution();  // the convexified solution in cfl
 
- bsc->apply( & cfl );                  // cleanup (Lemma 11.2)
+ bsc->apply( &cfl );  // cleanup (Lemma 11.2)
  delete bsc;
  return( 0 );
  }

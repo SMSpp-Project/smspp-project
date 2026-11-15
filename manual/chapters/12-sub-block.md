@@ -93,31 +93,30 @@ using namespace SMSpp_di_unipi_it;
 int main( int argc , char ** argv )
 {
  CapacitatedFacilityLocationBlock cfl;
- std::ifstream in( argv[ 1 ] );     // a CFL instance in ORLib format
+ std::ifstream in( argv[ 1 ] );  // a CFL instance in ORLib format
  cfl.load( in );
 
  // the Knapsack Formulation: one BinaryKnapsackBlock per facility
  auto bc = dynamic_cast< BlockConfig * >(
-                 Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
- bc->apply( & cfl );
+   Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
+ bc->apply( &cfl );
  delete bc;
- cfl.generate_abstract_variables();  // grows the sub-Block tree
+ cfl.generate_abstract_variables();    // grows the sub-Block tree
  cfl.generate_abstract_constraints();  // the linking constraints
  cfl.generate_objective();
 
  // the tree is now populated: navigate it
  const auto nf = cfl.get_number_nested_Blocks();  // == get_NFacilities()
  for( Block::Index i = 0 ; i < nf ; ++i ) {
-  auto bk = static_cast< BinaryKnapsackBlock * >(
-                                             cfl.get_nested_Block( i ) );
-  std::cout << "facility " << i << ": " << bk->get_NItems()
-            << " items" << std::endl;
+  auto bk = static_cast< BinaryKnapsackBlock * >( cfl.get_nested_Block( i ) );
+  std::cout << "facility " << i << ": " << bk->get_NItems() << " items"
+            << std::endl;
   }
 
  // a Solver at the root
  auto bsc = dynamic_cast< BlockSolverConfig * >(
-                 Configuration::deserialize( "BSPar-LDS.txt" ) );
- bsc->apply( & cfl );
+   Configuration::deserialize( "BSPar-LDS.txt" ) );
+ bsc->apply( &cfl );
  bsc->clear();
 
  // a change in a leaf sub-Block reaches the Solver of the root: the
@@ -125,7 +124,7 @@ int main( int argc , char ** argv )
  auto bk0 = static_cast< BinaryKnapsackBlock * >( cfl.get_nested_Block( 0 ) );
  bk0->chg_weight( 5.0 , 2 );
 
- bsc->apply( & cfl );
+ bsc->apply( &cfl );
  delete bsc;
  return( 0 );
  }
@@ -299,26 +298,28 @@ int main()
  auto * bc = new BlockConfig;
  bc->f_static_variables_Configuration = new SimpleConfiguration< int >( 1 );
  cfl.set_BlockConfig( bc );
- cfl.generate_abstract_variables();     // builds the sub-Block tree
- cfl.generate_abstract_constraints();   // builds the linking constraints
+ cfl.generate_abstract_variables();    // builds the sub-Block tree
+ cfl.generate_abstract_constraints();  // builds the linking constraints
  cfl.generate_objective();
 
  // the tree is now populated: navigate it
- const auto nf = cfl.get_number_nested_Blocks();   // == f_n_facilities
+ const auto nf = cfl.get_number_nested_Blocks();  // == f_n_facilities
  for( Block::Index i = 0 ; i < nf ; ++i ) {
-  auto * bk = dynamic_cast< BinaryKnapsackBlock * >( cfl.get_nested_Block( i ) );
+  auto * bk =
+    dynamic_cast< BinaryKnapsackBlock * >( cfl.get_nested_Block( i ) );
   // bk is the knapsack sub-Block for facility i
   }
 
  // a change in a leaf sub-Block reaches a Solver attached at the root:
  // (suppose a Solver has been registered on cfl)
- auto * bk0 = dynamic_cast< BinaryKnapsackBlock * >( cfl.get_nested_Block( 0 ) );
+ auto * bk0 =
+   dynamic_cast< BinaryKnapsackBlock * >( cfl.get_nested_Block( 0 ) );
  bk0->chg_weight( /* new weight */ 5.0 , /* item */ 2 , eModBlck );
  // the BinaryKnapsackBlockMod issued by bk0 travels up to cfl and is
  // delivered to every Solver registered on cfl (the root of bk0's tree)
 
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 The example is the configuration that

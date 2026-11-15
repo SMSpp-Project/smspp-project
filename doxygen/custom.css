@@ -58,3 +58,99 @@ div.groupHeader {
     display: inline;
     overflow-wrap: anywhere;
 }
+
+/* the look of the PDF of the user manual [see manual/build/extra.css]:
+   the Latin Modern fonts of TeX for the text and the code (copied next to
+   this file by HTML_EXTRA_FILES), at the size of a book, black text,
+   white panels, plain tables with thin rules, the code within the prose
+   without a box, and the primary 7030A0 only for the links */
+@font-face { font-family: "Latin Modern Roman";
+    src: url("lmroman10-regular.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-weight: bold;
+    src: url("lmroman10-bold.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-style: italic;
+    src: url("lmroman10-italic.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-weight: bold;
+    font-style: italic;
+    src: url("lmroman10-bolditalic.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Mono";
+    src: url("lmmono10-regular.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Mono"; font-style: italic;
+    src: url("lmmono10-italic.otf") format("opentype"); }
+
+html {
+    --font-family: "Latin Modern Roman", serif;
+    --font-family-monospace: "Latin Modern Mono", monospace;
+    --page-font-size: 17px;
+    --navigation-font-size: 15px;
+    --toc-font-size: 15px;
+    --code-font-size: 15px;
+    --title-font-size: 24px;
+    --primary-color: #7030A0;
+    --primary-dark-color: #7030A0;
+    --primary-light-color: #9363be;
+    --page-foreground-color: #000000;
+    --side-nav-background: var(--page-background-color);
+    --tablehead-background: none;
+    --code-background: none;
+}
+
+/* the same in the dark theme, with the purple of the links lightened so
+   that it reads on the dark background */
+@media (prefers-color-scheme: dark) {
+    html:not(.light-mode) {
+        --primary-color: #b37fdb;
+        --primary-dark-color: #b37fdb;
+        --primary-light-color: #9363be;
+        --page-foreground-color: #e6e6e6;
+        --side-nav-background: var(--page-background-color);
+    }
+}
+html.dark-mode {
+    --primary-color: #b37fdb;
+    --primary-dark-color: #b37fdb;
+    --primary-light-color: #9363be;
+    --page-foreground-color: #e6e6e6;
+    --side-nav-background: var(--page-background-color);
+}
+
+div.contents p, div.contents li, div.contents dd {
+    text-align: justify;
+    hyphens: auto;
+}
+
+h1, h2, h3, h4, h5, div.header .title {
+    font-weight: bold;
+    letter-spacing: 0;
+}
+
+/* the code within the prose as \texttt in the PDF */
+div.contents code, div.contents span.tt {
+    border: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* the tables as in the PDF: a rule above and below and a thin one under
+   the head, with no grid and no shadow */
+table.markdownTable tbody, table.doxtable tbody, table.fieldtable {
+    box-shadow: none;
+    border-radius: 0;
+}
+table.markdownTable, table.doxtable, table.fieldtable {
+    border-collapse: collapse;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+}
+table.markdownTable td, table.markdownTable th,
+table.doxtable td, table.doxtable th,
+table.fieldtable td, table.fieldtable th {
+    border: none;
+}
+table.markdownTable tr, table.doxtable tr {
+    border-bottom: none;
+}
+table.markdownTable th, table.doxtable th, table.fieldtable th {
+    font-weight: bold;
+    border-bottom: 0.5px solid currentColor;
+}

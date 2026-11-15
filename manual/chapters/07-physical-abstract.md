@@ -180,21 +180,19 @@ constructed. Both faces are then kept in step by the mechanisms of
 
 ## 7.4 The lifetime of the abstract representation {#sec-7-4}
 
-Once constructed, the abstract representation lives as long as the
-`:Block`, with two exceptions. First, a `:Block` may be reset by
-another `load(...)` (or by `deserialize(...)`), which replaces the
-instance altogether. By convention, `load(...)` issues a single
-`NBModification` (the nuclear option of [§4.6](04-block.md#sec-4-6))
-to the listening `:Solver`s, and the abstract representation of the
-old instance is deleted (in `MCFBlock`, by the same code as the
-destructor, after the `Constraint`s have been emptied so that they do
-not unregister from `Variable`s that are being deleted anyway). Of the
-new instance, only the parts that `load(...)` constructs exist
-afterwards (for `MCFBlock` and `BinaryKnapsackBlock`, the
-`Variable`s); the other ones are constructed again when a `:Solver`
-that needs them calls the `generate_*` methods, typically while it
-processes the `NBModification`, which is consistent with the "on
-demand" rule.
+Once constructed, the abstract representation lives as long as the `:Block`,
+with two exceptions. First, a `:Block` may be reset by another `load( ... )`
+(or by `deserialize( ... )`), which replaces the instance altogether. By
+convention, `load( ... )` issues a single `NBModification` (the nuclear option
+of [§4.6](04-block.md#sec-4-6)) to the listening `:Solver`s, and the abstract
+representation of the old instance is deleted (in `MCFBlock`, by the same code
+as the destructor, after the `Constraint`s have been emptied so that they do
+not unregister from `Variable`s that are being deleted anyway). Of the new
+instance, only the parts that `load( ... )` constructs exist afterwards (for
+`MCFBlock` and `BinaryKnapsackBlock`, the `Variable`s); the other ones are
+constructed again when a `:Solver` that needs them calls the `generate_*`
+methods, typically while it processes the `NBModification`, which is
+consistent with the "on demand" rule.
 
 Second, the dynamic groups of `Variable`s and `Constraint`s can grow
 and shrink at any time, through `add_dynamic_variables()`,
@@ -262,16 +260,15 @@ virtual bool is_sol_feasible( Solution * sol , Configuration * fsbc = nullptr );
 virtual bool is_sol_optimal( Solution * sol , Configuration * optc = nullptr );
 ```
 
-with the same meaning of the `Configuration *`. Their names differ
-from those of `is_feasible()` and `is_optimal()` on purpose: since a
-pointer converts silently to `bool`, an overload with the same name
-would turn a call meant to check a `Solution` into `is_feasible( true
-)` in any `:Block` that only overrides the latter. The default
-implementation, which requires the abstract representation, writes the
-`Solution` into the `Variable`s, calls `is_feasible( true )` (or
-`is_optimal( true )`), and puts back what was there. In pseudocode,
-for a `Block` $B$, a `Solution` $s$ and a test $T$ (one of the two),
-it reads
+with the same meaning of the `Configuration *`. Their names differ from those
+of `is_feasible()` and `is_optimal()` on purpose: since a pointer converts
+silently to `bool`, an overload with the same name would turn a call meant to
+check a `Solution` into `is_feasible( true )` in any `:Block` that only
+overrides the latter. The default implementation, which requires the abstract
+representation, writes the `Solution` into the `Variable`s, calls
+`is_feasible( true )` (or `is_optimal( true )`), and puts back what was there.
+In pseudocode, for a `Block` $B$, a `Solution` $s$ and a test $T$ (one of the
+two), it reads
 
 ```
 check(B, s, T):
@@ -330,41 +327,37 @@ schedule of a unit) do it for feasibility only.
 
 ## 7.6 Status — under development: the half-baked `Solution` {#sec-7-6}
 
-The picture of [§7.1](07-physical-abstract.md#sec-7-1), two faces that
-coexist with neither being privileged, is not, at version 0.8.0, a
-faithful description of the implementation, but the one towards which
-it is moving. Today, the situation is the following. The `Constraint`s
-and the `Objective` of the abstract representation are built genuinely
-on demand, i.e., only if a `:Solver` that needs them is attached. The
-`Variable`s, instead, are *always* constructed by the `:Block`s of the
-running examples, whether or not any `:Solver` reads them, since the
-standard way for a `:Solver` to report its solution is
-`get_var_solution()`, which *writes into* the `Variable`s of the
-`Block`. Even an `MCFBlock` attached only to an `MCFSolver< MCFSimplex
->` has its `std::vector< ColVariable >` of size `NStaticArcs`
-allocated by `load(...)`, where the `:Solver` can put the optimal
-flows.
+The picture of [§7.1](07-physical-abstract.md#sec-7-1), two faces that coexist
+with neither being privileged, is not, at version 0.8.0, a faithful
+description of the implementation, but the one towards which it is moving.
+Today, the situation is the following. The `Constraint`s and the `Objective`
+of the abstract representation are built genuinely on demand, i.e., only if a
+`:Solver` that needs them is attached. The `Variable`s, instead, are *always*
+constructed by the `:Block`s of the running examples, whether or not any
+`:Solver` reads them, since the standard way for a `:Solver` to report its
+solution is `get_var_solution()`, which *writes into* the `Variable`s of the
+`Block`. Even an `MCFBlock` attached only to an `MCFSolver< MCFSimplex >` has
+its `std::vector< ColVariable >` of size `NStaticArcs` allocated by
+`load( ... )`, where the `:Solver` can put the optimal flows.
 
-The way out is to let a `:Solver` return a `Solution` object
-*directly*, instead of writing the solution component by component
-into the `Variable`s, and this half is now in the interface.
-`Solver::get_Solution( Configuration * )` returns a `Solution`
-specific to the `:Block` (such as `MCFSolution`, see [Chapter
-9](09-solution.md#ch-9)); a "physical" `:Solver`, which builds it out
-of its data structures without touching the `Variable`s, declares it
-by returning `true` from `is_get_Solution_physical()`. `MCFSolver`,
-`MCFLemonSolver`, the `:Solver`s of `BinaryKnapsackBlock` and
-`ThermalUnitDPSolver`, among others, do so, and the `Solution` can
-then be checked by `is_sol_feasible()` and `is_sol_optimal()` (cf.
-[§7.5](07-physical-abstract.md#sec-7-5)), again without the
-`Variable`s. Still missing is the other half: the `:Block`s of the
-running examples still construct their `Variable`s in `load(...)`, and
-therefore a `:Block` attached only to specialized `:Solver`s does not
-yet skip them. This is one of several places where the interface of
-SMS++ is not settled at version 0.8.0, and code written today should
-not assume that the present arrangement will persist; in [Chapter
-9](09-solution.md#ch-9) we return to the point from the side of
-`Solution`.
+The way out is to let a `:Solver` return a `Solution` object *directly*,
+instead of writing the solution component by component into the `Variable`s,
+and this half is now in the interface.
+`Solver::get_Solution( Configuration * )` returns a `Solution` specific to the
+`:Block` (such as `MCFSolution`, see [Chapter 9](09-solution.md#ch-9)); a
+"physical" `:Solver`, which builds it out of its data structures without
+touching the `Variable`s, declares it by returning `true` from
+`is_get_Solution_physical()`. `MCFSolver`, `MCFLemonSolver`, the `:Solver`s of
+`BinaryKnapsackBlock` and `ThermalUnitDPSolver`, among others, do so, and the
+`Solution` can then be checked by `is_sol_feasible()` and `is_sol_optimal()`
+(cf. [§7.5](07-physical-abstract.md#sec-7-5)), again without the `Variable`s.
+Still missing is the other half: the `:Block`s of the running examples still
+construct their `Variable`s in `load( ... )`, and therefore a `:Block`
+attached only to specialized `:Solver`s does not yet skip them. This is one of
+several places where the interface of SMS++ is not settled at version 0.8.0,
+and code written today should not assume that the present arrangement will
+persist; in [Chapter 9](09-solution.md#ch-9) we return to the point from the
+side of `Solution`.
 
 ## 7.7 Idioms {#sec-7-7}
 

@@ -65,11 +65,11 @@ manual is distributed under the same terms.
 
 ## Conventions
 
-* **Class and method names** are typeset in `monospace`, e.g.
-  `Block`, `add_Modification(...)`. Concrete classes derived from an
-  abstract base are sometimes written `:Solver`, `:Block` to emphasise
-  their derived nature, following the convention adopted in the slide
-  decks that accompany the project.
+* **Class and method names** are typeset in `monospace`, e.g. `Block`,
+  `add_Modification( ... )`. Concrete classes derived from an abstract base
+  are sometimes written `:Solver`, `:Block` to emphasise their derived nature,
+  following the convention adopted in the slide decks that accompany the
+  project.
 * **File-path and source-tree references** are typeset in `monospace`
   too, e.g. `SMS++/include/Block.h`. Whenever a precise pointer into
   the source is given, the form is `file:line`.

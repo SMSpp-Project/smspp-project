@@ -82,15 +82,13 @@ resources has been reached.
 
 ## 6.2 Specialized and general-purpose Solvers {#sec-6-2}
 
-A *specialized* `:Solver` is written for a specific `:Block` class,
-and it reads the *physical* representation directly, i.e., the data of
-the problem in the form in which the `:Block` stores them (a graph for
-`MCFBlock`, the weights, profits and capacity for
-`BinaryKnapsackBlock`). It is typically fast, since it knows the
-structure and can exploit it, and the price of the speed is that it
-works only for that `:Block`. The running examples comprise
-[`MCFSolver< MCFC
->`](https://smspp.gitlab.io/smspp-project/d2/dd2/class_s_m_spp__di__unipi__it_1_1_m_c_f_solver.html)
+A *specialized* `:Solver` is written for a specific `:Block` class, and it
+reads the *physical* representation directly, i.e., the data of the problem in
+the form in which the `:Block` stores them (a graph for `MCFBlock`, the
+weights, profits and capacity for `BinaryKnapsackBlock`). It is typically
+fast, since it knows the structure and can exploit it, and the price of the
+speed is that it works only for that `:Block`. The running examples comprise
+[`MCFSolver< MCFC >`](https://smspp.gitlab.io/smspp-project/d2/dd2/class_s_m_spp__di__unipi__it_1_1_m_c_f_solver.html)
 (a wrapper of an algorithm of `MCFClass`) for `MCFBlock` and
 [`DPBinaryKnapsackSolver`](https://smspp.gitlab.io/smspp-project/d5/d6a/class_s_m_spp__di__unipi__it_1_1_d_p_binary_knapsack_solver.html)
 (a dynamic program native to SMS++) for `BinaryKnapsackBlock`.
@@ -280,11 +278,11 @@ int main()
 {
  // construct the MCFBlock and load the instance (as in §4.5)
  MCFBlock mcf;
- MCFBlock::Subset      pSn = { 1, 2, 1 };
- MCFBlock::Subset      pEn = { 2, 3, 3 };
- MCFBlock::Vec_FNumber pU  = { 3.0, 3.0, 3.0 };
- MCFBlock::Vec_CNumber pC  = { 2.0, 3.0, 4.0 };
- MCFBlock::Vec_FNumber pB  = { -2.0, 0.0, +2.0 };
+ MCFBlock::Subset pSn = { 1 , 2 , 1 };
+ MCFBlock::Subset pEn = { 2 , 3 , 3 };
+ MCFBlock::Vec_FNumber pU = { 3.0 , 3.0 , 3.0 };
+ MCFBlock::Vec_CNumber pC = { 2.0 , 3.0 , 4.0 };
+ MCFBlock::Vec_FNumber pB = { -2.0 , 0.0 , +2.0 };
  mcf.load( 3 , 3 , pEn , pSn , pU , pC , pB );
 
  // construct the specialised Solver and attach it to the MCFBlock
@@ -300,8 +298,8 @@ int main()
   // flows to the MCFSolution that it fills out of its own data
   // structures, without writing into the ColVariable of the MCFBlock
   std::cout << "objective = " << solver->get_var_value() << '\n';
-  std::unique_ptr< MCFSolution > sol( static_cast< MCFSolution * >(
-                                            solver->get_Solution() ) );
+  std::unique_ptr< MCFSolution > sol(
+    static_cast< MCFSolution * >( solver->get_Solution() ) );
   const auto & x = sol->get_x();
   for( std::size_t a = 0 ; a < x.size() ; ++a )
    std::cout << "  flow on arc " << a << " = " << x[ a ] << '\n';
@@ -318,41 +316,37 @@ int main()
 
  // detach and clean up
  mcf.unregister_Solver( solver , /* deleteold = */ true );
- return 0;
-}
+ return( 0 );
+ }
 ```
 
-Four remarks are in order. First, `MCFSolver` is a template on the
-algorithm of `MCFClass`: `MCFSimplex` is one choice, and `RelaxIV`,
-`CS2`, `SPTree`, `MCFZIB` and `MCFCplex` (each in a header of its own)
-are the others, the choice being made at compile time (the factory
-registers each instance under its own name, e.g.,
-`"MCFSolver<RelaxIV>"`). Second, `register_Solver()` does *not* take
-ownership of the `Solver *`, which is only put in the list of the
-registered `Solver`s; ownership remains with the caller, while the
-flag `deleteold == true` of `unregister_Solver()` (whose default is
-`false`) has the `Block` delete the `Solver` once detached. Third, the
-primal solution is not written into the `ColVariable`s of the `Block`:
-`MCFSolver` is a "physical" `:Solver` (`is_get_Solution_physical()`
-returns `true`), whose `get_Solution()` fills an `MCFSolution` out of
-the data of the `MCFClass` object, the caller owning the result (cf.
-[§3.3](03-mental-model.md#sec-3-3)). The methods `get_x(...)` and
-`get_objective_value()` of the `MCFBlock`, instead, read its
-`ColVariable`s, and they become meaningful only after a call to
-`solver->get_var_solution()`, which writes the flows there (the
-`ColVariable`s exist, since `load()` constructs them, while the
-`Objective` requires `generate_objective()`). Fourth, replacing
-`MCFSolver< MCFSimplex >` by a general-purpose `:MILPSolver` (say,
-`CPXMILPSolver`) requires no change to the code around it: the user
-calls `mcf.register_Solver( milp )` and `milp->compute()`, and reads
-the solution as before. However, `MILPSolver` *needs* the abstract
-representation, which it has generated
+Four remarks are in order. First, `MCFSolver` is a template on the algorithm
+of `MCFClass`: `MCFSimplex` is one choice, and `RelaxIV`, `CS2`, `SPTree`,
+`MCFZIB` and `MCFCplex` (each in a header of its own) are the others, the
+choice being made at compile time (the factory registers each instance under
+its own name, e.g., `"MCFSolver<RelaxIV>"`). Second, `register_Solver()` does
+*not* take ownership of the `Solver *`, which is only put in the list of the
+registered `Solver`s; ownership remains with the caller, while the flag
+`deleteold == true` of `unregister_Solver()` (whose default is `false`) has
+the `Block` delete the `Solver` once detached. Third, the primal solution is
+not written into the `ColVariable`s of the `Block`: `MCFSolver` is a
+"physical" `:Solver` (`is_get_Solution_physical()` returns `true`), whose
+`get_Solution()` fills an `MCFSolution` out of the data of the `MCFClass`
+object, the caller owning the result (cf. [§3.3](03-mental-model.md#sec-3-3)).
+The methods `get_x( ... )` and `get_objective_value()` of the `MCFBlock`,
+instead, read its `ColVariable`s, and they become meaningful only after a call
+to `solver->get_var_solution()`, which writes the flows there (the
+`ColVariable`s exist, since `load()` constructs them, while the `Objective`
+requires `generate_objective()`). Fourth, replacing `MCFSolver< MCFSimplex >`
+by a general-purpose `:MILPSolver` (say, `CPXMILPSolver`) requires no change
+to the code around it: the user calls `mcf.register_Solver( milp )` and
+`milp->compute()`, and reads the solution as before. However, `MILPSolver`
+*needs* the abstract representation, which it has generated
 (`generate_abstract_variables()`, `generate_abstract_constraints()`,
-`generate_objective()`) when it is registered, and that its
-`get_Solution()` goes through the `ColVariable`s of the `Block` (it
-calls `get_var_solution()` and then `MCFBlock::get_Solution()`); this
-is the trade-off that [Chapter 7](07-physical-abstract.md#ch-7) makes
-precise.
+`generate_objective()`) when it is registered, and that its `get_Solution()`
+goes through the `ColVariable`s of the `Block` (it calls `get_var_solution()`
+and then `MCFBlock::get_Solution()`); this is the trade-off that [Chapter
+7](07-physical-abstract.md#ch-7) makes precise.
 
 ## 6.8 Outline of the interface {#sec-6-8}
 
@@ -360,7 +354,7 @@ The main public methods of `Solver`, grouped by purpose, are the
 following:
 
 - *attachment*: `set_Block( Block * )`, `get_Block()`, and
-  `set_excluded_blocks(...)` and `set_excluded_objectives(...)`, which
+  `set_excluded_blocks( ... )` and `set_excluded_objectives( ... )`, which
   leave parts of the target out of the computation;
 - *computation*: `compute( bool changedvars )`, `compute_async( bool
   changedvars )`;
@@ -373,7 +367,7 @@ following:
   `get_var_solution( Configuration * )`, `is_var_feasible()`,
   `get_var_value()`, `get_Solution( Configuration * )`,
   `is_get_Solution_physical()`, and `has_var_direction()` and
-  `get_var_direction(...)` for the directions of unboundedness;
+  `get_var_direction( ... )` for the directions of unboundedness;
 - *dual solutions* (of a `CDASolver` only): `has_dual_solution()`,
   `new_dual_solution()`, `get_dual_solution( Configuration * )`,
   `is_dual_feasible()`, and the corresponding methods for the dual
@@ -386,8 +380,7 @@ following:
   that the `:Solver` reads ([§4.6](04-block.md#sec-4-6) and
   [Appendix B](B-writing-solver.md#sec-B-4)), and
   `inhibit_Modification()`;
-- *log*: `set_log( std::ostream * )` and `set_par( intLogVerb , level
-  )`.
+- *log*: `set_log( std::ostream * )` and `set_par( intLogVerb , level )`.
 
 For the specification of each method, including the contract of each
 parameter and the signature of each callback, is in [Doxy:

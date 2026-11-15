@@ -180,19 +180,18 @@ of the framework exists to make them efficient.
 solve, then loop over modify and
 re-solve.](../figures/block-lifecycle.svg)
 
-- *Build.* First, the `Block` is constructed and filled with data,
-  which may come from arrays in memory (typically passed to a
-  `load(...)` method specific to the `:Block`), from a text file
-  (passed to `load(std::istream&, char)`), or from a netCDF group
-  (passed to `deserialize(const netCDF::NcGroup&)`). Only the netCDF
-  route is supported uniformly across the catalogue. The text one is
-  declared by all the `:Block`s, since it is pure virtual in `Block`,
-  but it reads something meaningful only for those that have an
-  established text format. Among them are the three running examples
-  (`MCFBlock` reading the DIMACS format), `MMCFBlock`, `SATBlock` and
-  `LukFiBlock`; the overloads from memory exist only where they have
-  been written. For most other `:Block`s the intended routes are
-  netCDF and the construction by the application that owns the
+- *Build.* First, the `Block` is constructed and filled with data, which may
+  come from arrays in memory (typically passed to a `load( ... )` method
+  specific to the `:Block`), from a text file (passed to
+  `load( std::istream & , char )`), or from a netCDF group (passed to
+  `deserialize( const netCDF::NcGroup & )`). Only the netCDF route is supported
+  uniformly across the catalogue. The text one is declared by all the
+  `:Block`s, since it is pure virtual in `Block`, but it reads something
+  meaningful only for those that have an established text format. Among them
+  are the three running examples (`MCFBlock` reading the DIMACS format),
+  `MMCFBlock`, `SATBlock` and `LukFiBlock`; the overloads from memory exist
+  only where they have been written. For most other `:Block`s the intended
+  routes are netCDF and the construction by the application that owns the
   `:Block`.
 - *Configure.* The optional behaviors of the `Block` are set by a tree
   of `Configuration` objects that mirrors the tree of `Block`s, and
@@ -238,23 +237,21 @@ one can add (and later remove) dynamic nodes and arcs, up to maximum
 numbers given when the instance is loaded.
 
 `MCFBlock` is paired with the specialized template `:Solver`
-[`MCFSolver< MCFC
->`](https://smspp.gitlab.io/smspp-project/d2/dd2/class_s_m_spp__di__unipi__it_1_1_m_c_f_solver.html),
-which wraps a concrete algorithm of the `MCFClass` library. The
-template parameter `MCFC` chooses among a primal or dual network
-simplex (`MCFSimplex`), a relaxation method (`RelaxIV`), a
-cost-scaling method (`CS2`), a shortest path tree method for the
-uncapacitated case (`SPTree`), the network simplex of ZIB (`MCFZIB`)
-and the network solver of CPLEX (`MCFCplex`). This is the example of a
-*wrapper* `:Solver`: the implementation lives in an external library
-that predates SMS++ and is developed independently, and SMS++ exposes
-it through the `:Solver` interface.
+[`MCFSolver< MCFC >`](https://smspp.gitlab.io/smspp-project/d2/dd2/class_s_m_spp__di__unipi__it_1_1_m_c_f_solver.html),
+which wraps a concrete algorithm of the `MCFClass` library. The template
+parameter `MCFC` chooses among a primal or dual network simplex
+(`MCFSimplex`), a relaxation method (`RelaxIV`), a cost-scaling method
+(`CS2`), a shortest path tree method for the uncapacitated case (`SPTree`),
+the network simplex of ZIB (`MCFZIB`) and the network solver of CPLEX
+(`MCFCplex`). This is the example of a *wrapper* `:Solver`: the implementation
+lives in an external library that predates SMS++ and is developed
+independently, and SMS++ exposes it through the `:Solver` interface.
 
-Through `MCFBlock` we introduce the basics of a leaf
-`Block`, the construction of the abstract representation, the two
-streams of `Modification`s, the methods `is_feasible(useabstract)`
-and `is_optimal(useabstract)` written on both representations, the
-`R3Block` that is a plain copy, and the class `MCFSolution`.
+Through `MCFBlock` we introduce the basics of a leaf `Block`, the construction
+of the abstract representation, the two streams of `Modification`s, the
+methods `is_feasible( useabstract )` and `is_optimal( useabstract )` written
+on both representations, the `R3Block` that is a plain copy, and the class
+`MCFSolution`.
 
 ### `BinaryKnapsackBlock`: a leaf Block with a native Solver
 

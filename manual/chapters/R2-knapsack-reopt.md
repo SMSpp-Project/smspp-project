@@ -37,13 +37,16 @@ using namespace SMSpp_di_unipi_it;
 
 static void solve_and_report( BinaryKnapsackBlock & bkb , Solver * s )
 {
- if( s->compute() != Solver::kOK ) { std::cout << "not solved\n"; return; }
- s->get_var_solution();                     // write x in the Block
+ if( s->compute() != Solver::kOK ) {
+  std::cout << "not solved\n";
+  return;
+  }
+ s->get_var_solution();  // write x in the Block
  std::cout << "objective = " << bkb.get_objective_value() << " ; x = (";
  for( BinaryKnapsackBlock::Index i = 0 ; i < bkb.get_NItems() ; ++i )
   std::cout << ( i ? "," : "" ) << bkb.get_x( i );
  std::cout << ")\n";
-}
+ }
 
 int main()
 {
@@ -51,11 +54,11 @@ int main()
  BinaryKnapsackBlock bkb;
  const std::vector< double > W = { 2.0 , 3.0 , 4.0 , 1.0 };  // weights
  const std::vector< double > P = { 3.0 , 4.0 , 5.0 , 1.0 };  // profits
- bkb.load( 4 , /* capacity = */ 5.0 , W , P );   // maximization by default
+ bkb.load( 4 , /* capacity = */ 5.0 , W , P );  // maximization by default
 
-  // load() has constructed the Variable; the Objective is what
+ // load() has constructed the Variable; the Objective is what
  // get_objective_value() computes
- bkb.generate_abstract_variables();   // nothing to do, already there
+ bkb.generate_abstract_variables();  // nothing to do, already there
  bkb.generate_objective();
 
  auto * solver = new DPBinaryKnapsackSolver();
@@ -66,14 +69,14 @@ int main()
  solve_and_report( bkb , solver );
 
  // ---- incremental change: item 2 becomes much more profitable ----
- bkb.chg_profit( 8.0 , /* item = */ 2 );   // physical change -> Modification
+ bkb.chg_profit( 8.0 , /* item = */ 2 );  // physical change -> Modification
 
  // ---- re-solve: the solver reoptimizes from its previous state ----
  solve_and_report( bkb , solver );
 
  bkb.unregister_Solver( solver , /* deleteold = */ true );
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 ## Walk-through
@@ -94,9 +97,9 @@ int main()
   the `Block`, which has to be generated: without
   `generate_objective()` it returns $+\infty$, while `get_x( i )`
   works in any case.
-- `chg_profit(8.0, 2)` changes the profit of item 2 in the
-  physical representation and issues the corresponding
-  `BinaryKnapsackBlockMod` ([Chapter 8](08-modification-janus.md#ch-8)). Because the solver is
+- `chg_profit( 8.0 , 2 )` changes the profit of item 2 in the physical
+  representation and issues the corresponding `BinaryKnapsackBlockMod`
+  ([Chapter 8](08-modification-janus.md#ch-8)). Because the solver is
   registered, it receives the `Modification` in its pending list.
 - The second `compute()` consumes that one `Modification` and
   *reoptimizes*: a single-profit change does not invalidate the

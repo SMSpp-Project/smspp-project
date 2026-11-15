@@ -28,8 +28,8 @@ no dual information, so it derives from `Solver`.
 
 ## B.2 The `compute()` contract {#sec-B-2}
 
-`compute(bool changedvars)` is the heart of a `:Solver`
-([Chapter 6](06-solver.md#ch-6), [§6.3](06-solver.md#sec-6-3)). Its obligations:
+`compute( bool changedvars )` is the heart of a `:Solver` ([Chapter
+6](06-solver.md#ch-6), [§6.3](06-solver.md#sec-6-3)). Its obligations:
 
 - run the algorithm and return a `sol_type`. An *exact* solver returns
   `kOK`, `kUnbounded` or `kInfeasible` when it concludes; a stop on a
@@ -119,82 +119,86 @@ to coincide (the greedy solution is then provably optimal) or
 #include "Solver.h"
 #include "BinPackingBlock.h"
 
-namespace SMSpp_di_unipi_it {
+namespace SMSpp_di_unipi_it
+{
 
 class FirstFitBPSolver : public Solver
 {
  public:
-  using Index = Block::Index;
+ using Index = Block::Index;
 
-  void set_Block( Block * block ) override {
-   f_bp = dynamic_cast< BinPackingBlock * >( block );
-   if( block && ! f_bp )
-    throw( std::invalid_argument( "FirstFitBPSolver: not a BinPackingBlock" ) );
-   Solver::set_Block( block );
+ void set_Block( Block * block ) override {
+  f_bp = dynamic_cast< BinPackingBlock * >( block );
+  if( block && ! f_bp )
+   throw( std::invalid_argument( "FirstFitBPSolver: not a BinPackingBlock" ) );
+  Solver::set_Block( block );
   }
 
-  int compute( bool /* changedvars */ = true ) override {
-   // consume any pending Modifications: this heuristic just restarts,
-   // so we clear the list and recompute from scratch
-   mod_clear();
+ int compute( bool /* changedvars */ = true ) override {
+  // consume any pending Modifications: this heuristic just restarts,
+  // so we clear the list and recompute from scratch
+  mod_clear();
 
-   const Index  n = f_bp->get_NItems();
-   const double C = f_bp->get_Capacity();
-   std::vector< double > load( n , 0.0 );      // current load of each bin
-   std::vector< Index >  bin_of( n , 0 );      // bin chosen for each item
+  const Index n = f_bp->get_NItems();
+  const double C = f_bp->get_Capacity();
+  std::vector< double > load( n , 0.0 );  // current load of each bin
+  std::vector< Index > bin_of( n , 0 );   // bin chosen for each item
 
-   double total = 0;                           // sum of all item sizes
-   Index  nbins = 0;                           // number of bins opened
+  double total = 0;  // sum of all item sizes
+  Index nbins = 0;   // number of bins opened
 
-   for( Index i = 0 ; i < n ; ++i ) {
-    const double s = f_bp->get_Size( i );
-    if( s > C )  return( kInfeasible );         // item bigger than a bin
-    total += s;
-    Index j = 0;
-    while( load[ j ] + s > C + 1e-9 )  ++j;     // first bin with room
-    load[ j ] += s;
-    bin_of[ i ] = j;
-    if( j + 1 > nbins )  nbins = j + 1;         // a new bin was opened
+  for( Index i = 0 ; i < n ; ++i ) {
+   const double s = f_bp->get_Size( i );
+   if( s > C )
+    return( kInfeasible );  // item bigger than a bin
+   total += s;
+   Index j = 0;
+   while( load[ j ] + s > C + 1e-9 )
+    ++j;  // first bin with room
+   load[ j ] += s;
+   bin_of[ i ] = j;
+   if( j + 1 > nbins )
+    nbins = j + 1;  // a new bin was opened
    }
 
-   v_bin_of = std::move( bin_of );             // keep the solution
+  v_bin_of = std::move( bin_of );  // keep the solution
 
-   // upper bound: the value of the feasible solution just built
-   f_ub = OFValue( nbins );
-   // lower bound: no packing can use fewer than ceil( total / C ) bins
-      // (the tolerance keeps a ratio that is an integer up to the rounding
-   // from being rounded up, which would make the bound invalid)
-   f_lb = std::ceil( total / C - 1e-9 );
+  // upper bound: the value of the feasible solution just built
+  f_ub = OFValue( nbins );
+  // lower bound: no packing can use fewer than ceil( total / C ) bins
+  // (the tolerance keeps a ratio that is an integer up to the rounding
+  // from being rounded up, which would make the bound invalid)
+  f_lb = std::ceil( total / C - 1e-9 );
 
-   // if the two bounds coincide, the greedy solution is provably optimal
-   return( f_lb == f_ub ? kOK : kLowPrecision );
+  // if the two bounds coincide, the greedy solution is provably optimal
+  return( f_lb == f_ub ? kOK : kLowPrecision );
   }
 
-  // report the two bounds separately (BinPackingBlock is a minimization)
-  OFValue get_lb( void ) override { return( f_lb ); }
-  OFValue get_ub( void ) override { return( f_ub ); }
+ // report the two bounds separately (BinPackingBlock is a minimization)
+ OFValue get_lb( void ) override { return( f_lb ); }
+ OFValue get_ub( void ) override { return( f_ub ); }
 
-  // deposit the solution into the Block (compact + abstract; see below)
-  void get_var_solution( Configuration * = nullptr ) override {
-   f_bp->set_assignment( v_bin_of );
+ // deposit the solution into the Block (compact + abstract; see below)
+ void get_var_solution( Configuration * = nullptr ) override {
+  f_bp->set_assignment( v_bin_of );
   }
 
-  // only the physical representation is read: no abstract Modification
-  Modification::ModConcern concerned_by( void ) const override {
-   return( Modification::eModPhys );
+ // only the physical representation is read: no abstract Modification
+ Modification::ModConcern concerned_by( void ) const override {
+  return( Modification::eModPhys );
   }
 
-  // a one-shot heuristic keeps no warm-startable state
-  // (get_State() inherits the nullptr default)
+ // a one-shot heuristic keeps no warm-startable state
+ // (get_State() inherits the nullptr default)
 
  private:
-  BinPackingBlock * f_bp = nullptr;
-  std::vector< Index > v_bin_of;      // bin of each item, as last computed
-  OFValue f_lb = -Inf< OFValue >();   // valid lower bound (none yet)
-  OFValue f_ub =  Inf< OFValue >();   // best feasible value (none yet)
+ BinPackingBlock * f_bp = nullptr;
+ std::vector< Index > v_bin_of;     // bin of each item, as last computed
+ OFValue f_lb = -Inf< OFValue >();  // valid lower bound (none yet)
+ OFValue f_ub = Inf< OFValue >();   // best feasible value (none yet)
 
-  SMSpp_insert_in_factory_h;     // so Solver::new_Solver("FirstFitBPSolver") works
-};
+ SMSpp_insert_in_factory_h;  // so Solver::new_Solver("FirstFitBPSolver") works
+ };
 
 }  // namespace
 ```
@@ -221,21 +225,24 @@ representation does not give explicitly:
 // BinPackingBlock.cpp
 void BinPackingBlock::set_assignment( const std::vector< Index > & bin_of )
 {
- v_bin_of = bin_of;                           // store the compact solution
+ v_bin_of = bin_of;  // store the compact solution
 
  // reflect it into the abstract Variables, if they have been generated
- if( v_y.empty() )  return;                    // no abstract face to fill
+ if( v_y.empty() )
+  return;  // no abstract face to fill
 
- for( auto && row : v_x )                       // start from all-zero ...
-  for( auto & xij : row )  xij.set_value( 0 );
- for( auto & yj : v_y )    yj.set_value( 0 );
+ for( auto && row : v_x )  // start from all-zero ...
+  for( auto & xij : row )
+   xij.set_value( 0 );
+ for( auto & yj : v_y )
+  yj.set_value( 0 );
 
  for( Index i = 0 ; i < f_n ; ++i ) {
   const Index j = v_bin_of[ i ];
-  v_x[ i ][ j ].set_value( 1 );                // item i is placed in bin j
-  v_y[ j ].set_value( 1 );                     // hence bin j counts as used
+  v_x[ i ][ j ].set_value( 1 );  // item i is placed in bin j
+  v_y[ j ].set_value( 1 );       // hence bin j counts as used
+  }
  }
-}
 ```
 
 The return values rest on the following statement.

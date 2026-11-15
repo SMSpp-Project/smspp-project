@@ -43,31 +43,32 @@ whose size was modified:
 
 ```cpp
 // BinPackingBlock.h (alongside the Block)
-namespace SMSpp_di_unipi_it {
+namespace SMSpp_di_unipi_it
+{
 
 class BinPackingBlockMod : public Modification
 {
  public:
-  // what a size change does: it is physical, it changes coefficients of
-  // the (capacity) Constraints, and the region may shrink or grow
-  static constexpr ModConcern size_changes =
+ // what a size change does: it is physical, it changes coefficients of
+ // the (capacity) Constraints, and the region may shrink or grow
+ static constexpr ModConcern size_changes =
    eModPhys | eModCnsCoef | eRegnShrink | eRegnGrow;
 
-  BinPackingBlockMod( BinPackingBlock * blk , Block::Index item )
-   : Modification( size_changes ) , f_block( blk ) , f_item( item ) {}
+ BinPackingBlockMod( BinPackingBlock * blk , Block::Index item )
+     : Modification( size_changes ) , f_block( blk ) , f_item( item ) { }
 
-  Block * get_Block( void ) const override { return( f_block ); }
-  Block::Index item( void ) const { return( f_item ); }
+ Block * get_Block( void ) const override { return( f_block ); }
+ Block::Index item( void ) const { return( f_item ); }
 
  protected:
-  void print( std::ostream & output ) const override {
-   output << "BinPackingBlockMod[" << this << "]: size of item " << f_item;
+ void print( std::ostream & output ) const override {
+  output << "BinPackingBlockMod[" << this << "]: size of item " << f_item;
   }
 
  private:
-  BinPackingBlock * f_block;
-  Block::Index      f_item;     // which item's size changed
-};
+ BinPackingBlock * f_block;
+ Block::Index f_item;  // which item's size changed
+ };
 
 }  // namespace
 ```
@@ -134,49 +135,48 @@ its UndoChange:
 class BinPackingBlockRngdChange : public Change
 {
  public:
-  BinPackingBlockRngdChange( Block::Range rng = { 0 , 0 } ,
-                             std::vector< double > && sizes = {} )
-   : f_rng( rng ) , v_sizes( std::move( sizes ) ) {}
+ BinPackingBlockRngdChange( Block::Range rng = { 0 , 0 } ,
+                            std::vector< double > && sizes = {} )
+     : f_rng( rng ) , v_sizes( std::move( sizes ) ) { }
 
-  Change * apply( Block * block , bool doUndo = false ,
-                  ModParam issueMod = eNoBlck ,
-                  ModParam issueAMod = eNoBlck ) override
-  {
-   auto bp = dynamic_cast< BinPackingBlock * >( block );
-   if( ( ! bp ) || ( v_sizes.size() != f_rng.second - f_rng.first ) )
-    throw( std::invalid_argument( "BinPackingBlockRngdChange::apply: "
-                                  "wrong Block or sizes" ) );
+ Change * apply( Block * block , bool doUndo = false ,
+                 ModParam issueMod = eNoBlck ,
+                 ModParam issueAMod = eNoBlck ) override {
+  auto bp = dynamic_cast< BinPackingBlock * >( block );
+  if( ( ! bp ) || ( v_sizes.size() != f_rng.second - f_rng.first ) )
+   throw( std::invalid_argument( "BinPackingBlockRngdChange::apply: "
+                                 "wrong Block or sizes" ) );
 
-   BinPackingBlockRngdChange * undo = nullptr;
-   if( doUndo ) {                     // record the sizes it overwrites
-    std::vector< double > old( v_sizes.size() );
-    for( auto i = f_rng.first ; i < f_rng.second ; ++i )
-     old[ i - f_rng.first ] = bp->get_Size( i );
-    undo = new BinPackingBlockRngdChange( f_rng , std::move( old ) );
-    }
-
-   // the new sizes, through the mutator of the Block
+  BinPackingBlockRngdChange * undo = nullptr;
+  if( doUndo ) {  // record the sizes it overwrites
+   std::vector< double > old( v_sizes.size() );
    for( auto i = f_rng.first ; i < f_rng.second ; ++i )
-    bp->chg_size( v_sizes[ i - f_rng.first ] , i , issueMod , issueAMod );
-
-   return( undo );
+    old[ i - f_rng.first ] = bp->get_Size( i );
+   undo = new BinPackingBlockRngdChange( f_rng , std::move( old ) );
    }
 
-  void serialize( netCDF::NcGroup & group ) const override {
-   Change::serialize( group );        // the "type" attribute
-   // ... f_rng and v_sizes as netCDF variables ...
-   }
+  // the new sizes, through the mutator of the Block
+  for( auto i = f_rng.first ; i < f_rng.second ; ++i )
+   bp->chg_size( v_sizes[ i - f_rng.first ] , i , issueMod , issueAMod );
 
-  void deserialize( const netCDF::NcGroup & group ) override {
-   // ... read back what serialize() writes ...
-   }
+  return( undo );
+  }
+
+ void serialize( netCDF::NcGroup & group ) const override {
+  Change::serialize( group );  // the "type" attribute
+  // ... f_rng and v_sizes as netCDF variables ...
+  }
+
+ void deserialize( const netCDF::NcGroup & group ) override {
+  // ... read back what serialize() writes ...
+  }
 
  private:
-  Block::Range f_rng;                 // the items changed
-  std::vector< double > v_sizes;      // their new sizes
+ Block::Range f_rng;             // the items changed
+ std::vector< double > v_sizes;  // their new sizes
 
-  SMSpp_insert_in_factory_h;          // Change::new_Change() and netCDF
-};
+ SMSpp_insert_in_factory_h;  // Change::new_Change() and netCDF
+ };
 ```
 
 ```cpp

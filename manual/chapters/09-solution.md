@@ -67,12 +67,11 @@ The property on which the uses of a `Solution` rest is the following
 contract, which all the `:Solution`s are required to satisfy, and
 which Lemma 7.2 uses.
 
-*Round trip (R).* Let $c$ be returned by `B.get_Solution( solc ,
-false )` (or emptied and then filled by `c.read( B )`). After any
-sequence of writes of values into the `Variable`s and the duals of
-$B$ that adds or removes none of them, `c.write( B )` gives each
-value of the part selected by `solc` back the value it had when $c$
-was filled.
+*Round trip (R).* Let $c$ be returned by `B.get_Solution( solc , false )` (or
+emptied and then filled by `c.read( B )`). After any sequence of writes of
+values into the `Variable`s and the duals of $B$ that adds or removes none of
+them, `c.write( B )` gives each value of the part selected by `solc` back the
+value it had when $c$ was filled.
 
 For the abstract `Solution`s of the core we can prove that the
 contract is a consequence of the code.
@@ -110,18 +109,17 @@ thrown, and each `ColVariable` gets back the value it had. $\square$
 Beyond `read()` and `write()`, the base interface of `Solution`
 provides the following.
 
-Serialization to netCDF: `serialize( netCDF::NcGroup & )`, `serialize(
-const std::string & filename , bool replace = true )` (which writes
-the `Solution` as the group `Solution_<k>` of the file, replacing the
-file or adding to it), and the corresponding `deserialize( const
-netCDF::NcGroup & )`. A `Solution` can thus be written to disk and
-read back independently of its `Block`. Also, the static methods
+Serialization to netCDF: `serialize( netCDF::NcGroup & )`,
+`serialize( const std::string & filename , bool replace = true )` (which
+writes the `Solution` as the group `Solution_<k>` of the file, replacing the
+file or adding to it), and the corresponding
+`deserialize( const netCDF::NcGroup & )`. A `Solution` can thus be written to
+disk and read back independently of its `Block`. Also, the static methods
 `Solution::deserialize( const std::string & filename )` and
-`Solution::new_Solution( const netCDF::NcGroup & )` construct the
-right `:Solution` out of the name of the class stored in the group,
-through the factory of `Solution`s, as the factories of `Block`s and
-`Solver`s do for their hierarchies (cf. [Chapter
-18](18-factories-netcdf.md#ch-18)).
+`Solution::new_Solution( const netCDF::NcGroup & )` construct the right
+`:Solution` out of the name of the class stored in the group, through the
+factory of `Solution`s, as the factories of `Block`s and `Solver`s do for
+their hierarchies (cf. [Chapter 18](18-factories-netcdf.md#ch-18)).
 
 Copying: `clone( bool empty = false )` produces a copy of the
 `Solution`, or an empty one of the same type and configuration if
@@ -169,27 +167,24 @@ flow on each arc), which one can scale and sum with others. For the
 contract, see the comments of `scale()` and `sum()`
 (`Solution.h:540-626`).
 
-Two further parts of the base interface concern a `Solution` that is
-kept while its `Block` changes. First, a `Solution` knows whether it
-holds a solution or a *direction*, i.e., a ray of the feasible region
-along which the `Objective` is unbounded (`is_direction()`, set by
-`read()` from `Block::is_direction()`, or by whoever fills it).
-`clone()`, `scale()` and the serialization keep the flag, while a
-`sum()` is a direction only if all its terms are. Second, `adapt(
-block , mod , dropped )` informs the `Solution` that its `Block` has
-undergone the `Modification` `mod` (cf. [Chapter
-8](08-modification-janus.md#ch-8)). The answer is `kUnchanged` (the
-`Solution` still fits), `kAdapted` (the values of the removed dynamic
-`Variable`s or `Constraint`s, or of what a physical `Modification`
-removes, have been dropped, and written in `dropped`) or `kInvalid`
-(the `Solution` does not fit the `Block` any more, as after an
-`NModification`); `adapts()` returns the kinds of `Modification` that
-a `:Solution` has to look at. Whether the values left are still
-feasible is not the business of `adapt()`, but of
-`Block::is_sol_feasible()` (cf.
-[§7.5](07-physical-abstract.md#sec-7-5)). Both global pools of
-`LagBFunction` and `BendersBFunction` use this to keep the `Solution`s
-they store in step with their inner `Block`.
+Two further parts of the base interface concern a `Solution` that is kept
+while its `Block` changes. First, a `Solution` knows whether it holds a
+solution or a *direction*, i.e., a ray of the feasible region along which the
+`Objective` is unbounded (`is_direction()`, set by `read()` from
+`Block::is_direction()`, or by whoever fills it). `clone()`, `scale()` and the
+serialization keep the flag, while a `sum()` is a direction only if all its
+terms are. Second, `adapt( block , mod , dropped )` informs the `Solution`
+that its `Block` has undergone the `Modification` `mod` (cf. [Chapter
+8](08-modification-janus.md#ch-8)). The answer is `kUnchanged` (the `Solution`
+still fits), `kAdapted` (the values of the removed dynamic `Variable`s or
+`Constraint`s, or of what a physical `Modification` removes, have been
+dropped, and written in `dropped`) or `kInvalid` (the `Solution` does not fit
+the `Block` any more, as after an `NModification`); `adapts()` returns the
+kinds of `Modification` that a `:Solution` has to look at. Whether the values
+left are still feasible is not the business of `adapt()`, but of
+`Block::is_sol_feasible()` (cf. [§7.5](07-physical-abstract.md#sec-7-5)). Both
+global pools of `LagBFunction` and `BendersBFunction` use this to keep the
+`Solution`s they store in step with their inner `Block`.
 
 ## 9.4 The abstract Solutions of the core {#sec-9-4}
 
@@ -241,7 +236,7 @@ using namespace SMSpp_di_unipi_it;
 int main( int argc , char ** argv )
 {
  CapacitatedFacilityLocationBlock cfl;
- std::ifstream in( argv[ 1 ] );        // a CFL instance in text format
+ std::ifstream in( argv[ 1 ] );  // a CFL instance in text format
  cfl.load( in );
 
  // ... solve cfl with some Solver (see Recipe R3), so that a
@@ -258,7 +253,7 @@ int main( int argc , char ** argv )
  Solution * sol2 = Solution::deserialize( "cfl-solution.nc4" );
 
  // put the stored solution back into the Block
- sol2->write( & cfl );
+ sol2->write( &cfl );
 
  // a convex combination of two Solutions of the SAME Block
  Solution * mix = sol->scale( 0.5 );
@@ -268,7 +263,7 @@ int main( int argc , char ** argv )
  delete sol2;
  delete mix;
  return( 0 );
-}
+ }
 ```
 
 Here `get_Solution()` returns a `Solution *` that is in fact a
@@ -295,31 +290,29 @@ only by a specialized `:Solver` that reads the physical representation
 and would otherwise not need them; the `Constraint`s and the
 `Objective` are built on demand, the `Variable`s are not.
 
-The `Solution`s of this chapter make the way out possible, and its
-side of the solution is in the interface: `Solver::get_Solution(
-Configuration * )` returns a `Solution` specific to the `:Block` (an
-`MCFSolution`, a `BinaryKnapsackSolution`, and so on), whose ownership
-passes to the caller. Its default implementation goes through the
-`Variable`s (it `lock()`s the `Block`, calls `get_var_solution()` and
-then `Block::get_Solution()`). A "physical" `:Solver`, instead,
-re-implements it to fill the `Solution` out of its data structures,
-without writing into the `Block` and hence without `lock()`-ing it,
-and several `:Solver`s attached to the same `Block` can then produce
-their `Solution`s in parallel; it declares this by returning `true`
-from `is_get_Solution_physical()`, which the caller can query *before*
-the call. `MCFSolver`, `MCFLemonSolver`, the `:Solver`s of
-`BinaryKnapsackBlock` and `ThermalUnitDPSolver`, among others, do
-this, and the `Solution` so obtained can be checked against the
-physical data by `Block::is_sol_feasible()` and `is_sol_optimal()`
-(cf. [§7.5](07-physical-abstract.md#sec-7-5)). Yet, the step that
-removes the asymmetry has not happened: the `:Block`s of the running
-examples still construct their `Variable`s in `load(...)`, and a
-`Block` attached only to specialized `:Solver`s does not yet do
-without them. Indeed, the physical `Solution`s of
-[§9.5](09-solution.md#sec-9-5) are designed for that step, since each
-of them reads and writes the physical data without touching the
-abstract representation; this is needed to solve a `Block`, and to
-communicate its solution, with no abstract `Variable` at all.
+The `Solution`s of this chapter make the way out possible, and its side of the
+solution is in the interface: `Solver::get_Solution( Configuration * )`
+returns a `Solution` specific to the `:Block` (an `MCFSolution`, a
+`BinaryKnapsackSolution`, and so on), whose ownership passes to the caller.
+Its default implementation goes through the `Variable`s (it `lock()`s the
+`Block`, calls `get_var_solution()` and then `Block::get_Solution()`). A
+"physical" `:Solver`, instead, re-implements it to fill the `Solution` out of
+its data structures, without writing into the `Block` and hence without
+`lock()`-ing it, and several `:Solver`s attached to the same `Block` can then
+produce their `Solution`s in parallel; it declares this by returning `true`
+from `is_get_Solution_physical()`, which the caller can query *before* the
+call. `MCFSolver`, `MCFLemonSolver`, the `:Solver`s of `BinaryKnapsackBlock`
+and `ThermalUnitDPSolver`, among others, do this, and the `Solution` so
+obtained can be checked against the physical data by
+`Block::is_sol_feasible()` and `is_sol_optimal()`
+(cf. [§7.5](07-physical-abstract.md#sec-7-5)). Yet, the step that removes the
+asymmetry has not happened: the `:Block`s of the running examples still
+construct their `Variable`s in `load( ... )`, and a `Block` attached only to
+specialized `:Solver`s does not yet do without them. Indeed, the physical
+`Solution`s of [§9.5](09-solution.md#sec-9-5) are designed for that step,
+since each of them reads and writes the physical data without touching the
+abstract representation; this is needed to solve a `Block`, and to communicate
+its solution, with no abstract `Variable` at all.
 
 Until that step is taken, code that uses SMS++ should follow the
 convention of [§7.7](07-physical-abstract.md#sec-7-7). The abstract
@@ -344,10 +337,11 @@ channel. **Status — under development.**
 | `is_direction()`, `is_direction(bool)` | whether it holds a direction rather than a solution |
 | `adapt(block, mod, dropped)`, `adapts()` | follow a `Modification` of the `Block` |
 
-On the side of the `Block` the entry point is `Block::get_Solution(
-Configuration * solc , bool emptys )` (cf. [§9.1](09-solution.md#sec-9-1)),
-and on the side of the `Solver` it is `Solver::get_Solution(
-Configuration * solc )` (cf. [§9.7](09-solution.md#sec-9-7)).
+On the side of the `Block` the entry point is
+`Block::get_Solution( Configuration * solc , bool emptys )`
+(cf. [§9.1](09-solution.md#sec-9-1)), and on the side of the `Solver` it is
+`Solver::get_Solution( Configuration * solc )`
+(cf. [§9.7](09-solution.md#sec-9-7)).
 
 ## 9.9 Idioms {#sec-9-9}
 

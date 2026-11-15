@@ -38,35 +38,32 @@ as a continuous relaxation (`CFLBSCfg-ben.txt`, a `GRBMILPSolver` with
 files.
 
 - `CFLBCfg-BF.txt` puts the copy in the *Benders formulation*
-  (`SimpleConfiguration< int >` of value 3, the feasibility-cuts
-  variant; value 2 selects the slack-arcs variant). The master abstract
-  representation then has only the design variables $Y_i$, a single
-  epigraphic variable $v$, the bound $v \ge \mathrm{LB}(v)$, and a
-  *dynamic* group of Benders cuts; the transportation sub-problem is held
-  in a hidden `BendersBFunction` wrapping an `MCFBlock` (the flow
-  relaxation of [§10.5](10-r3block.md#sec-10-5), with the facility arcs
-  at cost 0 and no constant node), built by `build_BendersBFunction()`
-  and *not* a sub-`Block` of the CFL `Block`. Its
-  `f_dynamic_constraints_Configuration`, a `SimpleConfiguration<
-  std::pair< int , double > >` of value (1, $10^{-6}$), gives the
-  relative tolerance of the separation: a cut is added only if its
-  violation at the current point exceeds $10^{-6} \max \{ |v^*| , 1 \}$,
-  at most one per call (the first value is ignored in this formulation).
-- That hidden `BendersBFunction` and its inner `MCFBlock` cannot be
-  reached by the recursive configuration machinery (the inner `Block`
-  has no father), and therefore they are configured through
-  `f_extra_Configuration` ([§11.6](11-configuration.md#sec-11-6)). In
-  `CFLBCfg-BF.txt` it is a
+  (`SimpleConfiguration< int >` of value 3, the feasibility-cuts variant;
+  value 2 selects the slack-arcs variant). The master abstract representation
+  then has only the design variables $Y_i$, a single epigraphic variable $v$,
+  the bound $v \ge \mathrm{LB}(v)$, and a *dynamic* group of Benders cuts; the
+  transportation sub-problem is held in a hidden `BendersBFunction` wrapping
+  an `MCFBlock` (the flow relaxation of [§10.5](10-r3block.md#sec-10-5), with
+  the facility arcs at cost 0 and no constant node), built by
+  `build_BendersBFunction()` and *not* a sub-`Block` of the CFL `Block`. Its
+  `f_dynamic_constraints_Configuration`, a
+  `SimpleConfiguration< std::pair< int , double > >` of value (1, $10^{-6}$),
+  gives the relative tolerance of the separation: a cut is added only if its
+  violation at the current point exceeds $10^{-6} \max \{ |v^*| , 1 \}$, at
+  most one per call (the first value is ignored in this formulation).
+- That hidden `BendersBFunction` and its inner `MCFBlock` cannot be reached by
+  the recursive configuration machinery (the inner `Block` has no father), and
+  therefore they are configured through `f_extra_Configuration`
+  ([§11.6](11-configuration.md#sec-11-6)). In `CFLBCfg-BF.txt` it is a
   `SimpleConfiguration< std::pair< Configuration * , Configuration * > >`
-  whose first element is a `SimpleConfiguration< std::pair< int ,
-  double > >` of value (2, 100), of which only the scale 100 of the slack
-  arcs is used, and whose second is the `ComputeConfig` of the
-  `BendersBFunction`, whose extra `Configuration` is a map with the key
-  `"BlockSolverConfig"`, the `BlockSolverConfig` of the inner
-  `MCFBlock`. The shipped file attaches there a `GRBMILPSolver` solving
-  the `MCFBlock` as an LP (`intRelaxIntVars` 1), rather than an
-  `MCFSolver`, whose duals on closed or zero-capacity arcs, which the
-  cuts depend on, are not reliable.
+  whose first element is a `SimpleConfiguration< std::pair< int , double > >`
+  of value (2, 100), of which only the scale 100 of the slack arcs is used,
+  and whose second is the `ComputeConfig` of the `BendersBFunction`, whose
+  extra `Configuration` is a map with the key `"BlockSolverConfig"`, the
+  `BlockSolverConfig` of the inner `MCFBlock`. The shipped file attaches there
+  a `GRBMILPSolver` solving the `MCFBlock` as an LP (`intRelaxIntVars` 1),
+  rather than an `MCFSolver`, whose duals on closed or zero-capacity arcs,
+  which the cuts depend on, are not reliable.
 - `BenBSCfg.txt` attaches the master `Solver`, a `GRBMILPSolver` in the
   shipped configuration (any `:MILPSolver` works), with
   `intRelaxIntVars` 2, `intCutSepPar` 1 and `intMaxCutPasses` 10000: it

@@ -33,6 +33,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Changes, the locking, the bounds of the recipes) is stated as a lemma or
   a theorem with its proof, and every example compiles against the headers
 
+- the C++ within the prose of the user manual is spaced as in the code
+  (e.g., `std::vector< Variable >`, `register_Solver( S )`) and its blocks
+  of code are formatted by `code-format`; the web site of the manual, the
+  Doxygen site and the Sphinx site look as the PDF of the manual: the Latin
+  Modern fonts of TeX for the text and the code (in `manual/build/fonts`,
+  under the GUST Font License), the size of a book, justified text, a white
+  header, the code within the prose without a box, plain tables, and the
+  purple 7030A0 only for the links
+
 - `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
   gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
   of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds

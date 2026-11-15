@@ -320,11 +320,11 @@ its changes included, without passing through the filesystem.
 
 ## 18.6 Idioms {#sec-18-6}
 
-*Every concrete class in its factory.* A `:Block`,
-`:Solver`, `:Configuration`, `:Solution` or `:Change` that is
-meant to be created from a string (and almost all are) must carry
-the `SMSpp_insert_in_factory_h` / `_cpp_k` macro pair. Forgetting
-it makes the class invisible to `new_X(name)`.
+*Every concrete class in its factory.* A `:Block`, `:Solver`,
+`:Configuration`, `:Solution` or `:Change` that is meant to be created from a
+string (and almost all are) must carry the `SMSpp_insert_in_factory_h` /
+`_cpp_k` macro pair. Forgetting it makes the class invisible to
+`new_X( name )`.
 
 *"Not present in factory": the linker first.* If the class carries
 the two macros, the error means that the registering translation unit

@@ -104,19 +104,17 @@ a `Modification`,
 > `[de]serialize`-d to and from netCDF independently of any
 > `Block`.
 
-`Change` carries a class-name factory (`Change::new_Change(name)`,
-`Change::deserialize(NcGroup)`) of exactly the same kind as
-`Block`, `Solver` and `Solution` ([Chapter 18](18-factories-netcdf.md#ch-18)), and a `:Change`
-read from a netCDF group is reconstructed as the right concrete
-type and then `apply()`-ed. This makes a `Change` something a
-`Modification` can never be: a portable, storable, *transmissible*
-instruction. The intended downstream use is message-passing
-distributed computation, in which a process computes a `Change`,
-serialises it and ships it to another process holding a copy of the
-`Block`, which deserialises and `apply()`s it. The `Change`
-mechanism is, in this sense, the groundwork for the distributed
-`:Solver`s exchanging `Change`s that the project plans but does not
-yet ship.
+`Change` carries a class-name factory (`Change::new_Change( name )`,
+`Change::deserialize( NcGroup )`) of exactly the same kind as `Block`,
+`Solver` and `Solution` ([Chapter 18](18-factories-netcdf.md#ch-18)), and a
+`:Change` read from a netCDF group is reconstructed as the right concrete type
+and then `apply()`-ed. This makes a `Change` something a `Modification` can
+never be: a portable, storable, *transmissible* instruction. The intended
+downstream use is message-passing distributed computation, in which a process
+computes a `Change`, serialises it and ships it to another process holding a
+copy of the `Block`, which deserialises and `apply()`s it. The `Change`
+mechanism is, in this sense, the groundwork for the distributed `:Solver`s
+exchanging `Change`s that the project plans but does not yet ship.
 
 ### Support for generic search schemes
 
@@ -195,11 +193,11 @@ int main( void )
                                     { 5 , 6 , 7 } , Block::Range( 0 , 3 ) );
 
  // apply it, asking for the UndoChange to roll back later
- Change * undo = chg.apply( & bkb , true );
+ Change * undo = chg.apply( &bkb , true );
 
  // ... explore the changed Block ...
 
- undo->apply( & bkb );  // back to the weights 1 , 2 , 3
+ undo->apply( &bkb );  // back to the weights 1 , 2 , 3
  delete undo;
  return( 0 );
  }

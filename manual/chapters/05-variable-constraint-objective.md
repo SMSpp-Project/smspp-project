@@ -75,15 +75,15 @@ can be restricted to a subset of the reals by its *type* (the enum
 | `kNegUnitary` | any real in $[-1, 0]$ | `kNegBinary` | $-1$ or 0 |
 | `kZeroRealU` | 0 (real, in $[-1, 1]$) | `kZeroIntU` | 0 (integer, in $[-1, 1]$) |
 
-The type is composed of independent flags, set by `is_integer( bool ,
-ModParam )`, `is_positive( bool , ModParam )`, `is_negative( bool ,
-ModParam )` and `is_unitary( bool , ModParam )` (or all at once by
-`set_type()`), and read by `get_type()`. Together with the state
-"fixed or not", the types cover most of the restrictions of bound,
-sign and integrality found in practical models. Since they are stored
-in the `ColVariable` instead of as `Constraint`s of the `Block`, they
-save a substantial amount of memory in models where most variables
-are, say, simply nonnegative or binary.
+The type is composed of independent flags, set by
+`is_integer( bool , ModParam )`, `is_positive( bool , ModParam )`,
+`is_negative( bool , ModParam )` and `is_unitary( bool , ModParam )` (or all
+at once by `set_type()`), and read by `get_type()`. Together with the state
+"fixed or not", the types cover most of the restrictions of bound, sign and
+integrality found in practical models. Since they are stored in the
+`ColVariable` instead of as `Constraint`s of the `Block`, they save a
+substantial amount of memory in models where most variables are, say, simply
+nonnegative or binary.
 
 ## 5.3 Constraint {#sec-5-3}
 
@@ -107,14 +107,14 @@ $$
 l \le g(x) \le u \,,
 $$
 
-where $l$ and $u$ (of type `RHSValue`) are read by `get_lhs()` and
-`get_rhs()` and set by `set_lhs(...)`, `set_rhs(...)` and
-`set_both(...)` (the latter sets $l = u$). Either of them can be
-infinite, the value being `RowConstraint::RHSINF` (or its opposite). A
-single real dual variable is attached to the `Constraint`, read by
-`get_dual()` and set by `set_dual(...)`. However, the expression $g$
-is not defined in `RowConstraint`, but in its derived classes, of
-which two cover the common cases.
+where $l$ and $u$ (of type `RHSValue`) are read by `get_lhs()` and `get_rhs()`
+and set by `set_lhs( ... )`, `set_rhs( ... )` and `set_both( ... )` (the
+latter sets $l = u$). Either of them can be infinite, the value being
+`RowConstraint::RHSINF` (or its opposite). A single real dual variable is
+attached to the `Constraint`, read by `get_dual()` and set by
+`set_dual( ... )`. However, the expression $g$ is not defined in
+`RowConstraint`, but in its derived classes, of which two cover the common
+cases.
 
 ### `OneVarConstraint`
 
@@ -233,10 +233,10 @@ using namespace SMSpp_di_unipi_it;
 int main()
 {
  // physical data: 4 items, knapsack of capacity 5
- BinaryKnapsackBlock         bkb;
- const std::vector< double > W = { 2.0, 3.0, 4.0, 1.0 };  // weights
- const std::vector< double > P = { 3.0, 4.0, 5.0, 1.0 };  // profits
- const std::vector< bool >   I = { true, true, true, true };  // integral
+ BinaryKnapsackBlock bkb;
+ const std::vector< double > W = { 2.0 , 3.0 , 4.0 , 1.0 };    // weights
+ const std::vector< double > P = { 3.0 , 4.0 , 5.0 , 1.0 };    // profits
+ const std::vector< bool > I = { true , true , true , true };  // integral
  bkb.load( W.size() , /* capacity = */ 5.0 , W , P , I );
 
  // construct the abstract representation on demand
@@ -247,8 +247,8 @@ int main()
  // abstract representation; the two are kept in sync by the
  // mechanisms covered in Chapter 7 and Chapter 8.
 
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 The method used is

@@ -51,21 +51,21 @@ int main()
  // node deficits b = (-2, 0, +2): node 0 produces 2 units, node 2
  // consumes 2; all arcs have capacity 3.
 
- MCFBlock mcf;                                  // a root MCFBlock
+ MCFBlock mcf;  // a root MCFBlock
 
  // the arcs give the node "names", 1 to n, i.e., node k is k + 1
- MCFBlock::Subset      pSn = { 1 , 2 , 1 };     // arc starting nodes
- MCFBlock::Subset      pEn = { 2 , 3 , 3 };     // arc ending nodes
- MCFBlock::Vec_FNumber pU  = { 3.0 , 3.0 , 3.0 };  // arc capacities
- MCFBlock::Vec_CNumber pC  = { 2.0 , 3.0 , 4.0 };  // arc costs
- MCFBlock::Vec_FNumber pB  = { -2.0 , 0.0 , +2.0 };  // node deficits
+ MCFBlock::Subset pSn = { 1 , 2 , 1 };              // arc starting nodes
+ MCFBlock::Subset pEn = { 2 , 3 , 3 };              // arc ending nodes
+ MCFBlock::Vec_FNumber pU = { 3.0 , 3.0 , 3.0 };    // arc capacities
+ MCFBlock::Vec_CNumber pC = { 2.0 , 3.0 , 4.0 };    // arc costs
+ MCFBlock::Vec_FNumber pB = { -2.0 , 0.0 , +2.0 };  // node deficits
 
  // NOTE: load() takes ending nodes (pEn) before starting nodes (pSn)
  mcf.load( 3 , 3 , pEn , pSn , pU , pC , pB );
 
-  // load() has constructed the flow Variable; the Constraint hold the
+ // load() has constructed the flow Variable; the Constraint hold the
  // potentials, and the Objective is what get_objective_value() computes
- mcf.generate_abstract_variables();   // nothing to do, already there
+ mcf.generate_abstract_variables();  // nothing to do, already there
  mcf.generate_abstract_constraints();
  mcf.generate_objective();
 
@@ -77,18 +77,18 @@ int main()
 
  // ---- read the solution -----------------------------------------
  if( status == Solver::kOK ) {
-  solver->get_var_solution();                   // flows into mcf
-  solver->get_dual_solution();                  // potentials into mcf
+  solver->get_var_solution();   // flows into mcf
+  solver->get_dual_solution();  // potentials into mcf
 
   std::cout << "objective = " << mcf.get_objective_value() << '\n';
 
   MCFBlock::Vec_FNumber x( mcf.get_NArcs() );
-  mcf.get_x( x.begin() );                       // optimal flows
+  mcf.get_x( x.begin() );  // optimal flows
   for( MCFBlock::Index a = 0 ; a < mcf.get_NArcs() ; ++a )
    std::cout << "  flow on arc " << a << " = " << x[ a ] << '\n';
 
   MCFBlock::Vec_CNumber pi( mcf.get_NNodes() );
-  mcf.get_pi( pi.begin() );                      // node potentials (dual)
+  mcf.get_pi( pi.begin() );  // node potentials (dual)
   for( MCFBlock::Index n = 0 ; n < mcf.get_NNodes() ; ++n )
    std::cout << "  potential of node " << n << " = " << pi[ n ] << '\n';
   }
@@ -101,22 +101,20 @@ int main()
 
  // ---- clean up --------------------------------------------------
  mcf.unregister_Solver( solver , /* deleteold = */ true );
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 ## Walk-through
 
-- The five arrays are the *physical* representation of the min-cost
-  flow instance ([Chapter 7](07-physical-abstract.md#ch-7)): the start
-  and end node of each arc, the arc capacities, the arc costs and the
-  node deficits (a negative deficit is a supply, a positive one a
-  demand). `load(...)` copies
-  them into the `MCFBlock` ([Chapter 4](04-block.md#ch-4)); recall its idiosyncratic
-  parameter order, ending nodes before starting nodes, and that the
-  nodes of the arcs are named from 1 to $n$ (`load(...)` throws
-  `std::invalid_argument` otherwise), while the deficits are indexed
-  from 0.
+- The five arrays are the *physical* representation of the min-cost flow
+  instance ([Chapter 7](07-physical-abstract.md#ch-7)): the start and end node
+  of each arc, the arc capacities, the arc costs and the node deficits (a
+  negative deficit is a supply, a positive one a demand). `load( ... )` copies
+  them into the `MCFBlock` ([Chapter 4](04-block.md#ch-4)); recall its
+  idiosyncratic parameter order, ending nodes before starting nodes, and that
+  the nodes of the arcs are named from 1 to $n$ (`load( ... )` throws
+  `std::invalid_argument` otherwise), while the deficits are indexed from 0.
 - `new MCFSolver< MCFSimplex >()` constructs the specialised
   solver, templated on the network simplex of MCFClass;
   `register_Solver()` enrols it on the `MCFBlock`
@@ -127,13 +125,13 @@ int main()
     `int` status ([Chapter 6](06-solver.md#ch-6),
   [§6.3](06-solver.md#sec-6-3)), and `kOK` means that an optimal
   solution was found.
-- The solution is read *through the `MCFBlock`*, not through the
-  solver (the convention of [§6.9](06-solver.md#sec-6-9) and [Chapter 9](09-solution.md#ch-9)): `get_var_solution()`
-  and `get_dual_solution()` write it in the `MCFBlock`, then
-  `get_objective_value()`, `get_x(...)` for the primal flows, and
-  `get_pi(...)` for the dual node potentials. `get_rc(...)` would
-  give the arc reduced costs; together the three are the primal and
-  dual data of a min-cost flow, which an `MCFSolution` stores
+- The solution is read *through the `MCFBlock`*, not through the solver (the
+  convention of [§6.9](06-solver.md#sec-6-9) and [Chapter
+  9](09-solution.md#ch-9)): `get_var_solution()` and `get_dual_solution()`
+  write it in the `MCFBlock`, then `get_objective_value()`, `get_x( ... )` for
+  the primal flows, and `get_pi( ... )` for the dual node potentials.
+  `get_rc( ... )` would give the arc reduced costs; together the three are the
+  primal and dual data of a min-cost flow, which an `MCFSolution` stores
   ([§9.5](09-solution.md#sec-9-5)).
 - The specialised `MCFSolver` reads the physical representation
   directly and needs no abstract `Variable`s or `Constraint`s to

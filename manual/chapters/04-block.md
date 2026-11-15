@@ -123,54 +123,54 @@ behavior of the `Block` (cf. [Chapter 11](11-configuration.md#ch-11)).
 
 The main public methods, grouped by purpose, are the following:
 
-- *navigation*: `get_f_Block()`, `set_f_Block(p_Block)`,
-  `get_nested_Block(Index)`, `get_nested_Block(name)`,
-  `get_number_nested_Blocks()`, `get_nested_Block_index(name)` and
-  `get_nested_Block_index(Block *)`, `add_nested_Block(Block *,
-  bool front)`;
+- *navigation*: `get_f_Block()`, `set_f_Block( p_Block )`,
+  `get_nested_Block( Index )`, `get_nested_Block( name )`,
+  `get_number_nested_Blocks()`, `get_nested_Block_index( name )` and
+  `get_nested_Block_index( Block * )`,
+  `add_nested_Block( Block * , bool front )`;
 - *contents*: `get_number_static_variables()`,
   `get_number_static_constraints()`, their dynamic counterparts, and
   `get_static_variable_groups()`, `get_static_constraint_groups()`
   and their dynamic counterparts
   (cf. [§5.5](05-variable-constraint-objective.md#sec-5-5));
 - *construction of the abstract representation*:
-  `generate_abstract_variables(Configuration *)`,
-  `generate_abstract_constraints(Configuration *)`,
-  `generate_dynamic_variables(Configuration *)`,
-  `generate_dynamic_constraints(Configuration *)`,
-  `generate_objective(Configuration *)`;
-- *attachment of `Solver`s*: `register_Solver(Solver *, bool
-  tofront)`, `unregister_Solver(Solver *, bool deleteold)`,
-  `unregister_Solvers(bool deleteold)`, `replace_Solver(...)`,
+  `generate_abstract_variables( Configuration * )`,
+  `generate_abstract_constraints( Configuration * )`,
+  `generate_dynamic_variables( Configuration * )`,
+  `generate_dynamic_constraints( Configuration * )`,
+  `generate_objective( Configuration * )`;
+- *attachment of `Solver`s*: `register_Solver( Solver * , bool tofront )`,
+  `unregister_Solver( Solver * , bool deleteold )`,
+  `unregister_Solvers( bool deleteold )`, `replace_Solver( ... )`,
   `get_registered_solvers()`;
-- *handling of `Modification`s*: `add_Modification(sp_Mod,
-  ChnlName)`, `anyone_there()`, `anyone_there_for(...)`,
-  `concerned()`, `concerned_by()`, and the channels
-  `open_channel()`, `close_channel()`, `clear_channel()`,
-  `set_default_channel()` (cf. [Chapter 8](08-modification-janus.md#ch-8));
-- *checks*: `is_feasible(bool useabstract, Configuration *)`,
-  `is_optimal(bool useabstract, Configuration *)`,
-  `is_sol_feasible(Solution *, Configuration *)`,
-  `is_sol_optimal(Solution *, Configuration *)`
+- *handling of `Modification`s*: `add_Modification( sp_Mod , ChnlName )`,
+  `anyone_there()`, `anyone_there_for( ... )`, `concerned()`,
+  `concerned_by()`, and the channels `open_channel()`, `close_channel()`,
+  `clear_channel()`, `set_default_channel()` (cf. [Chapter
+  8](08-modification-janus.md#ch-8));
+- *checks*: `is_feasible( bool useabstract , Configuration * )`,
+  `is_optimal( bool useabstract , Configuration * )`,
+  `is_sol_feasible( Solution * , Configuration * )`,
+  `is_sol_optimal( Solution * , Configuration * )`
   (cf. [§7.5](07-physical-abstract.md#sec-7-5));
 - *bounds and weights*: `get_objective_sense()`,
-  `get_valid_upper_bound(bool conditional)`,
-  `get_valid_lower_bound(bool conditional)`,
-  `set_objective_weight(double)`, `set_variable_weight(double)`
+  `get_valid_upper_bound( bool conditional )`,
+  `get_valid_lower_bound( bool conditional )`,
+  `set_objective_weight( double )`, `set_variable_weight( double )`
   (cf. [§5.4](05-variable-constraint-objective.md#sec-5-4));
-- *input and output*: `load(std::istream &, char)`,
-  `load(const std::string &, char)` (which opens the named file and
-  calls the former), `serialize(netCDF::NcGroup &) const`,
-  `deserialize(const netCDF::NcGroup &)`,
-  `print(std::ostream &, char)`;
-- *reformulation*: `get_R3_Block(Configuration *, Block * base,
-  Block * father)`, `map_back_solution(...)`,
-  `map_forward_solution(...)`, `map_forward_Modification(...)`,
-  `map_back_Modification(...)` (cf. [Chapter 10](10-r3block.md#ch-10));
-- *configuration*: `set_BlockConfig(BlockConfig *, bool)`,
-  `get_BlockConfig()`, and `set_structure(Configuration *)`;
-- *solutions*: `get_Solution(Configuration *, bool emptys)`
-  (cf. [Chapter 9](09-solution.md#ch-9)).
+- *input and output*: `load( std::istream & , char )`,
+  `load( const std::string & , char )` (which opens the named file and calls
+  the former), `serialize( netCDF::NcGroup & ) const`,
+  `deserialize( const netCDF::NcGroup & )`, `print( std::ostream & , char )`;
+- *reformulation*:
+  `get_R3_Block( Configuration * , Block * base , Block * father )`,
+  `map_back_solution( ... )`, `map_forward_solution( ... )`,
+  `map_forward_Modification( ... )`, `map_back_Modification( ... )`
+  (cf. [Chapter 10](10-r3block.md#ch-10));
+- *configuration*: `set_BlockConfig( BlockConfig * , bool )`,
+  `get_BlockConfig()`, and `set_structure( Configuration * )`;
+- *solutions*: `get_Solution( Configuration * , bool emptys )` (cf. [Chapter
+  9](09-solution.md#ch-9)).
 
 The complete list of the public methods, with their signatures and
 their specifications, is in [Doxy:
@@ -204,11 +204,11 @@ int main()
  // arc capacities U = (3, 3, 3); arc costs C = (2, 3, 4)
 
  // node names go from 1 to n
- MCFBlock::Subset      pSn = { 1, 2, 1 };  // arc starting nodes
- MCFBlock::Subset      pEn = { 2, 3, 3 };  // arc ending nodes
- MCFBlock::Vec_FNumber pU  = { 3.0, 3.0, 3.0 };
- MCFBlock::Vec_CNumber pC  = { 2.0, 3.0, 4.0 };
- MCFBlock::Vec_FNumber pB  = { -2.0, 0.0, +2.0 };
+ MCFBlock::Subset pSn = { 1 , 2 , 1 };  // arc starting nodes
+ MCFBlock::Subset pEn = { 2 , 3 , 3 };  // arc ending nodes
+ MCFBlock::Vec_FNumber pU = { 3.0 , 3.0 , 3.0 };
+ MCFBlock::Vec_CNumber pC = { 2.0 , 3.0 , 4.0 };
+ MCFBlock::Vec_FNumber pB = { -2.0 , 0.0 , +2.0 };
 
  // note the parameter order: ending nodes BEFORE starting nodes
  mcf.load( 3 /* n */ , 3 /* m */ , pEn , pSn , pU , pC , pB );
@@ -216,8 +216,8 @@ int main()
  // human-readable summary on stdout (the default verbosity prints the graph)
  mcf.print( std::cout );
 
- return 0;
-}
+ return( 0 );
+ }
 ```
 
 Its constructor `MCFBlock( Block * father = nullptr )` produces an
@@ -258,44 +258,41 @@ one argument (the pointer to the father). Once it is registered, one
 can instantiate the class by its name through the factory (cf.
 [Chapter 18](18-factories-netcdf.md#ch-18)).
 
-The same `MCFBlock` could equivalently have been built by reading a
-text file in the DIMACS format (with `load(std::istream &)`) or a
-netCDF file (with `deserialize(const netCDF::NcGroup &)`).
+The same `MCFBlock` could equivalently have been built by reading a text file
+in the DIMACS format (with `load( std::istream & )`) or a netCDF file (with
+`deserialize( const netCDF::NcGroup & )`).
 
 ## 4.6 Idioms {#sec-4-6}
 
 ### The "nuclear option" `NBModification`
 
-Each form of `load(...)` of an `MCFBlock` (and, by convention, of the
-other concrete `:Block`s that have one) replaces the instance
-altogether. If a `:Solver` is attached when `load(...)` is called, the
-`:Block` issues a single `NBModification`, the "nuclear option",
-meaning that everything has changed and that whatever the `:Solver`
-has cached has to be thrown away. By convention this is the only
-`Modification` that `load(...)` issues, while the incremental changes
-of the data have their own types of `Modification` (cf. [Chapter
-8](08-modification-janus.md#ch-8)). This nuclear option is always
-safe, but it is meant to be used sparingly, since it prevents any form
+Each form of `load( ... )` of an `MCFBlock` (and, by convention, of the other
+concrete `:Block`s that have one) replaces the instance altogether. If a
+`:Solver` is attached when `load( ... )` is called, the `:Block` issues a
+single `NBModification`, the "nuclear option", meaning that everything has
+changed and that whatever the `:Solver` has cached has to be thrown away. By
+convention this is the only `Modification` that `load( ... )` issues, while
+the incremental changes of the data have their own types of `Modification`
+(cf. [Chapter 8](08-modification-janus.md#ch-8)). This nuclear option is
+always safe, but it is meant to be used sparingly, since it prevents any form
 of reoptimization.
 
 ### The cache of the listeners `f_at`
 
-A `:Block` need not construct and dispatch a `Modification` for each
-change it undergoes: if no `:Solver` is registered with the `Block` or
-with any of its ancestors, nobody will react to the `Modification`,
-and the work of constructing it is wasted. To avoid this waste, each
-`Block` keeps the flag `f_at`, and the method `anyone_there()` returns
-`f_at || ! v_Solver.empty()`. This flag is maintained by
-`register_Solver()`, `unregister_Solver()`, `unregister_Solvers()` and
-`add_nested_Block()`, through the protected method `anyone_there( bool
-)` that a `Block` calls on each of its sub-`Block`s when the answer to
-"is anyone listening to me?" changes. In what follows, a sub-`Block`
-is *inserted properly* if its `f_at` is `false` before the insertion
-(which holds for a newly constructed `Block`), and if it is inserted
-either by `add_nested_Block()` or by a write into `v_Block` made while
-no `Solver` is registered with the father or with any of its
-ancestors. The property on which the `:Block`s rely is then the
-following.
+A `:Block` need not construct and dispatch a `Modification` for each change it
+undergoes: if no `:Solver` is registered with the `Block` or with any of its
+ancestors, nobody will react to the `Modification`, and the work of
+constructing it is wasted. To avoid this waste, each `Block` keeps the flag
+`f_at`, and the method `anyone_there()` returns `f_at || ! v_Solver.empty()`.
+This flag is maintained by `register_Solver()`, `unregister_Solver()`,
+`unregister_Solvers()` and `add_nested_Block()`, through the protected method
+`anyone_there( bool )` that a `Block` calls on each of its sub-`Block`s when
+the answer to "is anyone listening to me?" changes. In what follows, a
+sub-`Block` is *inserted properly* if its `f_at` is `false` before the
+insertion (which holds for a newly constructed `Block`), and if it is inserted
+either by `add_nested_Block()` or by a write into `v_Block` made while no
+`Solver` is registered with the father or with any of its ancestors. The
+property on which the `:Block`s rely is then the following.
 
 **Lemma 4.1** (Listeners). *Consider a tree of `Block`s whose
 sub-`Block`s have all been inserted properly, and whose `Solver`s have
@@ -315,39 +312,35 @@ since unfolding the invariant shows that $L(B)$ holds if and only if
 some `Block` on the path from $B$ to the root has a registered
 `Solver`.
 
-The invariant holds when the tree is built, since all the flags are
-`false` and no `Solver` is registered. Of the operations that may
-change some $L(\cdot)$, consider first `register_Solver(S)` on a
-`Block` $P$. If $P$ already had a `Solver`, or if $f_{at}(P)$ held,
-then $L(P)$ was already `true`, and the method does not touch the
-flags of the sub-`Block`s (it only appends $S$, or returns at once if
-$S$ is already registered). Otherwise $L(P)$ goes from `false` to
-`true`, and the method calls `anyone_there( true )` on each
-sub-`Block` of $P$. Now `anyone_there( true )` on a `Block` $C$ with
-$f_{at}(C)$ `false` sets $f_{at}(C)$ to `true`, which restores the
-invariant at $C$. If $C$ has a `Solver`, then $L(C)$ was `true` and
-remains so, and the method stops; otherwise $L(C)$ has gone from
-`false` to `true`, and the call is repeated on the sub-`Block`s of
-$C$. If instead $f_{at}(C)$ was already `true`, then by the invariant
-$L(\mathrm{father}(C))$ was already `true`, a contradiction with the
-hypothesis that it has just changed; hence this case does not arise
-below a `Block` whose $L$ changes. By induction on the height of the
-sub-tree of $P$, after the call the invariant holds again at each
-`Block` of that sub-tree, and it is unchanged elsewhere. The case of
-`unregister_Solver()` and `unregister_Solvers()` is symmetric. They
-call `anyone_there( false )` on the sub-`Block`s if and only if the
-last `Solver` of $P$ goes away while $f_{at}(P)$ is `false`, i.e.,
-when $L(P)$ goes from `true` to `false`; then `anyone_there( false )`
-propagates downwards through the `Block`s without `Solver`s, stopping
-at those that have one, whose $L$ does not change. Finally,
-`add_nested_Block(C)` on $P$ calls `anyone_there( true )` on $C$ if
-and only if $L(P)$ holds, and $f_{at}(C)$ is `false` by hypothesis
-before the call; hence after the call $f_{at}(C) = L(P)$, and the
-argument above shows that the invariant also holds in the sub-tree of
-$C$. A proper insertion by a direct write into `v_Block` happens while
-$L(P)$ is `false`, and the invariant holds since $f_{at}(C)$ is
-`false`. No other method of `Block` changes $f_{at}$ or `v_Solver`.
-$\square$
+The invariant holds when the tree is built, since all the flags are `false`
+and no `Solver` is registered. Of the operations that may change some
+$L(\cdot)$, consider first `register_Solver( S )` on a `Block` $P$. If $P$
+already had a `Solver`, or if $f_{at}(P)$ held, then $L(P)$ was already
+`true`, and the method does not touch the flags of the sub-`Block`s (it only
+appends $S$, or returns at once if $S$ is already registered). Otherwise
+$L(P)$ goes from `false` to `true`, and the method calls
+`anyone_there( true )` on each sub-`Block` of $P$. Now `anyone_there( true )`
+on a `Block` $C$ with $f_{at}(C)$ `false` sets $f_{at}(C)$ to `true`, which
+restores the invariant at $C$. If $C$ has a `Solver`, then $L(C)$ was `true`
+and remains so, and the method stops; otherwise $L(C)$ has gone from `false`
+to `true`, and the call is repeated on the sub-`Block`s of $C$. If instead
+$f_{at}(C)$ was already `true`, then by the invariant $L(\mathrm{father}(C))$
+was already `true`, a contradiction with the hypothesis that it has just
+changed; hence this case does not arise below a `Block` whose $L$ changes. By
+induction on the height of the sub-tree of $P$, after the call the invariant
+holds again at each `Block` of that sub-tree, and it is unchanged elsewhere.
+The case of `unregister_Solver()` and `unregister_Solvers()` is symmetric.
+They call `anyone_there( false )` on the sub-`Block`s if and only if the last
+`Solver` of $P$ goes away while $f_{at}(P)$ is `false`, i.e., when $L(P)$ goes
+from `true` to `false`; then `anyone_there( false )` propagates downwards
+through the `Block`s without `Solver`s, stopping at those that have one, whose
+$L$ does not change. Finally, `add_nested_Block( C )` on $P$ calls
+`anyone_there( true )` on $C$ if and only if $L(P)$ holds, and $f_{at}(C)$ is
+`false` by hypothesis before the call; hence after the call
+$f_{at}(C) = L(P)$, and the argument above shows that the invariant also holds
+in the sub-tree of $C$. A proper insertion by a direct write into `v_Block`
+happens while $L(P)$ is `false`, and the invariant holds since $f_{at}(C)$ is
+`false`. No other method of `Block` changes $f_{at}$ or `v_Solver`. $\square$
 
 The hypotheses of Lemma 4.1 are not idle. A sub-`Block` moved from a
 father that is listened to into one that is not would keep a stale
@@ -359,16 +352,15 @@ registered with an ancestor would keep `f_at == false`, and the
 `anyone_there()` is `false`.
 
 `:Block` implementers check `anyone_there()` before paying the cost of
-constructing a `Modification`. A finer test is `anyone_there_for( what
-)`. Each `Modification` declares, as a bit mask of type
-`Modification::ModConcern`, what it changes (`eModPhys` for the
-physical representation, and `eModVarData`, `eModCnsSide`, `eModObj`
-and so on for the parts of the abstract one), and each `:Solver`
-declares, through `Solver::concerned_by()`, the kinds it reads. Then
-`Block::concerned()` is the "or" of what the `:Solver`s of the `Block`
-and of its ancestors read, and of the `concerned_by()` of the `:Block`
-(typically, the abstract `Modification`s that it follows to keep its
-physical representation in step; see [Chapter
+constructing a `Modification`. A finer test is `anyone_there_for( what )`.
+Each `Modification` declares, as a bit mask of type
+`Modification::ModConcern`, what it changes (`eModPhys` for the physical
+representation, and `eModVarData`, `eModCnsSide`, `eModObj` and so on for the
+parts of the abstract one), and each `:Solver` declares, through
+`Solver::concerned_by()`, the kinds it reads. Then `Block::concerned()` is the
+"or" of what the `:Solver`s of the `Block` and of its ancestors read, and of
+the `concerned_by()` of the `:Block` (typically, the abstract `Modification`s
+that it follows to keep its physical representation in step; see [Chapter
 8](08-modification-janus.md#ch-8)). A `:Block` can therefore avoid
 constructing a `Modification` of a kind that nobody reads.
 

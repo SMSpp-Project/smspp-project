@@ -156,33 +156,30 @@ of an inner `Variable`.
 
 ### The `LagrangianDualSolver`
 
-A user rarely constructs a `LagBFunction` by hand. The usual route is
-the
+A user rarely constructs a `LagBFunction` by hand. The usual route is the
 [`LagrangianDualSolver`](https://smspp.gitlab.io/smspp-project/d4/dc3/class_s_m_spp__di__unipi__it_1_1_lagrangian_dual_solver.html),
-a `CDASolver` that solves the Lagrangian dual of a "generic" `Block`
-$(B)$ with a precise structure (`LagrangianDualSolver.h:63-100`). It
-has no `Variable` of its own, at least one sub-`Block`, no `Objective` or
-one with no `Variable` (its constant term being part of the dual
-value), and no dependence on `Variable`s outside of $(B)$. If there is
-more than one sub-`Block`, its `Constraint`s are all and only the
-linking constraints between the sub-`Block`s, and all of them are
-`FRowConstraint`s with a `LinearFunction` inside. Given such a $(B)$,
-the `LagrangianDualSolver` builds a hidden `LagrangianDualBlock` $(LB)$
-with one sub-`Block` $(LB_i)$ per sub-`Block` $(B_i)$ of $(B)$; each
-$(LB_i)$ is empty, save for an `FRealObjective` containing a
-`LagBFunction` whose inner `Block` is $(B_i)$, with the linking
+a `CDASolver` that solves the Lagrangian dual of a "generic" `Block` $(B)$
+with a precise structure (`LagrangianDualSolver.h:63-100`). It has no
+`Variable` of its own, at least one sub-`Block`, no `Objective` or one with no
+`Variable` (its constant term being part of the dual value), and no dependence
+on `Variable`s outside of $(B)$. If there is more than one sub-`Block`, its
+`Constraint`s are all and only the linking constraints between the
+sub-`Block`s, and all of them are `FRowConstraint`s with a `LinearFunction`
+inside. Given such a $(B)$, the `LagrangianDualSolver` builds a hidden
+`LagrangianDualBlock` $(LB)$ with one sub-`Block` $(LB_i)$ per sub-`Block`
+$(B_i)$ of $(B)$; each $(LB_i)$ is empty, save for an `FRealObjective`
+containing a `LagBFunction` whose inner `Block` is $(B_i)$, with the linking
 constraints dualised, and the user-chosen inner `:Solver` (typically a
-`BundleSolver`) is registered to $(LB)$. The father of $(B_i)$ becomes
-the `LagBFunction`, while $(B)$ still "believes" that $(B_i)$ is its
-sub-`Block`, and $(B)$ is made the father of the `LagBFunction`, so that
-every `Modification` of $(B_i)$ reaches both $(LB)$, translated, and
-$(B)$ (`LagrangianDualSolver.h:100-140`); all this is undone when the
-`LagrangianDualSolver` is unregistered. If something requires the
-original father-son relation to be kept, the parameter
-`int_LDSlv_iBCopy` makes the `LagBFunction` wrap a copy of $(B_i)$
-instead, kept in sync by an `UpdateSolver`
-([§10.6](10-r3block.md#sec-10-6)), which requires `get_R3_Block(
-nullptr )` and `map_back_solution()` to work for every $(B_i)$.
+`BundleSolver`) is registered to $(LB)$. The father of $(B_i)$ becomes the
+`LagBFunction`, while $(B)$ still "believes" that $(B_i)$ is its sub-`Block`,
+and $(B)$ is made the father of the `LagBFunction`, so that every
+`Modification` of $(B_i)$ reaches both $(LB)$, translated, and $(B)$
+(`LagrangianDualSolver.h:100-140`); all this is undone when the
+`LagrangianDualSolver` is unregistered. If something requires the original
+father-son relation to be kept, the parameter `int_LDSlv_iBCopy` makes the
+`LagBFunction` wrap a copy of $(B_i)$ instead, kept in sync by an
+`UpdateSolver` ([§10.6](10-r3block.md#sec-10-6)), which requires
+`get_R3_Block( nullptr )` and `map_back_solution()` to work for every $(B_i)$.
 
 The output is a dual bound and a *convexified* primal solution, i.e.,
 the convex combination of inner solutions given by the multipliers of

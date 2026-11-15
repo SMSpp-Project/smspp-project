@@ -15,18 +15,17 @@ of an unknown `:Block` by *name*.
 
 ## 15.1 The problem it solves {#sec-15-1}
 
-A `:Block`'s data-changing methods live in its *specialised*
-interface: `MCFBlock::chg_cost(...)`,
-`BinaryKnapsackBlock::chg_weight(...)`,
-`CapacitatedFacilityLocationBlock::...`. Calling any of them
-requires a pointer of the concrete type and a compile-time
-dependency on that type. But much framework code is deliberately
-*type-agnostic*: a `StochasticBlock` that realises scenario data
-into "some inner `Block`" ([Chapter 1](01-introduction.md#ch-1)) does not know, and should
-not need to know, whether that inner `Block` is a `UCBlock`, a
-`CapacitatedFacilityLocationBlock`, or something written next
-year. It only knows that "the data to change is called such-and-
-such, and here are the new values".
+A `:Block`'s data-changing methods live in its *specialised* interface:
+`MCFBlock::chg_cost( ... )`, `BinaryKnapsackBlock::chg_weight( ... )`,
+`CapacitatedFacilityLocationBlock::...`. Calling any of them requires a
+pointer of the concrete type and a compile-time dependency on that type. But
+much framework code is deliberately *type-agnostic*: a `StochasticBlock` that
+realises scenario data into "some inner `Block`" ([Chapter
+1](01-introduction.md#ch-1)) does not know, and should not need to know,
+whether that inner `Block` is a `UCBlock`, a
+`CapacitatedFacilityLocationBlock`, or something written next year. It only
+knows that "the data to change is called such-and- such, and here are the new
+values".
 
 The methods factory provides exactly this indirection: a
 (bi-directional) map from a *name*, a `std::string` readable at
@@ -46,12 +45,12 @@ concrete `:Block` and forwards to the real method
 (`Block.h:6048-6090`). Their types are
 
 ```cpp
-template< typename ... Args >
+template< typename... Args >
 using FunctionType =
- std::function< void( Block * , Args ... , ModParam , ModParam ) >;
+  std::function< void( Block * , Args... , ModParam , ModParam ) >;
 
-template< typename ... Args >
-using QueryType = std::function< void( const Block * , Args ... ) >;
+template< typename... Args >
+using QueryType = std::function< void( const Block * , Args... ) >;
 ```
 
 and the framework can build these adapters
@@ -73,13 +72,11 @@ densely enough populated to be worth consulting. SMS++ predefines
 a few "method-set" signature families (`Block.h:723-777`); the six
 basic ones are parameterised by two independent choices:
 
-- the *data type* carried: none, `MF_dbl_sp` (a
-  `std::span<const double>`), or `MF_int_sp` (a
-  `std::span<const int>`);
-- the *slice form* addressing *which* elements change: a
-  `Range` (a contiguous `[start, stop)` interval) or a `Subset`
-  (an arbitrary set of indices, with a `bool` flag saying whether
-  it is already ordered).
+- the *data type* carried: none, `MF_dbl_sp` (a `std::span< const double >`),
+  or `MF_int_sp` (a `std::span< const int >`);
+- the *slice form* addressing *which* elements change: a `Range` (a contiguous
+  `[start , stop)` interval) or a `Subset` (an arbitrary set of indices, with
+  a `bool` flag saying whether it is already ordered).
 
 The six resulting types are:
 
@@ -93,21 +90,20 @@ The six resulting types are:
 | `MS_sp_int_sbst` | `MF_int_sp, Subset &&, bool` |
 
 A function in the `MS_sp_dbl_rngd` family thus has the shape
-"`(Block*, MF_dbl_sp data, Range slice, ModParam, ModParam)`":
-"apply the `double` values in `data`, the h-th to the h-th index,
-to the contiguous range `slice` of the relevant data structure".
-The span has to be at least as long as the slice, and a shorter
-one makes the function throw `std::invalid_argument` rather than
-read past its end. This is precisely the shape of
-`BinaryKnapsackBlock::chg_weights(MF_dbl_sp, Range, ModParam,
-ModParam)`, which `BinaryKnapsackBlock` registers into the factory
-under the name `"BinaryKnapsackBlock::chg_weights"`. It registers
-`chg_weights` and `chg_profits` in both the `MS_sp_dbl_rngd` and
-the `MS_sp_dbl_sbst` families, and `chg_capacity` in
-`MS_sp_dbl_rngd`. `MCFBlock` does the same for its own data, with
-`chg_costs`, `chg_ucaps` and `chg_dfcts` in the `MS_sp_dbl_*`
-families and `close_arcs` and `open_arcs` in the `MS_*` ones. The framework nudges
-`:Block` authors to give their data-changing methods one of these
+"`(Block*, MF_dbl_sp data, Range slice, ModParam, ModParam)`": "apply the
+`double` values in `data`, the h-th to the h-th index, to the contiguous range
+`slice` of the relevant data structure". The span has to be at least as long
+as the slice, and a shorter one makes the function throw
+`std::invalid_argument` rather than read past its end. This is precisely the
+shape of
+`BinaryKnapsackBlock::chg_weights( MF_dbl_sp , Range , ModParam , ModParam )`,
+which `BinaryKnapsackBlock` registers into the factory under the name
+`"BinaryKnapsackBlock::chg_weights"`. It registers `chg_weights` and
+`chg_profits` in both the `MS_sp_dbl_rngd` and the `MS_sp_dbl_sbst` families,
+and `chg_capacity` in `MS_sp_dbl_rngd`. `MCFBlock` does the same for its own
+data, with `chg_costs`, `chg_ucaps` and `chg_dfcts` in the `MS_sp_dbl_*`
+families and `close_arcs` and `open_arcs` in the `MS_*` ones. The framework
+nudges `:Block` authors to give their data-changing methods one of these
 shapes, precisely so they slot into the factory for free.
 
 Four more setter families cover data that do not fit the six
@@ -209,8 +205,8 @@ void apply_new_doubles( Block * blk , const std::string & method_name ,
 
  // this changes the data of the Block and issues the Modification(s),
  // as a direct call would
- std::invoke( *fun , blk , Block::MF_dbl_sp( values ) , slice ,
-              eModBlck , eModBlck );
+ std::invoke( *fun , blk , Block::MF_dbl_sp( values ) , slice , eModBlck ,
+              eModBlck );
  }
 
 int main( void )
@@ -220,7 +216,7 @@ int main( void )
  bkb.load( 3 , 10 , { 1 , 2 , 3 } , { 4 , 5 , 6 } , { true , true , true } );
 
  // change the weights of items [ 0 , 3 ) without naming the class
- Block * anon = & bkb;          // seen only as a base Block *
+ Block * anon = &bkb;  // seen only as a base Block *
  apply_new_doubles( anon , "BinaryKnapsackBlock::chg_weights" ,
                     { 5.0 , 6.0 , 7.0 } , Block::Range( 0 , 3 ) );
  return( 0 );
@@ -246,11 +242,11 @@ SMS++, and they should not be confused:
 
 - the methods factory of this chapter maps a *method name* to a
   *function that changes an existing `Block`*;
-- the class factories of [Chapter 18](18-factories-netcdf.md#ch-18) map a *class name* to a
-  *constructor*, so that a `Block`, `Solver`, `Configuration`,
-  `Solution` or `Change` of a type named in a file can be
+- the class factories of [Chapter 18](18-factories-netcdf.md#ch-18) map a
+  *class name* to a *constructor*, so that a `Block`, `Solver`,
+  `Configuration`, `Solution` or `Change` of a type named in a file can be
   *created* without compile-time knowledge of the type
-  (`Block::new_Block(name)`, `Solver::new_Solver(name)`, ...).
+  (`Block::new_Block( name )`, `Solver::new_Solver( name )`, ...).
 
 Both rest on the same idea (deferring a type decision to a runtime
 string), but one *constructs objects* while the other *mutates an

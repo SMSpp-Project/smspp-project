@@ -14,6 +14,7 @@
 #   sphinx-build -b html -d doc/doctrees sphinx public/sphinx                 #
 # --------------------------------------------------------------------------- #
 
+import glob
 import os
 import re
 import subprocess
@@ -163,13 +164,14 @@ def mend_xml():
 mend_xml()
 
 html_theme = 'sphinx_rtd_theme'
-# the logo without background, on the grey of the sidebar, where its blue M
-# stands out (on the blue of the theme it does not), and alone, since it
-# spells the name of the project
+# the logo without background, on the white of the sidebar, and alone,
+# since it spells the name of the project
 html_logo = os.path.join(ROOT, 'doxygen', 'SMSpp_logo_mid_noback.png')
 # the content as wide as the formulae need, which scroll in their box when
-# wider still (see _static/smspp.css)
-html_static_path = ['_static']
+# wider still, and the look of the PDF of the user manual, whose fonts are
+# copied next to it (see _static/smspp.css)
+html_static_path = ['_static'] + sorted(
+    glob.glob(os.path.join(ROOT, 'manual', 'build', 'fonts', '*.otf')))
 html_css_files = ['smspp.css']
 # the sidebar stays in place while the page scrolls and scrolls on its own;
 # it holds the modules and the groups, and the branch of the page down to
@@ -179,7 +181,7 @@ html_css_files = ['smspp.css']
 # headers only; the build grows with the square of the pages
 html_theme_options = {'navigation_depth': 5, 'collapse_navigation': True,
                       'sticky_navigation': True, 'logo_only': True,
-                      'style_nav_header_background': '#343131'}
+                      'style_nav_header_background': '#ffffff'}
 
 # --------------------------------------------------------------------------- #
 #                              End of conf.py                                 #

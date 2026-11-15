@@ -1171,7 +1171,8 @@ HTML_STYLESHEET        =
 
 # The theme is doxygen-awesome-css, vendored in doxygen/awesome at its tag
 # v2.5.0 with its MIT licence, in the variant with the navigation tree alone
-# on the side; custom.css, last, holds what SMS++ changes in it.
+# on the side; custom.css, last, holds what SMS++ changes in it, among which
+# the look of the PDF of the user manual, whose fonts HTML_EXTRA_FILES copies.
 
 HTML_EXTRA_STYLESHEET  = doxygen/awesome/doxygen-awesome.css \
                          doxygen/awesome/doxygen-awesome-sidebar-only.css \
@@ -1185,7 +1186,13 @@ HTML_EXTRA_STYLESHEET  = doxygen/awesome/doxygen-awesome.css \
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = doxygen/SMSpp_logo_mid_noback.png
+HTML_EXTRA_FILES       = doxygen/SMSpp_logo_mid_noback.png \
+                         manual/build/fonts/lmroman10-regular.otf \
+                         manual/build/fonts/lmroman10-bold.otf \
+                         manual/build/fonts/lmroman10-italic.otf \
+                         manual/build/fonts/lmroman10-bolditalic.otf \
+                         manual/build/fonts/lmmono10-regular.otf \
+                         manual/build/fonts/lmmono10-italic.otf
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
