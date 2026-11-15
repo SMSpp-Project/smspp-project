@@ -1,8 +1,8 @@
 # 9. Solution {#ch-9}
 
-[Source: `SMS++/include/Solution.h`, `ColVariableSolution.h`,
-`RowConstraintSolution.h`, `ColRowSolution.h`;
-`MCFBlock/include/MCFBlock.h` (`MCFSolution`)]
+[Source: [`SMS++/include/Solution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h), [`ColVariableSolution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ColVariableSolution.h),
+[`RowConstraintSolution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RowConstraintSolution.h), [`ColRowSolution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ColRowSolution.h);
+[`MCFBlock/include/MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h) (`MCFSolution`)]
 
 ## 9.1 Concept {#sec-9-1}
 
@@ -47,7 +47,7 @@ only ever store that part. With `emptys == true` (the default) the
 with `emptys == false` it already holds the current solution. The base
 `Block::get_Solution()` returns `nullptr`, i.e., a `:Block` that does
 not override it has no `Solution`. By the contract of `read()` and
-`write()` in `Solution.h`, it is an error to read or write a part that
+`write()` in [`Solution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h), it is an error to read or write a part that
 the `Block` does not have (say, dual values when the `Constraint`s
 have not been generated). Concrete `:Solution`s throw in this case,
 with the exception noted in [§9.4](09-solution.md#sec-9-4).
@@ -86,10 +86,10 @@ the same groups of `Variable`s, with the same sizes, at the time of
 `Block` with `for_each_as< ColVariable >()`, storing `get_value()` of
 each element in the order of the storage, then through the dynamic
 groups in the same way, then recursively through the sub-`Block`s
-(`SMS++/src/ColVariableSolution.cpp:370-418`). `write()` goes through
+([`SMS++/src/ColVariableSolution.cpp:370-418`](https://gitlab.com/smspp/smspp/-/blob/develop/src/ColVariableSolution.cpp#L370-418)). `write()` goes through
 the same groups in the same order, and calls `set_value()` with the
 stored value of each element
-(`SMS++/src/ColVariableSolution.cpp:420-441`). Since the order of
+([`SMS++/src/ColVariableSolution.cpp:420-441`](https://gitlab.com/smspp/smspp/-/blob/develop/src/ColVariableSolution.cpp#L420-441)). Since the order of
 `for_each_as()` is the order of the storage, which is part of the
 contract of `BaseGroup` (cf.
 [§5.5](05-variable-constraint-objective.md#sec-5-5)), and the groups
@@ -165,7 +165,7 @@ predecessor function) cannot represent a scaled path; `scale()` may
 then return a `Solution` of a *different*, "more general" type (say, a
 flow on each arc), which one can scale and sum with others. For the
 contract, see the comments of `scale()` and `sum()`
-(`Solution.h:540-626`).
+([`Solution.h:540-626`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h#L540-626)).
 
 Two further parts of the base interface concern a `Solution` that is kept
 while its `Block` changes. First, a `Solution` knows whether it holds a
@@ -211,7 +211,7 @@ on a mismatch.
 A concrete `:Block` typically defines a `:Solution`, which stores the
 solution in terms of its *physical* representation, usually far more
 compactly than the abstract one; each of the three running examples
-has one. `MCFSolution` (`MCFBlock.h:2682`) stores the flows of the
+has one. `MCFSolution` ([`MCFBlock.h:2682`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2682)) stores the flows of the
 arcs and/or the potentials of the nodes, i.e., the natural primal and
 dual data of a min-cost flow problem.
 [`BinaryKnapsackSolution`](https://smspp.gitlab.io/smspp-project/dc/d61/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_solution.html)

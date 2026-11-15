@@ -93,4 +93,4 @@ algorithms that SMS++ implements and that are mentioned in the text.
     (<https://resilient-project.github.io>). Much of the recent work on
     the SMS++ `Block` library documented here was carried out in the
     framework of this project; the acknowledgement follows the form
-    indicated in the umbrella project's `README.md`.
+    indicated in the umbrella project's [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md).

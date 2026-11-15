@@ -1,7 +1,7 @@
 # 7. Physical vs Abstract representation {#ch-7}
 
-[Source: `SMS++/include/Block.h`, `MCFBlock/include/MCFBlock.h`,
-`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
+[Source: [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h), [`MCFBlock/include/MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h),
+[`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/BinaryKnapsackBlock.h)]
 
 In this chapter we make precise what [Chapter 3](03-mental-model.md#ch-3)
 introduced informally: a `Block` carries two representations of the
@@ -159,11 +159,11 @@ is used when the argument is `nullptr`. Its usual form is a
 parts to construct. For instance, `MCFBlock` uses the `Configuration`
 of `generate_abstract_constraints()` to decide whether the
 `LB0Constraint`s of the capacities are omitted, which is allowed only
-if all the capacities are infinite (`MCFBlock.h:513-580`), while
+if all the capacities are infinite ([`MCFBlock.h:513-580`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L513-580)), while
 `CapacitatedFacilityLocationBlock` goes further, and uses the
 `Configuration` of `generate_abstract_variables()` to choose one of
 the four formulations of [§3.5](03-mental-model.md#sec-3-5)
-(`CapacitatedFacilityLocationBlock.h:473-626`). When the same
+([`CapacitatedFacilityLocationBlock.h:473-626`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L473-626)). When the same
 `Configuration`s have to be applied to a tree of `Block`s, the
 recursive `[C/O/R]BlockConfig` classes of [Chapter
 11](11-configuration.md#ch-11) carry those of the five methods (plus a
@@ -228,7 +228,7 @@ typically much cheaper, since the `:Block` goes through its arrays and
 applies the definition of feasibility of its problem: for `MCFBlock`,
 `is_feasible( false )` calls `flow_feasible()` and `bound_feasible()`,
 which check the flows against the physical data
-(`MCFBlock.h:987-1029`). With `useabstract == true` the `:Block`
+([`MCFBlock.h:987-1029`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L987-1029)). With `useabstract == true` the `:Block`
 checks the solution against its *abstract* representation, by
 computing each `Constraint` and calling its `feasible()`; this
 requires the abstract representation to have been built, and it is
@@ -243,7 +243,7 @@ should agree, by a property such as Proposition 7.1 of the `:Block` at
 hand. They can genuinely differ only when the abstract representation
 is not complete, notably when some dynamic `Constraint`s have not been
 generated yet; the comment of `Block::is_feasible()`
-(`Block.h:4582-4686`) gives the precise contract. For `MCFBlock`,
+([`Block.h:4582-4686`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L4582-4686)) gives the precise contract. For `MCFBlock`,
 `is_optimal()` checks, within the tolerances, that the flows are
 feasible, that the duals of the flow conservation and bound
 constraints are dual feasible, and that the two satisfy the
@@ -313,7 +313,7 @@ saved before it was changed, and `c.write( B )` restores the values by
 The hypothesis on the exceptions is necessary. If $T$, or the write
 of $s$, throws an exception of another type, the restoring steps are
 skipped: the `Variable`s keep the values of $s$, the flag may stay
-raised, and $c$ is leaked (`SMS++/src/Block.cpp:649-663`; a guard
+raised, and $c$ is leaked ([`SMS++/src/Block.cpp:649-663`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L649-663); a guard
 object that restores and deletes in its destructor would remove the
 hypothesis).
 

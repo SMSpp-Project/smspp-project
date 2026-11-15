@@ -1,9 +1,9 @@
 # 5. Variable, Constraint, Objective {#ch-5}
 
-[Source: `SMS++/include/Variable.h`, `ColVariable.h`, `Constraint.h`,
-`RowConstraint.h`, `OneVarConstraint.h`, `FRowConstraint.h`,
-`Objective.h` (also `RealObjective`), `FRealObjective.h`,
-`LinearConstraint.h`, `Group.h`]
+[Source: [`SMS++/include/Variable.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Variable.h), [`ColVariable.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ColVariable.h), [`Constraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Constraint.h),
+[`RowConstraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RowConstraint.h), [`OneVarConstraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/OneVarConstraint.h), [`FRowConstraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/FRowConstraint.h),
+[`Objective.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Objective.h) (also `RealObjective`), [`FRealObjective.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/FRealObjective.h),
+[`LinearConstraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/LinearConstraint.h), [`Group.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Group.h)]
 
 ## 5.1 Concept {#sec-5-1}
 
@@ -263,7 +263,7 @@ where an empty `Integrality` makes all the items integer and `fxd`
 optionally fixes some of them. In response to the three calls,
 `BinaryKnapsackBlock` constructs the objects that its comments
 describe, held in three protected fields
-(`BinaryKnapsackBlock.h:1021-1023`). These are (i) one static group of
+([`BinaryKnapsackBlock.h:1021-1023`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/BinaryKnapsackBlock.h#L1021-1023)). These are (i) one static group of
 `Variable`s, the `std::vector< ColVariable > v_x` of size $n$ (one per
 item), each of type `kBinary` for an integer item and `kPosUnitary`
 for a continuous one; (ii) one static group of `Constraint`s, the
@@ -283,7 +283,7 @@ through `get_Var( i )`. Code that has to look at the abstract
 representation of a `:Block` it does not know iterates over its
 groups. The methods `get_static_variable_groups()`,
 `get_static_constraint_groups()` and their dynamic counterparts return
-them as `BaseGroup` objects (`Group.h`), each of which gives its name,
+them as `BaseGroup` objects ([`Group.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Group.h)), each of which gives its name,
 its shape and its elements as `Variable` or `Constraint`. Then
 `elements_are< T >()` checks once for the group whether the elements
 derive from `T`, `for_each_as()` and `for_each_cell_as()` run loops
@@ -298,8 +298,8 @@ is the right vehicle to assemble a set of `Variable`s, `Constraint`s
 and an `Objective` by hand, through `add_static_variable()`,
 `add_static_constraint()` and their dynamic counterparts; the tests of
 the core contain `AbstractBlock`s built in this way
-(`SMS++/test/AbstractBlockGenerator.h`, used by
-`tests_AbstractBlock.cpp`), while [Appendix
+([`SMS++/test/AbstractBlockGenerator.h`](https://gitlab.com/smspp/smspp/-/blob/develop/test/AbstractBlockGenerator.h), used by
+[`tests_AbstractBlock.cpp`](https://gitlab.com/smspp/smspp/-/blob/develop/test/tests_AbstractBlock.cpp)), while [Appendix
 A](A-writing-block.md#app-A) develops a new `:Block` from scratch.
 
 ## 5.6 Outline of the interface {#sec-5-6}
@@ -313,7 +313,7 @@ A](A-writing-block.md#app-A) develops a new `:Block` from scratch.
 | `OneVarConstraint` | the single `ColVariable` and the bounds are the only data |
 | `FRowConstraint` | `set_function(Function*, ModParam, bool)`, `get_function()`; $g$ is the value of the `Function` |
 | `Objective` | `set_sense(int, ModParam)`, `get_sense()`, `compute(bool)` |
-| `RealObjective` | `OFValue` and `value()` (in `Objective.h`) |
+| `RealObjective` | `OFValue` and `value()` (in [`Objective.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Objective.h)) |
 | `FRealObjective` | `set_function(Function*, ModParam, bool)`, `get_function()` |
 | `LinearConstraint` | an `FRowConstraint` with a `LinearFunction`, whose coefficients it exposes |
 

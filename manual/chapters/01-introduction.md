@@ -215,7 +215,7 @@ Part I (Chapters [1](01-introduction.md#ch-1) to
 [Chapter 2](02-installation.md#ch-2) covers the installation and the
 first build, and it is deliberately short, since the
 [SMS++ Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home) and
-the `README.md` of the umbrella project are the authoritative source
+the [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md) of the umbrella project are the authoritative source
 of the detailed steps. [Chapter 3](03-mental-model.md#ch-3) gives the
 *mental model* of the framework: `Block` and `Solver`, the two
 representations, the lifecycle of a `Block`, and the three running

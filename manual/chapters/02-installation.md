@@ -2,7 +2,7 @@
 
 We keep this chapter deliberately short. The
 [SMS++ Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home)
-and the `README.md` of the umbrella project are the authoritative
+and the [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md) of the umbrella project are the authoritative
 (and always current) source of the detailed installation steps; what
 follows is an orientation, plus the one idea that a newcomer most
 needs before consulting them, i.e., that two build systems coexist,
@@ -42,7 +42,7 @@ functionality is not needed:
 
 For a first installation, the project provides scripts that fetch and
 install the dependencies in default locations. The first is
-`INSTALL.sh` (Linux and macOS), which accepts `--without-<dependency>`
+[`INSTALL.sh`](https://gitlab.com/smspp/smspp-project/-/blob/develop/INSTALL.sh) (Linux and macOS), which accepts `--without-<dependency>`
 flags (`--without-cplex`, `--without-gurobi`, `--without-scip`,
 `--without-highs`, `--without-stopt`, `--without-lemon`,
 `--without-smspp`, and so on); the second is `INSTALL.ps1` (Windows),
@@ -51,7 +51,7 @@ which accepts the corresponding `-without<Dependency>` switches
 and a few others: there, most of the open-source dependencies come
 from vcpkg and have no switch). Run again, the scripts update what
 they have installed. Both the exact invocations and the full table of
-the options are in the `README.md` of the project, and the
+the options are in the [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md) of the project, and the
 [requirements
 guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements)
 of the Wiki has the details.
@@ -120,14 +120,14 @@ build sit next to the sources; each module, starting from the core,
 ships its makefiles. This is better suited to the short "edit,
 compile, test" loop of one who develops SMS++ components, since the
 products are where the sources are. In particular, the core library is
-built by `SMS++/lib/makefile-lib` into `SMS++/lib/libSMS++.a`, and the
+built by [`SMS++/lib/makefile-lib`](https://gitlab.com/smspp/smspp/-/blob/develop/lib/makefile-lib) into `SMS++/lib/libSMS++.a`, and the
 makefile of an executable declares which modules it needs.
 
 The dependencies between modules rest on two include files that the
 modules other than the core provide in their root directory. The
 "complete" one, `makefile-c`, brings in the headers and the
 compilation rules of the module, those of all the modules it depends
-on (comprising the core, whose `makefile-c` is in `SMS++/lib/`), and
+on (comprising the core, whose [`makefile-c`](https://gitlab.com/smspp/smspp/-/blob/develop/lib/makefile-c) is in `SMS++/lib/`), and
 all the external libraries. The "sub" one, `makefile-s`, does the same
 but without the core, which therefore is not brought in more than
 once. The rule for the makefile of an executable is therefore to

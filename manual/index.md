@@ -42,13 +42,13 @@ contributions of many co-authors over the years, prominent among them
 Rafael Durbano Lobato, Donato Meoli, Enrico Gorgone, Federica Di
 Pasquale, Francesca Demelas, Kostas Tavlaridis-Gyparakis, Niccolò
 Iardella, and Benoit Tran. Specific contributions are credited in the
-source files and in the project's `CHANGELOG.md`.
+source files and in the project's [`CHANGELOG.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/CHANGELOG.md).
 
 Recent work on SMS++, including much of what is documented here, has
 been carried out in the framework of the
 [**RESILIENT project**](https://resilient-project.github.io); the
 project is acknowledged in the form indicated in the umbrella
-project's `README.md`.
+project's [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md).
 
 This manual was drafted with the assistance of Claude (Anthropic).
 The conceptual structure, technical content, and editorial choices
@@ -71,7 +71,7 @@ manual is distributed under the same terms.
   following the convention adopted in the slide decks that accompany the
   project.
 * **File-path and source-tree references** are typeset in `monospace`
-  too, e.g. `SMS++/include/Block.h`. Whenever a precise pointer into
+  too, e.g. [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h). Whenever a precise pointer into
   the source is given, the form is `file:line`.
 * **Doxygen cross-references** are URLs to the public Doxygen at
   `https://smspp.gitlab.io/smspp-project/`. The Doxygen is generated

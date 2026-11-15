@@ -2,7 +2,7 @@
 
 [Doxy:
 [`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html)]
-&nbsp; [Source: `SMS++/include/Block.h`]
+&nbsp; [Source: [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h)]
 
 ## 4.1 Concept {#sec-4-1}
 
@@ -253,7 +253,7 @@ No factory is called by the user either, although the class is
 registered in the factory of `Block`s. The registration is done by the
 author of the `:Block`, once and for all, by the macro
 `SMSpp_insert_in_factory_cpp_1( MCFBlock );` at namespace scope in
-`MCFBlock.cpp`, where the suffix `_1` means that the constructor takes
+[`MCFBlock.cpp`](https://gitlab.com/smspp/mcfblock/-/blob/develop/src/MCFBlock.cpp), where the suffix `_1` means that the constructor takes
 one argument (the pointer to the father). Once it is registered, one
 can instantiate the class by its name through the factory (cf.
 [Chapter 18](18-factories-netcdf.md#ch-18)).

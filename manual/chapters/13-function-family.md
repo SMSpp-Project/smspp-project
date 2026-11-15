@@ -1,9 +1,9 @@
 # 13. The Function family {#ch-13}
 
-[Source: `SMS++/include/Function.h`, `C05Function.h`,
-`C15Function.h`, `LinearFunction.h`, `DQuadFunction.h`,
-`QuadFunction.h`, `PolyhedralFunction.h`, `PolyhedralFunctionBlock.h`,
-`C05SumFunction.h`]
+[Source: [`SMS++/include/Function.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h), [`C05Function.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C05Function.h),
+[`C15Function.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C15Function.h), [`LinearFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/LinearFunction.h), [`DQuadFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/DQuadFunction.h),
+[`QuadFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/QuadFunction.h), [`PolyhedralFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/PolyhedralFunction.h), [`PolyhedralFunctionBlock.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/PolyhedralFunctionBlock.h),
+[`C05SumFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C05SumFunction.h)]
 
 `Function`s are the objects that supply the *value* inside an
 `FRowConstraint` (its left-hand side) and inside an `FRealObjective`
@@ -33,7 +33,7 @@ the derived classes.
 
 The base `Function` also *advertises* some mathematical properties that
 a `:Solver` can rely on to choose its algorithm, through a family of
-predicates (`Function.h:577-634`): `is_convex()` and `is_concave()`
+predicates ([`Function.h:577-634`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h#L577-634)): `is_convex()` and `is_concave()`
 (both `false` by default, and both `false` for a function that is
 neither), `is_linear()`, defined as `is_convex() && is_concave()`, and
 `is_lower_semicontinuous()`, `is_upper_semicontinuous()` and
@@ -64,7 +64,7 @@ responsibility of registering with the `Variable`s falls on the
 is added to or removed from the `Function`, the `Function` issues a
 `FunctionModVars`, which the containing object observes and reacts to
 by registering itself with that `Variable`, or unregistering from it
-(`Function.h:91-120`). The practical consequence is that `Function`s
+([`Function.h:91-120`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h#L91-120)). The practical consequence is that `Function`s
 are handed to a carrier (`set_function()`,
 [§5.3](05-variable-constraint-objective.md#sec-5-3)) that takes care of
 this; one does not normally hold a bare `Function` and expect it to
@@ -84,7 +84,7 @@ below (a subgradient inequality), and for a concave one from above.
 This matters in SMS++ because, for many structured functions, computing
 the value already produces a linearization as a by-product. The
 canonical case is the Lagrangian function of a structured problem
-(`C05Function.h:97-135`). Let $U$ be a set, $c$ a vector, $A$ a matrix
+([`C05Function.h:97-135`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C05Function.h#L97-135)). Let $U$ be a set, $c$ a vector, $A$ a matrix
 and $b$ a vector of compatible sizes, and consider
 
 $$
@@ -159,7 +159,7 @@ i.e., reuse the work it has already done, instead of starting over.
 
 The base `FunctionMod` describes a change of the *values* of a function,
 and its payload, the extended real returned by `shift()`, encodes the
-predictability and the direction of the change (`Function.h:813-857`
+predictability and the direction of the change ([`Function.h:813-857`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h#L813-857)
 and the comment of `shift()`). Writing $f$ and $f'$ for the function
 before and after the change, the four cases are the following.
 
@@ -210,7 +210,7 @@ the relevant `Modification` is a `FunctionModVars` (`FunctionModVarsAddd`
 for an addition, `FunctionModVarsRngd` and `FunctionModVarsSbst` for the
 removal of a range or of a subset), which carries the affected
 `Variable`s and, again through a `shift()` value, says whether the
-change is *quasi-additive* (`Function.h:1034-1146`). Adding `Variable`s
+change is *quasi-additive* ([`Function.h:1034-1146`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Function.h#L1034-1146)). Adding `Variable`s
 $y$ to a function $f_{\text{old}}(x)$ is quasi-additive if
 
 $$
@@ -249,7 +249,7 @@ For a `C05Function`, reusing *values* is not enough: one would like to
 reuse *linearizations*, i.e., the contents of the global pool, as well.
 A `C05FunctionModVarsAddd` (respectively, `C05FunctionModVarsRngd` and
 `C05FunctionModVarsSbst` for a removal) says that the change is
-*strongly* quasi-additive (`C05Function.h:2205-2240`), which means that
+*strongly* quasi-additive ([`C05Function.h:2205-2240`](https://gitlab.com/smspp/smspp/-/blob/develop/include/C05Function.h#L2205-2240)), which means that
 the linearizations in the global pool can be updated to linearizations
 of the new function: for an addition, by computing the $N$ new entries
 of their vector $g$ with `get_linearization_coefficients()`, for a

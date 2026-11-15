@@ -42,6 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   header, the code within the prose without a box, plain tables, and the
   purple 7030A0 only for the links
 
+- each source, test or configuration file that the user manual names, in
+  the text, the tables and the `[Source: ...]` lines, is a link to the file
+  in its repository on the branch `develop` (with the lines, for the
+  references of the form `file:line`), in the PDF and in the web site
+
 - `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
   gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
   of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds

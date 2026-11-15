@@ -1,9 +1,9 @@
 # 14. LagBFunction and BendersBFunction {#ch-14}
 
-[Source: `SMS++/include/LagBFunction.h`, `BendersBFunction.h`,
-`LagrangianDualSolver/include/LagrangianDualSolver.h`,
-`BendersDecompositionSolver/include/BendersDecompositionSolver.h`;
-`CapacitatedFacilityLocationBlock/include/CapacitatedFacilityLocationBlock.h`]
+[Source: [`SMS++/include/LagBFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/LagBFunction.h), [`BendersBFunction.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BendersBFunction.h),
+[`LagrangianDualSolver/include/LagrangianDualSolver.h`](https://gitlab.com/smspp/lagrangiandualsolver/-/blob/develop/include/LagrangianDualSolver.h),
+[`BendersDecompositionSolver/include/BendersDecompositionSolver.h`](https://gitlab.com/smspp/bendersdecompositionsolver/-/blob/develop/include/BendersDecompositionSolver.h);
+[`CapacitatedFacilityLocationBlock/include/CapacitatedFacilityLocationBlock.h`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h)]
 
 Two members of the `Function` family deserve their own chapter. Each is
 at the same time a `Block` and a `C05Function`: it wraps a single inner
@@ -65,7 +65,7 @@ sub-problems.
 
 `LagBFunction` represents the Lagrangian function of its inner `Block`
 $(B)$ with respect to a chosen set of terms
-(`LagBFunction.h:76-155`). Given the inner problem
+([`LagBFunction.h:76-155`](https://gitlab.com/smspp/smspp/-/blob/develop/include/LagBFunction.h#L76-155)). Given the inner problem
 
 $$
 (B) \quad \max \{\, c(x) : x \in X \,\}
@@ -159,7 +159,7 @@ of an inner `Variable`.
 A user rarely constructs a `LagBFunction` by hand. The usual route is the
 [`LagrangianDualSolver`](https://smspp.gitlab.io/smspp-project/d4/dc3/class_s_m_spp__di__unipi__it_1_1_lagrangian_dual_solver.html),
 a `CDASolver` that solves the Lagrangian dual of a "generic" `Block` $(B)$
-with a precise structure (`LagrangianDualSolver.h:63-100`). It has no
+with a precise structure ([`LagrangianDualSolver.h:63-100`](https://gitlab.com/smspp/lagrangiandualsolver/-/blob/develop/include/LagrangianDualSolver.h#L63-100)). It has no
 `Variable` of its own, at least one sub-`Block`, no `Objective` or one with no
 `Variable` (its constant term being part of the dual value), and no dependence
 on `Variable`s outside of $(B)$. If there is more than one sub-`Block`, its
@@ -174,7 +174,7 @@ constraints dualised, and the user-chosen inner `:Solver` (typically a
 `LagBFunction`, while $(B)$ still "believes" that $(B_i)$ is its sub-`Block`,
 and $(B)$ is made the father of the `LagBFunction`, so that every
 `Modification` of $(B_i)$ reaches both $(LB)$, translated, and $(B)$
-(`LagrangianDualSolver.h:100-140`); all this is undone when the
+([`LagrangianDualSolver.h:100-140`](https://gitlab.com/smspp/lagrangiandualsolver/-/blob/develop/include/LagrangianDualSolver.h#L100-140)); all this is undone when the
 `LagrangianDualSolver` is unregistered. If something requires the original
 father-son relation to be kept, the parameter `int_LDSlv_iBCopy` makes the
 `LagBFunction` wrap a copy of $(B_i)$ instead, kept in sync by an
@@ -235,7 +235,7 @@ convexified primal solution into a feasible one.
 
 `BendersBFunction` represents the *value function* of its inner `Block`
 $(B)$ as a function of outer `Variable`s that enter the sides of the
-constraints of $(B)$ (`BendersBFunction.h:65-143`). The inner `Block`
+constraints of $(B)$ ([`BendersBFunction.h:65-143`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BendersBFunction.h#L65-143)). The inner `Block`
 has the form
 
 $$

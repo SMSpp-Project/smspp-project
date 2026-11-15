@@ -192,7 +192,7 @@ and the recommendation is to clear explicitly the dependent objects in the
 destructor, guaranteeing that every `Constraint` and the `Objective`'s
 `Function` is destroyed (and unlinks itself) before the `ColVariable` groups
 `v_x` / `v_y` they point into. `clear()` on each object does exactly this;
-`Constraint.h` provides static `Constraint::clear( ... )` helpers that apply
+[`Constraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Constraint.h) provides static `Constraint::clear( ... )` helpers that apply
 it to every group shape (`std::vector`, `std::vector` of `std::vector`,
 `boost::multi_array`, `std::list`, and their combinations), so that the whole
 groups can be cleared with one call each. (Were the order left to the

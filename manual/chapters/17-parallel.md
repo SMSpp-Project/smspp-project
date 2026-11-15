@@ -1,8 +1,8 @@
 # 17. Parallel and asynchronous computation {#ch-17}
 
-[Source: `SMS++/include/Block.h` (locking),
-`ThinComputeInterface.h` (`compute_async`, `State`),
-`Solver.h`; `BundleSolver/include/ParallelBundleSolver.h`]
+[Source: [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h) (locking),
+[`ThinComputeInterface.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h) (`compute_async`, `State`),
+[`Solver.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h); [`BundleSolver/include/ParallelBundleSolver.h`](https://gitlab.com/smspp/bundlesolver/-/blob/develop/include/ParallelBundleSolver.h)]
 
 SMS++ is designed for *coarse-grained* parallelism: the unit of
 concurrent work is the solution of a `Block` (or sub-`Block`), not
@@ -44,7 +44,7 @@ re-entry. Recording the owner lets the protocol distinguish
 
 The one rule the user must respect is the *direction*: an entity that
 owns a sub-`Block` never tries to own a `Block` that includes it, and
-no entity tries to own two different `Block`s (`Block.h:1880-1916`).
+no entity tries to own two different `Block`s ([`Block.h:1880-1916`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L1880-1916)).
 Under this rule the protocol cannot deadlock, which is the following
 statement.
 
@@ -106,7 +106,7 @@ outer `:Solver`'s atomic computation is finished.
 The framework resolves this by letting the outer `:Solver` *lend its
 identity* to the inner `:Solver`s, with
 `ThinComputeInterface::set_id( void * id = nullptr )`
-(`ThinComputeInterface.h:965-1016`; `nullptr` ends the lease, and the
+([`ThinComputeInterface.h:965-1016`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h#L965-1016); `nullptr` ends the lease, and the
 base implementation does nothing, as is appropriate for an object that
 never changes the `Block`). The inner `:Solver` then follows the usual
 pattern: it checks `is_owned_by( me )` with the lent identity, finds the
@@ -132,7 +132,7 @@ Any `ThinComputeInterface`, hence any `Solver`, but also any
 evaluated asynchronously: `std::future< int > compute_async( bool
 changedvars = true )` launches `compute()` in a separate task and
 returns a `std::future< int >` on which the caller can later wait for
-the result (`ThinComputeInterface.h:1287`). This is the
+the result ([`ThinComputeInterface.h:1287`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h#L1287)). This is the
 primitive on top of which coarse-grained parallel solution is
 built: a driver can fire off the `compute_async()` of several
 independent sub-problems and collect their results as the futures
@@ -150,7 +150,7 @@ A `ThinComputeInterface` may expose a
 [`State`](https://smspp.gitlab.io/smspp-project/d6/dff/class_s_m_spp__di__unipi__it_1_1_state.html)
 object, a snapshot of its internal algorithmic state, through
 `virtual State * get_State( void ) const` and `put_State( const State & )`
-or `put_State( State && )` (`ThinComputeInterface.h:1998-2050`).
+or `put_State( State && )` ([`ThinComputeInterface.h:1998-2050`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h#L1998-2050)).
 A `State` can be serialised to netCDF, stored, and later restored
 into a (compatible) `:Solver`, which serves three purposes:
 

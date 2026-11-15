@@ -1,7 +1,7 @@
 # 6. Solver {#ch-6}
 
-[Source: `SMS++/include/Solver.h`, `CDASolver.h`,
-`ThinComputeInterface.h`]
+[Source: [`SMS++/include/Solver.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h), [`CDASolver.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/CDASolver.h),
+[`ThinComputeInterface.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h)]
 
 ## 6.1 Concept {#sec-6-1}
 

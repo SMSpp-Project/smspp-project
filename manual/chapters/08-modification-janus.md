@@ -1,7 +1,7 @@
 # 8. Modification and the Janus discipline {#ch-8}
 
-[Source: `SMS++/include/Modification.h`, `Observer.h`, `Block.h`,
-`SMS++/src/Block.cpp`, `MCFBlock/include/MCFBlock.h`]
+[Source: [`SMS++/include/Modification.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Modification.h), [`Observer.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Observer.h), [`Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h),
+[`SMS++/src/Block.cpp`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp), [`MCFBlock/include/MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h)]
 
 Both the physical and the abstract representation of a `Block` can
 change after a `:Solver` has been attached to it. [Chapter
@@ -46,7 +46,7 @@ behalf of the `:Solver`.
 ## 8.2 The hierarchy of Modifications {#sec-8-2}
 
 The class `Modification` is the abstract base; its main derived
-classes, all in `SMS++/include/Modification.h`, are the following.
+classes, all in [`SMS++/include/Modification.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Modification.h), are the following.
 
 - `Modification` (line 357) carries the `changes()` bit mask, a coarse
   description of the kind of change (cf.
@@ -81,11 +81,11 @@ classes, all in `SMS++/include/Modification.h`, are the following.
 
 Each concrete `:Block` typically defines `:Modification`s for the
 changes that its physical representation supports. For `MCFBlock` they
-are `MCFBlockMod` (`MCFBlock.h:2424`), the base of all its physical
+are `MCFBlockMod` ([`MCFBlock.h:2424`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2424)), the base of all its physical
 changes, and its two derived classes. `MCFBlockRngdMod`
-(`MCFBlock.h:2529`) is a change of a contiguous range of arcs or nodes
+([`MCFBlock.h:2529`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2529)) is a change of a contiguous range of arcs or nodes
 (new costs, capacities or deficits, or arcs opened, closed, added or
-removed), and `MCFBlockSbstMod` (`MCFBlock.h:2580`) is the same change
+removed), and `MCFBlockSbstMod` ([`MCFBlock.h:2580`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2580)) is the same change
 for an arbitrary subset of arcs or nodes. Analogous pairs exist for
 `BinaryKnapsackBlock` (`BinaryKnapsackBlockMod`,
 `BinaryKnapsackBlockRngdMod`, `BinaryKnapsackBlockSbstMod`), for
@@ -106,7 +106,7 @@ constructed. A specialized `:Solver` processes them by recomputing
 what it can: a change of costs of an `MCFBlock`, for instance, issues
 an `MCFBlockRngdMod` of type `eChgCost` with the range of the changed
 arcs, the new costs being read from the `:Block`
-(`MCFBlock.h:1769-1822`).
+([`MCFBlock.h:1769-1822`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L1769-1822)).
 
 The *abstract* stream consists of the `Modification`s issued by the
 abstract representation of the `:Block` when something in it changes:
@@ -133,7 +133,7 @@ only.
 ### The delivery
 
 Routing is done by the base method `Block::add_Modification( mod , chnl )`
-(`SMS++/src/Block.cpp:769-815`), which the overrides of the `:Block`s call at
+([`SMS++/src/Block.cpp:769-815`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L769-815)), which the overrides of the `:Block`s call at
 their end. In pseudocode it reads as follows (the channels are discussed in
 [§8.6](08-modification-janus.md#sec-8-6)):
 
@@ -214,7 +214,7 @@ made on either of them is propagated to the other one. Hence,
 specialized and general-purpose `:Solver`s alike receive the
 `Modification`s of the face they read. The scheme of the override is
 fixed by the comment of `Block::add_Modification()`
-(`Block.h:5752-5762`):
+([`Block.h:5752-5762`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L5752-5762)):
 
 ```
 SomeBlock::add_Modification(mod, chnl):
@@ -279,7 +279,7 @@ the override sees `mod` before any of them. As for the second claim, a
 `GroupModification` is constructed only by `open_channel()` (no other
 code of the core constructs one). When its channel is closed in some
 `Block` $D$, it is dispatched by the qualified call
-`Block::add_Modification()` of $D$ (`SMS++/src/Block.cpp:917`), which
+`Block::add_Modification()` of $D$ ([`SMS++/src/Block.cpp:917`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L917)), which
 does not run the override of $D$, and then calls the overrides of the
 strict ancestors of $D$ only. By the pseudocode, the `Modification`s
 that enter the group of a channel defined in $D$ come from `Block`s in
@@ -387,7 +387,7 @@ parameters of type `ModParam`: `issueMod` for the physical
 (`ColVariable::is_fixed()`, the methods of `RowConstraint` and of
 `LinearFunction`, and so on), and `eNoBlck` for the methods of the
 `:Block`s that change their physical data (`MCFBlock::chg_cost()` and
-so on). The enum `amododification_type` (`Modification.h:1237-1242`)
+so on). The enum `amododification_type` ([`Modification.h:1237-1242`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Modification.h#L1237-1242))
 has four values:
 
 | `ModParam` | Value | Meaning |
@@ -414,7 +414,7 @@ So far, a `Modification` has been dispatched the moment it is issued.
 This is the default, but SMS++ also provides a mechanism to *batch* a
 set of related `Modification`s and deliver them together, as a single
 `GroupModification`; the mechanism is that of the *channels*
-(`Observer.h:333-453`, `Block.h:5793-5832`).
+([`Observer.h:333-453`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Observer.h#L333-453), [`Block.h:5793-5832`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L5793-5832)).
 
 ### Opening and closing a channel
 
@@ -488,12 +488,12 @@ $D$ (or reaching $D$ from a descendant, which passes it upwards) sets
 the father of the new group to the current one, appends the new group
 to it, and makes it current. `close_channel( c )` without `force`, on
 a current group with a father, makes the father current again
-(`SMS++/src/Block.cpp:920-939`). The current groups therefore form a
+([`SMS++/src/Block.cpp:920-939`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L920-939)). The current groups therefore form a
 stack whose bottom is the root group, and each group is appended to
 its father once, when opened. At the closure in root mode or forced,
 the code climbs from the current group to the root and passes the root
 to `Block::add_Modification()` of $D$ once, after having removed the
-channel (`SMS++/src/Block.cpp:887-917`). (ii) By the pseudocode of
+channel ([`SMS++/src/Block.cpp:887-917`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L887-917)). (ii) By the pseudocode of
 [§8.3](08-modification-janus.md#sec-8-3), a `Modification` sent on `c`
 from a `Block` $B$ of the sub-tree of $D$ is forwarded upwards, since
 `c` is not defined below $D$, until it reaches $D$. There it is

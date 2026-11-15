@@ -1,7 +1,7 @@
 # Recipe R2: reoptimizing a Binary Knapsack {#rec-R2}
 
 > *Counterpart in the source tree:*
-> `tests/BinaryKnapsackBlock/test.cpp`, which exercises the same
+> [`tests/BinaryKnapsackBlock/test.cpp`](https://gitlab.com/smspp/tests/-/blob/develop/BinaryKnapsackBlock/test.cpp), which exercises the same
 > `chg_*` reoptimization paths (and cross-checks the result against
 > a second solver).
 
@@ -106,7 +106,7 @@ int main()
   whole DP table, and the solver reuses what it can rather than
   rebuilding from scratch. The
   `DPBinaryKnapsackSolver` exposes a `dblReopt` parameter
-  (`DPBinaryKnapsackSolver.h`) governing how aggressively it
+  ([`DPBinaryKnapsackSolver.h`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/DPBinaryKnapsackSolver.h)) governing how aggressively it
   reoptimizes: it decides how many of the intermediate label sets of
   the recursion are stored, and the second `compute()` restarts from
   the last stored one before the first changed item. With the

@@ -1,9 +1,9 @@
 # Recipe R5: CFL by Benders cuts with a user-cut callback {#rec-R5}
 
 > *Counterpart in the source tree:*
-> `tests/CapacitatedFacilityLocationBlock/CFLBForm-ben.txt` (the
+> [`tests/CapacitatedFacilityLocationBlock/CFLBForm-ben.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ben.txt) (the
 > Benders arrangement of the `CFL_test` executable of
-> [Recipe R3](R3-cfl-three-ways.md#rec-R3), run by `batches/batch-ben`).
+> [Recipe R3](R3-cfl-three-ways.md#rec-R3), run by [`batches/batch-ben`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-ben)).
 
 ## Goal
 
@@ -31,13 +31,13 @@ together.
 
 ## What the configuration sets up
 
-Again the driver is `CFL_test`. The list `CFLBForm-ben.txt` gives the
-original `Block` $B_1$ the natural formulation (`CFLBCfg-NF.txt`) solved
-as a continuous relaxation (`CFLBSCfg-ben.txt`, a `GRBMILPSolver` with
+Again the driver is `CFL_test`. The list [`CFLBForm-ben.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ben.txt) gives the
+original `Block` $B_1$ the natural formulation ([`CFLBCfg-NF.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-NF.txt)) solved
+as a continuous relaxation ([`CFLBSCfg-ben.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ben.txt), a `GRBMILPSolver` with
 `intRelaxIntVars` 1), and its R3 Block $B_2$, a copy, the following
 files.
 
-- `CFLBCfg-BF.txt` puts the copy in the *Benders formulation*
+- [`CFLBCfg-BF.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-BF.txt) puts the copy in the *Benders formulation*
   (`SimpleConfiguration< int >` of value 3, the feasibility-cuts variant;
   value 2 selects the slack-arcs variant). The master abstract representation
   then has only the design variables $Y_i$, a single epigraphic variable $v$,
@@ -54,7 +54,7 @@ files.
 - That hidden `BendersBFunction` and its inner `MCFBlock` cannot be reached by
   the recursive configuration machinery (the inner `Block` has no father), and
   therefore they are configured through `f_extra_Configuration`
-  ([§11.6](11-configuration.md#sec-11-6)). In `CFLBCfg-BF.txt` it is a
+  ([§11.6](11-configuration.md#sec-11-6)). In [`CFLBCfg-BF.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-BF.txt) it is a
   `SimpleConfiguration< std::pair< Configuration * , Configuration * > >`
   whose first element is a `SimpleConfiguration< std::pair< int , double > >`
   of value (2, 100), of which only the scale 100 of the slack arcs is used,
@@ -64,7 +64,7 @@ files.
   a `GRBMILPSolver` solving the `MCFBlock` as an LP (`intRelaxIntVars` 1),
   rather than an `MCFSolver`, whose duals on closed or zero-capacity arcs,
   which the cuts depend on, are not reliable.
-- `BenBSCfg.txt` attaches the master `Solver`, a `GRBMILPSolver` in the
+- [`BenBSCfg.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BenBSCfg.txt) attaches the master `Solver`, a `GRBMILPSolver` in the
   shipped configuration (any `:MILPSolver` works), with
   `intRelaxIntVars` 2, `intCutSepPar` 1 and `intMaxCutPasses` 10000: it
   solves the continuous relaxation of the master with the separation
@@ -101,7 +101,7 @@ separation loop or the branch-and-cut with its callback.
 
 ## Why the two bounds coincide
 
-The battery `batches/batch-ben` checks, on the small ORLib instances,
+The battery [`batches/batch-ben`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-ben) checks, on the small ORLib instances,
 that the bound of $B_2$ equals the continuous relaxation of the natural
 formulation computed on $B_1$, i.e., the weak LP of
 [§10.5](10-r3block.md#sec-10-5). This is the following statement, in
@@ -171,12 +171,12 @@ Since version 0.7.0 the master can also be built automatically by
 ([§14.3](14-lag-benders-bfunction.md#sec-14-3)), the Benders
 counterpart of `LagrangianDualSolver`
 ([Recipe R4](R4-cfl-lagrangian.md#rec-R4)). On the CFL this is exercised
-by `tests/CapacitatedFacilityLocationBlock/test_bds.cpp` (the
+by [`tests/CapacitatedFacilityLocationBlock/test_bds.cpp`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/test_bds.cpp) (the
 `CFL_BDS_test` of `ctest`, built where `BendersDecompositionSolver` is),
 which writes the instance as a two-level `AbstractBlock` (the design
 `Variable`s at the root, the transportation subproblems below) and
-compares the value given by both regimes (`BSPar-BDS.txt` for the
-convex one, `BSPar-BDS-MILP.txt` and `BSPar-BDS-Pareto.txt` for the
+compares the value given by both regimes ([`BSPar-BDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BSPar-BDS.txt) for the
+convex one, [`BSPar-BDS-MILP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BSPar-BDS-MILP.txt) and [`BSPar-BDS-Pareto.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BSPar-BDS-Pareto.txt) for the
 MILP one, without and with the Pareto-optimal cuts of Magnanti and Wong,
 see the Bibliography) with that of the monolithic solve of the same
 model and with that of the Benders formulation of this recipe. The two
@@ -214,7 +214,7 @@ infeasibility.
 
 *Another master back-end.* As in
 [Recipe R3](R3-cfl-three-ways.md#rec-R3), the `GRBMILPSolver` in
-`BenBSCfg.txt` can be replaced by `CPXMILPSolver`, `SCIPMILPSolver` or
+[`BenBSCfg.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BenBSCfg.txt) can be replaced by `CPXMILPSolver`, `SCIPMILPSolver` or
 `HiGHSMILPSolver` with no other change.
 
 *The inner MCF `Solver`.* The `:Solver` that evaluates the hidden

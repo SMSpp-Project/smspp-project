@@ -1,8 +1,8 @@
 # 11. Configuration {#ch-11}
 
-[Source: `SMS++/include/Configuration.h`, `Block.h` (`BlockConfig`),
-`RBlockConfig.h`, `BlockSolverConfig.h`,
-`ThinComputeInterface.h` (`ComputeConfig`)]
+[Source: [`SMS++/include/Configuration.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Configuration.h), [`Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h) (`BlockConfig`),
+[`RBlockConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h), [`BlockSolverConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BlockSolverConfig.h),
+[`ThinComputeInterface.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h) (`ComputeConfig`)]
 
 ## 11.1 Concept {#sec-11-1}
 
@@ -64,8 +64,8 @@ recur as the way to configure a *whole `Block` tree* at once:
   `Block[Solver]Config`s. This by-type meta-configuration is the
   idiom to reach for when configuring a large or
   programmatically-built tree. Two `Configuration`s of the core
-  carry such a map: `MetaBlockConfig` (`RBlockConfig.h`) and
-  `MetaBlockSolverConfig` (`BlockSolverConfig.h`) are a
+  carry such a map: `MetaBlockConfig` ([`RBlockConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h)) and
+  `MetaBlockSolverConfig` ([`BlockSolverConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BlockSolverConfig.h)) are a
   `BlockConfig` and a `BlockSolverConfig`, respectively, for the
   `Block` they are applied to, plus the map saying which
   `BlockConfig` (`BlockSolverConfig`) is applied to each of its
@@ -80,7 +80,7 @@ recur as the way to configure a *whole `Block` tree* at once:
 A
 [`BlockConfig`](https://smspp.gitlab.io/smspp-project/d6/d34/class_s_m_spp__di__unipi__it_1_1_block_config.html)
 gathers, in one object, every `Configuration` slot that a `Block`
-exposes. Its fields (`Block.h:9836-9863`), in the order in which they
+exposes. Its fields ([`Block.h:9836-9863`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L9836-9863)), in the order in which they
 are declared and in which the text format lists them, are the
 following.
 
@@ -130,7 +130,7 @@ of that slot in the last $c_h$, $h \ge h_0$, in which it is not
 `nullptr`, and it is `nullptr` if there is no such $c_h$.*
 
 *Proof.* By induction on $k$, using the semantics documented for
-`set_BlockConfig()` (`Block.h:2306-2340`). A non-differential $c_h$ is
+`set_BlockConfig()` ([`Block.h:2306-2340`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L2306-2340)). A non-differential $c_h$ is
 moved into the `Block`, the previous `BlockConfig` being deleted, and
 hence after it each slot is that of $c_h$, which is the statement for
 $k = h = h_0$. A differential $c_h$ is moved as it is if the `Block`
@@ -173,7 +173,7 @@ framework provides for it. The named slot
 `compute()`-d. The two are different things at different points
 of the lifecycle.
 
-Three internal handlers (`RBlockConfig.h:100-673`) implement the
+Three internal handlers ([`RBlockConfig.h:100-673`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L100-673)) implement the
 three capabilities, and the concrete classes are the non-empty
 combinations of the corresponding letters (always written in the
 fixed order O, C, R):
@@ -188,7 +188,7 @@ fixed order O, C, R):
   `constraint_group_id` is either the name or the index of the group,
   and `constraint_index` is the position of the `Constraint` within
   that group (the `Block::ConstraintID` convention;
-  `RBlockConfig.h:375-394`). A C-flavoured configuration thus says
+  [`RBlockConfig.h:375-394`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L375-394)). A C-flavoured configuration thus says
   "give this `ComputeConfig` to the `Constraint` at index $j$ of
   group $g$".
 - R, `RHandler`: applies the whole configuration recursively to the
@@ -249,9 +249,9 @@ and a further application of $c$ to $B$ does nothing.*
 the `ComputeConfig`s, but leaves the per-`Block` record of the `Solver`s
 that $c$ has registered; every application of $c$ in any mode adds to
 that record the `Solver`s it registers, and removes from it those it
-deletes (`BlockSolverConfig.cpp:291-316`). Applying a `BlockSolverConfig`
+deletes ([`BlockSolverConfig.cpp:291-316`](https://gitlab.com/smspp/smspp/-/blob/develop/src/BlockSolverConfig.cpp#L291-316)). Applying a `BlockSolverConfig`
 in setting mode with no names takes the branch at
-`BlockSolverConfig.cpp:247-268`: for each recorded `Solver` it checks
+[`BlockSolverConfig.cpp:247-268`](https://gitlab.com/smspp/smspp/-/blob/develop/src/BlockSolverConfig.cpp#L247-268): for each recorded `Solver` it checks
 that it is still registered to $B$, and if so it unregisters and deletes
 it, the others being left alone; the record of $B$ is then erased, so
 that the next application finds no record and returns at once. The
@@ -307,7 +307,7 @@ therefore cannot reach it. The configuration of that hidden
 `BlockSolverConfig` that attaches a `:Solver` to the inner
 `MCFBlock`, which BenForm requires) is passed through
 `f_extra_Configuration`. Its format is documented at
-`CapacitatedFacilityLocationBlock.h:781-843`, and it is a
+[`CapacitatedFacilityLocationBlock.h:781-843`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L781-843), and it is a
 `SimpleConfiguration< std::pair< Configuration * , Configuration * > >`
 whose first element is the R3 Block configuration of the inner
 `MCFBlock` (of which only the scale of the cost of the slack arcs is
@@ -373,7 +373,7 @@ only `ComputeConfig` supports it, each parameter of the body
 replacing the one of the same name, or being added, and the others
 being kept. For instance, the second `ComputeConfig` of a
 `BlockSolverConfig` that takes all the parameters of
-`BX-baseCfg.txt` but one reads
+[`BX-baseCfg.txt`](https://gitlab.com/smspp/tests/-/blob/develop/BinaryKnapsackBlock/BX-baseCfg.txt) but one reads
 
 ```
 *BX-baseCfg.txt +
@@ -451,7 +451,7 @@ The two halves are independent: the `BlockConfig` decides *what model*
 sub-`Block`s, since the file sets the `f_static_variables_Configuration`
 to a `SimpleConfiguration< int >` of value 1), while the
 `BlockSolverConfig` decides *how it is solved* (here, by the
-`LagrangianDualSolver` that `BSPar-LDS.txt` names). Changing the
+`LagrangianDualSolver` that [`BSPar-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BSPar-LDS.txt) names). Changing the
 formulation is a change of one number in the first file, and changing
 the `:Solver` is a change of one line in the second;
 [Recipe R3](R3-cfl-three-ways.md#rec-R3) shows the same `CFL_test`

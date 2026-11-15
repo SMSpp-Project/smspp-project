@@ -3,10 +3,10 @@
 > *Counterpart in the source tree:*
 > `tests/CapacitatedFacilityLocationBlock/`, i.e., one executable
 > (`CFL_test`) and, in the same directory, one list of formulations per
-> arrangement, given with `-F` (`CFLBForm-cuts.txt`, `CFLBForm.txt` and
-> `CFLBForm-ld.txt` for the `cuts`, `MCF` and `LD` arrangements below),
+> arrangement, given with `-F` ([`CFLBForm-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-cuts.txt), [`CFLBForm.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm.txt) and
+> [`CFLBForm-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt) for the `cuts`, `MCF` and `LD` arrangements below),
 > which names the configuration files of each `Block`; the batteries
-> `batches/batch-cuts`, `batches/batch` and `batches/batch-ld` run them
+> [`batches/batch-cuts`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-cuts), [`batches/batch`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch) and [`batches/batch-ld`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-ld) run them
 > on sets of instances. This recipe is a reading of that tester.
 
 ## Goal
@@ -68,12 +68,12 @@ differ between the three arrangements.
 
 | | `cuts` | `MCF` | `LD` |
 |---|---|---|---|
-| list of formulations (`-F`) | `CFLBForm-cuts.txt` | `CFLBForm.txt` | `CFLBForm-ld.txt` |
-| $B_1$: formulation | `CFLBCfg-NF-SFsep.txt` | `CFLBCfg-NF.txt` | `CFLBCfg-NF-SF.txt` |
-| $B_1$: `Solver` | `CFLBSCfg-cuts.txt` | `CFLBSCfg-LP.txt` | `CFLBSCfg-ld.txt` |
-| $B_2$: R3 Block | `R3BCfg-copy.txt` (0, a copy) | `R3BCfg-MCF.txt` (1, an `MCFBlock`) | `R3BCfg-copy.txt` (0, a copy) |
-| $B_2$: formulation | `CFLBCfg-KF-SFsep.txt` | `MCFBCfg.txt` | `CFLBCfg-KF-LD.txt` |
-| $B_2$: `Solver` | `CFLBSCfg-cuts.txt` | `MCFBSCfg.txt` | `CFLBSCfg-ld-LDS.txt` |
+| list of formulations (`-F`) | [`CFLBForm-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-cuts.txt) | [`CFLBForm.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm.txt) | [`CFLBForm-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt) |
+| $B_1$: formulation | [`CFLBCfg-NF-SFsep.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-NF-SFsep.txt) | [`CFLBCfg-NF.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-NF.txt) | [`CFLBCfg-NF-SF.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-NF-SF.txt) |
+| $B_1$: `Solver` | [`CFLBSCfg-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-cuts.txt) | [`CFLBSCfg-LP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-LP.txt) | [`CFLBSCfg-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ld.txt) |
+| $B_2$: R3 Block | [`R3BCfg-copy.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/R3BCfg-copy.txt) (0, a copy) | [`R3BCfg-MCF.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/R3BCfg-MCF.txt) (1, an `MCFBlock`) | [`R3BCfg-copy.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/R3BCfg-copy.txt) (0, a copy) |
+| $B_2$: formulation | [`CFLBCfg-KF-SFsep.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-KF-SFsep.txt) | [`MCFBCfg.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/MCFBCfg.txt) | [`CFLBCfg-KF-LD.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-KF-LD.txt) |
+| $B_2$: `Solver` | [`CFLBSCfg-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-cuts.txt) | [`MCFBSCfg.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/MCFBSCfg.txt) | [`CFLBSCfg-ld-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ld-LDS.txt) |
 | bound compared | strong LP, twice | weak LP and flow relaxation | strong LP and Lagrangian dual |
 
 The rows of the table read as follows. In the formulations, NF is the
@@ -84,14 +84,14 @@ strong forcing constraints $X_{ij} \le Y_i$, as dynamic `Constraint`s
 separated on demand, and "sep" that the
 `f_dynamic_constraints_Configuration` gives the separation parameters
 (at most 375 constraints per round, with violation at least
-$10^{-4}$). `CFLBSCfg-cuts.txt` and `CFLBSCfg-ld.txt` attach a
+$10^{-4}$). [`CFLBSCfg-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-cuts.txt) and [`CFLBSCfg-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ld.txt) attach a
 `GRBMILPSolver` with `intRelaxIntVars` 2 and `intCutSepPar` 1, i.e., the
 continuous relaxation solved as a pure LP, with the `MILPSolver` driving
 the separation loop by `generate_dynamic_constraints()` after each LP;
-`CFLBSCfg-LP.txt` attaches a `HiGHSMILPSolver` with `intRelaxIntVars` 1
-on the continuous relaxation; `MCFBSCfg.txt` attaches 7 `:Solver`s of
+[`CFLBSCfg-LP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-LP.txt) attaches a `HiGHSMILPSolver` with `intRelaxIntVars` 1
+on the continuous relaxation; [`MCFBSCfg.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/MCFBSCfg.txt) attaches 7 `:Solver`s of
 the min-cost flow, two `MCFSolver`s and the `MCFLemonSolver`s among
-them; and `CFLBSCfg-ld-LDS.txt` attaches a
+them; and [`CFLBSCfg-ld-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ld-LDS.txt) attaches a
 `LagrangianDualSolver` whose inner `BundleSolver` works on the
 knapsacks of the facilities.
 
@@ -183,25 +183,25 @@ point that survives every instance is that the same executable produced
 all three by configuration alone.
 
 *Why a MIP engine may print different numbers.* The list
-`CFLBForm-ldvscuts.txt` compares the `LD` bound with that of $B_1$
-solved by `CFLBSCfg-ldvscuts.txt`, which has the default
+[`CFLBForm-ldvscuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ldvscuts.txt) compares the `LD` bound with that of $B_1$
+solved by [`CFLBSCfg-ldvscuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ldvscuts.txt), which has the default
 `intRelaxIntVars` 0 and a node limit of 1: the problem is then declared
 to the back-end as a MILP, and the back-end (Gurobi, say) applies its
 MIP presolve, its bound strengthening and its own cuts at the root
 node, which can move the reported bound away from the strong LP value,
 in either direction with respect to the `LD` one. That extra
 strengthening, and not a difference in the relaxation, is what makes
-the two numbers differ, and it is why `batches/batch-ldvscuts` is not
+the two numbers differ, and it is why [`batches/batch-ldvscuts`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-ldvscuts) is not
 among the tests of `ctest`. With `intRelaxIntVars` 2, as in the `cuts`
 and `LD` arrangements, the back-end solves a pure LP and the
 `MILPSolver` drives the separation loop (as long as `intCutSepPar` is
 nonzero, at most `intMaxCutPasses` times, [§6.4](06-solver.md#sec-6-4)),
-and the equality of Lemma R3.1 holds, which is what `batches/batch-ld`
+and the equality of Lemma R3.1 holds, which is what [`batches/batch-ld`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-ld)
 checks.
 
 ## Variations
 
-*Another MIP back-end.* In `CFLBSCfg-cuts.txt`, replacing
+*Another MIP back-end.* In [`CFLBSCfg-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-cuts.txt), replacing
 `GRBMILPSolver` with `CPXMILPSolver`, `SCIPMILPSolver` or
 `HiGHSMILPSolver` changes the underlying engine with no other change,
 the open-source HiGHS being the one that needs no commercial licence.

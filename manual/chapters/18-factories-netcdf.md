@@ -1,8 +1,8 @@
 # 18. Factories and netCDF serialisation {#ch-18}
 
-[Source: `SMS++/include/SMSFactory.h` (factory macros),
-`SMSnetCDF.h`, `SMSTypedefs.h`, `Block.h`, `Configuration.h`,
-`Solution.h`, `Change.h`]
+[Source: [`SMS++/include/SMSFactory.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h) (factory macros),
+[`SMSnetCDF.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSnetCDF.h), [`SMSTypedefs.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h), [`Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h), [`Configuration.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Configuration.h),
+[`Solution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h), [`Change.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h)]
 
 Two cross-cutting mechanisms have been referred to throughout the
 manual without being treated head-on: the *class-name factories*
@@ -46,7 +46,7 @@ objects by class name.
 ### Registering a class
 
 A concrete class joins its factory through two macros
-(`SMSFactory.h:56-130` and `SMSFactory.h:355-470`):
+([`SMSFactory.h:56-130`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L56-130) and [`SMSFactory.h:355-470`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L355-470)):
 
 - in the class declaration (private part of the `.h`):
   `SMSpp_insert_in_factory_h;`
@@ -55,7 +55,7 @@ A concrete class joins its factory through two macros
   constructor takes no argument, or
   `SMSpp_insert_in_factory_cpp_1( ClassName );` if it takes one
     (e.g., a `:Block`, whose constructor takes the father `Block *`,
-  which is why `MCFBlock.cpp` uses the `_1` form,
+  which is why [`MCFBlock.cpp`](https://gitlab.com/smspp/mcfblock/-/blob/develop/src/MCFBlock.cpp) uses the `_1` form,
   [§4.5](04-block.md#sec-4-5)). *Template*
   classes use the `_t` variants
   (`SMSpp_insert_in_factory_cpp_0_t` / `_1_t`), which add the
@@ -95,7 +95,7 @@ terminate called after throwing an instance of 'std::invalid_argument'
   what():  XXXX not present in YYYY factory
 ```
 
-even though the class is present in the source (`SMSFactory.h:79-110`).
+even though the class is present in the source ([`SMSFactory.h:79-110`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L79-110)).
 If the class does carry the two macros, the cause is a translation unit
 that the linker has optimised away.
 
@@ -186,9 +186,9 @@ that writes its variables one at a time, as those of `Block` and
 `Solution` do, therefore costs a time quadratic in the number of
 the variables of the file.
 
-To cope with this, `SMSnetCDF.h` provides a few general functions
+To cope with this, [`SMSnetCDF.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSnetCDF.h) provides a few general functions
 that any `:Block` or `:Solution` can use to write a group made of
-many parts (`SMSnetCDF.h:2203-2360`):
+many parts ([`SMSnetCDF.h:2203-2360`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSnetCDF.h#L2203-2360)):
 
 - `write_via_memory()` has a given function write each part into
   an in-memory netCDF file of its own (an `NcMemFile`), and then
@@ -295,7 +295,7 @@ name, with no compile-time knowledge of the type.
 
 At the top level, a SMS++ netCDF file carries an `int` attribute
 `SMS++_file_type`, one of the values of the enum
-`smspp_netCDF_file_type` (`SMSTypedefs.h:110-167`), which says how
+`smspp_netCDF_file_type` ([`SMSTypedefs.h:110-167`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h#L110-167)), which says how
 its child groups are organised: `eProbFile` (child groups
 `Prob_0`, `Prob_1`, ..., each with the three child groups `Block`,
 `BlockConfig` and `BlockSolver`), `eBlockFile` (`Block_0`,

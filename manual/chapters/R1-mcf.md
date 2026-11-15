@@ -1,6 +1,6 @@
 # Recipe R1: solving a Min-Cost Flow instance {#rec-R1}
 
-> *Counterpart in the source tree:* `MCFClassSolver/test/test.cpp`.
+> *Counterpart in the source tree:* [`MCFClassSolver/test/test.cpp`](https://gitlab.com/smspp/mcfclasssolver/-/blob/develop/test/test.cpp).
 > The program below is a didactic distillation of that tester; the
 > tester itself is the runnable, fully-checked version.
 
@@ -206,7 +206,7 @@ other registered `:Solver` purely by editing the configuration
 file, with no recompilation. The installed tool `smspp_mcfblock_solver`
 (`tools/mcfblock_solver/`) is such an executable: it reads an
 `MCFBlock` from a DIMACS or netCDF file, and the `:Solver`s from a
-`BlockSolverConfig` file (`-S`, `BSCfg.txt` by default). [Recipe R3](R3-cfl-three-ways.md#rec-R3) uses exactly this pattern to
+`BlockSolverConfig` file (`-S`, [`BSCfg.txt`](https://gitlab.com/smspp/tools/-/blob/develop/mcfblock_solver/config/BSCfg.txt) by default). [Recipe R3](R3-cfl-three-ways.md#rec-R3) uses exactly this pattern to
 solve a CFL problem three different ways with one executable.
 
 *Reoptimization after a data change.* Change an arc cost with

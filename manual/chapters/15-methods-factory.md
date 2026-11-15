@@ -1,7 +1,7 @@
 # 15. The methods factory {#ch-15}
 
-[Source: `SMS++/include/Block.h` (methods factory),
-`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
+[Source: [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h) (methods factory),
+[`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/BinaryKnapsackBlock.h)]
 
 The `Configuration` machinery of [Chapter 11](11-configuration.md#ch-11) can tell a `Block`
 *which* parts of its representation to build and *which* `:Solver`
@@ -42,7 +42,7 @@ tied to the concrete class and would defeat the purpose. Instead,
 each entry is an *adapter* function whose first parameter is a
 base `Block*`; the adapter `static_cast`s the pointer to the
 concrete `:Block` and forwards to the real method
-(`Block.h:6048-6090`). Their types are
+([`Block.h:6048-6090`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L6048-6090)). Their types are
 
 ```cpp
 template< typename... Args >
@@ -69,7 +69,7 @@ the factory-driven change participates in the Janus discipline of
 To make the factory useful, the data-changing functions need a
 small, shared vocabulary of signatures, so that the factory is
 densely enough populated to be worth consulting. SMS++ predefines
-a few "method-set" signature families (`Block.h:723-777`); the six
+a few "method-set" signature families ([`Block.h:723-777`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L723-777)); the six
 basic ones are parameterised by two independent choices:
 
 - the *data type* carried: none, `MF_dbl_sp` (a `std::span< const double >`),
@@ -180,7 +180,7 @@ soon as the class is loaded. The methods are nonetheless *public*,
 so any code with access to a `:Block` may register additional
 adapter functions, which is useful when the `:Block` author did not
 anticipate a particular form of bulk change, or simply did not get
-around to registering one (`Block.h:6282-6299`).
+around to registering one ([`Block.h:6282-6299`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L6282-6299)).
 
 ## 15.5 Example: changing weights by name {#sec-15-5}
 
@@ -231,7 +231,7 @@ arc costs through the very same function. The string follows the
 recommended naming convention (`ClassName::method_name`) and is
 exactly what a configuration file or a scenario generator would
 carry; this is how the `DataMapping`s of a `StochasticBlock`
-(`DataMapping.h`) push scenario data into an inner `:Block` without a
+([`DataMapping.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/DataMapping.h)) push scenario data into an inner `:Block` without a
 compile-time dependency on its type, storing the name of each function
 and retrieving it with `get_method()`.
 

@@ -13,8 +13,8 @@
 > ([§16.5](16-change.md#sec-16-5)). Code written against it
 > today should expect to be revisited.
 
-[Source: `SMS++/include/Change.h`,
-`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`]
+[Source: [`SMS++/include/Change.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h),
+[`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/BinaryKnapsackBlock.h)]
 
 ## 16.1 Concept {#sec-16-1}
 
@@ -22,7 +22,7 @@ A
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
 is, like a `Modification`, an object that describes a change to a
 `Block`. The two are duals of each other in *time*
-(`Change.h:69-98`): a `Modification`
+([`Change.h:69-98`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h#L69-98)): a `Modification`
 ([Chapter 8](08-modification-janus.md#ch-8)) *notifies* of a change
 that has already occurred in a `Block`, so that the listening
 `:Solver`s can react, while a `Change` *represents* a change that may
@@ -48,7 +48,7 @@ which applies the change to `block` (issuing `Modification`s in the
 usual way, governed by the two `ModParam`s) and, if `doUndo` is `true`,
 returns an *UndoChange*, i.e., a new `:Change` that, applied to
 `block`, restores it to the state it was in before
-(`Change.h:413-430`); the caller owns the UndoChange. That this
+([`Change.h:413-430`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h#L413-430)); the caller owns the UndoChange. That this
 contract composes is what makes the search schemes of
 [§16.3](16-change.md#sec-16-3) possible.
 
@@ -67,7 +67,7 @@ if it holds for $j$, applying $U_j$ in state $s_j$ gives $s_{j-1}$ by
 hypothesis. For $j = 0$ the state is $s_0$. `GroupChange::apply()` with
 `doUndo` applies its sub-`Change`s in order and pushes each UndoChange
 at the front of the new `GroupChange`, which therefore holds them in
-reverse order (`Change.h:571-588`). $\square$
+reverse order ([`Change.h:571-588`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h#L571-588)). $\square$
 
 We remark that the hypothesis is on each $U_k$ in the state $s_k$ in
 which it was produced: an UndoChange applied after other changes of the
@@ -89,7 +89,7 @@ target `:Block` supports. It may deliberately support *fewer*, for
 a reason peculiar to `Change`: producing the UndoChange of an
 arbitrary change can be complicated or impossible, so a `:Change`
 that wants to guarantee an undo may restrict itself to the subset
-of changes it can reliably invert (`Change.h:88-98`).
+of changes it can reliably invert ([`Change.h:88-98`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h#L88-98)).
 
 ## 16.3 Why `Change` exists {#sec-16-3}
 
@@ -205,8 +205,8 @@ int main( void )
 
 ## 16.5 `ChangeSolver`, `RelaxationSolver` and `BranchAndXSolver` {#sec-16-5}
 
-[Source: `SMS++/include/ChangeSolver.h`,
-`BranchAndXSolver/include/BranchAndXSolver.h`]
+[Source: [`SMS++/include/ChangeSolver.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ChangeSolver.h),
+[`BranchAndXSolver/include/BranchAndXSolver.h`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/include/BranchAndXSolver.h)]
 
 The search schemes of [§16.3](16-change.md#sec-16-3) rest on two *traits* of the core,
 [`ChangeSolver`](https://smspp.gitlab.io/smspp-project/d9/d60/class_s_m_spp__di__unipi__it_1_1_change_solver.html)

@@ -1,9 +1,9 @@
 # Recipe R4: CFL by Lagrangian decomposition, with `PrimalProximalHeur` {#rec-R4}
 
 > *Counterpart in the source tree:*
-> `tests/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt` (the `LD`
+> [`tests/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt) (the `LD`
 > arrangement of the `CFL_test` executable of
-> [Recipe R3](R3-cfl-three-ways.md#rec-R3), run by `batches/batch-ld`).
+> [Recipe R3](R3-cfl-three-ways.md#rec-R3), run by [`batches/batch-ld`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-ld)).
 
 ## Goal
 
@@ -30,10 +30,10 @@ decomposition machinery of Chapters [12](12-sub-block.md#ch-12) and
 ## What the configuration sets up
 
 The driver is the `CFL_test` of [Recipe R3](R3-cfl-three-ways.md#rec-R3),
-and only the files that `CFLBForm-ld.txt` names for the R3 Block matter
+and only the files that [`CFLBForm-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt) names for the R3 Block matter
 here.
 
-- `CFLBCfg-KF-LD.txt` puts the copy of the CFL `Block` in the knapsack
+- [`CFLBCfg-KF-LD.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBCfg-KF-LD.txt) puts the copy of the CFL `Block` in the knapsack
   formulation (a `SimpleConfiguration< int >` of value 1 in the
   `f_static_variables_Configuration`). As
   [Chapter 12](12-sub-block.md#ch-12) described, this grows one
@@ -46,13 +46,13 @@ here.
   `BinaryKnapsackBlock`, and a leaf `:MILPSolver` generates the
   abstract representation of its `Block` by itself when it is
   registered.
-- `CFLBSCfg-ld-LDS.txt` attaches a single `LagrangianDualSolver`, with
+- [`CFLBSCfg-ld-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ld-LDS.txt) attaches a single `LagrangianDualSolver`, with
   a `ComputeConfig` whose parameters mostly configure the inner
   `Solver` that drives the dual (`str_LDSlv_ISName`, here
   `BundleSolver`): the norm of the stopping condition, the size of the
   bundle per component, the strategy of the proximal parameter, and so
   on. Its `str_LagBF_BSCfg` names the `BlockSolverConfig` of the
-  knapsacks of the facilities, `LPBSCfg-K-DP.txt`.
+  knapsacks of the facilities, [`LPBSCfg-K-DP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-DP.txt).
 
 What `LagrangianDualSolver` does with this
 ([§14.2](14-lag-benders-bfunction.md#sec-14-2)) is to build a hidden
@@ -60,8 +60,8 @@ What `LagrangianDualSolver` does with this
 facility in a `LagBFunction` that dualises the linking constraints,
 and to run the inner `BundleSolver` on the sum of those
 `LagBFunction`s. Each `LagBFunction` is evaluated by solving its
-knapsack, by a `CoreDPBinaryKnapsackSolver` in `LPBSCfg-K-DP.txt` or
-by a `:MILPSolver` (`LPBSCfg-K-CX.txt`, or `LPBSCfg-K-LP.txt` for the
+knapsack, by a `CoreDPBinaryKnapsackSolver` in [`LPBSCfg-K-DP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-DP.txt) or
+by a `:MILPSolver` ([`LPBSCfg-K-CX.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-CX.txt), or [`LPBSCfg-K-LP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-LP.txt) for the
 continuous relaxation of the knapsack), and the solutions of the
 knapsacks are combined into the convexified primal solution that the
 dual returns with the bound.
@@ -174,14 +174,14 @@ Hence, the heuristic only changes the objective coefficients of the
 binary `Variable`s by $M (1 - 2 \hat x_i)$ (the constant being
 irrelevant), which the `LagBFunction`s pass to their knapsacks as
 ordinary changes of costs. Switching to it is a change of one line in
-`CFLBSCfg-ld-LDS.txt`, replacing `LagrangianDualSolver` with
+[`CFLBSCfg-ld-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBSCfg-ld-LDS.txt), replacing `LagrangianDualSolver` with
 `PrimalProximalHeur`. The new `Solver` adds a few parameters, chiefly
 `dbl_penaltyFactor` (the $M$, 0 by default), and gives its own meaning
 to `intMaxSol` (how many of the feasible solutions found are kept) and
 to `intMaxIter`, which counts the iterations of the heuristic, those of
 each inner Lagrangian dual being set in the `ComputeConfig` of the
 inner `:Solver`; all the parameters of `LagrangianDualSolver` are
-available besides (`PrimalProximalHeur.h`).
+available besides ([`PrimalProximalHeur.h`](https://gitlab.com/smspp/lagrangiandualsolver/-/blob/develop/include/PrimalProximalHeur.h)).
 
 ## Expected behaviour
 
