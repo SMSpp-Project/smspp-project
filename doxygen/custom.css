@@ -154,3 +154,9 @@ table.markdownTable th, table.doxtable th, table.fieldtable th {
     font-weight: bold;
     border-bottom: 0.5px solid currentColor;
 }
+
+/* the labels of the members (inline, explicit, ...) in grey, the purple
+   being only for the links */
+span.mlabel {
+    background: var(--page-secondary-foreground-color);
+}

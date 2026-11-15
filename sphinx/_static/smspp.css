@@ -188,3 +188,13 @@ html:not([data-theme="dark"]) .wy-menu-vertical li.current li > a {
     background: #f7f7f7 !important;
     border-color: #e1e4e5 !important;
 }
+
+/* the admonitions (notes, see also, warnings) in grey, as the frames of
+   the PDF, the colours of the theme being kept off the page */
+html:not([data-theme="dark"]) .rst-content .admonition {
+    background: #f5f5f5 !important;
+}
+html:not([data-theme="dark"]) .rst-content .admonition-title {
+    background: #e1e4e5 !important;
+    color: #000000 !important;
+}
