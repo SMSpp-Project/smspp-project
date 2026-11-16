@@ -7,9 +7,119 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-16
+
+### Added
+
+- `.github/workflows/platforms.yml`, run every night on the mirror of
+  GitHub, by hand and on the branches `ci/*`: SMS++ on macOS by `INSTALL.sh`
+  and on Windows by `INSTALL.ps1` (MSVC and vcpkg) and by the compilers of
+  MSYS2 (UCRT64 and CLANG64) on its packages, each built by CMake, with the
+  unit tests, and by the makefiles of every module; `ci/makefiles`, the
+  makefiles of every module and then those of the tests, of the tools and
+  of the experiments, which the nightly pipeline of GitLab runs as well
+
+- BDMinQuadSolver in the packages of every channel (AUR, Conan, Nix, Spack
+  and xmake, as libsmspp-bdmq or the option bdmq), in the README and in the
+  pages of Doxygen
+
+- `scripts/format.py` spaces the arguments of a template in the code within
+  the prose of the comments of Doxygen and of its pages, as in the code
+  (e.g., `GR::EdgeMap< bool >` in the text of `\ref`, after `\c` or `\p`, in
+  `<tt>`, `<code>` and backticks), so that the check of the style of a merge
+  request holds the documentation to the convention of the code
+
+### Changed
+
+- `INSTALL.ps1` configures with the generator of the Visual Studio that it has
+  found (e.g., `Visual Studio 17 2022`, out of its version and its year), by
+  the CMake of that Visual Studio when the one in the `PATH` does not know
+  it, instead of the default of CMake, which took Ninja and the first
+  compiler in the `PATH`, e.g., the g++ of a MinGW-w64, when it did not know
+  the generator of a Visual Studio newer than itself (e.g., 18, the 2026)
+
+- `INSTALL.ps1`, as `INSTALL.sh`, leaves a checkout that is on no branch
+  with an upstream at its commit, and initializes the submodules (the private
+  `experiments` left out) of a clone, which it did not with `cmake-gui`;
+  both pull the umbrella without fetching into the submodules, which are
+  then updated to the commits it pins, and `INSTALL.ps1` configures on the
+  newest Visual Studio CMake finds instead of asking for the 2022 one
+
+- `INSTALL.sh` leaves a checkout that is on no branch with an upstream (the
+  one of a CI) at its commit instead of failing on `git pull`, clones the
+  umbrella without the private `experiments`, which the update of the
+  submodules then skips, and with `--without-stopt` turns off SDDPBlock
+  alone, InvestmentBlock no longer needing it
+
+- the README leaves the installation to the installation guide of the wiki
+  (Installing-SMS++), which now holds what the README said and the rest: the
+  recipes of the AUR, Conan, Spack, Nix, MSYS2 and xmake, the options of the
+  scripts, MOSEK and its license, the build inside a CMake project and the
+  makefiles
+
+- the user manual is for SMS++ 0.8.0, every chapter checked against the
+  code: its code snippets compile and give what they say, the recipes use
+  the present tests and configuration files, and it describes the weights of
+  a Block, `ModConcern`, the `ChangeSolver` and Branch-and-X, the other
+  parallel Solvers, the stacked netCDF groups, the meta-configurations and
+  the text format of the configuration files, the channels of installation
+  and the modules of the distribution; the File Format Manual describes the
+  Solution and State files, the weights, the image in memory, the
+  meta-configurations, the vector parameters and the stacked groups; the
+  links to ModuleTemplate point to the wiki page on creating a module;
+  each property the manual claims (the delivery of the Modifications, the
+  consistency of the two faces of a Block, the Lagrangian dual against the
+  convexified relaxation, the validity of the Benders cuts, the undo of the
+  Changes, the locking, the bounds of the recipes) is stated as a lemma or
+  a theorem with its proof, and every example compiles against the headers
+
+- the C++ within the prose of the user manual is spaced as in the code
+  (e.g., `std::vector< Variable >`, `register_Solver( S )`) and its blocks
+  of code are formatted by `code-format`; the web site of the manual, the
+  Doxygen site and the Sphinx site look as the PDF of the manual: the Latin
+  Modern fonts of TeX for the text and the code (in `manual/build/fonts`,
+  under the GUST Font License), the size of a book, justified text, a white
+  header, the code within the prose without a box, plain tables, and the
+  purple 7030A0 only for the links
+
+- each source, test or configuration file that the user manual names, in
+  the text, the tables and the `[Source: ...]` lines, is a link to the file
+  in its repository on the branch `develop` (with the lines, for the
+  references of the form `file:line`), in the PDF and in the web site
+
+- in the web site of the user manual a displayed formula within a paragraph
+  is rendered by KaTeX as in the PDF, the number of an equation stays off
+  its formula, and the wide formulas of chapters 7, 10 and 13 are set over
+  several lines; a file or folder named as code and not yet within a link is
+  linked to its repository by `manual/build/hooks.py` on the web site and by
+  `manual/build/source-links.lua` in the PDF
+
+- `PIQPMILPSolver` passes `test_farkas` with PIQP 0.7.0 or later, which
+  gives a certificate of infeasibility: `vcpkg.json` asks for the port `piqp`
+  of the registry with `version>=` 0.7.0, and `INSTALL.sh` already builds
+  the latest release of PIQP
+
+- `MCFLemonSolver` needs [abLEMON](https://github.com/dmeoli/abLEMON) 1.9.0
+  or later, the maintained fork of LEMON, in place of LEMON: `vcpkg.json` asks
+  for the port `ablemon` of the registry with `version>=` 1.9.0, `INSTALL.sh`
+  builds abLEMON from its latest release on Linux and installs or upgrades it
+  from its Homebrew tap on macOS, and the makefiles link its `libemon` from
+  `/opt/abLEMON` or the Homebrew prefix; the README and the manual say so;
+  in `packaging/`, the AUR, Conan, Nix, Spack and xmake have a recipe
+  `ablemon`, written by `gen_recipes.py` from `ABLEMON` of `modules.py`, and
+  smspp depends on it with that least version
+
 ## [0.7.1] - 2026-11-04
 
 ### Added
+
+- PERMON and PETSc, the QP solvers of `PERMONMILPSolver` and the library
+  they are built on: `INSTALL.sh` builds PERMON from its latest release and
+  PETSc of the version it follows, sequential, into the same directory, only
+  if asked (`--with-permon`), since PETSc is large, INSTALL.ps1 says that
+  they are not installed on Windows, `extlib` has `makefile-libPERMON` and
+  the default paths of `PERMON_ROOT`, and the packages never take them,
+  being in no channel
 
 - `scripts/format.py` formats also the C++ of the `\code` blocks of the
   comments of Doxygen and of its pages (`.dox`), within the columns that the
@@ -573,7 +683,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - significant changes in installation scripts and cmake / makefiles
 
-[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.1...develop
+[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.8.0...develop
+[0.8.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.1...0.8.0
 [0.7.1]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...0.7.1
 [0.7.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.3...0.7.0
 [0.6.3]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.2...0.6.3

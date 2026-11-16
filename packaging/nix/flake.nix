@@ -2,8 +2,9 @@
 #   nix build "gitlab:smspp/smspp-project?dir=packaging/nix"
 # builds every module whose dependencies nixpkgs has, with the tools, and
 # `nix run` of the same reference runs smspp_block_solver; the release it
-# builds is the one of package.nix. StOpt, which SDDPBlock needs, is not in
-# nixpkgs, and it is built here from stopt.nix.
+# builds is the one of package.nix. StOpt, which SDDPBlock needs, and
+# abLEMON, which MCFLemonSolver needs, are not in nixpkgs, and they are built
+# here from stopt.nix and ablemon.nix.
 {
   description = "SMS++, a framework for block-structured optimization";
 
@@ -26,10 +27,11 @@
         pkgs:
         let
           stopt = pkgs.callPackage ./stopt.nix { };
-          smspp = pkgs.callPackage ./package.nix { inherit stopt; };
+          ablemon = pkgs.callPackage ./ablemon.nix { };
+          smspp = pkgs.callPackage ./package.nix { inherit stopt ablemon; };
         in
         {
-          inherit smspp stopt;
+          inherit smspp stopt ablemon;
           default = smspp;
         }
       );
@@ -53,6 +55,7 @@
 
       overlays.default = final: prev: {
         stopt = final.callPackage ./stopt.nix { };
+        ablemon = final.callPackage ./ablemon.nix { };
         smspp = final.callPackage ./package.nix { };
       };
     };

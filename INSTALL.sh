@@ -24,6 +24,9 @@
 #     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-qpmad` option to skip the installation of qpmad.
 #     You can use the `--without-hpipm` option to skip the installation of HPIPM.
+#     You can use the `--with-permon` option to install PERMON (and PETSc,
+#     which is large and is built from its sources), which is not installed
+#     otherwise.
 #     You can use the `--without-quadprog` option to skip the installation of
 #     quadprog, which is under the GPL, so that a MILPSolver built with it is
 #     too.
@@ -31,7 +34,8 @@
 #     Clarabel, whose C interface is built with the Rust toolchain (cargo).
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
-#     You can use the `--without-lemon` option to skip the installation of LEMON.
+#     You can use the `--without-lemon` option to skip the installation of
+#     abLEMON, the maintained fork of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
 #     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
 #     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
@@ -44,10 +48,10 @@
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
-#     looking for a missing library: --without-stopt disables SDDPBlock and
-#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
-#     --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
-#     for SATBlock, which builds the SAT solvers it finds, and RECORD is
+#     looking for a missing library: --without-stopt disables SDDPBlock
+#     (and the tools that solve one), --without-lemon disables
+#     MCFLemonSolver, and --without-pips disables PIPSMILPSolver. CaDiCaL
+#     and MiniSat are optional for SATBlock, which builds the SAT solvers it finds, and RECORD is
 #     optional for BinaryKnapsackBlock, which builds RECORDBinaryKnapsackSolver
 #     if it finds it. COMBO, which BinaryKnapsackBlock can also use, is for
 #     academic or non-commercial use only and is not installed: whoever has
@@ -176,6 +180,42 @@ git_latest() {
   [ "$fresh" -eq 1 ] || [ "$before" != "$after" ]
 }
 
+# Build PERMON, whose clone is in $1/permon-src, and PETSc, which it is built
+# on, into $1: PETSc of the version that the release of PERMON follows (the
+# major and minor numbers of its tag), from the latest tarball of that
+# version, sequential (without MPI and Fortran, with the BLAS and LAPACK that
+# PETSc downloads, so that no system library is needed), built again only
+# when that version changes; PERMON has no install target, hence its headers
+# and its library are copied next to those of PETSc
+build_permon() {
+  local root=$1 tag minor petsc
+  tag=$(git -C "$root/permon-src" describe --tags --exact-match)
+  minor=$(echo "$tag" | sed -E 's/^v([0-9]+\.[0-9]+)\..*/\1/')
+  petsc=$(git ls-remote --tags --refs https://gitlab.com/petsc/petsc.git "v${minor}.*" |
+            sed 's|.*/v||' | sort -V | tail -1)
+  [ -n "$petsc" ] || { echo "No PETSc ${minor} for PERMON ${tag}"; return 1; }
+  if [ "$(cat "$root/.smspp-petsc-version" 2>/dev/null)" != "$petsc" ]; then
+    cd "$root"
+    curl -fsSL -o "petsc-${petsc}.tar.gz" \
+      "https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-${petsc}.tar.gz"
+    rm -rf "petsc-${petsc}"
+    tar xzf "petsc-${petsc}.tar.gz"
+    cd "petsc-${petsc}"
+    ./configure --prefix="$root" PETSC_ARCH=arch-smspp --with-mpi=0 --with-fc=0 \
+      --with-debugging=0 --with-shared-libraries=1 --with-x=0 \
+      --download-f2cblaslapack COPTFLAGS=-O2 CXXOPTFLAGS=-O2
+    make PETSC_DIR="$PWD" PETSC_ARCH=arch-smspp MAKE_NP="${MAX_JOBS}" all
+    make PETSC_DIR="$PWD" PETSC_ARCH=arch-smspp install
+    cd "$root"
+    rm -rf "petsc-${petsc}" "petsc-${petsc}.tar.gz"
+    echo "$petsc" > "$root/.smspp-petsc-version"
+  fi
+  cd "$root/permon-src"
+  make PETSC_DIR="$root" PETSC_ARCH= PERMON_DIR="$PWD" -j "${MAX_JOBS}"
+  cp -a include/. "$root/include/"
+  cp -a lib/libpermon.* "$root/lib/"
+}
+
 # Resolve where a dependency lives (Linux only): reuse an existing install under
 # the default system root (DEFAULT_ROOT) if present, otherwise install it under
 # the writable INSTALL_ROOT. With an explicit --install-root the two roots
@@ -230,12 +270,6 @@ install_on_linux() {
     # Install NetCDF-C++
     echo "Installing NetCDF-C++..."
     apt-get install -y -q libnetcdf-c++4-dev
-
-    # Install LEMON
-    if [ "$install_lemon" -eq 1 ]; then
-      echo "Installing LEMON..."
-      apt-get install -y -q liblemon-dev
-    fi
 
     # Install LIBSVM
     if [ "$install_libsvm" -eq 1 ]; then
@@ -523,6 +557,31 @@ EOL
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install abLEMON
+  # abLEMON, the maintained fork of LEMON that MCFLemonSolver needs, has no
+  # Debian package: it is built from its latest release, i.e., the latest tag
+  # of its repository.
+  if [ "$install_lemon" -eq 1 ]; then
+    echo "Installing or updating abLEMON..."
+    LEMON_ROOT="$(resolve_dep_root abLEMON)"
+    if git_latest https://github.com/dmeoli/abLEMON.git "$LEMON_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$LEMON_ROOT"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DCMAKE_INSTALL_PREFIX="$LEMON_ROOT" -DLEMON_BUILD_TESTS=NO \
+        -DLEMON_BUILD_DEMOS=NO -DLEMON_BUILD_TOOLS=NO -DLEMON_BUILD_DOC=NO
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${LEMON_ROOT}/lib' > /etc/ld.so.conf.d/ablemon.conf"
+        ldconfig
+      fi
+    else
+      echo "abLEMON already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install DAQP
   # DAQP is built from its latest release, i.e., the latest tag of its
   # repository, rather than from its development branch.
@@ -697,6 +756,28 @@ EOL
       fi
     else
       echo "HPIPM already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PERMON
+  # PERMON, whose QP solvers PERMONMILPSolver uses, is built from its latest
+  # release together with PETSc [see build_permon]; the library of PERMON
+  # finds that of PETSc in the same directory.
+  if [ "$install_permon" -eq 1 ]; then
+    echo "Installing or updating PERMON..."
+    PERMON_ROOT="$(resolve_dep_root permon)"
+    mkdir -p "$PERMON_ROOT"
+    if git_latest https://github.com/permon/permon.git "${PERMON_ROOT}/permon-src" '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
+       [ ! -f "${PERMON_ROOT}/lib/libpermon.so" ]; then
+      build_permon "$PERMON_ROOT"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${PERMON_ROOT}/lib' > /etc/ld.so.conf.d/permon.conf"
+        ldconfig
+      fi
+    else
+      echo "PERMON already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -883,40 +964,13 @@ install_on_macos() {
   echo "Installing NetCDF..."
   brew install hdf5 netcdf netcdf-cxx
 
-  # Install LEMON
-  # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
-  # parser generator) and the community taps are unmaintained, so we use the
-  # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source only
-  # when genuinely absent (Xcode Command Line Tools, installed above, are its
-  # only prereq); when LEMON is already present the whole step is skipped, so
-  # no recompilation and no sudo prompt on repeated runs.
+  # Install abLEMON, the maintained fork of LEMON that MCFLemonSolver needs,
+  # from its Homebrew tap
   if [ "$install_lemon" -eq 1 ]; then
-    echo "Installing LEMON..."
-    # Surface an already-installed MacPorts even if /opt/local/bin is off PATH
-    # (otherwise it would be re-bootstrapped from source on every run).
-    if ! command -v port >/dev/null 2>&1 && [ -x /opt/local/bin/port ]; then
-      export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-    fi
-    if [ -d /opt/local/include/lemon ] || [ -d /usr/local/include/lemon ]; then
-      echo "LEMON already installed; skipping."
-    else
-      # Bootstrap MacPorts from source only when it is genuinely absent.
-      if ! command -v port >/dev/null 2>&1; then
-        echo "MacPorts not found. Bootstrapping from source..."
-        MACPORTS_SRC="${INSTALL_ROOT}/macports-base"
-        if [ ! -d "$MACPORTS_SRC" ]; then
-          git clone --depth 1 https://github.com/macports/macports-base.git "$MACPORTS_SRC"
-        fi
-        cd "$MACPORTS_SRC"
-        ./configure
-        make
-        sudo make install
-        # MacPorts installs into /opt/local; make port visible for the rest of run
-        export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-        sudo port -v selfupdate
-      fi
-      sudo port install coinor-liblemon
-    fi
+    echo "Installing or updating abLEMON..."
+    brew install dmeoli/ablemon/ablemon
+    brew upgrade dmeoli/ablemon/ablemon
+    LEMON_ROOT="$(brew --prefix ablemon)"
   fi
 
   # Install LIBSVM
@@ -1306,6 +1360,24 @@ install_on_macos() {
     CURRENT_INSTALL_FOLDER=""
   fi
 
+  # Install PERMON
+  # PERMON, whose QP solvers PERMONMILPSolver uses, is built from its latest
+  # release together with PETSc [see build_permon].
+  if [ "$install_permon" -eq 1 ]; then
+    echo "Installing or updating PERMON..."
+    PERMON_ROOT="${INSTALL_ROOT}/permon"
+    mkdir -p "$PERMON_ROOT"
+    if git_latest https://github.com/permon/permon.git "${PERMON_ROOT}/permon-src" '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
+       [ ! -f "${PERMON_ROOT}/lib/libpermon.dylib" ]; then
+      build_permon "$PERMON_ROOT"
+    else
+      echo "PERMON already up to date."
+    fi
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${PERMON_ROOT}/lib"
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
   # Install quadprog
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
@@ -1428,6 +1500,7 @@ install_piqp=${install_piqp:-1}
 install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
 install_hpipm=${install_hpipm:-1}
+install_permon=${install_permon:-0}
 install_quadprog=${install_quadprog:-1}
 install_clarabel=${install_clarabel:-1}
 install_stopt=${install_stopt:-1}
@@ -1528,6 +1601,10 @@ do
     ;;
     --without-hpipm)
     install_hpipm=0
+    shift
+    ;;
+    --with-permon)
+    install_permon=1
     shift
     ;;
     --without-quadprog)
@@ -1673,13 +1750,8 @@ if [ "$install_smspp" -eq 1 ]; then
   else
     echo "Repository not found locally. Cloning SMSpp..."
     smspp_cloned=1
-    # Check if the script is not being executed on a server without display or interactive terminal
-    if [ -t 1 ] && [ -z "${CI:-}" ]; then
-      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    else
-      # no way to use ccmake interactively to choose submodules, so download it all
-      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    fi
+    # the submodules are fetched below, the private experiments left out
+    git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     cd "$SMSPP_ROOT"
   fi
 
@@ -1693,8 +1765,16 @@ if [ "$install_smspp" -eq 1 ]; then
     skip_experiments=(-c submodule.experiments.update=none
                       -c submodule.experiments.fetchRecurseSubmodules=false)
   fi
+  # a checkout that is on no branch, or on one with no upstream (say, the
+  # one of a CI), is left at its commit
   if [ -z "${smspp_cloned:-}" ]; then
-    git "${skip_experiments[@]}" pull
+    if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > /dev/null 2>&1
+    then
+      # the submodules are updated below, to the commits pinned
+      git "${skip_experiments[@]}" -c fetch.recurseSubmodules=false pull
+    else
+      echo "SMSpp is on no branch with an upstream: left at its commit."
+    fi
   fi
   git submodule sync --recursive
   git "${skip_experiments[@]}" submodule update --init --recursive
@@ -1718,6 +1798,7 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
       [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
       [ -n "${HPIPM_ROOT:-}" ] && echo "HPIPM_ROOT = ${HPIPM_ROOT}"
+      [ -n "${PERMON_ROOT:-}" ] && echo "PERMON_ROOT = ${PERMON_ROOT}"
       [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
       [ -n "${Clarabel_ROOT:-}" ] && echo "Clarabel_ROOT = ${Clarabel_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
@@ -1745,9 +1826,9 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES/
-  # ProxQP/PIQP/OSQP/qpmad/quadprog/HPIPM backends in MILPSolver, LIBSVM and
-  # LIBLINEAR in SVMBlock) degrade gracefully on their own and need no
-  # mapping here.
+  # ProxQP/PIQP/OSQP/qpmad/quadprog/HPIPM/PERMON backends in MILPSolver,
+  # LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their own and
+  # need no mapping here.
   smspp_cmake_flags=()
   if [ "$install_experiments" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=ON")
@@ -1755,13 +1836,15 @@ if [ "$install_smspp" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=OFF")
   fi
   if [ "$install_stopt" -eq 0 ]; then
-    # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON
-    # through CMake's dependency resolution, so disable both.
-    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF" "-DBUILD_InvestmentBlock=OFF")
+    # StOpt is required by SDDPBlock, and by the tools that solve one
+    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF")
   fi
   if [ "$install_lemon" -eq 0 ]; then
-    # LEMON is required by MCFLemonSolver.
+    # abLEMON is required by MCFLemonSolver.
     smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
+  elif [ -n "${LEMON_ROOT:-}" ]; then
+    # abLEMON is not where extlib says (the LEMON of the system)
+    smspp_cmake_flags+=("-DLEMON_ROOT=${LEMON_ROOT}")
   fi
   # a CaDiCaL built from its source is not where extlib says (the package)
   if [ "${cadical_from_source:-0}" -eq 1 ] && [ -n "${CADICAL_ROOT:-}" ]; then

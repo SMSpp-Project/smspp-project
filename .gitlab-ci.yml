@@ -82,7 +82,7 @@ changelog_all:
 # the build and run their share of the suites, each of them well inside the
 # hour a job is given.
 .nightly:
-  image: registry.gitlab.com/smspp/smspp-project
+  image: ghcr.io/smspp-project/smspp-project:latest
   rules:
     - if: $NIGHTLY == "1"
   variables:
@@ -132,10 +132,12 @@ nightly:build:
 # SMS++/cmake/smspp_module_exports.py], with the flags of this build, and
 # the job fails if any of them is not the one in the repository, e.g.,
 # because a header has gained a name that the module does not export.
+# Finally, everything is built and installed, and a program imports the
+# installed modules [see ci/import], as one who uses the packages does.
 nightly:modules:
   extends: .nightly
   stage: check
-  timeout: 55m
+  timeout: 90m
   cache:
     key: nightly-modules-$CI_COMMIT_REF_SLUG
     paths:
@@ -147,6 +149,16 @@ nightly:modules:
     - git submodule sync --recursive
     - git submodule update --init --recursive
     - ccache --zero-stats
+    # abLEMON again with its module, which smspp.mcflemonsolver re-exports
+    - cmake -S /opt/abLEMON -B /tmp/ablemon-mod -G Ninja
+            -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCMAKE_INSTALL_PREFIX=/opt/abLEMON -DLEMON_BUILD_MODULE=ON
+            -DLEMON_BUILD_TESTS=NO -DLEMON_BUILD_DEMOS=NO
+            -DLEMON_BUILD_TOOLS=NO -DLEMON_BUILD_DOC=NO
+    - cmake --build /tmp/ablemon-mod -j$(nproc)
+    - cmake --install /tmp/ablemon-mod
     - cmake -S . -B build-modules -G Ninja -DCMAKE_BUILD_TYPE=Release
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
             -DCMAKE_C_COMPILER_LAUNCHER=ccache
@@ -154,6 +166,7 @@ nightly:modules:
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             -DBUILD_tests=OFF 2>&1 | tee cmake.log
     - "! grep -q 'SMSpp_BUILD_MODULE is' cmake.log"
+    - "! grep -q 'abLEMON is installed without its module' cmake.log"
     - MODULES=$(ninja -C build-modules -t targets all |
                 sed -n 's/^\([A-Za-z+]*_module\):.*/\1/p')
     - test -n "$MODULES"
@@ -162,7 +175,20 @@ nightly:modules:
     - python3 SMS++/cmake/smspp_module_exports.py --clang clang++
               --compdb build-modules/compile_commands.json
               --check --update */src/*.cppm
-    - cd build-modules && ctest -R '^Module_test$' --output-on-failure
+    - (cd build-modules && ctest -R '^Module_test$' --output-on-failure)
+    - cmake --build build-modules -j$(nproc)
+    - cmake --install build-modules --prefix /tmp/smspp > /dev/null
+    # the dependencies where the umbrella looks for them [see extlib/]
+    - cmake -S ci/import -B /tmp/smspp-import -G Ninja
+            -DCMAKE_CXX_COMPILER=clang++
+            $(sed -n
+              's/^\([A-Za-z_]*_ROOT\) *= *\([^[:space:]#]*\).*/-D\1=\2/p'
+              extlib/makefile-default-paths-linux)
+            -DCMAKE_PREFIX_PATH="/tmp/smspp;/opt/abLEMON"
+            -DSMSPP_PREFIX=/tmp/smspp
+            -DSMSPP_MODULES="$(echo $MODULES | sed 's/_module//g; s/ /;/g')"
+    - cmake --build /tmp/smspp-import
+    - LD_LIBRARY_PATH=/tmp/smspp/lib /tmp/smspp-import/smspp_import
 
 # The makefiles of all the modules, which have to keep building what CMake
 # builds [see ci/makefile]: first with g++, then with clang++ and the C++20
@@ -183,33 +209,13 @@ nightly:makefiles:
     - git clone --quiet --depth 1 https://github.com/fastflow/fastflow.git
                 /tmp/fastflow
     - ccache --zero-stats
-    - |
-      MODULES=$(git config -f .gitmodules --get-regexp '\.path$' |
-                awk '{ print $2 }' | while read -r m; do
-                  if [ -f "$m/makefile-c" ] || [ -f "$m/lib/makefile-c" ];
-                  then echo "$m"; fi; done)
-      for m in $MODULES; do
-        make -f ci/makefile -j$(nproc) MODULE="$m" CC="ccache g++" \
-             FastFlow_ROOT=/tmp/fastflow || exit 1
-      done
-      # the makefiles of the tests, of the tools and of the experiments,
-      # on the objects just built; what needs a solver that the image does
-      # not have is left out by the makefile itself, the two experiments
-      # left out here by hand need sources from elsewhere [see their
-      # README.md]
-      for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
-                    tests/MMCFBlock/makefile-xcheck */test/makefile \
-                    */test/*/makefile */tools/makefile \
-                    experiments/*/*/makefile |
-                 grep -v 'generalized_bundle\|ipamir'); do
-        make -C "$(dirname "$f")" -f "$(basename "$f")" -j$(nproc) \
-             CC="ccache g++" FastFlow_ROOT=/tmp/fastflow || exit 1
-      done
-      make -f ci/makefile clean-all
-      for m in $MODULES; do
-        make -f ci/makefile -j$(nproc) MODULE="$m" CC="ccache clang++" \
-             SMSppMOD=1 FastFlow_ROOT=/tmp/fastflow || exit 1
-      done
+    # the modules and the makefiles of the tests, of the tools and of the
+    # experiments [see ci/makefiles], then the modules again with clang++
+    # and the C++20 modules
+    - ci/makefiles CC="ccache g++" FastFlow_ROOT=/tmp/fastflow
+    - make -f ci/makefile clean-all
+    - MODULES_ONLY=1 ci/makefiles CC="ccache clang++" SMSppMOD=1
+                                  FastFlow_ROOT=/tmp/fastflow
     - ccache --show-stats
     - cd SMS++/test && make -f makefile-Module -j$(nproc) CC=clang++
                            FastFlow_ROOT=/tmp/fastflow

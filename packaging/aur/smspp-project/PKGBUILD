@@ -39,6 +39,7 @@ pkgname=(
   libsmspp-mcfclass
   libsmspp-mcflemon
   libsmspp-srs
+  libsmspp-bdmq
   smspp-ucblock
   smspp-tssb
   smspp-mssb
@@ -73,7 +74,7 @@ makedepends=(
   minisat
   highs
   scip
-  coin-or-lemon
+  ablemon>=1.9.0
 )
 # link-time optimization of a code base this large is a memory sink
 options=('!lto')
@@ -116,6 +117,7 @@ build() {
     -DCMAKE_DISABLE_FIND_PACKAGE_Clarabel=ON \
     -DCMAKE_DISABLE_FIND_PACKAGE_quadprog=ON \
     -DCMAKE_DISABLE_FIND_PACKAGE_HPIPM=ON \
+    -DCMAKE_DISABLE_FIND_PACKAGE_PERMON=ON \
     -DCMAKE_DISABLE_FIND_PACKAGE_Torch=ON \
     -DCMAKE_DISABLE_FIND_PACKAGE_CPLEX=ON \
     -DCMAKE_DISABLE_FIND_PACKAGE_GUROBI=ON \
@@ -312,8 +314,8 @@ package_libsmspp-mcfclass() {
 }
 
 package_libsmspp-mcflemon() {
-  pkgdesc="SMS++: Min-cost flow Solvers of LEMON"
-  depends=(libsmspp-mcf coin-or-lemon)
+  pkgdesc="SMS++: Min-cost flow Solvers of abLEMON"
+  depends=(libsmspp-mcf ablemon>=1.9.0)
   DESTDIR="$pkgdir" cmake --install build/MCFLemonSolver
 }
 
@@ -321,6 +323,12 @@ package_libsmspp-srs() {
   pkgdesc="SMS++: Scenario reduction Solvers"
   depends=(libsmspp-tssb)
   DESTDIR="$pkgdir" cmake --install build/ScenarioReductionSolver
+}
+
+package_libsmspp-bdmq() {
+  pkgdesc="SMS++: Bundle master problem Solver based on BDMinQuad"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/BDMinQuadSolver
 }
 
 package_smspp-ucblock() {
@@ -473,6 +481,7 @@ package_smspp-project() {
     libsmspp-mcfclass
     libsmspp-mcflemon
     libsmspp-srs
+    libsmspp-bdmq
     smspp-ucblock
     smspp-tssb
     smspp-mssb

@@ -71,10 +71,12 @@ MODULES = [
      "Generic Benders decomposition Solver"),
     ("MCFClassSolver", "mcfclass", ["mcf"], [], [],
      "Min-cost flow Solvers of MCFClass"),
-    ("MCFLemonSolver", "mcflemon", ["mcf"], ["lemon"], [],
-     "Min-cost flow Solvers of LEMON"),
+    ("MCFLemonSolver", "mcflemon", ["mcf"], ["ablemon"], [],
+     "Min-cost flow Solvers of abLEMON"),
     ("ScenarioReductionSolver", "srs", ["tssb"], [], [],
      "Scenario reduction Solvers"),
+    ("BDMinQuadSolver", "bdmq", ["core"], [], [],
+     "Bundle master problem Solver based on BDMinQuad"),
 ]
 
 # (acronym of the command package, tool directories under tools/, modules it
@@ -128,13 +130,13 @@ ROOT_VAR = {
     "piqp": "piqp_ROOT", "osqp": "osqp_ROOT", "qpmad": "qpmad_ROOT",
     "cadical": "CADICAL_ROOT", "minisat": "MINISAT_ROOT",
     "libsvm": "LIBSVM_ROOT", "liblinear": "LIBLINEAR_ROOT",
-    "stopt": "StOpt_ROOT", "lemon": "LEMON_ROOT",
+    "stopt": "StOpt_ROOT", "ablemon": "LEMON_ROOT",
 }
 
 # the solvers that are never packaged: PIPS-IPM++, the C interface of
-# Clarabel and HPIPM are in no package, quadprog is under the GPL and Torch
-# is not wanted in a package
-NEVER = ["PIPS", "Clarabel", "quadprog", "HPIPM", "Torch"]
+# Clarabel, HPIPM and PERMON are in no package, quadprog is under the GPL
+# and Torch is not wanted in a package
+NEVER = ["PIPS", "Clarabel", "quadprog", "HPIPM", "PERMON", "Torch"]
 
 # the solvers that are not redistributable, which a package never carries
 # but which the recipes of Conan, Spack and Nix can build against a local
@@ -192,6 +194,18 @@ STOPT = {
            "StOpt-v7.1.tar.gz",
     "sha256": "8bee8f2aab097c91a791729cde34f50b"
               "062208a1ab1af4d62ee41dba24a9e5e7",
+}
+
+# abLEMON, the fork of LEMON that MCFLemonSolver needs, at least at the
+# version that has what MCFLemonSolver asks of it, which the recipes of
+# this directory carry as the Homebrew tap of abLEMON does
+ABLEMON = {
+    "version": "1.9.0",
+    "min": "1.9.0",
+    "url": "https://github.com/dmeoli/abLEMON/archive/refs/tags/"
+           "1.9.0.tar.gz",
+    "sha256": "18ff7a91f4fa6e36ddab584f9012181f"
+              "1a23e917be77ea9f8512ec4eae0648d6",
 }
 
 # netCDF-C++, which the core needs and which Conan Center and xmake-repo do

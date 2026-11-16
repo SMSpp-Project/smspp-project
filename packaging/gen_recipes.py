@@ -124,7 +124,10 @@ ARCH = {
     # the static library of the osqp package, which MILPSolver prefers, is
     # made of slim LTO objects, which a build without LTO cannot link
     "osqp": None,
-    "lemon": ("coin-or-lemon", "coin-or-lemon"),
+    # aur/ablemon in this directory, at least at the version that
+    # MCFLemonSolver needs
+    "ablemon": (f"ablemon>={M.ABLEMON['min']}",
+                f"ablemon>={M.ABLEMON['min']}"),
 }
 
 
@@ -435,9 +438,61 @@ package() {{
         depends=["boost", "boost-libs", "eigen", "zlib", "bzip2"]))
 
 
+def gen_aur_ablemon():
+    s = M.ABLEMON
+    desc = "Maintained fork of LEMON, a C++ library of graphs and networks"
+    L = f"""# Maintainer: {M.MAINTAINER}
+#
+# Written by packaging/gen_recipes.py of the SMS++ umbrella from its
+# packaging/modules.py: edit those, not this file.
+
+pkgname=ablemon
+pkgver={s['version']}
+pkgrel=1
+pkgdesc="{desc}"
+arch=('x86_64' 'aarch64')
+url="https://github.com/dmeoli/abLEMON"
+license=('BSL-1.0 AND BSD-3-Clause')
+makedepends=(cmake)
+_tarball=abLEMON-$pkgver.tar.gz
+source=("$_tarball::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('{s['sha256']}')
+
+build() {{
+  cmake -S abLEMON-$pkgver -B build \\
+    -DCMAKE_BUILD_TYPE=None \\
+    -DCMAKE_INSTALL_PREFIX=/usr \\
+    -DBUILD_SHARED_LIBS=ON \\
+    -DLEMON_VERSION=$pkgver \\
+    -DLEMON_BUILD_TESTS=OFF \\
+    -DLEMON_BUILD_DEMOS=OFF \\
+    -DLEMON_BUILD_TOOLS=OFF \\
+    -DLEMON_BUILD_DOC=OFF \\
+    -DLEMON_ENABLE_GLPK=OFF \\
+    -DLEMON_ENABLE_ILOG=OFF \\
+    -DLEMON_ENABLE_COIN=OFF \\
+    -DLEMON_ENABLE_SOPLEX=OFF
+  cmake --build build
+}}
+
+package() {{
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 abLEMON-$pkgver/LICENSE \\
+    -t "$pkgdir/usr/share/licenses/$pkgname"
+}}
+"""
+    write("aur/ablemon/PKGBUILD", L)
+    url = s['url']
+    write("aur/ablemon/.SRCINFO", srcinfo(
+        "ablemon", ["ablemon"], s["version"], "1", desc,
+        ["x86_64", "aarch64"], "https://github.com/dmeoli/abLEMON",
+        ["BSL-1.0 AND BSD-3-Clause"], ["cmake"], [],
+        [f"abLEMON-{s['version']}.tar.gz::{url}"], [], [s["sha256"]], {}))
+
+
 # ----- MSYS2 -------------------------------------------------------------- #
-# the packages are mingw-w64-<arch>-<name>; StOpt, LEMON, CaDiCaL, MiniSat,
-# libsvm, liblinear and SCIP are not in MSYS2, so SDDPBlock and
+# the packages are mingw-w64-<arch>-<name>; StOpt, abLEMON, CaDiCaL,
+# MiniSat, libsvm, liblinear and SCIP are not in MSYS2, so SDDPBlock and
 # MCFLemonSolver are left out and SATBlock and SVMBlock come without the
 # solvers they wrap
 
@@ -621,10 +676,15 @@ def gen_nix(rel, base):
     L.append("# external is, and the sources it is not to compile in")
     L.append(f"rootVars = {nix_list(list(M.ROOT_VAR.values()))};")
     L.append(f"noSources = {nix_list(M.NO_SOURCES)};")
+    L.append("# the least version of abLEMON that MCFLemonSolver takes")
+    L.append(f'ablemonMin = "{M.ABLEMON["min"]}";')
     replace_table("nix/package.nix", "\n".join(L))
     replace_table("nix/stopt.nix",
                   f'version = "{M.STOPT["version"]}";\n'
                   f'hash = "{sri(M.STOPT["sha256"])}";')
+    replace_table("nix/ablemon.nix",
+                  f'version = "{M.ABLEMON["version"]}";\n'
+                  f'hash = "{sri(M.ABLEMON["sha256"])}";')
 
 
 # ----- Python tables (Spack, Conan) ---------------------------------------- #
@@ -654,6 +714,8 @@ def py_modules():
         L.append(f"    {e!r}: ({n!r}, {v!r}),")
     L.append("}")
     L.append(f"_NO_SOURCES = {M.NO_SOURCES!r}")
+    L.append("# the least version of abLEMON that MCFLemonSolver takes")
+    L.append(f"_ABLEMON_MIN = {M.ABLEMON['min']!r}")
     for name, d in (("_CMAKE_NAME", M.CMAKE_NAME),
                     ("_ROOT_VAR", M.ROOT_VAR)):
         L.append(name + " = {")
@@ -677,6 +739,10 @@ def gen_spack(rel, base):
     replace_table("spack/spack_repo/smspp/packages/stopt/package.py",
                   f"version(\n    {M.STOPT['version']!r},\n"
                   f"    sha256={a!r}\n    {b!r},\n)")
+    a, b = split_hex(M.ABLEMON["sha256"])
+    replace_table("spack/spack_repo/smspp/packages/ablemon/package.py",
+                  f"version(\n    {M.ABLEMON['version']!r},\n"
+                  f"    sha256={a!r}\n    {b!r},\n)")
 
 
 # ----- Conan --------------------------------------------------------------- #
@@ -694,7 +760,8 @@ def gen_conan(rel, base):
           "    fastflow:\n"
           f'      url: "{ff["url"]}"\n'
           f'      sha256: "{ff["sha256"]}"\n')
-    for name, d in (("stopt", M.STOPT), ("netcdf-cxx4", M.NETCDF_CXX4)):
+    for name, d in (("stopt", M.STOPT), ("netcdf-cxx4", M.NETCDF_CXX4),
+                    ("ablemon", M.ABLEMON)):
         write(f"conan/{name}/conandata.yml",
               "# written by packaging/gen_recipes.py of the SMS++ umbrella\n"
               "sources:\n"
@@ -764,8 +831,11 @@ def gen_xmake(rel, base):
         L.append(f'    {e} = "{n}",')
     L.append("}")
     L.append(f"local no_sources = {lua_list(M.NO_SOURCES)}")
+    L.append("-- the least version of abLEMON that MCFLemonSolver takes")
+    L.append(f'local ablemon_min = "{M.ABLEMON["min"]}"')
     replace_table("xmake/packages/s/smspp/xmake.lua", "\n".join(L), "--")
-    for name, d in (("s/stopt", M.STOPT), ("n/netcdf-cxx4", M.NETCDF_CXX4)):
+    for name, d in (("s/stopt", M.STOPT), ("n/netcdf-cxx4", M.NETCDF_CXX4),
+                    ("a/ablemon", M.ABLEMON)):
         replace_table(f"xmake/packages/{name}/xmake.lua",
                       "\n".join(lua_versions(d["version"], d["sha256"])),
                       "--")
@@ -829,6 +899,7 @@ def main():
             rel = json.load(f)
     gen_aur(rel, a.url_base)
     gen_aur_stopt()
+    gen_aur_ablemon()
     gen_msys2(rel, a.url_base)
     gen_nix(rel, a.url_base)
     gen_spack(rel, a.url_base)

@@ -18,9 +18,11 @@
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
     Note that HPIPM (HPIPMMILPSolver), which is in no vcpkg registry, is not installed on Windows,
     so there is no related option.
-    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, quadprog, StOpt, LEMON (as
-    lemon-ng), LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options:
-    DAQP, PIQP, qpmad, quadprog and lemon-ng, which the default registry of vcpkg does not carry,
+    Note that PERMON (PERMONMILPSolver), which is in no vcpkg registry, is not installed on Windows,
+    so there is no related option.
+    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, quadprog, StOpt, abLEMON (the
+    port ablemon), LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options:
+    DAQP, PIQP, qpmad, quadprog and ablemon, which the default registry of vcpkg does not carry,
     come from the SMS++ vcpkg registry (https://gitlab.com/smspp/vcpkg-registry). quadprog is
     under the GPL, so that a MILPSolver built with it is too.
     Note that MiniSat comes from vcpkg (vcpkg.json, the port minisat-master-keying), while
@@ -430,6 +432,18 @@ if ($OS -eq "Win32NT")
     if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
         Write-Host "Using Visual Studio installation at $vsInstallPath"
         & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+        # the generator of CMake for this Visual Studio, e.g. "Visual Studio
+        # 17 2022", out of its major version and of its year (which vswhere
+        # does not give for Visual Studio 18), so that CMake neither takes
+        # another compiler in the PATH nor a pinned version
+        $vsMajor = (& $vswhereCmd -path $vsInstallPath -property installationVersion).Split('.')[0]
+        $vsYears = @{ '15' = '2017'; '16' = '2019'; '17' = '2022'; '18' = '2026' }
+        if ($vsYears.ContainsKey($vsMajor)) {
+            $vsYear = $vsYears[$vsMajor]
+        } else {
+            $vsYear = & $vswhereCmd -path $vsInstallPath -property catalog_productLineVersion
+        }
+        $vsGenerator = "Visual Studio $vsMajor $vsYear"
     } else {
         Write-Error "Failed to detect Visual Studio with required C++ components after installation."
         exit 1
@@ -723,20 +737,24 @@ if (-not $withoutSMSpp)
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
-        Write-Host "SMSpp already exists. Pulling latest changes..."
-        git @skipExperiments pull
-        git submodule sync --recursive
-        git @skipExperiments submodule update --recursive
+        # a checkout that is on no branch, or on one with no upstream (say,
+        # the one of a CI), is left at its commit
+        git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "SMSpp already exists. Pulling latest changes..."
+            # the submodules are updated below, to the commits pinned
+            git @skipExperiments -c fetch.recurseSubmodules=false pull
+        } else {
+            Write-Host "SMSpp is on no branch with an upstream: left at its commit."
+        }
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
-        if (-not $HAS_CMAKE_GUI) {
-            # no way to use cmake-gui interactively to choose submodules, so download all
-            git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        } else {
-            git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        }
+        git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
         Set-Location $SMSPP_ROOT
     }
+    # the submodules, the private experiments left out unless asked for
+    git submodule sync --recursive
+    git @skipExperiments submodule update --init --recursive
     if ($withExperiments) {
         git config submodule.experiments.update checkout
         git submodule update --init experiments
@@ -758,7 +776,22 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
+    # the generator of the Visual Studio located above, whatever its version,
+    # with a CMake that has it: the one in the PATH, or else the one that
+    # comes with Visual Studio, as a CMake older than a Visual Studio does
+    # not know its generator
+    $cmakeExe = 'cmake'
+    if (-not ((& cmake --help) -match [regex]::Escape($vsGenerator))) {
+        $vsCmake = "$vsInstallPath\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+        if (Test-Path $vsCmake) {
+            $cmakeExe = $vsCmake
+        } else {
+            Write-Error "The CMake in the PATH has no generator $vsGenerator, and Visual Studio has no CMake of its own: install a newer CMake."
+            exit 1
+        }
+    }
+    Write-Host "Configuring with $cmakeExe and the generator $vsGenerator"
+    & $cmakeExe -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
@@ -770,8 +803,8 @@ if (-not $withoutSMSpp)
     & cmake '--install' 'build' '--config' 'Debug'#>
 
     # Build Release
-    & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
-    & cmake '--install' 'build' '--config' 'Release'
+    & $cmakeExe '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
+    & $cmakeExe '--install' 'build' '--config' 'Release'
 
     # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"

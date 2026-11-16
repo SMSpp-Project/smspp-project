@@ -12,6 +12,13 @@ API reference.
 specialised ones usually do not. The counterpart of the *physical
 representation* ([Chapter 7](07-physical-abstract.md#ch-7)).
 
+**AbstractChange.** The `Change` that edits the abstract
+representation of any `:Block` (the coefficients and the sense of its
+`Objective`, the integrality, fixing and bounds of its `ColVariable`s),
+with no knowledge of its physical data; the generic
+counterpart of the `:Block`-specific `Change` families
+([Chapter 16](16-change.md#ch-16)).
+
 **AModification.** The abstract base for `Modification`s that describe
 a change made through the *abstract* face of a `:Block` (a `Variable`,
 `Constraint`, `Function` …). Its `concerns_Block()` is `true` until
@@ -20,8 +27,8 @@ the `:Block` has reflected the change into its physical data
 
 **BendersBFunction.** A `Function` that is *also* a `Block`, computing
 the value function of an inner "base" `Block` parameterised by an
-affine map `M(y) = A y + b` applied to the right/left-hand sides of
-some of its `RowConstraint`s. Each evaluation solves the inner
+affine map $M(x) = A x + b$ of the outer `Variable`s $x$, which gives
+the sides of some of its `RowConstraint`s. Each evaluation solves the inner
 `Block`; its linearizations are Benders optimality or feasibility
 cuts ([Chapter 14](14-lag-benders-bfunction.md#ch-14)).
 
@@ -31,10 +38,14 @@ representation of it. A `Block` has a father, any number of static
 sub-`Block`s, `Variable` / `Constraint` / `Objective` groups, and any
 number of registered `Solver`s ([Chapter 4](04-block.md#ch-4)).
 
-**BlockConfig.** A `Configuration` that configures the *generation* of
-a `:Block`'s abstract representation; the `[C/O/R]BlockConfig` family
-selects which constraints (**C**), objective (**O**) and whether the
-configuration recurses into sub-`Block`s (**R**) are built
+**BlockConfig.** A `Configuration` with ten slots that configure a
+`:Block`: its structure, the generation of its abstract representation,
+its feasibility and optimality checks, the part of its solution that is
+saved, and an extra slot of its own; differential `BlockConfig`s
+override slot by slot (Lemma 11.1); the `[C/O/R]BlockConfig` family
+adds the `ComputeConfig`s of its `Constraint`s (**C**) and of its
+`Objective` (**O**), and the `BlockConfig`s of its sub-`Block`s
+(**R**), so that the configuration recurses down the tree
 ([Chapter 11](11-configuration.md#ch-11)).
 
 **BlockSolverConfig.** A `Configuration` that says which `Solver`s are
@@ -51,11 +62,12 @@ primal solution, produces (possibly several) dual solutions / valid
 bounds. `MCFSolver` and the `MILPSolver` family are `CDASolver`s
 ([Chapter 6](06-solver.md#ch-6)).
 
-**Change.** *Status — beta.* A serialisable, transmissible, often
+**Change.** (Beta.) A serialisable, transmissible, often
 invertible description of an edit to a `:Block`; unlike a
 `Modification` (a notification of a change that has already happened),
 a `Change` carries the data needed to *apply* the edit to a fresh
-`:Block` and to undo it ([Chapter 16](16-change.md#ch-16)).
+`:Block` and, through its UndoChange, to undo it
+([Chapter 16](16-change.md#ch-16)).
 
 **ColVariable.** The concrete `Variable` representing a single real or
 integer decision variable, with a type (`kContinuous`,
@@ -73,9 +85,9 @@ done ([Chapter 8](08-modification-janus.md#ch-8)).
 
 **Configuration.** A tree-shaped object mirroring the `Block` tree that
 parameterises generation, solving, and computation;
-`SimpleConfiguration<T>`, the `[C/O/R]BlockConfig` family,
-`BlockSolverConfig`, and `ComputeConfig` are its concrete forms
-([Chapter 11](11-configuration.md#ch-11)).
+`SimpleConfiguration< T >`, the `[C/O/R]BlockConfig` family,
+`BlockSolverConfig`, and `ComputeConfig` are its concrete forms ([Chapter
+11](11-configuration.md#ch-11)).
 
 **Constraint.** A primitive living inside a `Block`. `RowConstraint`
 has a real-valued left/right-hand side; `FRowConstraint` carries a
@@ -88,9 +100,10 @@ dynamic ones may be added and removed at run time and must live in
 `std::list`s, because a SMS++ object's identity is its memory address
 (Chapters [4](04-block.md#ch-4), [5](05-variable-constraint-objective.md#ch-5)).
 
-**Factory.** A class-name (`std::string`) → object map allowing a
-`:Block` / `:Solver` / `:Configuration` / `:Modification` / `:Change`
-/ `:Function` to be created by name and reconstructed from netCDF;
+**Factory.** A map from a class name (`std::string`) to a constructor,
+allowing a `:Block`, `:Solver`, `:Configuration`, `:Solution`,
+`:Change` or `:State` to be created by name and reconstructed from
+netCDF;
 registered with the `SMSpp_insert_in_factory_*` macros ([Chapter 18](18-factories-netcdf.md#ch-18)).
 Distinct from the *methods factory* (below).
 
@@ -98,8 +111,8 @@ Distinct from the *methods factory* (below).
 be minimised or maximised ([Chapter 5](05-variable-constraint-objective.md#ch-5)).
 
 **Function.** A real-valued (extended-real) function of `ColVariable`s
-that must be `compute()`-d; the family runs `Function → C05Function →
-C15Function` with leaf implementations such as `LinearFunction`,
+that must be `compute()`-d; the family runs from `Function` to
+`C05Function` and `C15Function`, with leaf implementations such as `LinearFunction`,
 `DQuadFunction`, and `PolyhedralFunction` ([Chapter 13](13-function-family.md#ch-13)).
 
 **Janus discipline.** The rule that a `:Block`'s two faces (physical
@@ -120,14 +133,26 @@ method optimise the dual ([Chapter 14](14-lag-benders-bfunction.md#ch-14)).
 `Block` such as `CapacitatedFacilityLocationBlock` (Chapters [4](04-block.md#ch-4), [12](12-sub-block.md#ch-12)).
 
 **Linearization.** A first-order piece of information produced by a
-`C05Function` at an evaluation point — for a convex function, a
-subgradient defining a supporting hyperplane; pools of linearizations
+`C05Function` at an evaluation point (for a convex function, an
+$\varepsilon$-subgradient defining an affine minorant, Lemma 13.1);
+pools of linearizations
 drive bundle methods and Benders/Lagrangian schemes (Chapters [13](13-function-family.md#ch-13), [14](14-lag-benders-bfunction.md#ch-14)).
 
-**Modification.** A lazily-propagated notification that something
-changed in a `Block`; the framework appends it to the pending list of
-every `Solver` registered with the `Block` or any ancestor, and the
-`Solver` consumes it when it reacts. `NBModification` is the wholesale
+**Methods factory.** A map from a name (`std::string`) to a function, of the
+`chg_*()` / `set_*()` methods (and of the queries) of the `:Block`s,
+grouped by signature, registered with `register_method()` and
+retrieved with `get_method()`, so that type-agnostic code can change
+the data of a `:Block` through a base `Block*` ([Chapter 15](15-methods-factory.md#ch-15)).
+
+**Mirror.** An `AbstractBlock` built by `mirror()` as a copy of the
+abstract representation of any `Block`, which makes it an R3 Block of
+that `Block` without the `Block` implementing anything (Lemma 10.2,
+[§10.4](10-r3block.md#sec-10-4)).
+
+**Modification.** A notification that something changed in a `Block`;
+the framework appends it to the pending list of every `Solver`
+registered with the `Block` or an ancestor and concerned by its kind
+(Lemma 12.1), and the `Solver` consumes it when it reacts. `NBModification` is the wholesale
 "reload" notification ([Chapter 8](08-modification-janus.md#ch-8)).
 
 **netCDF.** The hierarchical binary format SMS++ uses for
@@ -164,9 +189,16 @@ be linearly combined; abstract forms (`ColVariableSolution`,
 operate on the abstract representation. Many `Solver`s may be attached
 to one `Block` ([Chapter 6](06-solver.md#ch-6)).
 
+**Size Variable.** The `Variable` standing for a size parameter $k$
+that multiplies some data of a `:Block`, owned by it
+(`get_size_variable()`) or given by another `Block`
+(`set_size_variable()`); a mirror can be sized by one
+([§10.4](10-r3block.md#sec-10-4)).
+
 **sol_type.** The status enum returned by `compute()`: `kOK`,
-`kInfeasible`, `kUnbounded`, `kLowPrecision`, `kStopTime`,
-`kStopIter`, values `≥ kError`, etc. ([Chapter 6](06-solver.md#ch-6)).
+`kInfeasible`, `kUnbounded`, `kStopTime`, `kStopIter`, `kCutOff`, and
+the values $\ge$ `kError`, among which `kLowPrecision`
+([Chapter 6](06-solver.md#ch-6), [§B.2](B-writing-solver.md#sec-B-2)).
 
 **State.** A `Solver`'s checkpointable internal state, used for
 warm-starting and reoptimization across `compute()` calls
@@ -178,15 +210,29 @@ upward to the `Solver`s of every ancestor ([Chapter 12](12-sub-block.md#ch-12)).
 
 **ThinComputeInterface / ThinVarDepInterface.** The two lightweight
 mix-in interfaces underlying the framework: the first gives an object a
-`compute()` and a parameter machinery (so `Block`, `Solver`,
-`Function` are all computable); the second gives an object the notion
-of being "active" in a set of `Variable`s (so `Constraint` and
-`Function` track their variables) (Chapters [5](05-variable-constraint-objective.md#ch-5), [6](06-solver.md#ch-6), [13](13-function-family.md#ch-13)).
+`compute()` and a parameter machinery (so `Solver`, `Function`,
+`Constraint` and `Objective` are all computable); the second gives an
+object the notion of being "active" in a set of `Variable`s (so
+`Constraint`, `Objective` and `Function` track their variables) (Chapters [5](05-variable-constraint-objective.md#ch-5), [6](06-solver.md#ch-6), [13](13-function-family.md#ch-13)).
 
-**UpdateSolver.** A pseudo-`Solver` whose job is not to optimise but to
-forward `Modification`s from one `Block` to another, the canonical glue
-that keeps an `R3Block` in sync with its origin ([Chapter 10](10-r3block.md#ch-10)).
+**UndoChange.** The `Change` returned by `apply()` with `doUndo`, which
+restores the state before that `apply()`; UndoChanges applied in
+reverse order restore any earlier state (Lemma 16.1,
+[Chapter 16](16-change.md#ch-16)).
+
+**UpdateSolver.** A `Solver` whose job is not to optimise but to
+forward `Modification`s from one `Block` to another, which keeps an R3
+Block in sync with its original as far as the mapping methods allow
+(Lemma 10.4, [Chapter 10](10-r3block.md#ch-10)).
 
 **Variable.** The primitive representing a decision variable;
 `ColVariable` is the concrete single-variable form. A `Function` never
 copies a `Variable`, it references it by address ([Chapter 5](05-variable-constraint-objective.md#ch-5)).
+
+**Weight (of a `Block`).** The factor by which the `Objective` of a
+`Block` (`set_objective_weight()`), or the coefficients of its
+`Variable`s in the `Constraint`s outside of it
+(`set_variable_weight()`), count in the problems of its ancestors,
+1 by default; a `:Solver` attached to the `Block` itself does not
+see it. A change issues a `BlockWeightMod`, refused if a `:Solver`
+of an ancestor does not handle it ([§12.2](12-sub-block.md#sec-12-2)).

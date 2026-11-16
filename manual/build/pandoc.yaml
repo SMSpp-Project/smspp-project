@@ -49,6 +49,7 @@ resource-path:
 filters:
   - figure-ext.lua
   - crossref-link.lua
+  - source-links.lua
   - break-code.lua
 
 pdf-engine: pdflatex
@@ -65,7 +66,7 @@ include-in-header:
 
 metadata:
   title: "SMS++ — A User Manual"
-  subtitle: "For SMS++ 0.7.1 (November 2026)"
+  subtitle: "For SMS++ 0.8.0 (November 2026)"
   author: "Antonio Frangioni"
   lang: en
   colorlinks: true

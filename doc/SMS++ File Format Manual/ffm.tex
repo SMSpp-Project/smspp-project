@@ -303,7 +303,7 @@ Hence, the format of a \SMSpp \netCDF file depends on whether it holds \Block in
 
 \medskip
 \noindent
-To allow holding all this different information, a \SMSpp \netCDF file has the following general structure. It must contain (in the \code{netCDF::NcFile} object, which is also a \code{netCDF::NcGroup}) an \attribute \cstr{SMS++\_file\_type} of \code{int} type which specifies which of three different kinds of file it is. The values are encoded in the \code{enum} \code{smspp\_netCDF\_file\_type} defined in \code{SMSTypedefs.h}, as follows:
+To allow holding all this different information, a \SMSpp \netCDF file has the following general structure. It must contain (in the \code{netCDF::NcFile} object, which is also a \code{netCDF::NcGroup}) an \attribute \cstr{SMS++\_file\_type} of \code{int} type which specifies which of five different kinds of file it is. The values are encoded in the \code{enum} \code{smspp\_netCDF\_file\_type} defined in \code{SMSTypedefs.h}, as follows:
 %
 \begin{itemize}
   \item \code{eProbFile = 0}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Prob\_0}, \cstr{Prob\_1}, \ldots In turn, each child \group has \emph{exactly three} child \groups with names \cstr{Block}, \cstr{BlockConfig} and \cstr{BlockSolver}, respectively. The first is intended to contain the serialization of a \dBlock, the second the serialization of a \dBlockConfig of the same \dBlock, and the third the serialization of a \dBlockSolverConfig of the same \dBlock, although any of the three can in principle be empty. If any of the child is not empty, it \emph{must} necessarily contain all the information necessary to reconstruct the specific instance.
@@ -311,9 +311,17 @@ To allow holding all this different information, a \SMSpp \netCDF file has the f
   \item \code{eBlockFile = 1}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Block\_0}, \cstr{Block\_1}, \ldots Each child \group contains the serialization of a \dBlock.
   %
   \item \code{eConfigFile = 2}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Config\_0}, \cstr{Config\_1}, \dots Each child \group contains the serialization of a \dConfiguration. Note that no distinction is required between a \dBlockConfig and a \dBlockSolverConfig, since they are both derived from \Configuration.
+  %
+  \item \code{eSolutionFile = 3}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{Solution\_0}, \cstr{Solution\_1}, \dots Each child \group contains the serialization of a \code{:Solution}, i.e., of a solution of a \Block (see \S \ref{ssec:Solution}).
+  %
+  \item \code{eStateFile = 4}: the \textit{file} (which is also a \group) has any number of child \groups with names \cstr{State\_0}, \cstr{State\_1}, \dots Each child \group contains the serialization of a \code{:State}, i.e., of the ``internal state'' of a \Solver (or of any other object computing something, such as a \Function), which can be used to restart the computation more efficiently, say the optimal basis of a Linear Program (see \S \ref{ssec:Solution}).
 \end{itemize}
 %
 Note that (some variants of) the \code{deserialize()} methods of \Block / \Configuration allow to directly specify which of the different objects stored in the file to read via its index $i$ in the ``name''.
+
+\medskip
+\noindent
+A \SMSpp \netCDF file need not be on disk. The \code{serialize()} method of \Block taking a \code{std::vector< unsigned char >} writes the file in memory and puts in the vector its \emph{image}, i.e., the bytes of a \netCDF-4 file with the structure described above; conversely, the static \code{deserialize()} method of \Block taking a \code{std::span< const unsigned char >} reads a \Block out of such an image, be it produced by \code{serialize()} or read from a file. Thus, a copy of a \Block as it currently is (comprising all the changes made to it after it was loaded) can be obtained, or sent elsewhere, without passing through the filesystem. The image can be written to disk and read as any other \SMSpp \netCDF file, although its bytes need not be the same as those of the file that \code{serialize()} writes on disk; however, an image cannot be appended to, and therefore it only holds the \Block being serialized (several \Block can be written in the same in-memory file before its image is produced). The in-memory files require version 4.6.2 or later of the \netCDF-C library.
 
 \medskip
 \noindent
@@ -322,25 +330,40 @@ To completely describe the file formats we now have to describe the format of th
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{\Block description}\label{ssec:Block}
 
-The only content that any \netCDF \group describing a \dBlock must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be \emph{exactly} what is returned by the protected virtual method \code{classname()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Block are allowed, with the standard notation \cstr{class\_name<template\_parameters>}. However, due to a technical issue about using macros (see the comments to \code{SMSpp\_insert\_in\_factory\_cpp\_*} in \code{SMSTypedefs.h}), \emph{the name given to the class must not contain any ``,'' (comma)}. That is, something like ``\code{myBlock< std::pair< int , int > >}'' \emph{cannot} be used when defining the \Block. The typical way is to resort to a using declaration, i.e.,
+The only content that any \netCDF \group describing a \dBlock must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be what is returned by the method \code{classname()} (up to whitespace, see below), since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Block are allowed, with the standard notation \cstr{class\_name<template\_parameters>}. Since the name of the class is the argument of the macro \code{SMSpp\_insert\_in\_factory\_cpp\_*} that inserts it in the factory (see the comments in \code{SMSFactory.h}), a name containing any ``,'' (comma) has to be enclosed in parentheses there, as the comma would otherwise separate two arguments of the macro, i.e.,
 
 \medskip
 \begin{tabular}{l}
- \code{using myBlock\_i\_i = myBlock< std::pair< int , int > >;} \\
- \code{SMSpp\_insert\_in\_factory\_cpp\_1\_t( myBlock\_i\_i );}
+ \code{SMSpp\_insert\_in\_factory\_cpp\_1\_t( ( myBlock< std::pair< int , int > > ) );}
 \end{tabular}
 
 \medskip
 \noindent
-This implies that the \cstr{type} of that \Block as returned by \code{classname()}, and therefore the one that has to be used in the \netCDF file, must necessarily be ``\cstr{myBlock\_i\_i}''. The exact string will typically be defined in the .cpp file where the \Block is implemented, precisely in the corresponding invocation of the macro \code{SMSpp\_insert\_in\_factory\_cpp\_*}. In all non-complicated-template cases, the name should just be the only possible form in which the classname can be written.
+The string returned by \code{classname()}, which indexes the factory, is the argument of the macro stripped of all whitespace and of the enclosing parentheses, here ``\cstr{myBlock<std::pair<int,int>{}>}''; the \cstr{type} found in the \netCDF file is stripped in the same way before being looked up in the factory, and therefore ``\cstr{myBlock< std::pair< int , int > >}'' can be used there as well. The exact string is therefore defined in the .cpp file where the \Block is implemented, precisely in the corresponding invocation of the macro \code{SMSpp\_insert\_in\_factory\_cpp\_*}. In all non-complicated-template cases, the name should just be the only possible form in which the classname can be written.
 
 \medskip
 Besides the mandatory \cstr{type} \attribute, all \Block support an optional  \cstr{name} \attribute of string type. If present, this is supposed to  contain the ``name'' of the \Block, as returned by the \code{name()} method; if not present (and not set in-memory via \code{set\_name()}), \code{name()} will return an empty string. This is not a classname, but rather a string describing something about the \Block that is supposedly useful when printing/debugging it.
 
+\medskip
+\noindent
+All \Block also support two optional \attributes of \code{double} type, which must be finite and non-negative and are $1$ if not present (they are only written if they are different from $1$):
+%
+\begin{itemize}
+ \item \cstr{ObjectiveWeight}, the weight by which the \Objective of the \Block counts in any problem the \Block is part of (say, the probability of the scenario that the \Block describes times the discount factor of its period); the \Block itself is not changed, but any \Solver that assembles a problem out of nested \Block multiplies the \Objective of each of them by the product of the weights along the path to the \Block the \Solver is attached to, the latter excluded, which is why a \Solver attached to the \Block does not see its weight;
+ %
+ \item \cstr{VariableWeight}, the weight by which the coefficients that the \Variables of the \Block, and of its sub-\Block, have in the \Constraints \emph{outside} of it are multiplied (say, the number of identical copies of a unit in the balance of the nodes it feeds), with the same rule along the path from the \Block of the \Variable up to the closest \Block containing both, the latter excluded; the \Constraints of the \Block itself, and its \Objective, are not concerned.
+\end{itemize}
+%
+Setting both weights to the same value $k$ scales the whole \Block as $k$ identical copies of it would; a weight of $0$ makes the \Block count for nothing (say, a unit of which there is no copy).
+
+\medskip
+\noindent
+Finally, a \group can describe a \dBlock ``indirectly'': if it has no \cstr{type} \attribute but a string \attribute \cstr{filename}, the \Block is read out of the file with that name, which can be a \SMSpp \netCDF file or a text file (if the name ends by ``\cstr{.txt}''). For a \netCDF file, the name can end by ``\cstr{[$i$]}'' to specify which of the objects in the file is to be read; for a text file, it can end by ``\cstr{[X].txt}'', with \cstr{X} a single character, to specify the format of the file, the part of the name preceding the ``\cstr{[}'' being the actual filename. If both \cstr{type} and \cstr{filename} are present, the former takes the precedence. Indirect \groups can be used in the same way for \dConfiguration, \code{:Solution} and \code{:State} (text files being supported, besides for \Block, only for \dConfiguration).
+
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{\Configuration description}
 
-The only content that any \netCDF \group describing a \dConfiguration must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be exactly what is returned by the protected virtual method \code{classname()}, since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Configuration are allowed, with the standard notation \cstr{class\_name<template\_parameters>}; see for instance the template \code{SimpleConfiguration<>} class. However, the same issue with ``,'' (commas) not being allowed to the class name as in \Block applies here, see \S \ref{ssec:Block} for more details.
+The only content that any \netCDF \group describing a \dConfiguration must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object. This must be what is returned by the method \code{classname()} (up to whitespace), since it is used in the \emph{factory} when deserializing the object. Note that template classes derived from \Configuration are allowed, with the standard notation \cstr{class\_name<template\_parameters>}; see for instance the template \code{SimpleConfiguration<>} class, of which \code{SimpleConfiguration< std::pair< int , int > >} is one of the instances inserted in the factory. The same rules about commas and whitespace in the class name as in \Block apply here, see \S \ref{ssec:Block} for more details.
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\BlockConfig description}\label{sec:BlockConfig}
@@ -355,6 +378,11 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
   configuration'' ($\cstr{diff} > 0$); this attribute is optional: if it is
   not provided, then $\cstr{diff} = 1$ is assumed;
 
+\item the \group \cstr{structure} containing a \Configuration object for
+  \code{Block::set\_structure()}, i.e., saying which structure (tree of
+  sub-\Block) the \Block has to have; it is the first one to be applied,
+  since the structure comes before everything else;
+ %
 \item the \group \cstr{static\_constraints} containing a \Configuration object
   for the static constraints of the \Block;
  %
@@ -567,6 +595,31 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
 \end{itemize}
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\code{MetaBlockConfig} description}\label{sec:MetaBlockConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
+\netCDF \group for a \code{MetaBlockConfig} can contain the following:
+%
+\begin{itemize}
+\item all that is needed to describe a \BlockConfig
+  (see~\ref{sec:BlockConfig}), which configures the \Block the
+  \code{MetaBlockConfig} is applied to;
+
+\item the \group \cstr{map} containing a \code{SimpleConfiguration<
+  std::map< std::string , Configuration * > >}, which says which \BlockConfig
+  is to be applied to each of the descendants of that \Block (its
+  sub-\Block, their sub-\Block, and so on, but not the \Block itself)
+  according to their \code{classname()}, the special entry ``\cstr{*}'' (if
+  any) acting as the default for the descendants whose \code{classname()}
+  does not match any other entry; each entry must be a \BlockConfig (or
+  \code{nullptr}), and a descendant matching no entry, or matching an entry
+  that is \code{nullptr}, is left alone. The descendants are visited
+  father-first, so that those visited are the sub-\Block that a \Block has
+  after it has been configured. This \group is optional; if it is not
+  provided, there is no map.
+\end{itemize}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\BlockSolverConfig description}\label{sec:BlockSolverConfig}
 
 Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
@@ -574,11 +627,19 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
 %
 \begin{itemize}
 
-\item the \attribute \cstr{diff} of \code{netCDF::NcInt} type telling if the
-  information in it has to be taken as ``the configuration to be set''
-  ($\cstr{diff} \le 0$) or as ``the changes to be made from the current
-  configuration'' ($\cstr{diff} > 0$); this attribute is optional, if it is
-  not provided, then $\cstr{diff} = 0$ is assumed;
+\item the \attribute \cstr{diff} of \code{netCDF::NcInt} type telling how
+  the information in it has to be taken: as ``the configuration to be set''
+  ($\cstr{diff} = 0$, ``setting mode'', where the \Solver previously
+  registered to the \Block are replaced by those of the
+  \BlockSolverConfig), as ``the changes to be made from the current
+  configuration'' ($\cstr{diff} = 1$, ``differential mode'', where a
+  \Solver whose name is empty is left as it is, and a missing
+  \ComputeConfig does not change the configuration of the corresponding
+  \Solver), or as ``\Solver to be added'' ($\cstr{diff} = 2$, ``additive
+  mode'', where the \Solver already registered to the \Block are not
+  touched and all those of the \BlockSolverConfig are registered in
+  addition to them); any other value is an error; this attribute is
+  optional, if it is not provided, then $\cstr{diff} = 0$ is assumed;
 %
 \item the \dimension \cstr{n\_SolverConfig} containing the number of \Solver
   that are to be attached to the \Block, and therefore the number of their
@@ -588,9 +649,9 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp
 \item the \variable \cstr{SolverNames}, of type \code{netCDF::NcString} and
   indexed over the \dimension \cstr{n\_SolverConfig}; the $i$-th entry of the
   variable is assumed to contain the classname of a \dSolver object to be
-  attached to the \Block (this must be exact, i.e., exactly as returned by the
-  protected virtual method \code{Solver::classname()}, since it is used in the
-  \emph{factory} when creating the object; this variable is mandatory if
+  attached to the \Block (this must be exact, i.e., as returned by the
+  method \code{Solver::classname()} up to whitespace, since it is used in the
+  \emph{factory} when creating the object); this variable is mandatory if
   $\cstr{n\_SolverConfig} > 0$;
 %
 \item with $n$ being the size of \code{n\_SolverConfig}, $n$ \groups, with
@@ -650,36 +711,74 @@ Besides the mandatory \cstr{type} attribute of any \dConfiguration, and the
 
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsubsection{\code{MetaBlockSolverConfig} description}\label{sec:MetaBlockSolverConfig}
+
+Besides the mandatory \cstr{type} attribute of any \dConfiguration, and the
+\dimensions, \variables, and \groups of a \BlockSolverConfig, which
+configure the \Solver of the \Block the \code{MetaBlockSolverConfig} is
+applied to, a \SMSpp \netCDF \group for a \code{MetaBlockSolverConfig} can
+contain the \group \cstr{map}, with the same meaning as in a
+\code{MetaBlockConfig} (see~\ref{sec:MetaBlockConfig}) except that each of
+its entries must be a \BlockSolverConfig (or \code{nullptr}). This \group is
+optional; if it is not provided, there is no map.
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{\ComputeConfig description}\label{sec:ComputeConfig}
 
 \ComputeConfig (defined in \code{ThinComputeInterface.h}) is a class of \dConfiguration objects specifically tailored for representing sets of algorithmic parameters of solution algorithms, like the ones presumably required by a \dSolver.
 Besides the mandatory \cstr{type} attribute of any \dConfiguration, a \SMSpp \netCDF \group for a \ComputeConfig can contain the following:
 %
 \begin{itemize}
- \item the \attribute \cstr{diff} of \code{int} type containing the value for the \code{f\_diff} field of the \ComputeConfig (basically, a bool telling if the information in it has to be taken as ``the configuration to be set'' or as ``the changes to be made from the current configuration'');
+ \item the \attribute \cstr{diff} of \code{int} type containing, encoded bit-wise, the values of the \code{f\_diff} and \code{f\_relax} fields of the \ComputeConfig: bit 0 ($+1$) is basically a bool telling if the information in it has to be taken as ``the configuration to be set'' or as ``the changes to be made from the current configuration'', and bit 1 ($+2$) tells if the \ComputeConfig is allowed to contain names of parameters that are not recognised by the object it is applied to (otherwise, trying to set such a parameter should raise an exception); if the \attribute is not there, both are \code{false};
  %
- \item the \dimension \cstr{num\_int\_par} containing the number of \code{int} parameters;
+ \item the \dimension \cstr{int\_par\_num} containing the number of \code{int} parameters;
  %
- \item the \variable \cstr{int\_par\_names}, of type string and indexed over the \dimension \cstr{num\_int\_par}; the $i$-th entry of the variable is assumed to contain the string name of an \code{int} parameter;
+ \item the \variable \cstr{int\_par\_names}, of type string and indexed over the \dimension \cstr{int\_par\_num}; the $i$-th entry of the variable is assumed to contain the string name of an \code{int} parameter;
  %
- \item the \variable \cstr{int\_par\_vals}, of type \code{int} and indexed over the \dimension \cstr{num\_int\_par}; the $i$-th entry of the variable is assumed to contain the value of the \code{int} parameter whose string name is to be found in the $i$-th entry of \cstr{int\_par\_names};
+ \item the \variable \cstr{int\_par\_vals}, of type \code{int} and indexed over the \dimension \cstr{int\_par\_num}; the $i$-th entry of the variable is assumed to contain the value of the \code{int} parameter whose string name is to be found in the $i$-th entry of \cstr{int\_par\_names};
  %
- \item the \dimension \cstr{num\_dbl\_par} containing the number of \code{double} parameters;
+ \item the \dimension \cstr{dbl\_par\_num} containing the number of \code{double} parameters;
  %
- \item the \variable \cstr{dbl\_par\_names}, of type string and indexed over the \dimension \cstr{num\_dbl\_par}; the $i$-th entry of the variable is assumed to contain the string name of a \code{double} parameter;
+ \item the \variable \cstr{dbl\_par\_names}, of type string and indexed over the \dimension \cstr{dbl\_par\_num}; the $i$-th entry of the variable is assumed to contain the string name of a \code{double} parameter;
  %
- \item the \variable \cstr{dbl\_par\_vals}, of type \code{double} and indexed over the \dimension \cstr{num\_dbl\_par}; the $i$-th entry of the variable is assumed to contain the value of the \code{double} parameter whose string name is to be found in the $i$-th entry of \cstr{dbl\_par\_names};
+ \item the \variable \cstr{dbl\_par\_vals}, of type \code{double} and indexed over the \dimension \cstr{dbl\_par\_num}; the $i$-th entry of the variable is assumed to contain the value of the \code{double} parameter whose string name is to be found in the $i$-th entry of \cstr{dbl\_par\_names};
  %
- \item the \dimension \cstr{num\_str\_par} containing the number of string parameters;
+ \item the \dimension \cstr{str\_par\_num} containing the number of string parameters;
  %
- \item the \variable \cstr{str\_par\_names}, of type string and indexed over the \dimension \cstr{num\_str\_par}; the $i$-th entry of the variable is assumed to contain the string name of a string parameter;
+ \item the \variable \cstr{str\_par\_names}, of type string and indexed over the \dimension \cstr{str\_par\_num}; the $i$-th entry of the variable is assumed to contain the string name of a string parameter;
  %
- \item the \variable \cstr{str\_par\_vals}, of type string and indexed over the \dimension \cstr{num\_str\_par}; the $i$-th entry of the variable is assumed to contain the value of the string parameter whose string name is to be found in the $i$-th entry of \cstr{str\_par\_names};
+ \item the \variable \cstr{str\_par\_vals}, of type string and indexed over the \dimension \cstr{str\_par\_num}; the $i$-th entry of the variable is assumed to contain the value of the string parameter whose string name is to be found in the $i$-th entry of \cstr{str\_par\_names};
+ %
+ \item for each \code{TYP} in $\{$ \cstr{int}, \cstr{dbl}, \cstr{str} $\}$, the vector parameters of that type: the \dimension \cstr{v\_TYP\_par\_num} containing their number, the \dimension \cstr{v\_TYP\_par\_tot} containing the total number of their elements, the \variable \cstr{v\_TYP\_par\_names}, of type string and indexed over \cstr{v\_TYP\_par\_num}, containing their names, the \variable \cstr{v\_TYP\_par\_vals}, of the type corresponding to \code{TYP} and indexed over \cstr{v\_TYP\_par\_tot}, containing all their elements one vector after the other, and the \variable \cstr{v\_TYP\_par\_start}, of type \code{int} and indexed over \cstr{v\_TYP\_par\_num}, whose $i$-th entry is the position in \cstr{v\_TYP\_par\_vals} of the first element of the $i$-th vector (the elements of which run up to the first element of the next vector, or to the end of \cstr{v\_TYP\_par\_vals} for the last one);
  %
  \item the \group \cstr{extra} containing a \Configuration object, which has no direct use in the base \ComputeConfig class, but is added so that derived classes can put there any configuration information without having to define further derived classes form \ComputeConfig (which, however, they can still do if they want).
 \end{itemize}
 %
-The three \dimensions \cstr{num\_*\_par} are mandatory. If any of these is zero, the corresponding variables \cstr{*\_par\_names} and \cstr{*\_par\_vals} may not be defined. The \cstr{extra} \group may not exist, in which case the corresponding \Configuration object is set to a \code{nullptr}.
+All the \dimensions \cstr{*\_par\_num} are optional, a missing one meaning $0$. If any of these is zero, the corresponding \dimension and variables of the same type may not be defined. The \cstr{extra} \group may not exist, in which case the corresponding \Configuration object is set to a \code{nullptr}.
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsection{\code{Solution} and \code{State} description}\label{ssec:Solution}
+
+A \code{:Solution} represents a solution of a \Block (the values of its \Variables, those of the dual variables of its \Constraints, or any problem-specific ``compressed'' representation of them), while a \code{:State} represents the ``internal state'' of a \Solver (or of any other object computing something, such as a \Function), i.e., anything that may make its next computation more efficient. As for \Block and \Configuration, the only content that any \netCDF \group describing a \code{:Solution} or a \code{:State} must necessarily have is a string \attribute with name \cstr{type} containing the classname of the object, the rest of the format being decided by the specific derived class; also, such \groups can be ``indirect'' (see \S \ref{ssec:Block}).
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Stacked \groups}\label{sec:stacked}
+
+A \code{:Solution} of a \Block with many sub-\Block is typically made of many parts with the same structure, such as one for each scenario of a stochastic \Block or one for each unit of a Unit Commitment problem. Writing each of them in a \group of its own may not work: a \netCDF file holds at most 32767 \groups, since the \netCDF-C library (up to version 4.9.3 at least) crashes when a file gets the 32768-th one, and the \code{:Solution} of a stochastic \Block with some hundreds of scenarios, each with some tens of units, easily needs more than that. Hence, such parts can be written \emph{stacked} in a single \group (by the function \code{write\_stacked()} of \code{SMSnetCDF.h}), the parts whose trees are identical (the same \groups, in the same order, with the same \dimensions, \variables and \attributes, values apart) being stacked together. A \emph{stack} of parts is a \group whose tree is that of any one of them, its root \group having besides a \dimension \cstr{Stacked} of length the number of the parts, and each \variable of the tree having that \dimension in front of its own ones, the $k$-th element along it being the value of the $k$-th part. If the trees of all the parts are identical, the \group is the stack of all of them; otherwise, it contains
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumberParts} containing the number of the parts;
+ %
+ \item the \groups \cstr{Stack\_$c$}, for $c = 0, 1, \ldots$, each being the stack of the parts with the $c$-th tree, the trees being ordered as the first part that has each of them;
+ %
+ \item the \variables \cstr{PartStack} and \cstr{PartPosition}, of type \code{netCDF::NcInt} and indexed over the \dimension \cstr{NumberParts}, whose $i$-th entries are the index $c$ of the stack of the $i$-th part and the position of the part in that stack, respectively.
+\end{itemize}
+%
+A stack may in turn be nested in the parts (say, in the \code{:Solution} of a multi-stage \Block whose scenarios are two-stage \Block with stacked scenarios): a \variable of the nested stack then has the \dimensions of both stacks, the outer one first, and since a \dimension is found by its name, the \dimension of a stack is \cstr{Stacked\_$n$} if the deepest stack nested in its parts has level $n - 1$, and \cstr{Stacked} (level $0$) if there is none. Thus, the file only has the \groups of one part for each different tree, whatever the number of the parts; the number of the parts is the length of \cstr{Stacked} (or \cstr{Stacked\_$n$}) or, if there are several stacks, that of \cstr{NumberParts}, and each part can be read back separately (by the function \code{read\_stacked()}) with the stacks nested in it as they were. Each part is first written in an in-memory file of its own, and then all the parts are copied in the \group, all the definitions first and all the values after (by the function \code{write\_via\_memory()}), so that a file made of many parts is written in a time linear, rather than quadratic, in its size. If the root \group of a part is itself a stack, or if the \netCDF-C library is older than version 4.6.2 (which has no in-memory files), the parts are rather written in one \group each.
+
+\medskip
+\noindent
+The stacked format is currently written by \code{UCBlockSolution}, in the \group \cstr{UnitBlock} for the \code{:Solution} of the units (one stack for each type of unit) and, if all of them are there, in the \group \cstr{NetworkBlock} for those of the networks, and by \code{TwoStageStochasticBlockSolution}, in the \group \cstr{ScenarioSolution} for those of the scenarios. Both also read the format with one \group for each part (\cstr{UnitBlock\_$i$}, \cstr{NetworkBlock\_$t$} and \cstr{ScenarioSolution\_$s$}, respectively).
 
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsection{Auxiliary structures formats}
@@ -1435,9 +1534,9 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
  %
  \item the \variable \cstr{EN}, of type \code{int} and indexed over the \dimension \cstr{NArcs}; the $i$-th entry of the variable is assumed to contain the ending node of the $i$-th arc in the graph (note that node names here go from $1$ to $n$, they are shifted by $1$ w.r.t.~to the indices used in the \cstr{B} variable);
  %
- \item the \dimension \cstr{DynNNodes} containing the current number of dynamic nodes: all the nodes between $0$ and \cstr{NNodes} $-$ \cstr{DynNNodes} $- 1$ are static, i.e., they cannot be deleted (and re-created), whereas all those from \cstr{NNodes} + \cstr{DynNNode} to \cstr{NNodes} $- 1$ are dynamic, i.e., they can deleted and later on re-created;
+ \item the \dimension \cstr{DynNNodes} containing the current number of dynamic nodes: all the nodes between $0$ and \cstr{NNodes} $-$ \cstr{DynNNodes} $- 1$ are static, i.e., they cannot be deleted (and re-created), whereas all those from \cstr{NNodes} $-$ \cstr{DynNNodes} to \cstr{NNodes} $- 1$ are dynamic, i.e., they can deleted and later on re-created;
  %
- \item the \dimension \cstr{DynNArcs} containing the current number of dynamic arcs: all the arcs between 0 and \cstr{NArcs} - \cstr{DynNArcs} $- 1$ are static, i.e., they cannot be deleted (and re-created), whereas all those from \cstr{NArcs} $+$ \cstr{DynNArcs} to \cstr{NArcs} $- 1$ are dynamic, i.e., they can deleted and later on re-created;
+ \item the \dimension \cstr{DynNArcs} containing the current number of dynamic arcs: all the arcs between 0 and \cstr{NArcs} - \cstr{DynNArcs} $- 1$ are static, i.e., they cannot be deleted (and re-created), whereas all those from \cstr{NArcs} $-$ \cstr{DynNArcs} to \cstr{NArcs} $- 1$ are dynamic, i.e., they can deleted and later on re-created;
  %
  \item the \dimension \cstr{MaxDynNNodes} containing the maximum number of dynamic nodes in the graph (the maximum value that $n$ can take); data in the \code{MCFBlock} is allocated to accommodate for the fact that further \cstr{MaxDynNNodes} $-$ \cstr{DynNNodes} nodes can later on be dynamically created (and deleted); if \cstr{MaxDynNNodes} $<$ \cstr{DynNNodes} the \dimension is ignored and \cstr{NNodes} is taken as the maximum overall number of nodes;
  %
@@ -2918,12 +3017,18 @@ As described in \S \ref{sec:ComputeConfig}, each \Block can have several \Comput
 
 The base \Solver class defines a set of ``general'' algorithmic parameters, described in the following table.
 
-\begin{longtable}{|c|c|p{13.5cm}|}
+\begin{longtable}{|c|c|p{13cm}|}
  \hline
  name & type & description \\
  %
  \hline
- \code{intMaxIter} & \code{int} & The algorithmic parameter for setting the maximum number of iterations that the next call to \code{solve()} is allowed to execute for trying to solve the \Block. The concept of ``what exactly an iteration is'' is clearly \Solver-dependent, and the user of the \Solver need supposedly be aware of which concrete \dSolver it is actually using to be able to sensibly set this parameter; however, because most \Solver will actually be iterative processes, it makes sense to offer  support for this notion in the base class. \\
+ \code{intMaxIter} & \code{int} & The algorithmic parameter for setting the maximum number of iterations that the next call to \code{solve()} is allowed to execute for trying to solve the \Block. The concept of ``what exactly an iteration is'' is clearly \Solver-dependent, and the user of the \Solver need supposedly be aware of which concrete \dSolver it is actually using to be able to sensibly set this parameter; however, because most \Solver will actually be iterative processes, it makes sense to offer  support for this notion in the base class. The default is $+\infty$. \\
+ %
+ \hline
+ \code{intEverykIt} & \code{int} & Every how many iterations the events of type \code{eEverykIteration} registered with the \Solver are called. The default is $0$, meaning that events of that type are never called, while $1$ means that they are called at every iteration. \\
+ %
+ \hline
+ \code{intMaxThread} & \code{int} & The algorithmic parameter for setting the maximum number of threads (in a loose sense, say tasks) that the next call to \code{solve()} is allowed to spawn. The default is $0$, which means that \code{solve()} must only use the thread that is calling it. \\
  %
  \hline
  \code{intMaxSol} & \code{int} & The algorithmic parameter for setting the maximum  number of different solutions to the \Block that the \Solver should attempt to obtain and store. Mathematical models can have (very) many solutions: an objective function precisely helps in selecting among them, but even that may not be enough to narrow the choice down to a single solution (multiple optima may exist, or quasi-optimal solutions may also be sought for for any number of reasons). On the other hand, a solution can be a ``big'' object, and storing it may be costly. It may be therefore helpful for a Solver to know beforehand how many different solutions the user would like to get. Among the reasonable values for this parameter, $1$ says ``I don't care of multiple solutions, give me only the best one'', and $0$ says ``I don't care of solutions at all, just tell me if there is any, and what its value is''. The default is $1$. \\
@@ -2932,7 +3037,10 @@ The base \Solver class defines a set of ``general'' algorithmic parameters, desc
  \code{intLogVerb} & \code{int} & An integer parameter dictating how ``verbose'' the log of the \Solver has to be. The specific meaning of each value is \Solver-dependent, but it is intended that $0$ means ``no log at all'', and increasing values correspond to increasing verbosity. The default value is $0$ (no log). \\
  %
  \hline
- \code{dblMaxTime} & \code{dbl} & The algorithmic parameter for setting the maximum time limit that the next call to \code{solve()} can expend in trying to solve the \Block. The value is assumed to be in seconds, and it's a double (so both very quick and very slow solvers are supported). The base \Solver class does not explicitly distinguish between ``wall-clock time'' and ``CPU time'', which may be rather different especially in a parallel environment, but this concept can be easily added by derived classes.\\
+ \code{dblMaxTime} & \code{dbl} & The algorithmic parameter for setting the maximum time limit that the next call to \code{solve()} can expend in trying to solve the \Block. The value is assumed to be in seconds, and it's a double (so both very quick and very slow solvers are supported). The base \Solver class does not explicitly distinguish between ``wall-clock time'' and ``CPU time'', which may be rather different especially in a parallel environment, but this concept can be easily added by derived classes. The default is $+\infty$.\\
+ %
+ \hline
+ \code{dblEveryTTm} & \code{dbl} & The period (amount of time) with which the events of type \code{eEveryTTime} registered with the \Solver are called. The default is $0$, meaning that events of that type are never called.\\
  %
  \hline
  \code{dblRelAcc} & \code{dbl} & The algorithmic parameter for setting the \emph{relative} accuracy required to the solution of the Block. This is geared towards single-objective optimization problems, and it is defined as follows: a solution for a \emph{minimization} problem has a relative accuracy of $\varepsilon$ if a feasible (to within the required tolerance for each \Block) solution has been obtained, an upper bound $ub$ on its objective function value has been found, a lower bound $lb$ on the optimal value of the problem has been found, and $ub - lb \leq \varepsilon \max( |lb| , 1 )$. The roles of $ub$ and $lb$ are suitably reversed for a maximization problem. The default is \code{1e-6}.\\
@@ -2954,6 +3062,9 @@ The base \Solver class defines a set of ``general'' algorithmic parameters, desc
  %
  \hline
  \code{dblFAccSol} & \code{dbl} & The algorithmic parameter for setting the maximum relative allowed violation of constraints. Whenever the \Solver is incapable of finding feasible solutions (maybe because there is none), it may still be useful that it returns the ``least unfeasible'' ones. This parameter instructs the \Solver not to even consider a solution among the ones to be reported (see \code{intMaxSol}) if its violation is ``too'' bad. The actual meaning of this parameter may be \Solver-dependent, but it can be thought to work as the ``relative constraint violation''. A setting of $0$ may be taken as a way to tell the Solver not to bother to produce unfeasible solutions at all, which is why this is the default value of the parameter.\\
+ %
+ \hline
+ \code{strLogFileName} & \code{str} & The name of the file where the log of the \Solver is written; the file is opened (and emptied) when the name changes, and the empty name, which is the default, closes it.\\
   \hline
 \end{longtable}
 
@@ -2986,7 +3097,7 @@ The \code{CDASolver} class extends the parameters of \Solver with the ones descr
 
 The base \code{Function} class defines a set of ``general'' algorithmic parameters, described in the following table.
 
-\begin{longtable}{|c|c|p{13.5cm}|}
+\begin{longtable}{|c|c|p{13.4cm}|}
  \hline
  name & type & description \\
  %
@@ -2994,13 +3105,22 @@ The base \code{Function} class defines a set of ``general'' algorithmic paramete
  \code{intMaxIter} & \code{int} & The algorithmic parameter for setting the maximum number of iterations in the next call to \code{compute()}. The concept of ``what exactly an iteration is'' is clearly dependent on the \code{Function}, and it may not even make sense for all \code{Function}. However, some \code{Function} will actually be iterative processes, and therefore it makes sense to offer support for this notion in the base class. The default is $+\infty =$ no limits.\\
  %
  \hline
+ \code{intEverykIt} & \code{int} & Every how many iterations the events of type \code{eEverykIteration} registered with the \code{Function} are called. The default is $0$, meaning that events of that type are never called, while $1$ means that they are called at every iteration.\\
+ %
+ \hline
+ \code{intMaxThread} & \code{int} & The parameter for setting the maximum number of threads (in a loose sense, say tasks) that the next call to \code{compute()} is allowed to spawn. The default is $0$, which means that \code{compute()} must only use the thread that is calling it.\\
+ %
+ \hline
  \code{dblMaxTime} & \code{dbl} & The parameter for setting the maximum time limit for the next call to \code{compute()}. The value is assumed to be in seconds, and it's a double (so both very fast and very slow computations are supported). The \code{Function} class (so far) does not explicitly distinguish between ``wall-clock time'' and ``CPU time'', which may be rather different especially in a parallel environment. The default is $+\infty$.\\
+ %
+ \hline
+ \code{dblEveryTTm} & \code{dbl} & The period (amount of time) with which the events of type \code{eEveryTTime} registered with the \code{Function} are called. The default is $0$, meaning that events of that type are never called.\\
  %
  \hline
  \code{dblRelAcc} & \code{dbl} & The parameter for setting the \emph{relative} accuracy required to the function value. That is, if both an upper bound $ub$ and a lower bound $lb$ on the value have been found, then \code{compute()} can stop as soon as $ub - lb \leq \code{dblRelAcc} \max( |lb| , 1 )$. The default is \code{1e-6}.\\
  %
  \hline
- \code{dblAbsAcc} & \code{dbl} & The parameter for setting the \emph{absolute} accuracy required to the function value. That is, if both an upper bound $ub$ and a lower bound $lb$ on the value have been found, then \code{compute()} can stop as soon as $ub - lb \leq \code{dblRelAcc}$. The default is $+\infty$, which is intended to mean that the only working accuracy is the relative one.\\
+ \code{dblAbsAcc} & \code{dbl} & The parameter for setting the \emph{absolute} accuracy required to the function value. That is, if both an upper bound $ub$ and a lower bound $lb$ on the value have been found, then \code{compute()} can stop as soon as $ub - lb \leq \code{dblAbsAcc}$. The default is $+\infty$, which is intended to mean that the only working accuracy is the relative one.\\
  %
  \hline
  \code{dblUpCutOff} & \code{dbl} & The parameter for setting the ``upper cut off'' of the computation; that is, if a lower bound $lb$ on the value has been found, then \code{compute()} can stop as soon as $lb \geq \code{dblUpCutOff}$. This is a certificate that the value is at least \code{dblUpCutOff}. The default is $+\infty$, i.e., no upper cut off.\\
@@ -3023,13 +3143,16 @@ The \code{C05Function} class extends the parameters of \code{Function} with the 
  \code{intLPMaxSz} & \code{int} & The algorithmic parameter for setting the size of the ``local pool'', that is, the maximum number of linearizations that should be stored in the local pool. The default is $1$, which corresponds to the fact that the \code{Function} can only produce a single linearization at a time (for it is, say, smooth).\\
  %
  \hline
- \code{intGPMaxSz} & \code{int} & The algorithmic parameter for setting the size of the ``global pool'', that is, the maximum number of linearizations that should be stored in the local pool. The default is $0$, which corresponds to the fact that the \code{Function} cannot store any linearization (for it is, say, smooth and therefore there is no need to).\\
+ \code{intGPMaxSz} & \code{int} & The algorithmic parameter for setting the size of the ``global pool'', that is, the maximum number of linearizations that should be stored in the global pool. The default is $0$, which corresponds to the fact that the \code{Function} cannot store any linearization (for it is, say, smooth and therefore there is no need to).\\
  %
  \hline
  \code{dblRAccLin} & \code{dbl} & A linearization $( g , \alpha )$ computed at the point $x$ is ``accurate'' if the value of the linearization coincides with the value of the function at $x$, i.e., $\alpha = f(x)$. In general linearizations that are not ``completely accurate'' can still be useful: for instance, in the Lagrangian case an $\varepsilon$-optimal solution to the Lagrangian problem gives rise to a valid linearization $( g , \alpha )$ with $\varepsilon \geq f(x) - \alpha$. This can be deemed interesting if $\varepsilon$ is ``small'', but not if $\varepsilon$ is ``large''. This parameter instructs the \code{C05Function} not to bother reporting (and therefore storing in the ``local pool'') any linearization having a relative error with $f(x)$ larger than \code{dblRAccLin}. This would generally mean $| f(x) - \alpha | \leq \code{dblRAccLin}  \max( | f(x) | , | \alpha | , 1 )$, except that the value $f(x)$ may not be known exactly, with only lower and/or upper bounds on it available. The actual formula therefore depends on what information is actually available: for instance, in the Lagrangian case one knows that $f(x) \geq \alpha$, and therefore typically an upper estimate $ub \geq f(x)$ is used in the formula instead of $f(x)$. The default is $0$, i.e., ``only perfect linearizations are allowed''.\\
  %
  \hline
  \code{dblAAccLin} & \code{dbl} &  Similar to \code{dblRAccLin} but for an \emph{absolute} accuracy; that is, a linearization is deemed acceptable if $| f(x) - \alpha | \leq \code{dblAAccLin}$, except that the value $f(x)$ may not be known exactly, with only lower and/or upper bounds on it available. The actual formula therefore depends on what information is actually available: for instance, in the Lagrangian case one knows that $f(x) \geq \alpha$, and therefore typically an upper estimate $ub \geq f(x)$ is used in the formula instead of $f(x)$. The default is $0$, i.e., ``only perfect linearizations are allowed''. \\
+ %
+ \hline
+ \code{dblAAccMlt} & \code{dbl} & The multipliers used to combine linearizations (in \code{store\_\-combination\_\-of\_\-linearizations()} and \code{set\_\-important\_\-linearization()}) are typically (a part of) a dual optimal solution, and therefore they typically have to satisfy some constraints, such as being non-negative and summing to $1$. This parameter is the (absolute) tolerance in these constraints; for the standard case of the unitary simplex, each multiplier has to be $\geq - \code{dblAAccMlt}$, and the sum of the multipliers has to differ from $1$ by at most \code{dblAAccMlt} times their number. The default is ``small but not zero'': \code{1e-10}. \\
  \hline
 \end{longtable}
 
@@ -3080,7 +3203,7 @@ However, \code{MCFSolver<>} is a template class, whose template parameter actual
 
 The \code{BendersBFunction} class extends the parameters of \code{C05Function}
 with the ones described in the following table. Setting any of these
-parameters causes the corresponding parameter of the \code{CDASolver} of the
+parameters (save \code{intLinComp} and \code{intSolverIndex}) causes the corresponding parameter of the \code{CDASolver} of the
 inner \Block of the \code{BendersBFunction} to be overwritten (if the
 \code{BendersBFunction} has an inner \Block and this \Block has a
 \code{CDASolver} attached to it).\\
@@ -3128,8 +3251,25 @@ inner \Block of the \code{BendersBFunction} to be overwritten (if the
  \code{CDASolver::dblRAccDSol}.\\
  %
  \hline
- \code{dblRAccLin} & \code{double} & This parameter is associated with the
+ \code{dblAAccLin} & \code{double} & This parameter is associated with the
  \code{CDASolver::dblAAccDSol}.\\
+ %
+ \hline
+ \code{intLinComp} & \code{int} & Coded bit-wise, it determines how the
+ linearizations are computed: if bit 0 is $1$ the linearization constant is
+ computed out of the bound given by the \Solver of the inner \Block and the
+ dual values of the \Constraints handled by the \code{BendersBFunction},
+ otherwise out of the dual values of all the \RowConstraints of the inner
+ \Block (recursively); bit 1 (bit 2) is $1$ if the \code{:Solution} of the
+ inner \Block stored in the global pool is enough to re-compute the
+ linearization coefficients (constant), so that a change of the inner
+ \Block affecting them does not delete the linearization from the global
+ pool. The default is $7$, i.e., all bits are $1$.\\
+ %
+ \hline
+ \code{intSolverIndex} & \code{int} & The index of the \Solver, among those
+ registered to the inner \Block, that is used to compute the
+ \code{BendersBFunction}. The default is $0$, i.e., the first one.\\
  \hline
 \end{tabularx}
 
