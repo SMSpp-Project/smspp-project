@@ -75,6 +75,8 @@ MODULES = [
      "Min-cost flow Solvers of abLEMON"),
     ("ScenarioReductionSolver", "srs", ["tssb"], [], [],
      "Scenario reduction Solvers"),
+    ("BDMinQuadSolver", "bdmq", ["core"], [], [],
+     "Bundle master problem Solver based on BDMinQuad"),
 ]
 
 # (acronym of the command package, tool directories under tools/, modules it

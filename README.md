@@ -147,6 +147,14 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   components in parallel, and `BundleSolverML` predicts the proximal
   parameter with a neural network.
 
+- [BDMinQuadSolver](https://gitlab.com/smspp/bdminquadsolver), a `Solver`
+  for the primal `MasterProblemBlock` of the bundle methods, which solves it
+  with BDMinQuad, an active-set method for the disaggregated master problem
+  with a box on the variables, a lower bound on each component and a level,
+  which updates the factorization of the active set as the items enter and
+  leave the bundle. It handles the proximal and the doubly stabilized
+  master.
+
 - [SubGradSolver](https://gitlab.com/smspp/subgradsolver), a `Solver` for the
   same problems as `BundleSolver` by the deflected and projected subgradient
   methods, whose stepsize and deflection rules (Polyak, ColorTV, FumeroTV,

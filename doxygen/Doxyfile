@@ -812,6 +812,7 @@ INPUT                  = doxygen/mainpage.md \
                          BendersDecompositionSolver/include \
                          BinaryKnapsackBlock/include \
                          BranchAndXSolver/include \
+                         BDMinQuadSolver/include \
                          BundleSolver/include \
                          CapacitatedFacilityLocationBlock/include \
                          HQPBlock/include \
