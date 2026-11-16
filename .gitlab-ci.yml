@@ -132,10 +132,12 @@ nightly:build:
 # SMS++/cmake/smspp_module_exports.py], with the flags of this build, and
 # the job fails if any of them is not the one in the repository, e.g.,
 # because a header has gained a name that the module does not export.
+# Finally, everything is built and installed, and a program imports the
+# installed modules [see ci/import], as one who uses the packages does.
 nightly:modules:
   extends: .nightly
   stage: check
-  timeout: 55m
+  timeout: 90m
   cache:
     key: nightly-modules-$CI_COMMIT_REF_SLUG
     paths:
@@ -173,7 +175,20 @@ nightly:modules:
     - python3 SMS++/cmake/smspp_module_exports.py --clang clang++
               --compdb build-modules/compile_commands.json
               --check --update */src/*.cppm
-    - cd build-modules && ctest -R '^Module_test$' --output-on-failure
+    - (cd build-modules && ctest -R '^Module_test$' --output-on-failure)
+    - cmake --build build-modules -j$(nproc)
+    - cmake --install build-modules --prefix /tmp/smspp > /dev/null
+    # the dependencies where the umbrella looks for them [see extlib/]
+    - cmake -S ci/import -B /tmp/smspp-import -G Ninja
+            -DCMAKE_CXX_COMPILER=clang++
+            $(sed -n
+              's/^\([A-Za-z_]*_ROOT\) *= *\([^[:space:]#]*\).*/-D\1=\2/p'
+              extlib/makefile-default-paths-linux)
+            -DCMAKE_PREFIX_PATH="/tmp/smspp;/opt/abLEMON"
+            -DSMSPP_PREFIX=/tmp/smspp
+            -DSMSPP_MODULES="$(echo $MODULES | sed 's/_module//g; s/ /;/g')"
+    - cmake --build /tmp/smspp-import
+    - LD_LIBRARY_PATH=/tmp/smspp/lib /tmp/smspp-import/smspp_import
 
 # The makefiles of all the modules, which have to keep building what CMake
 # builds [see ci/makefile]: first with g++, then with clang++ and the C++20
