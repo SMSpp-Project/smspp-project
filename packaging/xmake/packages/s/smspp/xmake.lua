@@ -166,11 +166,6 @@ package("smspp")
          req = {},
          opt = {},
          desc = "Scenario reduction Solvers"},
-        {dir = "BDMinQuadSolver", acr = "bdmq",
-         lib = "BDMinQuadSolver", needs = {"core"},
-         req = {},
-         opt = {},
-         desc = "Bundle master problem Solver based on BDMinQuad"},
     }
     -- the solvers that are never packaged, the CMake names of the
     -- optional externals, the variables that tell where an

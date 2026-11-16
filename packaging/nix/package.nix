@@ -260,13 +260,6 @@ let
       req = [ ];
       opt = [ ];
     }
-    {
-      dir = "BDMinQuadSolver";
-      acr = "bdmq";
-      needs = [ "core" ];
-      req = [ ];
-      opt = [ ];
-    }
   ];
   # the solvers that are never packaged
   never = [ "PIPS" "Clarabel" "quadprog" "HPIPM" "PERMON" "Torch" ];

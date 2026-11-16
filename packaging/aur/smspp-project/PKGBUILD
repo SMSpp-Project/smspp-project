@@ -39,7 +39,6 @@ pkgname=(
   libsmspp-mcfclass
   libsmspp-mcflemon
   libsmspp-srs
-  libsmspp-bdmq
   smspp-ucblock
   smspp-tssb
   smspp-mssb
@@ -325,12 +324,6 @@ package_libsmspp-srs() {
   DESTDIR="$pkgdir" cmake --install build/ScenarioReductionSolver
 }
 
-package_libsmspp-bdmq() {
-  pkgdesc="SMS++: Bundle master problem Solver based on BDMinQuad"
-  depends=(libsmspp)
-  DESTDIR="$pkgdir" cmake --install build/BDMinQuadSolver
-}
-
 package_smspp-ucblock() {
   pkgdesc="SMS++: Unit Commitment solver"
   depends=(libsmspp libsmspp-ucblock libsmspp-milp)
@@ -481,7 +474,6 @@ package_smspp-project() {
     libsmspp-mcfclass
     libsmspp-mcflemon
     libsmspp-srs
-    libsmspp-bdmq
     smspp-ucblock
     smspp-tssb
     smspp-mssb

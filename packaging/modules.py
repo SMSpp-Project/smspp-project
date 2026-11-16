@@ -15,7 +15,9 @@ doing without.
 """
 
 # (directory, acronym, modules it needs, required externals, optional
-#  externals, description); the core SMS++ is the acronym "core"
+#  externals, description); the core SMS++ is the acronym "core"; a private
+#  submodule (e.g., BDMinQuadSolver), which the release tarball leaves
+#  empty, enters only when its repository is public
 MODULES = [
     ("SMS++", "core", [], ["boost", "eigen", "netcdf-cxx4"], [],
      "Core library of the SMS++ modelling framework"),
@@ -75,8 +77,6 @@ MODULES = [
      "Min-cost flow Solvers of abLEMON"),
     ("ScenarioReductionSolver", "srs", ["tssb"], [], [],
      "Scenario reduction Solvers"),
-    ("BDMinQuadSolver", "bdmq", ["core"], [], [],
-     "Bundle master problem Solver based on BDMinQuad"),
 ]
 
 # (acronym of the command package, tool directories under tools/, modules it

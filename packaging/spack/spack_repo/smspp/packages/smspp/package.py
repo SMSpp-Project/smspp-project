@@ -85,8 +85,6 @@ _MODULES = [
      'Min-cost flow Solvers of abLEMON'),
     ('ScenarioReductionSolver', 'srs', ['tssb'], [], [],
      'Scenario reduction Solvers'),
-    ('BDMinQuadSolver', 'bdmq', ['core'], [], [],
-     'Bundle master problem Solver based on BDMinQuad'),
 ]
 _NEVER = ['PIPS', 'Clarabel', 'quadprog', 'HPIPM', 'PERMON', 'Torch']
 _LOCAL = {
