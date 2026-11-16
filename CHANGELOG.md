@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-16
+
 ### Added
 
 - `.github/workflows/platforms.yml`, run every night on the mirror of
@@ -681,7 +683,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - significant changes in installation scripts and cmake / makefiles
 
-[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.1...develop
+[Unreleased]: https://gitlab.com/smspp/smspp-project/-/compare/0.8.0...develop
+[0.8.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.1...0.8.0
 [0.7.1]: https://gitlab.com/smspp/smspp-project/-/compare/0.7.0...0.7.1
 [0.7.0]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.3...0.7.0
 [0.6.3]: https://gitlab.com/smspp/smspp-project/-/compare/0.6.2...0.6.3
