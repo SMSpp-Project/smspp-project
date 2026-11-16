@@ -24,40 +24,26 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that Gurobi needs
-ifeq ($(UNAME_S),Linux)
-    libGUROBIEXTLIB = -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libGUROBIEXTLIB =
-endif
+libGUROBIEXTLIB = -lpthread
 
-# basic Gurobi directory
-ifeq ($(UNAME_S),Linux)
-    libGUROBIBSCDIR = $(GUROBI_ROOT)/linux64
-endif
-ifeq ($(UNAME_S),Darwin)
-    libGUROBIBSCDIR = $(GUROBI_ROOT)/macos_universal2
-endif
+# basic Gurobi directory, the one of the platforms that is there
+libGUROBIBSCDIR = $(patsubst %/include/gurobi_c.h,%,$(firstword $(wildcard \
+	$(addsuffix /include/gurobi_c.h,$(addprefix $(GUROBI_ROOT)/, \
+	linux64 armlinux64 macos_universal2)))))
 
 # Gurobi is there if its header is; then its library has to be there too
 GUROBI_PRESENT := $(wildcard $(libGUROBIBSCDIR)/include/gurobi_c.h)
 
-# extract Gurobi version
-ifeq ($(UNAME_S),Linux)
-    libGUROBISFX = so
-endif
-ifeq ($(UNAME_S),Darwin)
-    libGUROBISFX = dylib
-endif
+# extract Gurobi version, from the name of its shared library
 ifneq ($(GUROBI_PRESENT),)
     GUROBI_VERSION := $(shell \
         ls "$(libGUROBIBSCDIR)/lib" 2>/dev/null \
-        | grep -E '^libgurobi[0-9]+\.$(libGUROBISFX)$$' \
-        | sed -E 's/^libgurobi([0-9]+)\.$(libGUROBISFX)$$/\1/' \
+        | grep -E '^libgurobi[0-9]+\.(so|dylib)$$' \
+        | sed -E 's/^libgurobi([0-9]+)\.(so|dylib)$$/\1/' \
         | head -n1 \
     )
     ifeq ($(GUROBI_VERSION),)
-        $(error no libgurobi<version>.$(libGUROBISFX) in \
+        $(error no libgurobi<version>.so or .dylib in \
                 $(libGUROBIBSCDIR)/lib, where gurobi_c.h is)
     endif
 endif

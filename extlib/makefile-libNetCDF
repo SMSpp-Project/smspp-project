@@ -25,15 +25,22 @@
 libNtCDFBSCDIR = $(subst $\",,$(netCDF_ROOT))
 libNtCDFCxxBSCDIR = $(subst $\",,$(netCDFCxx_ROOT))
 
+# the libraries, in lib/ or in a directory of it (e.g., the one of the
+# architecture on Debian), the C++ one with either of its two names
+libNtCDFFILE = $(firstword $(wildcard $(libNtCDFBSCDIR)/lib/libnetcdf.* \
+        $(libNtCDFBSCDIR)/lib/*/libnetcdf.*))
+libNtCDFCxxFILE = $(firstword $(wildcard $(addprefix \
+        $(libNtCDFCxxBSCDIR)/lib/,libnetcdf_c++4.* libnetcdf-cxx4.* \
+        */libnetcdf_c++4.* */libnetcdf-cxx4.*)))
+libNtCDFCxxNAME = $(if $(findstring netcdf-cxx4,$(libNtCDFCxxFILE)), \
+        netcdf-cxx4,netcdf_c++4)
+
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Linux)
-    libNtCDFLIB = -L"$(libNtCDFBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf \
-        -L"$(libNtCDFCxxBSCDIR)/lib/x86_64-linux-gnu" -lnetcdf_c++4
-else
-    libNtCDFLIB = -L"$(libNtCDFBSCDIR)/lib" -lnetcdf \
-        -L"$(libNtCDFCxxBSCDIR)/lib" -lnetcdf-cxx4
-endif
+libNtCDFLIB = -L"$(or $(dir $(libNtCDFFILE)),$(libNtCDFBSCDIR)/lib/)" \
+        -lnetcdf \
+        -L"$(or $(dir $(libNtCDFCxxFILE)),$(libNtCDFCxxBSCDIR)/lib/)" \
+        -l$(strip $(libNtCDFCxxNAME))
 libNtCDFINC = -I"$(libNtCDFBSCDIR)/include" -I"$(libNtCDFCxxBSCDIR)/include"
 
 ####################### End of makefile-libNetCDF ############################

@@ -23,12 +23,7 @@
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that HiGHS needs
-ifeq ($(UNAME_S),Linux)
-    libHiGHSEXTLIB = -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHiGHSEXTLIB =
-endif
+libHiGHSEXTLIB = -lpthread
 
 # basic HiGHS directory without quotes, if any
 libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
@@ -59,12 +54,8 @@ else
         -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
 endif
 
-ifeq ($(UNAME_S),Linux)
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs $(libHiGHSEXTLIB)
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -L"$(libHiGHSLIBBSC)" -lhighs
-endif
+libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -Wl,-rpath,"$(libHiGHSLIBBSC)" -lhighs \
+	$(libHiGHSEXTLIB)
 
 HiGHS_PRESENT := $(firstword $(wildcard $(addsuffix /Highs.h,\
 	$(subst $\",,$(patsubst -I%,%,$(libHiGHSINC))))))

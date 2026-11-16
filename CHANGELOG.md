@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- the functions of the modules are included before the modules [see
+  `SMS++/cmake/SMSppModule.cmake`], the symbols of a DLL are all exported on
+  every system, and the architecture is no longer computed, since no find
+  module needs it; CMake 3.24 or later is needed
+
+- the makefiles of `extlib/` find the libraries in every layout that is there
+  and use the options that every system takes (`-Wl,-rpath`, `-lpthread`),
+  with no test on the system or on the architecture; OpenMP and the local
+  symbols of the static OSQP are used as the compiler and the linker can
+
+- `CMakeSettings.txt` gives each option of the compiler and of the linker
+  (the warnings silenced, `/MP`, `/Zc:__cplusplus`, `/MANIFEST:NO`, ...)
+  where the check that it is taken succeeds, rather than by the name of the
+  compiler; `NOMINMAX` and the macros of CPLEX are defined for every
+  compiler, as the makefiles do for CPLEX
+
 ### Fixed
 
 - BDMinQuadSolver out of the packages of every channel again: its repository

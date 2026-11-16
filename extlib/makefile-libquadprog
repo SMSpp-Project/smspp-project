@@ -26,13 +26,7 @@ libquadprogBSCDIR = $(subst $\",,$(quadprog_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Linux)
-    libquadprogLIB = -L"$(libquadprogBSCDIR)/lib" \
+libquadprogLIB = -L"$(libquadprogBSCDIR)/lib" \
 	-Wl,-rpath,"$(libquadprogBSCDIR)/lib" -lquadprog
-endif
-ifeq ($(UNAME_S),Darwin)
-    libquadprogLIB = -rpath "$(libquadprogBSCDIR)/lib" \
-	-L"$(libquadprogBSCDIR)/lib" -lquadprog
-endif
 
 ###################### End of makefile-libquadprog ###########################

@@ -59,8 +59,9 @@ register themselves in the factories from static objects, which a static
 library loses unless the program takes it with `--whole-archive`. A consumer
 finds a module by the CMake configuration that SMS++ installs, e.g.,
 `find_package(UCBlock)` and the target `SMS++::UCBlock`, which also keeps the
-library at link time (in xmake, the package lists the libraries in a link
-group without `--as-needed` instead).
+library at link time, by a source that calls the function of the module (in
+xmake, the package lists the libraries in a link group without `--as-needed`
+instead).
 
 The externals that a channel carries, and hence the modules and the
 backends of its packages, differ somewhat from channel to channel:
@@ -251,20 +252,15 @@ on Arch.
 The PKGBUILD goes to a fork of
 [msys2/MINGW-packages](https://github.com/msys2/MINGW-packages) as
 `mingw-w64-smspp/PKGBUILD`, in a pull request, whose CI builds it for the
-environments of `mingw_arch`. Three things have to hold in the sources first,
+environments of `mingw_arch`. Two things have to hold in the sources first,
 since a build of the umbrella with MinGW stops on them: (i) the core uses
 `std::atomic_flag` (`Observer.h`, `Solver.h`) without including `<atomic>`,
 which the libc++ of the `clang64` and `clangarm64` environments does not
 include on its behalf; (ii) the Windows layer of FastFlow, which
 ThermalUnitDPSolver of UCBlock and SVMBlock include, is written for MSVC
 (`ff/platforms/liblfds.h` has no branch for MinGW, and `platform.h` redefines
-what MinGW already has); (iii) a module asks the linker to keep its library
-only under MSVC (`/INCLUDE:SMSpp_force_load_<module>`) and on ELF and macOS,
-and the import of a DLL that a tool does not call is dropped, so that the
-factories are empty, while `LINKER:-u,SMSpp_force_load_<module>` under
-`MINGW` keeps it. The name `netcdf_c++4` of the library of netCDF-C++ in
-MSYS2, which the Find module of the core looks for only on Unix, is given by
-the recipe itself.
+what MinGW already has). The Find module of the core looks for the library
+of netCDF-C++ of MSYS2 by both its names, `netcdf_c++4` and `netcdf-cxx4`.
 
 ### xmake
 

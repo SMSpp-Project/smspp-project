@@ -31,12 +31,7 @@ libLIBLINEARBSCDIR = $(subst $\",,$(LIBLINEAR_ROOT))
 libLIBLINEARINC = -I"$(libLIBLINEARBSCDIR)/include" \
 	-I"$(libLIBLINEARBSCDIR)/include/liblinear"
 
-ifeq ($(UNAME_S),Linux)
-    libLIBLINEARLIB = -L"$(libLIBLINEARBSCDIR)/lib" -llinear
-endif
-ifeq ($(UNAME_S),Darwin)
-    libLIBLINEARLIB = -rpath "$(libLIBLINEARBSCDIR)/lib" \
-	-L"$(libLIBLINEARBSCDIR)/lib" -llinear
-endif
+libLIBLINEARLIB = -L"$(libLIBLINEARBSCDIR)/lib" \
+	-Wl,-rpath,"$(libLIBLINEARBSCDIR)/lib" -llinear
 
 ####################### End of makefile-libLIBLINEAR #########################

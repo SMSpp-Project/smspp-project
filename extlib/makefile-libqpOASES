@@ -30,13 +30,7 @@ libqpOASESBSCDIR = $(subst $\",,$(qpOASES_ROOT))
 
 libqpOASESINC = -I"$(libqpOASESBSCDIR)/include"
 
-ifeq ($(UNAME_S),Linux)
-    libqpOASESLIB = -L"$(libqpOASESBSCDIR)/lib" \
+libqpOASESLIB = -L"$(libqpOASESBSCDIR)/lib" \
 	-Wl,-rpath,"$(libqpOASESBSCDIR)/lib" -lqpOASES
-endif
-ifeq ($(UNAME_S),Darwin)
-    libqpOASESLIB = -rpath "$(libqpOASESBSCDIR)/lib" \
-	-L"$(libqpOASESBSCDIR)/lib" -lqpOASES
-endif
 
 ####################### End of makefile-libqpOASES ###########################

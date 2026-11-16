@@ -29,13 +29,7 @@ libHPIPMBSCDIR = $(subst $\",,$(HPIPM_ROOT))
 
 libHPIPMINC = -I"$(libHPIPMBSCDIR)/include"
 
-ifeq ($(UNAME_S),Linux)
-    libHPIPMLIB = -L"$(libHPIPMBSCDIR)/lib" \
+libHPIPMLIB = -L"$(libHPIPMBSCDIR)/lib" \
 	-Wl,-rpath,"$(libHPIPMBSCDIR)/lib" -lhpipm -lblasfeo -lm
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHPIPMLIB = -rpath "$(libHPIPMBSCDIR)/lib" -L"$(libHPIPMBSCDIR)/lib" \
-	-lhpipm -lblasfeo
-endif
 
 ######################## End of makefile-libHPIPM ############################

@@ -15,9 +15,9 @@
 #                                                                            #
 #   OSQP exports its internal functions, some of which have the name of      #
 #   functions of other libraries (e.g., csc_copy, also in HiGHS), and on     #
-#   Linux the first library loaded gives the function to both. Hence, on     #
-#   Linux, the static library libosqpstatic is used if it is there, with     #
-#   its symbols kept local to the executable, and the shared one otherwise.  #
+#   Linux the first library loaded gives the function to both. Hence the     #
+#   static library libosqpstatic is used if it is there and the linker can   #
+#   keep its symbols local to the executable, and the shared one otherwise.  #
 #                                                                            #
 #                                Donato Meoli                                #
 #                         Dipartimento di Informatica                        #
@@ -33,21 +33,23 @@ libOSQPBSCDIR = $(subst $\",,$(osqp_ROOT))
 # non-empty if and only if the static library of OSQP is there
 libOSQPSTATIC = $(wildcard $(libOSQPBSCDIR)/lib/libosqpstatic.a)
 
+# non-empty if and only if the linker can keep the symbols of a static
+# library local, asked the first time that it is needed, when $(CC) has its
+# final value, and then remembered
+libOSQPLOCAL = $(eval libOSQPLOCAL := $$(shell echo 'int main(){}' \
+	| $$(CC) -x c++ - -Wl,--exclude-libs,libosqpstatic.a -o /dev/null \
+	>/dev/null 2>&1 && echo yes))$(libOSQPLOCAL)
+
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libOSQPINC = -I"$(libOSQPBSCDIR)/include/osqp"
 
-ifeq ($(UNAME_S),Linux)
-    ifneq ($(libOSQPSTATIC),)
-        libOSQPLIB = "$(libOSQPBSCDIR)/lib/libosqpstatic.a" \
+libOSQPLIBSTATIC = "$(libOSQPBSCDIR)/lib/libosqpstatic.a" \
 	-Wl,--exclude-libs,libosqpstatic.a
-    else
-        libOSQPLIB = -L"$(libOSQPBSCDIR)/lib" \
+libOSQPLIBSHARED = -L"$(libOSQPBSCDIR)/lib" \
 	-Wl,-rpath,"$(libOSQPBSCDIR)/lib" -losqp
-    endif
-endif
-ifeq ($(UNAME_S),Darwin)
-    libOSQPLIB = -rpath "$(libOSQPBSCDIR)/lib" -L"$(libOSQPBSCDIR)/lib" -losqp
-endif
+
+libOSQPLIB = $(if $(and $(libOSQPSTATIC),$(libOSQPLOCAL)), \
+	$(libOSQPLIBSTATIC),$(libOSQPLIBSHARED))
 
 ######################## End of makefile-libOSQP #############################

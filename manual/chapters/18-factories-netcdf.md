@@ -115,14 +115,15 @@ There are three remedies:
 3. *Linking the module through its CMake target.* The `_cpp`
    macros also define, for each registered class, an empty
    `extern "C"` function `SMSpp_force_load_<ClassName>`, and the
-   CMake target of each SMS++ module (built as a shared library)
-   tells whoever links it to keep the symbol named after the
-   module (`/INCLUDE:` with MSVC, `-u` with the linkers of macOS
-   and MinGW), or the library as a whole where naming the symbol
-   is not enough (`--no-as-needed` with the ELF linker). A program
-   that links a module with `target_link_libraries()` therefore
-   gets its registrations without doing anything; the first two
-      remedies are for a program built otherwise.
+   CMake target of each SMS++ module adds to whoever links it a
+   source that calls the function named after the module, so that
+   every linker keeps a shared library, and the tests and the tools
+   take a static one whole with the `WHOLE_ARCHIVE` feature of CMake
+   (`smspp_keep_module()` and `smspp_keep_modules()` of
+   `SMSppModule.cmake`). A program that links a module with
+   `target_link_libraries()` therefore gets its registrations
+   without doing anything; the first two remedies are for a program
+   built otherwise.
 
 The phenomenon is the price of resolving types by name at runtime,
 and it is flagged here because the symptom ("not present in factory")

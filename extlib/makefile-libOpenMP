@@ -26,14 +26,17 @@ libOpenMPBSCDIR = $(subst $\",,$(OpenMP_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Darwin)
-    # the clang++ of Xcode takes OpenMP only through its preprocessor, and
-    # the runtime from libomp
-    libOpenMPINC = -Xpreprocessor -fopenmp -I"$(libOpenMPBSCDIR)/include"
-    libOpenMPLIB = -L"$(libOpenMPBSCDIR)/lib" -lomp
-else
-    libOpenMPINC = -fopenmp
-    libOpenMPLIB = -fopenmp
-endif
+# whether $(CC) builds a program with -fopenmp, asked the first time that it
+# is needed, when $(CC) has its final value, and then remembered; a compiler
+# that does not (e.g., the clang++ of Xcode) takes OpenMP only through its
+# preprocessor, and the runtime from libomp
+libOpenMPNATIVE = $(eval libOpenMPNATIVE := $$(shell echo 'int main(){}' \
+	| $$(CC) -fopenmp -x c++ - -o /dev/null >/dev/null 2>&1 \
+	&& echo yes))$(libOpenMPNATIVE)
+
+libOpenMPINC = $(if $(libOpenMPNATIVE),-fopenmp, \
+	-Xpreprocessor -fopenmp -I"$(libOpenMPBSCDIR)/include")
+libOpenMPLIB = $(if $(libOpenMPNATIVE),-fopenmp, \
+	-L"$(libOpenMPBSCDIR)/lib" -lomp)
 
 ######################## End of makefile-libOpenMP ###########################

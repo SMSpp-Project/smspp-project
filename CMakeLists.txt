@@ -9,7 +9,7 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.24)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DeriveVersion.cmake)
 smspp_derive_version(SMSPP_MODULE_VERSION)
 
@@ -44,16 +44,10 @@ if (EXISTS "${_smspp_third_party}/record/source/RECORD.cpp" AND
         CACHE PATH "The directory of RECORD, with source/RECORD.cpp")
 endif ()
 
-# Only apply this on Windows when building shared libraries
-if (WIN32 AND BUILD_SHARED_LIBS)
-    # Enable automatic symbol export introduced in CMake 3.4
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "Force export of all symbols on Windows")
-endif ()
-
-# Disable linker manifest on MSVC to avoid conflicts
-if (MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
-endif ()
+# A DLL exports all its symbols, as a shared library does elsewhere, where
+# the variable is ignored
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL
+        "Force export of all symbols of a DLL")
 
 # Define options for modules in the order of the blocks and solvers
 
@@ -173,25 +167,6 @@ if (SMSPP_EXTLIB_DEFAULTS)
     endif ()
 endif ()
 
-# Retrieve the system architecture
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    if (UNIX)
-        if (APPLE)
-            if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64") # Apple Silicon MX arch
-                set(ARCH arm64)
-            else () # Intel arch
-                set(ARCH x86-64)
-            endif ()
-        else ()
-            set(ARCH x86-64)
-        endif ()
-    elseif (WIN32)
-        set(ARCH x64)
-    endif ()
-else ()
-    set(ARCH x86)
-endif ()
-
 # ----- Handle dependencies ------------------------------------------------- #
 # Resolve dependencies before adding subdirectories
 
@@ -254,12 +229,14 @@ macro(init_submodule name)
     endif ()
 endmacro()
 
-# smspp_check_module(), which the modules call before SMS++ is added below
-# [see SMS++/cmake/CheckModule.cmake]: the core, which every module needs, is
+# smspp_check_module() and the functions of the modules, which the modules
+# call before SMS++ is added below [see SMS++/cmake/CheckModule.cmake and
+# SMS++/cmake/SMSppModule.cmake]: the core, which every module needs, is
 # initialized here, since a build of a single module (e.g., in its CI) may
 # start with no submodule checked out
 init_submodule(SMS++)
 include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake OPTIONAL)
+include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/SMSppModule.cmake OPTIONAL)
 
 # ----- Testing ------------------------------------------------------------- #
 # Enable testing at the top level, so that the per-module tests are

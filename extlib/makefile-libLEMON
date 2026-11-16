@@ -26,14 +26,8 @@ libLEMONBSCDIR = $(subst $\",,$(LEMON_ROOT))
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # abLEMON names its library emon, so that it is linked as -lemon
-ifeq ($(UNAME_S),Linux)
-    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" \
+libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" \
 	-Wl,-rpath,"$(libLEMONBSCDIR)/lib" -lemon
-endif
-ifeq ($(UNAME_S),Darwin)
-    libLEMONLIB = -rpath "$(libLEMONBSCDIR)/lib" \
-	-L"$(libLEMONBSCDIR)/lib" -lemon
-endif
 libLEMONINC = -I"$(libLEMONBSCDIR)/include"
 
 ######################## End of makefile-libLEMON ############################

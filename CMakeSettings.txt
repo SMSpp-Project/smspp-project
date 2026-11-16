@@ -43,87 +43,141 @@ set(Boost_NO_WARN_NEW_VERSIONS 1)
 
 # Add compilation and linking flags
 # Note: add_compile_options() is recommended over CMAKE_<LANG>_FLAGS_<CONFIG>
-if (MSVC)
-    set(MSVC_DISABLED_WARNINGS_LIST
-        "C4005" # 'identifier' : macro redefinition
-        "C4018" # 'expression' : signed/unsigned mismatch
-        "C4057" # 'operator' : 'identifier1' indirection to
-                # slightly different base types from 'identifier2'
-        "C4060" # switch statement contains no 'case' or 'default' labels
-        "C4065" # switch statement contains 'default' but no 'case' labels
-        "C4068" # unknown pragma 'identifier'
-        "C4100" # 'identifier' : unreferenced formal parameter
-        "C4101" # 'identifier' : unreferenced local variable
-        "C4102" # 'label' : unreferenced label
-        "C4127" # conditional expression is constant
-        "C4146" # unary minus operator applied to unsigned type,
-                # result still unsigned
-        "C4189" # 'identifier' : local variable is initialized but not referenced
-        "C4244" # 'argument' : conversion from 'type1' to 'type2',
-                # possible loss of data
-        "C4245" # 'conversion' : conversion from 'type1' to 'type2',
-                # signed/unsigned mismatch
-        "C4267" # 'var' : conversion from 'size_t' to 'type',
-                # possible loss of data
-        "C4324" # 'structure' : structure was padded due to alignment specifier
-        "C4373" # 'function' : virtual function overrides 'base_function',
-                # previous versions of the compiler did not override when
-                # parameters only differed by const/volatile qualifiers
-        "C4389" # 'operator' : signed/unsigned mismatch
-        "C4390" # ';' : empty controlled statement found; is this the intent?
-        "C4456" # declaration of 'identifier' hides previous local declaration
-        "C4457" # declaration of 'identifier' hides function parameter
-        "C4458" # declaration of 'identifier' hides class member
-        "C4459" # declaration of 'identifier' hides global declaration
-        "C4505" # 'function' : unreferenced function with internal linkage
-                # has been removed
-        "C4701" # potentially uninitialized local variable 'name' used
-        "C4702" # unreachable code
-        "C4703" # potentially uninitialized local pointer variable 'name' used
-        "C4706" # assignment within conditional expression
-        "C4717" # 'function' : recursive on all control paths, function will
-                # cause runtime stack overflow
-        "C4804" # 'operation' : unsafe use of type 'bool' in operation
-        "C4834" # discarding return value of function with 'nodiscard' attribute
-        "C4858" # discarding return value: this call discards the return value
-                # of a function whose return type is marked [[nodiscard]]
-        "C4949" # pragma 'pragma' is meaningful only when compiled with
-                # '/clr[:option]'
-        "C4996" # The POSIX name for this item is deprecated.
-                # Instead, use the ISO C and C++ conformant name
-        "C5054" # operator 'operator' : deprecated between enumerations of
-                # different types (C++20)
-    )
-    string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
-    string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-    # /Zc:__cplusplus forces MSVC to report the real value of the __cplusplus
-    # macro (by default it is stuck at 199711L even in /std:c++17 or /std:c++20
-    # mode). FastFlow guards all its C++11 code paths with `#if __cplusplus >=
-    # 201103L`, so without this flag those paths are skipped and the build fails
-    # in ff/spin-lock.hpp, ff/utils.hpp, ff/dynqueue.hpp, ... (works on Linux
-    # because GCC/Clang already report __cplusplus correctly).
-    # NOMINMAX prevents <windows.h> from defining the min()/max() function-like
-    # macros, which otherwise break every `std::min`/`std::max` call (FastFlow
-    # uses them in ff/parallel_for_internals.hpp). FastFlow does define NOMINMAX
-    # itself, but only inside ff/platforms/platform.h, i.e. too late if any other
-    # header pulled in <windows.h> first, so we define it globally and up front.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MP -W4 /Zc:__cplusplus /DNOMINMAX ${MSVC_DISABLED_WARNINGS_STR}")
+# Each option is given to the compilers and the linkers that take it, which
+# is checked once, rather than chosen by the name of the compiler; those
+# checked with the C++ compiler are given to the C++ sources
+include(CheckCXXCompilerFlag)
+include(CheckLinkerFlag)
+
+# CPLEX is linked by its functions only, whether static or not
+add_compile_definitions(BUILD_CPXSTATIC CPXSIZE_BITS_TEST_DISABLE)
+
+# NOMINMAX prevents <windows.h> from defining the min()/max() function-like
+# macros, which otherwise break every `std::min`/`std::max` call (FastFlow
+# uses them in ff/parallel_for_internals.hpp). FastFlow does define NOMINMAX
+# itself, but only inside ff/platforms/platform.h, i.e. too late if any other
+# header pulled in <windows.h> first, so we define it globally and up front;
+# it means nothing to any other header.
+add_compile_definitions(NOMINMAX)
+
+# The warnings silenced where the compiler takes /wd (e.g., MSVC), at the
+# level /W4 that replaces the default one
+set(SMSpp_DISABLED_WARNINGS
+    "C4005" # 'identifier' : macro redefinition
+    "C4018" # 'expression' : signed/unsigned mismatch
+    "C4057" # 'operator' : 'identifier1' indirection to
+            # slightly different base types from 'identifier2'
+    "C4060" # switch statement contains no 'case' or 'default' labels
+    "C4065" # switch statement contains 'default' but no 'case' labels
+    "C4068" # unknown pragma 'identifier'
+    "C4100" # 'identifier' : unreferenced formal parameter
+    "C4101" # 'identifier' : unreferenced local variable
+    "C4102" # 'label' : unreferenced label
+    "C4127" # conditional expression is constant
+    "C4146" # unary minus operator applied to unsigned type,
+            # result still unsigned
+    "C4189" # 'identifier' : local variable is initialized but not referenced
+    "C4244" # 'argument' : conversion from 'type1' to 'type2',
+            # possible loss of data
+    "C4245" # 'conversion' : conversion from 'type1' to 'type2',
+            # signed/unsigned mismatch
+    "C4267" # 'var' : conversion from 'size_t' to 'type',
+            # possible loss of data
+    "C4324" # 'structure' : structure was padded due to alignment specifier
+    "C4373" # 'function' : virtual function overrides 'base_function',
+            # previous versions of the compiler did not override when
+            # parameters only differed by const/volatile qualifiers
+    "C4389" # 'operator' : signed/unsigned mismatch
+    "C4390" # ';' : empty controlled statement found; is this the intent?
+    "C4456" # declaration of 'identifier' hides previous local declaration
+    "C4457" # declaration of 'identifier' hides function parameter
+    "C4458" # declaration of 'identifier' hides class member
+    "C4459" # declaration of 'identifier' hides global declaration
+    "C4505" # 'function' : unreferenced function with internal linkage
+            # has been removed
+    "C4701" # potentially uninitialized local variable 'name' used
+    "C4702" # unreachable code
+    "C4703" # potentially uninitialized local pointer variable 'name' used
+    "C4706" # assignment within conditional expression
+    "C4717" # 'function' : recursive on all control paths, function will
+            # cause runtime stack overflow
+    "C4804" # 'operation' : unsafe use of type 'bool' in operation
+    "C4834" # discarding return value of function with 'nodiscard' attribute
+    "C4858" # discarding return value: this call discards the return value
+            # of a function whose return type is marked [[nodiscard]]
+    "C4949" # pragma 'pragma' is meaningful only when compiled with
+            # '/clr[:option]'
+    "C4996" # The POSIX name for this item is deprecated.
+            # Instead, use the ISO C and C++ conformant name
+    "C5054" # operator 'operator' : deprecated between enumerations of
+            # different types (C++20)
+)
+check_cxx_compiler_flag("/W4" SMSpp_CXX_W4)
+if (SMSpp_CXX_W4)
+    string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_CXX_FLAGS
+           "${CMAKE_CXX_FLAGS}")
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W4>")
+endif ()
+check_cxx_compiler_flag("/wd4100" SMSpp_CXX_WD)
+if (SMSpp_CXX_WD)
+    list(TRANSFORM SMSpp_DISABLED_WARNINGS REPLACE "^C(.*)$"
+         "$<$<COMPILE_LANGUAGE:CXX>:/wd\\1>")
+    add_compile_options(${SMSpp_DISABLED_WARNINGS})
+endif ()
+
+# The warnings silenced where the compiler takes -W (e.g., GCC and Clang),
+# each where the compiler knows it, i.e., takes the option that enables it
+foreach (_w enum-compare enum-conversion deprecated-declarations
+        undefined-internal deprecated-enum-enum-conversion
+        deprecated-enum-float-conversion free-nonheap-object)
+    string(MAKE_C_IDENTIFIER "SMSpp_CXX_W_${_w}" _var)
+    check_cxx_compiler_flag("-W${_w}" ${_var})
+    if (${_var})
+        add_compile_options("-Wno-${_w}")
+    endif ()
+endforeach ()
+unset(_w)
+unset(_var)
+
+# /MP compiles the sources of a target in parallel; /Zc:__cplusplus forces
+# MSVC to report the real value of the __cplusplus macro (by default it is
+# stuck at 199711L even in /std:c++17 or /std:c++20 mode), and FastFlow
+# guards all its C++11 code paths with `#if __cplusplus >= 201103L`, so
+# without this option those paths are skipped and the build fails in
+# ff/spin-lock.hpp, ff/utils.hpp, ff/dynqueue.hpp, ... (other compilers
+# report __cplusplus correctly and do not take the option)
+foreach (_opt "/MP" "/Zc:__cplusplus")
+    string(MAKE_C_IDENTIFIER "SMSpp_CXX_${_opt}" _var)
+    check_cxx_compiler_flag("${_opt}" ${_var})
+    if (${_var})
+        add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:${_opt}>")
+    endif ()
+endforeach ()
+unset(_opt)
+unset(_var)
+
+# No inlining in a Debug build, where the compiler takes -fno-inline
+check_cxx_compiler_flag("-fno-inline" SMSpp_CXX_NO_INLINE)
+if (SMSpp_CXX_NO_INLINE)
+    add_compile_options("$<$<CONFIG:DEBUG>:-fno-inline>")
+endif ()
+
+#add_compile_options("-ferror-limit=1" "-fexceptions")
+#add_compile_options("-Wall" "-Wpedantic" "-Wextra")
+#add_compile_options("-fsanitize=undefined" "-fsanitize=address"
+#                    "-fno-omit-frame-pointer")
+#add_link_options("-fsanitize=address")
+
+# The linker warnings of duplicate and unused symbols silenced, and no
+# manifest in the executables, which would conflict, where the linker takes
+# them (e.g., the one of MSVC)
+check_linker_flag(CXX "/IGNORE:4006,4075,4088,4255" SMSpp_LINKER_IGNORE)
+if (SMSpp_LINKER_IGNORE)
     add_link_options("/IGNORE:4006,4075,4088,4255")
-else () # Unix
-    add_compile_options(
-             "-Wno-enum-compare" "-Wno-enum-conversion" "-Wno-deprecated-declarations"
-             "$<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-undefined-internal>"
-             "-Wno-deprecated-enum-enum-conversion" "-Wno-deprecated-enum-float-conversion" "-Wno-free-nonheap-object" # C++20
-             "-DBUILD_CPXSTATIC" "-DCPXSIZE_BITS_TEST_DISABLE"
-             #"-ferror-limit=1" "-fexceptions"
-             #"-Wall" "-Wpedantic" "-Wextra"
-             #"-fsanitize=undefined" "-fsanitize=address" "-fno-omit-frame-pointer"
-             "$<$<CONFIG:DEBUG>:-fno-inline>"
-             #"$<$<CONFIG:MINSIZEREL>:>"
-             #"$<$<CONFIG:RELEASE>:>"
-             #"$<$<CONFIG:RELWITHDEBINFO>:>"
-    )
-    #add_link_options("-fsanitize=address")
+endif ()
+check_linker_flag(CXX "/MANIFEST:NO" SMSpp_LINKER_NO_MANIFEST)
+if (SMSpp_LINKER_NO_MANIFEST)
+    string(APPEND CMAKE_EXE_LINKER_FLAGS " /MANIFEST:NO")
 endif ()
 
 # Custom output directories

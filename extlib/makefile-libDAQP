@@ -28,12 +28,7 @@ libDAQPBSCDIR = $(subst $\",,$(DAQP_ROOT))
 
 libDAQPINC = -I"$(libDAQPBSCDIR)/include"
 
-ifeq ($(UNAME_S),Linux)
-    libDAQPLIB = -L"$(libDAQPBSCDIR)/lib" -Wl,-rpath,"$(libDAQPBSCDIR)/lib" \
+libDAQPLIB = -L"$(libDAQPBSCDIR)/lib" -Wl,-rpath,"$(libDAQPBSCDIR)/lib" \
 	-ldaqp
-endif
-ifeq ($(UNAME_S),Darwin)
-    libDAQPLIB = -rpath "$(libDAQPBSCDIR)/lib" -L"$(libDAQPBSCDIR)/lib" -ldaqp
-endif
 
 ######################## End of makefile-libDAQP #############################

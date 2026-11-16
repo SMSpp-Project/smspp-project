@@ -29,12 +29,7 @@ libLIBSVMBSCDIR = $(subst $\",,$(LIBSVM_ROOT))
 
 libLIBSVMINC = -I"$(libLIBSVMBSCDIR)/include"
 
-ifeq ($(UNAME_S),Linux)
-    libLIBSVMLIB = -L"$(libLIBSVMBSCDIR)/lib" -lsvm
-endif
-ifeq ($(UNAME_S),Darwin)
-    libLIBSVMLIB = -rpath "$(libLIBSVMBSCDIR)/lib" \
-	-L"$(libLIBSVMBSCDIR)/lib" -lsvm
-endif
+libLIBSVMLIB = -L"$(libLIBSVMBSCDIR)/lib" \
+	-Wl,-rpath,"$(libLIBSVMBSCDIR)/lib" -lsvm
 
 ####################### End of makefile-libLIBSVM ############################

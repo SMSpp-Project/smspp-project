@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.24)
 project(test_package LANGUAGES CXX)
 
 find_package(MCFBlock REQUIRED)

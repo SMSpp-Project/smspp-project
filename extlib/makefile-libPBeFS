@@ -30,13 +30,7 @@ libPBeFSBSCDIR = $(subst $\",,$(PBeFS_ROOT))
 
 libPBeFSINC = -I"$(libPBeFSBSCDIR)/include"
 
-ifeq ($(UNAME_S),Linux)
-    libPBeFSLIB = -L"$(libPBeFSBSCDIR)/lib" \
+libPBeFSLIB = -L"$(libPBeFSBSCDIR)/lib" \
 	-Wl,-rpath,"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libPBeFSLIB = -rpath "$(libPBeFSBSCDIR)/lib" \
-	-L"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
-endif
 
 ########################## End of makefile-libPBeFS ##########################
