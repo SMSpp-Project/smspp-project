@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- the README leaves the installation to the installation guide of the wiki
+  (Installing-SMS++), which now holds what the README said and the rest: the
+  recipes of the AUR, Conan, Spack, Nix, MSYS2 and xmake, the options of the
+  scripts, MOSEK and its license, the build inside a CMake project and the
+  makefiles
+
 - the user manual is for SMS++ 0.8.0, every chapter checked against the
   code: its code snippets compile and give what they say, the recipes use
   the present tests and configuration files, and it describes the weights of
