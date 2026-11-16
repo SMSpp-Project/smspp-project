@@ -147,6 +147,16 @@ nightly:modules:
     - git submodule sync --recursive
     - git submodule update --init --recursive
     - ccache --zero-stats
+    # abLEMON again with its module, which smspp.mcflemonsolver re-exports
+    - cmake -S /opt/abLEMON -B /tmp/ablemon-mod -G Ninja
+            -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCMAKE_INSTALL_PREFIX=/opt/abLEMON -DLEMON_BUILD_MODULE=ON
+            -DLEMON_BUILD_TESTS=NO -DLEMON_BUILD_DEMOS=NO
+            -DLEMON_BUILD_TOOLS=NO -DLEMON_BUILD_DOC=NO
+    - cmake --build /tmp/ablemon-mod -j$(nproc)
+    - cmake --install /tmp/ablemon-mod
     - cmake -S . -B build-modules -G Ninja -DCMAKE_BUILD_TYPE=Release
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
             -DCMAKE_C_COMPILER_LAUNCHER=ccache
@@ -154,6 +164,7 @@ nightly:modules:
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             -DBUILD_tests=OFF 2>&1 | tee cmake.log
     - "! grep -q 'SMSpp_BUILD_MODULE is' cmake.log"
+    - "! grep -q 'abLEMON is installed without its module' cmake.log"
     - MODULES=$(ninja -C build-modules -t targets all |
                 sed -n 's/^\([A-Za-z+]*_module\):.*/\1/p')
     - test -n "$MODULES"
