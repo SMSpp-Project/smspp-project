@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `.github/workflows/platforms.yml`, run every night on the mirror of
+  GitHub, by hand and on the branches `ci/*`: SMS++ on macOS by `INSTALL.sh`
+  and on Windows by `INSTALL.ps1` (MSVC and vcpkg) and by the compilers of
+  MSYS2 (UCRT64 and CLANG64) on its packages, each built by CMake, with the
+  unit tests, and by the makefiles of every module; `ci/makefiles`, the
+  makefiles of every module and then those of the tests, of the tools and
+  of the experiments, which the nightly pipeline of GitLab runs as well
+
 - BDMinQuadSolver in the packages of every channel (AUR, Conan, Nix, Spack
   and xmake, as libsmspp-bdmq or the option bdmq), in the README and in the
   pages of Doxygen
@@ -20,6 +28,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   request holds the documentation to the convention of the code
 
 ### Changed
+
+- `INSTALL.ps1` configures with the generator of the Visual Studio that it has
+  found (e.g., `Visual Studio 17 2022`, out of its version and its year), by
+  the CMake of that Visual Studio when the one in the `PATH` does not know
+  it, instead of the default of CMake, which took Ninja and the first
+  compiler in the `PATH`, e.g., the g++ of a MinGW-w64, when it did not know
+  the generator of a Visual Studio newer than itself (e.g., 18, the 2026)
+
+- `INSTALL.ps1`, as `INSTALL.sh`, leaves a checkout that is on no branch
+  with an upstream at its commit, and initializes the submodules (the private
+  `experiments` left out) of a clone, which it did not with `cmake-gui`;
+  both pull the umbrella without fetching into the submodules, which are
+  then updated to the commits it pins, and `INSTALL.ps1` configures on the
+  newest Visual Studio CMake finds instead of asking for the 2022 one
+
+- `INSTALL.sh` leaves a checkout that is on no branch with an upstream (the
+  one of a CI) at its commit instead of failing on `git pull`, clones the
+  umbrella without the private `experiments`, which the update of the
+  submodules then skips, and with `--without-stopt` turns off SDDPBlock
+  alone, InvestmentBlock no longer needing it
 
 - the README leaves the installation to the installation guide of the wiki
   (Installing-SMS++), which now holds what the README said and the rest: the

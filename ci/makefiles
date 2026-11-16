@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+###############################################################################
+#                                 makefiles                                   #
+#                                                                             #
+# Builds every module of the umbrella with its makefiles [see ci/makefile],   #
+# and then the makefiles of the tests, of the tools and of the experiments    #
+# on the objects just built, as the pipelines do after the build with CMake;  #
+# the arguments go to make as they are, e.g.:                                 #
+#                                                                             #
+#     ci/makefiles CC="ccache g++" FastFlow_ROOT=/tmp/fastflow                #
+#     MODULES_ONLY=1 ci/makefiles CC=clang++ SMSppMOD=1                       #
+#                                                                             #
+# from the directory of the umbrella. A module is one of .gitmodules that     #
+# has a makefile-c; those in $SKIP (separated by spaces), say the ones whose  #
+# dependencies a platform does not have, are left out, and so are the         #
+# makefiles of the tests and of the tools in their directories. What needs    #
+# a solver that is not there is left out by the makefile itself; the two      #
+# experiments left out here need sources from elsewhere [see their            #
+# README.md]. With $MODULES_ONLY not empty only the modules are built.        #
+#                                                                             #
+#                                 Donato Meoli                                #
+#                         Dipartimento di Informatica                         #
+#                             Universita' di Pisa                             #
+###############################################################################
+
+set -e
+
+jobs=$( (nproc || sysctl -n hw.ncpu) 2> /dev/null || echo 2 )
+
+skipped() {
+  for s in $SKIP; do
+    case "$1" in
+      "$s"|"$s"/*|*/"$s"|*/"$s"/*) return 0 ;;
+    esac
+  done
+  return 1
+}
+
+modules=$(git config -f .gitmodules --get-regexp '\.path$' |
+          awk '{ print $2 }' | while read -r m; do
+            if [ -f "$m/makefile-c" ] || [ -f "$m/lib/makefile-c" ]; then
+              echo "$m"
+            fi
+          done)
+
+for m in $modules; do
+  skipped "$m" && continue
+  make -f ci/makefile -j"$jobs" MODULE="$m" "$@"
+done
+
+[ -n "$MODULES_ONLY" ] && exit 0
+
+for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
+              tests/MMCFBlock/makefile-xcheck */test/makefile \
+              */test/*/makefile */tools/makefile \
+              experiments/*/*/makefile 2> /dev/null |
+           grep -v 'generalized_bundle\|ipamir'); do
+  skipped "$(dirname "$f")" && continue
+  make -C "$(dirname "$f")" -f "$(basename "$f")" -j"$jobs" "$@"
+done
