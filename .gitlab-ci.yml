@@ -268,10 +268,12 @@ nightly:makefiles:
     # a test refused the Gurobi environment because somebody else held the
     # sessions of the licence is tried again, which is not the same as
     # ignoring a failure: it has to pass on its own
+    # the tests labelled berlin, the largest cases of Man0euVRE, are run on
+    # demand only [see tests/TwoStageStochasticBlock]
     - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
                         --output-on-failure
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
-                        -E "$CTEST_SKIP"
+                        -E "$CTEST_SKIP" -LE berlin
   artifacts:
     when: always
     paths:
@@ -399,7 +401,7 @@ integration:
     - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
                         --output-on-failure
                         --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
-                        -E "$CTEST_SKIP"
+                        -E "$CTEST_SKIP" -LE berlin
 
 # The recipes of packaging/, and the port of vcpkg-registry, built from the
 # tarball of the commit before a release names them: one job makes the
