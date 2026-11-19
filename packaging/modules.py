@@ -55,6 +55,8 @@ MODULES = [
      "Multiple knapsack assignment Block"),
     ("HQPBlock", "hqp", ["core"], [], [],
      "SMS++ Block and Solver for hierarchical (lexicographic) quadratic programs"),
+    ("CSPBlock", "csp", ["core"], [], [],
+     "SMS++ Block for constraint programming (CP) problems"),
     ("MILPSolver", "milp", ["core"], [],
      ["highs", "scip", "daqp", "qpoases", "proxsuite", "piqp", "osqp",
       "qpmad"],

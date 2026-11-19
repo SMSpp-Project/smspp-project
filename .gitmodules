@@ -108,3 +108,6 @@
 [submodule "scripts/code-style"]
 	path = scripts/code-style
 	url = https://github.com/dmeoli/code-style.git
+[submodule "CSPBlock"]
+	path = CSPBlock
+	url = ../cspblock.git

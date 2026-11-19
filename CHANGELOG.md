@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `CSPBlock`, the module of the `Block` of the constraint satisfaction
+  problems of constraint programming (CP): the submodule, `BUILD_CSPBlock`,
+  the feature `csp` of the smspp port of the vcpkg registry, the module in
+  `packaging/modules.py`, with the recipes written again, and its headers in
+  the `INPUT` of `doxygen/Doxyfile`
+
 ### Changed
 
 - the functions of the modules are included before the modules [see

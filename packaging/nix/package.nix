@@ -182,6 +182,13 @@ let
       opt = [ ];
     }
     {
+      dir = "CSPBlock";
+      acr = "csp";
+      needs = [ "core" ];
+      req = [ ];
+      opt = [ ];
+    }
+    {
       dir = "MILPSolver";
       acr = "milp";
       needs = [ "core" ];

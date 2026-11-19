@@ -29,6 +29,7 @@ pkgname=(
   libsmspp-satellites
   libsmspp-mkab
   libsmspp-hqp
+  libsmspp-csp
   libsmspp-milp
   libsmspp-bundle
   libsmspp-subgrad
@@ -264,6 +265,12 @@ package_libsmspp-hqp() {
   DESTDIR="$pkgdir" cmake --install build/HQPBlock
 }
 
+package_libsmspp-csp() {
+  pkgdesc="SMS++: SMS++ Block for constraint programming (CP) problems"
+  depends=(libsmspp)
+  DESTDIR="$pkgdir" cmake --install build/CSPBlock
+}
+
 package_libsmspp-milp() {
   pkgdesc="SMS++: MILP Solvers, on the open-source solvers of the channel"
   depends=(libsmspp highs scip)
@@ -464,6 +471,7 @@ package_smspp-project() {
     libsmspp-satellites
     libsmspp-mkab
     libsmspp-hqp
+    libsmspp-csp
     libsmspp-milp
     libsmspp-bundle
     libsmspp-subgrad

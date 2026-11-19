@@ -815,6 +815,7 @@ INPUT                  = doxygen/mainpage.md \
                          BDMinQuadSolver/include \
                          BundleSolver/include \
                          CapacitatedFacilityLocationBlock/include \
+                         CSPBlock/include \
                          HQPBlock/include \
                          InvestmentBlock/include \
                          LagrangianDualSolver/include \

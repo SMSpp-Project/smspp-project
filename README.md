@@ -377,6 +377,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   [MiniSat](https://github.com/stp/minisat)), which also solves the weighted
   MaxSAT by the core-guided algorithm OLL.
 
+- [CSPBlock](https://gitlab.com/smspp/cspblock), defining the `Block` for
+  the constraint satisfaction problems of constraint programming (CP) and
+  for their weighted version, whose physical representation is the
+  universes and the current domains of the variables and a catalogue of
+  constraints (tables, linear, alldifferent, element, cumulative), each hard
+  or soft, read from a subset of FlatZinc.
+
 - [SatellitesBlock](https://gitlab.com/smspp/satellitesblock), defining the
   `Block` for the Satellite Constellation Design Problem, i.e., choosing the
   orbits of a constellation of satellites so as to minimize either their
