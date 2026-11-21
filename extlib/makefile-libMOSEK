@@ -23,6 +23,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic MOSEK directory without quotes, if any
@@ -46,7 +48,7 @@ libMOSEKBSCDIR = $(firstword $(wildcard $(addprefix \
 
 MOSEK_PRESENT := $(wildcard $(libMOSEKBSCDIR)/h/mosek.h)
 
-libMOSEKINC = -I"$(libMOSEKBSCDIR)/h"
+libMOSEKINC = $(call SMSppSYSINC,$(libMOSEKBSCDIR)/h)
 
 libMOSEKLIB = -L"$(libMOSEKBSCDIR)/bin" \
 	-Wl,-rpath,"$(libMOSEKBSCDIR)/bin" -lmosek64 -lpthread

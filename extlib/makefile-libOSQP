@@ -25,6 +25,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic OSQP directory without quotes, if any
@@ -42,7 +44,7 @@ libOSQPLOCAL = $(eval libOSQPLOCAL := $$(shell echo 'int main(){}' \
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libOSQPINC = -I"$(libOSQPBSCDIR)/include/osqp"
+libOSQPINC = $(call SMSppSYSINC,$(libOSQPBSCDIR)/include/osqp)
 
 libOSQPLIBSTATIC = "$(libOSQPBSCDIR)/lib/libosqpstatic.a" \
 	-Wl,--exclude-libs,libosqpstatic.a

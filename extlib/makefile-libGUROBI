@@ -21,6 +21,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that Gurobi needs
@@ -52,6 +54,6 @@ endif
 
 libGUROBILIB = -L"$(libGUROBIBSCDIR)/lib" -lgurobi$(GUROBI_VERSION) \
 	$(libGUROBIEXTLIB)
-libGUROBIINC = -I"$(libGUROBIBSCDIR)/include"
+libGUROBIINC = $(call SMSppSYSINC,$(libGUROBIBSCDIR)/include)
 
 ####################### End of makefile-libGUROBI ############################

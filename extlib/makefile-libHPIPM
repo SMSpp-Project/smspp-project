@@ -20,6 +20,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic HPIPM directory without quotes, if any
@@ -27,7 +29,7 @@ libHPIPMBSCDIR = $(subst $\",,$(HPIPM_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libHPIPMINC = -I"$(libHPIPMBSCDIR)/include"
+libHPIPMINC = $(call SMSppSYSINC,$(libHPIPMBSCDIR)/include)
 
 libHPIPMLIB = -L"$(libHPIPMBSCDIR)/lib" \
 	-Wl,-rpath,"$(libHPIPMBSCDIR)/lib" -lhpipm -lblasfeo -lm

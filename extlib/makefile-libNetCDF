@@ -19,6 +19,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic netCDF directories without quotes, if any
@@ -41,6 +43,7 @@ libNtCDFLIB = -L"$(or $(dir $(libNtCDFFILE)),$(libNtCDFBSCDIR)/lib/)" \
         -lnetcdf \
         -L"$(or $(dir $(libNtCDFCxxFILE)),$(libNtCDFCxxBSCDIR)/lib/)" \
         -l$(strip $(libNtCDFCxxNAME))
-libNtCDFINC = -I"$(libNtCDFBSCDIR)/include" -I"$(libNtCDFCxxBSCDIR)/include"
+libNtCDFINC = $(call SMSppSYSINC,$(libNtCDFBSCDIR)/include) \
+	$(call SMSppSYSINC,$(libNtCDFCxxBSCDIR)/include)
 
 ####################### End of makefile-libNetCDF ############################

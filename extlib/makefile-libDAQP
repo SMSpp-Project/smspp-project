@@ -19,6 +19,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic DAQP directory without quotes, if any
@@ -26,7 +28,7 @@ libDAQPBSCDIR = $(subst $\",,$(DAQP_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libDAQPINC = -I"$(libDAQPBSCDIR)/include"
+libDAQPINC = $(call SMSppSYSINC,$(libDAQPBSCDIR)/include)
 
 libDAQPLIB = -L"$(libDAQPBSCDIR)/lib" -Wl,-rpath,"$(libDAQPBSCDIR)/lib" \
 	-ldaqp

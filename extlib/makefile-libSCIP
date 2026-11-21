@@ -19,6 +19,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic SCIP directory without quotes, if any
@@ -28,7 +30,7 @@ libSCIPBSCDIR = $(subst $\",,$(SCIP_ROOT))
 
 libSCIPLIB = -L"$(libSCIPBSCDIR)/lib" -Wl,-rpath,"$(libSCIPBSCDIR)/lib" \
 	-lscip -ltbb
-libSCIPINC = -I"$(libSCIPBSCDIR)/include"
+libSCIPINC = $(call SMSppSYSINC,$(libSCIPBSCDIR)/include)
 
 SCIP_PRESENT := $(wildcard $(libSCIPBSCDIR)/include/scip/scip.h)
 

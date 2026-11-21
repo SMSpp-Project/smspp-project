@@ -39,7 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is private, and the release tarball leaves its directory empty, so that a
   recipe that builds the module failed; it enters when the repository is
   public
-
+- the makefiles of `extlib` pass the include directories of the external
+  libraries by `-isystem` [see `extlib/makefile-sysinc`], so that their
+  warnings are not shown, but those of CPLEX, which MCFClass looks for among
+  the `-I`, and `makefile-libStOpt` silences the deprecation of
+  `std::is_pod` in geners, which a system header does not hide
 
 ## [0.8.0] - 2026-11-16
 

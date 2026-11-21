@@ -21,6 +21,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic CaDiCaL directory without quotes, if any
@@ -38,7 +40,7 @@ libCaDiCaLLIBDIR = $(firstword $(wildcard \
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libCaDiCaLINC = -I"$(dir $(libCaDiCaLINCDIR))"
+libCaDiCaLINC = $(call SMSppSYSINC,$(dir $(libCaDiCaLINCDIR)))
 libCaDiCaLLIB = -L"$(dir $(libCaDiCaLLIBDIR))" -lcadical
 
 ######################### End of makefile-libCaDiCaL #########################

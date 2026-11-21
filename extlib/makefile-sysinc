@@ -1,0 +1,21 @@
+##############################################################################
+############################# makefile-sysinc ################################
+##############################################################################
+#                                                                            #
+#   makefile of the include option of an external library                    #
+#                                                                            #
+#   Output: $(call SMSppSYSINC,dir) = -isystem"dir", so that the warnings    #
+#           of the headers of the library are not shown, but -I"dir" for     #
+#           /usr/include and /usr/local/include, which are system ones       #
+#           already and whose place among them -isystem would change,        #
+#           breaking the #include_next of the C++ standard headers           #
+#                                                                            #
+#                        Dipartimento di Informatica                         #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+SMSppSYSINC = $(if $(filter /usr/include /usr/local/include,\
+	$(patsubst %/,%,$(1))),-I"$(1)",-isystem"$(1)")
+
+######################### End of makefile-sysinc #############################

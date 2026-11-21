@@ -24,6 +24,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic PIQP directory without quotes, if any
@@ -34,7 +36,7 @@ libPIQPSO = $(wildcard $(libPIQPBSCDIR)/lib/libpiqp.*)
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libPIQPINC = -I"$(libPIQPBSCDIR)/include"
+libPIQPINC = $(call SMSppSYSINC,$(libPIQPBSCDIR)/include)
 
 ifneq ($(libPIQPSO),)
     libPIQPINC += -DPIQP_WITH_TEMPLATE_INSTANTIATION

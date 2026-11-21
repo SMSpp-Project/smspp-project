@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 PIPSIPMPP_ROOT ?= $(HOME)/pips-ipmpp
@@ -97,14 +99,14 @@ PIPS_EXTERNAL_LIBS ?= \
 # them needs the MPI include path too
 libPIPSINC = \
 	$(PIPS_MPI_INC) \
-	-I"$(PIPSROOT)/Core/Interface" \
-	-I"$(PIPSROOT)/Core/Options" \
-	-I"$(PIPSROOT)/Core/Utilities" \
-	-I"$(PIPSROOT)/Core/InteriorPointMethod" \
-	-I"$(PIPSROOT)/Core/LinearAlgebra" \
-	-I"$(PIPSROOT)/Core" \
-	-I"$(PIPSROOT)/Drivers/CallbackExample" \
-	-I"$(PIPSROOT)/Core/Readers/Distributed"
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Interface) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Options) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Utilities) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/InteriorPointMethod) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/LinearAlgebra) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Drivers/CallbackExample) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Readers/Distributed)
 
 # the PIPS-IPM++ libraries are shared and live outside the standard search
 # path, hence the rpath, so that a binary built with the makefiles finds them

@@ -21,6 +21,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic PBeFS directory without quotes, if any
@@ -28,7 +30,7 @@ libPBeFSBSCDIR = $(subst $\",,$(PBeFS_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libPBeFSINC = -I"$(libPBeFSBSCDIR)/include"
+libPBeFSINC = $(call SMSppSYSINC,$(libPBeFSBSCDIR)/include)
 
 libPBeFSLIB = -L"$(libPBeFSBSCDIR)/lib" \
 	-Wl,-rpath,"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread

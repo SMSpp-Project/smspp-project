@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic LEMON directory without quotes, if any
@@ -28,6 +30,6 @@ libLEMONBSCDIR = $(subst $\",,$(LEMON_ROOT))
 # abLEMON names its library emon, so that it is linked as -lemon
 libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" \
 	-Wl,-rpath,"$(libLEMONBSCDIR)/lib" -lemon
-libLEMONINC = -I"$(libLEMONBSCDIR)/include"
+libLEMONINC = $(call SMSppSYSINC,$(libLEMONBSCDIR)/include)
 
 ######################## End of makefile-libLEMON ############################

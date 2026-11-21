@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic StOpt directory without quotes, if any
@@ -37,9 +39,12 @@ libStOptLIB = -L"$(libStOptBSCDIR)/lib" $(patsubst %,-L"%", \
 	    libStOpt.* libgeners.* libboost_timer.*))))) \
 	    -lStOpt -lgeners -lboost_timer
 # StOpt is built with MPI, hence whoever includes its headers (and the
-# boost::mpi ones) needs the MPI headers too
-libStOptINC = -I"$(libStOptBSCDIR)/include" \
-	    -I"$(libStOptBSCDIR)/include/geners" \
-	    $(StOpt_MPI_INC)
+# boost::mpi ones) needs the MPI headers too; the std::is_pod of its
+# geners, deprecated in C++20, is reported where our code instantiates
+# it even from a system header, hence -Wno-deprecated-declarations, as
+# in CMakeSettings.txt
+libStOptINC = $(call SMSppSYSINC,$(libStOptBSCDIR)/include) \
+	    $(call SMSppSYSINC,$(libStOptBSCDIR)/include/geners) \
+	    $(StOpt_MPI_INC) -Wno-deprecated-declarations
 
 ######################## End of makefile-libStOpt ############################

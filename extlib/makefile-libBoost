@@ -17,6 +17,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic BOOST directory without quotes, if any
@@ -24,7 +26,7 @@ libBOOSTBSCDIR = $(subst $\",,$(BOOST_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libBoostINC = -I"$(libBOOSTBSCDIR)/include"
+libBoostINC = $(call SMSppSYSINC,$(libBOOSTBSCDIR)/include)
 libBoostLIB = -L"$(libBOOSTBSCDIR)/lib"
 
 ######################## End of makefile-libBoost ############################

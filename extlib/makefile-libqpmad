@@ -20,6 +20,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic qpmad directory without quotes, if any
@@ -27,6 +29,6 @@ libqpmadBSCDIR = $(subst $\",,$(qpmad_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libqpmadINC = -I"$(libqpmadBSCDIR)/include"
+libqpmadINC = $(call SMSppSYSINC,$(libqpmadBSCDIR)/include)
 
 ##################### End of makefile-libqpmad ###############################

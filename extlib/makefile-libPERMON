@@ -21,6 +21,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic PERMON directory without quotes, if any
@@ -28,7 +30,7 @@ libPERMONBSCDIR = $(subst $\",,$(PERMON_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libPERMONINC = -I"$(libPERMONBSCDIR)/include"
+libPERMONINC = $(call SMSppSYSINC,$(libPERMONBSCDIR)/include)
 
 libPERMONLIB = -L"$(libPERMONBSCDIR)/lib" \
 	-Wl,-rpath,"$(libPERMONBSCDIR)/lib" -lpermon -lpetsc -lm

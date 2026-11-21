@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic Eigen directory without quotes, if any
@@ -25,7 +27,7 @@ libEigenBSCDIR = $(subst $\",,$(Eigen3_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libEigenINC = -I"$(libEigenBSCDIR)/include/eigen3"
+libEigenINC = $(call SMSppSYSINC,$(libEigenBSCDIR)/include/eigen3)
 libEigenLIB = 
 
 ######################## End of makefile-libEigen ############################

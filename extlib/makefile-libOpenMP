@@ -19,6 +19,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic libomp directory without quotes, if any
@@ -35,7 +37,7 @@ libOpenMPNATIVE = $(eval libOpenMPNATIVE := $$(shell echo 'int main(){}' \
 	&& echo yes))$(libOpenMPNATIVE)
 
 libOpenMPINC = $(if $(libOpenMPNATIVE),-fopenmp, \
-	-Xpreprocessor -fopenmp -I"$(libOpenMPBSCDIR)/include")
+	-Xpreprocessor -fopenmp $(call SMSppSYSINC,$(libOpenMPBSCDIR)/include))
 libOpenMPLIB = $(if $(libOpenMPNATIVE),-fopenmp, \
 	-L"$(libOpenMPBSCDIR)/lib" -lomp)
 

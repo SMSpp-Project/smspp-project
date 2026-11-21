@@ -17,6 +17,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic LIBSVM directory without quotes, if any
@@ -27,7 +29,7 @@ libLIBSVMBSCDIR = $(subst $\",,$(LIBSVM_ROOT))
 # svm.h is included as <libsvm/svm.h>, which is where every distribution puts
 # it, hence the -I is the directory *containing* the libsvm one
 
-libLIBSVMINC = -I"$(libLIBSVMBSCDIR)/include"
+libLIBSVMINC = $(call SMSppSYSINC,$(libLIBSVMBSCDIR)/include)
 
 libLIBSVMLIB = -L"$(libLIBSVMBSCDIR)/lib" \
 	-Wl,-rpath,"$(libLIBSVMBSCDIR)/lib" -lsvm
