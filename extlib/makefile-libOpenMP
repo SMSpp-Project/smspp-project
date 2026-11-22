@@ -1,0 +1,44 @@
+##############################################################################
+############################# makefile-libOpenMP #############################
+##############################################################################
+#                                                                            #
+#   makefile of OpenMP                                                       #
+#                                                                            #
+#   Input:  $(OpenMP_ROOT), the directory of libomp (macOS only, where the   #
+#           clang++ of Xcode has no OpenMP runtime of its own)               #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#                                                                            #
+#           $(libOpenMPLIB) = the options of the link for OpenMP             #
+#           $(libOpenMPINC) = the options of the compiler for OpenMP         #
+#                                                                            #
+#                                Donato Meoli                                #
+#                          Dipartimento di Informatica                       #
+#                              Universita' di Pisa                           #
+#                                                                            #
+##############################################################################
+
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic libomp directory without quotes, if any
+libOpenMPBSCDIR = $(subst $\",,$(OpenMP_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# whether $(CC) builds a program with -fopenmp, asked the first time that it
+# is needed, when $(CC) has its final value, and then remembered; a compiler
+# that does not (e.g., the clang++ of Xcode) takes OpenMP only through its
+# preprocessor, and the runtime from libomp
+libOpenMPNATIVE = $(eval libOpenMPNATIVE := $$(shell echo 'int main(){}' \
+	| $$(CC) -fopenmp -x c++ - -o /dev/null >/dev/null 2>&1 \
+	&& echo yes))$(libOpenMPNATIVE)
+
+libOpenMPINC = $(if $(libOpenMPNATIVE),-fopenmp, \
+	-Xpreprocessor -fopenmp $(call SMSppSYSINC,$(libOpenMPBSCDIR)/include))
+libOpenMPLIB = $(if $(libOpenMPNATIVE),-fopenmp, \
+	-L"$(libOpenMPBSCDIR)/lib" -lomp)
+
+######################## End of makefile-libOpenMP ###########################

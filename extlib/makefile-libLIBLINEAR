@@ -17,6 +17,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic LIBLINEAR directory without quotes, if any
@@ -28,15 +30,10 @@ libLIBLINEARBSCDIR = $(subst $\",,$(LIBLINEAR_ROOT))
 # into the include directory, other distributions into one of their own,
 # hence both are given to the compiler
 
-libLIBLINEARINC = -I"$(libLIBLINEARBSCDIR)/include" \
-	-I"$(libLIBLINEARBSCDIR)/include/liblinear"
+libLIBLINEARINC = $(call SMSppSYSINC,$(libLIBLINEARBSCDIR)/include) \
+	$(call SMSppSYSINC,$(libLIBLINEARBSCDIR)/include/liblinear)
 
-ifeq ($(UNAME_S),Linux)
-    libLIBLINEARLIB = -L"$(libLIBLINEARBSCDIR)/lib" -llinear
-endif
-ifeq ($(UNAME_S),Darwin)
-    libLIBLINEARLIB = -rpath "$(libLIBLINEARBSCDIR)/lib" \
-	-L"$(libLIBLINEARBSCDIR)/lib" -llinear
-endif
+libLIBLINEARLIB = -L"$(libLIBLINEARBSCDIR)/lib" \
+	-Wl,-rpath,"$(libLIBLINEARBSCDIR)/lib" -llinear
 
 ####################### End of makefile-libLIBLINEAR #########################

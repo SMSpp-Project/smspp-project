@@ -24,6 +24,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic PIQP directory without quotes, if any
@@ -34,18 +36,12 @@ libPIQPSO = $(wildcard $(libPIQPBSCDIR)/lib/libpiqp.*)
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libPIQPINC = -I"$(libPIQPBSCDIR)/include"
+libPIQPINC = $(call SMSppSYSINC,$(libPIQPBSCDIR)/include)
 
 ifneq ($(libPIQPSO),)
     libPIQPINC += -DPIQP_WITH_TEMPLATE_INSTANTIATION
-    ifeq ($(UNAME_S),Linux)
-        libPIQPLIB = -L"$(libPIQPBSCDIR)/lib" \
+    libPIQPLIB = -L"$(libPIQPBSCDIR)/lib" \
 	-Wl,-rpath,"$(libPIQPBSCDIR)/lib" -lpiqp
-    endif
-    ifeq ($(UNAME_S),Darwin)
-        libPIQPLIB = -rpath "$(libPIQPBSCDIR)/lib" \
-	-L"$(libPIQPBSCDIR)/lib" -lpiqp
-    endif
 endif
 
 ######################## End of makefile-libPIQP #############################

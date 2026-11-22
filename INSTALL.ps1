@@ -13,19 +13,33 @@
     You can use the `-withoutGurobi` option to skip the installation of Gurobi.
     You can use the `-withoutMosek` option to skip the installation of MOSEK.
     You can use the `-withoutSCIP` option to skip the installation of SCIP.
+    You can use the `-withoutClarabel` option to skip the installation of Clarabel, whose C
+    interface is built with the Rust toolchain (cargo).
     Note that PIPS-IPM++ (PIPSMILPSolver) is not supported on Windows, so there is no related option.
-    Note that quadprog (QuadProgMILPSolver), which is under the GPL and is installed by INSTALL.sh
-    only if asked, is not installed on Windows, so there is no related option.
-    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, StOpt, LEMON, LIBSVM and
-    LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options: DAQP, PIQP and qpmad,
-    which the default registry of vcpkg does not carry, come from the SMS++ vcpkg registry
-    (https://gitlab.com/smspp/vcpkg-registry).
-    Note that CaDiCaL and MiniSat are not packaged for Windows, so there are no related options:
-    SATBlock is built with SATSolver only, without the SAT solvers it wraps.
+    Note that HPIPM (HPIPMMILPSolver), which is in no vcpkg registry, is not installed on Windows,
+    so there is no related option.
+    Note that PERMON (PERMONMILPSolver), which is in no vcpkg registry, is not installed on Windows,
+    so there is no related option.
+    Note that HiGHS, DAQP, qpOASES, ProxSuite, PIQP, OSQP, qpmad, quadprog, StOpt, abLEMON (the
+    port ablemon), LIBSVM and LIBLINEAR come from vcpkg (vcpkg.json), so there are no related options:
+    DAQP, PIQP, qpmad, quadprog and ablemon, which the default registry of vcpkg does not carry,
+    come from the SMS++ vcpkg registry (https://gitlab.com/smspp/vcpkg-registry). quadprog is
+    under the GPL, so that a MILPSolver built with it is too.
+    Note that MiniSat comes from vcpkg (vcpkg.json, the port minisat-master-keying), while
+    CaDiCaL is not packaged for Windows, so there are no related options: SATBlock is built
+    with MiniSATSolver and without CaDiCaLSATSolver.
     Note that RECORD and COMBO use POSIX clocks and 128-bit integers, which MSVC does not have,
     so there are no related options: BinaryKnapsackBlock is built without the Solver that wrap them.
     You can use the `-withoutTorch` option to skip the installation of Torch.
+    You can use the `-withoutFlatzinc` option to skip the installation of the FlatZinc
+    backend (the MiniZinc bundle) used by FlatZincCSPSolver; CSPBlock still builds without
+    it, only solving a CSPBlock through an external solver needs it.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
+    Run again, the script brings up to date what it installed: Clarabel goes to its latest
+    release and is built again only when it changed, Gurobi, MOSEK, SCIP and Torch are installed
+    again when the version asked for changes (the old installation is set aside, and put back if
+    the new one fails), and vcpkg and SMS++ are pulled; CPLEX, whose installer needs a license,
+    is never touched once installed.
     You can use the `-withExperiments` option to also fetch and build the private experiments
     submodule, which needs access to its repository; without it the script never touches it.
     You can use the `-withoutDefenderExclusions` option to skip adding the Windows Defender path
@@ -65,7 +79,9 @@ param(
     [switch]$withoutGurobi,
     [switch]$withoutMosek,
     [switch]$withoutSCIP,
+    [switch]$withoutClarabel,
     [switch]$withoutTorch,
+    [switch]$withoutFlatzinc,
     [switch]$withoutSMSpp,
     [switch]$withExperiments,
     [switch]$updatevcpkg,
@@ -272,6 +288,96 @@ function Ensure-MsMpiVersion {
     Write-Host "Microsoft MPI installed successfully (expected $ExpectedVersion)."
 }
 
+# Clone the repository $Url into the directory $Dir, or bring an existing
+# clone up to date, and say whether there is something new to build: with a
+# pattern (a regular expression) the clone goes to the latest tag that matches
+# it, e.g., the latest release, otherwise it follows its branch, pulling what
+# is new
+function Update-GitLatest
+{
+    param(
+        [Parameter(Mandatory=$true)][string]$Url,
+        [Parameter(Mandatory=$true)][string]$Dir,
+        [string]$Pattern = ""
+    )
+
+    $fresh = $false
+    if (-not (Test-Path (Join-Path $Dir ".git"))) {
+        git clone -q $Url $Dir | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "Update-GitLatest: cannot clone $Url" }
+        $fresh = $true
+    }
+    $before = (git -C $Dir rev-parse HEAD).Trim()
+    if ($Pattern) {
+        git -C $Dir fetch -q --tags --force origin | Out-Null
+        $tag = git -C $Dir tag --sort=-v:refname |
+                Where-Object { $_ -match $Pattern } | Select-Object -First 1
+        if ($tag) { git -C $Dir checkout -q $tag | Out-Null }
+    } elseif (-not $fresh) {
+        git -C $Dir pull -q --ff-only | Out-Null
+    }
+    git -C $Dir submodule update -q --init --recursive | Out-Null
+    $after = (git -C $Dir rev-parse HEAD).Trim()
+    return ($fresh -or ($before -ne $after))
+}
+
+# Whether the dependency installed in $Root is not at the version $Version
+# (or is not there at all): an installation older than this check has no
+# .smspp-version, and it is taken as being at the version asked for
+function Test-VersionDiffers
+{
+    param(
+        [Parameter(Mandatory=$true)][string]$Root,
+        [Parameter(Mandatory=$true)][string]$Version
+    )
+
+    if (-not (Test-Path $Root)) { return $true }
+    $versionFile = Join-Path $Root ".smspp-version"
+    if (-not (Test-Path $versionFile)) {
+        Set-Content -Path $versionFile -Value $Version
+        return $false
+    }
+    return ((Get-Content $versionFile -Raw).Trim() -ne $Version)
+}
+
+# Before a dependency is installed again, its installation is moved aside:
+# it is removed once the new one is in place [see Set-InstalledVersion], and
+# put back if the installation fails [see Restore-SetAside]
+function Set-Aside
+{
+    param([Parameter(Mandatory=$true)][string]$Root)
+
+    if (Test-Path $Root) {
+        Remove-Item "$Root.old" -Recurse -Force -ErrorAction SilentlyContinue
+        Move-Item -Path $Root -Destination "$Root.old"
+    }
+}
+
+function Restore-SetAside
+{
+    param([Parameter(Mandatory=$true)][string]$Root)
+
+    if (Test-Path "$Root.old") {
+        Remove-Item $Root -Recurse -Force -ErrorAction SilentlyContinue
+        Move-Item -Path "$Root.old" -Destination $Root
+    }
+}
+
+# The version $Version of the dependency just installed in $Root, and the
+# installation it replaced removed
+function Set-InstalledVersion
+{
+    param(
+        [Parameter(Mandatory=$true)][string]$Root,
+        [Parameter(Mandatory=$true)][string]$Version
+    )
+
+    if (Test-Path $Root) {
+        Set-Content -Path (Join-Path $Root ".smspp-version") -Value $Version
+    }
+    Remove-Item "$Root.old" -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 # Detect operating system and execute the appropriate installation function
 $OS = [System.Environment]::OSVersion.Platform
 if ($OS -eq "Win32NT")
@@ -330,6 +436,18 @@ if ($OS -eq "Win32NT")
     if ($vsInstallPath -and (Test-Path "$vsInstallPath\Common7\Tools\VsDevCmd.bat")) {
         Write-Host "Using Visual Studio installation at $vsInstallPath"
         & "$vsInstallPath\Common7\Tools\VsDevCmd.bat"
+        # the generator of CMake for this Visual Studio, e.g. "Visual Studio
+        # 17 2022", out of its major version and of its year (which vswhere
+        # does not give for Visual Studio 18), so that CMake neither takes
+        # another compiler in the PATH nor a pinned version
+        $vsMajor = (& $vswhereCmd -path $vsInstallPath -property installationVersion).Split('.')[0]
+        $vsYears = @{ '15' = '2017'; '16' = '2019'; '17' = '2022'; '18' = '2026' }
+        if ($vsYears.ContainsKey($vsMajor)) {
+            $vsYear = $vsYears[$vsMajor]
+        } else {
+            $vsYear = & $vswhereCmd -path $vsInstallPath -property catalog_productLineVersion
+        }
+        $vsGenerator = "Visual Studio $vsMajor $vsYear"
     } else {
         Write-Error "Failed to detect Visual Studio with required C++ components after installation."
         exit 1
@@ -402,40 +520,54 @@ if ($OS -eq "Win32NT")
 
     # Install Gurobi
     if (-not $withoutGurobi) {
-        Write-Host "Installing Gurobi..."
+        Write-Host "Installing or updating Gurobi..."
         $GUROBI_ROOT = "C:\gurobi"
-        if (-not (Test-Path $GUROBI_ROOT)) {
-            Set-Location "C:\"
-            $GUROBI_INSTALLER = "Gurobi-12.0.1-win64.msi"
-            Invoke-WebRequest -Uri "https://packages.gurobi.com/12.0/$GUROBI_INSTALLER" -OutFile "C:\$GUROBI_INSTALLER"
-            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", "C:\$GUROBI_INSTALLER" -Wait
-            Remove-Item "C:\$GUROBI_INSTALLER"
-            Move-Item -Path ".\gurobi1201" -Destination $GUROBI_ROOT -ErrorAction SilentlyContinue
-            # Update the system PATH to ensure the SMS++ exe can correctly locate the gurobi*.dll file
-            Update-EnvironmentVariables -oldPattern "C:\gurobi1201" -newValue $GUROBI_ROOT
+        $GUROBI_VERSION = "12.0.1"
+        if (Test-VersionDiffers -Root $GUROBI_ROOT -Version $GUROBI_VERSION) {
+            Set-Aside -Root $GUROBI_ROOT
+            try {
+                Set-Location "C:\"
+                $GUROBI_MAJOR_MINOR = $GUROBI_VERSION.Substring(0, $GUROBI_VERSION.LastIndexOf('.'))
+                $GUROBI_DIR = "gurobi" + $GUROBI_VERSION.Replace('.', '')
+                $GUROBI_INSTALLER = "Gurobi-$GUROBI_VERSION-win64.msi"
+                Invoke-WebRequest -Uri "https://packages.gurobi.com/$GUROBI_MAJOR_MINOR/$GUROBI_INSTALLER" -OutFile "C:\$GUROBI_INSTALLER"
+                Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", "C:\$GUROBI_INSTALLER" -Wait
+                Remove-Item "C:\$GUROBI_INSTALLER"
+                Move-Item -Path "C:\$GUROBI_DIR" -Destination $GUROBI_ROOT -ErrorAction Stop
+                # Update the system PATH to ensure the SMS++ exe can correctly locate the gurobi*.dll file
+                Update-EnvironmentVariables -oldPattern "C:\$GUROBI_DIR" -newValue $GUROBI_ROOT
+                Set-InstalledVersion -Root $GUROBI_ROOT -Version $GUROBI_VERSION
+            } catch {
+                Restore-SetAside -Root $GUROBI_ROOT
+                throw
+            }
+            Write-Host "... Gurobi installed successfully."
+        } else {
+            Write-Host "... Gurobi already at its version."
         }
-        Write-Host "... Gurobi installed successfully."
     }
 
-    # Install MOSEK: the installer of the latest 11.0.x version, whose
+    # Install MOSEK: the installer of the latest 12.0.x version, whose
     # number is published next to it (a fixed one if it cannot be read); it
     # installs into C:\Program Files\Mosek\<major.minor>, and MOSEK_ROOT is
     # C:\Program Files\Mosek, which holds one directory per version
     if (-not $withoutMosek) {
-        Write-Host "Installing MOSEK..."
+        Write-Host "Installing or updating MOSEK..."
         $MOSEK_ROOT = "C:\Program Files\Mosek"
-        if (-not (Test-Path $MOSEK_ROOT)) {
+        $MOSEK_URL = "https://download.mosek.com/stable"
+        try {
+            $MOSEK_VERSION = (Invoke-WebRequest -UseBasicParsing `
+                -Uri "$MOSEK_URL/12.0/version").Content.Trim()
+        } catch {
+            $MOSEK_VERSION = ""
+        }
+        if ($MOSEK_VERSION -notmatch '^12\.0\.[0-9]+$') {
+            $MOSEK_VERSION = "12.0.0"
+        }
+        # the installer of a newer version upgrades the one installed, in
+        # the same directory of its major.minor version
+        if (Test-VersionDiffers -Root $MOSEK_ROOT -Version $MOSEK_VERSION) {
             Set-Location "C:\"
-            $MOSEK_URL = "https://download.mosek.com/stable"
-            try {
-                $MOSEK_VERSION = (Invoke-WebRequest -UseBasicParsing `
-                    -Uri "$MOSEK_URL/11.0/version").Content.Trim()
-            } catch {
-                $MOSEK_VERSION = ""
-            }
-            if ($MOSEK_VERSION -notmatch '^11\.0\.[0-9]+$') {
-                $MOSEK_VERSION = "11.0.30"
-            }
             $MOSEK_INSTALLER = "moseksetupwin64x86.msi"
             Invoke-WebRequest `
                 -Uri "$MOSEK_URL/$MOSEK_VERSION/$MOSEK_INSTALLER" `
@@ -449,8 +581,11 @@ if ($OS -eq "Win32NT")
                 $MOSEK_VERSION.LastIndexOf('.'))
             Add-ToSystemPath -PathToAdd `
                 "$MOSEK_ROOT\$MOSEK_MAJOR_MINOR\tools\platform\win64x86\bin"
+            Set-InstalledVersion -Root $MOSEK_ROOT -Version $MOSEK_VERSION
+            Write-Host "... MOSEK installed successfully."
+        } else {
+            Write-Host "... MOSEK already at its version."
         }
-        Write-Host "... MOSEK installed successfully."
         Write-Host "MOSEK needs a license (free for academic use, see"
         Write-Host "https://www.mosek.com/products/academic-licenses/):"
         Write-Host "put it in %USERPROFILE%\mosek\mosek.lic or point"
@@ -459,38 +594,135 @@ if ($OS -eq "Win32NT")
 
     # Install SCIP
     if (-not $withoutSCIP) {
-        Write-Host "Installing SCIP..."
+        Write-Host "Installing or updating SCIP..."
         $SCIP_ROOT = "C:\Program Files\SCIPOptSuite"
-        if (-not (Test-Path $SCIP_ROOT)) {
-            Set-Location "C:\"
-            $SCIP_INSTALLER = "SCIPOptSuite-9.0.0-win64-VS15.exe"
-            Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile "C:\$SCIP_INSTALLER"
-            Start-Process -FilePath "C:\$SCIP_INSTALLER" -Wait
-            Remove-Item "C:\$SCIP_INSTALLER"
-            Move-Item -Path "C:\Program Files\SCIPOptSuite 9.0.0" -Destination $SCIP_ROOT -ErrorAction SilentlyContinue
-            # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
-            Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite 9.0.0" -newValue $SCIP_ROOT
+        $SCIP_VERSION = "9.0.0"
+        if (Test-VersionDiffers -Root $SCIP_ROOT -Version $SCIP_VERSION) {
+            Set-Aside -Root $SCIP_ROOT
+            try {
+                Set-Location "C:\"
+                $SCIP_INSTALLER = "SCIPOptSuite-$SCIP_VERSION-win64-VS15.exe"
+                Invoke-WebRequest -Uri "https://www.scipopt.org/download/release/$SCIP_INSTALLER" -OutFile "C:\$SCIP_INSTALLER"
+                Start-Process -FilePath "C:\$SCIP_INSTALLER" -Wait
+                Remove-Item "C:\$SCIP_INSTALLER"
+                Move-Item -Path "C:\Program Files\SCIPOptSuite $SCIP_VERSION" -Destination $SCIP_ROOT -ErrorAction Stop
+                # Update the system PATH to ensure the SMS++ exe can correctly locate the scip*.dll file
+                Update-EnvironmentVariables -oldPattern "C:\Program Files\SCIPOptSuite $SCIP_VERSION" -newValue $SCIP_ROOT
+                Set-InstalledVersion -Root $SCIP_ROOT -Version $SCIP_VERSION
+            } catch {
+                Restore-SetAside -Root $SCIP_ROOT
+                throw
+            }
+            Write-Host "... SCIP installed successfully."
+        } else {
+            Write-Host "... SCIP already at its version."
         }
-        Write-Host "... SCIP installed successfully."
     }
 
     # Install Torch
     if (-not $withoutTorch) {
-        Write-Host "Installing Torch..."
+        Write-Host "Installing or updating Torch..."
         $Torch_ROOT = "C:\torch"
-        if (-not (Test-Path $Torch_ROOT)) {
-            Set-Location "C:\"
-            $TORCH_VERSION = "2.12.0"
-            $TORCH_INSTALLER = "libtorch-win-shared-with-deps-$TORCH_VERSION%2Bcpu.zip"
-            Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER" -OutFile "C:\torch.zip"
-            Expand-Archive -Path "C:\torch.zip" -DestinationPath "C:\" -Force
-            Remove-Item "C:\torch.zip"
-            # The archive unpacks as libtorch, rename to the version-less torch
-            Move-Item -Path "C:\libtorch" -Destination $Torch_ROOT -ErrorAction SilentlyContinue
-            # Update the system PATH to ensure the SMS++ exe can correctly locate the torch*.dll file
-            Add-ToSystemPath -PathToAdd "$Torch_ROOT\lib"
+        $TORCH_VERSION = "2.12.0"
+        if (Test-VersionDiffers -Root $Torch_ROOT -Version $TORCH_VERSION) {
+            Set-Aside -Root $Torch_ROOT
+            try {
+                Set-Location "C:\"
+                $TORCH_INSTALLER = "libtorch-win-shared-with-deps-$TORCH_VERSION%2Bcpu.zip"
+                Invoke-WebRequest -Uri "https://download.pytorch.org/libtorch/cpu/$TORCH_INSTALLER" -OutFile "C:\torch.zip"
+                Expand-Archive -Path "C:\torch.zip" -DestinationPath "C:\" -Force
+                Remove-Item "C:\torch.zip"
+                # The archive unpacks as libtorch, rename to the version-less torch
+                Move-Item -Path "C:\libtorch" -Destination $Torch_ROOT -ErrorAction Stop
+                # Update the system PATH to ensure the SMS++ exe can correctly locate the torch*.dll file
+                Add-ToSystemPath -PathToAdd "$Torch_ROOT\lib"
+                Set-InstalledVersion -Root $Torch_ROOT -Version $TORCH_VERSION
+            } catch {
+                Restore-SetAside -Root $Torch_ROOT
+                throw
+            }
+            Write-Host "... Torch installed successfully."
+        } else {
+            Write-Host "... Torch already at its version."
         }
-        Write-Host "... Torch installed successfully."
+    }
+
+    # Install the FlatZinc backend used by CSPBlock's FlatZincCSPSolver: the
+    # official MiniZinc bundle for Windows, carrying the minizinc driver and the
+    # OR-Tools CP-SAT, Gecode and Chuffed backends. There is no .sh to run on
+    # Windows (unlike CSPBlock/tools/install_flatzinc_backends.sh on Linux), and
+    # the bundle comes only as an Inno Setup installer, which is run silently
+    # into the root; on Windows the driver sits at the root, not in a bin subdir
+    if (-not $withoutFlatzinc) {
+        Write-Host "Installing or updating the FlatZinc backend (the MiniZinc bundle)..."
+        $MINIZINC_ROOT = "C:\minizinc"
+        $MINIZINC_VERSION = "2.8.5"
+        if (Test-VersionDiffers -Root $MINIZINC_ROOT -Version $MINIZINC_VERSION) {
+            Set-Aside -Root $MINIZINC_ROOT
+            try {
+                Set-Location "C:\"
+                $MINIZINC_SETUP = "MiniZincIDE-$MINIZINC_VERSION-bundled-setup-win64.exe"
+                Invoke-WebRequest -Uri "https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/$MINIZINC_SETUP" -OutFile "C:\minizinc-setup.exe"
+                $setup = Start-Process -FilePath "C:\minizinc-setup.exe" -Wait -PassThru -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/DIR=`"$MINIZINC_ROOT`""
+                Remove-Item "C:\minizinc-setup.exe"
+                if ($setup.ExitCode -ne 0) { throw "the MiniZinc installer exited with code $($setup.ExitCode)" }
+                if (-not (Test-Path "$MINIZINC_ROOT\minizinc.exe")) { throw "minizinc.exe is not in $MINIZINC_ROOT" }
+                # Update the system PATH to ensure the minizinc driver is found
+                Add-ToSystemPath -PathToAdd $MINIZINC_ROOT
+                Set-InstalledVersion -Root $MINIZINC_ROOT -Version $MINIZINC_VERSION
+            } catch {
+                Restore-SetAside -Root $MINIZINC_ROOT
+                throw
+            }
+            Write-Host "... FlatZinc backend installed successfully."
+        } else {
+            Write-Host "... FlatZinc backend already at its version."
+        }
+        Write-Host "The backends, for the FlatZincCSPSolver parameters, are:"
+        Write-Host "    strFlatZincSolver minizinc"
+        Write-Host "    vstrFlatZincArgs  2 --solver cp-sat   # or gecode, or chuffed"
+    }
+
+    # Install Clarabel: the C interface of Clarabel (Clarabel.cpp) at its
+    # latest release, whose DLL is built by cargo from the Rust solver it
+    # carries as a submodule; its CMake installs nothing, hence the headers
+    # are taken from its include directory and the DLL and its import
+    # library are copied into its lib directory, where SMS++ looks for them
+    # [see extlib/makefile-default-paths-win]
+    if (-not $withoutClarabel) {
+        Write-Host "Installing or updating Clarabel..."
+        $Clarabel_ROOT = "C:\clarabel"
+        if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+            choco install rust-ms -y --limit-output
+            Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+            refreshenv
+        }
+        $clarabelFresh = -not (Test-Path (Join-Path $Clarabel_ROOT ".git"))
+        try {
+            if (Update-GitLatest -Url "https://github.com/oxfordcontrol/Clarabel.cpp.git" `
+                    -Dir $Clarabel_ROOT -Pattern '^v[0-9]+\.[0-9]+\.[0-9]+$') {
+                Set-Location "$Clarabel_ROOT\rust_wrapper"
+                cargo build --release
+                if ($LASTEXITCODE -ne 0) { throw "cargo could not build Clarabel" }
+                New-Item -ItemType Directory -Force -Path "$Clarabel_ROOT\lib" | Out-Null
+                Copy-Item -Force "target\release\clarabel_c.dll", "target\release\clarabel_c.dll.lib" `
+                    -Destination "$Clarabel_ROOT\lib"
+                # Update the system PATH to ensure the SMS++ exe can correctly locate clarabel_c.dll
+                Add-ToSystemPath -PathToAdd "$Clarabel_ROOT\lib"
+                Write-Host "... Clarabel installed successfully."
+            } else {
+                Write-Host "... Clarabel already up to date."
+            }
+        } catch {
+            # only a new clone is removed: a failed update leaves the
+            # installation that was there
+            if ($clarabelFresh) {
+                Set-Location "C:\"
+                Remove-Item $Clarabel_ROOT -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            throw
+        }
+        Set-Location "C:\"
     }
 
     # Install / Upgrade Microsoft MPI
@@ -545,20 +777,24 @@ if (-not $withoutSMSpp)
     # Check if the SMSpp repository already exists
     if (Test-Path $SMSPP_ROOT) {
         Set-Location $SMSPP_ROOT
-        Write-Host "SMSpp already exists. Pulling latest changes..."
-        git @skipExperiments pull
-        git submodule sync --recursive
-        git @skipExperiments submodule update --recursive
+        # a checkout that is on no branch, or on one with no upstream (say,
+        # the one of a CI), is left at its commit
+        git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "SMSpp already exists. Pulling latest changes..."
+            # the submodules are updated below, to the commits pinned
+            git @skipExperiments -c fetch.recurseSubmodules=false pull
+        } else {
+            Write-Host "SMSpp is on no branch with an upstream: left at its commit."
+        }
     } else {
         Write-Host "Repository not found locally. Cloning SMSpp..."
-        if (-not $HAS_CMAKE_GUI) {
-            # no way to use cmake-gui interactively to choose submodules, so download all
-            git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        } else {
-            git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
-        }
+        git clone --branch develop https://gitlab.com/smspp/smspp-project.git $SMSPP_ROOT
         Set-Location $SMSPP_ROOT
     }
+    # the submodules, the private experiments left out unless asked for
+    git submodule sync --recursive
+    git @skipExperiments submodule update --init --recursive
     if ($withExperiments) {
         git config submodule.experiments.update checkout
         git submodule update --init experiments
@@ -580,7 +816,25 @@ if (-not $withoutSMSpp)
     $env:VCPKG_BINARY_SOURCES = 'clear;default' # avoid stale cached binaries
     $env:CMAKE_TOOLCHAIN_FILE = "$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
     $env:VCPKG_TARGET_TRIPLET="x64-windows"
-    & cmake -S . -B 'build' -G "Visual Studio 17 2022" "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
+    # the generator of the Visual Studio located above, whatever its version,
+    # with a CMake that has it: the one in the PATH, or else the one that
+    # comes with Visual Studio, as a CMake older than a Visual Studio does
+    # not know its generator
+    $cmakeExe = 'cmake'
+    if (-not ((& cmake --help) -match [regex]::Escape($vsGenerator))) {
+        $vsCmake = "$vsInstallPath\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+        if (Test-Path $vsCmake) {
+            $cmakeExe = $vsCmake
+        } else {
+            Write-Error "The CMake in the PATH has no generator $vsGenerator, and Visual Studio has no CMake of its own: install a newer CMake."
+            exit 1
+        }
+    }
+    Write-Host "Configuring with $cmakeExe and the generator $vsGenerator"
+    # no C++20 modules: MSVC stops with an internal error (C1001) on the
+    # interfaces of the modules, while the small one of the configuration
+    # check builds [see SMS++/cmake/CheckModule.cmake]
+    & $cmakeExe -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' '-DSMSpp_BUILD_MODULE=OFF' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
@@ -592,8 +846,8 @@ if (-not $withoutSMSpp)
     & cmake '--install' 'build' '--config' 'Debug'#>
 
     # Build Release
-    & cmake '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
-    & cmake '--install' 'build' '--config' 'Release'
+    & $cmakeExe '--build' 'build' '--config' 'Release' "-j $MAX_JOBS"
+    & $cmakeExe '--install' 'build' '--config' 'Release'
 
     # Add SMSpp to the system PATH
     $SMSPP_BIN = "$SMSPP_ROOT\bin"

@@ -1,0 +1,200 @@
+/* ------------------------------------------------------------------------
+   smspp.css: what the site of SMS++ changes in the theme of Read the Docs
+   ------------------------------------------------------------------------ */
+
+/* the content as wide as the formulae and the signatures of the API need:
+   at 1300 pixels 1 display formula in 253 and 65 signatures in 6916 of the
+   core and of UCBlock are still wider (800, the default of the theme, cuts
+   27 and 686), and the signatures longer than
+   maximum_signature_line_length go one parameter per line anyway */
+.wy-nav-content {
+    max-width: 1300px;
+}
+
+/* the content in the middle of the room the menu leaves, on a screen
+   wider than the menu and the content, instead of against the menu */
+.wy-nav-content {
+    margin: 0 auto;
+}
+
+/* a display formula wider than the page scrolls in its own box, and does
+   not spill over the margin */
+mjx-container[display="true"],
+div.math {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* the names in the signatures, which the dark theme leaves black */
+html[data-theme="dark"] .rst-content dl .sig-name,
+html[data-theme="dark"] .rst-content dl .sig-name * {
+    color: #e6e6e6 !important;
+}
+
+/* the signatures of the members, which the dark theme leaves on the light
+   grey of the light one (whose selector, made of many :not(), outweighs
+   its own), under the names coloured above */
+html[data-theme="dark"] .rst-content dl.cpp dt {
+    background: #2b2b2b !important;
+    color: #d0d0d0 !important;
+    border-color: #555555 !important;
+}
+
+/* the cells of the tables on more lines: the theme keeps them on one, so
+   that the descriptions of the modules, the headers and the classes run
+   out of the page and have to be scrolled */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+    white-space: normal;
+}
+
+/* ------------------------------------------------------------------------
+   the look of the PDF of the user manual [see manual/build/extra.css]:
+   the Latin Modern fonts of TeX for the text and the code (copied into
+   _static by html_static_path in conf.py), at the size of a book, black
+   text justified and hyphenated, a white side panel and header, plain
+   tables with thin rules, the code within the prose without a box, and
+   the primary 7030A0 only for the links
+   ------------------------------------------------------------------------ */
+
+@font-face { font-family: "Latin Modern Roman";
+    src: url("lmroman10-regular.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-weight: bold;
+    src: url("lmroman10-bold.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-style: italic;
+    src: url("lmroman10-italic.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-weight: bold;
+    font-style: italic;
+    src: url("lmroman10-bolditalic.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Mono";
+    src: url("lmmono10-regular.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Mono"; font-style: italic;
+    src: url("lmmono10-italic.otf") format("opentype"); }
+
+body, .rst-content .toctree-wrapper > p.caption, h1, h2, h3, h4, h5, h6,
+legend, .wy-menu-vertical, .wy-side-nav-search input[type=text] {
+    font-family: "Latin Modern Roman", serif;
+}
+
+.rst-content code, .rst-content tt, code, .rst-content pre.literal-block,
+.rst-content div[class^=highlight] pre, .rst-content dl dt,
+.rst-content dl dt *, .sig, .sig * {
+    font-family: "Latin Modern Mono", monospace;
+}
+
+.wy-nav-content {
+    font-size: 17px;
+}
+
+.rst-content p, .rst-content li, .rst-content dd {
+    text-align: justify;
+    hyphens: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: 0;
+}
+
+/* the code within the prose as \texttt in the PDF */
+.rst-content code, .rst-content tt, code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 95%;
+    color: inherit;
+    white-space: normal;
+}
+.rst-content code.literal, .rst-content tt.literal {
+    color: inherit;
+}
+
+/* the links in the primary of the manual, visited or not */
+a, a:visited, .rst-content a code, .rst-content a tt {
+    color: #7030A0;
+}
+html[data-theme="dark"] a, html[data-theme="dark"] a:visited,
+html[data-theme="dark"] .rst-content a code {
+    color: #b37fdb !important;
+}
+
+/* the tables as in the PDF: a rule above and below and a thin one under
+   the head, with no grid and no stripes */
+.rst-content table.docutils, .wy-table-bordered-all {
+    border: none;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+}
+.rst-content table.docutils td, .rst-content table.docutils th {
+    border: none !important;
+    background: none !important;
+}
+.rst-content table.docutils thead th {
+    font-weight: bold;
+    border-bottom: 0.5px solid currentColor !important;
+}
+
+/* the signatures of the members on a grey rule, not on the blue of the
+   theme (whose selector, made of many :not(), outweighs a plain one), in
+   the light theme (the dark one is set above) */
+html:not([data-theme="dark"]) .rst-content dl.cpp > dt,
+html:not([data-theme="dark"]) .rst-content dl.c > dt {
+    background: #f5f5f5 !important;
+    color: #000000 !important;
+    border-top: 1px solid #c9c9c9 !important;
+}
+
+/* the text in black, the page and the side panel in white, the header of
+   the panel and the bar of the small screens white too, in the light
+   theme */
+html:not([data-theme="dark"]) body,
+html:not([data-theme="dark"]) .wy-nav-content-wrap,
+html:not([data-theme="dark"]) .wy-nav-side,
+html:not([data-theme="dark"]) .wy-side-nav-search,
+html:not([data-theme="dark"]) .wy-nav-top {
+    background: #ffffff;
+    color: #000000;
+}
+html:not([data-theme="dark"]) .wy-nav-side {
+    border-right: 1px solid #e1e4e5;
+}
+html:not([data-theme="dark"]) .wy-side-nav-search > a,
+html:not([data-theme="dark"]) .wy-side-nav-search .version,
+html:not([data-theme="dark"]) .wy-nav-top a,
+html:not([data-theme="dark"]) .wy-nav-top i {
+    color: #000000;
+}
+html:not([data-theme="dark"]) .wy-side-nav-search input[type=text] {
+    border-color: #c9c9c9;
+}
+html:not([data-theme="dark"]) .wy-menu-vertical a,
+html:not([data-theme="dark"]) .wy-menu-vertical header,
+html:not([data-theme="dark"]) .wy-menu-vertical p.caption {
+    color: #000000;
+}
+html:not([data-theme="dark"]) .wy-menu-vertical a:hover {
+    background: #f0f0f0;
+}
+html:not([data-theme="dark"]) .wy-menu-vertical li.current > a,
+html:not([data-theme="dark"]) .wy-menu-vertical li.on a {
+    color: #7030A0;
+}
+
+/* the branch of the current page in the menu on a light grey, not on the
+   darker greys of the theme */
+html:not([data-theme="dark"]) .wy-menu-vertical li.current,
+html:not([data-theme="dark"]) .wy-menu-vertical li.current > a,
+html:not([data-theme="dark"]) .wy-menu-vertical li.current li > a {
+    background: #f7f7f7 !important;
+    border-color: #e1e4e5 !important;
+}
+
+/* the admonitions (notes, see also, warnings) in grey, as the frames of
+   the PDF, the colours of the theme being kept off the page */
+html:not([data-theme="dark"]) .rst-content .admonition {
+    background: #f5f5f5 !important;
+}
+html:not([data-theme="dark"]) .rst-content .admonition-title {
+    background: #e1e4e5 !important;
+    color: #000000 !important;
+}

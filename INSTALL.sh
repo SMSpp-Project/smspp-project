@@ -24,16 +24,26 @@
 #     You can use the `--without-piqp` option to skip the installation of PIQP.
 #     You can use the `--without-osqp` option to skip the installation of OSQP.
 #     You can use the `--without-qpmad` option to skip the installation of qpmad.
-#     You can use the `--with-quadprog` option to also install quadprog, which
-#     is under the GPL, so that a MILPSolver built with it is too.
+#     You can use the `--without-hpipm` option to skip the installation of HPIPM.
+#     You can use the `--with-permon` option to install PERMON (and PETSc,
+#     which is large and is built from its sources), which is not installed
+#     otherwise.
+#     You can use the `--without-quadprog` option to skip the installation of
+#     quadprog, which is under the GPL, so that a MILPSolver built with it is
+#     too.
+#     You can use the `--without-clarabel` option to skip the installation of
+#     Clarabel, whose C interface is built with the Rust toolchain (cargo).
 #     You can use the `--without-stopt` option to skip the installation of StOpt.
 #     You can use the `--without-torch` option to skip the installation of Torch.
-#     You can use the `--without-lemon` option to skip the installation of LEMON.
+#     You can use the `--without-lemon` option to skip the installation of
+#     abLEMON, the maintained fork of LEMON.
 #     You can use the `--without-libsvm` option to skip the installation of LIBSVM.
 #     You can use the `--without-liblinear` option to skip the installation of LIBLINEAR.
 #     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
 #     You can use the `--without-minisat` option to skip the installation of MiniSat.
 #     You can use the `--without-record` option to skip the installation of RECORD.
+#     You can use the `--without-flatzinc` option to skip the installation of
+#     the FlatZinc backend (the MiniZinc bundle) used by FlatZincCSPSolver.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #     You can use the `--with-experiments` option to also fetch and build the
 #     private experiments submodule, which needs access to its repository;
@@ -41,14 +51,17 @@
 #
 #     Skipping a dependency that an SMS++ module hard-requires automatically
 #     disables that module when building SMS++, so configuration does not fail
-#     looking for a missing library: --without-stopt disables SDDPBlock and
-#     InvestmentBlock, --without-lemon disables MCFLemonSolver, and
-#     --without-pips disables PIPSMILPSolver. CaDiCaL and MiniSat are optional
-#     for SATBlock, which builds the SAT solvers it finds, and RECORD is
+#     looking for a missing library: --without-stopt disables SDDPBlock
+#     (and the tools that solve one), --without-lemon disables
+#     MCFLemonSolver, and --without-pips disables PIPSMILPSolver. CaDiCaL
+#     and MiniSat are optional for SATBlock, which builds the SAT solvers it finds, and RECORD is
 #     optional for BinaryKnapsackBlock, which builds RECORDBinaryKnapsackSolver
 #     if it finds it. COMBO, which BinaryKnapsackBlock can also use, is for
 #     academic or non-commercial use only and is not installed: whoever has
-#     its combo.c and combo.h gives their directory as COMBO_ROOT.
+#     its combo.c and combo.h gives their directory as COMBO_ROOT. CSPBlock
+#     still builds without the FlatZinc backend: only solving a CSPBlock through
+#     an external solver (FlatZincCSPSolver) needs it, so --without-flatzinc
+#     skips it without disabling CSPBlock.
 #
 # AUTHOR
 #     Donato Meoli
@@ -80,7 +93,133 @@ cleanup_on_error() {
   if [ -n "$CURRENT_INSTALL_FOLDER" ]; then
     rm -Rf "$CURRENT_INSTALL_FOLDER"
   fi
+  # an installation set aside to be replaced is put back [see set_aside]
+  if [ -n "${OLD_INSTALL_FOLDER:-}" ] && [ -d "${OLD_INSTALL_FOLDER}.old" ]; then
+    $AS_ROOT rm -rf "$OLD_INSTALL_FOLDER"
+    $AS_ROOT mv "${OLD_INSTALL_FOLDER}.old" "$OLD_INSTALL_FOLDER"
+  fi
   exit 1
+}
+
+# The command that moves and removes the installations of the dependencies
+# from an archive, which on macOS (where INSTALL.sh runs without sudo) the
+# installers of some leave to root
+if [ "$(uname)" == "Darwin" ] && [ "$(id -u)" -ne 0 ]; then
+  AS_ROOT="sudo"
+else
+  AS_ROOT=""
+fi
+
+# Whether the installation in $1 is one that this run cannot change, e.g.,
+# one under /opt made by root, when the script runs without sudo: it is then
+# used as it is, neither updated nor installed again
+read_only() {
+  if [ -d "$1" ] && [ ! -w "$1" ]; then
+    echo "$1 is not writable, so it is used as it is."
+    return 0
+  fi
+  return 1
+}
+
+# Whether the dependency installed from an archive in $1 is not at the
+# version $2, i.e., whether to install it (again): the version that an
+# installation is at is kept in its file .smspp-version, and an installation
+# made before that file existed is taken to be at the version asked for
+version_differs() {
+  [ -d "$1" ] || return 0
+  read_only "$1" && return 1
+  if [ ! -f "$1/.smspp-version" ]; then
+    echo "$2" | $AS_ROOT tee "$1/.smspp-version" > /dev/null
+    return 1
+  fi
+  [ "$(cat "$1/.smspp-version")" != "$2" ]
+}
+
+# Before a dependency is installed again, its installation is moved aside:
+# it is removed once the new one is in place [see mark_version], and put
+# back if the installation fails [see cleanup_on_error]
+set_aside() {
+  CURRENT_INSTALL_FOLDER=$1
+  if [ -d "$1" ]; then
+    $AS_ROOT rm -rf "$1.old"
+    $AS_ROOT mv "$1" "$1.old"
+    OLD_INSTALL_FOLDER=$1
+  fi
+}
+
+# The version $2 of the dependency just installed in $1, if it was (on some
+# systems a dependency is skipped), and the installation it replaced removed
+mark_version() {
+  [ -n "$1" ] || return 0
+  if [ -d "$1" ]; then
+    echo "$2" | $AS_ROOT tee "$1/.smspp-version" > /dev/null
+  fi
+  $AS_ROOT rm -rf "$1.old"
+  OLD_INSTALL_FOLDER=""
+}
+
+# Clone the repository $1 into the directory $2, or bring an existing clone
+# up to date, and say whether there is something new to build (exit status
+# 0) or not (1): with a pattern $3 (an extended regular expression) the
+# clone goes to the latest tag that matches it, e.g., the latest release,
+# otherwise it follows its branch, pulling what is new, as HiGHS does. Only a
+# new clone is marked as the folder that an error removes, so that a failed
+# update leaves the installation that was there.
+git_latest() {
+  local url=$1 dir=$2 pattern=${3:-} fresh=0 before after tag
+  read_only "$dir" && return 1
+  if [ ! -d "$dir/.git" ]; then
+    CURRENT_INSTALL_FOLDER=$dir
+    git clone -q "$url" "$dir"
+    fresh=1
+  fi
+  before=$(git -C "$dir" rev-parse HEAD)
+  if [ -n "$pattern" ]; then
+    git -C "$dir" fetch -q --tags --force origin
+    tag=$(git -C "$dir" tag --sort=-v:refname | grep -E "$pattern" | head -1)
+    [ -n "$tag" ] && git -C "$dir" checkout -q "$tag"
+  elif [ "$fresh" -eq 0 ]; then
+    git -C "$dir" pull -q --ff-only
+  fi
+  git -C "$dir" submodule update -q --init --recursive
+  after=$(git -C "$dir" rev-parse HEAD)
+  [ "$fresh" -eq 1 ] || [ "$before" != "$after" ]
+}
+
+# Build PERMON, whose clone is in $1/permon-src, and PETSc, which it is built
+# on, into $1: PETSc of the version that the release of PERMON follows (the
+# major and minor numbers of its tag), from the latest tarball of that
+# version, sequential (without MPI and Fortran, with the BLAS and LAPACK that
+# PETSc downloads, so that no system library is needed), built again only
+# when that version changes; PERMON has no install target, hence its headers
+# and its library are copied next to those of PETSc
+build_permon() {
+  local root=$1 tag minor petsc
+  tag=$(git -C "$root/permon-src" describe --tags --exact-match)
+  minor=$(echo "$tag" | sed -E 's/^v([0-9]+\.[0-9]+)\..*/\1/')
+  petsc=$(git ls-remote --tags --refs https://gitlab.com/petsc/petsc.git "v${minor}.*" |
+            sed 's|.*/v||' | sort -V | tail -1)
+  [ -n "$petsc" ] || { echo "No PETSc ${minor} for PERMON ${tag}"; return 1; }
+  if [ "$(cat "$root/.smspp-petsc-version" 2>/dev/null)" != "$petsc" ]; then
+    cd "$root"
+    curl -fsSL -o "petsc-${petsc}.tar.gz" \
+      "https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-${petsc}.tar.gz"
+    rm -rf "petsc-${petsc}"
+    tar xzf "petsc-${petsc}.tar.gz"
+    cd "petsc-${petsc}"
+    ./configure --prefix="$root" PETSC_ARCH=arch-smspp --with-mpi=0 --with-fc=0 \
+      --with-debugging=0 --with-shared-libraries=1 --with-x=0 \
+      --download-f2cblaslapack COPTFLAGS=-O2 CXXOPTFLAGS=-O2
+    make PETSC_DIR="$PWD" PETSC_ARCH=arch-smspp MAKE_NP="${MAX_JOBS}" all
+    make PETSC_DIR="$PWD" PETSC_ARCH=arch-smspp install
+    cd "$root"
+    rm -rf "petsc-${petsc}" "petsc-${petsc}.tar.gz"
+    echo "$petsc" > "$root/.smspp-petsc-version"
+  fi
+  cd "$root/permon-src"
+  make PETSC_DIR="$root" PETSC_ARCH= PERMON_DIR="$PWD" -j "${MAX_JOBS}"
+  cp -a include/. "$root/include/"
+  cp -a lib/libpermon.* "$root/lib/"
 }
 
 # Resolve where a dependency lives (Linux only): reuse an existing install under
@@ -148,12 +287,6 @@ install_on_linux() {
     echo "Installing NetCDF-C++..."
     apt-get install -y -q libnetcdf-c++4-dev
 
-    # Install LEMON
-    if [ "$install_lemon" -eq 1 ]; then
-      echo "Installing LEMON..."
-      apt-get install -y -q liblemon-dev
-    fi
-
     # Install LIBSVM
     if [ "$install_libsvm" -eq 1 ]; then
       echo "Installing LIBSVM..."
@@ -174,23 +307,24 @@ install_on_linux() {
         cadical_from_source=0
       fi
     fi
+  elif [ -f /usr/include/cadical.hpp ]; then
+    # without sudo, the package installed by the administrator is used
+    cadical_from_source=0
   fi
 
-  # Install CaDiCaL from its source, where there is no package: its own
-  # configure script builds it in place (src/cadical.hpp and
+  # Install CaDiCaL from its latest release, where there is no package: its
+  # own configure script builds it in place (src/cadical.hpp and
   # build/libcadical.a), which is what SATBlock looks for in CADICAL_ROOT;
   # -fPIC lets the library be linked into a shared SATBlock
   if [ "$install_cadical" -eq 1 ] && [ "$cadical_from_source" -eq 1 ]; then
-    echo "Installing CaDiCaL from its source..."
+    echo "Installing or updating CaDiCaL from its source..."
     CADICAL_ROOT="$(resolve_dep_root cadical)"
-    CURRENT_INSTALL_FOLDER=${CADICAL_ROOT}
-    if [ ! -d "$CADICAL_ROOT" ]; then
-      git clone --branch rel-3.0.1 --depth 1 https://github.com/arminbiere/cadical.git "$CADICAL_ROOT"
+    if git_latest https://github.com/arminbiere/cadical.git "$CADICAL_ROOT" '^rel-[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$CADICAL_ROOT"
       ./configure -fPIC
       make -j "${MAX_JOBS}"
     else
-      echo "CaDiCaL already installed."
+      echo "CaDiCaL already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -200,26 +334,23 @@ install_on_linux() {
   # carries the 2010 code of minisat.se, older than the stp/minisat fork,
   # the one Homebrew packages, which compiles with the recent compilers as it
   # is; its CMakeLists.txt asks for CMake 2.6, which CMake 4 refuses unless
-  # told the policies it may assume
+  # told the policies it may assume. Its sources are kept in src/ of its
+  # directory, so that a run brings them up to date
   if [ "$install_minisat" -eq 1 ]; then
-    echo "Installing MiniSat..."
+    echo "Installing or updating MiniSat..."
     MINISAT_ROOT="$(resolve_dep_root minisat)"
-    CURRENT_INSTALL_FOLDER=${MINISAT_ROOT}
-    if [ ! -d "$MINISAT_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone --branch releases/2.2.1 --depth 1 https://github.com/stp/minisat.git minisat-src
-      cd minisat-src
+    if git_latest https://github.com/stp/minisat.git "$MINISAT_ROOT/src" '^releases/[0-9]+(\.[0-9]+)+$'; then
+      cd "$MINISAT_ROOT/src"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX="$MINISAT_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       cd "$INSTALL_ROOT"
-      rm -rf minisat-src
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${MINISAT_ROOT}/lib' > /etc/ld.so.conf.d/minisat.conf"
         ldconfig
       fi
     else
-      echo "MiniSat already installed."
+      echo "MiniSat already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -229,14 +360,17 @@ install_on_linux() {
   # itself, so there is nothing to build here; its repository also holds a
   # large set of benchmark data, hence only source/ is checked out
   if [ "$install_record" -eq 1 ]; then
-    echo "Installing RECORD..."
+    echo "Installing or updating RECORD..."
     RECORD_ROOT="$(resolve_dep_root record)"
-    CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
-    if [ ! -d "$RECORD_ROOT" ]; then
+    if read_only "$RECORD_ROOT"; then
+      :
+    elif [ ! -d "$RECORD_ROOT/.git" ]; then
+      CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
       git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
       git -C "$RECORD_ROOT" sparse-checkout set source
     else
-      echo "RECORD already installed."
+      git -C "$RECORD_ROOT" pull -q --ff-only
+      echo "RECORD brought up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -290,12 +424,12 @@ EOL
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
-    echo "Installing Gurobi..."
+    echo "Installing or updating Gurobi..."
     GUROBI_ROOT="$(resolve_dep_root gurobi)"
-    CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
-    if [ ! -d "$GUROBI_ROOT" ]; then
+    GUROBI_INSTALLER="gurobi13.0.1_linux64.tar.gz"
+    if version_differs "$GUROBI_ROOT" "$GUROBI_INSTALLER"; then
+      set_aside "$GUROBI_ROOT"
       cd "$INSTALL_ROOT"
-      GUROBI_INSTALLER="gurobi13.0.1_linux64.tar.gz"
       curl -O "https://packages.gurobi.com/13.0/$GUROBI_INSTALLER"
       tar -xzf "$GUROBI_INSTALLER"
       rm "$GUROBI_INSTALLER"
@@ -307,30 +441,31 @@ EOL
         sh -c "echo '${GUROBI_HOME}/lib' > /etc/ld.so.conf.d/gurobi.conf"
         ldconfig
       fi
+      mark_version "$GUROBI_ROOT" "$GUROBI_INSTALLER"
     else
-      echo "Gurobi already installed."
+      echo "Gurobi already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install MOSEK: the tools archive of the latest 11.0.x version, whose
+  # Install MOSEK: the tools archive of the latest 12.0.x version, whose
   # number is published next to it (a fixed one if it cannot be read); the
   # archive unpacks as mosek/<major.minor>/tools/platform/<platform>, and
   # MOSEK_ROOT is the mosek directory, which holds one directory per version
   if [ "$install_mosek" -eq 1 ]; then
-    echo "Installing MOSEK..."
+    echo "Installing or updating MOSEK..."
     MOSEK_ROOT="$(resolve_dep_root mosek)"
-    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
-    if [ ! -d "$MOSEK_ROOT" ]; then
+    MOSEK_URL="https://download.mosek.com/stable"
+    MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+    if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+      MOSEK_VERSION="12.0.0"
+    fi
+    if version_differs "$MOSEK_ROOT" "$MOSEK_VERSION"; then
+      set_aside "$MOSEK_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         apt-get install -y -q bzip2
       fi
       cd "$INSTALL_ROOT"
-      MOSEK_URL="https://download.mosek.com/stable"
-      MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/11.0/version" || true)
-      if ! [[ "$MOSEK_VERSION" =~ ^11\.0\.[0-9]+$ ]]; then
-        MOSEK_VERSION="11.0.30"
-      fi
       if [ "$(uname -m)" == "aarch64" ]; then
         MOSEK_PLATFORM="linuxaarch64"
       else
@@ -351,8 +486,9 @@ EOL
         sh -c "echo '${MOSEK_HOME}/bin' > /etc/ld.so.conf.d/mosek.conf"
         ldconfig
       fi
+      mark_version "$MOSEK_ROOT" "$MOSEK_VERSION"
     else
-      echo "MOSEK already installed."
+      echo "MOSEK already at its version."
     fi
     echo "MOSEK needs a license (free for academic use, see"
     echo "https://www.mosek.com/products/academic-licenses/): put it in"
@@ -362,15 +498,15 @@ EOL
 
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
-    echo "Installing SCIP..."
+    echo "Installing or updating SCIP..."
     SCIP_ROOT="$(resolve_dep_root scip)"
-    CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
-    if [ ! -d "$SCIP_ROOT" ]; then
+    SCIP_INSTALLER="scip-9.2.1"
+    if version_differs "$SCIP_ROOT" "$SCIP_INSTALLER"; then
+      set_aside "$SCIP_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         apt-get install -y -q gfortran libtbb-dev
       fi
       cd "$INSTALL_ROOT"
-      SCIP_INSTALLER="scip-9.2.1"
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar -xzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
@@ -400,8 +536,9 @@ EOL
         sh -c "echo '${SCIP_ROOT}/lib' > /etc/ld.so.conf.d/scip.conf"
         ldconfig
       fi
+      mark_version "$SCIP_ROOT" "$SCIP_INSTALLER"
     else
-      echo "SCIP already installed."
+      echo "SCIP already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -409,18 +546,16 @@ EOL
   # Install HiGHS
   # HIPO=ON builds the HiPO interior point solver (HiGHS >= 1.14), which is
   # the only HiGHS solver able to handle convex QPs reliably; it needs a
-  # system BLAS.
+  # system BLAS. HiGHS follows its branch: a run pulls what is new and builds
+  # it again.
   if [ "$install_highs" -eq 1 ]; then
-    echo "Installing HiGHS..."
+    echo "Installing or updating HiGHS..."
     HiGHS_ROOT="$(resolve_dep_root HiGHS)"
-    CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       apt-get install -y -q libopenblas-dev
     fi
-    if [ ! -d "$HiGHS_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/ERGO-Code/HiGHS.git
-      cd HiGHS
+    if git_latest https://github.com/ERGO-Code/HiGHS.git "$HiGHS_ROOT"; then
+      cd "$HiGHS_ROOT"
       # BLA_VENDOR routes CMake to the system libopenblas: Ubuntu's
       # OpenBLASConfig.cmake advertises a lib/libopenblas.so path that
       # does not exist
@@ -432,21 +567,32 @@ EOL
         ldconfig
       fi
     else
+      echo "HiGHS already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install abLEMON
+  # abLEMON, the maintained fork of LEMON that MCFLemonSolver needs, has no
+  # Debian package: it is built from its latest release, i.e., the latest tag
+  # of its repository.
+  if [ "$install_lemon" -eq 1 ]; then
+    echo "Installing or updating abLEMON..."
+    LEMON_ROOT="$(resolve_dep_root abLEMON)"
+    if git_latest https://github.com/dmeoli/abLEMON.git "$LEMON_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$LEMON_ROOT"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+        -DCMAKE_INSTALL_PREFIX="$LEMON_ROOT" -DLEMON_BUILD_TESTS=NO \
+        -DLEMON_BUILD_DEMOS=NO -DLEMON_BUILD_TOOLS=NO -DLEMON_BUILD_DOC=NO
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
       if [ "$HAS_SUDO" -eq 1 ]; then
-        cd "$HiGHS_ROOT"
-        git remote update
-        LOCAL=$(git rev-parse @)
-        REMOTE=$(git rev-parse @{u})
-        # if the repository is not up to date
-        if [ "$LOCAL" != "$REMOTE" ]; then
-          git pull
-          cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-          cmake --build build -j "${MAX_JOBS}"
-          cmake --install build
-        else
-          echo "HiGHS already up to date."
-        fi
+        sh -c "echo '${LEMON_ROOT}/lib' > /etc/ld.so.conf.d/ablemon.conf"
+        ldconfig
       fi
+    else
+      echo "abLEMON already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -456,14 +602,10 @@ EOL
   # DAQP is built from its latest release, i.e., the latest tag of its
   # repository, rather than from its development branch.
   if [ "$install_daqp" -eq 1 ]; then
-    echo "Installing DAQP..."
+    echo "Installing or updating DAQP..."
     DAQP_ROOT="$(resolve_dep_root daqp)"
-    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
-    if [ ! -d "$DAQP_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+    if git_latest https://github.com/darnstrom/daqp.git "$DAQP_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$DAQP_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
@@ -472,7 +614,7 @@ EOL
         ldconfig
       fi
     else
-      echo "DAQP already installed."
+      echo "DAQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -513,14 +655,10 @@ EOL
   # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
   # unless told otherwise.
   if [ "$install_qpoases" -eq 1 ]; then
-    echo "Installing qpOASES..."
+    echo "Installing or updating qpOASES..."
     qpOASES_ROOT="$(resolve_dep_root qpOASES)"
-    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
-    if [ ! -d "$qpOASES_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+    if git_latest https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT" '^releases/[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpOASES_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
         -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
         -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -532,7 +670,7 @@ EOL
         ldconfig
       fi
     else
-      echo "qpOASES already installed."
+      echo "qpOASES already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -540,24 +678,21 @@ EOL
 
   # Install ProxSuite
   # ProxSuite (ProxQP) is header-only: it is configured from its latest
-  # release, without the SIMD vectorization that would need Simde, and only
-  # its headers and its CMake configuration are installed.
+  # release, without the SIMD vectorization that would need Simde and the
+  # serialization that would need cereal, and only its headers and its CMake
+  # configuration are installed.
   if [ "$install_proxsuite" -eq 1 ]; then
-    echo "Installing ProxSuite..."
+    echo "Installing or updating ProxSuite..."
     proxsuite_ROOT="$(resolve_dep_root proxsuite)"
-    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
-    if [ ! -d "$proxsuite_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+    if git_latest https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$proxsuite_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git submodule update --init cmake-module
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
         -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
-        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
+        -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
       cmake --install build
     else
-      echo "ProxSuite already installed."
+      echo "ProxSuite already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -568,14 +703,10 @@ EOL
   # compiled library of its common templates and its headers), without the
   # C, Python and Matlab interfaces, the tests and the benchmarks.
   if [ "$install_piqp" -eq 1 ]; then
-    echo "Installing PIQP..."
+    echo "Installing or updating PIQP..."
     piqp_ROOT="$(resolve_dep_root piqp)"
-    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
-    if [ ! -d "$piqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+    if git_latest https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$piqp_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
         -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
         -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
@@ -586,7 +717,7 @@ EOL
         ldconfig
       fi
     else
-      echo "PIQP already installed."
+      echo "PIQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -597,15 +728,11 @@ EOL
   # and in double precision, without the demo and the unit tests; the
   # version is given to its CMake, which otherwise writes 0.0.0 in it.
   if [ "$install_osqp" -eq 1 ]; then
-    echo "Installing OSQP..."
+    echo "Installing or updating OSQP..."
     osqp_ROOT="$(resolve_dep_root osqp)"
-    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
-    if [ ! -d "$osqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+    if git_latest https://github.com/osqp/osqp.git "$osqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$osqp_ROOT"
-      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git checkout -q "$osqp_tag"
+      osqp_tag="$(git describe --tags --exact-match)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
         -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
         -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
@@ -616,7 +743,7 @@ EOL
         ldconfig
       fi
     else
-      echo "OSQP already installed."
+      echo "OSQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -626,18 +753,74 @@ EOL
   # qpmad is header-only: it is configured from its latest release, and only
   # its headers and its CMake configuration are installed.
   if [ "$install_qpmad" -eq 1 ]; then
-    echo "Installing qpmad..."
+    echo "Installing or updating qpmad..."
     qpmad_ROOT="$(resolve_dep_root qpmad)"
-    CURRENT_INSTALL_FOLDER=${qpmad_ROOT}
-    if [ ! -d "$qpmad_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/asherikov/qpmad.git "$qpmad_ROOT"
+    if git_latest https://github.com/asherikov/qpmad.git "$qpmad_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpmad_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$qpmad_ROOT"
       cmake --install build
     else
-      echo "qpmad already installed."
+      echo "qpmad already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install HPIPM
+  # HPIPM and BLASFEO, the linear algebra it is built on, are built from
+  # their latest releases and installed in the same directory; BLASFEO is
+  # built for a generic processor, so that the installation (e.g., the image
+  # of the CI) also runs on a processor other than the one it was built on,
+  # and the library of HPIPM finds that of BLASFEO next to it.
+  if [ "$install_hpipm" -eq 1 ]; then
+    echo "Installing or updating HPIPM..."
+    HPIPM_ROOT="$(resolve_dep_root hpipm)"
+    hpipm_blasfeo_new=0
+    if git_latest https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src" '^[0-9]+(\.[0-9]+)+$'; then
+      cd "${HPIPM_ROOT}/blasfeo-src"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      hpipm_blasfeo_new=1
+    fi
+    # HPIPM is built again also when BLASFEO, which it is built on, changed
+    if git_latest https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src" '^[0-9]+(\.[0-9]+)+$' ||
+       [ "$hpipm_blasfeo_new" -eq 1 ]; then
+      cd "${HPIPM_ROOT}/hpipm-src"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_PATH="$HPIPM_ROOT" -DHPIPM_TESTING=OFF \
+        -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$ORIGIN'
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${HPIPM_ROOT}/lib' > /etc/ld.so.conf.d/hpipm.conf"
+        ldconfig
+      fi
+    else
+      echo "HPIPM already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PERMON
+  # PERMON, whose QP solvers PERMONMILPSolver uses, is built from its latest
+  # release together with PETSc [see build_permon]; the library of PERMON
+  # finds that of PETSc in the same directory.
+  if [ "$install_permon" -eq 1 ]; then
+    echo "Installing or updating PERMON..."
+    PERMON_ROOT="$(resolve_dep_root permon)"
+    mkdir -p "$PERMON_ROOT"
+    if git_latest https://github.com/permon/permon.git "${PERMON_ROOT}/permon-src" '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
+       [ ! -f "${PERMON_ROOT}/lib/libpermon.so" ]; then
+      build_permon "$PERMON_ROOT"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${PERMON_ROOT}/lib' > /etc/ld.so.conf.d/permon.conf"
+        ldconfig
+      fi
+    else
+      echo "PERMON already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -647,16 +830,12 @@ EOL
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
   # since the others have names (dot, axpy, ...) that other libraries export.
-  # It is under the GPL, hence it is installed only if asked.
+  # It is under the GPL, hence a MILPSolver built with it is too.
   if [ "$install_quadprog" -eq 1 ]; then
-    echo "Installing quadprog..."
+    echo "Installing or updating quadprog..."
     quadprog_ROOT="$(resolve_dep_root quadprog)"
-    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
-    if [ ! -d "$quadprog_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+    if git_latest https://github.com/quadprog/quadprog.git "$quadprog_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$quadprog_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       mkdir -p lib
       echo "{ global: qpgen2_; local: *; };" > lib/quadprog.map
       cc -O2 -fPIC -shared -Wl,--version-script=lib/quadprog.map \
@@ -667,7 +846,34 @@ EOL
         ldconfig
       fi
     else
-      echo "quadprog already installed."
+      echo "quadprog already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install Clarabel
+  # The C interface of Clarabel (Clarabel.cpp) at its latest release, whose
+  # library is built by cargo from the Rust solver it carries as a submodule;
+  # its CMake installs nothing, hence the headers are taken from its include
+  # directory and the library is copied into its lib directory.
+  if [ "$install_clarabel" -eq 1 ]; then
+    echo "Installing or updating Clarabel..."
+    Clarabel_ROOT="$(resolve_dep_root clarabel)"
+    if ! command -v cargo > /dev/null 2>&1 && [ "$HAS_SUDO" -eq 1 ]; then
+      apt-get install -y -q cargo
+    fi
+    if git_latest https://github.com/oxfordcontrol/Clarabel.cpp.git "$Clarabel_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$Clarabel_ROOT/rust_wrapper"
+      cargo build --release
+      mkdir -p "$Clarabel_ROOT/lib"
+      cp target/release/libclarabel_c.so "$Clarabel_ROOT/lib/"
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        sh -c "echo '${Clarabel_ROOT}/lib' > /etc/ld.so.conf.d/clarabel.conf"
+        ldconfig
+      fi
+    else
+      echo "Clarabel already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -677,79 +883,57 @@ EOL
   # PIPS-IPM++ is consumed from its build tree (no install step); the fully
   # open-source build uses MUMPS as inner linear solver.
   if [ "$install_pips" -eq 1 ]; then
-    echo "Installing PIPS-IPM++..."
+    echo "Installing or updating PIPS-IPM++..."
     PIPS_ROOT_DIR="$(resolve_dep_root pips-ipmpp)"
-    CURRENT_INSTALL_FOLDER=${PIPS_ROOT_DIR}
-    if [ ! -d "$PIPS_ROOT_DIR" ]; then
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        apt-get install -y -q libopenmpi-dev gfortran liblapack-dev libmetis-dev libmumps-dev
-      fi
-      cd "$INSTALL_ROOT"
-      git clone --recurse-submodules https://gitlab.com/pips-ipmpp/pips-ipmpp.git "$PIPS_ROOT_DIR"
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      apt-get install -y -q libopenmpi-dev gfortran liblapack-dev libmetis-dev libmumps-dev
+    fi
+    if git_latest https://gitlab.com/pips-ipmpp/pips-ipmpp.git "$PIPS_ROOT_DIR"; then
       cmake -S "$PIPS_ROOT_DIR" -B "$PIPS_ROOT_DIR/build" -DCMAKE_BUILD_TYPE=Release
       cmake --build "$PIPS_ROOT_DIR/build" -j "${MAX_JOBS}"
     else
-      echo "PIPS-IPM++ already installed."
+      echo "PIPS-IPM++ already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install StOpt
+  # StOpt follows its branch: a run pulls what is new and builds it again.
   if [ "$install_stopt" -eq 1 ]; then
-    echo "Installing StOpt..."
+    echo "Installing or updating StOpt..."
     StOpt_ROOT="$(resolve_dep_root StOpt)"
-    CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
     if [ "$HAS_SUDO" -eq 1 ]; then
       # StOpt looks for BZip2 too, which the COIN-OR packages used to bring
       apt-get install -y -q zlib1g-dev libbz2-dev libboost-timer-dev libboost-random-dev libboost-mpi-dev
     fi
-    if [ ! -d "$StOpt_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://gitlab.com/stochastic-control/StOpt.git
-      cd StOpt
+    if git_latest https://gitlab.com/stochastic-control/StOpt.git "$StOpt_ROOT"; then
+      cd "$StOpt_ROOT"
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      cd "$INSTALL_ROOT"
       if [ "$HAS_SUDO" -eq 1 ]; then
         sh -c "echo '${StOpt_ROOT}/lib' > /etc/ld.so.conf.d/stopt.conf"
         ldconfig
       fi
     else
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        cd "$StOpt_ROOT"
-        LOCAL=$(git rev-parse @)
-        REMOTE=$(git rev-parse @{u})
-        # if the repository is not up to date
-        if [ "$LOCAL" != "$REMOTE" ]; then
-          git pull
-          cmake -S . -B build \
-                -DBUILD_PYTHON=OFF \
-                -DBUILD_TEST=OFF \
-                -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-          cmake --build build -j "${MAX_JOBS}"
-          cmake --install build
-        else
-          echo "StOpt already up to date."
-        fi
-        cd "$INSTALL_ROOT"
-      fi
+      echo "StOpt already up to date."
     fi
+    cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
-    echo "Installing Torch..."
+    echo "Installing or updating Torch..."
     Torch_ROOT="$(resolve_dep_root torch)"
-    CURRENT_INSTALL_FOLDER=${Torch_ROOT}
-    if [ ! -d "$Torch_ROOT" ]; then
+    TORCH_VERSION="2.12.0"
+    if version_differs "$Torch_ROOT" "$TORCH_VERSION"; then
+      set_aside "$Torch_ROOT"
       cd "$INSTALL_ROOT"
-      TORCH_VERSION="2.12.0"
       TORCH_INSTALLER="libtorch-shared-with-deps-${TORCH_VERSION}%2Bcpu.zip"
       # -f fails on HTTP errors (no error page saved as a fake zip),
       # -L follows download.pytorch.org's redirect
@@ -763,8 +947,9 @@ EOL
         sh -c "echo '${Torch_ROOT}/lib' > /etc/ld.so.conf.d/torch.conf"
         ldconfig
       fi
+      mark_version "$Torch_ROOT" "$TORCH_VERSION"
     else
-      echo "Torch already installed."
+      echo "Torch already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -822,40 +1007,13 @@ install_on_macos() {
   echo "Installing NetCDF..."
   brew install hdf5 netcdf netcdf-cxx
 
-  # Install LEMON
-  # NOTE: Homebrew core has no graph-LEMON ("brew install lemon" is the LALR
-  # parser generator) and the community taps are unmaintained, so we use the
-  # MacPorts port "coinor-liblemon". MacPorts is bootstrapped from source only
-  # when genuinely absent (Xcode Command Line Tools, installed above, are its
-  # only prereq); when LEMON is already present the whole step is skipped, so
-  # no recompilation and no sudo prompt on repeated runs.
+  # Install abLEMON, the maintained fork of LEMON that MCFLemonSolver needs,
+  # from its Homebrew tap
   if [ "$install_lemon" -eq 1 ]; then
-    echo "Installing LEMON..."
-    # Surface an already-installed MacPorts even if /opt/local/bin is off PATH
-    # (otherwise it would be re-bootstrapped from source on every run).
-    if ! command -v port >/dev/null 2>&1 && [ -x /opt/local/bin/port ]; then
-      export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-    fi
-    if [ -d /opt/local/include/lemon ] || [ -d /usr/local/include/lemon ]; then
-      echo "LEMON already installed; skipping."
-    else
-      # Bootstrap MacPorts from source only when it is genuinely absent.
-      if ! command -v port >/dev/null 2>&1; then
-        echo "MacPorts not found. Bootstrapping from source..."
-        MACPORTS_SRC="${INSTALL_ROOT}/macports-base"
-        if [ ! -d "$MACPORTS_SRC" ]; then
-          git clone --depth 1 https://github.com/macports/macports-base.git "$MACPORTS_SRC"
-        fi
-        cd "$MACPORTS_SRC"
-        ./configure
-        make
-        sudo make install
-        # MacPorts installs into /opt/local; make port visible for the rest of run
-        export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
-        sudo port -v selfupdate
-      fi
-      sudo port install coinor-liblemon
-    fi
+    echo "Installing or updating abLEMON..."
+    brew install dmeoli/ablemon/ablemon
+    brew upgrade dmeoli/ablemon/ablemon
+    LEMON_ROOT="$(brew --prefix ablemon)"
   fi
 
   # Install LIBSVM
@@ -885,13 +1043,17 @@ install_on_macos() {
   # Install RECORD: a single source file, which BinaryKnapsackBlock compiles
   # itself; only source/ of its repository is checked out
   if [ "$install_record" -eq 1 ]; then
-    echo "Installing RECORD..."
+    echo "Installing or updating RECORD..."
     RECORD_ROOT="${INSTALL_ROOT}/record"
-    if [ ! -d "$RECORD_ROOT" ]; then
+    if read_only "$RECORD_ROOT"; then
+      :
+    elif [ ! -d "$RECORD_ROOT/.git" ]; then
+      CURRENT_INSTALL_FOLDER=${RECORD_ROOT}
       git clone --depth 1 --filter=blob:none --sparse https://gitlab.com/renanfernandofranco/record.git "$RECORD_ROOT"
       git -C "$RECORD_ROOT" sparse-checkout set source
     else
-      echo "RECORD already installed."
+      git -C "$RECORD_ROOT" pull -q --ff-only
+      echo "RECORD brought up to date."
     fi
   fi
 
@@ -944,12 +1106,12 @@ install_on_macos() {
 
   # Install Gurobi
   if [ "$install_gurobi" -eq 1 ]; then
-    echo "Installing Gurobi..."
+    echo "Installing or updating Gurobi..."
     GUROBI_ROOT="${INSTALL_ROOT}/gurobi"
-    CURRENT_INSTALL_FOLDER=${GUROBI_ROOT}
-    if [ ! -d "$GUROBI_ROOT" ]; then
+    GUROBI_INSTALLER="gurobi13.0.1_macos_universal2.pkg"
+    if version_differs "$GUROBI_ROOT" "$GUROBI_INSTALLER"; then
+      set_aside "$GUROBI_ROOT"
       cd "$INSTALL_ROOT"
-      GUROBI_INSTALLER="gurobi13.0.1_macos_universal2.pkg"
       curl -O "https://packages.gurobi.com/13.0/$GUROBI_INSTALLER"
       sudo installer -pkg "$GUROBI_INSTALLER" -target /
       rm "$GUROBI_INSTALLER"
@@ -963,30 +1125,31 @@ install_on_macos() {
         install_name_tool -id "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib"
         codesign -s - -f "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib" "${GUROBI_HOME}/lib/libgurobi${GUROBI_VERSION}.dylib"
       fi
+      mark_version "$GUROBI_ROOT" "$GUROBI_INSTALLER"
     else
-      echo "Gurobi already installed."
+      echo "Gurobi already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
 
-  # Install MOSEK: the tools archive of the latest 11.0.x version, as on
-  # Linux; MOSEK 11 is built for Apple Silicon only
+  # Install MOSEK: the tools archive of the latest 12.0.x version, as on
+  # Linux; MOSEK 12 is built for Apple Silicon only
   if [ "$install_mosek" -eq 1 ]; then
-    echo "Installing MOSEK..."
+    echo "Installing or updating MOSEK..."
     MOSEK_ROOT="${INSTALL_ROOT}/mosek"
-    CURRENT_INSTALL_FOLDER=${MOSEK_ROOT}
-    if [ ! -d "$MOSEK_ROOT" ]; then
+    MOSEK_URL="https://download.mosek.com/stable"
+    MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/12.0/version" || true)
+    if ! [[ "$MOSEK_VERSION" =~ ^12\.0\.[0-9]+$ ]]; then
+      MOSEK_VERSION="12.0.0"
+    fi
+    if version_differs "$MOSEK_ROOT" "$MOSEK_VERSION"; then
+      set_aside "$MOSEK_ROOT"
       cd "$INSTALL_ROOT"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
-        echo "No MOSEK 11 for macOS x86_64; skipping MOSEK."
+        echo "No MOSEK 12 for macOS x86_64; skipping MOSEK."
         install_mosek=0
         MOSEK_ROOT=""
       else # Apple Silicon arch
-        MOSEK_URL="https://download.mosek.com/stable"
-        MOSEK_VERSION=$(curl -fsSL "${MOSEK_URL}/11.0/version" || true)
-        if ! [[ "$MOSEK_VERSION" =~ ^11\.0\.[0-9]+$ ]]; then
-          MOSEK_VERSION="11.0.30"
-        fi
         MOSEK_INSTALLER="mosektoolsosxaarch64.tar.bz2"
         curl -fL -O "${MOSEK_URL}/${MOSEK_VERSION}/$MOSEK_INSTALLER"
         mkdir -p mosek-src
@@ -999,8 +1162,9 @@ install_on_macos() {
         export PATH="${PATH}:${MOSEK_HOME}/bin"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${MOSEK_HOME}/bin"
       fi
+      mark_version "$MOSEK_ROOT" "$MOSEK_VERSION"
     else
-      echo "MOSEK already installed."
+      echo "MOSEK already at its version."
     fi
     if [ "$install_mosek" -eq 1 ]; then
       echo "MOSEK needs a license (free for academic use, see"
@@ -1012,13 +1176,13 @@ install_on_macos() {
 
   # Install SCIP
   if [ "$install_scip" -eq 1 ]; then
-    echo "Installing SCIP..."
+    echo "Installing or updating SCIP..."
     SCIP_ROOT="${INSTALL_ROOT}/scip"
-    CURRENT_INSTALL_FOLDER=${SCIP_ROOT}
-    if [ ! -d "$SCIP_ROOT" ]; then
+    SCIP_INSTALLER="scip-9.2.1"
+    if version_differs "$SCIP_ROOT" "$SCIP_INSTALLER"; then
+      set_aside "$SCIP_ROOT"
       brew install gcc tbb
       cd "$INSTALL_ROOT"
-      SCIP_INSTALLER="scip-9.2.1"
       curl -O "https://www.scipopt.org/download/release/$SCIP_INSTALLER.tgz"
       tar -xzf "$SCIP_INSTALLER.tgz"
       rm "$SCIP_INSTALLER.tgz"
@@ -1046,8 +1210,9 @@ install_on_macos() {
       cd "$INSTALL_ROOT"
       export PATH="${PATH}:${SCIP_ROOT}/bin"
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${SCIP_ROOT}/lib"
+      mark_version "$SCIP_ROOT" "$SCIP_INSTALLER"
     else
-      echo "SCIP already installed."
+      echo "SCIP already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -1056,35 +1221,21 @@ install_on_macos() {
   # HIPO=ON builds the HiPO interior point solver (HiGHS >= 1.14), which is
   # the only HiGHS solver able to handle convex QPs reliably; on macOS the
   # BLAS is the Accelerate framework, so no extra dependency is needed.
+  # HiGHS follows its branch: a run pulls what is new and builds it again.
   if [ "$install_highs" -eq 1 ]; then
-    echo "Installing HiGHS..."
+    echo "Installing or updating HiGHS..."
     HiGHS_ROOT="${INSTALL_ROOT}/HiGHS"
-    CURRENT_INSTALL_FOLDER=${HiGHS_ROOT}
-    if [ ! -d "$HiGHS_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/ERGO-Code/HiGHS.git
-      cd HiGHS
+    if git_latest https://github.com/ERGO-Code/HiGHS.git "$HiGHS_ROOT"; then
+      cd "$HiGHS_ROOT"
       cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      cd "$INSTALL_ROOT"
-      export PATH="${PATH}:${HiGHS_ROOT}/bin"
-      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
     else
-      cd "$HiGHS_ROOT"
-      LOCAL=$(git rev-parse @)
-      REMOTE=$(git rev-parse @{u})
-      # if the repository is not up to date
-      if [ "$LOCAL" != "$REMOTE" ]; then
-        git pull
-        cmake -S . -B build -DFAST_BUILD=ON -DHIPO=ON -DCMAKE_INSTALL_PREFIX="$HiGHS_ROOT"
-        cmake --build build -j "${MAX_JOBS}"
-        cmake --install build
-      else
-        echo "HiGHS already up to date."
-      fi
-      cd "$INSTALL_ROOT"
+      echo "HiGHS already up to date."
     fi
+    export PATH="${PATH}:${HiGHS_ROOT}/bin"
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HiGHS_ROOT}/lib"
+    cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
@@ -1092,20 +1243,16 @@ install_on_macos() {
   # DAQP is built from its latest release, i.e., the latest tag of its
   # repository, rather than from its development branch.
   if [ "$install_daqp" -eq 1 ]; then
-    echo "Installing DAQP..."
+    echo "Installing or updating DAQP..."
     DAQP_ROOT="${INSTALL_ROOT}/daqp"
-    CURRENT_INSTALL_FOLDER=${DAQP_ROOT}
-    if [ ! -d "$DAQP_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/darnstrom/daqp.git "$DAQP_ROOT"
+    if git_latest https://github.com/darnstrom/daqp.git "$DAQP_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$DAQP_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$DAQP_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${DAQP_ROOT}/lib"
     else
-      echo "DAQP already installed."
+      echo "DAQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1146,14 +1293,10 @@ install_on_macos() {
   # its CMakeLists.txt asks for a CMake older than 3.5, which CMake 4 refuses
   # unless told otherwise.
   if [ "$install_qpoases" -eq 1 ]; then
-    echo "Installing qpOASES..."
+    echo "Installing or updating qpOASES..."
     qpOASES_ROOT="${INSTALL_ROOT}/qpOASES"
-    CURRENT_INSTALL_FOLDER=${qpOASES_ROOT}
-    if [ ! -d "$qpOASES_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT"
+    if git_latest https://github.com/coin-or/qpOASES.git "$qpOASES_ROOT" '^releases/[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpOASES_ROOT"
-      git checkout -q "$(git describe --tags --abbrev=0)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
         -DQPOASES_BUILD_EXAMPLES=OFF -DQPOASES_AVOID_LA_NAMING_CONFLICTS=ON \
         -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -1162,7 +1305,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${qpOASES_ROOT}/lib"
     else
-      echo "qpOASES already installed."
+      echo "qpOASES already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1170,24 +1313,21 @@ install_on_macos() {
 
   # Install ProxSuite
   # ProxSuite (ProxQP) is header-only: it is configured from its latest
-  # release, without the SIMD vectorization that would need Simde, and only
-  # its headers and its CMake configuration are installed.
+  # release, without the SIMD vectorization that would need Simde and the
+  # serialization that would need cereal, and only its headers and its CMake
+  # configuration are installed.
   if [ "$install_proxsuite" -eq 1 ]; then
-    echo "Installing ProxSuite..."
+    echo "Installing or updating ProxSuite..."
     proxsuite_ROOT="${INSTALL_ROOT}/proxsuite"
-    CURRENT_INSTALL_FOLDER=${proxsuite_ROOT}
-    if [ ! -d "$proxsuite_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT"
+    if git_latest https://github.com/Simple-Robotics/proxsuite.git "$proxsuite_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$proxsuite_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git submodule update --init cmake-module
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$proxsuite_ROOT" \
         -DBUILD_WITH_VECTORIZATION_SUPPORT=OFF -DBUILD_TESTING=OFF \
-        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF
+        -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_DOCUMENTATION=OFF \
+        -DPROXSUITE_BUILD_WITH_SERIALIZATION=OFF
       cmake --install build
     else
-      echo "ProxSuite already installed."
+      echo "ProxSuite already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1198,14 +1338,10 @@ install_on_macos() {
   # compiled library of its common templates and its headers), without the
   # C, Python and Matlab interfaces, the tests and the benchmarks.
   if [ "$install_piqp" -eq 1 ]; then
-    echo "Installing PIQP..."
+    echo "Installing or updating PIQP..."
     piqp_ROOT="${INSTALL_ROOT}/piqp"
-    CURRENT_INSTALL_FOLDER=${piqp_ROOT}
-    if [ ! -d "$piqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT"
+    if git_latest https://github.com/PREDICT-EPFL/piqp.git "$piqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$piqp_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$piqp_ROOT" \
         -DBUILD_C_INTERFACE=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_MATLAB_INTERFACE=OFF \
         -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
@@ -1213,7 +1349,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${piqp_ROOT}/lib"
     else
-      echo "PIQP already installed."
+      echo "PIQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1224,15 +1360,11 @@ install_on_macos() {
   # and in double precision, without the demo and the unit tests; the
   # version is given to its CMake, which otherwise writes 0.0.0 in it.
   if [ "$install_osqp" -eq 1 ]; then
-    echo "Installing OSQP..."
+    echo "Installing or updating OSQP..."
     osqp_ROOT="${INSTALL_ROOT}/osqp"
-    CURRENT_INSTALL_FOLDER=${osqp_ROOT}
-    if [ ! -d "$osqp_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/osqp/osqp.git "$osqp_ROOT"
+    if git_latest https://github.com/osqp/osqp.git "$osqp_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$osqp_ROOT"
-      osqp_tag="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
-      git checkout -q "$osqp_tag"
+      osqp_tag="$(git describe --tags --exact-match)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$osqp_ROOT" \
         -DOSQP_VERSION="${osqp_tag#v}" -DOSQP_ALGEBRA_BACKEND=builtin \
         -DOSQP_BUILD_DEMO_EXE=OFF -DOSQP_BUILD_UNITTESTS=OFF
@@ -1240,7 +1372,7 @@ install_on_macos() {
       cmake --install build
       export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${osqp_ROOT}/lib"
     else
-      echo "OSQP already installed."
+      echo "OSQP already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1250,19 +1382,68 @@ install_on_macos() {
   # qpmad is header-only: it is configured from its latest release, and only
   # its headers and its CMake configuration are installed.
   if [ "$install_qpmad" -eq 1 ]; then
-    echo "Installing qpmad..."
+    echo "Installing or updating qpmad..."
     qpmad_ROOT="${INSTALL_ROOT}/qpmad"
-    CURRENT_INSTALL_FOLDER=${qpmad_ROOT}
-    if [ ! -d "$qpmad_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/asherikov/qpmad.git "$qpmad_ROOT"
+    if git_latest https://github.com/asherikov/qpmad.git "$qpmad_ROOT" '^[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$qpmad_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$qpmad_ROOT"
       cmake --install build
     else
-      echo "qpmad already installed."
+      echo "qpmad already up to date."
     fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install HPIPM
+  # HPIPM and BLASFEO, the linear algebra it is built on, are built from
+  # their latest releases and installed in the same directory; BLASFEO is
+  # built for a generic processor, so that the installation (e.g., the image
+  # of the CI) also runs on a processor other than the one it was built on,
+  # and the library of HPIPM finds that of BLASFEO next to it.
+  if [ "$install_hpipm" -eq 1 ]; then
+    echo "Installing or updating HPIPM..."
+    HPIPM_ROOT="${INSTALL_ROOT}/hpipm"
+    hpipm_blasfeo_new=0
+    if git_latest https://github.com/giaf/blasfeo.git "${HPIPM_ROOT}/blasfeo-src" '^[0-9]+(\.[0-9]+)+$'; then
+      cd "${HPIPM_ROOT}/blasfeo-src"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      hpipm_blasfeo_new=1
+    fi
+    # HPIPM is built again also when BLASFEO, which it is built on, changed
+    if git_latest https://github.com/giaf/hpipm.git "${HPIPM_ROOT}/hpipm-src" '^[0-9]+(\.[0-9]+)+$' ||
+       [ "$hpipm_blasfeo_new" -eq 1 ]; then
+      cd "${HPIPM_ROOT}/hpipm-src"
+      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HPIPM_ROOT" \
+        -DTARGET=GENERIC -DBLASFEO_PATH="$HPIPM_ROOT" -DHPIPM_TESTING=OFF \
+        -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH=@loader_path
+      cmake --build build -j "${MAX_JOBS}"
+      cmake --install build
+      export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${HPIPM_ROOT}/lib"
+    else
+      echo "HPIPM already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install PERMON
+  # PERMON, whose QP solvers PERMONMILPSolver uses, is built from its latest
+  # release together with PETSc [see build_permon].
+  if [ "$install_permon" -eq 1 ]; then
+    echo "Installing or updating PERMON..."
+    PERMON_ROOT="${INSTALL_ROOT}/permon"
+    mkdir -p "$PERMON_ROOT"
+    if git_latest https://github.com/permon/permon.git "${PERMON_ROOT}/permon-src" '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
+       [ ! -f "${PERMON_ROOT}/lib/libpermon.dylib" ]; then
+      build_permon "$PERMON_ROOT"
+    else
+      echo "PERMON already up to date."
+    fi
+    export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${PERMON_ROOT}/lib"
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -1271,23 +1452,45 @@ install_on_macos() {
   # quadprog has no library of its own: its C sources are compiled from its
   # latest release into one, which exports only the function that is called,
   # since the others have names (dot, axpy, ...) that other libraries export.
-  # It is under the GPL, hence it is installed only if asked.
+  # It is under the GPL, hence a MILPSolver built with it is too.
   if [ "$install_quadprog" -eq 1 ]; then
-    echo "Installing quadprog..."
+    echo "Installing or updating quadprog..."
     quadprog_ROOT="${INSTALL_ROOT}/quadprog"
-    CURRENT_INSTALL_FOLDER=${quadprog_ROOT}
-    if [ ! -d "$quadprog_ROOT" ]; then
-      cd "$INSTALL_ROOT"
-      git clone https://github.com/quadprog/quadprog.git "$quadprog_ROOT"
+    if git_latest https://github.com/quadprog/quadprog.git "$quadprog_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
       cd "$quadprog_ROOT"
-      git checkout -q "$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
       mkdir -p lib
       cc -O2 -fPIC -dynamiclib -Wl,-exported_symbol,_qpgen2_ \
         -install_name "${quadprog_ROOT}/lib/libquadprog.dylib" \
         -o lib/libquadprog.dylib quadprog/solve.QP.c \
         quadprog/linear-algebra.c quadprog/qr-update.c
     else
-      echo "quadprog already installed."
+      echo "quadprog already up to date."
+    fi
+    cd "$INSTALL_ROOT"
+    CURRENT_INSTALL_FOLDER=""
+  fi
+
+  # Install Clarabel
+  # The C interface of Clarabel (Clarabel.cpp) at its latest release, whose
+  # library is built by cargo from the Rust solver it carries as a submodule,
+  # with the Rust of Homebrew; its CMake installs nothing, hence the headers
+  # are taken from its include directory and the library is copied into its
+  # lib directory, with its own path as its install name.
+  if [ "$install_clarabel" -eq 1 ]; then
+    echo "Installing or updating Clarabel..."
+    Clarabel_ROOT="${INSTALL_ROOT}/clarabel"
+    if ! command -v cargo > /dev/null 2>&1; then
+      brew install rust
+    fi
+    if git_latest https://github.com/oxfordcontrol/Clarabel.cpp.git "$Clarabel_ROOT" '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+      cd "$Clarabel_ROOT/rust_wrapper"
+      cargo build --release
+      mkdir -p "$Clarabel_ROOT/lib"
+      cp target/release/libclarabel_c.dylib "$Clarabel_ROOT/lib/"
+      install_name_tool -id "${Clarabel_ROOT}/lib/libclarabel_c.dylib" \
+        "$Clarabel_ROOT/lib/libclarabel_c.dylib"
+    else
+      echo "Clarabel already up to date."
     fi
     cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
@@ -1300,51 +1503,34 @@ install_on_macos() {
   fi
 
   # Install StOpt
+  # StOpt follows its branch: a run pulls what is new and builds it again.
   if [ "$install_stopt" -eq 1 ]; then
-    echo "Installing StOpt..."
+    echo "Installing or updating StOpt..."
     StOpt_ROOT="${INSTALL_ROOT}/StOpt"
-    CURRENT_INSTALL_FOLDER=${StOpt_ROOT}
-    if [ ! -d "$StOpt_ROOT" ]; then
-      brew install zlib boost-mpi
-      cd "$INSTALL_ROOT"
-      git clone https://gitlab.com/stochastic-control/StOpt.git
-      cd StOpt
+    brew install zlib boost-mpi
+    if git_latest https://gitlab.com/stochastic-control/StOpt.git "$StOpt_ROOT"; then
+      cd "$StOpt_ROOT"
       cmake -S . -B build \
             -DBUILD_PYTHON=OFF \
             -DBUILD_TEST=OFF \
             -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
       cmake --build build -j "${MAX_JOBS}"
       cmake --install build
-      cd "$INSTALL_ROOT"
     else
-      cd "$StOpt_ROOT"
-      LOCAL=$(git rev-parse @)
-      REMOTE=$(git rev-parse @{u})
-      # if the repository is not up to date
-      if [ "$LOCAL" != "$REMOTE" ]; then
-        git pull
-        cmake -S . -B build \
-              -DBUILD_PYTHON=OFF \
-              -DBUILD_TEST=OFF \
-              -DCMAKE_INSTALL_PREFIX="$StOpt_ROOT"
-        cmake --build build -j "${MAX_JOBS}"
-        cmake --install build
-      else
-        echo "StOpt already up to date."
-      fi
-      cd "$INSTALL_ROOT"
+      echo "StOpt already up to date."
     fi
+    cd "$INSTALL_ROOT"
     CURRENT_INSTALL_FOLDER=""
   fi
 
   # Install Torch
   if [ "$install_torch" -eq 1 ]; then
-    echo "Installing Torch..."
+    echo "Installing or updating Torch..."
     Torch_ROOT="${INSTALL_ROOT}/torch"
-    CURRENT_INSTALL_FOLDER=${Torch_ROOT}
-    if [ ! -d "$Torch_ROOT" ]; then
+    TORCH_VERSION="2.12.0"
+    if version_differs "$Torch_ROOT" "$TORCH_VERSION"; then
+      set_aside "$Torch_ROOT"
       cd "$INSTALL_ROOT"
-      TORCH_VERSION="2.12.0"
       if [ "$(uname -m)" == "x86_64" ]; then # Intel arch
         # no prebuilt libtorch for macOS x86_64 past 2.2.2; Torch is optional
         echo "No prebuilt libtorch for macOS x86_64; skipping Torch."
@@ -1359,8 +1545,9 @@ install_on_macos() {
         mv ./libtorch "$Torch_ROOT"
         export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:${Torch_ROOT}/lib"
       fi
+      mark_version "$Torch_ROOT" "$TORCH_VERSION"
     else
-      echo "Torch already installed."
+      echo "Torch already at its version."
     fi
     CURRENT_INSTALL_FOLDER=""
   fi
@@ -1383,7 +1570,10 @@ install_proxsuite=${install_proxsuite:-1}
 install_piqp=${install_piqp:-1}
 install_osqp=${install_osqp:-1}
 install_qpmad=${install_qpmad:-1}
-install_quadprog=${install_quadprog:-0}
+install_hpipm=${install_hpipm:-1}
+install_permon=${install_permon:-0}
+install_quadprog=${install_quadprog:-1}
+install_clarabel=${install_clarabel:-1}
 install_stopt=${install_stopt:-1}
 install_torch=${install_torch:-1}
 install_lemon=${install_lemon:-1}
@@ -1392,6 +1582,7 @@ install_liblinear=${install_liblinear:-1}
 install_cadical=${install_cadical:-1}
 install_minisat=${install_minisat:-1}
 install_record=${install_record:-1}
+install_flatzinc=${install_flatzinc:-1}
 install_smspp=${install_smspp:-1}
 install_experiments=${install_experiments:-0}
 
@@ -1484,7 +1675,23 @@ do
     install_qpmad=0
     shift
     ;;
-    --with-quadprog)
+    --without-hpipm)
+    install_hpipm=0
+    shift
+    ;;
+    --with-permon)
+    install_permon=1
+    shift
+    ;;
+    --without-quadprog)
+    install_quadprog=0
+    shift
+    ;;
+    --without-clarabel)
+    install_clarabel=0
+    shift
+    ;;
+    --with-quadprog)  # the default now, kept for the scripts that pass it
     install_quadprog=1
     shift
     ;;
@@ -1518,6 +1725,10 @@ do
     ;;
     --without-record)
     install_record=0
+    shift
+    ;;
+    --without-flatzinc)
+    install_flatzinc=0
     shift
     ;;
     --without-coinor)
@@ -1619,13 +1830,8 @@ if [ "$install_smspp" -eq 1 ]; then
   else
     echo "Repository not found locally. Cloning SMSpp..."
     smspp_cloned=1
-    # Check if the script is not being executed on a server without display or interactive terminal
-    if [ -t 1 ] && [ -z "${CI:-}" ]; then
-      git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    else
-      # no way to use ccmake interactively to choose submodules, so download it all
-      git clone --branch develop --recurse-submodules https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
-    fi
+    # the submodules are fetched below, the private experiments left out
+    git clone --branch develop https://gitlab.com/smspp/smspp-project.git "$SMSPP_ROOT"
     cd "$SMSPP_ROOT"
   fi
 
@@ -1639,11 +1845,37 @@ if [ "$install_smspp" -eq 1 ]; then
     skip_experiments=(-c submodule.experiments.update=none
                       -c submodule.experiments.fetchRecurseSubmodules=false)
   fi
+  # a checkout that is on no branch, or on one with no upstream (say, the
+  # one of a CI), is left at its commit
   if [ -z "${smspp_cloned:-}" ]; then
-    git "${skip_experiments[@]}" pull
+    if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > /dev/null 2>&1
+    then
+      # the submodules are updated below, to the commits pinned
+      git "${skip_experiments[@]}" -c fetch.recurseSubmodules=false pull
+    else
+      echo "SMSpp is on no branch with an upstream: left at its commit."
+    fi
   fi
   git submodule sync --recursive
   git "${skip_experiments[@]}" submodule update --init --recursive
+
+  # Install the FlatZinc backend that CSPBlock's FlatZincCSPSolver runs on an
+  # external solver: the official MiniZinc bundle, with the minizinc driver and
+  # the OR-Tools CP-SAT, Gecode and Chuffed backends. Its installer ships with
+  # CSPBlock, in place only now that the submodules are checked out, so the
+  # backend is installed here rather than in install_on_linux/install_on_macos.
+  if [ "$install_flatzinc" -eq 1 ]; then
+    echo "Installing the FlatZinc backend (the MiniZinc bundle)..."
+    flatzinc_installer="${SMSPP_ROOT}/CSPBlock/tools/install_flatzinc_backends.sh"
+    if [ "$OS" == "Darwin" ]; then
+      # on macOS the bundle comes from Homebrew, as the installer itself says
+      brew install minizinc
+    elif [ -x "$flatzinc_installer" ]; then
+      "$flatzinc_installer" --prefix="$(resolve_dep_root minizinc)"
+    else
+      echo "CSPBlock's FlatZinc installer not found: skipping the backend."
+    fi
+  fi
 
   # If the installation root is not the default one, update the makefile-paths
   if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
@@ -1664,7 +1896,10 @@ if [ "$install_smspp" -eq 1 ]; then
       [ -n "${piqp_ROOT:-}" ] && echo "piqp_ROOT = ${piqp_ROOT}"
       [ -n "${osqp_ROOT:-}" ] && echo "osqp_ROOT = ${osqp_ROOT}"
       [ -n "${qpmad_ROOT:-}" ] && echo "qpmad_ROOT = ${qpmad_ROOT}"
+      [ -n "${HPIPM_ROOT:-}" ] && echo "HPIPM_ROOT = ${HPIPM_ROOT}"
+      [ -n "${PERMON_ROOT:-}" ] && echo "PERMON_ROOT = ${PERMON_ROOT}"
       [ -n "${quadprog_ROOT:-}" ] && echo "quadprog_ROOT = ${quadprog_ROOT}"
+      [ -n "${Clarabel_ROOT:-}" ] && echo "Clarabel_ROOT = ${Clarabel_ROOT}"
       echo "StOpt_ROOT = ${StOpt_ROOT}"
       echo "Torch_ROOT = ${Torch_ROOT}"
       [ -n "${CADICAL_ROOT:-}" ] && echo "CADICAL_ROOT = ${CADICAL_ROOT}"
@@ -1690,9 +1925,9 @@ if [ "$install_smspp" -eq 1 ]; then
   # modules OFF so that configuration does not fail looking for a library the
   # user asked not to install. Modules that consume a dependency optionally
   # (Torch in BundleSolverML, the CPLEX/Gurobi/MOSEK/SCIP/HiGHS/DAQP/qpOASES/
-  # ProxQP/PIQP/OSQP/qpmad/quadprog backends in MILPSolver, LIBSVM and
-  # LIBLINEAR in SVMBlock) degrade gracefully on their own and need no
-  # mapping here.
+  # ProxQP/PIQP/OSQP/qpmad/quadprog/HPIPM/PERMON backends in MILPSolver,
+  # LIBSVM and LIBLINEAR in SVMBlock) degrade gracefully on their own and
+  # need no mapping here.
   smspp_cmake_flags=()
   if [ "$install_experiments" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=ON")
@@ -1700,13 +1935,15 @@ if [ "$install_smspp" -eq 1 ]; then
     smspp_cmake_flags+=("-DBUILD_experiments=OFF")
   fi
   if [ "$install_stopt" -eq 0 ]; then
-    # StOpt is required by SDDPBlock; InvestmentBlock pulls SDDPBlock back ON
-    # through CMake's dependency resolution, so disable both.
-    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF" "-DBUILD_InvestmentBlock=OFF")
+    # StOpt is required by SDDPBlock, and by the tools that solve one
+    smspp_cmake_flags+=("-DBUILD_SDDPBlock=OFF")
   fi
   if [ "$install_lemon" -eq 0 ]; then
-    # LEMON is required by MCFLemonSolver.
+    # abLEMON is required by MCFLemonSolver.
     smspp_cmake_flags+=("-DBUILD_MCFLemonSolver=OFF")
+  elif [ -n "${LEMON_ROOT:-}" ]; then
+    # abLEMON is not where extlib says (the LEMON of the system)
+    smspp_cmake_flags+=("-DLEMON_ROOT=${LEMON_ROOT}")
   fi
   # a CaDiCaL built from its source is not where extlib says (the package)
   if [ "${cadical_from_source:-0}" -eq 1 ] && [ -n "${CADICAL_ROOT:-}" ]; then

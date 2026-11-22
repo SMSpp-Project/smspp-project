@@ -1,24 +1,38 @@
 {
   "name": "smspp",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "dependencies": [
-    "boost",
+    {
+      "name": "ablemon",
+      "version>=": "1.9.0"
+    },
+    "boost-algorithm",
+    "boost-dll",
+    "boost-iostreams",
     "boost-mpi",
+    "boost-multi-array",
+    "boost-preprocessor",
+    "boost-serialization",
+    "boost-timer",
     "bzip2",
     "daqp",
     "eigen3",
     "getopt",
     "highs",
-    "liblemon",
     "liblinear",
     "libsvm",
+    "minisat-master-keying",
     "msmpi",
     "netcdf-cxx4",
     "osqp",
-    "piqp",
+    {
+      "name": "piqp",
+      "version>=": "0.7.0"
+    },
     "proxsuite",
     "pthreads",
     "qpmad",
+    "quadprog",
     "qpoases",
     "stopt",
     "zlib"
@@ -45,11 +59,13 @@
       {
         "kind": "git",
         "repository": "https://gitlab.com/smspp/vcpkg-registry.git",
-        "baseline": "27b9d2e483361d999e5292cda7cc7d5a037b0587",
+        "baseline": "4f71fdd34d33b86d08a9acedbbc0ceb9b2dd5eff",
         "packages": [
+          "ablemon",
           "daqp",
           "piqp",
-          "qpmad"
+          "qpmad",
+          "quadprog"
         ]
       }
     ]

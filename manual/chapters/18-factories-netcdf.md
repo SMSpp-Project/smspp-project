@@ -1,7 +1,8 @@
 # 18. Factories and netCDF serialisation {#ch-18}
 
-[Source: `SMS++/include/SMSTypedefs.h` (factory macros),
-`Block.h`, `Configuration.h`, `Solution.h`, `Change.h`]
+[Source: [`SMS++/include/SMSFactory.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h) (factory macros),
+[`SMSnetCDF.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSnetCDF.h), [`SMSTypedefs.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h), [`Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h), [`Configuration.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Configuration.h),
+[`Solution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h), [`Change.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Change.h)]
 
 Two cross-cutting mechanisms have been referred to throughout the
 manual without being treated head-on: the *class-name factories*
@@ -12,15 +13,24 @@ promise of [§15.7](15-methods-factory.md#sec-15-7) about the linker.
 
 ## 18.1 The class-name factories {#sec-18-1}
 
-Five of the framework's base classes carry a *factory*: a static
-map from a class name (a `std::string`) to a constructor for that
-class. The entry points are:
+Six base classes of the framework carry a *factory*: a static map from
+a class name (a `std::string`) to a constructor for that class. The
+entry points are
 
-- `Block::new_Block(name, father)`
-- `Solver::new_Solver(name)`
-- `Configuration::new_Configuration(...)`
-- `Solution::new_Solution(name)`
-- `Change::new_Change(name)`
+```cpp
+static Block * Block::new_Block( const std::string & classname ,
+                                 Block * father = nullptr );
+static Solver * Solver::new_Solver( const std::string & classname );
+static Configuration * Configuration::new_Configuration(
+                                     const std::string & classname );
+static Solution * Solution::new_Solution( const std::string & classname );
+static Change * Change::new_Change( const std::string & classname );
+static State * State::new_State( const std::string & classname );
+```
+
+with an overload taking a `netCDF::NcGroup` for `Block`,
+`Configuration`, `Solution` and `Change`, which reads the class name
+from the group ([§18.5](18-factories-netcdf.md#sec-18-5)).
 
 Each returns a freshly constructed object of the concrete type
 named by the string, as a pointer to the base class. This is what
@@ -36,7 +46,7 @@ objects by class name.
 ### Registering a class
 
 A concrete class joins its factory through two macros
-(`SMSTypedefs.h:299-377`):
+([`SMSFactory.h:56-128`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L56-128) and [`SMSFactory.h:354-472`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L354-472)):
 
 - in the class declaration (private part of the `.h`):
   `SMSpp_insert_in_factory_h;`
@@ -44,14 +54,15 @@ A concrete class joins its factory through two macros
   `SMSpp_insert_in_factory_cpp_0( ClassName );` if the base-class
   constructor takes no argument, or
   `SMSpp_insert_in_factory_cpp_1( ClassName );` if it takes one
-  (e.g. a `:Block`, whose constructor takes the father `Block*` —
-  this is why `MCFBlock.cpp` uses the `_1` form, [§4.5](04-block.md#sec-4-5)). *Template*
+    (e.g., a `:Block`, whose constructor takes the father `Block *`,
+  which is why [`MCFBlock.cpp`](https://gitlab.com/smspp/mcfblock/-/blob/develop/src/MCFBlock.cpp) uses the `_1` form,
+  [§4.5](04-block.md#sec-4-5)). *Template*
   classes use the `_t` variants
   (`SMSpp_insert_in_factory_cpp_0_t` / `_1_t`), which add the
-  `template<>` specialisation the compiler requires; this is
-  exactly the case of the `SimpleConfiguration<T>` family of
-  [Chapter 11](11-configuration.md#ch-11), whose instantiations (e.g. `SimpleConfiguration<
-  int >`) are registered with a `_t` macro. If the class name
+  `template<>` specialisation the compiler requires; this is the case of
+the `SimpleConfiguration< T >` family of
+[Chapter 11](11-configuration.md#ch-11), whose instantiations (e.g.,
+`SimpleConfiguration< int >`) are registered with a `_t` macro. If the class name
   contains commas (a template instantiation with more than one
   parameter), it is wrapped in extra parentheses so the
   preprocessor does not read them as macro-argument separators.
@@ -59,11 +70,12 @@ A concrete class joins its factory through two macros
 The `_h` macro defines a tiny private `_init` class with a single
 static member `_initializer`; the `_cpp` macro defines that
 member. When the program starts, the `_initializer`'s constructor
-runs and does two things: it registers the class in the factory of
-its base, **and** it calls the class's `static_initialization()`
-method — which is exactly where the methods-factory registrations
-of [Chapter 15](15-methods-factory.md#ch-15) belong. So the two factory systems are wired up by
-the same one-time static initialisation.
+runs and does two things: it registers the class in the factory of its
+base, and it calls the `static_initialization()` method of the class,
+which is where the registrations in the methods factory of
+[Chapter 15](15-methods-factory.md#ch-15) belong. Hence, the two
+factory systems are wired up by the same one-time static
+initialisation.
 
 ## 18.2 The dark side, discharged: factories versus the linker {#sec-18-2}
 
@@ -71,7 +83,7 @@ This is the mechanism [§15.7](15-methods-factory.md#sec-15-7) warned about, now
 
 The registration code lives inside the static `_initializer` of a
 translation unit, and *nothing in the rest of the program
-references that translation unit by symbol* — the program only
+references that translation unit by symbol*, since the program only
 ever asks the factory for the class by string. An aggressive
 linker, seeing no references into the unit (especially when it
 sits in a dynamic library), may drop it from the executable. The
@@ -83,35 +95,39 @@ terminate called after throwing an instance of 'std::invalid_argument'
   what():  XXXX not present in YYYY factory
 ```
 
-even though the class is present in the source
-(`SMSTypedefs.h:324-358`). The cause is *never* a missing
-registration in the source; it is a translation unit the linker
-has optimised away.
+even though the class is present in the source ([`SMSFactory.h:79-110`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L79-110)).
+If the class does carry the two macros, the cause is a translation unit
+that the linker has optimised away.
 
-There are three remedies, in increasing order of preference:
+There are three remedies:
 
-1. **Force an object into the executable.** Instantiate an object
+1. *Forcing an object into the executable.* Instantiate an object
    of the missing type somewhere reachable from `main()`. This
    requires `#include`-ing the type's header and is therefore the
    least clean option.
-2. **Disable the linker optimisation.** Pass the linker flag that
+2. *Disabling the linker optimisation.* Pass the linker flag that
    keeps unreferenced units: `--no-as-needed` for `g++` (as
    `-Wl,--no-as-needed` when linking through the compiler driver),
    `-all_load` for `clang++`. Note that the default behaviour
    varies across toolchains and even across OS distributions of
    the *same* toolchain, and that these flags can have unwanted
    side effects (they retain *everything*).
-3. **Use `SMSpp_ensure_load( ClassName )`.** Placed at the top of
-   a `.cpp` (with the class's header `#include`-d), this macro does
-   the "dirty but cheap" work of guaranteeing that `ClassName` is
-   registered, targeting just that one class rather than retaining
-   every unit. It carries a small, non-zero runtime cost and is
-   meant as the targeted last resort.
+3. *Linking the module through its CMake target.* The `_cpp`
+   macros also define, for each registered class, an empty
+   `extern "C"` function `SMSpp_force_load_<ClassName>`, and the
+   CMake target of each SMS++ module adds to whoever links it a
+   source that calls the function named after the module, so that
+   every linker keeps a shared library, and the tests and the tools
+   take a static one whole with the `WHOLE_ARCHIVE` feature of CMake
+   (`smspp_keep_module()` and `smspp_keep_modules()` of
+   `SMSppModule.cmake`). A program that links a module with
+   `target_link_libraries()` therefore gets its registrations
+   without doing anything; the first two remedies are for a program
+   built otherwise.
 
-The phenomenon is not a defect of SMS++ but the price of resolving
-types by name at runtime; the manual flags it because the symptom
-("not present in factory") is mystifying until one knows the
-cause.
+The phenomenon is the price of resolving types by name at runtime,
+and it is flagged here because the symptom ("not present in factory")
+is mystifying until one knows the cause.
 
 ## 18.3 Why netCDF {#sec-18-3}
 
@@ -121,12 +137,12 @@ SMS++ serialises `Block`s, `Configuration`s, `Solution`s,
 self-describing, hierarchical file format. The choice fits the
 framework's structure for two reasons:
 
-- netCDF files are organised into nested **groups**, which map
+- netCDF files are organised into nested *groups*, which map
   directly onto the nested structure of a `Block` tree: a `Block`
   serialises into a group, its sub-`Block`s into nested
   sub-groups, recursively. The on-disk shape mirrors the in-memory
   shape.
-- netCDF stores **native binary arrays** efficiently, which suits
+- netCDF stores *native binary arrays* efficiently, which suits
   the large numeric data (cost vectors, constraint matrices,
   scenario trees) of the problems SMS++ targets, far better than a
   text format such as JSON would.
@@ -136,19 +152,17 @@ standard rather than a SMS++ invention, a SMS++ serialised file
 can be inspected with general-purpose, third-party tools, no
 SMS++-specific viewer required. The standard `ncdump` utility
 turns any such file into readable text; `ncview` visualises array
-data; and
-[Panoply](https://www.giss.nasa.gov/tools/panoply/) — an
-open-source graphical viewer available on all platforms, developed
-by NASA's
-[Goddard Institute for Space Studies](https://www.giss.nasa.gov/)
-— offers a richer interactive exploration of the file's groups and
-arrays.
+data; and [Panoply](https://www.giss.nasa.gov/tools/panoply/), a graphical
+viewer available on all platforms, developed by the
+[Goddard Institute for Space Studies](https://www.giss.nasa.gov/) of
+NASA, offers an interactive exploration of the groups and arrays of a
+file.
 
 ## 18.4 The dark side of netCDF: groups are not free {#sec-18-4}
 
 netCDF buys the structural fit of [§18.3](18-factories-netcdf.md#sec-18-3) at a price that users must
-know about: **creating a file with a very large number of groups
-is inefficient — in fact, very inefficient.** netCDF groups are
+know about: creating a file with a very large number of groups is
+very inefficient. netCDF groups are
 designed to be a moderate-cardinality organising device, not a
 container one instantiates by the thousand; the cost of writing a
 file grows badly with the number of groups in it.
@@ -156,53 +170,115 @@ file grows badly with the number of groups in it.
 The naïve, "canonical" serialisation of a deeply or widely nested
 `Block` tree can fall into exactly this trap. The standard example
 is the `Solution` of a `UCBlock`: it contains, among other things,
-the `Solution` of a `NetworkBlock` *for each time instant*, and
-the canonical encoding would put each `NetworkBlockSolution` in
-its own group. But the number of time instants can be large — 8760
-for the hours of a year — and writing 8760 (or many more) groups
-per solution makes solution files unbearably slow to produce.
+the `Solution` of a `NetworkBlock` *for each time instant*, and the
+canonical encoding would put each `NetworkBlockSolution` in its own
+group. However, the number of time instants can be large (8760 for the
+hours of a year), and writing 8760 (or many more) groups per solution
+makes solution files very slow to produce.
 
-To cope with this, the `Solution` classes involved (specifically,
-the `NetworkBlockSolution` used as components of a
-`UCBlockSolution`) implement a *bespoke* encoding that
-**accumulates the information of all those sub-`Solution`s into a
-single `netCDF::NcGroup`** rather than giving each its own,
-trading the clean one-object-per-group correspondence for a
-tolerable write cost.
+Two further facts make the matter worse. First, netCDF-C (up to
+4.9.3 at least) crashes when a file gets its 32768-th group, so
+that past some size the one-group-per-object encoding is not slow
+but impossible. Second, in a netCDF-4 file each passage from the
+define mode to the data mode, which netCDF does by itself at the
+first write after a definition, writes the metadata of the file
+and flushes every dataset open in the process; a `serialize()`
+that writes its variables one at a time, as those of `Block` and
+`Solution` do, therefore costs a time quadratic in the number of
+the variables of the file.
 
-It is important to be clear about the scope of this remedy:
+To cope with this, [`SMSnetCDF.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSnetCDF.h) provides a few general functions
+that any `:Block` or `:Solution` can use to write a group made of
+many parts ([`SMSnetCDF.h:2203-2360`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSnetCDF.h#L2203-2360)):
 
-> there is **no general, framework-wide mechanism** for collapsing
-> many sub-objects into one group. The accumulation just described
-> is a hand-written solution local to those specific `:Solution`
-> classes, not a facility that any `:Block` or `:Solution` can
-> simply switch on.
+- `write_via_memory()` has a given function write each part into
+  an in-memory netCDF file of its own (an `NcMemFile`), and then
+  copies all of them into the destination group with
+  `copy_group()`, which makes all the definitions before writing
+any value, at the price of holding all the parts in memory together
+(Lemma 18.1 below gives the cost);
+- `write_stacked()` writes the parts in the same way, but then
+  *stacks* those whose netCDF trees are identical (values apart)
+  into a single group, each variable of which gets a leading
+  dimension `Stacked` indexed by the part (one stack per distinct
+  tree, with the variables `PartStack` and `PartPosition` telling
+  where each part is when there are several); a file of many parts
+  of few kinds then has the groups of one part of each kind,
+  however many the parts are. Stacks can be nested (e.g., the
+  `Solution` of a multi-stage `Block` whose scenarios have stacked
+  scenarios), the dimension of a stack being then `Stacked_n`;
+- `read_stacked()` gives back the i-th part of a stack, rebuilt in
+  an in-memory file, and `stacked_size()` the number of the parts
+  in it.
 
-Whether a general mechanism could be provided — and what shape it
-would take — is an open question. So the point for a user (and
-especially for a `:Block`/`:Solution` author) is twofold: first,
-that the inefficiency is real and can surface as a surprisingly
-slow serialisation when a high-cardinality `:Block` or
-`:Solution` is written in the naïve one-group-per-object way; and
-second, that there is at present no built-in cure to reach for —
-a high-cardinality `:Solution` that needs to avoid the cost must,
-like `NetworkBlockSolution`, implement its own accumulating
-encoding by hand. This is an inherent limitation of the chosen
-file format rather than of SMS++'s design, but it currently has to
-be addressed case by case.
+The standard example above uses them: a `UCBlockSolution` writes
+the `NetworkBlockSolution`s of all the time instants stacked in a
+single group `NetworkBlock` (and the solutions of its units
+stacked in the group `UnitBlock`, one stack per type of unit), and
+the `Solution` of a `TwoStageStochasticBlock` writes those of its
+scenarios stacked in the group `ScenarioSolution`; their
+`deserialize()` reads both the stacked and the one-group-per-part
+encodings.
+
+The cost model behind these functions is the following, where we count
+only the passages from the define mode to the data mode, each of which
+costs a time proportional to the number of variables defined so far in
+the file being written (it writes their metadata and flushes their
+datasets).
+
+**Lemma 18.1.** *Let a group of $n$ variables be made of $p$ parts of
+$n_1, \ldots, n_p$ variables. Writing the variables one at a time, each
+definition followed by its values, costs $\Theta(n^2)$; writing each
+part into an in-memory file of its own in the same way, and then copying
+all of them with all the definitions first, costs
+$O\big(\sum_{k} n_k^2 + n\big)$, which is $O(n)$ when the size of the
+parts is bounded by a constant.*
+
+*Proof.* In the first case the $k$-th variable is defined when $k - 1$
+are already there, and its first write causes a passage that costs
+$\Theta(k)$; summing over $k = 1, \ldots, n$ gives $\Theta(n^2)$. In
+the second case, part $k$ is written in a file of its own, whose
+passages cost $\Theta(1 + \cdots + n_k) = \Theta(n_k^2)$ by the same
+argument, since only the datasets of that file are open; the copy makes
+all the definitions and then one passage, of cost $\Theta(n)$, and
+writes the values in a time linear in their size. If $n_k \le c$ for
+all $k$, then $\sum_k n_k^2 \le c \sum_k n_k = c\, n$. $\square$
+
+This is why the header calls the writing linear: the parts (the solution
+of a time instant, of a unit, of a scenario) are small and of bounded
+size, while their number grows with the instance. The stacking of
+`write_stacked()` is a different saving, on the number of groups: by
+construction, a file of $p$ parts whose netCDF trees fall into $q$
+distinct shapes has the groups of $q$ parts, whatever $p$ is, which
+also keeps the file far from the limit of 32767 groups.
+
+It is important to be clear about the scope of this remedy: the
+functions are a facility that a `:Block`/`:Solution` author calls
+in its own `serialize()` and `deserialize()`, not something that
+the framework applies by itself. A high-cardinality `:Block` or
+`:Solution` written in the naïve one-group-per-object way still
+pays the cost described above, and its author has to decide to
+write it stacked; and since the stacked encoding is a different
+file format, the readers of the file (including the ones outside
+SMS++) have to know it.
 
 ## 18.5 The serialisation contract {#sec-18-5}
 
 Serialisation is symmetric and recursive. On the writing side,
-`serialize(netCDF::NcGroup&)` writes the object into the given
-group; a `Block`'s `serialize` writes its own data and then calls
-`serialize` on each sub-`Block` into a nested group, so the whole
-tree is written by one top-level call. There are convenience
-overloads that take a filename or an `NcFile` and create the group
-structure for you.
+`serialize( netCDF::NcGroup & group ) const` writes the object into the
+given group; the `serialize()` of a `:Block` writes its own data and
+then that of each sub-`Block` into a nested group, so that the whole
+tree is written by one top-level call. The recursion is the business of
+each `:Block`, since the base `Block::serialize()` and
+`Block::deserialize()` only handle the attributes common to every
+`Block` (the sub-`Block`s may be structured in groups with different
+properties), and the `serialize()` of a `:Block` calls the one of the
+base. There are convenience overloads that take a filename and create
+the group structure of an SMS++ file.
 
 On the reading side, the contract has two levels. The *static*
-`deserialize(netCDF::NcGroup&)` reads the mandatory string
+`deserialize( const netCDF::NcGroup & )` (or `new_Block()` with a group)
+reads the mandatory string
 attribute `"type"` from the group, passes it to the factory
 (`new_Block`, `new_Configuration`, ...) to construct an empty
 object of the right concrete type, and then calls that object's
@@ -215,32 +291,55 @@ The same `"type"`-tag-plus-factory pattern is what lets a
 `Configuration` file name an `RBlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)), a
 serialised solution name a `CapacitatedFacilityLocationSolution`
 ([Chapter 9](09-solution.md#ch-9)), and a shipped `Change` name a
-`BinaryKnapsackBlockRngdChange` ([Chapter 16](16-change.md#ch-16)): in every case the
-reader constructs the right concrete object from the stored class
+`BinaryKnapsackBlockRngdChange` ([Chapter 16](16-change.md#ch-16)): in every case the reader constructs the right concrete object from the stored class
 name, with no compile-time knowledge of the type.
+
+At the top level, a SMS++ netCDF file carries an `int` attribute
+`SMS++_file_type`, one of the values of the enum
+`smspp_netCDF_file_type` ([`SMSTypedefs.h:108-165`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h#L108-165)), which says how
+its child groups are organised: `eProbFile` (child groups
+`Prob_0`, `Prob_1`, ..., each with the three child groups `Block`,
+`BlockConfig` and `BlockSolver`), `eBlockFile` (`Block_0`,
+`Block_1`, ...), `eConfigFile` (`Config_0`, ...), `eSolutionFile`
+(`Solution_0`, ...) and `eStateFile` (`State_0`, ...); the
+filename-taking `deserialize()` can be told which of the objects
+to read by appending its index in square brackets to the name. The
+group of a `Block` has, besides the mandatory `"type"`, the
+optional attributes `"name"`, `"ObjectiveWeight"` and
+`"VariableWeight"` (the weights of [§12.2](12-sub-block.md#sec-12-2),
+written only when they are not 1, and 1 when absent), and whatever the
+specific `:Block` needs; the formats of
+the existing `:Block`s are described in the SMS++ File Format Manual
+in the `doc/` folder of the umbrella project. Finally, a `Block`
+can also be written to, and read from, an image of a netCDF-4 file
+in memory, with
+`void serialize( std::vector< unsigned char > & image , int type = eProbFile ) const`
+and the static
+`Block::deserialize( std::span< const unsigned char > image , unsigned int idx = 0 , Block * father = nullptr , std::function< void( Block * ) > * f = nullptr )`
+(which need netCDF-C 4.6.2 or later), e.g., to copy a `Block` as it is now,
+its changes included, without passing through the filesystem.
 
 ## 18.6 Idioms {#sec-18-6}
 
-**Register every concrete class in its factory.** A `:Block`,
-`:Solver`, `:Configuration`, `:Solution` or `:Change` that is
-meant to be created from a string (and almost all are) must carry
-the `SMSpp_insert_in_factory_h` / `_cpp_k` macro pair. Forgetting
-it makes the class invisible to `new_X(name)`.
+*Every concrete class in its factory.* A `:Block`, `:Solver`,
+`:Configuration`, `:Solution` or `:Change` that is meant to be created from a
+string (and almost all are) must carry the `SMSpp_insert_in_factory_h` /
+`_cpp_k` macro pair. Forgetting it makes the class invisible to
+`new_X( name )`.
 
-**When a class is "not present in factory", suspect the linker
-first.** The error almost never means a missing registration in
-the source; it means the registering translation unit was
-optimised away. Reach for `SMSpp_ensure_load(ClassName)` (with the
-header included) as the targeted fix, or the linker flags of
-[§18.2](18-factories-netcdf.md#sec-18-2) as the blunt one.
+*"Not present in factory": the linker first.* If the class carries
+the two macros, the error means that the registering translation unit
+was optimised away. Link the module through its CMake target, which keeps
+the registering units, or use the linker flags of
+[§18.2](18-factories-netcdf.md#sec-18-2) as the blunt fix.
 
-**Serialise the tree, not the pieces.** Because `serialize` /
-`deserialize` recurse, a whole `Block` tree (with its
+*The tree, not the pieces.* Since `serialize()` and `deserialize()`
+recurse, a whole `Block` tree (with its
 `Configuration`s and `Solution`s) round-trips through a single
 top-level call. Build on that rather than serialising each
 sub-`Block` separately.
 
-**Use `ncdump` to debug serialised files.** When a serialised
+*`ncdump` for debugging.* When a serialised
 `Block` does not deserialise as expected, `ncdump` on the file is
 the fastest way to see what was actually written, including the
 all-important `"type"` attributes.

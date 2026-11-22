@@ -4,7 +4,7 @@
 #                                                                            #
 #   makefile of libLEMON                                                     #
 #                                                                            #
-#   Input:  $(LEMON_ROOT), the directory where LEMON is installed            #
+#   Input:  $(LEMON_ROOT), the directory where abLEMON is installed          #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic LEMON directory without quotes, if any
@@ -25,12 +27,9 @@ libLEMONBSCDIR = $(subst $\",,$(LEMON_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Linux)
-    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib/x86_64-linux-gnu" -llemon
-endif
-ifeq ($(UNAME_S),Darwin)
-    libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" -lemon
-endif
-libLEMONINC = -I"$(libLEMONBSCDIR)/include"
+# abLEMON names its library emon, so that it is linked as -lemon
+libLEMONLIB = -L"$(libLEMONBSCDIR)/lib" \
+	-Wl,-rpath,"$(libLEMONBSCDIR)/lib" -lemon
+libLEMONINC = $(call SMSppSYSINC,$(libLEMONBSCDIR)/include)
 
 ######################## End of makefile-libLEMON ############################

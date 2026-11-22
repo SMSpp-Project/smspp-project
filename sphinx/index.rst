@@ -12,7 +12,7 @@ the use of SMS++ from the beginning.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Getting Started
+   :caption: Getting started
 
    generated/index
    generated/getting-started/installation
@@ -20,7 +20,7 @@ the use of SMS++ from the beginning.
 
 .. toctree::
    :maxdepth: 1
-   :caption: User Guide
+   :caption: User guide
 
    generated/user-guide/design-objectives
    generated/user-guide/alternatives
@@ -31,9 +31,10 @@ the use of SMS++ from the beginning.
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Reference
+   :caption: API reference
 
-   api/library_root
+   api/index
+   Index of the classes and members <genindex>
    Doxygen site <https://smspp.gitlab.io/smspp-project/>
 
 .. toctree::

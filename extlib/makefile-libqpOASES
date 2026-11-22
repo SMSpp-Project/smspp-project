@@ -21,6 +21,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic qpOASES directory without quotes, if any
@@ -28,15 +30,9 @@ libqpOASESBSCDIR = $(subst $\",,$(qpOASES_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libqpOASESINC = -I"$(libqpOASESBSCDIR)/include"
+libqpOASESINC = $(call SMSppSYSINC,$(libqpOASESBSCDIR)/include)
 
-ifeq ($(UNAME_S),Linux)
-    libqpOASESLIB = -L"$(libqpOASESBSCDIR)/lib" \
+libqpOASESLIB = -L"$(libqpOASESBSCDIR)/lib" \
 	-Wl,-rpath,"$(libqpOASESBSCDIR)/lib" -lqpOASES
-endif
-ifeq ($(UNAME_S),Darwin)
-    libqpOASESLIB = -rpath "$(libqpOASESBSCDIR)/lib" \
-	-L"$(libqpOASESBSCDIR)/lib" -lqpOASES
-endif
 
 ####################### End of makefile-libqpOASES ###########################

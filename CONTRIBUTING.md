@@ -56,12 +56,59 @@ private `smspp-develop` group of the SMS++ developers): its
    complaint but a command: `changelog tidy -w` puts it as the project
    writes it.
 
-3. The version is derived automatically from the most recent git tag (see
+3. Write the code and the configurations in the style of SMS++, which the
+   pipeline of a merge request checks, failing until they are in it.
+   From the umbrella,
+
+       scripts/smspp-format --since origin/develop <files>
+
+   puts them there: in a C++ source it formats only the lines changed
+   since `origin/develop`, so that the code around them stays as it was
+   written (the layout of the existing code is in part made by hand, e.g.,
+   where a long line breaks and how its continuation aligns, and no
+   formatter reproduces it), and a `.txt` configuration whole.
+
+   The formatters are those of the repository
+   [code-style](https://github.com/dmeoli/code-style), which the umbrella
+   holds as the submodule `scripts/code-style` (at a tag, so that the
+   style changes only when the umbrella moves it), and `smspp-format` runs
+   its `code-format`: the C++ sources go to its `format.py`, the `.txt`
+   configurations to `scripts/cfgformat.py`, as the `.code-format` at the
+   root of the umbrella says. The C++ style is the one of its
+   `.clang-format` (an indentation of one space, `if( x )`, `v[ i ]`,
+   `std::vector< int >`, `T * p`, 79 columns at most), with what
+   `format.py` adds to it: `return( x );` and `throw( e );`, a
+   space before every comma (`f( a , b )`), the closing brace of a block
+   on the indentation of the block, the opening brace of a function
+   defined out of a class on a line of its own. The configurations have
+   the layout of `scripts/cfgformat.py`: the box of the head and of the
+   end, 77 columns wide, with the name of the file; the values and their
+   comments in columns; the structural comments of a `ComputeConfig`
+   (`# number of integer parameters`, `# now all the integer parameters`,
+   `# [none]`) written as everywhere; a configuration that it cannot read
+   with the grammar of the core is reported and not changed. The two
+   check that what they change is only the layout: the tokens of a
+   configuration that SMS++ reads stay the same.
+
+   An IDE can run the formatter on the file it shows, e.g., CLion as an
+   external tool (`scripts/code-style/ide-format`, which finds
+   `smspp-format`) bound to Ctrl+Alt+L, and
+   `scripts/code-style/hooks/install-hooks .` installs in the umbrella and
+   in every submodule a pre-commit hook of git that stops a commit whose
+   files are not in the style. When the check of a merge request fails, its
+   job keeps the changes that put the files in the style as the artifact
+   `style.patch` (`git apply style.patch`), and posts them on the merge
+   request as suggestions that are applied with one click, when the
+   variable `STYLE_TOKEN` of the group holds an access token. A merge
+   request that has to keep a layout of its own says so with
+   `[skip style]` in its title.
+
+4. The version is derived automatically from the most recent git tag (see
    `cmake/DeriveVersion.cmake`), so there is no version number to bump by hand:
    cutting a release is just tagging the release commit, e.g. `git tag x.y.z`.
    This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-4. You may merge the Merge Request in once you have the sign-off of one 
+5. You may merge the Merge Request in once you have the sign-off of one 
    of the project maintainers, or if you do not have permission to do that,
    you may request the maintainer to merge it for you.
 

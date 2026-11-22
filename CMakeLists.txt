@@ -9,7 +9,7 @@
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 # --------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.24)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DeriveVersion.cmake)
 smspp_derive_version(SMSPP_MODULE_VERSION)
 
@@ -26,16 +26,28 @@ include(CMakeSettings.txt OPTIONAL)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 
-# Only apply this on Windows when building shared libraries
-if (WIN32 AND BUILD_SHARED_LIBS)
-    # Enable automatic symbol export introduced in CMake 3.4
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL "Force export of all symbols on Windows")
+# ----- Third-party sources of a release tarball ---------------------------- #
+# The release tarball carries FastFlow and RECORD in third-party/, at the
+# commits of packaging/modules.py [see packaging/third_party.py]: they are
+# used in place of the FastFlow that SMS++ fetches and of a RECORD checkout,
+# so that a build of the tarball fetches nothing, unless something else is
+# given on the command line.
+set(_smspp_third_party "${CMAKE_CURRENT_SOURCE_DIR}/third-party")
+if (EXISTS "${_smspp_third_party}/fastflow/ff" AND
+    NOT FETCHCONTENT_SOURCE_DIR_FASTFLOW)
+    set(FETCHCONTENT_SOURCE_DIR_FASTFLOW "${_smspp_third_party}/fastflow"
+        CACHE PATH "The source tree of FastFlow, not fetched")
+endif ()
+if (EXISTS "${_smspp_third_party}/record/source/RECORD.cpp" AND
+    NOT RECORD_ROOT)
+    set(RECORD_ROOT "${_smspp_third_party}/record"
+        CACHE PATH "The directory of RECORD, with source/RECORD.cpp")
 endif ()
 
-# Disable linker manifest on MSVC to avoid conflicts
-if (MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
-endif ()
+# A DLL exports all its symbols, as a shared library does elsewhere, where
+# the variable is ignored
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON CACHE BOOL
+        "Force export of all symbols of a DLL")
 
 # Define options for modules in the order of the blocks and solvers
 
@@ -68,6 +80,8 @@ smspp_option(BUILD_SingleFlowDCRBlock "Build SingleFlowDCRBlock")
 smspp_option(BUILD_SATBlock "Build SATBlock")
 smspp_option(BUILD_SatellitesBlock "Build SatellitesBlock")
 smspp_option(BUILD_MultiKnapsackAssignBlock "Build MultiKnapsackAssignBlock")
+smspp_option(BUILD_HQPBlock "Build HQPBlock")
+smspp_option(BUILD_CSPBlock "Build CSPBlock")
 
 # Solvers
 smspp_option(BUILD_MILPSolver "Build MILPSolver")
@@ -80,6 +94,7 @@ smspp_option(BUILD_LagrangianDualSolver "Build LagrangianDualSolver")
 smspp_option(BUILD_MCFClassSolver "Build MCFClassSolver")
 smspp_option(BUILD_MCFLemonSolver "Build MCFLemonSolver")
 smspp_option(BUILD_ScenarioReductionSolver "Build ScenarioReductionSolver")
+smspp_option(BUILD_BDMinQuadSolver "Build BDMinQuadSolver")
 
 smspp_option(BUILD_tools "Build tools")
 smspp_option(BUILD_tests "Build system tests")
@@ -137,34 +152,20 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extlib/makefile-paths")
     makefile_macros_to_cmake(extlib/makefile-paths)
 endif ()
 # ... then set the default other ones ignoring those already previously set,
-# according to the specific OS
-if (UNIX)
-    if (APPLE)
-        makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
-    else ()
-        makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
-    endif ()
-elseif (WIN32)
-    makefile_macros_to_cmake(extlib/makefile-default-paths-win)
-endif ()
-
-# Retrieve the system architecture
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+# according to the specific OS. A package turns them off, so that what a
+# machine has under the default locations (e.g., /opt) is not built into it
+option(SMSPP_EXTLIB_DEFAULTS
+        "Look for the dependencies in the default locations of extlib/" ON)
+if (SMSPP_EXTLIB_DEFAULTS)
     if (UNIX)
         if (APPLE)
-            if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64") # Apple Silicon MX arch
-                set(ARCH arm64)
-            else () # Intel arch
-                set(ARCH x86-64)
-            endif ()
+            makefile_macros_to_cmake(extlib/makefile-default-paths-macos)
         else ()
-            set(ARCH x86-64)
+            makefile_macros_to_cmake(extlib/makefile-default-paths-linux)
         endif ()
     elseif (WIN32)
-        set(ARCH x64)
+        makefile_macros_to_cmake(extlib/makefile-default-paths-win)
     endif ()
-else ()
-    set(ARCH x86)
 endif ()
 
 # ----- Handle dependencies ------------------------------------------------- #
@@ -174,12 +175,6 @@ endif ()
 if (BUILD_MMCFBlock)
     set(BUILD_MCFBlock ON) # Requires MCFBlock
     set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
-endif ()
-
-if (BUILD_InvestmentBlock)
-    set(BUILD_SDDPBlock ON) # Requires SDDPBlock
-    set(BUILD_TwoStageStochasticBlock ON) # Requires TwoStageStochasticBlock
-    set(BUILD_UCBlock ON) # Requires UCBlock
 endif ()
 
 if (BUILD_TwoStageStochasticBlock)
@@ -211,7 +206,6 @@ endif ()
 
 if (BUILD_LagrangianDualSolver)
     set(BUILD_MILPSolver ON) # Requires MILPSolver
-    set(BUILD_BranchAndXSolver ON) # Requires BranchAndXSolver
 endif ()
 
 if (BUILD_MCFClassSolver)
@@ -235,6 +229,15 @@ macro(init_submodule name)
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif ()
 endmacro()
+
+# smspp_check_module() and the functions of the modules, which the modules
+# call before SMS++ is added below [see SMS++/cmake/CheckModule.cmake and
+# SMS++/cmake/SMSppModule.cmake]: the core, which every module needs, is
+# initialized here, since a build of a single module (e.g., in its CI) may
+# start with no submodule checked out
+init_submodule(SMS++)
+include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/CheckModule.cmake OPTIONAL)
+include(${CMAKE_CURRENT_SOURCE_DIR}/SMS++/cmake/SMSppModule.cmake OPTIONAL)
 
 # ----- Testing ------------------------------------------------------------- #
 # Enable testing at the top level, so that the per-module tests are
@@ -348,6 +351,18 @@ if (BUILD_MultiKnapsackAssignBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 
+if (BUILD_HQPBlock)
+    init_submodule(HQPBlock)
+    add_subdirectory(HQPBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_CSPBlock)
+    init_submodule(CSPBlock)
+    add_subdirectory(CSPBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
 # Solvers
 if (BUILD_MILPSolver)
     init_submodule(MILPSolver)
@@ -406,6 +421,12 @@ endif ()
 if (BUILD_ScenarioReductionSolver)
     init_submodule(ScenarioReductionSolver)
     add_subdirectory(ScenarioReductionSolver)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_BDMinQuadSolver)
+    init_submodule(BDMinQuadSolver)
+    add_subdirectory(BDMinQuadSolver)
     set(SMSPP_REQUIRED ON)
 endif ()
 

@@ -1,0 +1,36 @@
+##############################################################################
+############################# makefile-sysinc ################################
+##############################################################################
+#                                                                            #
+#   makefile of the include option of an external library                    #
+#                                                                            #
+#   Output: $(call SMSppSYSINC,dir) = -isystem "dir", so that the warnings   #
+#           of the headers of the library are not shown, but -I"dir" for     #
+#           the directories that the compiler $(CC) searches by itself       #
+#           (e.g., /usr/include, or the include of the prefix of MSYS2),     #
+#           which are system ones already and whose place among them         #
+#           -isystem would change, breaking the #include_next of the C++     #
+#           standard headers; the directory is a word of its own, which      #
+#           MSYS2 turns into a path of Windows for its compilers, as it      #
+#           does not when it is joined to -isystem                           #
+#                                                                            #
+#                        Dipartimento di Informatica                         #
+#                            Universita' di Pisa                             #
+#                                                                            #
+##############################################################################
+
+# the directories that the compiler searches by itself, asked once, without
+# the .. with which gcc writes some of them, and under MSYS2 as paths of
+# Windows, as those of the libraries are given there
+SMSppSYSSED = /<\.\.\.> search starts/,/^End of search/{ \
+	s/ (framework directory)$$//;s/^ //p;}
+SMSppSYSCMD = echo | $(CC) -E -x c++ -v - 2>&1 | sed -n '$(SMSppSYSSED)' | \
+	while read d; do (cd "$$d" 2> /dev/null && pwd); done | \
+	{ if command -v cygpath > /dev/null; then cygpath -m -f -; else cat; fi; }
+SMSppSYSDIRS = $(eval SMSppSYSDIRS := \
+	$$(patsubst %/,%,$$(shell $$(SMSppSYSCMD))))$(SMSppSYSDIRS)
+
+SMSppSYSINC = $(if $(filter /usr/include /usr/local/include $(SMSppSYSDIRS),\
+	$(patsubst %/,%,$(1))),-I"$(1)",-isystem "$(1)")
+
+######################### End of makefile-sysinc #############################

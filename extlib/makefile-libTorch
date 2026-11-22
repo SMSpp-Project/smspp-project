@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic libTorch directory without quotes, if any
@@ -25,8 +27,8 @@ libTorchBSCDIR = $(subst $\",,$(Torch_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libTorchINC = -I"$(libTorchBSCDIR)/include" \
-	-I"$(libTorchBSCDIR)/include/torch/csrc/api/include"
+libTorchINC = $(call SMSppSYSINC,$(libTorchBSCDIR)/include) \
+	$(call SMSppSYSINC,$(libTorchBSCDIR)/include/torch/csrc/api/include)
 
 libTorchLIB = -L"$(libTorchBSCDIR)/lib" -ltorch -ltorch_cpu -lc10 \
 	-Wl,-rpath,"$(libTorchBSCDIR)/lib"

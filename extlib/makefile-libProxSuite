@@ -21,6 +21,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic ProxSuite directory without quotes, if any
@@ -28,6 +30,6 @@ libProxSuiteBSCDIR = $(subst $\",,$(proxsuite_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libProxSuiteINC = -I"$(libProxSuiteBSCDIR)/include"
+libProxSuiteINC = $(call SMSppSYSINC,$(libProxSuiteBSCDIR)/include)
 
 ##################### End of makefile-libProxSuite ###########################

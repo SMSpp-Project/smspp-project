@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 PIPSIPMPP_ROOT ?= $(HOME)/pips-ipmpp
@@ -41,7 +43,7 @@ PIPS_WITH_MUMPS ?= 1
 PIPS_MPI_CXX ?= mpicxx
 PIPS_MPI_INC ?= $(shell $(PIPS_MPI_CXX) --showme:compile 2>/dev/null)
 PIPS_MPI_LIBS ?= $(shell $(PIPS_MPI_CXX) --showme:link 2>/dev/null) \
-	-Wl,--no-as-needed -lmpi_mpifh -lmpi -Wl,--as-needed
+	-Wl,--push-state,--no-as-needed -lmpi_mpifh -lmpi -Wl,--pop-state
 
 PIPS_OPENMP_LIBS ?= -fopenmp
 PIPS_MATH_LIBS ?= -llapack -lblas
@@ -52,10 +54,9 @@ PIPS_METIS_LIBS ?= -lmetis
 # of its linear solvers; plain -lgfortran only resolves if the development
 # symlink is installed, hence fall back to the versioned runtime, and only
 # then to -lgfortran, when it is not
-PIPS_FORTRAN_LIBS ?= $(firstword \
-	$(wildcard $(shell $(CC) -print-file-name=libgfortran.so 2>/dev/null)) \
-	$(wildcard $(shell $(CC) -print-file-name=libgfortran.so.5 2>/dev/null)) \
-	-lgfortran)
+PIPSgfortran = $(wildcard $(shell $(CC) -print-file-name=$(1) 2>/dev/null))
+PIPS_FORTRAN_LIBS ?= $(firstword $(call PIPSgfortran,libgfortran.so) \
+	$(call PIPSgfortran,libgfortran.so.5) -lgfortran)
 
 ifeq ($(PIPS_WITH_MUMPS),1)
     PIPS_MUMPS_SOLVER_LIBS ?= -lmumps_solver
@@ -98,14 +99,14 @@ PIPS_EXTERNAL_LIBS ?= \
 # them needs the MPI include path too
 libPIPSINC = \
 	$(PIPS_MPI_INC) \
-	-I"$(PIPSROOT)/Core/Interface" \
-	-I"$(PIPSROOT)/Core/Options" \
-	-I"$(PIPSROOT)/Core/Utilities" \
-	-I"$(PIPSROOT)/Core/InteriorPointMethod" \
-	-I"$(PIPSROOT)/Core/LinearAlgebra" \
-	-I"$(PIPSROOT)/Core" \
-	-I"$(PIPSROOT)/Drivers/CallbackExample" \
-	-I"$(PIPSROOT)/Core/Readers/Distributed"
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Interface) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Options) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Utilities) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/InteriorPointMethod) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/LinearAlgebra) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Drivers/CallbackExample) \
+	$(call SMSppSYSINC,$(PIPSROOT)/Core/Readers/Distributed)
 
 # the PIPS-IPM++ libraries are shared and live outside the standard search
 # path, hence the rpath, so that a binary built with the makefiles finds them

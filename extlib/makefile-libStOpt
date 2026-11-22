@@ -18,6 +18,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic StOpt directory without quotes, if any
@@ -30,19 +32,19 @@ StOpt_MPI_INC ?= $(shell $(StOpt_MPI_CXX) --showme:compile 2>/dev/null)
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ifeq ($(UNAME_S),Linux)
-    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners \
-	    -L"$(libStOptBSCDIR)/lib/x86_64-linux-gnu" -lboost_timer
-    # StOpt is built with MPI, hence whoever includes its headers (and the
-    # boost::mpi ones) needs the MPI headers too
-    libStOptINC = -I"$(libStOptBSCDIR)/include" \
-	    -I"$(libStOptBSCDIR)/include/geners" \
-	    $(StOpt_MPI_INC)
-endif
-ifeq ($(UNAME_S),Darwin)
-    libStOptLIB = -L"$(libStOptBSCDIR)/lib" -lStOpt -lgeners -lboost_timer
-    libStOptINC = -I"$(libStOptBSCDIR)/include" \
-	    -I"$(libStOptBSCDIR)/include/geners"
-endif
+# the libraries are in lib/, or in a directory of it (e.g., the one of the
+# architecture on Debian)
+libStOptLIB = -L"$(libStOptBSCDIR)/lib" $(patsubst %,-L"%", \
+	    $(sort $(dir $(wildcard $(addprefix $(libStOptBSCDIR)/lib/*/, \
+	    libStOpt.* libgeners.* libboost_timer.*))))) \
+	    -lStOpt -lgeners -lboost_timer
+# StOpt is built with MPI, hence whoever includes its headers (and the
+# boost::mpi ones) needs the MPI headers too; the std::is_pod of its
+# geners, deprecated in C++20, is reported where our code instantiates
+# it even from a system header, hence -Wno-deprecated-declarations, as
+# in CMakeSettings.txt
+libStOptINC = $(call SMSppSYSINC,$(libStOptBSCDIR)/include) \
+	    $(call SMSppSYSINC,$(libStOptBSCDIR)/include/geners) \
+	    $(StOpt_MPI_INC) -Wno-deprecated-declarations
 
 ######################## End of makefile-libStOpt ############################

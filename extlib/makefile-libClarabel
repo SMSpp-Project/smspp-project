@@ -24,6 +24,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic Clarabel directory without quotes, if any
@@ -31,15 +33,9 @@ libClarabelBSCDIR = $(subst $\",,$(Clarabel_ROOT))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-libClarabelINC = -I"$(libClarabelBSCDIR)/include"
+libClarabelINC = $(call SMSppSYSINC,$(libClarabelBSCDIR)/include)
 
-ifeq ($(UNAME_S),Linux)
-    libClarabelLIB = -L"$(libClarabelBSCDIR)/lib" \
+libClarabelLIB = -L"$(libClarabelBSCDIR)/lib" \
 	-Wl,-rpath,"$(libClarabelBSCDIR)/lib" -lclarabel_c -lpthread -ldl -lm
-endif
-ifeq ($(UNAME_S),Darwin)
-    libClarabelLIB = -rpath "$(libClarabelBSCDIR)/lib" \
-	-L"$(libClarabelBSCDIR)/lib" -lclarabel_c
-endif
 
 ###################### End of makefile-libClarabel ###########################

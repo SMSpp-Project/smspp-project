@@ -10,6 +10,8 @@
 #           no need to check for changes in the .h and rebuild the .o / .a   #
 #           $(libHiGHSLIB) = external libraries + -L< libdirs > for libHiGHS #
 #           $(libHiGHSINC) = the -I$(include directories) for libHiGHS       #
+#           $(HiGHS_PRESENT) = non-empty if and only if Highs.h is in one    #
+#                              of them                                       #
 #                                                                            #
 #                             Antonio Frangioni                              #
 #                             Enrico Calandrini                              #
@@ -18,15 +20,12 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # external libraries that HiGHS needs
-ifeq ($(UNAME_S),Linux)
-    libHiGHSEXTLIB = -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHiGHSEXTLIB =
-endif
+libHiGHSEXTLIB = -lpthread
 
 # basic HiGHS directory without quotes, if any
 libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
@@ -46,20 +45,22 @@ libHiGHSBSCDIR = $(subst $\",,$(HiGHS_ROOT))
 
 ifneq ("$(wildcard $(libHiGHSBSCDIR)/highs.pc.in)","")
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/build/lib
-    libHiGHSINC = -I"$(libHiGHSBSCDIR)/src" -I"$(libHiGHSBSCDIR)/src/interfaces" \
-	    -I"$(libHiGHSBSCDIR)/highs" -I"$(libHiGHSBSCDIR)/highs/interfaces" \
-	    -I"$(libHiGHSBSCDIR)/build" -I"$(libHiGHSBSCDIR)/include/highs"
+    libHiGHSINC = $(call SMSppSYSINC,$(libHiGHSBSCDIR)/src) \
+	    $(call SMSppSYSINC,$(libHiGHSBSCDIR)/src/interfaces) \
+	    $(call SMSppSYSINC,$(libHiGHSBSCDIR)/highs) \
+	    $(call SMSppSYSINC,$(libHiGHSBSCDIR)/highs/interfaces) \
+	    $(call SMSppSYSINC,$(libHiGHSBSCDIR)/build) \
+	    $(call SMSppSYSINC,$(libHiGHSBSCDIR)/include/highs)
 else
     libHiGHSLIBBSC = $(libHiGHSBSCDIR)/lib
-    libHiGHSINC = -I"$(libHiGHSBSCDIR)/include/highs" \
-        -I"$(libHiGHSBSCDIR)/include/highs/interfaces"
+    libHiGHSINC = $(call SMSppSYSINC,$(libHiGHSBSCDIR)/include/highs) \
+        $(call SMSppSYSINC,$(libHiGHSBSCDIR)/include/highs/interfaces)
 endif
 
-ifeq ($(UNAME_S),Linux)
-    libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -lhighs $(libHiGHSEXTLIB)
-endif
-ifeq ($(UNAME_S),Darwin)
-    libHiGHSLIB = -rpath "$(libHiGHSLIBBSC)" -L"$(libHiGHSLIBBSC)" -lhighs
-endif
+libHiGHSLIB = -L"$(libHiGHSLIBBSC)" -Wl,-rpath,"$(libHiGHSLIBBSC)" -lhighs \
+	$(libHiGHSEXTLIB)
+
+HiGHS_PRESENT := $(firstword $(wildcard $(addsuffix /Highs.h,\
+	$(subst $\",,$(patsubst -isystem%,%,$(patsubst -I%,%,$(libHiGHSINC)))))))
 
 ######################## End of makefile-libHiGHS ############################

@@ -39,8 +39,9 @@ the solution of very-large-scale, demanding optimization problems arising
 in applications. Indeed, the `SMS++ Project` has already been instrumental in
 several complex projects, such as:
 
-- The [plan4res H2020 project](https://www.plan4res.eu) that funded the first
-  major expansion of `SMS++` capabilities.
+- The[plan4res - Synergistic Approach of Multi-Energy Models for an European
+  Optimal Energy System Management Tool - H2020 project](https://www.plan4res.eu)
+  that funded the first major expansion of `SMS++` capabilities.
 
 - The [openENTRANCE H2020 project](https://openentrance.eu), where `SMS++`
   contributed to [the open modelling platform developed by the
@@ -52,21 +53,24 @@ several complex projects, such as:
   modellers and stakeholders from both western and eastern Africa on how to use
   the tools to develop case studies at the level of the two regions.
 
-- The [CETPartnership "RESILIENT - Resilient Energy System Infrastructure
+- The [CET Partnership RESILIENT - Resilient Energy System Infrastructure
   Layouts for Industry, E-fuels and Network
-  Transition"](https://resilient-project.github.io), where `SMS++` is being
+  Transition](https://resilient-project.github.io), where `SMS++` is being
   interfaced with the open-source, widely-used, multi-vector energy planning
-  tool [PyPSA-Eur](github.com/pypsa/pypsa-eur) to provide solution methods for
-  the more demanding energy models
+  tool [PyPSA-Eur](https://github.com/pypsa/pypsa-eur) to provide solution
+  methods for the more demanding energy models.
 
-Furthermore, the use of `SMS++` is planned for several other projects; a
-recently accepted one is
-
-- The CETPartnership "Manoeuvre", where a methodology will be developed for
-  linking `SMS++` with the global energy model
-  [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case studies,
-  where `SMS++` will be run on a technologies mix calculated by GENeSYS-Mod and
+- The [CET Partnership Man0EUvRE - Energy System Modelling for Transition to a
+  net-Zero 2050 for EU via REPowerEU](https://man0euvre.eu) where a methodology
+  has been developed for linking `SMS++` with the global energy model
+  [GENeSYS-Mod](http://www.osemosys.org/genesys-mod.html) to conduct case
+  studies: `SMS++` is ran on a technologies mix calculated by GENeSYS-Mod and
   will send back some indicators that will allow to refine the previous solution.
+
+- The [PowerMax - Maximizing Cross-Grid Integration and Optimization of Long
+  Duration Energy Storage to synergize Revenue Streams - HE
+  project](https://powermax-project.eu) in which SMS++ and PyPSA provide the
+  main backbone of the computational tests for the case studies.
 
 Watch this space for more details and news as they become available.
 
@@ -83,7 +87,9 @@ Watch this space for more details and news as they become available.
 
 ## User Manual
 
-A complete user manual for SMS++ lives in [`manual/`](manual/), in two forms:
+A complete user manual for SMS++ lives in
+[`manual/`](https://gitlab.com/smspp/smspp-project/-/tree/develop/manual/),
+in two forms:
 
 - **PDF** - single, print-ready file: **[SMS++ - A User Manual (PDF)](manual/SMS++-manual.pdf)**
 
@@ -141,6 +147,14 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   components in parallel, and `BundleSolverML` predicts the proximal
   parameter with a neural network.
 
+- [BDMinQuadSolver](https://gitlab.com/smspp/bdminquadsolver), a `Solver`
+  for the primal `MasterProblemBlock` of the bundle methods, which solves it
+  with BDMinQuad, an active-set method for the disaggregated master problem
+  with a box on the variables, a lower bound on each component and a level,
+  which updates the factorization of the active set as the items enter and
+  leave the bundle. It handles the proximal and the doubly stabilized
+  master.
+
 - [SubGradSolver](https://gitlab.com/smspp/subgradsolver), a `Solver` for the
   same problems as `BundleSolver` by the deflected and projected subgradient
   methods, whose stepsize and deflection rules (Polyak, ColorTV, FumeroTV,
@@ -180,12 +194,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   [MCFClass project](https://github.com/frangio68/Min-Cost-Flow-Class).
 
 - [MCFLemonSolver](https://gitlab.com/smspp/mcflemonsolver), a `Solver` for
-  `MCFBlock` based on interfacing the min-cost flow algorithms from the
-  [LEMON project](https://lemon.cs.elte.hu/trac/lemon). It is not a single
-  solver but a whole family of `Solver` variants, obtained by instantiating
-  LEMON's `NetworkSimplex`, `CostScaling`, `CycleCanceling` and
-  `CapacityScaling` algorithms on different graph types and on different
-  (`int`, `long`, `double`) cost/capacity numeric types.
+  `MCFBlock` based on interfacing the min-cost flow algorithms of
+  [abLEMON](https://github.com/dmeoli/abLEMON) 1.9.0 or later, the
+  maintained fork of the [LEMON project](https://lemon.cs.elte.hu/trac/lemon).
+  It is not a single solver but a whole family of `Solver` variants,
+  obtained by instantiating its `NetworkSimplex`, `CostScaling`,
+  `CycleCanceling` and `CapacityScaling` algorithms on different graph types
+  and on different (`int`, `long`, `double`) cost/capacity numeric types.
 
 - [MILPSolver](https://gitlab.com/smspp/milpsolver), defining the
   general `MILPSolver` `Solver` that aims at being able to solve any `Block`
@@ -210,8 +225,8 @@ Both forms are generated from the same Markdown sources in manual/chapters.
     [GUROBI Optimizer](https://www.gurobi.com/solutions/gurobi-optimizer)
 
   - `MOSEKMILPSolver`, providing the interface with the commercial
-    [MOSEK Optimizer](https://www.mosek.com) (version 11), which needs a
-    license of its own, free for academic use
+    [MOSEK Optimizer](https://www.mosek.com) (version 11.0.1 or later), which
+    needs a license of its own, free for academic use
     ([academic licenses](https://www.mosek.com/products/academic-licenses/));
     it is built when CMake finds MOSEK (`MILPSolver_USE_MOSEK`, with
     `MOSEK_ROOT` as hint)
@@ -236,8 +251,7 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `ClarabelMILPSolver`, providing the interface with the open-source
     interior-point solver [Clarabel](https://clarabel.org) (convex QP and LP
     problems with linear constraints, sparse, no integer variables), whose C
-    interface is built with a Rust toolchain and installed by hand [see the
-    README of MILPSolver]
+    interface `INSTALL.sh` builds with the Rust toolchain (cargo)
 
   - `ProxQPMILPSolver`, providing the interface with the open-source
     proximal augmented Lagrangian solver ProxQP of
@@ -262,8 +276,23 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   - `QuadProgMILPSolver`, providing the interface with the open-source
     dual active-set solver [quadprog](https://github.com/quadprog/quadprog),
     the original implementation of the method of Goldfarb and Idnani (same
-    problems as `QPMADMILPSolver`); quadprog is under the GPL, hence it is
-    installed only if asked (`--with-quadprog`) and it is in no package
+    problems as `QPMADMILPSolver`); quadprog is under the GPL, hence a
+    MILPSolver built with it is too, and it is in no package
+
+  - `HPIPMMILPSolver`, providing the interface with the open-source
+    interior-point solver [HPIPM](https://github.com/giaf/hpipm), built on
+    the linear algebra of [BLASFEO](https://github.com/giaf/blasfeo) for the
+    small and dense problems of Model Predictive Control (convex QP and LP
+    problems with linear constraints, dense, no integer variables); it is in
+    no package
+
+  - `PERMONMILPSolver`, providing the interface with PermonQP, the solvers
+    of [PERMON](https://github.com/permon/permon) on
+    [PETSc](https://petsc.org) for large sparse convex QPs, e.g., the duals
+    of Support Vector Machines (convex QP problems with linear constraints
+    whose Hessian is positive definite on the equalities, sparse, no
+    integer variables); PETSc is large, hence `INSTALL.sh` installs them
+    only if asked (`--with-permon`), and they are in no package
 
 - [MMCFBlock](https://gitlab.com/smspp/mmcfblock), defining the `MMCFBlock`
   for representing Multicommodity Min-Cost Flow problems (MMCF). The
@@ -348,6 +377,13 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   [MiniSat](https://github.com/stp/minisat)), which also solves the weighted
   MaxSAT by the core-guided algorithm OLL.
 
+- [CSPBlock](https://gitlab.com/smspp/cspblock), defining the `Block` for
+  the constraint satisfaction problems of constraint programming (CP) and
+  for their weighted version, whose physical representation is the
+  universes and the current domains of the variables and a catalogue of
+  constraints (tables, linear, alldifferent, element, cumulative), each hard
+  or soft, read from a subset of FlatZinc.
+
 - [SatellitesBlock](https://gitlab.com/smspp/satellitesblock), defining the
   `Block` for the Satellite Constellation Design Problem, i.e., choosing the
   orbits of a constellation of satellites so as to minimize either their
@@ -367,6 +403,17 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   of the pairs of a knapsack and a class, linked by the constraints that
   assign each item to at most one knapsack and each knapsack at most one
   class.
+
+- [HQPBlock](https://gitlab.com/smspp/hqpblock), defining the `Block` for
+  hierarchical (lexicographic) quadratic programs, i.e., a sequence of
+  levels each of which minimizes the violation of its tasks, equalities and
+  inequalities, while keeping those of the levels above at their optimum, as
+  in the hierarchical Model Predictive Control of robots: `HQPBlock` writes
+  them as one model in the original variables, which goes from a level to
+  the next one, and from a step of the control to the next one, by
+  `Modification`, so that an active-set `:MILPSolver` restarts from the
+  previous solution, and `HQPSolver` solves its levels one after the other
+  with an inner `Solver` taken from a `BlockSolverConfig`.
 
 - [SingleFlowDCRBlock](https://gitlab.com/smspp/singleflowdcrblock),
   defining the `Block` for Delay-Constrained Routing problems, i.e., routing
@@ -402,274 +449,25 @@ Both forms are generated from the same Markdown sources in manual/chapters.
 
 ## Getting started
 
-SMS++ is also distributed ready-made, which is the quickest way to use it,
-in any of
-
-```sh
-sudo add-apt-repository ppa:smspp-project/smspp   # Ubuntu
-sudo apt install smspp-project                    # or smspp-ucblock, libsmspp-mcf-dev, ...
-
-conda install -c conda-forge smspp-project        # Linux, macOS, Windows
-
-brew tap SMSpp-Project/smspp                      # macOS, Linux
-brew install smspp
-
-vcpkg install "smspp[core,ucblock,milp]"          # from the sources, one feature per module
-```
-
-The vcpkg port is not in the default registry of vcpkg but in the
-[SMS++ vcpkg registry](https://gitlab.com/smspp/vcpkg-registry), whose README
-shows how a project routes `smspp` (and its dependencies `stopt`, `cadical`
-and `daqp`) to it.
-
-On Ubuntu the framework is one package per module and one per tool, so that a
-project installs only what it uses: `libsmspp-<module>` holds a shared
-library, `libsmspp-<module>-dev` its headers and the CMake configuration that
-`find_package()` finds, `smspp-<tool>` a command with its configuration files,
-its examples and its man page, and `smspp-project` installs them all.
-
-CPLEX, Gurobi, MOSEK and SCIP are not redistributable, so in all of these the
-MILP Solvers carry the HiGHS, DAQP and qpOASES backends alone (the vcpkg port
-also ProxQP, PIQP, OSQP and qpmad); a build against the others is still the one
-of the sources, which the instructions below are about.
-Similarly, the Solvers of SATBlock carry CaDiCaL alone, and none on Windows,
-where CaDiCaL does not build: MiniSat, whose stp/minisat code no package
-manager but Homebrew distributes (Debian and Ubuntu carry the older one of
-minisat.se), comes with a build from the sources. BinaryKnapsackBlock is
-packaged without the Solvers that hand its core to RECORD and to COMBO, which
-are built from the sources when these are found (RECORD, which `INSTALL.sh`
-checks out, in `RECORD_ROOT`, and COMBO, which is for academic or
-non-commercial use only and comes with no installer, in `COMBO_ROOT`).
-
-### Requirements
-
-If you are new to SMS++ and you are looking for a zero-waste way to install all
-dependencies in the default locations, we suggest using the ad-hoc INSTALL
-files.
-
-If you have not yet cloned the SMS++ repository, you can launch the script directly:
-
-```powershell
-# Windows (from a PowerShell as administrator)
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-& ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1')))
-```
-
-or:
-
-```sh
-# Linux
-# using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
-# using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path>
-
-# macOS
-# using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path>
-# using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path>
-```
-
-The `sudo` option in the Linux script assumes that the current user is a
-sudoer, in which case the default installation root path is `/opt`.
-If the user is not a sudoer, `sudo` should not be added and the default
-installation root path is `$HOME`. For macOS, `sudo` should never be used
-and the default installation root path is `/Library`.
-
-If you do not want to install some SMS++ dependency, you can run:
-
-```powershell
-# Windows (from a PowerShell as administrator)
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-& ([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.ps1'))) -without<some-dependency>
-```
-
-or:
-
-```sh
-# Linux
-# using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
-# using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | sudo bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
-
-# macOS
-# using curl
-curl -s https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
-# using  wget
-wget -qO- https://gitlab.com/smspp/smspp-project/-/raw/develop/INSTALL.sh | bash -s -- --install-root=<your-custom-path> --without-<some-dependency>
-```
-
-according to the following options table:
-
-| Unix               | Windows           | Description                              |
-|--------------------|-------------------|------------------------------------------|
-| `--without-cplex`  | `-withoutCplex`   | skip CPLEX installation                  |
-| `--without-gurobi` | `-withoutGurobi`  | skip Gurobi installation                 |
-| `--without-mosek`  | `-withoutMosek`   | skip MOSEK installation                  |
-| `--without-scip`   | `-withoutSCIP`    | skip SCIP installation                   |
-| `--without-highs`  | *(via vcpkg)*     | skip HiGHS installation                  |
-| `--without-pips`   | *(not supported)* | skip PIPS-IPM++ installation (Linux only)|
-| `--without-daqp`   | *(via vcpkg)*     | skip DAQP installation                   |
-| `--without-qpoases` | *(via vcpkg)*    | skip qpOASES installation                |
-| `--without-proxsuite` | *(via vcpkg)* | skip ProxSuite installation               |
-| `--without-piqp`   | *(via vcpkg)*     | skip PIQP installation                   |
-| `--without-osqp`   | *(via vcpkg)*     | skip OSQP installation                   |
-| `--without-qpmad`  | *(via vcpkg)*     | skip qpmad installation                  |
-| `--with-quadprog`  | *(not supported)* | install quadprog (GPL)                   |
-| `--without-stopt`  | *(via vcpkg)*     | skip StOpt installation                  |
-| `--without-torch`  | `-withoutTorch`   | skip Torch installation                  |
-| `--without-lemon`  | *(via vcpkg)*     | skip LEMON installation                  |
-| `--without-libsvm` | *(via vcpkg)*     | skip LIBSVM installation                 |
-| `--without-liblinear` | *(via vcpkg)*  | skip LIBLINEAR installation              |
-| `--without-cadical` | *(not supported)* | skip CaDiCaL installation               |
-| `--without-minisat` | *(not supported)* | skip MiniSat installation               |
-| `--without-record` | *(not supported)* | skip RECORD installation                 |
-| `--without-smspp`  | `-withoutSMSpp`   | skip SMS++ build and installation        |
-| `--with-experiments` | `-withExperiments` | also fetch and build the private `experiments` submodule |
-| *(n/a)*            | `-updatevcpkg`    | refresh `builtin-baseline` in vcpkg.json |
-
-Note that CPLEX is not redistributable, so the scripts do not download it. To
-install it, point the script to your own installer via `--cplex-installer=<path>`
-on Unix or `-cplexInstaller <path>` on Windows. If no installer is provided,
-CPLEX is skipped and the build proceeds with the other solvers.
-
-MOSEK is not redistributable either, but its archives can be downloaded
-freely: the scripts install the latest 11.0.x version (except on macOS x86_64,
-for which MOSEK 11 has no build), and using it requires a license of your own,
-free for academic use, put in `~/mosek/mosek.lic`
-(`%USERPROFILE%\mosek\mosek.lic` on Windows) or pointed to by the
-`MOSEKLM_LICENSE_FILE` environment variable.
-
-Otherwise, if you are already inside the cloned repository, you can run the
-script via:
-
-```powershell
-# Windows (from a PowerShell as administrator)
-.\INSTALL.ps1
-```
-
-or:
-
-```sh
-# Linux
-sudo ./INSTALL.sh
-
-# macOS
-./INSTALL.sh
-```
-
-using the same flag options according to the OS, if needed.
-
-If you need more detailed instructions on how to install the project's
-requirements, please refer to the [SMS++ requirements installation
-guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#requirements).
-
-### Centralised path repository
-
-You can either use [CMake](https://cmake.org) or plain makefiles to build the
-library, your choice. CMake compiles off-source, and it is therefore perhaps
-better suited to one-off, compile-and-forget installations, whereby the
-provided makefiles compile on-source, and we find that they are better suited
-while developing and testing new code (please do, this is a community project).
-
-In both cases, all external dependencies should be automatically dealt with if
-they are installed in their default paths. These are specified in the `*_ROOT`
-values that are defined in the four files
-[`extlib/makefile-default-paths-linux`](extlib/makefile-default-paths-linux),
-[`extlib/makefile-default-paths-macos`](extlib/makefile-default-paths-macos),
-and [`extlib/makefile-default-paths-win`](extlib/makefile-default-paths-win)
-for the three major OS families; the one that gets used is automatically
-selected by the build process (both with CMake and the makefiles). If not, the
-suggested way to change them is to copy the (right one of these) file(s) into
-`extlib/makefile-paths` and edit it. This file, if present, is automatically
-read and the values found there replace the corresponding non-default definitions.
-The rationale for not directly changing the makefile-default-paths-* is that
-`extlib/makefile-paths` file is .gitignore-d. Hence, it should not be necessary to
-re-change the makefiles (or stash/restore the changes) each time the project is
-pulled, or manually ignore the changes when it is pushed, which is very convenient
-for anyone who actually develops new `SMS++` components (which you know you
-should, so please do).
-
-### Build and install with CMake
-
-If you need more detailed instructions on how to install the project with
-CMake, please refer to the [SMS++ installation
-guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++#sms).
-
-The [`CMakeLists.txt`](CMakeLists.txt) file also provides a quick reference
-on requirements and dependencies between modules.
-
-Several CMake configuration options are available, see
-[here](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration).
-
-### Build and install with makefiles
-
-All modules, starting with the "core" `SMS++ classes`, also come with
-carefully hand-crafted makefiles. Using them may require dabbling with some
-makefile editing, but it is independent on CMake and may be more suited for
-anyone who is developing `SMS++` components.
-
-In principle makefiles may work right out of the bat if all dependencies are
-installed at their OS-specific default locations; see the
-`extlib/makefile-default-paths-*` discussion above. If any of the libraries 
-is in a nonstandard location, it should be possible to still have the make 
-process to run easily by copying `extlib/makefile-default-paths-*` into 
-`extlib/makefile-paths` (the file is not there because it is .gitignore-d,
-precisely so that local settings are never accidentally made public and are 
-not overwritten when pulling the repository again), and properly setting the 
-corresponding *-ROOT values.
-
-See the [SMS++ installation wiki](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration#location-of-external-libraries)
-for further details.
-
-The "core" `SMS++` classes have a makefile for building the corresponding
-library in
-
-```sh
-SMS++/lib/makefile-lib
-```
-
-The makefile allow to choose the compiler name and the optimization/debug
-settings. This builds the `lib/libSMS++.a` that can be linked upon. Also, the
-
-```sh
-SMS++/lib/makefile-inc
-```
-
-file is provided for allowing external makefiles to ensure that the library
-is up-to-date (useful in case one is actually developing it). The simplest
-way to learn how to use it is to check the makefiles for testers, such as
-those in
-
-```sh
-MCFClassSolver/test
-MILPSolver/test_*
-tests/CapacitatedFacilityLocationBlock 
-tests/LagBFunction 
-tests/MMCFBlock
-tests/UCBlock
-tests/PolyhedralFunction
-tests/PolyhedralFunctionBlock
-```
-
-and many others. Note that the [makefile-lib](SMS++/lib/makefile-lib) and
-[makefile-inc](SMS++/lib/makefile-inc) "listen" to the general macros `CC`
-and `SW` controlling the `C++` compiler and its main options; these can
-therefore be set in the "main" makefile and will be used throughout the
-whole compilation. This may be useful to set system-specific values.
-
-Some settings may be needed (see, for instance, the comments about
-`--force_link` in the [makefile of tests/BoxSolver](tests/BoxSolver/makefile)).
-
+The [installation guide](https://gitlab.com/smspp/smspp-project/-/wikis/Installing-SMS++)
+of the wiki describes every way of installing SMS++: the ready-made packages
+(the PPA of the project for Ubuntu, conda-forge, the Homebrew tap and the
+vcpkg registry of SMS++, and the recipes of the AUR, Conan, Spack, Nix, MSYS2
+and xmake), the `INSTALL.sh` and `INSTALL.ps1` scripts, which install the
+dependencies and build SMS++ in one go, and the build of the sources by CMake,
+inside a CMake project and by the makefiles, on Linux, macOS and Windows. The
+options of the build, and the location of the external libraries, are in
+[Customize the Configuration](https://gitlab.com/smspp/smspp-project/-/wikis/Customize-the-Configuration),
+and the [`CMakeLists.txt`](CMakeLists.txt) of the umbrella is a quick
+reference on the requirements of each module and on the dependencies among
+the modules.
 
 ## First steps
 
-Although sadly a proper User Manual is still missing, the
+Besides the [User Manual](#user-manual), the
 [tests](https://gitlab.com/smspp/tests) repository can be useful to get a
 first look at possible ways of using `SMS++`. In particular the three
-tests `LagrangianDualSolver_Box`, `MMCFBlock` and
+tests `LagrangianDualSolver_Box` (in `tests/SMS++/AbstractBlock`), `MMCFBlock` and
 `UCBlock` all build, or load from file, a `:Block` amenable
 to Lagrangian relaxation, register the `Solver` (such as a `:MILPSolver` and a
 `LagrangianDualSolver`) to it, properly configure them if needed (mostly,
@@ -678,7 +476,7 @@ to verify that they give the same answer. The `LagrangianDualSolver_Box`
 test also shows how one can use SMS++ to build "normal" models a-la
 algebraic modelling language using `AbstractBlock`, as opposed to
 programming a whole `Block` from scratch, more of which can be found, e.g.,
-in `tests/LagBFunction` and `tests/PolyhedralFunction`. Furthermore,
+in `tests/SMS++/LagBFunction` and `tests/SMS++/PolyhedralFunction`. Furthermore,
 provides an example on how to (randomly) modify the `:Block` and re-solve
 it many times (still checking that the results agree), showcasing the
 crucial `Modification` `SMS++` concept whereby changes in the `:Block` are
@@ -715,7 +513,13 @@ issue](https://gitlab.com/smspp/smspp-project/-/issues/new).
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of
 conduct, and the process for submitting merge requests to us. To contribute
-to the individual projects, see the Contribute section for those.
+to the individual projects, see the Contribute section for those. The code
+and the configurations follow a style that the pipeline of every merge
+request checks, and `scripts/smspp-format` applies with the formatters of
+the submodule `scripts/code-style` (see CONTRIBUTING.md and the page
+[Code style](https://gitlab.com/smspp/smspp-project/-/wikis/Code-style) of
+the wiki, which also says how to install the hook of git that checks a
+commit of SMS++ before it is made).
 
 Contributing entirely new subprojects, i.e., either new `:Block` for your
 favourite class of optimization models and/or new `:Solver` implementing your
@@ -729,7 +533,7 @@ released under. However, `SMS++` is a community project, and we humbly suggest
 you to consider participating in it with the rules we have been setting.
 
 The easiest way to start a new module is the
-[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate) repository (in
+[ModuleTemplate](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module) repository (in
 the private `smspp-develop` group of the SMS++ developers), a ready-to-use
 skeleton of a `SMS++` module in the standard layout (CMake and
 makefiles builds, GitLab and GitHub CI, a factory-registered stub class, a

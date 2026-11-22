@@ -23,6 +23,8 @@
 #                                                                            #
 ##############################################################################
 
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
 # internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # basic MOSEK directory without quotes, if any
@@ -37,38 +39,18 @@ else
 	$(sort $(wildcard $(libMOSEKROOTDIR)/*/tools/platform))))
 endif
 
-# the platform directory, named after the OS and the architecture
-libMOSEKMACHINE := $(shell uname -m)
-ifeq ($(UNAME_S),Linux)
-    ifeq ($(libMOSEKMACHINE),aarch64)
-        libMOSEKPLATFORM = linuxaarch64
-    else
-        libMOSEKPLATFORM = linux64x86
-    endif
-endif
-ifeq ($(UNAME_S),Darwin)
-    ifeq ($(libMOSEKMACHINE),arm64)
-        libMOSEKPLATFORM = osxaarch64
-    else
-        libMOSEKPLATFORM = osx64x86
-    endif
-endif
-
-libMOSEKBSCDIR = $(libMOSEKVERDIR)/tools/platform/$(libMOSEKPLATFORM)
+# the platform directory, the one there of the platforms MOSEK is built for
+libMOSEKBSCDIR = $(firstword $(wildcard $(addprefix \
+	$(libMOSEKVERDIR)/tools/platform/, \
+	linux64x86 linuxaarch64 osx64x86 osxaarch64)))
 
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 MOSEK_PRESENT := $(wildcard $(libMOSEKBSCDIR)/h/mosek.h)
 
-libMOSEKINC = -I"$(libMOSEKBSCDIR)/h"
+libMOSEKINC = $(call SMSppSYSINC,$(libMOSEKBSCDIR)/h)
 
-ifeq ($(UNAME_S),Linux)
-    libMOSEKLIB = -L"$(libMOSEKBSCDIR)/bin" \
+libMOSEKLIB = -L"$(libMOSEKBSCDIR)/bin" \
 	-Wl,-rpath,"$(libMOSEKBSCDIR)/bin" -lmosek64 -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-    libMOSEKLIB = -rpath "$(libMOSEKBSCDIR)/bin" \
-	-L"$(libMOSEKBSCDIR)/bin" -lmosek64
-endif
 
 ######################## End of makefile-libMOSEK ############################

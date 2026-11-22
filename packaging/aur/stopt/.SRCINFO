@@ -1,0 +1,18 @@
+pkgbase = stopt
+	pkgdesc = Library for stochastic optimization by dynamic programming and SDDP
+	pkgver = 7.1
+	pkgrel = 1
+	url = https://gitlab.com/stochastic-control/StOpt
+	arch = x86_64
+	arch = aarch64
+	license = LGPL-3.0-only
+	makedepends = cmake
+	depends = boost
+	depends = boost-libs
+	depends = eigen
+	depends = zlib
+	depends = bzip2
+	source = StOpt-v7.1.tar.gz::https://gitlab.com/stochastic-control/StOpt/-/archive/v7.1/StOpt-v7.1.tar.gz
+	sha256sums = 8bee8f2aab097c91a791729cde34f50b062208a1ab1af4d62ee41dba24a9e5e7
+
+pkgname = stopt

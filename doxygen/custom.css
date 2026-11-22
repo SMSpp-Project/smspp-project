@@ -1,50 +1,162 @@
 /*
- * This stylesheet contains only the customizations,
- * it gets loaded after Doxygen default CSS.
- * See HTML_EXTRA_STYLESHEET in Doxyfile.
+ * What the Doxygen site of SMS++ changes in doxygen-awesome-css, loaded
+ * after it [see HTML_EXTRA_STYLESHEET in the Doxyfile].
  */
 
-/* the colour of the text is that of the theme, light or dark, so that it
-   keeps its contrast with the background of either */
-body, table, div, p, dl {
-    font-family: -apple-system, Roboto, sans-serif;
+/* the content as wide as on the Sphinx site [see sphinx/_static/smspp.css],
+   where the formulae and the signatures of the API need it */
+html {
+    --content-maxwidth: 1300px;
+}
+
+/* the logo and the title in the side panel, which has the width that
+   doxygen-awesome-sidebar-only.css wants: the logo smaller and the title
+   on two lines, or they would be cut */
+#projectlogo img {
+    max-width: 120px;
+    height: auto;
+}
+
+#projectname {
+    white-space: normal;
+}
+
+/* a display formula wider than the page scrolls in its own box, and does
+   not spill over the margin */
+mjx-container[display="true"] {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* the types of the members on more lines where they are long, in a column
+   of a quarter of the table: kept on one line, the longest type (e.g., an
+   std::enable_if_t of a boost::multi_array) widens the column for every
+   member of the table and pushes the names out of the page */
+table.memberdecls td.memItemLeft,
+table.memberdecls td.mdescLeft {
+    width: 25%;
+    white-space: normal;
+}
+
+/* the title of a group of members in the colours of the theme, light or
+   dark, in place of the white shadow and the fixed blue of doxygen.css */
+div.groupHeader {
+    box-shadow: none;
     color: var(--page-foreground-color);
+    border-bottom: 1px solid var(--separator-color);
+    padding-bottom: 4px;
 }
 
-div.header {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+/* the entries of the outline on the right on more lines, where the types
+   of the parameters of the overloads make them wider than the panel */
+#page-nav-contents div.item {
+    white-space: normal;
 }
 
-div.contents {
-    padding: .7rem 1.5rem;
+#page-nav-contents div.item > a {
+    display: inline;
+    overflow-wrap: anywhere;
 }
 
-.fragment, pre.fragment, div.fragment {
-    color: #fff;
-    padding: 1.25rem 1.5rem;
-    margin: 1.25rem 1.5rem;
-    background-color: #282c34;
-    border-radius: 6px;
-    font-family: Monaco, Andale Mono, Ubuntu Mono, monospace;
+/* the look of the PDF of the user manual [see manual/build/extra.css]:
+   the Latin Modern fonts of TeX for the text and the code (copied next to
+   this file by HTML_EXTRA_FILES), at the size of a book, black text,
+   white panels, plain tables with thin rules, the code within the prose
+   without a box, and the primary 7030A0 only for the links */
+@font-face { font-family: "Latin Modern Roman";
+    src: url("lmroman10-regular.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-weight: bold;
+    src: url("lmroman10-bold.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-style: italic;
+    src: url("lmroman10-italic.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Roman"; font-weight: bold;
+    font-style: italic;
+    src: url("lmroman10-bolditalic.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Mono";
+    src: url("lmmono10-regular.otf") format("opentype"); }
+@font-face { font-family: "Latin Modern Mono"; font-style: italic;
+    src: url("lmmono10-italic.otf") format("opentype"); }
+
+html {
+    --font-family: "Latin Modern Roman", serif;
+    --font-family-monospace: "Latin Modern Mono", monospace;
+    --page-font-size: 17px;
+    --navigation-font-size: 15px;
+    --toc-font-size: 15px;
+    --code-font-size: 15px;
+    --title-font-size: 24px;
+    --primary-color: #7030A0;
+    --primary-dark-color: #7030A0;
+    --primary-light-color: #9363be;
+    --page-foreground-color: #000000;
+    --side-nav-background: var(--page-background-color);
+    --tablehead-background: none;
+    --code-background: none;
 }
 
-div.line {
-    color: #fff;
-    font-family: Monaco, Andale Mono, Ubuntu Mono, monospace;
-    line-height: 1.5;
-}
-
-#titlearea {
-    padding: 3rem 1.5rem 0.7rem;
-}
-
-#projectbrief {
-    color: #6a8bad;
-}
-
+/* the same in the dark theme, with the purple of the links lightened so
+   that it reads on the dark background */
 @media (prefers-color-scheme: dark) {
-    #projectbrief {
-        color: #9fb7d4;
+    html:not(.light-mode) {
+        --primary-color: #b37fdb;
+        --primary-dark-color: #b37fdb;
+        --primary-light-color: #9363be;
+        --page-foreground-color: #e6e6e6;
+        --side-nav-background: var(--page-background-color);
     }
+}
+html.dark-mode {
+    --primary-color: #b37fdb;
+    --primary-dark-color: #b37fdb;
+    --primary-light-color: #9363be;
+    --page-foreground-color: #e6e6e6;
+    --side-nav-background: var(--page-background-color);
+}
+
+div.contents p, div.contents li, div.contents dd {
+    text-align: justify;
+    hyphens: auto;
+}
+
+h1, h2, h3, h4, h5, div.header .title {
+    font-weight: bold;
+    letter-spacing: 0;
+}
+
+/* the code within the prose as \texttt in the PDF */
+div.contents code, div.contents span.tt {
+    border: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* the tables as in the PDF: a rule above and below and a thin one under
+   the head, with no grid and no shadow */
+table.markdownTable tbody, table.doxtable tbody, table.fieldtable {
+    box-shadow: none;
+    border-radius: 0;
+}
+table.markdownTable, table.doxtable, table.fieldtable {
+    border-collapse: collapse;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+}
+table.markdownTable td, table.markdownTable th,
+table.doxtable td, table.doxtable th,
+table.fieldtable td, table.fieldtable th {
+    border: none;
+}
+table.markdownTable tr, table.doxtable tr {
+    border-bottom: none;
+}
+table.markdownTable th, table.doxtable th, table.fieldtable th {
+    font-weight: bold;
+    border-bottom: 0.5px solid currentColor;
+}
+
+/* the labels of the members (inline, explicit, ...) in grey, the purple
+   being only for the links */
+span.mlabel {
+    background: var(--page-secondary-foreground-color);
 }
