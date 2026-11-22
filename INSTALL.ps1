@@ -31,6 +31,9 @@
     Note that RECORD and COMBO use POSIX clocks and 128-bit integers, which MSVC does not have,
     so there are no related options: BinaryKnapsackBlock is built without the Solver that wrap them.
     You can use the `-withoutTorch` option to skip the installation of Torch.
+    You can use the `-withoutFlatzinc` option to skip the installation of the FlatZinc
+    backend (the MiniZinc bundle) used by FlatZincCSPSolver; CSPBlock still builds without
+    it, only solving a CSPBlock through an external solver needs it.
     You can use the `-withoutSMSpp` option to skip the installation of SMS++.
     Run again, the script brings up to date what it installed: Clarabel goes to its latest
     release and is built again only when it changed, Gurobi, MOSEK, SCIP and Torch are installed
@@ -78,6 +81,7 @@ param(
     [switch]$withoutSCIP,
     [switch]$withoutClarabel,
     [switch]$withoutTorch,
+    [switch]$withoutFlatzinc,
     [switch]$withoutSMSpp,
     [switch]$withExperiments,
     [switch]$updatevcpkg,
@@ -641,6 +645,42 @@ if ($OS -eq "Win32NT")
         } else {
             Write-Host "... Torch already at its version."
         }
+    }
+
+    # Install the FlatZinc backend used by CSPBlock's FlatZincCSPSolver: the
+    # official MiniZinc bundle for Windows, carrying the minizinc driver and the
+    # OR-Tools CP-SAT, Gecode and Chuffed backends. There is no .sh to run on
+    # Windows (unlike CSPBlock/tools/install_flatzinc_backends.sh on Linux), so
+    # the bundle is downloaded and extracted here as the other dependencies are;
+    # on Windows the driver sits at the root of the bundle, not in a bin subdir
+    if (-not $withoutFlatzinc) {
+        Write-Host "Installing or updating the FlatZinc backend (the MiniZinc bundle)..."
+        $MINIZINC_ROOT = "C:\minizinc"
+        $MINIZINC_VERSION = "2.8.5"
+        if (Test-VersionDiffers -Root $MINIZINC_ROOT -Version $MINIZINC_VERSION) {
+            Set-Aside -Root $MINIZINC_ROOT
+            try {
+                Set-Location "C:\"
+                $MINIZINC_BUNDLE = "MiniZincIDE-$MINIZINC_VERSION-bundle-windows-x86_64"
+                Invoke-WebRequest -Uri "https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/$MINIZINC_BUNDLE.zip" -OutFile "C:\minizinc.zip"
+                Expand-Archive -Path "C:\minizinc.zip" -DestinationPath "C:\" -Force
+                Remove-Item "C:\minizinc.zip"
+                # the archive unpacks as the versioned bundle, rename to the version-less minizinc
+                Move-Item -Path "C:\$MINIZINC_BUNDLE" -Destination $MINIZINC_ROOT -ErrorAction Stop
+                # Update the system PATH to ensure the minizinc driver is found
+                Add-ToSystemPath -PathToAdd $MINIZINC_ROOT
+                Set-InstalledVersion -Root $MINIZINC_ROOT -Version $MINIZINC_VERSION
+            } catch {
+                Restore-SetAside -Root $MINIZINC_ROOT
+                throw
+            }
+            Write-Host "... FlatZinc backend installed successfully."
+        } else {
+            Write-Host "... FlatZinc backend already at its version."
+        }
+        Write-Host "The backends, for the FlatZincCSPSolver parameters, are:"
+        Write-Host "    strFlatZincSolver minizinc"
+        Write-Host "    vstrFlatZincArgs  2 --solver cp-sat   # or gecode, or chuffed"
     }
 
     # Install Clarabel: the C interface of Clarabel (Clarabel.cpp) at its

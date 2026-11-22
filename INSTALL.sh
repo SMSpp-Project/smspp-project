@@ -41,6 +41,8 @@
 #     You can use the `--without-cadical` option to skip the installation of CaDiCaL.
 #     You can use the `--without-minisat` option to skip the installation of MiniSat.
 #     You can use the `--without-record` option to skip the installation of RECORD.
+#     You can use the `--without-flatzinc` option to skip the installation of
+#     the FlatZinc backend (the MiniZinc bundle) used by FlatZincCSPSolver.
 #     You can use the `--without-smspp` option to skip the installation of SMS++.
 #     You can use the `--with-experiments` option to also fetch and build the
 #     private experiments submodule, which needs access to its repository;
@@ -55,7 +57,10 @@
 #     optional for BinaryKnapsackBlock, which builds RECORDBinaryKnapsackSolver
 #     if it finds it. COMBO, which BinaryKnapsackBlock can also use, is for
 #     academic or non-commercial use only and is not installed: whoever has
-#     its combo.c and combo.h gives their directory as COMBO_ROOT.
+#     its combo.c and combo.h gives their directory as COMBO_ROOT. CSPBlock
+#     still builds without the FlatZinc backend: only solving a CSPBlock through
+#     an external solver (FlatZincCSPSolver) needs it, so --without-flatzinc
+#     skips it without disabling CSPBlock.
 #
 # AUTHOR
 #     Donato Meoli
@@ -1511,6 +1516,7 @@ install_liblinear=${install_liblinear:-1}
 install_cadical=${install_cadical:-1}
 install_minisat=${install_minisat:-1}
 install_record=${install_record:-1}
+install_flatzinc=${install_flatzinc:-1}
 install_smspp=${install_smspp:-1}
 install_experiments=${install_experiments:-0}
 
@@ -1651,6 +1657,10 @@ do
     install_record=0
     shift
     ;;
+    --without-flatzinc)
+    install_flatzinc=0
+    shift
+    ;;
     --without-coinor)
     # accepted for compatibility: nothing in SMS++ depends on COIN-OR
     shift
@@ -1778,6 +1788,24 @@ if [ "$install_smspp" -eq 1 ]; then
   fi
   git submodule sync --recursive
   git "${skip_experiments[@]}" submodule update --init --recursive
+
+  # Install the FlatZinc backend that CSPBlock's FlatZincCSPSolver runs on an
+  # external solver: the official MiniZinc bundle, with the minizinc driver and
+  # the OR-Tools CP-SAT, Gecode and Chuffed backends. Its installer ships with
+  # CSPBlock, in place only now that the submodules are checked out, so the
+  # backend is installed here rather than in install_on_linux/install_on_macos.
+  if [ "$install_flatzinc" -eq 1 ]; then
+    echo "Installing the FlatZinc backend (the MiniZinc bundle)..."
+    flatzinc_installer="${SMSPP_ROOT}/CSPBlock/tools/install_flatzinc_backends.sh"
+    if [ "$OS" == "Darwin" ]; then
+      # on macOS the bundle comes from Homebrew, as the installer itself says
+      brew install minizinc
+    elif [ -x "$flatzinc_installer" ]; then
+      "$flatzinc_installer" --prefix="$(resolve_dep_root minizinc)"
+    else
+      echo "CSPBlock's FlatZinc installer not found: skipping the backend."
+    fi
+  fi
 
   # If the installation root is not the default one, update the makefile-paths
   if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
