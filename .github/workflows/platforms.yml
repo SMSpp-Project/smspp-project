@@ -172,8 +172,10 @@ jobs:
           ctest --test-dir build -R "$CTEST_UNIT" --output-on-failure
       - name: the makefiles of every module, on the packages of MSYS2
         run: |
+          # the prefix as a path of Windows, as the compilers are programs of
+          # Windows and MSYS2 turns no POSIX path given by -isystem into one
           for v in Boost_ROOT Eigen3_ROOT netCDF_ROOT netCDFCxx_ROOT \
                    HiGHS_ROOT; do
-            echo "$v = $MINGW_PREFIX"
+            echo "$v = $(cygpath -m "$MINGW_PREFIX")"
           done > extlib/makefile-paths
           bash ci/makefiles CC=${{ matrix.cxx }}

@@ -59,6 +59,12 @@ case " $* " in
   *) [ -d build/_deps/fastflow-src ] &&
      ff=( FastFlow_ROOT="$PWD/build/_deps/fastflow-src" ) ;;
 esac
+# under MSYS2 a path of Windows, which its compilers understand also after
+# -isystem, where MSYS2 does not turn a POSIX path into one
+case "${ff[0]}" in
+  FastFlow_ROOT=*) command -v cygpath > /dev/null &&
+     ff=( FastFlow_ROOT="$(cygpath -m "${ff[0]#FastFlow_ROOT=}")" ) ;;
+esac
 
 for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
               tests/MMCFBlock/makefile-xcheck */test/makefile \
