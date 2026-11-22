@@ -51,11 +51,20 @@ done
 
 [ -n "$MODULES_ONLY" ] && exit 0
 
+# FastFlow, unless it is given, is the one CMake fetched also for the tests
+# and the tools, as it is for the modules [see ci/makefile]
+ff=()
+case " $* " in
+  *" FastFlow_ROOT="*) ;;
+  *) [ -d build/_deps/fastflow-src ] &&
+     ff=( FastFlow_ROOT="$PWD/build/_deps/fastflow-src" ) ;;
+esac
+
 for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
               tests/MMCFBlock/makefile-xcheck */test/makefile \
               */test/*/makefile */tools/makefile \
               experiments/*/*/makefile 2> /dev/null |
            grep -v 'generalized_bundle\|ipamir'); do
   skipped "$(dirname "$f")" && continue
-  make -C "$(dirname "$f")" -f "$(basename "$f")" -j"$jobs" "$@"
+  make -C "$(dirname "$f")" -f "$(basename "$f")" -j"$jobs" "$@" "${ff[@]}"
 done
