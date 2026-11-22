@@ -831,7 +831,10 @@ if (-not $withoutSMSpp)
         }
     }
     Write-Host "Configuring with $cmakeExe and the generator $vsGenerator"
-    & $cmakeExe -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' $experimentsFlag
+    # no C++20 modules: MSVC stops with an internal error (C1001) on the
+    # interfaces of the modules, while the small one of the configuration
+    # check builds [see SMS++/cmake/CheckModule.cmake]
+    & $cmakeExe -S . -B 'build' -G $vsGenerator "-DCMAKE_INSTALL_PREFIX=$SMSPP_ROOT" '-Wno-dev' '-DSMSpp_BUILD_MODULE=OFF' $experimentsFlag
     # run cmake-gui
     if ($HAS_CMAKE_GUI) {
         # select submodules, then Configure and Generate the build files
