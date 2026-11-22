@@ -19,10 +19,14 @@
 #                                                                            #
 ##############################################################################
 
-# the directories that the compiler searches by itself, asked once
+# the directories that the compiler searches by itself, asked once, without
+# the .. with which gcc writes some of them, and under MSYS2 as paths of
+# Windows, as those of the libraries are given there
 SMSppSYSSED = /<\.\.\.> search starts/,/^End of search/{ \
 	s/ (framework directory)$$//;s/^ //p;}
-SMSppSYSCMD = echo | $(CC) -E -x c++ -v - 2>&1 | sed -n '$(SMSppSYSSED)'
+SMSppSYSCMD = echo | $(CC) -E -x c++ -v - 2>&1 | sed -n '$(SMSppSYSSED)' | \
+	while read d; do (cd "$$d" 2> /dev/null && pwd); done | \
+	{ if command -v cygpath > /dev/null; then cygpath -m -f -; else cat; fi; }
 SMSppSYSDIRS = $(eval SMSppSYSDIRS := \
 	$$(patsubst %/,%,$$(shell $$(SMSppSYSCMD))))$(SMSppSYSDIRS)
 

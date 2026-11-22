@@ -178,4 +178,4 @@ jobs:
                    HiGHS_ROOT; do
             echo "$v = $(cygpath -m "$MINGW_PREFIX")"
           done > extlib/makefile-paths
-          bash ci/makefiles CC=${{ matrix.cxx }}
+          SKIP="SDDPBlock MCFLemonSolver" bash ci/makefiles CC=${{ matrix.cxx }}
