@@ -650,9 +650,9 @@ if ($OS -eq "Win32NT")
     # Install the FlatZinc backend used by CSPBlock's FlatZincCSPSolver: the
     # official MiniZinc bundle for Windows, carrying the minizinc driver and the
     # OR-Tools CP-SAT, Gecode and Chuffed backends. There is no .sh to run on
-    # Windows (unlike CSPBlock/tools/install_flatzinc_backends.sh on Linux), so
-    # the bundle is downloaded and extracted here as the other dependencies are;
-    # on Windows the driver sits at the root of the bundle, not in a bin subdir
+    # Windows (unlike CSPBlock/tools/install_flatzinc_backends.sh on Linux), and
+    # the bundle comes only as an Inno Setup installer, which is run silently
+    # into the root; on Windows the driver sits at the root, not in a bin subdir
     if (-not $withoutFlatzinc) {
         Write-Host "Installing or updating the FlatZinc backend (the MiniZinc bundle)..."
         $MINIZINC_ROOT = "C:\minizinc"
@@ -661,12 +661,12 @@ if ($OS -eq "Win32NT")
             Set-Aside -Root $MINIZINC_ROOT
             try {
                 Set-Location "C:\"
-                $MINIZINC_BUNDLE = "MiniZincIDE-$MINIZINC_VERSION-bundle-windows-x86_64"
-                Invoke-WebRequest -Uri "https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/$MINIZINC_BUNDLE.zip" -OutFile "C:\minizinc.zip"
-                Expand-Archive -Path "C:\minizinc.zip" -DestinationPath "C:\" -Force
-                Remove-Item "C:\minizinc.zip"
-                # the archive unpacks as the versioned bundle, rename to the version-less minizinc
-                Move-Item -Path "C:\$MINIZINC_BUNDLE" -Destination $MINIZINC_ROOT -ErrorAction Stop
+                $MINIZINC_SETUP = "MiniZincIDE-$MINIZINC_VERSION-bundled-setup-win64.exe"
+                Invoke-WebRequest -Uri "https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/$MINIZINC_SETUP" -OutFile "C:\minizinc-setup.exe"
+                $setup = Start-Process -FilePath "C:\minizinc-setup.exe" -Wait -PassThru -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/DIR=`"$MINIZINC_ROOT`""
+                Remove-Item "C:\minizinc-setup.exe"
+                if ($setup.ExitCode -ne 0) { throw "the MiniZinc installer exited with code $($setup.ExitCode)" }
+                if (-not (Test-Path "$MINIZINC_ROOT\minizinc.exe")) { throw "minizinc.exe is not in $MINIZINC_ROOT" }
                 # Update the system PATH to ensure the minizinc driver is found
                 Add-ToSystemPath -PathToAdd $MINIZINC_ROOT
                 Set-InstalledVersion -Root $MINIZINC_ROOT -Version $MINIZINC_VERSION
