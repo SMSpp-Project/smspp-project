@@ -14,10 +14,10 @@
 # from the directory of the umbrella. A module is one of .gitmodules that     #
 # has a makefile-c; those in $SKIP (separated by spaces), say the ones whose  #
 # dependencies a platform does not have, are left out, and so are the         #
-# makefiles of the tests and of the tools in their directories. What needs    #
-# a solver that is not there is left out by the makefile itself; the two      #
-# experiments left out here need sources from elsewhere [see their            #
-# README.md]. With $MODULES_ONLY not empty only the modules are built.        #
+# makefiles of the tests and of the tools in their directories or that use    #
+# them. What needs a solver that is not there is left out by the makefile     #
+# itself; the two experiments left out here need sources from elsewhere [see  #
+# their README.md]. With $MODULES_ONLY not empty only the modules are built.  #
 #                                                                             #
 #                                 Donato Meoli                                #
 #                         Dipartimento di Informatica                         #
@@ -33,6 +33,15 @@ skipped() {
     case "$1" in
       "$s"|"$s"/*|*/"$s"|*/"$s"/*) return 0 ;;
     esac
+  done
+  return 1
+}
+
+# whether a makefile uses one of the modules in $SKIP, by a line that is not
+# a comment and names its directory
+uses_skipped() {
+  for s in $SKIP; do
+    grep -qE "^[^#]*/$s(/|[[:space:]]|\$)" "$1" && return 0
   done
   return 1
 }
@@ -72,5 +81,6 @@ for f in $(ls tests/*/makefile tests/*/*/makefile tools/*/makefile \
               experiments/*/*/makefile 2> /dev/null |
            grep -v 'generalized_bundle\|ipamir'); do
   skipped "$(dirname "$f")" && continue
+  uses_skipped "$f" && continue
   make -C "$(dirname "$f")" -f "$(basename "$f")" -j"$jobs" "$@" "${ff[@]}"
 done
