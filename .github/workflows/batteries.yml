@@ -1,0 +1,111 @@
+###############################################################################
+#                               batteries.yml                                 #
+#                                                                             #
+# Builds SMS++ with its tests in the image of the project and runs the tests  #
+# that are asked, with the modules that are asked on a branch of their own:   #
+# the check of correctness of a branch before it goes into develop, which     #
+# would otherwise take the machines of the group. It runs only by hand, with  #
+# three inputs:                                                               #
+#                                                                             #
+# - branches: the modules on a branch, as module=branch separated by spaces   #
+#   (e.g., "UCBlock=feature/x tests=feature/x"), the others staying at the    #
+#   commit the umbrella pins;                                                 #
+# - tests: the regular expression of the names of the tests that ctest runs;  #
+# - ci: whether the batteries run in their CI mode, i.e., on the small        #
+#   instances, those the batteries keep when CI is set.                       #
+#                                                                             #
+# Gurobi is there if the repository has the secrets of the WLS licence        #
+# (GRB_LICENSEID, GRB_WLSACCESSID and GRB_WLSSECRET), as the nightly pipeline #
+# of GitLab has its masked variables; without them the tests that ask for it  #
+# are the ones that fail. CPLEX, MOSEK and SCIP are not in the image. The     #
+# times are those of a shared runner: they say nothing of the methods.        #
+###############################################################################
+
+name: Batteries
+
+on:
+  workflow_dispatch:
+    inputs:
+      branches:
+        description: 'modules on a branch: module=branch, with spaces between'
+        required: false
+        default: ''
+      tests:
+        description: 'regular expression of the names of the tests to run'
+        required: true
+        default: '_unit_test$'
+      ci:
+        description: 'the batteries in their CI mode (the small instances)'
+        type: boolean
+        default: true
+
+jobs:
+  batteries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    container: ghcr.io/smspp-project/smspp-project:latest
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 2G
+    steps:
+      - uses: actions/checkout@v4
+      - name: the submodules, the private experiments left out
+        run: |
+          git config --global --add safe.directory '*'
+          git -c submodule.experiments.update=none \
+              submodule update --init --recursive
+      - name: the modules on their branches
+        env:
+          BRANCHES: ${{ inputs.branches }}
+        run: |
+          for mb in $BRANCHES; do
+            m=${mb%%=*}
+            b=${mb#*=}
+            git -C "$m" fetch origin "$b"
+            git -C "$m" checkout --quiet --detach FETCH_HEAD
+            echo "$m: $(git -C "$m" log --oneline -1)"
+          done
+      - name: the Gurobi WLS licence, if the secrets are there
+        env:
+          GRB_LICENSEID: ${{ secrets.GRB_LICENSEID }}
+          GRB_WLSACCESSID: ${{ secrets.GRB_WLSACCESSID }}
+          GRB_WLSSECRET: ${{ secrets.GRB_WLSSECRET }}
+        run: |
+          if [ -n "$GRB_WLSSECRET" ]; then
+            printf 'LICENSEID=%s\nWLSACCESSID=%s\nWLSSECRET=%s\n' \
+              "$GRB_LICENSEID" "$GRB_WLSACCESSID" "$GRB_WLSSECRET" \
+              > "$RUNNER_TEMP/gurobi.lic"
+            echo "GRB_LICENSE_FILE=$RUNNER_TEMP/gurobi.lic" >> "$GITHUB_ENV"
+          fi
+      - uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: batteries-${{ github.run_id }}
+          restore-keys: batteries-
+      - name: SMS++ and its tests
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends ccache
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON \
+                -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --build build --parallel 4
+          ccache --show-stats
+      # GitHub sets CI=true in every job, which is the CI mode of the
+      # batteries: it is taken away when they are to run on all instances;
+      # a test refused the Gurobi environment because the sessions of the
+      # licence were taken is tried again, as in the nightly pipeline
+      - name: the tests asked
+        env:
+          TESTS: ${{ inputs.tests }}
+          CI_MODE: ${{ inputs.ci }}
+        run: |
+          [ "$CI_MODE" = true ] || unset CI
+          ctest --test-dir build -R "$TESTS" -j2 --timeout 3600 \
+                --repeat until-pass:2 --output-on-failure \
+                --no-tests=error -LE berlin
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-log
+          path: build/Testing/Temporary/LastTest.log
+          retention-days: 7
