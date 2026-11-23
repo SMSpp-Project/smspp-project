@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `INSTALL.sh` no longer writes `LD_LIBRARY_PATH` (`DYLD_LIBRARY_PATH` on
+  macOS) in the startup file of the shell, the installed programs finding the
+  libraries of SMS++ by their run-time path: searched before the run-time
+  path, it made a program built by the makefiles in a source tree load the
+  installed libraries in place of its own
 - BDMinQuadSolver out of the packages of every channel again: its repository
   is private, and the release tarball leaves its directory empty, so that a
   recipe that builds the module failed; it enters when the repository is

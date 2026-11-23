@@ -2012,16 +2012,10 @@ if [ "$install_smspp" -eq 1 ]; then
   echo "export PATH=\"$SMSPP_BIN:\$PATH\"" >> "$RC_FILE"
   echo ">> Added SMSpp bin path in $RC_FILE."
 
-  # Add the new SMSpp lib path
-  if [ "$OS" == "Linux" ]; then
-    echo "export LD_LIBRARY_PATH=\"$SMSPP_LIB:\$LD_LIBRARY_PATH\"" >> "$RC_FILE"
-    echo ">> Added SMSpp LD_LIBRARY_PATH in $RC_FILE."
-    export LD_LIBRARY_PATH="$SMSPP_LIB:$LD_LIBRARY_PATH"
-  elif [ "$OS" == "Darwin" ]; then
-    echo "export DYLD_LIBRARY_PATH=\"$SMSPP_LIB:\$DYLD_LIBRARY_PATH\"" >> "$RC_FILE"
-    echo ">> Added SMSpp DYLD_LIBRARY_PATH in $RC_FILE."
-    export DYLD_LIBRARY_PATH="$SMSPP_LIB:$DYLD_LIBRARY_PATH"
-  fi
+  # no library path: the installed programs and libraries find the libraries
+  # of SMS++ by their run-time path, and a library path would be searched
+  # before the run-time path of a program built in a source tree, which
+  # would then load the installed libraries in place of its own
 
   # Apply to current session as well
   export PATH="$SMSPP_BIN:$PATH"
