@@ -423,6 +423,7 @@ integration:
         - packaging/**/*
         - CMakeLists.txt
         - vcpkg-registry
+        - .gitlab-ci.yml
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop"
       changes: *packaging-changes
     # a branch with a merge request is checked by the pipeline of the latter
@@ -672,8 +673,9 @@ packaging:xmake:
     - (cd use && xmake f -y -c -v > ../xmake.log 2>&1) ||
       { tail -n 200 xmake.log; exit 1; }
     - (cd use && xmake -y && xmake run consumer)
+    # the binary, not the bash completion of the same name in share/
     - P=$(dirname $(dirname $(find "$XMAKE_GLOBALDIR"/.xmake/packages/s/smspp
-                                    -name smspp_ucblock_solver -type f |
+                                    -path '*/bin/smspp_ucblock_solver' -type f |
                                head -n 1)))
     - '"$P/bin/smspp_ucblock_solver"
        "$P/share/SMS++_tools/ucblock_solver/examples/Bus_Test.nc4" |
@@ -747,6 +749,9 @@ packaging:homebrew:
     - SHA=$(shasum -a 256 "$TGZ" | cut -d' ' -f1)
     - brew tap smspp-project/smspp
     - brew trust smspp-project/smspp
+    # the tap of abLEMON, which the formula depends on
+    - brew tap dmeoli/ablemon
+    - brew trust dmeoli/ablemon
     - F="$(brew --repository smspp-project/smspp)/Formula/smspp.rb"
     - sed -i '' -e "s|^  url .*|  url \"file://$TGZ\"|"
                 -e "s|^  sha256 .*|  sha256 \"$SHA\"|" "$F"
