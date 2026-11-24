@@ -14,9 +14,9 @@
 #           $(libHPIPMLIB) = external libraries + -L< libdirs > for libHPIPM #
 #           $(libHPIPMINC) = the -I$(include directories) for libHPIPM       #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

@@ -30,7 +30,7 @@
 #           $(SMSppMOD)      = not empty if the C++20 modules are built      #
 #           $(FastFlow_ROOT) = the directory of FastFlow                     #
 #                                                                            #
-#                                 Donato Meoli                               #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
 #                             Universita' di Pisa                            #
 #                                                                            #

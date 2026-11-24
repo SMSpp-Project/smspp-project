@@ -15,9 +15,9 @@
 #                             libPERMON                                      #
 #           $(libPERMONINC) = the -I$(include directories) for libPERMON     #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

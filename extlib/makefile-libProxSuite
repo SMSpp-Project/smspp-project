@@ -15,9 +15,9 @@
 #   ProxSuite is header-only, hence there is no $(libProxSuiteLIB); it       #
 #   needs Eigen, whose -I is in $(SMS++INC).                                 #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

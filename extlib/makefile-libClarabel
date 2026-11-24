@@ -18,9 +18,9 @@
 #   The system libraries at the end are those of the Rust standard library,  #
 #   needed if libclarabel_c is a static library.                             #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

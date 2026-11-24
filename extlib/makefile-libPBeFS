@@ -15,9 +15,9 @@
 #           $(libPBeFSLIB) = external libraries + -L< libdirs >              #
 #           $(libPBeFSINC) = the -I$(include directories)                    #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

@@ -13,9 +13,9 @@
 #           $(libOpenMPLIB) = the options of the link for OpenMP             #
 #           $(libOpenMPINC) = the options of the compiler for OpenMP         #
 #                                                                            #
-#                                Donato Meoli                                #
-#                          Dipartimento di Informatica                       #
-#                              Universita' di Pisa                           #
+#                             Antonio Frangioni                              #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

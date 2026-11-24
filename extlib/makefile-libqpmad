@@ -14,9 +14,9 @@
 #   qpmad is header-only, hence there is no $(libqpmadLIB); it needs Eigen,  #
 #   whose -I is in $(SMS++INC).                                              #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

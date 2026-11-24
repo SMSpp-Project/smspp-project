@@ -19,9 +19,9 @@
 #   static library libosqpstatic is used if it is there and the linker can   #
 #   keep its symbols local to the executable, and the shared one otherwise.  #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

@@ -15,9 +15,9 @@
 #                              libqpOASES                                    #
 #           $(libqpOASESINC) = the -I$(include directories) for libqpOASES   #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

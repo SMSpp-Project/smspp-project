@@ -13,9 +13,9 @@
 #           $(libDAQPLIB) = external libraries + -L< libdirs > for libDAQP   #
 #           $(libDAQPINC) = the -I$(include directories) for libDAQP         #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

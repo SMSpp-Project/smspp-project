@@ -13,9 +13,9 @@
 #           $(libquadprogLIB) = external libraries + -L< libdirs > for       #
 #                               libquadprog                                  #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

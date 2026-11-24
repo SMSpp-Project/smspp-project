@@ -12,9 +12,9 @@
 #           $(libPIPSLIB) = external libraries + -L<libdirs> for libPIPS     #
 #           $(libPIPSINC) = the -I$(include directories) for libPIPS         #
 #                                                                            #
-#                             Enrico Calandrini                              #
-#                        Dipartimento di Informatica                         #
-#                            Universita' di Pisa                             #
+#                             Antonio Frangioni                              #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 

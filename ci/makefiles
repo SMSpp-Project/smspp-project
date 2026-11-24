@@ -19,7 +19,7 @@
 # itself; the two experiments left out here need sources from elsewhere [see  #
 # their README.md]. With $MODULES_ONLY not empty only the modules are built.  #
 #                                                                             #
-#                                 Donato Meoli                                #
+#                              Antonio Frangioni                              #
 #                         Dipartimento di Informatica                         #
 #                             Universita' di Pisa                             #
 ###############################################################################

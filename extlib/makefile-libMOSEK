@@ -17,9 +17,9 @@
 #           $(libMOSEKINC) = the -I$(include directories) for libMOSEK       #
 #           $(MOSEK_PRESENT) = non-empty if and only if mosek.h is there     #
 #                                                                            #
-#                                Donato Meoli                                #
+#                             Antonio Frangioni                              #
 #                         Dipartimento di Informatica                        #
-#                            Universita' di Pisa                             #
+#                             Universita' di Pisa                            #
 #                                                                            #
 ##############################################################################
 
