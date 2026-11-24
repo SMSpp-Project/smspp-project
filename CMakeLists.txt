@@ -80,6 +80,7 @@ smspp_option(BUILD_SingleFlowDCRBlock "Build SingleFlowDCRBlock")
 smspp_option(BUILD_SATBlock "Build SATBlock")
 smspp_option(BUILD_SatellitesBlock "Build SatellitesBlock")
 smspp_option(BUILD_MultiKnapsackAssignBlock "Build MultiKnapsackAssignBlock")
+smspp_option(BUILD_GeneralizedAssignmentBlock "Build GeneralizedAssignmentBlock")
 smspp_option(BUILD_HQPBlock "Build HQPBlock")
 smspp_option(BUILD_CSPBlock "Build CSPBlock")
 
@@ -196,6 +197,10 @@ if (BUILD_CapacitatedFacilityLocationBlock)
 endif ()
 
 if (BUILD_MultiKnapsackAssignBlock)
+    set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
+endif ()
+
+if (BUILD_GeneralizedAssignmentBlock)
     set(BUILD_BinaryKnapsackBlock ON) # Requires BinaryKnapsackBlock
 endif ()
 
@@ -348,6 +353,12 @@ endif ()
 if (BUILD_MultiKnapsackAssignBlock)
     init_submodule(MultiKnapsackAssignBlock)
     add_subdirectory(MultiKnapsackAssignBlock)
+    set(SMSPP_REQUIRED ON)
+endif ()
+
+if (BUILD_GeneralizedAssignmentBlock)
+    init_submodule(GeneralizedAssignmentBlock)
+    add_subdirectory(GeneralizedAssignmentBlock)
     set(SMSPP_REQUIRED ON)
 endif ()
 

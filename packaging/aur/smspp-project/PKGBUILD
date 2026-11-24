@@ -28,6 +28,7 @@ pkgname=(
   libsmspp-sat
   libsmspp-satellites
   libsmspp-mkab
+  libsmspp-gab
   libsmspp-hqp
   libsmspp-csp
   libsmspp-milp
@@ -259,6 +260,12 @@ package_libsmspp-mkab() {
   DESTDIR="$pkgdir" cmake --install build/MultiKnapsackAssignBlock
 }
 
+package_libsmspp-gab() {
+  pkgdesc="SMS++: Generalized assignment Block"
+  depends=(libsmspp-bkb)
+  DESTDIR="$pkgdir" cmake --install build/GeneralizedAssignmentBlock
+}
+
 package_libsmspp-hqp() {
   pkgdesc="SMS++: SMS++ Block and Solver for hierarchical (lexicographic) quadratic programs"
   depends=(libsmspp)
@@ -470,6 +477,7 @@ package_smspp-project() {
     libsmspp-sat
     libsmspp-satellites
     libsmspp-mkab
+    libsmspp-gab
     libsmspp-hqp
     libsmspp-csp
     libsmspp-milp

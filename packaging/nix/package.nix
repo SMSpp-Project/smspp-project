@@ -175,6 +175,13 @@ let
       opt = [ ];
     }
     {
+      dir = "GeneralizedAssignmentBlock";
+      acr = "gab";
+      needs = [ "bkb" ];
+      req = [ ];
+      opt = [ ];
+    }
+    {
       dir = "HQPBlock";
       acr = "hqp";
       needs = [ "core" ];

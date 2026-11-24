@@ -404,6 +404,12 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   assign each item to at most one knapsack and each knapsack at most one
   class.
 
+- [GeneralizedAssignmentBlock](https://gitlab.com/smspp/generalizedassignmentblock),
+  defining the `Block` for the Generalized Assignment Problem, i.e.,
+  assigning each job to exactly one agent, within the capacity of the
+  agent, at the minimum total cost: its sub-`Block` are the
+  `BinaryKnapsackBlock` of the agents, linked by the assignment constraints.
+
 - [HQPBlock](https://gitlab.com/smspp/hqpblock), defining the `Block` for
   hierarchical (lexicographic) quadratic programs, i.e., a sequence of
   levels each of which minimizes the violation of its tasks, equalities and

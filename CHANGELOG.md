@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `packaging/modules.py`, with the recipes written again, and its headers in
   the `INPUT` of `doxygen/Doxyfile`
 
+- `GeneralizedAssignmentBlock`, the module of the `Block` of the Generalized
+  Assignment Problem, one `BinaryKnapsackBlock` per agent linked by the
+  assignment constraints: the submodule, `BUILD_GeneralizedAssignmentBlock`,
+  which turns on `BUILD_BinaryKnapsackBlock`, the feature `gab` of the smspp
+  port of the vcpkg registry, the module in `packaging/modules.py`, with the
+  recipes written again, and its headers in the `INPUT` of
+  `doxygen/Doxyfile`
+
 ### Changed
 
 - the functions of the modules are included before the modules [see

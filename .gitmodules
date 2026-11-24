@@ -91,6 +91,9 @@
 [submodule "MultiKnapsackAssignBlock"]
 	path = MultiKnapsackAssignBlock
 	url = ../multiknapsackassignblock.git
+[submodule "GeneralizedAssignmentBlock"]
+	path = GeneralizedAssignmentBlock
+	url = ../generalizedassignmentblock.git
 [submodule "SubGradSolver"]
 	path = SubGradSolver
 	url = ../subgradsolver.git

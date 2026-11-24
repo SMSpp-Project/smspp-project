@@ -62,6 +62,7 @@ row, and the abstract bases of a module (e.g., `UnitBlock`,
 | `MMCFBlock` | `MMCFBlock`, `MMCFNetworkDesignBlock` | |
 | `BinaryKnapsackBlock` | `BinaryKnapsackBlock` | `DPBinaryKnapsackSolver`, `CoreDPBinaryKnapsackSolver`, `COMBOBinaryKnapsackSolver`, `RECORDBinaryKnapsackSolver`, `GreedyRelaxationBinaryKnapsackSolver` |
 | `MultiKnapsackAssignBlock` | `MultiKnapsackAssignBlock` | |
+| `GeneralizedAssignmentBlock` | `GeneralizedAssignmentBlock` | |
 | `CapacitatedFacilityLocationBlock` | `CapacitatedFacilityLocationBlock` | |
 | `UCBlock` | `UCBlock`, `ThermalUnitBlock`, `NuclearUnitBlock`, `HydroUnitBlock`, `HydroSystemUnitBlock`, `BatteryUnitBlock`, `IntermittentUnitBlock`, `SlackUnitBlock`, `ConversionUnitBlock`, `DCNetworkBlock`, `ACNetworkBlock`, `OTSNetworkBlock`, `ECNetworkBlock`, `DesignNetworkBlock` | `ThermalUnitDPSolver`, `ThermalUnitExtDPSolver`, `NuclearUnitExtDPSolver` |
 | `InvestmentBlock` | `InvestmentBlock`, `InvestmentFunction` (also a `C05Function`) | |

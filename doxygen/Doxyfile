@@ -829,6 +829,7 @@ INPUT                  = doxygen/mainpage.md \
                          SATBlock/include \
                          SatellitesBlock/include \
                          MultiKnapsackAssignBlock/include \
+                         GeneralizedAssignmentBlock/include \
                          SDDPBlock/include \
                          ScenarioReductionSolver/include \
                          SingleFlowDCRBlock/include \

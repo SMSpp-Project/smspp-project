@@ -53,6 +53,8 @@ MODULES = [
      "Satellite Constellation Design Problem Block"),
     ("MultiKnapsackAssignBlock", "mkab", ["bkb"], [], [],
      "Multiple knapsack assignment Block"),
+    ("GeneralizedAssignmentBlock", "gab", ["bkb"], [], [],
+     "Generalized assignment Block"),
     ("HQPBlock", "hqp", ["core"], [], [],
      "SMS++ Block and Solver for hierarchical (lexicographic) quadratic programs"),
     ("CSPBlock", "csp", ["core"], [], [],

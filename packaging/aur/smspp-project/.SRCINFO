@@ -103,6 +103,10 @@ pkgname = libsmspp-mkab
 	pkgdesc = SMS++: Multiple knapsack assignment Block
 	depends = libsmspp-bkb
 
+pkgname = libsmspp-gab
+	pkgdesc = SMS++: Generalized assignment Block
+	depends = libsmspp-bkb
+
 pkgname = libsmspp-hqp
 	pkgdesc = SMS++: SMS++ Block and Solver for hierarchical (lexicographic) quadratic programs
 	depends = libsmspp
@@ -259,6 +263,7 @@ pkgname = smspp-project
 	depends = libsmspp-sat
 	depends = libsmspp-satellites
 	depends = libsmspp-mkab
+	depends = libsmspp-gab
 	depends = libsmspp-hqp
 	depends = libsmspp-csp
 	depends = libsmspp-milp
