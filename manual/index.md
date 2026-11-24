@@ -50,11 +50,6 @@ been carried out in the framework of the
 project is acknowledged in the form indicated in the umbrella
 project's [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md).
 
-This manual was drafted with the assistance of Claude (Anthropic).
-The conceptual structure, technical content, and editorial choices
-are the responsibility of the author; the AI assistance is
-acknowledged here once and not repeated elsewhere in the text.
-
 ## License
 
 SMS++ is distributed under the [GNU Lesser General Public License
