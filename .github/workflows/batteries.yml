@@ -17,8 +17,11 @@
 # Gurobi is there if the repository has the secrets of the WLS licence        #
 # (GRB_LICENSEID, GRB_WLSACCESSID and GRB_WLSSECRET), as the nightly pipeline #
 # of GitLab has its masked variables; without them the tests that ask for it  #
-# are the ones that fail. CPLEX, MOSEK and SCIP are not in the image. The     #
-# times are those of a shared runner: they say nothing of the methods.        #
+# are the ones that fail. The licence has 2 sessions and each run takes       #
+# both, so a run waits for the end of the runs of this workflow started       #
+# before it. MOSEK is in the image without a licence, and the build leaves    #
+# it out; CPLEX is not in the image. The times are those of a shared runner:  #
+# they say nothing of the methods.                                            #
 ###############################################################################
 
 name: Batteries
@@ -38,6 +41,10 @@ on:
         description: 'the batteries in their CI mode (the small instances)'
         type: boolean
         default: true
+
+permissions:
+  actions: read
+  contents: read
 
 jobs:
   batteries:
@@ -87,9 +94,31 @@ jobs:
           apt-get update && apt-get install -y --no-install-recommends ccache
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON \
                 -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+                -DCMAKE_DISABLE_FIND_PACKAGE_MOSEK=ON
           cmake --build build --parallel 4
           ccache --show-stats
+      # the runs of this workflow not yet over and started before this one
+      # hold the sessions of the Gurobi licence, or will: their end is
+      # waited for, so that the runs take the licence one at a time
+      - name: the turn of the Gurobi licence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions"
+          api="$api/workflows/batteries.yml/runs?per_page=100"
+          count='import json, os, sys
+          me = int( os.environ[ "GITHUB_RUN_ID" ] )
+          runs = json.load( sys.stdin )[ "workflow_runs" ]
+          print( sum( r[ "status" ] != "completed" and r[ "id" ] < me
+                      for r in runs ) )'
+          while :; do
+            n=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "$api" |
+                python3 -c "$count" || echo 0)
+            [ "$n" -eq 0 ] && break
+            echo "$n runs started before this one are not over"
+            sleep 60
+          done
       # GitHub sets CI=true in every job, which is the CI mode of the
       # batteries: it is taken away when they are to run on all instances;
       # a test refused the Gurobi environment because the sessions of the
