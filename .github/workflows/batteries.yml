@@ -122,14 +122,16 @@ jobs:
       # GitHub sets CI=true in every job, which is the CI mode of the
       # batteries: it is taken away when they are to run on all instances;
       # a test refused the Gurobi environment because the sessions of the
-      # licence were taken is tried again, as in the nightly pipeline
+      # licence were taken is tried again, as in the nightly pipeline, and a
+      # test is given an hour and a half, as the integer batteries of
+      # QuadFunction are there
       - name: the tests asked
         env:
           TESTS: ${{ inputs.tests }}
           CI_MODE: ${{ inputs.ci }}
         run: |
           [ "$CI_MODE" = true ] || unset CI
-          ctest --test-dir build -R "$TESTS" -j2 --timeout 3600 \
+          ctest --test-dir build -R "$TESTS" -j2 --timeout 5400 \
                 --repeat until-pass:2 --output-on-failure \
                 --no-tests=error -LE berlin
       - uses: actions/upload-artifact@v4
