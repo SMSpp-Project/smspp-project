@@ -2,12 +2,12 @@
 
 A User Manual
 
-**Antonio Frangioni**
-*Dipartimento di Informatica, Università di Pisa*
+**Antonio Frangioni**  
+*Dipartimento di Informatica, Università di Pisa*  
 `frangio@di.unipi.it`
 
-**Donato Meoli**
-*Dipartimento di Informatica, Università di Pisa*
+**Donato Meoli**  
+*Dipartimento di Informatica, Università di Pisa*  
 `donato.meoli@outlook.com`
 
 *Version 0.8.0 (November 2026)*
