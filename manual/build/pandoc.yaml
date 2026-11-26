@@ -65,7 +65,7 @@ include-in-header:
   - preamble.tex
 
 metadata:
-  title: "SMS++ — a Structured Modeling System for mathematical models"
+  title: "SMS++: a Structured Modeling System for mathematical models"
   subtitle: "A User Manual"
   date: "Version 0.8.0 (November 2026)"
   author:
