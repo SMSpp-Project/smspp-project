@@ -11,7 +11,9 @@
 #      Repository -> Mirroring repositories) through the GitLab API;          #
 #   4. disables the Wiki tab, which GitHub enables by default, everywhere     #
 #      but on the umbrella, whose Wiki tab receives the pages of the GitLab   #
-#      project wiki (a repository the native mirror does not cover).          #
+#      project wiki (a repository the native mirror does not cover);          #
+#   5. deletes on GitHub the branches deleted on GitLab, a deletion that      #
+#      the native mirror does not carry over.                                 #
 # Re-running it is safe: existing repos and mirrors are detected and          #
 # skipped, so a new GitLab project only requires running this again.          #
 #                                                                             #
@@ -70,6 +72,43 @@ list_projects() {
           ($special[.path] // .name),
           ((.description // "") | gsub("[\t|\n]"; " ") | gsub("(^ +| +$)"; "")) ]
       | @tsv'
+}
+
+# Print the names of the branches of the GitLab project $1 (URL-encoded path),
+# one per line; fail if any page cannot be read.
+gitlab_branches() {
+  local page=1 out
+  while :; do
+    out=$(curl -sf -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+            "$API/projects/$1/repository/branches?per_page=100&page=$page") \
+      || return 1
+    jq -e 'type == "array"' >/dev/null <<< "$out" || return 1
+    jq -r '.[].name' <<< "$out"
+    [ "$(jq length <<< "$out")" -lt 100 ] && return 0
+    page=$((page + 1))
+  done
+}
+
+# Delete from the GitHub repo $2 the branches that the GitLab project $1 no
+# longer has, but its default branch.
+prune_branches() {
+  local glb ghb dflt b
+  glb=$(gitlab_branches "$1") && [ -n "$glb" ] \
+    || { echo "   prune:  GitLab branches not read, skipped"; return; }
+  ghb=$(gh api --paginate "repos/$GH_ORG/$2/branches" --jq '.[].name') \
+    || { echo "   prune:  GitHub branches not read, skipped"; return; }
+  dflt=$(gh repo view "$GH_ORG/$2" --json defaultBranchRef \
+           --jq '.defaultBranchRef.name')
+  while IFS= read -r b; do
+    [ -n "$b" ] && [ "$b" != "$dflt" ] || continue
+    grep -qxF -- "$b" <<< "$glb" && continue
+    if [ "${DRY_RUN:-0}" = "1" ]; then
+      echo "   prune:  would delete $b"
+    else
+      gh api -X DELETE "repos/$GH_ORG/$2/git/refs/heads/$b" >/dev/null \
+        && echo "   prune:  deleted $b" || echo "   prune:  delete $b FAILED"
+    fi
+  done <<< "$ghb"
 }
 
 while IFS=$'\t' read -r gl gh desc; do
@@ -155,6 +194,11 @@ while IFS=$'\t' read -r gl gh desc; do
         "$API/projects/$enc/remote_mirrors/$sid/sync" \
         && echo "   mirror: sync triggered"
   fi
+
+  # 5) the push mirror does not carry the deletion of a branch over, hence a
+  #    branch deleted on GitLab is deleted on GitHub here; nothing is deleted
+  #    if the list of the GitLab branches cannot be read in full
+  prune_branches "$enc" "$gh"
 done < <(list_projects)
 
 # The wiki of the umbrella is a repository of its own (<project>.wiki.git) that

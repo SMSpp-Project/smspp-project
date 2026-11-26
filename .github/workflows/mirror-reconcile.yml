@@ -1,8 +1,10 @@
 # Keeps the GitLab -> GitHub mirrors self-maintaining: once a day it lists the
 # public projects of the GitLab `smspp` group and, for any that is missing on
 # GitHub, creates the repo and the native push mirror, then triggers a sync.
-# Existing repos are left untouched (the native mirror already syncs them on
-# every push), so a newly added GitLab project shows up on GitHub on its own.
+# The native mirror syncs the existing repos on every push, but it does not
+# carry the deletion of a branch over, hence the run also deletes on GitHub the
+# branches deleted on GitLab; a newly added GitLab project shows up on GitHub
+# on its own.
 # The same run also pushes the GitLab project wiki, which the native mirror
 # does not cover, into the Wiki tab of the GitHub umbrella.
 #
