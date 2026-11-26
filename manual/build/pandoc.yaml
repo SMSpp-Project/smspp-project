@@ -67,7 +67,9 @@ include-in-header:
 metadata:
   title: "SMS++ — A User Manual"
   subtitle: "For SMS++ 0.8.0 (November 2026)"
-  author: "Antonio Frangioni"
+  author:
+    - "Antonio Frangioni"
+    - "Donato Meoli"
   lang: en
   colorlinks: true
   linkcolor: NavyBlue

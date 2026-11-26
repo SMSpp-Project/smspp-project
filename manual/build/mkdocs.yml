@@ -9,7 +9,7 @@
 
 site_name: SMS++ — A User Manual
 site_description: A user manual for SMS++ 0.8.0, the C++ framework for structured optimization.
-site_author: Antonio Frangioni
+site_author: Antonio Frangioni, Donato Meoli
 docs_dir: ..
 # site_dir must live OUTSIDE docs_dir (which is the manual root); write the
 # generated static site as a sibling of manual/.
