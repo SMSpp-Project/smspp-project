@@ -1,4 +1,6 @@
-# SMS++ — A User Manual
+# SMS++ — a Structured Modeling System for mathematical models
+
+A User Manual
 
 **Antonio Frangioni**
 *Dipartimento di Informatica, Università di Pisa*
@@ -8,7 +10,7 @@
 *Dipartimento di Informatica, Università di Pisa*
 `donato.meoli@outlook.com`
 
-*Version 0.2, for SMS++ 0.8.0 (November 2026)*
+*Version 0.8.0 (November 2026)*
 
 ---
 

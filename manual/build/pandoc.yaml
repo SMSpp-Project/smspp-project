@@ -65,8 +65,9 @@ include-in-header:
   - preamble.tex
 
 metadata:
-  title: "SMS++ — A User Manual"
-  subtitle: "For SMS++ 0.8.0 (November 2026)"
+  title: "SMS++ — a Structured Modeling System for mathematical models"
+  subtitle: "A User Manual"
+  date: "Version 0.8.0 (November 2026)"
   author:
     - "Antonio Frangioni"
     - "Donato Meoli"
