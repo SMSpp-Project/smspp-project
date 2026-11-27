@@ -68,7 +68,7 @@ objects by class name.
 ### Registering a class
 
 A concrete class joins its factory through two macros
-([`SMSFactory.h:56-143`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L56-143) and [`SMSFactory.h:394-522`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L394-522)):
+([`SMSFactory.h:58-151`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L58-151) and [`SMSFactory.h:442-574`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L442-574)):
 
 - in the class declaration (private part of the `.h`):
   `SMSpp_insert_in_factory_h;`
@@ -78,7 +78,9 @@ A concrete class joins its factory through two macros
   `SMSpp_insert_in_factory_cpp_1( ClassName );` if it takes one
     (e.g., a `:Block`, whose constructor takes the father `Block *`,
   which is why [`MCFBlock.cpp`](https://gitlab.com/smspp/mcfblock/-/blob/develop/src/MCFBlock.cpp) uses the `_1` form,
-  [§4.5](04-block.md#sec-4-5)). *Template*
+  [§4.5](04-block.md#sec-4-5)); the number only says which constructor
+  the factory calls, since `boost::factory` forwards any number of
+  arguments and the two macros expand to the same code. *Template*
   classes use the `_t` variants
   (`SMSpp_insert_in_factory_cpp_0_t` / `_1_t`), which add the
   `template<>` specialization the compiler requires; this is the case of
@@ -120,7 +122,7 @@ terminate called after throwing an instance of 'std::invalid_argument'
   what():  XXXX not present in YYYY factory
 ```
 
-even though the class is present in the source ([`SMSFactory.h:80-123`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L80-123)).
+even though the class is present in the source ([`SMSFactory.h:88-131`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h#L88-131)).
 If the class does carry the two macros, the cause is a translation unit
 that the linker has left out or, with shared libraries, a module that the
 program does not link and that no table of the plugins names
