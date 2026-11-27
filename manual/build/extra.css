@@ -1,7 +1,8 @@
 /* The web site of the manual set as its PDF: Latin Modern for the text and
-   the code, at the size of a book, the text justified and hyphenated, the
-   headings in the weight of LaTeX, and the colours of the PDF (black text,
-   the primary 7030A0 for the links). */
+   the code, at the size of a book on any screen, the text justified and
+   hyphenated in a column as wide as the line of the PDF, the headings in
+   the weight of LaTeX, the tables with the rules of LaTeX, and the colors
+   of the PDF (black text, the primary 7030A0 for the links). */
 
 @font-face { font-family: "Latin Modern Roman";
   src: url("fonts/lmroman10-regular.otf") format("opentype"); }
@@ -18,19 +19,31 @@
   src: url("fonts/lmmono10-italic.otf") format("opentype"); }
 
 /* also on the attributes of the palette, on which Material sets its own */
-:root, [data-md-color-primary], [data-md-color-accent] {
+:root, [data-md-color-primary], [data-md-color-accent],
+[data-md-color-scheme] {
   --md-text-font: "Latin Modern Roman";
   --md-code-font: "Latin Modern Mono";
   --md-typeset-a-color: #7030A0;
   --md-accent-fg-color: #7030A0;
 }
 
+/* Material enlarges every size on a wide screen (the root at 137.5% from
+   100em, at 150% from 125em); the page keeps the size of a book instead,
+   and a wide screen gives a wider column */
+html { font-size: 125%; }
+@media screen and (min-width: 100em) { html { font-size: 125%; } }
+@media screen and (min-width: 125em) { html { font-size: 125%; } }
+
 .md-typeset {
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   line-height: 1.45;
   text-align: justify;
   hyphens: auto;
 }
+
+/* the column of the text as wide as the line of the PDF (about 110
+   characters), between the navigation and the table of contents */
+.md-grid { max-width: 72rem; }
 
 .md-typeset h1, .md-typeset h2, .md-typeset h3 {
   color: inherit;
@@ -47,28 +60,46 @@
   text-align: left;
 }
 
-/* the text column of a book, not of a dashboard */
-.md-grid { max-width: 58rem; }
-
-/* the tables and the pseudocode as in the PDF: plain, with thin rules */
-.md-typeset table:not([class]) { font-size: 0.9em; box-shadow: none;
-  border-top: 1px solid currentColor; border-bottom: 1px solid currentColor; }
-.md-typeset table:not([class]) th { font-weight: bold;
-  border-bottom: 0.5px solid currentColor; }
+/* the tables as in the PDF: plain, at the width of the text, with the
+   rules of LaTeX (above, below the header, below) and no rule between the
+   rows, the cells set ragged right and not hyphenated */
+.md-typeset__table { display: block; }
+.md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
+  font-size: 0.9em;
+  box-shadow: none;
+  border-radius: 0;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  padding: 0.3em 0.6em;
+  text-align: left;
+  hyphens: manual;
+  vertical-align: top;
+}
+.md-typeset table:not([class]) th {
+  font-weight: bold;
+  border-bottom: 0.5px solid currentColor;
+}
+.md-typeset table:not([class]) td { border-top: none; }
+.md-typeset table:not([class]) tbody tr:hover {
+  background: none;
+  box-shadow: none;
+}
 
 /* the code within the prose as \texttt in the PDF: no box around it, and
-   broken at any character, as the PDF does, so that a justified line does
-   not stretch around it */
+   broken only after the characters that separate the parts of a name,
+   where code-break.js puts a <wbr>; a name is cut only when it is wider
+   than the whole line */
 .md-typeset :not(pre) > code {
   background: none;
   padding: 0;
   box-shadow: none;
-  word-break: break-all;
-}
-
-/* a name written as code within a heading stays on one line */
-.md-typeset h1 code, .md-typeset h2 code, .md-typeset h3 code {
   word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* the displays as in the PDF: the mathematics at the size of the text, and
@@ -94,12 +125,10 @@
 .md-typeset div.arithmatex { margin: 0.5em 0; }
 .md-typeset .katex-display { margin: 0; padding: 0.2em 0; }
 
-/* front matter centered, not justified (byline, version line) */
-.md-typeset h1 + p,
-.md-typeset h1 + p + p,
-.md-typeset h1 + p + p + p,
-.md-typeset h1 + p + p + p + p,
-.md-typeset h1 + p + p + p + p + p { text-align: center; }
+/* the front matter centered, not justified (title, byline, version line):
+   the paragraphs before its rule, which comes before any section; the
+   paragraphs that open a chapter stay justified */
+.md-typeset > p:not(h2 ~ p):has(~ hr:not(h2 ~ hr)) { text-align: center; }
 
 /* dark theme: a lighter violet for links, readable on the dark surface */
 [data-md-color-scheme="slate"] {

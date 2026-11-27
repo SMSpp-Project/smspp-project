@@ -167,7 +167,7 @@ manual/
   build/
     Makefile  pandoc.yaml  preamble.tex  mkdocs.yml
     figure-ext.lua  source-links.lua  break-code.lua  katex-init.js
-    hooks.py  extra.css  fonts/
+    hooks.py  extra.css  code-break.js  fonts/
 ```
 
 The three running Blocks: `MCFBlock` (leaf, wrapper solver),
@@ -213,9 +213,23 @@ cause):
   cross-reference links `…<file>.md#anchor` to intra-document `#anchor`
   so Pandoc resolves them as internal hyperlinks (see §2 and §10.2).
   Leaves Doxygen `https://…` and figure links untouched.
-- `break-code.lua` — makes inline `\texttt` breakable (zero-penalty
-  `\allowbreak` after each char) so long paths/URLs/signatures don't
-  overflow the right margin.
+- `break-code.lua` — makes inline `\texttt` breakable only after the
+  separators of a name (`/ . _ , (` and `::`, zero penalty; a CamelCase
+  boundary at penalty 5000), never within a word, so long
+  paths/URLs/signatures don't overflow the right margin and no name is
+  cut in two; `\emergencystretch` in `preamble.tex` lets a line stretch
+  instead. A table whose code column overflows gets a wider first column
+  in the dashes of its separator row (e.g. the back-ends of 6.10).
+- `extra.css`, `code-break.js` (MkDocs) — the site set as the PDF, the
+  same files in the manuals of abLEMON, ADS and PBeFS (the common copy
+  and its rationale are in `scripts/manual-style` of the memory): Latin
+  Modern at 16 px on every screen (Material's root fixed at 125%), a
+  column of 72rem for the grid, i.e., about 900 px and 110-116
+  characters, so that every code and algorithm block (widest line at most
+  92 characters) and every table fit without scrolling; tables with the
+  three rules of LaTeX; `code-break.js` puts a `<wbr>` at the same
+  separators as `break-code.lua`. Check every page with `overlaps.py`
+  and `site_measure.py` of that folder (0 defects, 0 blocks that scroll).
 - `source-links.lua` (PDF) and `hooks.py` (MkDocs) — link a file or
   folder written as code, and not yet within a link, to its submodule's
   repository on GitLab, among the files that git tracks under
