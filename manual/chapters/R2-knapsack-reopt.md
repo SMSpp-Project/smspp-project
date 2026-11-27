@@ -4,13 +4,13 @@
 [`BinaryKnapsackBlock/include/BinaryKnapsackBlock.h`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/BinaryKnapsackBlock.h),
 [`DPBinaryKnapsackSolver.h`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/DPBinaryKnapsackSolver.h)]
 
-We are concerned in this recipe with reoptimization at its smallest scale: a
-Binary Knapsack is solved by the specialized `DPBinaryKnapsackSolver`, then
-its data are changed *incrementally* and it is solved again, the `:Solver`
-restarting its dynamic program from a stored intermediate state rather than
-from the beginning. This is the smallest illustration of the
+We are concerned in this recipe with the smallest illustration of the
 reoptimization theme of SMS++ (Chapters [8](08-modification-janus.md#ch-8)
-and [13](13-function-family.md#ch-13)). The tester of `BinaryKnapsackBlock`
+and [13](13-function-family.md#ch-13)): a Binary Knapsack is solved by the
+specialized `DPBinaryKnapsackSolver`, then its data are changed
+*incrementally* and it is solved again, the `:Solver` restarting its dynamic
+program from a stored intermediate state rather than from the beginning.
+The tester of `BinaryKnapsackBlock`
 exercises the same `chg_*()` paths, and compares the results of all the
 `:Solver`s that its `BlockSolverConfig` attaches (the exact ones must agree
 on the optimal value, the relaxations must bracket it). After the concepts
@@ -106,15 +106,15 @@ with `process_outstanding_Modification()` (lines 2-3), `preprocessing()` (line
 term gives the maximum, so as to rebuild the optimal solution backwards from
 $L_N$. They then add to the value the profit of the items preprocessed at 1,
 and fill the continuous items, if any, by a greedy algorithm on the capacity
-left by each entry of $L_N$. The index $i_0$ is the first item whose data the
-pending `Modification`s change. It is set to 0 by a larger capacity, a smaller
-weight (given by range; given by subset, only a smaller negative weight), an
-item no longer fixed, a change of the integrality and a change of the sense of
-the objective. It is set to $N$ by a decrease of the capacity with no other
-change, after which the recursion restarts from the stored slice of index
-$\lfloor N / s \rfloor s$ (which is $L_N$ itself when $s$ divides $N$, as with
-`dblReopt` 0 or 1). The restart at line 3 is exact whenever the residual
-capacity does not grow, as we now show.
+left by each entry of $L_N$. The index $i_0$, i.e., the first item whose data
+the pending `Modification`s change, is set to 0 by a larger capacity, a
+smaller weight (given by range; given by subset, only a smaller negative
+weight), an item no longer fixed, a change of the integrality and a change of
+the sense of the objective. It is set to $N$ by a decrease of the capacity
+with no other change, after which the recursion restarts from the stored
+slice of index $\lfloor N / s \rfloor s$ (which is $L_N$ itself when $s$
+divides $N$, as with `dblReopt` 0 or 1). The restart at line 3 is exact
+whenever the residual capacity does not grow, as we now show.
 
 <span id="lem-R2-1"></span>**Lemma R2.1.** *Let a change of the data leave
 unchanged the weight, the profit, the fixing and the integrality of the items

@@ -42,12 +42,12 @@ representation is generated (as `CapacitatedFacilityLocationBlock`
 does in KskForm, [§12.5](12-sub-block.md#sec-12-5)), and all this is
 meant to happen before any `Solver` is attached. Changing the tree
 afterwards is the "nuclear option" of an `NBModification`, after which a
-`Solver` can keep none of what it knows of the `Block`. The restriction
+`Solver` can keep none of what it knows of the `Block`. This restriction
 costs rather little in expressiveness, since a model whose number of
 components varies is usually better expressed with a fixed set of
-sub-`Block`s, some of which are "switched off". Furthermore, it simplifies
-the bookkeeping of the framework, in particular the locking and the routing
-of the `Modification`s described below.
+sub-`Block`s, some of which are "switched off". It also simplifies the
+bookkeeping of the framework, in particular the locking and the routing of
+the `Modification`s described below.
 
 ## 12.2 How a model is split across the tree {#sec-12-2}
 
@@ -73,12 +73,12 @@ factor of its period). It also has a weight of its `Variable`s
 `Variable`s, and of those of its sub-`Block`s, are multiplied in
 the `Constraint`s outside of it (e.g., the number of identical
 copies of a unit), and `set_weight()` sets both, i.e., it scales the
-`Block`. The data of the `Block` are not changed. Instead, a `:Solver`
+`Block`. The weights leave the data of the `Block` unchanged: a `:Solver`
 attached to an ancestor multiplies the `Objective` of the `Block` by the
 product of the `Objective` weights along the path up to the ancestor, the
 latter excluded (`get_objective_weight( ancestor )`), and similarly for the
-`Variable` weights (`get_variable_weight( cblock )`), while a `:Solver`
-attached to the `Block` does not see its weight. Weights are finite and
+`Variable` weights (`get_variable_weight( cblock )`). A `:Solver` attached
+to the `Block`, instead, does not see its weight. Weights are finite and
 nonnegative (with 0 the `Block` does not count at all), and
 `std::invalid_argument` is thrown otherwise. A change of a weight issues a
 `BlockWeightMod`, and it is refused with `std::logic_error`, before anything
@@ -112,9 +112,9 @@ outside of it). Both throw `std::invalid_argument` if the two `Block`s
 are not in the relation required.
 
 At first, there may seem to be a third rule ("a `Constraint` lives in the
-parent and links the `Variable`s of its children"). Yet, this is only the most
-common pattern, which the framework does not impose. The actual rule is more
-permissive:
+parent and links the `Variable`s of its children"); yet, this is only the most
+common pattern, which the framework does not impose, and the actual rule is
+more permissive:
 
 > a `Constraint` defined anywhere in the `Block` tree may
 > reference `Variable`s defined anywhere in the tree.
@@ -155,9 +155,10 @@ kind of `Modification`
 ([`Block.cpp:777-823`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L777-823)).
 The "anyone listening" flag `f_at` ([§4.6](04-block.md#sec-4-6), [Lemma
 4.1](04-block.md#lem-4-1)) records, at each `Block`, whether some ancestor
-has a registered `:Solver`. Then `add_Modification()` returns at once if
-neither `f_at` holds nor the `Block` has a `:Solver` (cf. `anyone_there()`),
-and a `Block` whose sub-tree nobody is solving does not waste effort. By
+has a registered `:Solver`. This flag lets `add_Modification()` return at
+once if neither `f_at` holds nor the `Block` has a `:Solver` (cf.
+`anyone_there()`), and therefore a `Block` whose sub-tree nobody is solving
+does not waste effort. By
 [Lemma 8.1](08-modification-janus.md#lem-8-1), a `Modification` issued in a
 `Block` $B$ on the default channel reaches exactly once each concerned
 `Solver` of $B$ and of its ancestors, and no other; since the base method

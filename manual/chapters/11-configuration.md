@@ -67,8 +67,8 @@ constraints of its arcs, when all the capacities are infinite, if the
 `SimpleConfiguration< std::pair< int , double > >` when it also carries a
 number. Each `:Block` documents the exact type and meaning it expects.
 
-Two container instantiations deserve special mention because they
-recur as the way to configure a *whole `Block` tree* at once:
+Two container instantiations are described separately, since they recur
+as the way to configure a *whole `Block` tree* at once:
 
 - `SimpleConfiguration< std::vector< Configuration * > >`, a *positional*
   list: the i-th element configures the i-th sub-`Block` (this is, for
@@ -109,15 +109,15 @@ recur as the way to configure a *whole `Block` tree* at once:
 The same map is also the one format of a `Configuration` that every
 `:Solver` understands in `get_var_solution()` and `get_dual_solution()`,
 which write the solution in the `Block` and accept a `Configuration` that
-selects a part of it ([`Solver.h:1524-1542`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h#L1524-1542)). Since it does not depend on how
+selects a part of it ([`Solver.h:1524-1542`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h#L1524-1542)). Since this map does not depend on how
 the sub-`Block`s of an instance are numbered, a `:Solver` can read it
 without knowing the `:Block`s of the tree. The `Block`s whose
 `classname()` is a key, or that the key `"*"` covers, are *chosen*, and
 have their part of the solution written as the `Configuration` they are
 mapped to says (`nullptr` meaning all of it, sub-`Block`s included). That
-`Configuration` may be a positional one, or a meta one in its turn, which
-then chooses among the sub-`Block`s of that `Block`. A `Block` that is not
-chosen is not written, but its sub-`Block`s are looked at in turn. A
+`Configuration` may be a positional one, or a meta one in its turn,
+which then chooses among the sub-`Block`s of that `Block`. A `Block` that is
+not chosen is not written, but its sub-`Block`s are looked at in turn; a
 `:Solver` visits the chosen `Block`s by `for_each_selected()`, which is the
 following algorithm.
 
@@ -238,16 +238,14 @@ The last two are easily confused with the named slots above. Recall
 and `Constraint` both derive from `ThinComputeInterface`: their value
 (or satisfaction) must be `compute()`-d, and that computation may in
 principle need its own parameters, i.e., a `ComputeConfig`
-([§11.5](11-configuration.md#sec-11-5)). This is rare, if it
-happens at all, in the current `:Block` catalog, because the
-`Objective`s and `Constraint`s in use are cheap to evaluate; but
-it *can* arise for a `Constraint` or `Objective` whose value is
-itself the result of an expensive sub-computation, and the
-framework provides for it. The named slot
-`f_objective_Configuration` gates the *generation* of the
-`Objective`; the `O` handler, by contrast, carries the
-*`ComputeConfig`* the `Objective` will use when it is
-`compute()`-d.
+([§11.5](11-configuration.md#sec-11-5)). This is rare, if it happens at
+all, in the current `:Block` catalog, whose `Objective`s and `Constraint`s
+are cheap to evaluate; it *can* arise, however, for a `Constraint` or
+`Objective` whose value is itself the result of an expensive
+sub-computation, and the framework provides for it. The named
+slot `f_objective_Configuration` gates the *generation* of the
+`Objective`, while the `O` handler carries the *`ComputeConfig`* the
+`Objective` will use when it is `compute()`-d.
 
 Three internal handlers ([`RBlockConfig.h:100-673`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L100-673)) implement the
 three capabilities, and the concrete classes are the non-empty
@@ -287,11 +285,11 @@ family.
 | `OCRBlockConfig` | ● | ● | ● | both, recursively |
 
 Each of these is also a `BlockConfig`, so it carries the ten named
-slots in addition to the handler-specific data; the prefix only says
-which extra capabilities it brings. Hence, the `R` variants configure
-the sub-`Block`s individually, each with a `BlockConfig` of its own, while
-the same `BlockConfig` is given to all the `Block`s of a class by a
-`MetaBlockConfig` ([§11.2](11-configuration.md#sec-11-2)), and the
+slots in addition to the handler-specific data. The prefix only says
+which extra capabilities it brings: the `R` variants configure the
+sub-`Block`s individually, each with a `BlockConfig` of its own (while the
+same `BlockConfig` is given to all the `Block`s of a class by a
+`MetaBlockConfig`, [§11.2](11-configuration.md#sec-11-2)), and the
 prefixes `O`, `C` and `OC` select the objective, the constraints or both.
 
 ## 11.4 `BlockSolverConfig` and `RBlockSolverConfig` {#sec-11-4}
@@ -384,15 +382,15 @@ Most of a `Block`'s configurable behavior fits the named slots of
 `BlockConfig` carries `f_extra_Configuration`, a slot whose meaning is
 entirely `:Block`-specific.
 
-The instructive use is `CapacitatedFacilityLocationBlock` in BenForm. There,
-the transportation subproblem is held in a `BendersBFunction` wrapping a
-hidden `MCFBlock` that is *not* a sub-`Block` of the CFL `Block` (it has
-`father == nullptr`). The recursive `[C/O/R]BlockConfig` and
-`RBlockSolverConfig` machinery therefore cannot reach it. The configuration of
+The instructive use is `CapacitatedFacilityLocationBlock` in BenForm, where the
+transportation subproblem is held in a `BendersBFunction` wrapping a hidden
+`MCFBlock` that is *not* a sub-`Block` of the CFL `Block` (it has
+`father == nullptr`), and that the recursive `[C/O/R]BlockConfig` and
+`RBlockSolverConfig` machinery therefore cannot reach. The configuration of
 that hidden `BendersBFunction` and of its inner `MCFBlock` (including the
 `BlockSolverConfig` that attaches a `:Solver` to the inner `MCFBlock`, which
-BenForm requires) is passed through `f_extra_Configuration`. Its format is
-documented at
+BenForm requires) is then passed through `f_extra_Configuration`. Its
+format is documented at
 [`CapacitatedFacilityLocationBlock.h:801-854`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L801-854):
 it is a
 `SimpleConfiguration< std::pair< Configuration * , Configuration * > >`
@@ -551,7 +549,7 @@ without walking it by hand.
 `f_extra_Configuration` is the documented escape hatch for components that
 are logically part of the `Block` but structurally outside its
 sub-`Block` tree (the BenForm hidden `BendersBFunction` being the
-canonical case); it should not be used to smuggle in configuration
+case in point); it should not be used to smuggle in configuration
 that a named slot already covers.
 
 *Configuration from files.* The intended workflow of the framework is

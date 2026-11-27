@@ -14,10 +14,10 @@ family that are at the same time a `Block` and a `C05Function`,
 `LagBFunction` and `BendersBFunction`, and with the two `Solver`s that build
 decompositions out of them, `LagrangianDualSolver` and
 `BendersDecompositionSolver`. Each of the two functions wraps a single inner
-`Block`, and presents it, evaluated, as a first-order function of some outer
-`Variable`s. Hence, they turn the idea "the value of a function is the
-optimum of a subproblem" ([§13.2](13-function-family.md#sec-13-2)) into
-reusable components, and they are the engines of Lagrangian decomposition
+`Block` and presents it, evaluated, as a first-order function of some outer
+`Variable`s. This turns the idea "the value of a function is the optimum of
+a subproblem" ([§13.2](13-function-family.md#sec-13-2)) into reusable
+components, which are the engines of Lagrangian decomposition
 ([Recipe R4](R4-cfl-lagrangian.md#rec-R4)) and of Benders decomposition
 ([Recipe R5](R5-cfl-benders.md#rec-R5)).
 
@@ -71,10 +71,10 @@ see. The value, the linearizations and the constant term of a
 of $(B)$ and by that of the `BendersBFunction`. A `LagBFunction` does the same
 with the value and the constants of its linearizations, and it divides the
 cutoffs and the absolute accuracy it gives to the inner `:Solver` by the
-weight of $(B)$. It writes the Lagrangian cost of each `Variable` in the
-`Objective` of the `Block` of $(B)$ that defines it, divided by the weight of
-that `Objective`, and hence the Lagrangian term enters with no weight. This is
-the default `intPushCostToOwner` 1, while with 0 all of it goes into the
+weight of $(B)$. With the default `intPushCostToOwner` 1, it writes the
+Lagrangian cost of each `Variable` in the `Objective` of the `Block` of $(B)$
+that defines it, divided by the weight of that `Objective`, and hence the
+Lagrangian term enters with no weight. With 0, all of it goes into the
 `Objective` of $(B)$, and those of the sub-`Block`s, which are then left
 untouched, may be of any kind. A change of the weights inside $(B)$ reaches
 the hybrid as a `BlockWeightMod`, which a `LagBFunction` turns into new
@@ -157,9 +157,9 @@ With 0, the default, the constant is stored, and a change of the linear costs
 of $(B)$ updates it in place by the scalar product of the change with the
 stored point. With 1, only the difference between the constant and the value
 of $c$ at the stored point is kept, and the constant is computed again from
-that point when it is needed, which is correct only for an affine $c$. The two
-differ when $c$ is not affine, since then $\sum_k \theta_k c(x^k)$ and
-$c(\sum_k \theta_k x^k)$ differ in general.
+that point when it is needed. This is correct only for an affine $c$: when
+$c$ is not affine, the two differ, since $\sum_k \theta_k c(x^k)$ and
+$c(\sum_k \theta_k x^k)$ then differ in general.
 
 A change of the quadratic coefficients of the `DQuadFunction` in the
 `Objective` of $(B)$ is a case in point, and the parameter `intPoolQuadMem`
@@ -221,10 +221,10 @@ The addition and removal of Lagrangian pairs, instead, change the outer
 `Variable`s, and they are issued as `C05FunctionModVarsAddd`,
 `C05FunctionModVarsRngd` and `C05FunctionModVarsSbst` with `shift()` 0. They
 are strongly quasi-additive by [Lemma 13.4](13-function-family.md#lem-13-4),
-and therefore all the global pool survives them. Thanks to this translation, a
+and therefore all the global pool survives them. This translation lets a
 `BundleSolver` driving the Lagrangian dual ([Chapter
-19](19-nondifferentiable.md#ch-19)) can react to a change of the inner problem
-by keeping the parts of its bundle that remain valid ([Lemma
+19](19-nondifferentiable.md#ch-19)) react to a change of the inner problem by
+keeping the parts of its bundle that remain valid ([Lemma
 13.2](13-function-family.md#lem-13-2)), instead of rebuilding the dual from
 scratch.
 
@@ -240,7 +240,7 @@ global pool of a `LagBFunction` survives the removal of an inner `Variable`.
 
 ### The `LagrangianDualSolver`
 
-A user rarely constructs a `LagBFunction` by hand. The usual route is the
+A `LagBFunction` is rarely constructed by hand: the usual route is the
 [`LagrangianDualSolver`](https://smspp.gitlab.io/smspp-project/d4/dc3/class_s_m_spp__di__unipi__it_1_1_lagrangian_dual_solver.html),
 a `CDASolver` that solves the Lagrangian dual of a "generic" `Block` $(B)$
 with a precise structure
@@ -470,7 +470,7 @@ $L(x) \le \psi(x) = 0$. $\square$
 By [Lemma 14.3](14-lag-benders-bfunction.md#lem-14-3) (i), applied to the
 phase one (which is feasible for every $x$), its linearization at the current
 point satisfies the hypothesis of [Lemma
-14.4](14-lag-benders-bfunction.md#lem-14-4). Also, when the `:Solver` of $(B)$
+14.4](14-lag-benders-bfunction.md#lem-14-4). When the `:Solver` of $(B)$
 returns `kUnbounded` (as a `:Solver` of convex QPs may do for an inner `Block`
 that is infeasible by less than its tolerance) and the linearization of the
 phase one is positive at the current point, `compute()` returns `kInfeasible`,
@@ -478,18 +478,18 @@ the value is $+\infty$, and the linearization is the vertical one of the phase
 one. The phase one is used only for an inner `Block` that minimizes, and it is
 not owned by the `BendersBFunction`. Furthermore, `set_global_lower_bound()`
 (since SMS++ 0.9.0) gives a value below which the `BendersBFunction` is known
-not to go (e.g., 0 when the `Objective` of $(B)$ is a sum of squares), which
-is not checked and is returned by `get_global_lower_bound()`; a bundle method
-uses it to keep its cutting-plane master bounded.
+not to go (e.g., 0 when the `Objective` of $(B)$ is a sum of squares), which is
+not checked and is returned by `get_global_lower_bound()`; a bundle method uses
+it to keep its cutting-plane master bounded.
 
 ### Reoptimization
 
 Like `LagBFunction`, `BendersBFunction` has no `Variable` or `Constraint`
 beyond those of $(B)$, evaluates by a generic `:Solver` registered to $(B)$,
-and maintains the linearization pools. It also maps the changes of $(B)$ into
-the `FunctionMod*` types of [§13.3](13-function-family.md#sec-13-3). The dual
-solutions in its global pool are what the translation has to preserve, and the
-cases are distinguished accordingly (`BendersBFunction::add_Modification()`).
+maintains the linearization pools, and maps the changes of $(B)$ into the
+`FunctionMod*` types of [§13.3](13-function-family.md#sec-13-3). This
+translation has to preserve the dual solutions in its global pool, and it
+distinguishes the cases accordingly (`BendersBFunction::add_Modification()`).
 A change that only moves the sides of some `Constraint` of $(B)$ (including
 relaxing or enforcing one) keeps all of them dual feasible, since dual
 feasibility in [Lemma 14.3](14-lag-benders-bfunction.md#lem-14-3) (i) does not
@@ -614,10 +614,10 @@ v^k(x) = \min \{\, c^k(y^k) : l^k - F^k x \le E^k(y^k) \le u^k - F^k x \,\} ,
 $$
 
 and each $v^k$ is the function (14.2) of a `BendersBFunction`, whose active
-`Variable`s are the $x$. The cuts are therefore not generated by the
-`BendersDecompositionSolver`, but by the `BendersBFunction`s through the
-standard interface of `C05Function`; the `BendersDecompositionSolver` is the
-layer that automates the decomposition.
+`Variable`s are the $x$. The cuts are therefore generated by the
+`BendersBFunction`s through the standard interface of `C05Function`, and
+none by the `BendersDecompositionSolver`; the `BendersDecompositionSolver` is
+the layer that automates the decomposition.
 
 *The reformulation.* Which sub-`Block`s are in the master and which
 `Variable`s are complicating cannot be read off a `Block`, since the same
@@ -695,9 +695,9 @@ This is `solve_MILP_master()` in
 [`BendersDecompositionSolver.cpp`](https://gitlab.com/smspp/bendersdecompositionsolver/-/blob/develop/src/BendersDecompositionSolver.cpp).
 At line 7, an infeasible subproblem gives a feasibility cut, as discussed
 below. The value $v$ of a master with the box is not a lower bound, and the
-lower bound is $-\infty$ until the box is taken away (line 14, or when the box
-leaves out all the master). Without the box, $v$ is the lower bound. At the
-end, the upper bound is the value of the master plus how much the value
+lower bound is therefore $-\infty$ until the box is taken away (line 14, or
+when the box leaves out all the master), while without the box it is $v$. At
+the end, the upper bound is the value of the master plus how much the value
 functions exceed their epigraph `Variable`s at its solution, which is
 $f(\hat x)$ when the master is solved exactly; a loop stopped by a budget
 reports none (the log prints the best $f(\hat x)$ over the rounds in which

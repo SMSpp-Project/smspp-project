@@ -19,7 +19,7 @@ is needed instead of a copy of the `Variable`s
 the mirror of its abstract representation ([§10.4](10-r3block.md#sec-10-4)),
 and the flow relaxation of the CFL, a non-trivial case
 ([§10.5](10-r3block.md#sec-10-5)). The rest of the chapter concerns an R3
-Block that follows the changes of its original. We describe the
+Block that follows the changes of its original: we describe the
 `UpdateSolver`, which keeps the two in sync
 ([§10.6](10-r3block.md#sec-10-6)), we give slope scaling on the flow
 relaxation as an example ([§10.7](10-r3block.md#sec-10-7)), and after the
@@ -76,8 +76,8 @@ In words, a Relaxation needs a map from the original to the new
 second map back with the same property, which `map_back_solution()`
 implements ([§10.3](10-r3block.md#sec-10-3)).
 
-The set of R3 Blocks of a given `Block` is decided by the `Block`, and the
-base `Block` class provides no general one. A concrete
+The set of R3 Blocks of a given `Block` is decided by the `Block`. The
+base `Block` class provides no general one: a concrete
 `:Block` that supports an R3 Block implements it explicitly (there is
 no automatic mechanism), with the only exception of the copy of the abstract
 representation that an `AbstractBlock` can make of any `Block`
@@ -97,10 +97,10 @@ independent, and operating on it does not perturb the original.
 
 Independence has a price, however: a solution found on the R3 Block
 lives in the `Variable`s of the R3 Block, and it is of no direct use to
-a `:Solver` working on the original. The framework provides a small
-family of *mapping* methods that move solution and modification
-information back and forth between an original `Block` and one of its
-R3 Blocks.
+a `:Solver` working on the original. For this reason, the framework
+provides a small family of *mapping* methods that move solution and
+modification information back and forth between an original `Block` and
+one of its R3 Blocks.
 
 ## 10.3 The R3 Block API {#sec-10-3}
 
@@ -181,8 +181,8 @@ meaning is as follows.
   which it returns `true`.
 
 The base class gives each of these methods a default. `get_R3_Block()` returns
-`base` if the `Block` has no sub-`Block`. Otherwise it requires a non-null
-`base`, and throws `std::invalid_argument` if there is none, since `Block` is
+`base` if the `Block` has no sub-`Block`, and otherwise it requires a non-null
+`base`, throwing `std::invalid_argument` if there is none, since `Block` is
 abstract and the method cannot allocate the right concrete type. It then
 empties the sub-`Block`s of `base` and fills them with the R3 Blocks of the
 sub-`Block`s of `this`, each produced with `father = base` and, if `r3bc` is a
@@ -204,8 +204,8 @@ full, the copy included.
 
 In all cases the `Configuration` passed to a mapping method must be
 the *same* (or an identical) `Configuration` that was used to produce
-`R3B` in `get_R3_Block()`. In fact, this is how the `Block` knows which kind
-of R3 Block it is dealing with.
+`R3B` in `get_R3_Block()`, since this is how the `Block` knows which kind of
+R3 Block it is dealing with.
 
 ### The `base` and `father` parameters
 
@@ -381,10 +381,10 @@ of the `Variable`s it has, of the sides of a `RowConstraint` and of the
 `Variable` removed, a group made of a `boost::multi_array` and an
 `NBModification` cannot be followed, and `false` is returned, meaning "the
 copy is stale": `mirror()` then has to be called again on a new
-`AbstractBlock`. A physical `Modification` does not concern the abstract
-representation, and it is ignored. The copy issues the `Modification`s of its
-changes as prescribed by the `issueAMod` of `map_forward_Modification()`
-(`eModBlck` by default). Hence, a `Solver` registered to the mirror is
+`AbstractBlock`. A physical `Modification`, which does not concern the
+abstract representation, is ignored. The copy issues the `Modification`s of
+its changes as prescribed by the `issueAMod` of `map_forward_Modification()`
+(`eModBlck` by default), and therefore a `Solver` registered to the mirror is
 informed of the changes forwarded by an `UpdateSolver` or by an `R3BSolver`.
 Called directly, instead, `mirror_forward_Modification()` makes them with
 `eNoMod` by default, which suits a copy that no `Solver` has loaded.
@@ -477,7 +477,7 @@ each facility $i$ to each customer $j$, with infinite capacity and cost
 $C_{ij} / D_j$, the transportation cost per unit of demand. Last, there
 is (iii) one arc per facility from the super-source to the constant node, with
 capacity 1 and cost $F_i$ if $i \in P$ and 0 otherwise, which the
-deficit of the constant node forces to carry one unit each. Hence,
+deficit of the constant node forces to carry one unit each; hence,
 these arcs carry the constant $\sum_{i \in P} F_i$ of the objective. The
 facility arcs of the facilities fixed closed are closed. In variant 2,
 $n$ further slack arcs go from the super-source to each customer, with
@@ -564,8 +564,8 @@ which is the same for both. `map_back_Modification()` is implemented for the
 copy only, and returns `false` for the MCF R3 Block. `map_back_solution()` and
 `map_forward_solution()` read or write the abstract `Variable`s of the
 `CapacitatedFacilityLocationBlock`, and they throw `std::invalid_argument` if
-these have not been generated. Instead, `get_R3_Block()` and
-`map_forward_Modification()` work on the data of the `:Block`, and they do not
+these have not been generated, whereas `get_R3_Block()` and
+`map_forward_Modification()` work on the data of the `:Block` and do not
 require them.
 
 ## 10.6 Keeping an R3 Block in sync: `UpdateSolver` {#sec-10-6}
@@ -633,12 +633,13 @@ silently. Whoever relies on an `UpdateSolver` must therefore know which
 
 The idiom is to build the original `Block`, produce its R3 Block with
 `get_R3_Block()`, register on the original an `UpdateSolver` pointing at the
-R3 Block, and from then on change only the original. The R3 Block follows,
-which keeps a relaxation faithful to the model it relaxes while the model
-changes (as in a slope-scaling or branch-and-bound loop). When the R3 Block
-only serves to be solved, the `R3BSolver` of [§10.9](10-r3block.md#sec-10-9)
-makes the R3 Block, its `:Solver` and the forwarding out of a configuration
-file, and the CFL test ([Recipe R3](R3-cfl-three-ways.md#rec-R3)) uses it.
+R3 Block, and from then on change only the original, which the R3 Block
+follows. This keeps a relaxation faithful to the model it relaxes while the
+model changes (as in a slope-scaling or branch-and-bound loop). When the R3
+Block only serves to be solved, the `R3BSolver` of
+[§10.9](10-r3block.md#sec-10-9) makes the R3 Block, its `:Solver` and the
+forwarding out of a configuration file, and the CFL test
+([Recipe R3](R3-cfl-three-ways.md#rec-R3)) uses it.
 
 ## 10.7 Example: a CFL flow relaxation kept in sync {#sec-10-7}
 
@@ -740,8 +741,8 @@ the original until it has been mapped back.
 
 *A Relaxation gives a bound.* The MCF relaxation of CFL gives, fast, a lower
 bound ([Lemma 10.3](10-r3block.md#lem-10-3)) and a solution that is typically
-fractional. It does not give the optimal solution of the CFL, and mapping its
-solution back is the start of a rounding or branching procedure, as in
+fractional; since it does not give the optimal solution of the CFL, mapping
+its solution back is the start of a rounding or branching procedure, as in
 [Algorithm 10.1](10-r3block.md#alg-10-1).
 
 ## 10.9 Solving a `Block` through an R3 Block: `R3BSolver` {#sec-10-9}
@@ -768,14 +769,14 @@ The R3 Block belongs to the `R3BSolver`, which deletes it, with all the
 `Solver`s that the `BlockSolverConfig` has registered to it, when it is
 detached from the `Block` or deleted. It is made again, from the current
 state of the `Block`, when the `R3BSolver` is attached to another `Block` and
-when a new extra `Configuration` is given. A differential `ComputeConfig` with
-no extra `Configuration` keeps it, while a non-differential one (or
+when a new extra `Configuration` is given; hence, the `Modification`s issued
+before the R3 Block is made are not needed. A differential `ComputeConfig`
+with no extra `Configuration` keeps it, while a non-differential one (or
 `nullptr`) with no extra `Configuration` deletes it and leaves the
-`R3BSolver` with none.
-Hence, the `Modification`s issued before the R3 Block is made are not needed.
-A `Modification` that the `Block` does not map (cf. the returned value of
-`map_forward_Modification()`) is ignored, as in an `UpdateSolver`, and it is
-up to the `Block` to map all those that matter for the R3 Block it makes.
+`R3BSolver` with none. A `Modification` that the `Block` does not map (cf.
+the returned value of `map_forward_Modification()`) is ignored, as in an
+`UpdateSolver`, and it is up to the `Block` to map all those that matter
+for the R3 Block it makes.
 
 The `R3BSolver` is configured from file only, through the extra
 `Configuration` of its `ComputeConfig`
@@ -793,9 +794,9 @@ the `Block` makes it; and (iii) the `BlockSolverConfig` that registers the
 e.g., to the sub-`Block`s of the R3 Block, as the inner `Solver` may need; all
 of them receive the `Modification`s of the R3 Block, but only the inner one is
 computed by the `R3BSolver`. Its only specific parameter is `intR3BKind`,
-which declares the relation between the optimal values. It is 0 (the default)
-if $v(R) = v(B)$, as for a Reformulation that keeps the objective, 1 if $R$ is
-a Relaxation ($v(R) \le v(B)$ for a minimization) and 2 if $v(R) \ge v(B)$, as
+which declares the relation between the optimal values: 0 (the default) if
+$v(R) = v(B)$, as for a Reformulation that keeps the objective, 1 if $R$ is a
+Relaxation ($v(R) \le v(B)$ for a minimization) and 2 if $v(R) \ge v(B)$, as
 for a Restriction with the same objective (any other value is refused with
 `std::invalid_argument`). Note that the definitions of a
 Reformulation and of a Restriction in [§10.1](10-r3block.md#sec-10-1) do not
@@ -839,7 +840,7 @@ therefore `is_var_feasible()` returns `false` for a Relaxation, while
 are those of the inner `Solver`, i.e., they refer to the R3 Block.
 
 The configuration files of the CFL test show the three elements. In
-`R3BSCfg-MCF.txt` the `ComputeConfig` sets `intR3BKind 1`. Its extra
+`R3BSCfg-MCF.txt` the `ComputeConfig` sets `intR3BKind 1`, and its extra
 `Configuration` names `R3BCfg-MCF.txt`, a `SimpleConfiguration< int >` of
 value 1 that selects the flow relaxation of [§10.5](10-r3block.md#sec-10-5),
 then `MCFBCfg.txt` for the `BlockConfig` of the `MCFBlock`, and last an inline

@@ -1,10 +1,10 @@
 # Glossary
 
-A compact, alphabetical reference for the SMS++ terms used in this
-manual. Each entry gives the working definition and a pointer to the
-chapter where the term is developed; class names link, where useful,
-to the chapter rather than to Doxygen, which remains the authoritative
-API reference.
+This glossary lists in alphabetical order the SMS++ terms used in this
+manual, each with its working definition and a pointer to the chapter
+where the term is developed. Class names link, where useful, to the
+chapter rather than to Doxygen, which remains the authoritative API
+reference.
 
 **Abstract representation.** The explicit `Variable` / `Constraint` /
 `Objective` description of a `:Block`, built on demand by the

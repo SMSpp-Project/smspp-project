@@ -72,13 +72,12 @@ ones that matter here.
   on. Its `str_LagBF_BSCfg` names the `BlockSolverConfig` of the
   knapsacks of the facilities, [`LPBSCfg-K-DP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-DP.txt).
 
-What `LagrangianDualSolver` does with this
-([§14.2](14-lag-benders-bfunction.md#sec-14-2)) is to build a hidden
-`LagrangianDualBlock`, to wrap the `BinaryKnapsackBlock` of each
-facility in a `LagBFunction` that dualizes the linking constraints,
-and to run the inner `BundleSolver` on the sum of those
-`LagBFunction`s. Each `LagBFunction` is evaluated by solving its
-knapsack, by a `CoreDPBinaryKnapsackSolver` in [`LPBSCfg-K-DP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-DP.txt) or
+With this, `LagrangianDualSolver`
+([§14.2](14-lag-benders-bfunction.md#sec-14-2)) builds a hidden
+`LagrangianDualBlock`, wraps the `BinaryKnapsackBlock` of each facility
+in a `LagBFunction` that dualizes the linking constraints, and runs the
+inner `BundleSolver` on the sum of those `LagBFunction`s. Each
+`LagBFunction` is evaluated by solving its knapsack, by a `CoreDPBinaryKnapsackSolver` in [`LPBSCfg-K-DP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-DP.txt) or
 by a `:MILPSolver` ([`LPBSCfg-K-CX.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-CX.txt), or [`LPBSCfg-K-LP.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/LPBSCfg-K-LP.txt) for the
 continuous relaxation of the knapsack), and the solutions of the
 knapsacks are combined into the convexified primal solution that the
@@ -157,12 +156,12 @@ Reformulation (`intR3BKind` 0, the default).
 
 `LagrangianDualSolver` returns a bound and a convexified primal
 solution, which is in general fractional, hence not a feasible CFL
-solution. To obtain feasible ones,
+solution. Feasible ones are obtained by
 [`PrimalProximalHeur`](https://smspp.gitlab.io/smspp-project/d4/d41/class_s_m_spp__di__unipi__it_1_1_primal_proximal_heur.html),
 which derives from `LagrangianDualSolver` and implements the
 primal-proximal heuristic of
-[Daniilidis and Lemaréchal 2005](Z-bibliography.md#ref-daniilidis2005),
-augments at each iteration the Lagrangian objective with a quadratic
+[Daniilidis and Lemaréchal 2005](Z-bibliography.md#ref-daniilidis2005).
+At each iteration, it augments the Lagrangian objective with a quadratic
 proximal term $M \lVert x - \hat x \rVert^2$ that pushes the
 convexified solution towards a point $\hat x$ (the proximal center),
 and keeps the best feasible solutions found along the way. The term can
@@ -255,9 +254,9 @@ iterations leave a reserve for the final recovery (the `dblMaxTime` of the
 
 *The leaf `Solver`.* The knapsacks of the facilities can be solved by
 `CoreDPBinaryKnapsackSolver` or `DPBinaryKnapsackSolver` (exact, for
-integer weights) or by a `:MILPSolver`; this is a configuration choice
-on the leaf `Block`s (the file named by `str_LagBF_BSCfg`), not a
-change of the decomposition.
+integer weights) or by a `:MILPSolver`, a choice made in the
+configuration of the leaf `Block`s (the file named by `str_LagBF_BSCfg`)
+that leaves the decomposition unchanged.
 
 *In parallel.* Naming `ParallelBundleSolver` instead of `BundleSolver` as the
 inner `:Solver` (`str_LDSlv_ISName`, a line already present, commented out, in

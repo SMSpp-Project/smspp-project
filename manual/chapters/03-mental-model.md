@@ -23,22 +23,22 @@ model, being more often one of several pieces that are composed into a
 larger one. It has a well-understood identity because it represents a
 specific *kind* of problem (a min-cost flow, a knapsack, a Unit
 Commitment, a two-stage stochastic program), rather than a list of
-variables and constraints written in some general-purpose syntax; the
+variables and constraints written in some general-purpose syntax. This
 kind is encoded by the concrete `:Block` class derived from `Block`.
 
 ![Figure 3.1. A `Block` carries the semantics of a mathematical
 subproblem.](../figures/SMSglobal0a.svg){#fig-3-1}
 
-A concrete `:Block` knows its class of problems. It knows what the
+A concrete `:Block` knows its class of problems: it knows what the
 data of an instance look like (a graph, a table of weights, a network
 of generating units) and how to load them from a file and save them
-back; it also knows what makes a candidate solution feasible, what the
-optimal value of the problem is (conceptually), and which operations
-on it (changes of the data, reformulations, copies) are meaningful.
-One who wants to *solve* an instance of that class of problems does
-not usually write a new `:Block`, but uses and configures the existing
-one. One who wants to *introduce* a new class of problems writes a new
-`:Block`, which is the subject of [Appendix
+back, what makes a candidate solution feasible, what the optimal value
+of the problem is (conceptually), and which operations on it (changes
+of the data, reformulations, copies) are meaningful. One who
+wants to *solve* an instance of that class of problems does not
+usually write a new `:Block`, but uses and configures the existing
+one, while one who wants to *introduce* a new class of problems writes
+a new `:Block`, which is the subject of [Appendix
 A](A-writing-block.md#app-A).
 
 ## 3.2 Solver: an algorithm that solves a Block {#sec-3-2}
@@ -71,10 +71,10 @@ with no change to the code of the user.
 
 All the `:Solver`s expose the same interface, however they work
 internally. A `:Solver` accepts parameters of integer, real and string
-type (and vectors of them), and it can be told to stop after a time
-limit, an iteration limit or when a given accuracy is reached. It can
-be invoked synchronously or asynchronously. When it stops, it reports
-a return code (optimal, infeasible, unbounded, stopped at a limit,
+type (and vectors of them), it can be told to stop after a time limit,
+an iteration limit or when a given accuracy is reached, and it can be
+invoked synchronously or asynchronously. When it stops, it reports a
+return code (optimal, infeasible, unbounded, stopped at a limit,
 error, and so on), and on demand it delivers one or more solutions of
 the problem, primal and (where this makes sense) dual.
 

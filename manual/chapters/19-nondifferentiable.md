@@ -133,7 +133,7 @@ program in continuous variables), and its inner `Block` is put in the
 dual MP in place of an inner approximation, as in
 [Frangioni and Gorgone 2014](Z-bibliography.md#ref-frangioni2014); such
 a component is never evaluated, and its inner `Block` needs no
-`:Solver`. Besides, the `MasterProblemBlock` holds the variables and the
+`:Solver`. The `MasterProblemBlock` also holds the variables and the
 constraints that couple the components, and the `Objective` with the
 stabilizing term, which is one of the values of the enumerator
 `MasterProblemBlock::stabilization_type`, as follows.
@@ -157,19 +157,20 @@ stabilizing term, which is one of the values of the enumerator
   reserved enumerator, for which the construction of the MP throws
   `std::logic_error`.
 
-Note that the two forms do not offer the same features. In the primal one, the
+Note that the two forms do not offer the same features: in the primal one, the
 MP can host the `Block` of the user, and thus carry its linear `Constraint`s
 and its other `Variable`s, and it can keep integer coordinates integer, which
 makes the MP a mixed-integer program (a linear one with the trust region or
-with no stabilization, when the 0-th component is linear). Only the dual one
-can have easy components. Both can carry a global lower bound on the function:
-in the dual one as the coefficient of the multiplier of a horizontal
-linearization at the bound, in the primal one as the left-hand side of the row
-of the value. Only the primal one carries a separable quadratic 0-th
-component: inside the stabilizing term with the proximal stabilization, and as
-it is in the `Objective` with the trust region or with no stabilization (these
-two since SMS++ 0.9.0); with the dual form, and with the level or the doubly
-stabilized one, the construction of the MP throws `std::logic_error`.
+with no stabilization, when the 0-th component is linear). Only the dual one,
+instead, can have easy components. Both can carry a global lower bound on the
+function: in the dual one as the coefficient of the multiplier of a
+horizontal linearization at the bound, in the primal one as the left-hand
+side of the row of the value. Only the primal one carries a separable
+quadratic 0-th component: inside the stabilizing term with the proximal
+stabilization, and as it is in the `Objective` with the trust region or with
+no stabilization (these two since SMS++ 0.9.0); with the dual form, and with
+the level or the doubly stabilized one, the construction of the MP throws
+`std::logic_error`.
 
 We remark that more than an optimal value is required of the `:Solver`
 of the MP
@@ -180,12 +181,11 @@ be accurate, since the method builds out of them the aggregate
 linearization and the stopping test; hence an active-set method is
 usually appropriate, and an interior point one rather less so, since it
 cannot restart and its multipliers are only accurate to about $10^{-7}$
-(relative). Also, it has
-to satisfy the rows of the MP more tightly than the oracle satisfies
-its own, for otherwise a point that violates a row by less than the
-accuracy of the oracle is answered with the cut that is already there.
-Its tolerances must therefore be well below the accuracy required of
-the method that drives it.
+(relative). Also, it has to satisfy the rows of the MP more tightly than
+the oracle satisfies its own, for otherwise a point that violates a row by
+less than the accuracy of the oracle is answered with the cut that is
+already there. Its tolerances must therefore be well below the accuracy
+required of the method that drives it.
 
 We now derive what a bundle method reads from the MP out of the duality
 of (19.2), which we state for one component with no 0-th
@@ -466,15 +466,15 @@ parameter `intParFrm` chooses whether the results are consumed in the order in
 which they complete (0, the default, which is not reproducible) or in a fixed
 order (1), possibly processing exactly the components that the sequential
 method would (3) or all of them at each iteration (5); `dblPoolingInt` is
-accepted but has no effect. We refer to [§17.4](17-parallel.md#sec-17-4) for
-the threads and for an example; we only add that, with a single component, the
-parallel solver gains nothing, at a cost only slightly higher than that of the
+accepted but has no effect. The threads, with an example, are described in
+[§17.4](17-parallel.md#sec-17-4); with a single component, the parallel
+solver gains nothing, at a cost only slightly higher than that of the
 sequential one.
 
 [`BundleSolverML`](https://smspp.gitlab.io/smspp-project/d3/d38/class_s_m_spp__di__unipi__it_1_1_bundle_solver_m_l.html)
 replaces the heuristics of the bottom layer of the management of $t$ with a
 neural network, written with the C++ interface of Torch, that predicts $t$ out
-of 20 features of the state of the method; the multipliers $\theta$, and hence
+of 20 features of the state of the method. The multipliers $\theta$, and hence
 the direction, still come from the MP. This is the part of the method of
 [Demelas et al. 2025](Z-bibliography.md#ref-demelas2025) that predicts the
 step, and the class is in the library `SMS++::BundleSolverML`, built only when
@@ -612,10 +612,10 @@ the *incremental* variant (`dblIncrFactor` $> 0$), each iteration is followed
 by $\lceil$ `dblIncrFactor` $\cdot n \rceil$ inner iterations along the
 subgradient of one component, in an order shuffled with the seed `intSeed` and
 with the stepsize scaled by the Lipschitz constants (`dblLipFactor`), where
-$n$ is the number of components ($|K|$, plus 1 when there is a 0-th one). This
-variant cannot be deflected. When the stepsize is at most $10^{-8}\,t^*$ for
-more than 100 consecutive iterations ($100\,n$ in the incremental variant),
-`compute()` returns `kLowPrecision`.
+$n$ is the number of components ($|K|$, plus 1 when there is a 0-th one).
+This variant cannot be deflected. When the stepsize is at most
+$10^{-8}\,t^*$ for more than 100 consecutive iterations ($100\,n$ in the
+incremental variant), `compute()` returns `kLowPrecision`.
 
 As an upper bound one has the best value found, while a lower bound is
 only available from the `Block` (`get_valid_lower_bound()`) or from the
@@ -688,8 +688,8 @@ sub-`Block`s hold all the `Variable`s and `Constraint`s,
 each with an `FRealObjective` whose `Function` is a `LinearFunction`, a
 `DQuadFunction` or a `QuadFunction`. We write $X_j$ for the feasible
 region of sub-`Block` $j$ as its `:Solver` sees it (integer, if that
-`:Solver` keeps the integrality). Also, we write $h_j$ for the part of
-its objective that is kept in its oracle, and the problem is
+`:Solver` keeps the integrality) and $h_j$ for the part of its
+objective that is kept in its oracle, so that the problem is
 
 $$
 \min \Big\{\, F(x) = f(x) + \sum_j h_j(x_j) \;:\; x \in X =
@@ -734,10 +734,12 @@ replaced by the convex combination of the costs of the vertices that make up
 $x$. At line 9, $\varepsilon$ is `dblRelAcc`, and the gap is also compared
 with `dblAbsAcc` if this is finite. At line 11, `intLineSearch` chooses the
 exact line search when the objective is quadratic along the step (`LSAuto`,
-the default, or `LSExact`). We may also have the open-loop rule $\gamma = 2 /
-(k + 2)$ (`LSAgnostic`, and `LSAuto` otherwise) or the fixed step `dblFWStep`
-(`LSFixed`). `intAlgorithm` selects the vanilla method of [Algorithm
-19.4](19-nondifferentiable.md#alg-19-4) (0), the away-step one (1, [Guélat and
+the default, or `LSExact`). The alternatives are the open-loop
+rule $\gamma = 2 /
+(k + 2)$ (`LSAgnostic`, and `LSAuto` otherwise) and the fixed step
+`dblFWStep` (`LSFixed`). `intAlgorithm` selects the vanilla method of
+[Algorithm 19.4](19-nondifferentiable.md#alg-19-4) (0), the away-step one
+(1, [Guélat and
 Marcotte 1986](Z-bibliography.md#ref-guelat1986)) or the blended pairwise
 conditional gradient (2, [Tsuji et al.
 2022](Z-bibliography.md#ref-tsuji2022)), the latter two keeping an active set

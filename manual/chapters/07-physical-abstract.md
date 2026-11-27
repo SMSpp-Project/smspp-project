@@ -62,8 +62,8 @@ is carried by the type `kNonNegative` of the `ColVariable`s. The
 flow `ColVariable`s are active in it, even those with a zero cost.
 
 Both representations are meant to describe the same problem, i.e., to
-have the same feasible solutions with the same objective values. This
-is a property that each `:Block` has to guarantee, and which one can
+have the same feasible solutions with the same objective values, which
+is a property that each `:Block` has to guarantee and that one can
 check on its code; for `MCFBlock` it reads as follows. Let an
 `MCFBlock` have $n$ nodes and $m$ arcs, all of them static, none of
 them a loop ($SN_a \ne EN_a$), and let its three groups and its
@@ -287,7 +287,7 @@ default) accepts only `is_direction( false )`, and declares whether it can be
 told "yes" by `has_directions()`.
 
 
-Also, the first two methods have a counterpart that checks a `Solution`
+The first two methods have a counterpart that checks a `Solution`
 (cf. [Chapter 9](09-solution.md#ch-9)) instead of the values held by the
 `Variable`s:
 

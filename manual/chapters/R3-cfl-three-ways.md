@@ -9,9 +9,9 @@ Location (CFL) instance in three different ways (a cut-strengthened linear
 relaxation, a min-cost flow relaxation and a Lagrangian dual) with one
 executable, `CFL_test`, and no recompilation, by changing only the
 configuration files. This is the recipe that shows the separation in SMS++ of
-*what the model is* from *how it is solved*; and, since in each arrangement
-the tester compares bounds that are equal in theory, it is also a
-check of the lemmas of [Chapter 10](10-r3block.md#ch-10) and
+*what the model is* from *how it is solved*. Since in each arrangement the
+tester compares bounds that are equal in theory, it is also a check of the
+lemmas of [Chapter 10](10-r3block.md#ch-10) and
 [Chapter 14](14-lag-benders-bfunction.md#ch-14). The three arrangements are
 given to `CFL_test` by the lists of formulations [`CFLBForm-cuts.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-cuts.txt), [`CFLBForm.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm.txt) and [`CFLBForm-ld.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/CFLBForm-ld.txt) (option
 `-F`), and the batteries [`batches/batch-cuts`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/batches/batch-cuts),
@@ -75,16 +75,16 @@ and the comparison at line 14 by `cross_check()` in
 [`tests/common_utils.h`](https://gitlab.com/smspp/tests/-/blob/develop/common_utils.h).
 At line 14 the bound of Solver $k$ has to agree with the largest of the lower
 bounds and with the smallest of the upper bounds that the others give, within
-$\max\{ \varepsilon_k , T \}$ relative to $\max\{ 1 , |\cdot| \}$. Here $T$ is
-the value of `-T`, $10^{-5}$ by default. The tolerance $\varepsilon_k$ is the
+$\max\{ \varepsilon_k , T \}$ relative to $\max\{ 1 , |\cdot| \}$. Here $T$
+is the value of `-T`, $10^{-5}$ by default, and $\varepsilon_k$ is the
 relative accuracy `dblRelAcc` that Solver $k$ has been asked for, unless the
 option `-E` declares another one (the tester gives no scale of the bounds to
 the function that computes it, which therefore does not look at `dblAbsAcc`).
-For an `R3BSolver` this is its own `dblRelAcc` ($10^{-6}$ by default), not
-that of its inner `:Solver`. The `R3BSolver`s are compared as any other
-`:Solver`, with the bound that their `intR3BKind` lets through. The behavior
-is thus decided by the configuration files, and it is *those*, not the code,
-that differ between the three arrangements.
+For an `R3BSolver` this tolerance is its own `dblRelAcc` ($10^{-6}$ by
+default), not that of its inner `:Solver`, and the `R3BSolver`s are compared
+as any other `:Solver`, with the bound that their `intR3BKind` lets through.
+Thus, the behavior is decided by the configuration files, which differ
+between the three arrangements while the code stays the same.
 
 ## The three configurations
 
@@ -234,8 +234,9 @@ without which the weak LP and the flow relaxation drift apart after a few
 rounds.
 
 After the command line, which the batteries print, the tester prints by
-default only a final line stating whether all the comparisons have passed. With the option `-v`, or for a
-comparison that fails, it also prints at each solve one line with the time of
+default only a final line stating whether all the comparisons have passed.
+With the option `-v`, or for a comparison that fails, it also prints at each
+solve one line with the time of
 each `:Solver`, the bound of each one (`S0` is the first `:Solver` of the
 `BlockSolverConfig`) and the verdict,
 

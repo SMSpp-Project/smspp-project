@@ -152,11 +152,11 @@ the tolerance, i.e., $\hat v \ge \varphi(\hat Y) - \epsilon \max \{ |\hat v| ,
 |\hat v| , 1 \}$, which is at least the minimum of (i) minus the same
 quantity. $\square$
 
-We remark that the hypotheses of (ii) are needed. A feasibility cut is
+We remark that the hypotheses of (ii) are needed: a feasibility cut is
 added under the same relative threshold as an optimality one, so that the
 loop may stop at a $\hat Y$ at which the transportation problem is
-infeasible. No cut is generated when the inner `:Solver` ends with a
-status other than `kOK` or `kInfeasible`. Also, the loop of
+infeasible; no cut is generated when the inner `:Solver` ends with a
+status other than `kOK` or `kInfeasible`; and the loop of
 [Algorithm 6.1](06-solver.md#alg-6-1) stops after `intMaxCutPasses`
 passes.
 

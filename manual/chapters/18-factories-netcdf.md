@@ -55,13 +55,13 @@ program ([§18.7](18-factories-netcdf.md#sec-18-7)), and since SMS++ 0.9.0
 class not yet in their factory ([§18.8](18-factories-netcdf.md#sec-18-8)).
 
 Each returns a freshly constructed object of the concrete type
-named by the string, as a pointer to the base class. This is what
-makes it possible to read "the inner `Block` is a `UCBlock`", or
-"attach a `CPXMILPSolver`", or "this serialized object is a
+named by the string, as a pointer to the base class. Hence one
+can read "the inner `Block` is a `UCBlock`", or "attach a
+`CPXMILPSolver`", or "this serialized object is a
 `BinaryKnapsackBlockRngdChange`" from a configuration file or a
 netCDF group and *build the right object* without the reading code
-having any compile-time dependency on the concrete type. It is the
-companion of the *methods* factory of [Chapter 15](15-methods-factory.md#ch-15): that one
+having any compile-time dependency on the concrete type. This factory
+is the companion of the *methods* factory of [Chapter 15](15-methods-factory.md#ch-15): that one
 *mutates* an existing object by method name, this one *creates*
 objects by class name.
 
@@ -178,14 +178,14 @@ framework's structure for two reasons:
 - netCDF files are organized into nested *groups*, which map
   directly onto the nested structure of a `Block` tree: a `Block`
   serializes into a group, its sub-`Block`s into nested
-  sub-groups, recursively. The on-disk shape mirrors the in-memory
-  shape.
+  sub-groups, recursively, so that the on-disk shape mirrors the
+  in-memory shape.
 - netCDF stores *native binary arrays* efficiently, which suits
   the large numeric data (cost vectors, constraint matrices,
   scenario trees) of the problems SMS++ targets, far better than a
   text format such as JSON would.
 
-Also, since netCDF is a widely adopted standard, an SMS++ file can be
+Since netCDF is a widely adopted standard, an SMS++ file can also be
 inspected with general-purpose tools: the standard `ncdump` utility turns it
 into readable text, `ncview` visualizes array data, and
 [Panoply](https://www.giss.nasa.gov/tools/panoply/), a graphical viewer, shows
@@ -195,18 +195,18 @@ the groups and the arrays of a file.
 
 netCDF buys the structural fit of [§18.3](18-factories-netcdf.md#sec-18-3) at a price that users must
 know about: creating a file with a very large number of groups is
-very inefficient. netCDF groups are
-designed to be a moderate-cardinality organizing device, not a
-container one instantiates by the thousand; the cost of writing a
-file grows badly with the number of groups in it.
+very inefficient, since netCDF groups are designed as an organizing
+device of moderate cardinality (rather than as a container to be
+instantiated by the thousand). The cost of writing a file grows
+badly with the number of groups in it.
 
 The canonical serialization of a deeply or widely nested
 `Block` tree can fall into exactly this trap. The standard example
-is the `Solution` of a `UCBlock`: it contains, among other things,
-the `Solution` of a `NetworkBlock` *for each time instant*, and the
+is the `Solution` of a `UCBlock`, which contains, among other things,
+the `Solution` of a `NetworkBlock` *for each time instant*, and whose
 canonical encoding would put each `NetworkBlockSolution` in its own
-group. However, the number of time instants can be large (8760 for the
-hours of a year), and writing 8760 (or many more) groups per solution
+group. Since the number of time instants can be large (8760 for the
+hours of a year), writing 8760 (or many more) groups per solution
 makes solution files very slow to produce.
 
 Two further facts make the matter worse. First, netCDF-C (up to
@@ -297,12 +297,12 @@ distinct shapes has the groups of $q$ parts, whatever $p$ is, which
 also keeps the file far from the limit of 32767 groups.
 
 We remark that these functions are a facility that a `:Block`/`:Solution`
-author calls in its own `serialize()` and `deserialize()`, not something that
-the framework applies by itself. A high-cardinality `:Block` or `:Solution`
-written in the one-group-per-object way still pays the cost described above,
-and its author has to decide to write it stacked; and since the stacked
-encoding is a different file format, the readers of the file (including the
-ones outside SMS++) have to know it.
+author calls in its own `serialize()` and `deserialize()`, and which the
+framework does not apply by itself. Hence, a high-cardinality `:Block` or
+`:Solution` written in the one-group-per-object way still pays the cost
+described above unless its author decides to write it stacked. Since the
+stacked encoding is a different file format, the readers of the file
+(including the ones outside SMS++) have to know it.
 
 ## 18.5 The serialization contract {#sec-18-5}
 
@@ -335,7 +335,7 @@ the same holds for a `Configuration`, a `Solution` and a `State`. Note that
 goes wrong
 ([`Block.h:1291-1322`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L1291-1322)).
 
-The same `"type"`-tag-plus-factory pattern is what lets a
+The same pattern, a `"type"` tag resolved by the factory, lets a
 `Configuration` file name an `RBlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)), a
 serialized solution name a `CapacitatedFacilityLocationSolution`
 ([Chapter 9](09-solution.md#ch-9)), and a shipped `Change` name a
@@ -480,15 +480,15 @@ which loads the shared libraries that the plugin links (whose classes are
 not its own) and then the plugin, and lists each `:Block` and `:Solver` that
 the plugin has added to the factories. The shared library of every module is
 a plugin, whose table is written in the directory of the plugins of the build
-tree and next to the library, and is installed with it. Also,
-`smspp_plugin( <target> )` makes a plugin of a library that nothing links:
-`MILPSolver` does so with each of its back-ends when the libraries are shared,
-so that a program built with no MILP solver runs with those that are there.
-A static library is no plugin. The tables are looked for in a *search path*
-made of the directories of the environment variable `SMSpp_PLUGIN_PATH`
-(separated as in `PATH`), the directory of the plugins of the build tree,
-that of the library of SMS++ and (where this is a DLL among the programs)
-that of the libraries of its installation, in this order.
+tree and next to the library, and is installed with it. A library that
+nothing links becomes a plugin by `smspp_plugin( <target> )`: `MILPSolver`
+does so with each of its back-ends when the libraries are shared, so that a
+program built with no MILP solver runs with those that are there. A static
+library is no plugin. The tables are looked for in a *search path* made of the
+directories of the environment variable `SMSpp_PLUGIN_PATH` (separated as in
+`PATH`), the directory of the plugins of the build tree, that of the library of
+SMS++ and (where this is a DLL among the programs) that of the libraries of its
+installation, in this order.
 
 <span id="alg-18-1"></span>**Algorithm 18.1** (loading the plugin of a
 class).
@@ -585,7 +585,7 @@ only when no plugin is being loaded.
 
 Consequently, a program linked to the core alone can construct any `:Block`
 and any `:Solver` of the modules whose tables are on the search path, e.g.,
-those built in the same build tree or installed with the core. Also, a
-program that applies a configuration naming a `:Solver` can ask
-`has_Solver()` first, and leave out (with a message) one whose module, or
-external library, is not there.
+those built in the same build tree or installed with the core. A program
+that applies a configuration naming a `:Solver` can ask `has_Solver()` first,
+and leave out (with a message) one whose module, or external library, is not
+there.

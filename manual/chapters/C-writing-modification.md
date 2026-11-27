@@ -24,7 +24,7 @@ Why a `:Block` needs its own `:Modification`s is explained in
 
 A `:Block` that exposes any `chg_*()` mutator must inform the listening
 `:Solver`s of *what* changed, when the change happens ([Chapter
-8](08-modification-janus.md#ch-8)). In fact, the base `Modification` hierarchy
+8](08-modification-janus.md#ch-8)). The base `Modification` hierarchy
 already covers the generic cases: `NBModification` for a wholesale `load()`
 ([§4.6](04-block.md#sec-4-6)), and the abstract `C05FunctionMod`,
 `VariableMod` and `RowConstraintMod` for the changes made through the abstract
@@ -90,20 +90,20 @@ class BinPackingBlockMod : public Modification
 Besides `get_Block()`, the only other method that a `:Modification` must
 implement is the protected `print()`, to which `operator<<` dispatches. The
 value passed to the constructor of `Modification` is the `ModConcern` returned
-by `changes()`. This is a bit mask that states what *kind* of thing the
+by `changes()`, a bit mask that states what *kind* of thing the
 `Modification` changes (`eModPhys` for the physical representation, and
 `eModVarData`, `eModVarType`, `eModVarSet`, `eModCnsSide`, `eModCnsCoef`,
 `eModCnsSet`, `eModObj` for the parts of the model), and what *effect* it may
 have on the problem (`eRegnShrink` / `eRegnGrow` for the feasible region,
 `eObjUp` / `eObjDown` for the objective); an effect bit that is not set is a
 guarantee. Note that the default `eModPhys | eEffAny` ("physical, anything may
-happen") is always correct for a physical `:Modification`. Declaring more
-spares a `:Solver` that only reads some kinds the others
-(`Solver::concerned_by()`, [§B.4](B-writing-solver.md#sec-B-4)), and it lets
-the `:Block` avoid issuing the `Modification` when no listener reads its kind
-(cf. [§8.7](08-modification-janus.md#sec-8-7)), by the two-argument
-`issue_pmod( issueMod , kind )` used in [§A.5](A-writing-block.md#sec-A-5).
-Also, it lets a reader keep what is still valid, e.g., a solution when the
+happen") is always correct for a physical `:Modification`, and that declaring
+more has three uses: it spares a `:Solver` that only reads some kinds the
+others (`Solver::concerned_by()`, [§B.4](B-writing-solver.md#sec-B-4)), it
+lets the `:Block` avoid issuing the `Modification` when no listener reads its
+kind (cf. [§8.7](08-modification-janus.md#sec-8-7)), by the two-argument
+`issue_pmod( issueMod , kind )` used in [§A.5](A-writing-block.md#sec-A-5),
+and it lets a reader keep what is still valid, e.g., a solution when the
 region cannot shrink. Four masks, `ePhysObj`, `ePhysSides`, `ePhysCns` and
 `ePhysVars`, cover the common physical cases, and the bits are to be read
 through the static methods of `Modification` (`is_physical()`,
@@ -207,8 +207,8 @@ sizes it overwrites, which satisfies the hypothesis of [Lemma
 `:Change` that could not build an exact inverse in some state rather refuses
 that state by an exception, as the `:Change`s of `BinaryKnapsackBlock` refuse
 to fix an item that is already fixed ([§16.2](16-change.md#sec-16-2)). Third,
-the class is registered in the factory, and its `serialize()` calls
-`Change::serialize()` first. Thus, one can reconstruct it out of a netCDF
+the class is registered in the factory and its `serialize()` calls
+`Change::serialize()` first, so that one can reconstruct it out of a netCDF
 group by `Change::new_Change( group )`, perhaps on another process or at a
 later time. Also, the `:Change` identifies the items by their indices, never
 by pointers to the objects of a particular `Block`; hence, it applies to any

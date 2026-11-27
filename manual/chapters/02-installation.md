@@ -71,14 +71,14 @@ functionality is not needed:
   (`-withoutFlatzinc`).
 
 For a first installation, the project provides scripts that fetch and
-install the dependencies in default locations. The first is
+install the dependencies in default locations: the first is
 [`INSTALL.sh`](https://gitlab.com/smspp/smspp-project/-/blob/develop/INSTALL.sh)
 (Linux and macOS), which accepts `--without-<dependency>` flags
 (`--without-cplex`, `--without-gurobi`, `--without-mosek`,
 `--without-scip`, `--without-highs`, `--without-stopt`,
 `--without-torch`, `--without-lemon`, `--without-flatzinc`,
-`--without-smspp`, and so on); the second is `INSTALL.ps1` (Windows),
-which accepts the corresponding `-without<Dependency>` switches
+`--without-smspp`, and so on). The second script is `INSTALL.ps1`
+(Windows), which accepts the corresponding `-without<Dependency>` switches
 (`-withoutCplex`, `-withoutGurobi`, `-withoutSCIP`, `-withoutSMSpp`,
 and a few others: there, most of the open-source dependencies come
 from vcpkg and have no switch). Run again, the scripts update what
@@ -198,7 +198,7 @@ Windows on the `PATH`. With `SMSppSTATIC` set (e.g.,
 library can also be archived by
 [`SMS++/lib/makefile-lib`](https://gitlab.com/smspp/smspp/-/blob/develop/lib/makefile-lib),
 run as `make -f makefile-lib` in `SMS++/lib/`, into `SMS++/lib/libSMS++.a`.
-Also, with `SMSppMOD` set (e.g., `make SMSppMOD=1`), `clang++` 16 or
+With `SMSppMOD` set (e.g., `make SMSppMOD=1`), `clang++` 16 or
 later builds the C++20 modules as well
 ([`SMS++/lib/makefile-mod`](https://gitlab.com/smspp/smspp/-/blob/develop/lib/makefile-mod)),
 while the plugins are a feature of the CMake build only.
@@ -253,12 +253,11 @@ while the tester of `CapacitatedFacilityLocationBlock` tests its
 feasibility checks with no `:Solver` attached. Building and running one
 of these is the quickest way to check that the toolchain, the
 dependencies and the paths are in order. A good first target is the
-tester in `MCFClassSolver/test`, which is the runnable counterpart of
-[Recipe R1](R1-mcf.md#rec-R1). It builds the core, the `MCFBlock`
-module and `MCFSolver`, loads small flow instances and solves them
-repeatedly while changing costs, capacities, deficits and arcs, and it
-compares the results with those of the same `:MCFClass` used
-directly.
+tester in `MCFClassSolver/test`, the runnable counterpart of [Recipe
+R1](R1-mcf.md#rec-R1): it builds the core, the `MCFBlock` module and
+`MCFSolver`, loads small flow instances and solves them repeatedly while
+changing costs, capacities, deficits and arcs. The tester then compares
+the results with those of the same `:MCFClass` used directly.
 
 ## 2.5 Troubleshooting {#sec-2-5}
 

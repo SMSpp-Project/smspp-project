@@ -50,15 +50,15 @@ Because several threads may want to read or modify the same
 The lock records an *owner*, instead of relying on a plain `std::mutex`,
 since the same entity may need to re-enter a `Block` it already holds (say,
 a `Solver` recursing into a sub-`Block`), and a plain mutex would deadlock on
-re-entry. Recording the owner lets the protocol distinguish "someone else
-holds this" from "I already hold this".
+re-entry. The recorded owner lets the protocol distinguish "someone else holds
+this" from "I already hold this".
 
 The one rule the user must respect is the *direction*: an entity that owns a
 sub-`Block` never tries to own a `Block` that includes it, and no entity tries
 to own two different `Block`s
 ([`Block.h:1879-1936`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L1879-1936)).
-Under this rule the protocol cannot deadlock, which is the following
-statement.
+Under this rule the protocol cannot deadlock, as the following lemma
+states.
 
 <span id="lem-17-1"></span>**Lemma 17.1.** *Let a finite set of entities each
 call `lock()` on one `Block` of the same tree, holding no lock before the call
@@ -118,9 +118,9 @@ an atomic computation, and in the course of it wants a sub-`Solver` to
 work on a part of the tree, say, a sub-`Block`.
 The sub-`Solver` needs to `lock()` that sub-`Block`; but the
 sub-`Block` is *already* locked, as part of the sub-tree the outer
-`:Solver` holds. The outer `:Solver` cannot simply release it
-either: doing so would risk another entity grabbing it before the
-outer `:Solver`'s atomic computation is finished.
+`:Solver` holds, and the outer `:Solver` cannot simply release it
+either, since another entity could then grab it before the outer
+`:Solver`'s atomic computation is finished.
 
 The framework resolves this by letting the outer `:Solver` *lend its identity*
 to the inner `:Solver`s, with `ThinComputeInterface::set_id( void * id =
@@ -218,11 +218,12 @@ consumed in completion order (faster, but not reproducible) or in a fixed
 order ([§19.4](19-nondifferentiable.md#sec-19-4)).
 
 From the point of view of the user, switching from the serial to the parallel
-solution of the Lagrangian dual is a change of configuration. The
+solution of the Lagrangian dual is a change of configuration: the
 `BlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)) names
 `ParallelBundleSolver` instead of `BundleSolver`, and it has to set the number
-of threads (`intMaxThread`, 0 by default, i.e., a sequential run); the
-decomposition structure ([Chapter 12](12-sub-block.md#ch-12)), the `LagBFunction`s ([Chapter
+of threads (`intMaxThread`, 0 by default, i.e., a sequential run). The
+decomposition structure ([Chapter 12](12-sub-block.md#ch-12)), the
+`LagBFunction`s ([Chapter
 14](14-lag-benders-bfunction.md#ch-14)), the recursive locking
 ([§17.1](17-parallel.md#sec-17-1)) and the asynchronous evaluation
 ([§17.2](17-parallel.md#sec-17-2)) do the rest, and the code of the user does
@@ -272,14 +273,13 @@ for a `:Solver` that benefits from checkpointing or warm-starting; otherwise,
 the default `nullptr` keeps the machinery free.
 
 *The formulation decides the parallelism.* Once a parallel `:Solver` is
-applicable, selecting it is a change of the `BlockSolverConfig`. Yet,
-*whether* it is applicable is decided earlier, by the formulation chosen for
-the `:Block`, which determines the `:Solver`s that can be attached to it and
-hence the parallelism that is available. CFL is a clear illustration: only
-the knapsack formulation exposes the block-diagonal structure that
-`LagrangianDualSolver` (and hence `ParallelBundleSolver` on the dual)
-requires, while the natural formulation does not, and the Benders one has a
-single (transportation) subproblem, i.e., no evaluations to run in parallel.
-Hence, the parallelism available is decided by the formulation, chosen
-through the `BlockConfig` ([Chapter 11](11-configuration.md#ch-11)), before
-the `:Solver`.
+applicable, selecting it is a change of the `BlockSolverConfig`; yet,
+*whether* it is applicable is decided earlier, before the `:Solver`, by the
+formulation chosen for the `:Block` through the `BlockConfig` ([Chapter
+11](11-configuration.md#ch-11)), which determines the `:Solver`s that can be
+attached to it and hence the parallelism that is available. CFL is a clear
+illustration: only the knapsack formulation exposes the block-diagonal
+structure that `LagrangianDualSolver` (and hence `ParallelBundleSolver` on
+the dual) requires, while the natural formulation does not, and the Benders
+one has a single (transportation) subproblem, i.e., no evaluations to run in
+parallel.

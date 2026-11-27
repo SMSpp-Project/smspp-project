@@ -163,8 +163,8 @@ linearizations. `LagBFunction` exploits this mechanism
 
 The linearization machinery is supported by a family of abstract
 `Modification`s ([Chapter 8](08-modification-janus.md#ch-8)), the
-`C05FunctionMod`s. They describe how a change of the data of the function
-affects its value and its pools, and they are the subject of the next
+`C05FunctionMod`s, which describe how a change of the data of the function
+affects its value and its pools, and which are the subject of the next
 section.
 
 ## 13.3 Modifications, directionality, and reoptimization {#sec-13-3}
@@ -273,8 +273,9 @@ quasi-additive
 which means that the linearizations in the global pool can be updated to
 linearizations of the new function: for an addition, by computing the $N$ new
 entries of their vector $g$ with `get_linearization_coefficients()`, for a
-removal, by deleting the entries of the removed `Variable`s. This likely means
-that the function is convex or concave, but it is not required. If the change
+removal, by deleting the entries of the removed `Variable`s. Strong
+quasi-additivity likely means that the function is convex or concave, although
+this is not required. If the change
 is only quasi-additive (a base `FunctionModVarsAddd` that is *not* a
 `C05FunctionModVarsAddd`), a `:Solver` has to consider each linearization
 computed at a point with $y \neq 0$ as invalid, even in its $g_x$ part, and
@@ -348,9 +349,9 @@ quadratic leaf classes below derive from it.
 
 ## 13.5 The "easy" leaf Functions {#sec-13-5}
 
-For functions that have a simple closed algebraic form, evaluating them
-and producing their linearizations costs very little, and SMS++
-provides concrete leaf classes.
+For the functions that have a simple closed algebraic form, whose
+evaluation and linearizations cost very little, SMS++ provides the
+following concrete leaf classes.
 
 - [`LinearFunction`](https://smspp.gitlab.io/smspp-project/d9/d23/class_s_m_spp__di__unipi__it_1_1_linear_function.html)
   (a `C15Function`) is a linear form $\sum_i a_i x_i$ in `ColVariable`s plus a

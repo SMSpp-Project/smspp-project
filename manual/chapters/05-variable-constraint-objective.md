@@ -36,7 +36,7 @@ the *abstract representation* of the model of the `Block` (cf.
 [Chapter 7](07-physical-abstract.md#ch-7)), i.e., the part of the
 model that a general-purpose `:Solver` reads.
 
-These three classes share two traits. Each instance belongs to one
+These three classes share two traits: each instance belongs to one
 `Block` (returned by its `get_Block()`), and the *name* of an instance
 is its memory address. Hence, as discussed for `Block` in
 [§4.2](04-block.md#sec-4-2), an instance cannot be moved once
@@ -45,13 +45,13 @@ ones in `std::vector`s or `boost::multi_array`s that are sized once
 and never reallocated.
 
 `Constraint` and `Objective` also share two interfaces, inherited from
-common base classes. Both derive from
-[`ThinVarDepInterface`](https://smspp.gitlab.io/smspp-project/da/df9/class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface.html),
-since each `Constraint` and each `Objective` depends on a specific set
-of *active* `Variable`s, which can be queried through that interface.
-Also, both derive from
-[`ThinComputeInterface`](https://smspp.gitlab.io/smspp-project/d9/d1b/class_s_m_spp__di__unipi__it_1_1_thin_compute_interface.html),
-since whether a `Constraint` is satisfied and what value an
+common base classes. The first is
+[`ThinVarDepInterface`](https://smspp.gitlab.io/smspp-project/da/df9/class_s_m_spp__di__unipi__it_1_1_thin_var_dep_interface.html):
+each `Constraint` and each `Objective` depends on a specific set of
+*active* `Variable`s, which can be queried through that interface.
+The second is
+[`ThinComputeInterface`](https://smspp.gitlab.io/smspp-project/d9/d1b/class_s_m_spp__di__unipi__it_1_1_thin_compute_interface.html):
+whether a `Constraint` is satisfied and what value an
 `Objective` has must be `compute()`-d before being read, a computation
 which may be somewhat costly (say, an `Objective` given by a
 multi-dimensional integral, or a `Constraint` given by the solution of
@@ -131,17 +131,17 @@ $$
 
 where $l$ and $u$ (of type `RHSValue`) are read by `get_lhs()` and `get_rhs()`
 and set by `set_lhs( ... )`, `set_rhs( ... )` and `set_both( ... )` (the
-latter sets $l = u$). Either of them can be infinite, the value being
-`RowConstraint::RHSINF` (or its opposite). A single real dual variable is
-attached to the `Constraint`, read by `get_dual()` and set by
-`set_dual( ... )`, although a ranged row is two inequalities. Its value is
-the coefficient of $g(x)$ in the Lagrangian function, i.e., for a
-minimization, positive when the multiplier of the upper side is nonzero and
-negative when that of the lower side is, as [§9.4](09-solution.md#sec-9-4)
-shows (together with the representation of a dual direction). A `:Solver`
-that writes a dual solution into a `RowConstraint` has to obey this
-convention. However, the expression $g$ is not defined in `RowConstraint`,
-but in its derived classes, of which two cover the common cases.
+latter sets $l = u$); either of them can be infinite, i.e., equal to
+`RowConstraint::RHSINF` (or its opposite). Although a ranged row is two
+inequalities, a single real dual variable is attached to the `Constraint`,
+read by `get_dual()` and set by `set_dual( ... )`. Its value is the
+coefficient of $g(x)$ in the Lagrangian function, i.e., for a minimization,
+positive when the multiplier of the upper side is nonzero and negative when
+that of the lower side is, as [§9.4](09-solution.md#sec-9-4) shows (together
+with the representation of a dual direction). A `:Solver` that writes a dual
+solution into a `RowConstraint` has to obey this convention. The expression
+$g$, however, is not defined in `RowConstraint` but in its derived classes,
+of which two cover the common cases.
 
 ### `OneVarConstraint`
 
@@ -174,10 +174,9 @@ default), while with `deleteold == false` the caller is assumed to
 hold another pointer to it and to dispose of it (under `eDryRun`,
 instead, the call has no effect). Hence `set_function()` with no
 argument empties the `FRowConstraint`, and deletes its `Function`
-unless told otherwise. Also, the
-`FRowConstraint` registers with the `Variable`s of the `Function` (and
-follows the changes of that set), which is why a `Function` cannot be
-shared between two `FRowConstraint`s.
+unless told otherwise. Since the `FRowConstraint` also registers with
+the `Variable`s of the `Function` (and follows the changes of that set),
+a `Function` cannot be shared between two `FRowConstraint`s.
 
 In turn, the family of `Function`s (cf. [Chapter
 13](13-function-family.md#ch-13)) covers the linear, quadratic and
@@ -206,8 +205,8 @@ leaves room for multi-objective extensions; the derived class
 The rule by which the `Objective`s of the sub-`Block`s compose is
 fixed at this level: the `Objective` of a sub-`Block` is added to that
 of its father, which gives a tree of `Block`s a single, well-defined
-`Objective`. Furthermore, the sum may be weighted: a `Block` has a
-weight of its `Objective` and one of its `Variable`s, applied by the
+`Objective`. This sum may be weighted, since a `Block` has a weight
+of its `Objective` and one of its `Variable`s, applied by the
 `:Solver`s that assemble a problem out of nested `Block`s
 ([§12.2](12-sub-block.md#sec-12-2)).
 
@@ -300,15 +299,15 @@ instead: the physical data through `get_Weight()`, `get_Profit()`,
 and `get_objective_value()`, and the single `ColVariable`s, if needed,
 through `get_Var( i )`. Code that has to look at the abstract
 representation of a `:Block` it does not know iterates over its
-groups. The methods `get_static_variable_groups()`,
+groups, which `get_static_variable_groups()`,
 `get_static_constraint_groups()` and their dynamic counterparts return
-them as `BaseGroup` objects ([`Group.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Group.h)), each of which gives its name,
-its shape and its elements as `Variable` or `Constraint`. Then
-`elements_are< T >()` checks once for the group whether the elements
-derive from `T`, `for_each_as()` and `for_each_cell_as()` run loops
-typed on the element, meant for the hot paths, and `for_each()` serves
-the others. Furthermore, the order in which the elements are visited
-(the order of the storage) is part of the contract.
+as `BaseGroup` objects ([`Group.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Group.h)), each of which gives its name,
+its shape and its elements as `Variable` or `Constraint`. On such a
+group, `elements_are< T >()` checks once whether the elements derive
+from `T`, `for_each_as()` and `for_each_cell_as()` run loops typed on
+the element, meant for the hot paths, and `for_each()` serves the
+others. The order in which the elements are visited (the order of the
+storage) is part of the contract.
 
 `AbstractBlock` is the converse case: a `Block` *without* a specific
 class of problems, whose abstract representation is constructed by the

@@ -83,7 +83,7 @@ only types for which a factory exists
 handed to the factory, which owns it.
 
 A setter carries, after its data arguments, the usual two `ModParam`s
-(`issuePMod` and `issueAMod`). Hence, a change made through the factory
+(`issuePMod` and `issueAMod`), so that a change made through the factory
 follows the discipline of the physical and abstract `Modification`s of
 [Chapter 8](08-modification-janus.md#ch-8) as a direct call does.
 
@@ -124,18 +124,18 @@ after clipping the slice to the existing items. This is the shape of
 which `BinaryKnapsackBlock` registers under the name
 `"BinaryKnapsackBlock::chg_weights"`. It registers `chg_weights` and
 `chg_profits` in both the families `MS_sp_dbl_rngd` and `MS_sp_dbl_sbst`, and
-`chg_capacity` in `MS_sp_dbl_rngd`; `MCFBlock` does the same with `chg_costs`,
-`chg_ucaps` and `chg_dfcts` in the families `MS_sp_dbl_*`, and with
-`close_arcs` and `open_arcs` in the families `MS_*`. Hence, one can register
-the data-changing methods of a `:Block` almost for free if they have one of
-these shapes.
+`chg_capacity` in `MS_sp_dbl_rngd`. In the same way, `MCFBlock` registers
+`chg_costs`, `chg_ucaps` and `chg_dfcts` in the families `MS_sp_dbl_*`, and
+`close_arcs` and `open_arcs` in the families `MS_*`. The data-changing methods
+of a `:Block` that have one of these shapes can therefore be registered almost
+for free.
 
 Four more setter families cover the data that do not fit the six basic
 shapes. `MS_sp_dbl2_rngd` and `MS_sp_dbl2_sbst` take two `MF_dbl_sp` before
 the slice, for items that carry two values of the same kind (the $h$-th value
 of each span going to the $h$-th index of the slice). `MS_dbl` and `MS_dbl2`
 take one or two `double` and no slice, for a parameter that is a single
-scalar (say, the size of a unit). Also, the factory holds *queries*, i.e.,
+scalar (say, the size of a unit). The factory also holds *queries*, i.e.,
 adapters of `const` member functions that read data instead of changing
 them. Their type is `QueryType< Args... >`, a function of a `const Block *`
 with no `ModParam`, and the eight families `MS_qry_dbl_rngd`,
@@ -434,10 +434,10 @@ SMS++ 0.9.0), is loaded when `Block::new_Block()`, `Solver::new_Solver()` or
 `Solver::has_Solver()` is called with the name of a class that the program
 does not have ([Chapter 18](18-factories-netcdf.md#ch-18)). Instead,
 `get_method()` never loads a plugin, and the methods of a `:Block` that has
-not been loaded yet are not in the factory. Also, the methods factory is not
-protected by the lock of the class factories: `get_method()` must not run
-concurrently with the loading of a plugin, i.e., with a `new_Block()`,
-`new_Solver()` or `has_Solver()` that may load one.
+not been loaded yet are not in the factory. Nor is the methods factory
+protected by the lock of the class factories, and therefore `get_method()`
+must not run concurrently with the loading of a plugin, i.e., with a
+`new_Block()`, `new_Solver()` or `has_Solver()` that may load one.
 
 The translation unit that registers a method receives no call from the rest
 of the program, which only looks up a name such as

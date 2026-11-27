@@ -67,17 +67,17 @@ number of bins at $m = n$.
 
 ## A.1 The "physical" representation and a choice of "abstract" one {#sec-A-1}
 
-A useful first distinction ([Chapter 7](07-physical-abstract.md#ch-7))
+The first distinction to draw ([Chapter 7](07-physical-abstract.md#ch-7))
 is that the *physical* representation is not really *chosen*: it is
 dictated by the semantics of the problem, i.e., by the data that define
-an instance and that a specialized solver reads directly. What is genuinely a
-*design decision* is the *abstract* representation, because a given
-problem admits many equivalent mathematical formulations and the
+an instance and that a specialized solver reads directly. The *design
+decision* is rather the *abstract* representation, since a given problem
+admits many equivalent mathematical formulations, among which the
 `:Block` author picks one (or, as `MCFBlock` and CFL do, makes the
 choice configurable, [§7.3](07-physical-abstract.md#sec-7-3)).
 
 For Bin Packing the physical representation is dictated and tiny:
-the number of items $n$, the capacity $C$, and the vector of sizes
+the number of items $n$, the capacity $C$ and the vector of sizes
 $s$. That is all a specialized solver would need.
 
 The abstract representation chosen here is the natural MILP (one
@@ -88,7 +88,7 @@ $$\min \sum_j y_j$$
 subject to $\sum_j x_{ij} = 1$ for every item $i$ (each item in
 exactly one bin), $\sum_i s_i x_{ij} \le C y_j$ for every bin $j$
 (capacity, and a bin counts as used when something is in it), and
-$x_{ij}, y_j \in \lbrace 0,1 \rbrace$. So the abstract
+$x_{ij}, y_j \in \lbrace 0,1 \rbrace$. Hence, the abstract
 representation has two `ColVariable` groups (`x`, a
 `boost::multi_array< ColVariable , 2 >` of shape $n \times m$, and
 `y`, a `std::vector< ColVariable >` of size $m$), two
@@ -223,16 +223,16 @@ while that of `Solver` uses `_0`) registers the class so that
 [§18.1](18-factories-netcdf.md#sec-18-1)). The class not being a template,
 the macro also defines the empty `extern "C"` function
 `SMSpp_force_load_BinPackingBlock()`. Two mechanisms (since SMS++ 0.9.0)
-keep the registration reachable. Through `smspp_keep_module()`, the CMake
-target of a module of the same name (as `init.sh` makes it), when built as
-a shared library, has every program that links it call this function, so
-that no linker drops the unit holding the registration (static libraries
-are linked whole by `smspp_keep_modules()`, and the makefiles pass
-`--no-as-needed`, or `-u` of the same function on Windows;
-[§18.7](18-factories-netcdf.md#sec-18-7)). Furthermore, with shared
-libraries a program that is not linked to the module at all still finds
-the class, since `Block::new_Block()` loads the plugin that registers it
-when the name is not in the factory
+keep the registration reachable. In the first, through
+`smspp_keep_module()`, the CMake target of a module of the same name (as
+`init.sh` makes it), when built as a shared library, has every program
+that links it call this function, so that no linker drops the unit
+holding the registration (static libraries are linked whole by
+`smspp_keep_modules()`, and the makefiles pass `--no-as-needed`, or `-u`
+of the same function on Windows; [§18.7](18-factories-netcdf.md#sec-18-7)).
+The second lets a program that is not linked to the module at
+all still find the class with shared libraries, since `Block::new_Block()`
+loads the plugin that registers it when the name is not in the factory
 ([§18.8](18-factories-netcdf.md#sec-18-8)). This requires the module to
 have been built by its CMake target, which writes the table of its
 plugin.
@@ -419,12 +419,11 @@ of `set_function()`, `set_sense()` and `set_objective()` are passed `eNoMod`
 ([§8.5](08-modification-janus.md#sec-8-5),
 [§8.9](08-modification-janus.md#sec-8-9)), while the other `set_*()` calls
 issue nothing since the objects are not yet registered in the `Block`. The
-deliberate
-ordering of the capacity row's terms (the $n$ item coefficients first, then
-the single $-C y_j$ term) lets `chg_size`
+terms of a capacity row are ordered on purpose (the $n$ item coefficients
+first, then the single $-C y_j$ term), so that `chg_size`
 ([§A.5](A-writing-block.md#sec-A-5)) and the abstract-stream decoding in
-`add_Modification` ([§A.6](A-writing-block.md#sec-A-6)) address coefficient
-$k$ as "the $x_{k j}$ term".
+`add_Modification` ([§A.6](A-writing-block.md#sec-A-6)) can address
+coefficient $k$ as "the $x_{k j}$ term".
 
 ## A.5 A `chg_*()` method and its `Modification` {#sec-A-5}
 

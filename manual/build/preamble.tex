@@ -10,16 +10,18 @@
 
 % --- Numbering: the Markdown headings already carry manual numbers (1.1,
 % 4.2, ...) for the web build, so suppress LaTeX's automatic section and
-% chapter numbering to avoid the doubled "2.1 1.1 ..." effect. Figures are
-% then numbered continuously (1, 2, 3, ...) rather than per (unnumbered)
-% chapter.
+% chapter numbering to avoid the doubled "2.1 1.1 ..." effect.
 \setcounter{secnumdepth}{-1}
 \usepackage{chngcntr}
 \counterwithout{figure}{chapter}
+% The captions carry their own number ("Figure 3.1."), which the site needs
+% as well: LaTeX adds no label of its own.
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty,labelsep=none}
 
 % --- Figures scale to the text width rather than overflow. ---------------
 \usepackage{graphicx}
-\setkeys{Gin}{width=0.85\linewidth,keepaspectratio}
+\setkeys{Gin}{width=0.85\linewidth,height=0.35\textheight,keepaspectratio}
 \makeatletter
 \renewcommand{\fps@figure}{htbp}
 \makeatother

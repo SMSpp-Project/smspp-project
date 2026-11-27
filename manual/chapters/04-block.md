@@ -45,13 +45,13 @@ identity". A `Block` contains (all of the following being optional):
 are; a `Block` with a father is a *sub-`Block`* of it, and one without
 a father is a *root*. A sub-`Block` is conceptually part of the model
 of its father, whose `Variable`s comprise those of the sub-`Block`.
-Also, the `Objective` of the father is (conceptually) the sum of the
-one it carries and of those of its sub-`Block`s, with the appropriate
+The `Objective` of the father is (conceptually) the sum of the one the
+father carries and of those of its sub-`Block`s, with the appropriate
 handling of the senses and of the weights (see [Chapter
 5](05-variable-constraint-objective.md#ch-5)).
 
-Note that the base class provides no functionality specific to a
-problem. A concrete `:Block` adds to it, in essence, the *physical*
+The base class provides no functionality specific to a problem: a
+concrete `:Block` adds to it, in essence, the *physical*
 representation of the instance, i.e., the data of the problem in their
 natural form, stored as fields of the class. It also adds the
 *abstract* representation, i.e., the groups of `Variable`s and
@@ -83,7 +83,7 @@ static ones live in `std::vector`s (or `boost::multi_array`s) that are
 sized once, when the group is created, and never resized afterwards,
 and which can therefore be addressed by index as well.
 
-Also, the same rule applies to a `Block`, which is referred to by
+The same rule applies to a `Block`, which is referred to by
 pointer (`p_Block` is `Block *`); its sub-`Block`s are stored as a
 `std::vector` of pointers (`v_Block`, of type `Vec_Block`), and moving
 the pointers does not move the `Block`s. The copy constructor of
@@ -105,8 +105,8 @@ static and dynamic:
 
 Sub-`Block`s are always static, i.e., their number and their concrete
 types do not change after the `Block` has been built. This restriction
-does not seem to limit the expressiveness much in practice, and it
-simplifies considerably the internal logic of the framework. An
+simplifies considerably the internal logic of the framework, and in
+practice it does not seem to limit the expressiveness much. An
 exception is `set_structure()`, by which a `:Block` whose tree of
 sub-`Block`s is a modeling choice makes that choice; it is meant to be
 called before any abstract representation is generated and any
@@ -264,10 +264,10 @@ nodes and arcs, the nonzero deficits and the arcs with their costs and
 capacities, while with the verbosity `'C'` it writes the instance in
 the DIMACS format.
 
-No call to `generate_abstract_*()` appears in the example. Hence, the
+Since no call to `generate_abstract_*()` appears in the example, the
 constraints and the objective of the abstract representation do not
 exist yet, and they are created only if a `:Solver` that needs them is
-attached; the flow `ColVariable`s, instead, are constructed by
+attached. The flow `ColVariable`s, instead, are constructed by
 `load()`, for the reason explained in
 [§7.6](07-physical-abstract.md#sec-7-6).
 
@@ -322,8 +322,8 @@ This flag is maintained by `register_Solver()`, `unregister_Solver()`,
 `anyone_there( bool )` that a `Block` calls on each of its sub-`Block`s when
 the answer to "is anyone listening to me?" changes. In what follows, a
 sub-`Block` is *inserted properly* if its `f_at` is `false` before the
-insertion, which holds for a newly constructed `Block`. Also, it has to
-be inserted (i) by `add_nested_Block()`, or (ii) by a write into `v_Block`
+insertion (which holds for a newly constructed `Block`) and it is
+inserted (i) by `add_nested_Block()`, or (ii) by a write into `v_Block`
 made while no `Solver` is registered with the father or with any of its
 ancestors, or (iii) by a write into the `v_Block` of the father $P$ made
 by the `set_Block()` of a `Solver` that `register_Solver()` is
@@ -408,14 +408,13 @@ raises the flag. Conversely, one written into `v_Block` after a
 `Solver` has been registered with an ancestor, or by the `set_Block()`
 of a `Solver` registered with a father whose $f_{at}$ is `true`, or by
 the `set_Block()` of a `Solver` that `replace_Solver()` puts in place of
-another, would keep `f_at == false`, and the
-`Modification`s it issues would be dropped by
-`Block::add_Modification()`, which returns at once when
-`anyone_there()` is `false`.
+another, would keep `f_at == false`. The `Modification`s that it issues
+would then be dropped by `Block::add_Modification()`, which returns at
+once when `anyone_there()` is `false`.
 
 `:Block` implementers check `anyone_there()` before paying the cost of
-constructing a `Modification`. A finer test is `anyone_there_for( what )`.
-Each `Modification` declares, as a bit mask of type
+constructing a `Modification`, and a finer test is
+`anyone_there_for( what )`. Each `Modification` declares, as a bit mask of type
 `Modification::ModConcern`, what it changes (`eModPhys` for the physical
 representation, and `eModVarData`, `eModCnsSide`, `eModObj` and so on for the
 parts of the abstract one), and each `:Solver` declares, through

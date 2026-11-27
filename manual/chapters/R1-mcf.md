@@ -158,36 +158,35 @@ by all those of [Table 6.2](06-solver.md#tab-6-2) save `QPMADMILPSolver` and
 `PERMONMILPSolver`, whose methods may not converge on a Linear Program
 (cf. [§6.10](06-solver.md#sec-6-10)), and `PIPSMILPSolver`, which requires
 sub-`Block`s that `MCFBlock` does not have. Only the name given to the
-factory changes, say
-`"HiGHSMILPSolver"` in the place of `"MCFSolver<MCFSimplex>"`. The
-`:MILPSolver` reads the *abstract* representation, which it generates when
-it is registered (the calls of `generate_abstract_constraints()` and
-`generate_objective()` in the code are needed by `get_pi()` and
-`get_objective_value()`, not by the `:MILPSolver`), and it writes the
-solution in the `MCFBlock` through `get_var_solution()` and
-`get_dual_solution()` as before.
-The optimal value is the same, and so are the potentials that `get_pi()` gives
-for the same dual solution, since the dual values that a `:MILPSolver` writes
-in the `Constraint`s and those that `MCFSolver` writes through `set_pi()`
-follow the same convention (cf. [Chapter 9](09-solution.md#ch-9)); the
-`:Solver` works on any `:Block` that can expose an abstract representation of
-the class it accepts, which is the swap promised in
-[§6.2](06-solver.md#sec-6-2).
+factory changes, say `"HiGHSMILPSolver"` in the place of
+`"MCFSolver<MCFSimplex>"`: the `:MILPSolver` reads the *abstract*
+representation, which it generates when it is registered (the calls of
+`generate_abstract_constraints()` and `generate_objective()` in the code are
+needed by `get_pi()` and `get_objective_value()`, not by the `:MILPSolver`).
+It writes the solution in the `MCFBlock` through `get_var_solution()` and
+`get_dual_solution()` as before. The optimal value is the same, and so are
+the potentials that `get_pi()` gives for the same dual solution, since the
+dual values that a `:MILPSolver` writes in the `Constraint`s and those that
+`MCFSolver` writes through `set_pi()` follow the same convention (cf.
+[Chapter 9](09-solution.md#ch-9)). The `:Solver` works on any `:Block` that can
+expose an abstract representation of the class it accepts, which is the swap
+promised in [§6.2](06-solver.md#sec-6-2).
 
 *The algorithms of abLEMON.* The module `MCFLemonSolver` provides four more
 specialized `:Solver`s of `MCFBlock`, built on the algorithms of abLEMON
-([§2.1](02-installation.md#sec-2-1)). These are
+([§2.1](02-installation.md#sec-2-1)):
 `MCFLemonSolverNetworkSimplex`, `MCFLemonSolverCycleCanceling`,
-`MCFLemonSolverCostScaling` and `MCFLemonSolverCapacityScaling`, which are
-registered in the factory under names that also give the graph and the numeric
-types (e.g., `"MCFLemonSolverNetworkSimplex<SmartDigraph,double,double>"`),
-and each of them can usually restart from the state of its previous run after
-a change of the data, when its parameter `kReopt` is nonzero (the default).
+`MCFLemonSolverCostScaling` and `MCFLemonSolverCapacityScaling`. Each of
+them is registered in the factory under names that also give the graph and
+the numeric types (e.g.,
+`"MCFLemonSolverNetworkSimplex<SmartDigraph,double,double>"`), and can
+usually restart from the state of its previous run after a change of the
+data, when its parameter `kReopt` is nonzero (the default).
 
-*The `Solver` from a configuration file.* Rather than hard-coding the choice
-of solver in the program, the idiomatic SMS++ way is to read a
+*The `Solver` from a configuration file.* The idiomatic SMS++ way, rather
+than hard-coding the choice of solver in the program, is to read a
 `BlockSolverConfig` from a text file ([Chapter 11](11-configuration.md#ch-11))
-and `apply()` it to the `MCFBlock`. The same executable then solves with
+and `apply()` it to the `MCFBlock`, so that the same executable solves with
 `MCFSolver`, `CPXMILPSolver`, or any other registered `:Solver` purely by
 editing the configuration file, with no recompilation. The installed tool
 `smspp_mcfblock_solver` (`tools/mcfblock_solver/`) is such an executable: it

@@ -140,10 +140,10 @@ has room (opening a new bin when none does), and deposits the resulting
 assignment into the `Block` when `get_var_solution()` is called. It also
 computes a cheap *lower* bound, $\lceil (\sum_i s_i) / C \rceil$ bins,
 alongside the *upper* bound given by the feasible solution it has built (the
-number of bins it used). It reports these separately through `get_lb()` /
-`get_ub()`, and returns `kOK` when they happen to coincide (the greedy
-solution is then provably optimal) or `kLowPrecision` otherwise (feasible, but
-optimality not proven):
+number of bins it used). The two bounds are reported separately through
+`get_lb()` / `get_ub()`, and their comparison gives the return value, `kOK`
+when they happen to coincide (the greedy solution is then provably optimal)
+or `kLowPrecision` otherwise (feasible, but optimality not proven):
 
 ```cpp
 // FirstFitBPSolver.h
@@ -322,12 +322,12 @@ We remark that:
   then optimal, and `kLowPrecision` when it does not, signaling a
   feasible solution not proven optimal
   ([§6.3](06-solver.md#sec-6-3)). The bound is computed in floating
-  point. Without the tolerance, a ratio $\sum_i s_i / C$ that is an
-  integer, but is computed slightly above it, would be rounded up to a
-  bound larger than the true one, which is invalid and could give a
-  wrong `kOK`. With the tolerance the computed bound is at most the
-  true one whenever the rounding error of the ratio is below
-  $10^{-9}$. The two bounds are exposed separately through the
+  point, and hence needs the tolerance: without it, a ratio
+  $\sum_i s_i / C$ that is an integer, but is computed slightly above
+  it, would be rounded up to a bound larger than the true one, which is
+  invalid and could give a wrong `kOK`. With it, the computed bound is
+  at most the true one whenever the rounding error of the ratio is
+  below $10^{-9}$. The two bounds are exposed separately through the
   inherited `get_lb()` / `get_ub()`.
 - The solution is kept in the `:Solver` by `compute()` and written
   *into the `Block`* by `get_var_solution()` through `set_assignment`,
@@ -348,8 +348,8 @@ We remark that:
   program is not linked to it), and `Solver::get_factory_names()` lists
   the `:Solver`s that the factory holds at that moment.
 
-This heuristic is intentionally minimal: no parameters, no dual information,
-no reoptimization, no async state. It is a complete, attachable `:Solver`
-nonetheless, enough to make a `BinPackingBlock` solvable, which (as [Chapter
-2](02-installation.md#ch-2), [§2.4](02-installation.md#sec-2-4) noted) is the
-precondition for testing the `:Block` at all.
+Although this heuristic is intentionally minimal (no parameters, no dual
+information, no reoptimization, no async state), it is a complete,
+attachable `:Solver`, enough to make a `BinPackingBlock` solvable, which (as
+[Chapter 2](02-installation.md#ch-2), [§2.4](02-installation.md#sec-2-4)
+noted) is the precondition for testing the `:Block` at all.

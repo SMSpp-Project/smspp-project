@@ -61,16 +61,16 @@ whose `Configuration *` selects a *part* of the solution (only the
 primal values, only the duals, only some groups of `Variable`s). With
 `solc == nullptr` the corresponding `Configuration` of the
 `BlockConfig` is used, and if there is none the complete solution is
-stored, primal and dual. This choice is permanent: the `Solution` will
-only ever store that part. With `emptys == true` (the default) the
+stored, primal and dual; this choice is permanent, i.e., the `Solution`
+will only ever store that part. With `emptys == true` (the default) the
 `Solution` is returned empty, to be filled by a later `read()`, while
 with `emptys == false` it already holds the current solution. The base
 `Block::get_Solution()` returns `nullptr`, i.e., a `:Block` that does
-not override it has no `Solution`. By the contract of `read()` and
-`write()` in [`Solution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h), it is an error to read or write a part that
-the `Block` does not have (say, dual values when the `Constraint`s
-have not been generated). Concrete `:Solution`s throw in this case,
-with the exception noted in [§9.4](09-solution.md#sec-9-4).
+not override it has no `Solution`. Reading or writing a part that the
+`Block` does not have (say, dual values when the `Constraint`s have not
+been generated) is an error by the contract of `read()` and `write()` in
+[`Solution.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h), and concrete `:Solution`s throw in this case, with
+the exception noted in [§9.4](09-solution.md#sec-9-4).
 
 ## 9.2 The Block of a Solution {#sec-9-2}
 
@@ -134,10 +134,10 @@ Serialization to netCDF: `serialize( netCDF::NcGroup & )`,
 `serialize( const std::string & filename , bool replace = true )` (which
 writes the `Solution` as the group `Solution_<k>` of the file, replacing the
 file or adding to it), and the corresponding
-`deserialize( const netCDF::NcGroup & )`. A `Solution` can thus be written to
-disk and read back independently of its `Block`. Also, the static methods
+`deserialize( const netCDF::NcGroup & )`, by which a `Solution` can be written
+to disk and read back independently of its `Block`. The static methods
 `Solution::deserialize( const std::string & filename )` and
-`Solution::new_Solution( const netCDF::NcGroup & )` construct the right
+`Solution::new_Solution( const netCDF::NcGroup & )` also construct the right
 `:Solution` out of the name of the class stored in the group, through the
 factory of `Solution`s, as the factories of `Block`s and `Solver`s do for
 their hierarchies (cf. [Chapter 18](18-factories-netcdf.md#ch-18)).
@@ -180,13 +180,13 @@ $\square$
 
 Without convexity the combination may well be infeasible (two distinct
 binary solutions combined with $\alpha = 1/2$ have fractional
-components), and a "rounding" heuristic then has to repair it. Also,
-some `Solution`s cannot be meaningfully scaled or summed. A `Solution`
-whose values are combinatorial by nature (say, a path stored as a
-predecessor function) cannot represent a scaled path; `scale()` may
+components), and a "rounding" heuristic then has to repair it. Some
+`Solution`s, furthermore, cannot be meaningfully scaled or summed:
+a `Solution` whose values are combinatorial by nature (say, a path stored
+as a predecessor function) cannot represent a scaled path. Its `scale()` may
 then return a `Solution` of a *different*, "more general" type (say, a
-flow on each arc), which one can scale and sum with others. For the
-contract, see the comments of `scale()` and `sum()`
+flow on each arc), which one can scale and sum with others. The contract
+is in the comments of `scale()` and `sum()`
 ([`Solution.h:540-626`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solution.h#L540-626)).
 
 Two further parts of the base interface concern a `Solution` that is kept
@@ -292,33 +292,33 @@ of the upper side $u$ is the positive one, $d < 0$ that it is that of the
 lower side $l$. An equality ($l = u$) has a single multiplier, given by the
 same formula. For a maximization problem the Lagrangian function is $\max \{\,
 f(x) + w (g(x) - l) + z (u - g(x)) : x \in X \,\}$, in which the coefficient
-of $g(x)$ is $w - z$. The stored value is then $d = w - z$, and $d > 0$ means
-that the lower side is the active one. When $l > u$ the problem is empty and
-$(D)$ is unbounded along the direction that increases both multipliers, which
-is represented, for both the minimization and the maximization, by $d = -1$.
+of $g(x)$ is $w - z$; hence, the stored value is $d = w - z$, and $d > 0$
+means that the lower side is the active one. When $l > u$ the problem is
+empty and $(D)$ is unbounded along the direction that increases both
+multipliers, which is represented, for both the minimization and the
+maximization, by $d = -1$.
 
 The convention belongs to the `RowConstraint`, and every `Solver` that writes
 the dual values in it is required to follow it, whatever the sign of the
 multipliers that its algorithm produces. A `:MILPSolver`, for instance,
 obtains from its back-end one multiplier $\pi_i$ per row with the sign of
 the LP solvers, i.e., for a minimization problem, the coefficient of
-$- g_i(x)$ in the Lagrangian. It writes $- \pi_i$ in the row
-([`MILPSolver.cpp:5166-5168`](https://gitlab.com/smspp/milpsolver/-/blob/develop/src/MILPSolver.cpp#L5166-5168)), and in the same way the
-opposite of the reduced cost of a column as the dual value of the bound
-constraint of its `ColVariable`. Instead, for a dual direction (a
-certificate of infeasibility) the values it writes for the columns are
-those of the ray of the homogeneous system, in which the `Objective` has no
-part.
+$- g_i(x)$ in the Lagrangian, and therefore it writes $- \pi_i$ in the row
+([`MILPSolver.cpp:5166-5168`](https://gitlab.com/smspp/milpsolver/-/blob/develop/src/MILPSolver.cpp#L5166-5168)). In the same way, it writes
+the opposite of the reduced cost of a column as the dual value of the bound
+constraint of its `ColVariable`. For a dual direction (a certificate of
+infeasibility), however, the values it writes for the columns are those of
+the ray of the homogeneous system, in which the `Objective` has no part.
 
 A `:Block` may expose its dual values with the signs natural to its problem,
 and then it changes the sign on the way. The flow conservation
 constraint of node $i$ of an `MCFBlock` is the equation
 $\sum_{a : EN_a = i} x_a - \sum_{a : SN_a = i} x_a = b_i$ of
-[§7.1](07-physical-abstract.md#sec-7-1), and its potentials $\pi_i$ and
+[§7.1](07-physical-abstract.md#sec-7-1). Its potentials $\pi_i$ and
 reduced costs $RC_a = C_a + \pi_{SN_a} - \pi_{EN_a}$ have the signs of the
-network flow literature: with them, an optimal flow has $x_a = 0$ where
-$RC_a > 0$ and $x_a = u_a$ where $RC_a < 0$. These are the opposite of the
-dual values of the corresponding `Constraint`s. Hence `get_pi()` returns
+network flow literature (with them, an optimal flow has $x_a = 0$ where
+$RC_a > 0$ and $x_a = u_a$ where $RC_a < 0$), and they are the opposite of
+the dual values of the corresponding `Constraint`s. Hence `get_pi()` returns
 minus the dual value of the flow conservation constraint of the node, and
 `get_rc()` minus that of the bound constraint of the arc (or $RC_a$ computed
 out of the potentials, if the bound constraints have not been generated),
@@ -345,7 +345,7 @@ stores the values of the items (as `double`s, which can be scaled and
 summed), and
 [`CapacitatedFacilityLocationSolution`](https://smspp.gitlab.io/smspp-project/db/d25/class_s_m_spp__di__unipi__it_1_1_capacitated_facility_location_solution.html)
 stores the values of the design ($y$) and transportation ($x$)
-variables, the part to keep being chosen by a `Configuration`. Such a
+variables, with the part to keep chosen by a `Configuration`. Such a
 `Solution` reads and writes the physical data of the `Block` directly,
 without needing the abstract representation; this makes it the vehicle
 of the change of interface discussed in
@@ -381,8 +381,8 @@ Here `get_Solution()` returns a `Solution *` that is in fact a
 `CapacitatedFacilityLocationSolution` (the return type is the base
 one, since `Block` cannot know the classes derived from `Solution`).
 The `Solution` makes the round trip through netCDF without any
-reference to the `Block`, and `scale()` and `sum()` combine solutions
-of the *same* `Block`, never of different ones.
+reference to the `Block`, while `scale()` and `sum()` combine solutions
+of the *same* `Block` only.
 
 ## 9.7 Closing the half-baked Solution {#sec-9-7}
 
@@ -450,9 +450,9 @@ copy
 ([`Solver.h:1925-1944`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h#L1925-1944)).
 
 Until that step is taken, code that uses SMS++ should follow the
-convention of [§7.7](07-physical-abstract.md#sec-7-7). The abstract
-`Variable`s are the present channel of the solution, but the solution
-is best read through the methods of the `Block` or through a
+convention of [§7.7](07-physical-abstract.md#sec-7-7): although the
+abstract `Variable`s are the present channel of the solution, the
+solution is best read through the methods of the `Block` or through a
 `Solution` obtained by `get_Solution()` (of the `Block` or of the
 `:Solver`), without assuming that the `Variable`s will remain the
 channel.

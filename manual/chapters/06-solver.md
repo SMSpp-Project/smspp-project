@@ -69,12 +69,12 @@ depends may have changed since the previous call. These are the `Variable`s of
 the abstract representation of the target and of its sub-`Block`s, plus those
 of the ancestors that appear in a `Constraint` of the target, which the target
 treats as constants whose current value matters. With `changedvars == true`
-(the default) the `Solver` has to assume that these values may have changed
-and read them again. With `changedvars == false` the caller *guarantees* that
-they have not changed since the last call, and the `Solver` can resume the
-previous computation from where it stopped, if it has kept the state of its
-search. This guarantee is the responsibility of the caller, which the `Solver`
-is not required to check.
+(the default) the `Solver` has to assume that these values may have changed,
+and therefore read them again; with `changedvars == false` the caller
+*guarantees* that they have not changed since the last call, and the `Solver`
+can resume the previous computation from where it stopped, if it has kept the
+state of its search. This guarantee is the responsibility of the caller, and
+the `Solver` is not required to check it.
 
 Retrieval of the solutions. After `compute()` returns, the user calls
 `new_var_solution()` and `get_var_solution()` to go through the primal
@@ -351,10 +351,10 @@ However, `MILPSolver` *needs* the abstract representation, which it generates
 `generate_objective()`) when it is registered, and its `get_Solution()` goes
 through the `ColVariable`s of the `Block` (it calls `get_var_solution()` and
 then `MCFBlock::get_Solution()`); this is the trade-off that
-[Chapter 7](07-physical-abstract.md#ch-7) makes precise. Also, the potentials
-that `get_pi()` of the `MCFBlock` gives after `get_dual_solution()` are the
-same whichever of the two `:Solver`s wrote them, according to the conventions
-on the signs of the dual values of
+[Chapter 7](07-physical-abstract.md#ch-7) makes precise. The potentials that
+`get_pi()` of the `MCFBlock` gives after `get_dual_solution()`, instead, are
+the same whichever of the two `:Solver`s wrote them, according to the
+conventions on the signs of the dual values of
 [Chapter 9](09-solution.md#ch-9).
 
 ## 6.8 Outline of the interface {#sec-6-8}
@@ -469,7 +469,7 @@ class can give, respectively, a direction of unboundedness of the primal
 (`get_dual_direction()`).
 
 | Class | Engine (minimum version) | Problem class | Integers | Rays | Farkas |
-|---|---|---|---|---|---|
+|----------------|--------------------|----------------------------|------------|------------|------------|
 | `CPXMILPSolver` | CPLEX (12.8) | MI-QCQP, within the convexity requirements of CPLEX | yes | yes | yes |
 | `GRBMILPSolver` | Gurobi (10.0) | MI-QCQP | yes | yes | yes |
 | `SCIPMILPSolver` | SCIP (7.0) | MI-QCQP, also with non-convex quadratic rows | yes | yes | yes |
@@ -492,18 +492,17 @@ QP" includes the Linear Programs, since the Hessian is only required to be
 positive semidefinite, save for three classes: `QPMADMILPSolver` and
 `QuadProgMILPSolver` need it positive definite, and on a Linear Program they
 end with `kError` unless it is regularized, while the methods of
-`PERMONMILPSolver` may not converge on it. Furthermore,
-`PIPSMILPSolver` needs a `Block` with at least one sub-`Block`; hence, not
-every `:MILPSolver` solves an arbitrary Linear Program. Each header lists the
-other limitations of its engine (e.g., whether it has a time limit, a warm
-start, a detection of infeasibility) and its specific parameters, while
-`CPXMILPSolver`, `GRBMILPSolver`, `SCIPMILPSolver`, `HiGHSMILPSolver`,
-`MOSEKMILPSolver` and `PIPSMILPSolver` also accept in the `ComputeConfig`
-the parameters of their engine, under the names that the engine gives them.
-Also, a continuous QP that the active-set method of HiGHS fails to solve is
-solved again from scratch, then with larger regularizations of the Hessian,
-and `HiGHSMILPSolver` throws `std::runtime_error` if none of these attempts
-solves it.
+`PERMONMILPSolver` may not converge on it. Furthermore, `PIPSMILPSolver` needs
+a `Block` with at least one sub-`Block`; hence, not every `:MILPSolver` solves
+an arbitrary Linear Program. Each header lists the other limitations of its
+engine (e.g., whether it has a time limit, a warm start, a detection of
+infeasibility) and its specific parameters, while `CPXMILPSolver`,
+`GRBMILPSolver`, `SCIPMILPSolver`, `HiGHSMILPSolver`, `MOSEKMILPSolver` and
+`PIPSMILPSolver` also accept in the `ComputeConfig` the parameters of their
+engine, under the names that the engine gives them. On a continuous QP that
+the active-set method of HiGHS fails to solve, `HiGHSMILPSolver` tries again
+from scratch, then with larger regularizations of the Hessian, and throws
+`std::runtime_error` if none of these attempts solves it.
 
 The main parameters that `MILPSolver` adds to those of
 [§6.4](06-solver.md#sec-6-4) decide how the integrality and the dynamic

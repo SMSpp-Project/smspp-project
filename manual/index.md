@@ -23,7 +23,7 @@ subproblem (its problem data, in natural form) and, on demand, an
 *abstract representation* of that subproblem (its `Variable`s,
 `Constraint`s, `Objective`) suitable for general-purpose solvers. A
 `Block` can have any number of sub-`Block`s, recursively, and any
-number of attached `Solver`s. Specialized `Solver`s exploit the
+number of attached `Solver`s: specialized `Solver`s exploit the
 structure of a specific `:Block`, while general-purpose ones operate on
 the abstract representation. The framework handles the lazy propagation
 of changes through the `Modification` mechanism (and the newer `Change`

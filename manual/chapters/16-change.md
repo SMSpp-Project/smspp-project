@@ -51,12 +51,12 @@ change that has already occurred in a `Block`, so that the listening
 `:Solver`s can react, while a `Change` *represents* a change that may be
 applied later, carrying all the data needed to perform it.
 
-This difference in orientation has a concrete consequence. A `Change` must
-contain *all the new data* of the change, because it has to be able to *enact*
-the change, not merely describe one that some other code already made. A
-`Modification` can be a thin notification ("cost of arc 3 changed"); a
-`Change` must be a self-contained instruction ("set the cost of arc 3 to
-7.0").
+This difference in orientation has a concrete consequence: since a `Change`
+has to be able to *enact* the change, and not merely describe one that some
+other code already made, it must contain *all the new data* of the change.
+A `Modification` can be a thin notification ("cost of arc 3 changed"),
+while a `Change` must be a self-contained instruction ("set the cost of arc 3
+to 7.0").
 
 The single defining operation is
 
@@ -145,7 +145,6 @@ original one.
 ## 16.2 Abstract and specific `Change`s {#sec-16-2}
 
 Like `Modification`s and `Block`s, `Change`s come in two flavors. An
-
 *abstract* `:Change` operates on the abstract representation and therefore
 applies to any `Block`; a *specific* `:Change` is written for a particular
 `:Block` and uses its specialized interface to change its physical
@@ -159,11 +158,11 @@ whose types are `eChgObj`, `eChgSense`, `eChgIntegrality`, `eFixX`, `eUnfixX`,
 It identifies the `ColVariable` and the `Objective` it acts upon by their
 `AbstractPath` relative to the `Block` it is applied to, and hence the same
 object applies to any identical copy of that `Block`. Some types have
-conditions, which we now list. First, `eChgObj` needs an `FRealObjective`
-whose `Function` is a `LinearFunction` or a `DQuadFunction` (in which case the
-new quadratic coefficient is given as well), and a variable not yet in the
-`Function` is added to it. Also, `eChgLB` and `eChgUB` write the new bound in
-the left- or right-hand side of the first `BoxConstraint`, `LBConstraint` or
+conditions: `eChgObj` needs an `FRealObjective` whose `Function` is a
+`LinearFunction` or a `DQuadFunction` (in which case the new quadratic
+coefficient is given as well), and a variable not yet in the `Function` is
+added to it. Also, `eChgLB` and `eChgUB` write the new bound in the left- or
+right-hand side of the first `BoxConstraint`, `LBConstraint` or
 `UBConstraint` active on the variable, and throw if there is none. Finally,
 `eFixX` on a variable fixed at another value unfixes it first, and whoever
 reads the fixings receives both steps. Only `issueAMod` is used, since the
@@ -194,11 +193,12 @@ methods
 `Change::new_Change( name )`, which constructs an empty `:Change` of the given
 class, and `Change::new_Change( group )`, which constructs the right concrete
 type out of the `"type"` attribute of a netCDF group and fills it by its
-`deserialize( group )`. Also, `serialize_f( file )` appends the `Change` to an
-open file as the group `Change_<n>`, where $n$ is the number of groups that
-the file already has, and the static `Change::deserialize( file , n )` reads
-back the $n$-th `Change` of a file; `serialize( filename )` writes the
-`Change` as the only one of a new file, and `Change::deserialize(
+`deserialize( group )`. As for files, `serialize_f( file )` appends the
+`Change` to an open file as the group `Change_<n>`, where $n$ is the number of
+groups that the file already has, and the static
+`Change::deserialize( file , n )` reads back the $n$-th `Change` of a file.
+Similarly, `serialize( filename )` writes the `Change` as the only one of a
+new file, and `Change::deserialize(
 "filename[n]" )` reads the $n$-th one of the named file. Each leaf `:Change`
 of the catalog ([§16.4](16-change.md#sec-16-4)) but
 `BinaryKnapsackBlockSbstChange` can be serialized and read back. Two further
@@ -213,7 +213,7 @@ Unlike a `Modification`, a `Change` can therefore be stored and transmitted.
 One intended use is message-passing distributed computation, in which a
 process computes a `Change`, serializes it and ships it to another process
 holding a copy of the `Block`, which deserializes and `apply()`s it.
-`:Solver`s distributed in this sense are not part of SMS++ at present. Within
+`:Solver`s distributed in this sense are not part of SMS++ at present; within
 one process, however, the parallel exploration of `BranchAndXSolver` already
 uses `Change`s as plain data, since its workers apply the `Change`s found
 along the path to a node to their copies of the `Block`
@@ -229,21 +229,21 @@ metaheuristic are all, at heart, "apply a move, explore, then undo or commit".
 If the move is a `Change`, the *search driver* need know nothing about the
 concrete `:Block`: it applies `Change`s and rolls them back, and the same
 driver works for any problem class that supplies the appropriate `:Change`s.
-Furthermore, the undo facility of [§16.1](16-change.md#sec-16-1) makes the
-roll-back rather cheap, since by [Lemma 16.1](16-change.md#lem-16-1) the
+The undo facility of [§16.1](16-change.md#sec-16-1) makes this roll-back
+rather cheap, since by [Lemma 16.1](16-change.md#lem-16-1) the
 UndoChanges applied in reverse order restore any previous state of the path,
 wherever the `:Change`s support the undo.
 
-The B&X case shows why the abstraction is needed. The idea is that the
-`Change`s encode the *branching rule*, and that they are produced by the
-`:Solver` that solves the relaxation. Because that `:Solver` may be a
-*specialized* one, it can construct branching `Change`s tailored to the
-structure of the problem and also to its ability to reoptimize after the
-branch, choosing moves that its warm-start machinery (cf. the reoptimization
-vocabulary of [Chapter 13](13-function-family.md#ch-13)) can usually absorb
-cheaply. Meanwhile, the search driver stays generic. It receives `Change`s
-from the relaxation `:Solver`, applies them to descend the tree, and uses the
-UndoChanges to backtrack, with no code specific to the problem. This
+The B&X case shows why the abstraction is needed: the `Change`s encode the
+*branching rule*, and they are produced by the `:Solver` that solves the
+relaxation. Because that `:Solver` may be a *specialized* one, it can
+construct branching `Change`s tailored to the structure of the problem and
+also to its ability to reoptimize after the branch, choosing moves that its
+warm-start machinery (cf. the reoptimization vocabulary of [Chapter
+13](13-function-family.md#ch-13)) can usually absorb cheaply. The search
+driver, instead, stays generic: it receives `Change`s from the relaxation
+`:Solver`, applies them to descend the tree, and uses the UndoChanges to
+backtrack, with no code specific to the problem. This
 decoupling of a generic B&X driver from a source of branching `Change`s
 specific to the problem and to the `Solver` is the main use of the `Change`
 concept in SMS++, and it is described from [§16.5](16-change.md#sec-16-5) on.
@@ -362,7 +362,7 @@ its types.
 
 ## 16.7 The traits `ChangeSolver` and `RelaxationSolver` {#sec-16-7}
 
-Neither trait derives from `Solver`. A concrete class derives from one of them
+Neither trait derives from `Solver`: a concrete class derives from one of them
 *alongside* its problem-specific `:Solver` base, plainly on both sides (the
 trait `RelaxationSolver` inherits `ChangeSolver` virtually, so that a class
 reaching it along several paths has a single `ChangeSolver` sub-object). One
@@ -396,12 +396,12 @@ just forwards to `Change::apply()` on the `Block`. Yet, a `:Solver` can rather
 intercept the `Change`s it understands and apply them to its internal state
 without touching the `Block`, as `GreedyRelaxationBinaryKnapsackSolver` does
 (and `LagrangianDualRelaxationSolver` with `intApplyStrategy` `eMaster`),
-which makes moving along a sequence of related problems "cheap". Note that the
+which makes moving along a sequence of related problems "cheap". The
 `GlobalInformation` given by `set_global_information()` is lent, not owned,
 and `nullptr` means that the `:Solver` must work as if the information did not
-exist. Also, the tightenings that a `:Solver` makes at its discretion are
-folded into its branching `Change`s when they are local to a node, and go into
-the `GlobalInformation` when they are global
+exist. The tightenings that a `:Solver` makes at its discretion are folded
+into its branching `Change`s when they are local to a node, and go into the
+`GlobalInformation` when they are global
 ([`ChangeSolver.h:159-175`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ChangeSolver.h#L159-175)).
 
 A `RelaxationSolver` gives the value of the relaxation, a valid bound on the
@@ -424,7 +424,7 @@ relaxation the most); the order matters, since the caller may explore the
 children in that order. These `Change`s must be such that the children cover
 the part of the node that may contain solutions better than the incumbent (cf.
 [§16.8](16-change.md#sec-16-8)). As a rule, the vector is not supposed to be
-empty, with one exception that the catalog uses. A `RelaxationSolver` whose
+empty, with one exception that the catalog uses: a `RelaxationSolver` whose
 `compute()` has *solved* the node, i.e., has found there a solution of the
 original problem within its tolerance of the bound, may return no `Change`,
 and `BranchAndXSolver` then takes the node as a leaf.
@@ -441,8 +441,8 @@ what `BranchAndXSolver` may do with the node, as we summarize in [Table
 result and for the treatment of `kCutOff`, which in 0.8.0 fenced the node in
 any case). Before the evaluation of a node each relaxation is given the
 incumbent as its cutoff (`dblLwCutOff` for a maximization, `dblUpCutOff` for a
-minimization). A relaxation that proves that the node cannot improve on the
-incumbent may then stop there, returning `kCutOff`.
+minimization), so that one that proves that the node cannot improve on the
+incumbent may stop there, returning `kCutOff`.
 
 <span id="tab-16-2"></span>**Table 16.2.** The effect of the status of a
 `:RelaxationSolver` on the evaluation of a node; $D(\nu)$ is the bound of the
@@ -460,11 +460,11 @@ A partial result does not stop the solve. Indeed, the node is fenced if its
 bound allows it; otherwise, if no relaxation of the node can branch it, the
 node is *set aside* with its bound, which enters the bound of the solve as
 that of an open node, and an unresolved `kCutOff` is recorded as
-`kLowPrecision`. Also, the evaluation checks the certificates: a bound that is
-NaN, a true solution whose value is not finite, a bound that the value of the
-true solution exceeds (for a maximization) by more than the tolerance, and an
-improving true solution that `get_true_solution()` does not give end the solve
-with `kError`.
+`kLowPrecision`. A failed certificate, instead, ends the solve with `kError`:
+this is the case of a bound that is NaN, of a true solution whose value is not
+finite, of a bound that the value of the true solution exceeds (for a
+maximization) by more than the tolerance, and of an improving true solution
+that `get_true_solution()` does not give.
 
 ### GlobalInformation
 
@@ -508,10 +508,10 @@ it whenever this improves, and lends it to each `:RelaxationSolver` it
 creates. It also fixes the name `GlobalCuts` and the key `Cuts` of a pool of
 globally valid cuts (a
 `Collection< std::vector< std::shared_ptr< Change > > >`), which it neither
-creates nor reads, as a channel between relaxations; no `:RelaxationSolver` of
-the catalog uses it at present. Furthermore,
-`LagrangianDualRelaxationSolver` adds a `Collection` for the columns that its
-fixings purge ([§16.12](16-change.md#sec-16-12)).
+creates nor reads, as a channel between relaxations. No `:RelaxationSolver` of
+the catalog uses it at present, while
+`LagrangianDualRelaxationSolver` adds a `Collection` of its own for the
+columns that its fixings purge ([§16.12](16-change.md#sec-16-12)).
 
 ## 16.8 Branch-and-X: formulation and correctness {#sec-16-8}
 
@@ -576,9 +576,9 @@ the node one takes the tightest of those of the relaxations,
 $$
 D(\nu) = \min \{ D(p(\nu)) , \min \{ D_R(\nu) : R \in \mathcal{R} \} \} ,
 $$
-since the bound of the father is valid for the child as well. Also, the
-incumbent is updated with the best solution found by any `:Solver` of the
-node,
+since the bound of the father is valid for the child as well. The
+incumbent, in turn, is updated with the best solution found by any `:Solver`
+of the node,
 $$
 \bar{z} \leftarrow \max \{ \bar{z} \,,\,
                      \max \{ \underline{z}_R : R \in \mathcal{R} \} \,,\,
@@ -680,13 +680,13 @@ this reason `BranchAndXSolver` clears the flag `LocalFixingAllowed`
 ([§16.10](16-change.md#sec-16-10)).
 
 We now turn to the bounds that `BranchAndXSolver` reports, which follow the
-same lines. For a maximization, `get_lb()` is the incumbent. Instead,
+same lines. For a maximization, `get_lb()` is the incumbent, while
 `get_ub()` is the largest among the incumbent and the bounds of the nodes left
 open, set aside or fenced (the leaves with an empty branching excluded, whose
 bound is within $\varepsilon_R$ of the incumbent by (iv)), which reduces to
-the incumbent after a proof of infeasibility. Also, `get_var_solution()`
-writes the best solution in the `Block`, and `has_var_solution()` states
-whether the last `compute()` has found one. A `compute()` with no change since
+the incumbent after a proof of infeasibility. The best solution is written in
+the `Block` by `get_var_solution()`, and `has_var_solution()` states whether
+the last `compute()` has found one. A `compute()` with no change since
 a previous one that ended with `kOK`, `kInfeasible` or `kUnbounded` returns
 that result again, without exploring.
 
@@ -800,13 +800,13 @@ node is evaluated is decided by the *bounding protocol*
 as soon as it is created, inside the branching of its father (lines 20-23). It
 then enters $\mathcal{O}$ only if its bound can improve on the incumbent, and
 the open set holds the true bound of each node, by which a best-first
-discipline orders them. Also, the `Change`s of a kept child are obtained from
-its brancher at once, while the `:Solver`s are still at the child whose
+discipline orders them. The `Change`s of a kept child are obtained from its
+brancher at once, while the `:Solver`s are still at the child whose
 relaxation they come from. With the lazy protocol a node enters $\mathcal{O}$
 unevaluated, carrying the bound of its father (line 19), and it is evaluated
 when it is extracted (line 12). However, the incumbent found in the meantime
 may fence it without any evaluation (line 11), which may save the evaluation
-of quite a few nodes; the root is extracted and evaluated as any other node.
+of quite a few nodes. The root is extracted and evaluated as any other node.
 Either way a node is evaluated at most once, and the protocol changes when the
 inner `:Solver`s are run, not what is explored.
 
@@ -950,10 +950,10 @@ holds for a branching that partitions the integer values of the variables it
 acts upon, as $x \leq \lfloor v \rfloor$ and $x \geq \lceil v \rceil$ for an
 integer variable, or the fixings of a binary variable at 0 and at 1; the tests
 of `keeps_tree()` are meant to ensure (a). Since the incumbent of the previous
-solve cannot be relied upon, each `compute()` starts with no incumbent. Also,
-while the tree is retained `BranchAndXSolver` clears `LocalFixingAllowed`, and
-therefore the relaxations do not fold into their branchings the fixings that
-depend on the incumbent.
+solve cannot be relied upon, each `compute()` starts with no incumbent.
+While the tree is retained `BranchAndXSolver` also clears
+`LocalFixingAllowed`, and therefore the relaxations do not fold into their
+branchings the fixings that depend on the incumbent.
 
 <span id="alg-16-4"></span>**Algorithm 16.4** (REOPTIMIZE, the re-evaluation
 of the frontier of a retained tree).
@@ -986,9 +986,9 @@ optimum most likely lies come first; hence, the incumbent (hopefully) improves
 early and the rest of the frontier is often fenced again. A leaf reopened
 keeps the branching `Change`s of the previous solve, if it had any (line 11).
 Of course, in a binary enumeration the frontier is about as large as the
-interior. Retaining the tree therefore usually pays off when the evaluation of
-a node is "expensive", or when few nodes reopen, and it may use a lot of
-memory.
+interior, and therefore retaining the tree usually pays off when the
+evaluation of a node is "expensive", or when few nodes reopen, and it may use
+a lot of memory.
 
 *Parallelism across the `:Solver`s of a node.* With
 `intThreadForDifferentSolvers` > 1, the `compute()` of the several relaxations
@@ -1007,10 +1007,10 @@ Worker 1 uses the inner `:Solver`s of `BranchAndXSolver`, and each other
 worker a set created out of the same `BlockSolverConfig` and registered to an
 identical copy of the `Block`, obtained by `get_R3_Block( nullptr )`
 ([§10.4](10-r3block.md#sec-10-4)), and therefore applying the `Change`s needs
-no synchronization. A `Block` that gives no copy cannot be explored in
-parallel, and `compute()` throws. Indeed, the `Change`s identify what they
-change by indices or by `AbstractPath`s relative to the `Block`, and therefore
-they apply to any of the copies.
+no synchronization. The `Change`s apply to any of the copies, since they
+identify what they change by indices or by `AbstractPath`s relative to the
+`Block`; a `Block` that gives no copy, instead, cannot be explored in
+parallel, and `compute()` throws.
 
 <span id="alg-16-5"></span>**Algorithm 16.5** (PARALLEL-DFS, the parallel
 depth-first exploration with $K$ workers).
@@ -1064,7 +1064,7 @@ tree (`intReoptimize` is ignored) and writes no CSV line per node; when
 stopped by a budget, it claims as bound of the solve only that of the root,
 which may be rather weak. Of course, it is subject to the usual anomalies of a
 parallel branch-and-bound ([Gendron and Crainic
-1994](Z-bibliography.md#ref-gendron1994)). A worker finding a good incumbent
+1994](Z-bibliography.md#ref-gendron1994)): a worker finding a good incumbent
 early may let the others prune subtrees that the sequential search would enter
 (and vice versa), and hence the speedups may be superlinear as well as below
 one.
@@ -1104,7 +1104,7 @@ attaches a single `GreedyRelaxationBinaryKnapsackSolver`.
 [Source: [`SMS++/include/BranchingRule.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BranchingRule.h)]
 
 The components of `BranchingRule.h` help a `:RelaxationSolver` choose the
-variable to branch upon and estimate its children. They know nothing of the
+variable to branch upon and estimate its children, knowing nothing of the
 enumerative `Solver` nor of the relaxation. Each `:RelaxationSolver` describes
 its candidates and decides which component to use (typically, by one of its
 parameters), and it gives strong branching the way to evaluate the children of
@@ -1179,8 +1179,8 @@ fractional fill along the items sorted by nonincreasing efficiency ([Dantzig
 1957](Z-bibliography.md#ref-dantzig1957)). This fill also identifies the
 *critical* item, the one that is fractional, and the greedy solution with the
 critical item rounded away is feasible: it is the true solution of the
-relaxation. Note that the solver applies the fixings to its internal state,
-not to the `Block`, and `branch()` gives two children that fix the critical
+relaxation. The solver applies the fixings to its internal state, not to the
+`Block`, and `branch()` gives two children that fix the critical
 item to 0 and to 1. With `intIncremental` = 0 (the default) each `compute()`
 resumes the greedy fill from the first item, in the efficiency order, that has
 entered or left the relaxation since the last solve, finding the critical item
@@ -1231,10 +1231,10 @@ $\square$
 The pegging depends on the incumbent, and therefore it satisfies the covering
 condition of [§16.8](16-change.md#sec-16-8) only in its weaker form; for this
 reason it is made only while `LocalFixingAllowed` is true. In practice, the
-test is guarded by a tolerance of $10^{-9}$ relative to the incumbent. Also,
-no item is looked at when $U$ exceeds the incumbent by more than the largest
-margin $| p_j - \rho w_j |$ of the items, nor in a block of consecutive items
-whose largest margin is below the excess. With `intIncremental` = 1 there is
+test is guarded by a tolerance of $10^{-9}$ relative to the incumbent.
+Also, no item is looked at when $U$ exceeds the incumbent by more than the
+largest margin $| p_j - \rho w_j |$ of the items, nor in a block of
+consecutive items whose largest margin is below the excess. With `intIncremental` = 1 there is
 no pegging; however, the child that takes the critical item is not produced
 when the item does not fit the capacity left by the fixed items, again only
 while `LocalFixingAllowed` is true.

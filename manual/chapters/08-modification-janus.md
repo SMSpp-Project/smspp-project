@@ -201,7 +201,8 @@ succeeds. A `Solver` registered elsewhere is never visited. $\square$
 Since `register_Solver()` refuses to register a `Solver` twice with the same
 `Block`, and a `Solver` is attached to one `Block` at a time (`set_Block()`),
 "once" is literal. A `Solver` that has called `inhibit_Modification( true )`
-is still handed `mod`, but discards it. A `:Solver` relies on [Lemma
+is still handed `mod`, but discards it. A
+`:Solver` relies on [Lemma
 8.1](08-modification-janus.md#lem-8-1) when it treats its pending list as the
 exact record of the changes of its target that are of concern to it.
 
@@ -276,19 +277,20 @@ first call with key $k$ makes the cast and stores FAIL or $\delta$ (lines
 \delta$ (lines 9-10), i.e., the result of `dynamic_cast`. Since the table
 belongs to the thread, no other thread writes into it in between. $\square$
 
-Both hypotheses are needed. The position of a virtual base inside an object
-of class $C$ depends on the class of the complete object of which the $C$ is
-a part, while during the construction of that object `typeid` gives $C$ in
-both cases. With two subobjects of type `B` (say, $D$ derives from $B_1$ and
-$B_2$, both of which derive non-virtually from `B`), two pointers to objects
-of type $D$ may point to different `B` subobjects, at different distances
-from the result, under the same key. In the hierarchies on which the
-modules of SMS++ use it (those of `Modification`, `Variable`, `Function`,
-`Constraint`, `Objective` and `Block`) no class has a virtual base and, as
-far as their headers show, none derives twice from the same class. The
-virtual bases are in hierarchies of `Solver` (e.g., `BinaryKnapsackSolver`
-derives virtually from `Solver`, and `RelaxationSolver` from
-`ChangeSolver`), on which `memo_cast()` is not used.
+Both hypotheses are needed. Hypothesis (i) is needed because the position of
+a virtual base inside an object of class $C$ depends on the class of the
+complete object of which the $C$ is a part, while during the construction of
+that object `typeid` gives $C$ in both cases. Hypothesis (ii) is needed
+because with two subobjects of type `B` (say, $D$ derives from $B_1$ and
+$B_2$, both of which derive non-virtually from `B`) two pointers to objects of
+type $D$ may point to different `B` subobjects, at different distances from
+the result, under the same key. In the hierarchies on which the modules of
+SMS++ use it (those of `Modification`, `Variable`, `Function`, `Constraint`,
+`Objective` and `Block`) no class has a virtual base and, as far as their
+headers show, none derives twice from the same class. The virtual bases are in
+hierarchies of `Solver` (e.g., `BinaryKnapsackSolver` derives virtually from
+`Solver`, and `RelaxationSolver` from `ChangeSolver`), on which `memo_cast()`
+is not used.
 
 The core uses it almost everywhere it recognizes a type in this way, starting
 from `Solver::add_Modification()`, which tests for an `NBModification` by
@@ -407,12 +409,11 @@ If, furthermore, the abstract change is made by a thread that holds
 the lock of $B$, as [Chapter 17](17-parallel.md#ch-17) requires of any
 change of a `Block`, no other thread can change $B$ between the change
 and the run of the override. The override therefore finds the data
-structures of $B$ in the state in which `mod` was issued, which
-simplifies the overrides. A leaf `:Block` never has to
-handle a `GroupModification` issued in it, nor to reason about what
-else may have changed in the meantime, since it reacts to one atomic
-abstract `Modification` at a time; a non-leaf `:Block` has to handle
-`GroupModification`s only as far as they refer to changes inside its
+structures of $B$ in the state in which `mod` was issued, which simplifies the
+overrides. A leaf `:Block` never has to handle a `GroupModification` issued in
+it, nor to reason about what else may have changed in the meantime, since it
+reacts to one atomic abstract `Modification` at a time; a non-leaf `:Block` has
+to handle `GroupModification`s only as far as they refer to changes inside its
 sub-`Block`s. (The override of `add_Modification()` of `MCFBlock` handles
 no `GroupModification`; `MCFBlock::map_forward_Modification()` of [Chapter
 10](10-r3block.md#ch-10) unpacks those it is given, and replays each
@@ -488,7 +489,7 @@ flow `ColVariable` to be fixed at a value other than 0, or its type to be
 changed. The refusal is explicit: the override throws `std::invalid_argument`
 (or `std::logic_error`, for a change of the type of a flow `ColVariable` or
 the fixing of a deleted arc) with a message that describes what was refused.
-Hence, the convention is to fail loudly, and a `:Block` that wants to support
+The convention is therefore to fail loudly: a `:Block` that wants to support
 a particular abstract change must do so explicitly.
 
 ## 8.5 The four values of `ModParam` {#sec-8-5}
@@ -550,10 +551,10 @@ c )` to the method that issues it, or by setting `c` as the *default channel*
 of the `Block` with `set_default_channel( c )`, after which a plain `eModBlck`
 or `eNoBlck` is routed to `c`. The content of a channel can also be thrown
 away: `close_channel( c , force , true )` deletes what `close_channel( c ,
-force )` would have dispatched, and nobody receives anything. Also,
-`clear_channel( c )` empties the current group of the channel while leaving it
-open, which keeps a long sequence of changes known to have no net effect from
-piling up in it.
+force )` would have dispatched, and nobody receives anything.
+`clear_channel( c )`, instead, empties the current group of the channel and
+leaves it open, which keeps a long sequence of changes known to have no net
+effect from piling up in it.
 
 ### Nesting
 
@@ -786,9 +787,9 @@ method with `issueAMod == eDryRun`, i.e., "make the physical change,
 but not the abstract one again".
 
 When one logical operation produces several `Modification`s, the idiom
-is to group them by a channel, with which a `:Solver` can react to the
-group at once, which is often more efficient than reacting to each in
-turn.
+is to group them by a channel, so that a `:Solver` can react to the
+group at once, which is often more efficient than reacting to each of
+them in turn.
 
 ## 8.10 Forward reference to `Change` {#sec-8-10}
 
@@ -797,12 +798,13 @@ carries enough information to *describe* a change, but not always enough to
 *replay* it on a different `:Block`, and in general it cannot be serialized in
 a form that crosses the boundary of a process. The concept of
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
-(cf. [Chapter 16](16-change.md#ch-16)) addresses this. A `Change` carries the
-data needed to apply the change to any copy of a `:Block`, and it can be
-serialized to netCDF and deserialized as a plain object; where the `:Block`
-supports it, it can also be *undone* through an inverse `Change`, generated
-automatically. It serves two purposes ([§16.3](16-change.md#sec-16-3)):
-generic search schemes, such as the Branch-and-X of `BranchAndXSolver`, and
-(in the future) distributed computation by message passing. The `:Change`
+(cf. [Chapter 16](16-change.md#ch-16)) addresses this limitation: a `Change`
+carries the data needed to apply the change to any copy of a `:Block`, and it
+can be serialized to netCDF and deserialized as a plain object. Where the
+`:Block` supports it, it can also be *undone* through an inverse `Change`,
+generated automatically. It serves two purposes
+([§16.3](16-change.md#sec-16-3)): generic search schemes, such as the
+Branch-and-X of `BranchAndXSolver`, and (in the future) distributed
+computation by message passing. The `:Change`
 classes of the core and of the modules are listed in [Table
 16.1](16-change.md#tab-16-1).

@@ -118,8 +118,8 @@ subgradient methods of
 [Frangioni et al. 2017](Z-bibliography.md#ref-frangioni2017), on the
 same `Block`s that `BundleSolver` reads, with the stepsize and
 deflection rules registered in factories of their own; they are
-developed in [§19.6](19-nondifferentiable.md#sec-19-6). The module has
-no external dependency.
+developed in [§19.6](19-nondifferentiable.md#sec-19-6), and the module
+has no external dependency.
 
 *`FrankWolfeSolver` and `IntegralityBarrierSolver`.* The first minimizes
 a differentiable function of the `Variable`s of the sub-`Block`s, plus
@@ -285,7 +285,7 @@ given at most one of $R$ classes of items and holds items of that class only
 It has one `BinaryKnapsackBlock` per pair of a knapsack $i$ and a class $k$,
 whose capacity is 0 and whose first item is the binary $y_{ik}$, with weight
 $-C_i$ and profit 0; the father holds the assignment rows and the rows $\sum_k
-y_{ik} \le 1$. Neither module has a specialized `:Solver`. A `:MILPSolver`
+y_{ik} \le 1$. Neither module has a specialized `:Solver`: a `:MILPSolver`
 solves the problem out of the abstract representation, while a
 `LagrangianDualSolver` relaxes the rows of the father and leaves independent
 knapsacks to the `:Solver`s of `BinaryKnapsackBlock`. The batteries of both

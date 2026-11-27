@@ -138,8 +138,8 @@ structure of the model (`LagrangianDualSolver` and its derived class
 `:Solver` of one of its reformulations, relaxations or restrictions,
 configured from file only.
 
-This manual describes the framework, and of the catalog it uses three
-`:Block`s throughout as worked examples (`MCFBlock`,
+This manual describes the framework, and it uses three `:Block`s of
+the catalog throughout as worked examples (`MCFBlock`,
 `BinaryKnapsackBlock` and `CapacitatedFacilityLocationBlock`), since
 together they exercise the major concepts of SMS++ while remaining
 small enough to be described in full.
@@ -149,22 +149,22 @@ small enough to be described in full.
 We state a few things that SMS++ is *not*, with which the reader can
 decide quickly whether the framework fits the task at hand.
 
-SMS++ is not an algebraic modeling language. A `:Block` is C++ code,
-written explicitly by its author. The framework does provide some
+SMS++ is not an algebraic modeling language, since a `:Block` is C++
+code, written explicitly by its author. The framework does provide some
 conveniences in the style of a modeling language, the main one being
 the class
 [`AbstractBlock`](https://smspp.gitlab.io/smspp-project/d3/dbd/class_s_m_spp__di__unipi__it_1_1_abstract_block.html),
 which reads `.mps` and `.lp` files and exposes them as a `Block` with
-a single ("syntactic") abstract representation. However, this is a
-convenient entry point rather than the intended use of the framework,
-which is to write once, in C++, a `:Block` that captures the
+a single ("syntactic") abstract representation. This class is,
+however, a convenient entry point rather than the intended use of the
+framework, which is to write once, in C++, a `:Block` that captures the
 *structure* of a class of problems, and then to reuse it across
 applications.
 
-SMS++ is not meant for the casual user. SMS++ is written primarily for
-experts in algorithms, and the audience of an algebraic modeling
-language (practitioners who write a model in the form $\min \{\, c x :
-A x \le b \,\}$ and hand it to a solver) is not its primary audience.
+SMS++ is not meant for the casual user: it is written primarily for
+experts in algorithms. The audience of an algebraic modeling language
+(practitioners who write a model in the form $\min \{\, c x : A x \le
+b \,\}$ and hand it to a solver) is not its primary audience.
 End users may nonetheless profit from the catalog of existing
 `:Block`s and `:Solver`s: one who has to solve a Unit Commitment
 problem can load an instance into a
@@ -174,7 +174,7 @@ in this case, however, the idioms of the framework and the role of the
 configuration are not always intuitive, and we recommend
 reading at least Part I of this manual.
 
-SMS++ does not have a stable interface. Version 0.8.0 is the current
+SMS++ does not have a stable interface: version 0.8.0 is the current
 public release, the framework is under active development, and further
 changes, possibly not backward compatible, are expected. Its concrete
 `:Block`s and `:Solver`s are extensively tested by the test suites of
@@ -227,11 +227,11 @@ The technical prerequisites are a working knowledge of C++20
 (concepts, ranges, smart pointers, lambdas, range-based `for`), some
 familiarity with CMake and, for the development loop, with classical
 Make, and a working C++20 compiler (a recent `gcc`, `clang` or MSVC).
-One also needs at least an operational understanding of the
-optimization paradigms that the `:Block` of interest involves. Recipes
-[R4](R4-cfl-lagrangian.md#rec-R4) and [R5](R5-cfl-benders.md#rec-R5)
-of Part III also assume some familiarity with Lagrangian and Benders
-decomposition.
+Beyond these, one needs at least an operational understanding of the
+optimization paradigms that the `:Block` of interest involves, and
+Recipes [R4](R4-cfl-lagrangian.md#rec-R4) and
+[R5](R5-cfl-benders.md#rec-R5) of Part III assume some familiarity
+with Lagrangian and Benders decomposition.
 
 ## 1.4 How to read this manual {#sec-1-4}
 
@@ -251,13 +251,13 @@ examples. A reader of Part I only should have a coherent picture of
 what SMS++ is, if not yet the means to write code against it.
 
 Part II (Chapters [4](04-block.md#ch-4) to
-[19](19-nondifferentiable.md#ch-19)) is the core of the manual. Each
-chapter introduces one concept, defines it, and locates it in the
-source tree and in the Doxygen reference; it then states (and proves)
-the properties of the mechanism on which a user can rely, and, where
-possible, it illustrates the concept on one of the three running
-examples. Also, the chapters are ordered in such a way that
-each concept is introduced before it is used.
+[19](19-nondifferentiable.md#ch-19)) is the core of the manual, and
+its chapters are ordered in such a way that each concept is introduced
+before it is used. Each chapter introduces one concept, defines it,
+and locates it in the source tree and in the Doxygen reference; it
+then states (and proves) the properties of the mechanism on which a
+user can rely, and, where possible, it illustrates the concept on one
+of the three running examples.
 
 Part III (recipes R1 to R5) collects five complete programs that
 combine the concepts of Part II to solve recognizable tasks. They
@@ -313,7 +313,7 @@ issues of each platform. [Chapter 2](02-installation.md#ch-2) gives an
 overview of the build system, and refers to the Wiki for the details.
 
 This manual covers the concepts and the idioms of SMS++, together with
-a few complete recipes. It explains why the framework is made the way
+a few complete recipes: it explains why the framework is made the way
 it is and how the abstractions fit together, which properties of each
 mechanism one can rely upon (and under which hypotheses), and what a
 few representative complete uses look like.
