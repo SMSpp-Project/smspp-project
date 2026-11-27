@@ -56,6 +56,14 @@ private `smspp-develop` group of the SMS++ developers): its
    complaint but a command: `changelog tidy -w` puts it as the project
    writes it.
 
+   The documentation goes with the change in the same merge request: the
+   `README.md` and the Doxygen of the module, and the User Manual in
+   `manual/` of the umbrella, i.e., the row of a new `:Block` or `:Solver`
+   in appendix D with its factory names, and every sentence of the
+   chapters and recipes that names what the change adds, renames or
+   alters (`grep -rn` on `manual/chapters` finds them), with the note
+   "since SMS++ x.y.z" when it comes after the last release.
+
 3. Write the code and the configurations in the style of SMS++, which the
    pipeline of a merge request checks, failing until they are in it.
    From the umbrella,

@@ -2,7 +2,8 @@
 
 *Internal document for whoever (human or AI assistant) maintains this
 manual. It is deliberately excluded from the MkDocs site and from the
-PDF build. Last updated 2026-11-14, for SMS++ **0.8.0**.*
+PDF build. Last updated 2026-11-27, for SMS++ **0.8.0** and the
+development branch.*
 
 Read this first. It captures what the manual is, the rules it was
 written by, how it is built and deployed, and the traps already hit so
@@ -16,12 +17,13 @@ A user manual for **SMS++** (open-source C++-20 framework for
 structured optimization), version **0.8.0** (November 2026). Audience:
 algorithm developers, `:Block`/`:Solver` authors, and sophisticated end
 users who already write C++-20. It is a *companion* to the Doxygen API
-reference and the project Wiki, not a replacement.
+reference and the project Wiki, not a replacement. It describes the
+`develop` branch: what entered after the last release carries the note
+"(since SMS++ x.y.z)" with the next release, at its first mention.
 
 Architecture: concepts-first (Part II), with three running `Block`
 examples threaded throughout, end-to-end recipes in Part III, and a
-Developer's Guide in Part IV. The full plan is in `OUTLINE.md` (v0.2);
-read it for the rationale and the detailed table of contents.
+Developer's Guide in Part IV.
 
 Single source = Markdown under `manual/chapters/`, built to **both** a
 PDF (Pandoc + LaTeX) and a web site (MkDocs Material).
@@ -35,7 +37,7 @@ uniformly. Preserve them on every update.
 
 - **Language:** scientific English, *understatement*. No marketing
   language, no first-person "I", no colloquialisms.
-- **No comparison with other modelling systems.** The manual speaks
+- **No comparison with other modeling systems.** The manual speaks
   *only* of SMS++. (The intro paper's bibliography compares with
   AMPL/GAMS/JuMP/etc.; do **not** import that here.)
 - **`:Block` / `:Solver` colon convention:** a leading colon denotes "a
@@ -47,6 +49,31 @@ uniformly. Preserve them on every update.
   `build/preamble.tex`) precisely so the manual numbers are not
   doubled. If you add a section, number it by hand and keep the
   sequence gap-free.
+- **Form of a chapter** (shared with the manuals of the same family):
+  a `[Source: ...]` line under the title naming the headers and tests the
+  chapter rests on; an opening paragraph "We are concerned in this
+  chapter with ..." and a roadmap that links every section; numbered
+  items with an anchor span before the bold label, numbered by chapter
+  with a counter per kind, `<span id="lem-16-1"></span>**Lemma 16.1.**`
+  (likewise `thm-`, `prop-`, `rem-`, `tab-`, `alg-`), the statement in
+  italics and the proof closed by `$\square$`; figures as
+  `![Figure 3.1. caption](../figures/x.svg){#fig-3-1}` alone in a
+  paragraph. Existing items are never renumbered: a new one takes the
+  next free number of its chapter.
+- **Pseudocode, not implementation code.** An algorithm is given as
+  `**Algorithm N.k** (title).` followed by a ```` ```text ```` block with
+  numbered lines, and a sentence naming the methods that implement it.
+  C++ in Part II and III is limited to declaration blocks (copied from
+  the headers) and short usage examples; implementation code stays in
+  Part IV, where the code is the subject. Solvers are created through
+  the factory or a `BlockSolverConfig`, never with `new`.
+- **Citations** are author-year links to the anchors of
+  `chapters/Z-bibliography.md`, `[Frangioni 2002](Z-bibliography.md#ref-frangioni2002)`,
+  the key being the surname of the first author and the year; every
+  entry has its DOI as a link when it has one, checked to resolve to that
+  title.
+- **Spelling:** American English, as the identifiers of the code
+  (`serialize`, `behavior`, `optimization`).
 - **Status admonitions** (defined in `index.md` conventions): four
   forms — **Status — mature** (implicit), **Status — beta**,
   **Status — under development**, **Status — planned**. Use these exact
@@ -84,12 +111,16 @@ uniformly. Preserve them on every update.
 
 ## 3. Source of truth & verification discipline
 
-- **Authoritative source code:** `/Users/frangio/Codes/SMS++` (umbrella
-  + core + problem modules), read-only. **Never** run git operations or
-  modify anything there.
-- **Local Doxygen HTML:** under `SMS++-intro/html/` in the workspace —
-  use it to confirm the exact two-level hash subdirectory of every
-  Doxygen URL before writing it.
+- **Authoritative source code:** the umbrella and its submodules on
+  `develop` (the code the manual describes), read in a checkout aligned
+  with `origin/develop`.
+- **Local Doxygen HTML:** built by `doxygen doxygen/Doxyfile` in the
+  umbrella — use it to confirm the exact two-level hash subdirectory of
+  every Doxygen URL before writing it.
+- **The manual changes with the code.** A change that adds, renames or
+  alters a `:Block`, a `:Solver`, a class, a parameter or a behavior
+  updates in the same merge request the chapters, recipes, appendix D,
+  glossary and bibliography that name it (`CONTRIBUTING.md`, item 2).
 - **Every non-trivial claim and every code snippet must be checked
   against the real headers/sources.** Snippets are meant to compile
   against the real APIs. Concrete facts established this way that are
@@ -121,13 +152,11 @@ uniformly. Preserve them on every update.
 
 ```
 manual/
-  OUTLINE.md            # the plan (v0.2) — rationale + detailed ToC
   MAINTENANCE.md        # this file
   index.md              # front matter (title, abstract, conventions, ToC)
-  model.html            # local-only live preview (marked.js); not deployed
   SMS++-manual.pdf      # built PDF deliverable (commit it; see §6)
-  chapters/             # 29 files, single source of all prose
-    01-introduction.md … 18-factories-netcdf.md
+  chapters/             # 30 files, single source of all prose
+    01-introduction.md … 19-nondifferentiable.md
     R1-mcf.md … R5-cfl-benders.md
     A-writing-block.md  B-writing-solver.md  C-writing-modification.md
     D-concept-block-map.md            # Appendix D (concept→Block table)
@@ -168,10 +197,10 @@ build is ~112 pp, A4.
 Pieces of the pipeline and *why they exist* (don't remove without
 cause):
 
-- `pandoc.yaml` — lists the 30 input files **in reading order**
+- `pandoc.yaml` — lists the 31 input files **in reading order**
   (front matter → chapters → recipes → appendices → back matter). Keep
-  this list, the MkDocs `nav`, and `model.html` in sync when adding a
-  chapter. `number-sections: false` (manual numbering is in the
+  this list, the MkDocs `nav` and the table of contents of `index.md`
+  in sync when adding a chapter. `number-sections: false` (manual numbering is in the
   headings).
 - `preamble.tex` — geometry (margins; author set them to 2cm),
   `\setcounter{secnumdepth}{-1}` (suppress LaTeX numbering),
@@ -218,8 +247,11 @@ cause):
 
 ## 7. GitLab Pages deployment
 
-Pages is **not** automatic; it is published by the umbrella's
-`.gitlab-ci.yml` `pages` job (`when: manual` — trigger it by hand). The
+The site is published by the umbrella's `.gitlab-ci.yml` `pages` job,
+only from `develop` or `master`: on `develop` it runs by itself when a
+push changes a file under `manual/` (not in the scheduled pipelines), and
+otherwise it can be triggered by hand (on any other branch the job does
+not exist, so that no branch can publish itself over the site). The
 manual was wired into the existing Doxygen `pages` job by adding, right
 after `mv doc/html/ public/`:
 
@@ -246,8 +278,8 @@ Result: Doxygen at `…/smspp-project/`, manual at `…/smspp-project/manual/`.
   `use_directory_urls: false` is set; MkDocs rewrites relative image
   paths correctly for either URL mode **as long as the figures are
   present at build time**.
-- Trigger the `pages` job on the branch that actually contains
-  `manual/` (the job checks out master/develop submodules).
+- The job checks out the `develop` (or `master`) submodules, so the
+  site shows what those branches hold.
 - README "web" link should point to `…/smspp-project/manual/`, not to
   `index.md` (a lone `.md` on GitLab has no sidebar/nav).
 
@@ -257,23 +289,26 @@ Result: Doxygen at `…/smspp-project/`, manual at `…/smspp-project/manual/`.
 
 1. **Bump version strings:** `index.md` (title/abstract), the closing
    line of `chapters/C-writing-modification.md`,
-   `chapters/Z-bibliography.md`, and `OUTLINE.md`.
-2. **Diff the source tree** (`/Users/frangio/Codes/SMS++`) against what
-   the manual states; re-verify changed APIs and every code snippet.
+   `chapters/Z-bibliography.md`, `build/pandoc.yaml` and
+   `build/mkdocs.yml` (`site_description`); the notes
+   "(since SMS++ x.y.z)" of the release just made become true and stay.
+2. **Diff the source tree** (the CHANGELOGs of the modules since the last
+   tag, then the code) against what the manual states; re-verify changed
+   APIs and every code snippet.
    Re-verify any Doxygen URL whose class was added/renamed (hashes
    change).
 3. **Beta / under-development / planned items** — revisit each, since
    these are the most likely to have moved:
-   - `Change` mechanism (Ch16, **beta**) — has the interface settled?
-   - "half-baked Solution" / always-materialised abstract `Variable`s
+   - "half-baked Solution" / always-materialized abstract `Variable`s
      (Ch3 §3.3, Ch7 §7.6, Ch9 §9.7, **under development**) — is the
      `Solver`-returns-`Solution` adoption path in? (`Solver::get_Solution()`
      exists; `MCFBlock` and `BinaryKnapsackBlock` still construct their
      abstract `Variable`s in `load()`.)
    - parallelism write-starvation (Ch17, **under development**).
-   - `BendersDecompositionSolver` landed in 0.7.0: §14.3 and R5 describe
-     it; R5 could be rewritten as a configuration of it, and an example
-     of it (e.g., on a `TwoStageStochasticBlock`) is still missing.
+   - `BendersDecompositionSolver` (in the distribution since 0.6.0, its
+     two regimes since 0.7.0) is described in §14.6; R5 could be rewritten
+     as a configuration of it, and an example of it (e.g., on a
+     `TwoStageStochasticBlock`) is still missing.
 4. **Run a consistency subagent** over all chapters (see §3).
 5. **Rebuild**: `make pdf` (confirm 0 overfull), `make html`; commit the
    refreshed `SMS++-manual.pdf`; re-run the `pages` job.
@@ -282,7 +317,6 @@ Result: Doxygen at `…/smspp-project/`, manual at `…/smspp-project/manual/`.
 
 ## 9. Where to find more
 
-- `OUTLINE.md` — the design rationale and the original detailed ToC.
 - The earlier drafting history is in the prior session transcripts; the
   TODO/■ list there records every decision and user correction made
   while writing v0.1.
@@ -355,7 +389,7 @@ concatenates the sources into the single PDF — it would emit a broken
 **The scheme actually in use (keep to it).**
 
 1. **Explicit heading ids.** Every *numbered* heading carries an
-   explicit `{#id}` attribute (honoured by both `attr_list` in MkDocs
+   explicit `{#id}` attribute (honored by both `attr_list` in MkDocs
    and Pandoc's `header_attributes`). The id convention is:
    - chapter title `# N. …` → `{#ch-N}`
    - subsection `## N.M …` → `{#sec-N-M}`

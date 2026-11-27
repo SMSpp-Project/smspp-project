@@ -1,13 +1,28 @@
 # 1. Introduction {#ch-1}
 
+We are concerned in this chapter with what SMS++ is, for whom this
+manual is written and how it is organized. We first describe the
+abstractions on which the framework rests and the catalog of its
+`:Block`s and `:Solver`s ([§1.1](01-introduction.md#sec-1-1)), and then
+the uses for which it is not meant ([§1.2](01-introduction.md#sec-1-2)).
+We then state the audiences and the prerequisites
+([§1.3](01-introduction.md#sec-1-3)), give the rationale of the four
+parts of the manual ([§1.4](01-introduction.md#sec-1-4)), relate the
+manual to the Doxygen reference and to the SMS++ Wiki
+([§1.5](01-introduction.md#sec-1-5)), and close with the conventions of
+style that recur throughout ([§1.6](01-introduction.md#sec-1-6)).
+
 ## 1.1 What SMS++ is {#sec-1-1}
 
 SMS++ is a C++20 software framework for *structured* mathematical
 optimization, meant for researchers and practitioners who have to
 build, combine and solve models whose structure is exploited by the
-algorithms rather than ignored by them. This manual covers version
+algorithms. This manual covers version
 0.8.0, released in November 2026, which is distributed under the GNU
-Lesser General Public License v3.0.
+Lesser General Public License v3.0, together with the features that
+have entered its development branch since then; each of the latter is
+marked "(since SMS++ 0.9.0)" where it is first mentioned in each
+chapter.
 
 SMS++ rests on a small number of abstractions, none of which is
 original in isolation: nested decomposition of a model, separation of
@@ -19,8 +34,8 @@ specific class of problems.
 
 The central abstraction is the class
 [`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html),
-which represents "a (fragment of a) mathematical model with a
-well-understood semantic". A concrete `:Block` derived from it encodes
+which represents "a part of a mathematical model with a
+well-understood identity". A concrete `:Block` derived from it encodes
 a class of problems with a specific structure (a min-cost flow
 problem, a knapsack problem, a Unit Commitment problem, a stochastic
 multi-stage program, an investment problem, and so on). A `Block` can
@@ -61,56 +76,70 @@ too; we call this the *Janus discipline*, which is one of the central
 ideas of SMS++ (cf. [Chapter 8](08-modification-janus.md#ch-8)). A
 newer and complementary concept, `Change`, adds to the notification
 the data needed to *apply* the change to a different copy of the
-`Block` and, if requested, to *undo* it. **Status — beta**: at version
-0.8.0 only a few `:Change` classes exist (those of
-[`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html)
-and of `SATBlock`, plus `AbstractChange` and `GroupChange` in the
-core, the former of which changes the abstract representation of any
-`Block`), and the interface may change.
+`Block` and, if requested, to *undo* it (cf. [Chapter
+16](16-change.md#ch-16)); the `:Change` classes of the core and of the
+modules are listed in [Table 16.1](16-change.md#tab-16-1).
 
-SMS++ also supports the *algorithmic reformulation* of a `Block`
-through the `R3Block` mechanism, by which a `Block` produces another
-`Block` that represents a reformulation, a relaxation or a restriction
-of the original one, together with the means to move solutions and
-`Modification`s between the two (cf. [Chapter
-10](10-r3block.md#ch-10)). It supports *configuration* through the
-recursive `BlockConfig` and `BlockSolverConfig` classes (cf. [Chapter
-11](11-configuration.md#ch-11)), and *coarse-grained parallel
-computation* through recursive locks, asynchronous computation and the
-checkpointing of `Solver`s (cf. [Chapter 17](17-parallel.md#ch-17)).
-Finally, it serializes `Block`s, `Solution`s, `Configuration`s and
-`Change`s to netCDF, a binary hierarchical file format whose groups
-map naturally onto the nested structure of a tree of `Block`s (cf.
-[Chapter 18](18-factories-netcdf.md#ch-18)).
+SMS++ also supports the *algorithmic reformulation* of a `Block` through the
+R3 Block mechanism, by which a `Block` produces another `Block` that
+represents a reformulation, a relaxation or a restriction of the original one,
+together with the means to move solutions and `Modification`s between the two
+(cf. [Chapter 10](10-r3block.md#ch-10)). It supports *configuration* through
+the recursive `BlockConfig` and `BlockSolverConfig` classes (cf. [Chapter
+11](11-configuration.md#ch-11)), and *coarse-grained parallel computation*
+through recursive locks, asynchronous computation and the checkpointing of
+`Solver`s (cf. [Chapter 17](17-parallel.md#ch-17)). Finally, it serializes
+`Block`s, `Solution`s, `Configuration`s, `State`s and `Change`s to netCDF, a
+binary hierarchical file format whose groups map naturally onto the nested
+structure of a tree of `Block`s (cf. [Chapter
+18](18-factories-netcdf.md#ch-18)).
 
 The concrete `:Block` classes of the public modules cover, among
 others, min-cost flow (`MCFBlock`), multicommodity flow and network
 design (`MMCFBlock`), capacitated facility location
 (`CapacitatedFacilityLocationBlock`), and the knapsack problem with
-binary and continuous items (`BinaryKnapsackBlock`). They also cover
-Unit Commitment in its many variants (`UCBlock`, `ThermalUnitBlock`,
-`BatteryUnitBlock`, `IntermittentUnitBlock`, `DCNetworkBlock`,
-`SlackUnitBlock`), stochastic multi-stage programs (`SDDPBlock`,
-`StochasticBlock`, `TwoStageStochasticBlock`,
+binary and continuous items
+([`BinaryKnapsackBlock`](https://smspp.gitlab.io/smspp-project/dc/d2f/class_s_m_spp__di__unipi__it_1_1_binary_knapsack_block.html)).
+They also cover Unit Commitment in its many variants (`UCBlock`,
+`ThermalUnitBlock`, `BatteryUnitBlock`, `IntermittentUnitBlock`,
+`DCNetworkBlock`, `SlackUnitBlock`), stochastic multi-stage programs
+(`SDDPBlock`, `StochasticBlock`, `TwoStageStochasticBlock`,
 `MultiStageStochasticBlock`), strategic investment
 (`InvestmentBlock`), and several others (e.g., Support Vector Machines
-in `SVMBlock`, SAT and weighted MaxSAT in `SATBlock`, the constraint
-satisfaction problems of constraint programming in `CSPBlock`, hierarchical
-quadratic programs in `HQPBlock`). As for the `:Solver` classes, they
-comprise wrappers of external libraries: `MCFSolver`, which wraps
-`MCFClass`, `MCFLemonSolver`, which wraps abLEMON, the `MILPSolver`
-family, which wraps CPLEX, Gurobi, MOSEK, HiGHS, SCIP and a number of
-convex QP solvers, and `SDDPSolver`, which wraps StOpt. They also
-comprise specialized solvers native to SMS++
-(`DPBinaryKnapsackSolver`, `ThermalUnitDPSolver`, `SDDPGreedySolver`),
-and generic native solvers that exploit the structure of the model
-(`LagrangianDualSolver` and its derived class `PrimalProximalHeur`,
-`BundleSolver` and its parallel variant `ParallelBundleSolver`,
-`SubGradSolver`, `FrankWolfeSolver`, `BendersDecompositionSolver`,
-`BranchAndXSolver`).
+in `SVMBlock`, SAT and weighted MaxSAT in `SATBlock`, the multiple
+knapsack assignment problem in `MultiKnapsackAssignBlock` and the
+generalized assignment problem in `GeneralizedAssignmentBlock` (since
+SMS++ 0.9.0), both as a set of `BinaryKnapsackBlock`s linked by
+assignment constraints, the constraint satisfaction problems of
+constraint programming in `CSPBlock` (since SMS++ 0.9.0), and
+hierarchical quadratic programs in `HQPBlock`).
 
-This manual is about the framework, not about the catalogue. Three
-`:Block`s are used throughout as worked examples (`MCFBlock`,
+As for the `:Solver` classes, a first group wraps external libraries:
+`MCFSolver` wraps `MCFClass` and `MCFLemonSolver` abLEMON, the
+`MILPSolver` family wraps CPLEX, Gurobi, MOSEK, HiGHS, SCIP, the
+parallel interior-point solver PIPS-IPM++ and a number of convex QP
+solvers, and `SDDPSolver` wraps StOpt, while `LIBSVMSolver` and
+`LIBLINEARSolver` (for `SVMBlock`), `CaDiCaLSATSolver` and
+`MiniSATSolver` (for `SATBlock`), `RECORDBinaryKnapsackSolver` and
+`COMBOBinaryKnapsackSolver` (for `BinaryKnapsackBlock`) hand the
+problem to the codes of the same name, and `FlatZincCSPSolver` (for
+`CSPBlock`) runs an external FlatZinc solver. A second group comprises
+specialized solvers native to SMS++ (`DPBinaryKnapsackSolver`,
+`ThermalUnitDPSolver`, `SDDPGreedySolver`, `SMOSolver` for `SVMBlock`,
+`HQPSolver` for `HQPBlock`, `ScenarioReductionSolver` and
+`CSSCScenarioReductionSolver` for the scenario reduction problem, and
+`BDMinQuadSolver` for the master problems of the bundle methods). A
+third group comprises generic native solvers that exploit the
+structure of the model (`LagrangianDualSolver` and its derived class
+`PrimalProximalHeur`, `BundleSolver` and its parallel variant
+`ParallelBundleSolver`, `SubGradSolver`, `FrankWolfeSolver`,
+`BendersDecompositionSolver`, `BranchAndXSolver`), to which
+`R3BSolver` (since SMS++ 0.9.0) adds the solution of a `Block` by a
+`:Solver` of one of its reformulations, relaxations or restrictions,
+configured from file only.
+
+This manual describes the framework, and of the catalog it uses three
+`:Block`s throughout as worked examples (`MCFBlock`,
 `BinaryKnapsackBlock` and `CapacitatedFacilityLocationBlock`), since
 together they exercise the major concepts of SMS++ while remaining
 small enough to be described in full.
@@ -136,13 +165,13 @@ SMS++ is not meant for the casual user. SMS++ is written primarily for
 experts in algorithms, and the audience of an algebraic modeling
 language (practitioners who write a model in the form $\min \{\, c x :
 A x \le b \,\}$ and hand it to a solver) is not its primary audience.
-End users may nonetheless profit from the catalogue of existing
+End users may nonetheless profit from the catalog of existing
 `:Block`s and `:Solver`s: one who has to solve a Unit Commitment
 problem can load an instance into a
 [`UCBlock`](https://smspp.gitlab.io/smspp-project/df/d40/class_s_m_spp__di__unipi__it_1_1_u_c_block.html)
 and attach a `:MILPSolver` to it without ever writing a `:Block`. Even
 in this case, however, the idioms of the framework and the role of the
-configuration are not always (quite) intuitive, and we recommend
+configuration are not always intuitive, and we recommend
 reading at least Part I of this manual.
 
 SMS++ does not have a stable interface. Version 0.8.0 is the current
@@ -151,13 +180,13 @@ changes, possibly not backward compatible, are expected. Its concrete
 `:Block`s and `:Solver`s are extensively tested by the test suites of
 the project (the `tests/` repository and the `test/` directory of each
 module), but their public interfaces may still evolve; the manual
-marks the features in beta explicitly, while the mature ones carry no
-mark.
+marks explicitly, by a *Status* note, the features whose interface is
+not yet settled, while the mature ones carry no mark.
 
 SMS++ is not tied to one solver. Besides its native specialized
 solvers, the framework relies on wrappers of a range of external
-libraries: CPLEX, Gurobi, MOSEK, HiGHS, SCIP and several convex QP
-solvers (through the
+libraries: CPLEX, Gurobi, MOSEK, HiGHS, SCIP, PIPS-IPM++ and several
+convex QP solvers (through the
 [`MILPSolver`](https://smspp.gitlab.io/smspp-project/d7/d97/class_s_m_spp__di__unipi__it_1_1_m_i_l_p_solver.html)
 family), `MCFClass` and abLEMON for min-cost flow, and StOpt for
 Stochastic Dual Dynamic Programming (SDDP). Which of these external
@@ -214,41 +243,43 @@ Part I (Chapters [1](01-introduction.md#ch-1) to
 [3](03-mental-model.md#ch-3)) sets the stage.
 [Chapter 1](01-introduction.md#ch-1) is this introduction.
 [Chapter 2](02-installation.md#ch-2) covers the installation and the
-first build, and it is deliberately short, since the
-[SMS++ Wiki](https://gitlab.com/smspp/smspp-project/-/wikis/home) and
-the [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md) of the umbrella project are the authoritative source
-of the detailed steps. [Chapter 3](03-mental-model.md#ch-3) gives the
+first build, briefly ([§1.5](01-introduction.md#sec-1-5)).
+[Chapter 3](03-mental-model.md#ch-3) gives the
 *mental model* of the framework: `Block` and `Solver`, the two
 representations, the lifecycle of a `Block`, and the three running
 examples. A reader of Part I only should have a coherent picture of
 what SMS++ is, if not yet the means to write code against it.
 
 Part II (Chapters [4](04-block.md#ch-4) to
-[18](18-factories-netcdf.md#ch-18)) is the core of the manual. Each
+[19](19-nondifferentiable.md#ch-19)) is the core of the manual. Each
 chapter introduces one concept, defines it, and locates it in the
 source tree and in the Doxygen reference; it then states (and proves)
-the properties of the mechanism on which a user can rely, and
-illustrates it with a short example of use built on one of the three
-running examples. Also, the chapters are ordered in such a way that
+the properties of the mechanism on which a user can rely, and, where
+possible, it illustrates the concept on one of the three running
+examples. Also, the chapters are ordered in such a way that
 each concept is introduced before it is used.
 
 Part III (recipes R1 to R5) collects five complete programs that
 combine the concepts of Part II to solve recognizable tasks. They
 solve an instance of min-cost flow, reoptimize a knapsack, and solve a
 capacitated facility location (CFL) problem in three different ways
-(as a MILP, through its relaxation to min-cost flow, and by Lagrangian
-relaxation); they also solve the CFL with `LagrangianDualSolver` and
-`PrimalProximalHeur`, and with Benders cuts issued by a callback of
-the MILP solver. Each recipe lists the concepts it uses, gives the
-code, comments on it and reports the expected output.
+(by its linear relaxation strengthened by separated cuts, by its
+relaxation to min-cost flow, and by Lagrangian relaxation); they also
+solve the CFL with `LagrangianDualSolver` and `PrimalProximalHeur`, and
+with Benders cuts that the CFL `Block` generates on the request of the
+MILP solver of the master. Each recipe lists the concepts it uses, gives the
+configuration files and the algorithm (as code or as pseudocode),
+comments on them and reports the expected output.
 
 Part IV (Appendices [A](A-writing-block.md#app-A) to
 [D](D-concept-block-map.md#app-D)) is the guide to *extending* the
 framework with a new `:Block`, `:Solver`, `:Modification` or
 `:Change`. [Appendix A](A-writing-block.md#app-A) develops from
-scratch a small but complete `BinPackingBlock`, while [Appendix
-D](D-concept-block-map.md#app-D) maps each concept of the manual to
-the running example and to the section that exercise it.
+scratch a minimum-viable `BinPackingBlock`, Appendices
+[B](B-writing-solver.md#app-B) and [C](C-writing-modification.md#app-C)
+a `:Solver` and a `:Modification` / `:Change` for it, and [Appendix
+D](D-concept-block-map.md#app-D) maps each concept of the manual to the
+running example and to the section that exercises it.
 
 A reader who already knows the concepts and wants a working program
 may read Part I and then jump to the relevant recipe of Part III,
@@ -264,9 +295,9 @@ with a role of its own.
 
 The Doxygen reference, at <https://smspp.gitlab.io/smspp-project/>, is
 the reference of the interface: the public classes, methods and fields
-are documented there with its signature, parameters, return value,
+are documented there with their signature, parameters, return value,
 preconditions, postconditions and exceptions (and, for the better
-documented classes, with the mathematics of what it computes). Its
+documented classes, with the mathematics of what they compute). Its
 pages are generated from the comments in the source files, which are
 kept in step with the code, and they are the place where one looks up
 a specific method; the manual does not duplicate them, and it gives
@@ -288,34 +319,35 @@ mechanism one can rely upon (and under which hypotheses), and what a
 few representative complete uses look like.
 
 When the three sources disagree, the source code is the ultimate
-authority, the Doxygen reference comes second and this manual third.
-We have tried to keep the three consistent at the version covered
-(0.8.0); in case of discrepancy, the reader is invited to open an
-issue on the umbrella project.
+authority, the Doxygen reference comes second and this manual third,
+except for the installation, of which the Wiki is the authoritative
+source.
+We have tried to keep the three consistent with the development
+branch covered (cf. [§1.1](01-introduction.md#sec-1-1)); in case of
+discrepancy, the reader is invited to open an issue on the umbrella
+project.
 
 ## 1.6 A note on style {#sec-1-6}
 
 A few stylistic choices recur throughout the manual. Where a feature
-is in beta, or planned but not yet released, the corresponding
-*Status* admonition marks it explicitly, and where SMS++ does not
-support a use one might reasonably expect, the text says that too. We
-do not compare SMS++ with other modeling systems: there is plenty of
-comparative work in the literature, but the manual is about SMS++
-alone.
+is under development, the section that describes it opens with a
+*Status* note, and where SMS++ does not support a use one might
+reasonably expect, the text says that too. We do not compare SMS++
+with other modeling systems, on which a comparative literature exists:
+the manual is about SMS++ alone.
 
-Code appears in two forms only: the declarations of the methods that a
-user calls, and short examples of use (how to load a `Block`, attach a
-`Solver`, issue a `Modification`, write a configuration file). Each
-example is written against the source tree of version 0.8.0, and
-compiles against its headers. How a method is implemented is given,
-where it matters, as pseudocode or in prose, and what a user can rely
-upon is stated as a lemma (or a proposition) with its proof.
+Code appears in two forms only: the declarations of the methods that a user
+calls, and short examples of use (how to load a `Block`, attach a `Solver`,
+issue a `Modification`, write a configuration file). Each example is written
+against the source tree of the development branch covered, and compiles
+against its headers. How a method is implemented is given, where it matters,
+as pseudocode or in prose, and what a user can rely upon is stated as a lemma
+(or a proposition) with its proof.
 
 Claims about the behavior of a class point either to its Doxygen page
 or to the file (and, where useful, the line) of the source where the
 behavior is implemented or documented, and one can check each of them
 by following the pointer.
 
-With these preliminaries out of the way,
-[Chapter 2](02-installation.md#ch-2) turns to the practical question
-of how to fetch SMS++ and build it.
+[Chapter 2](02-installation.md#ch-2) turns next to the practical
+question of how to fetch SMS++ and build it.

@@ -5,6 +5,24 @@
 [`Objective.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Objective.h) (also `RealObjective`), [`FRealObjective.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/FRealObjective.h),
 [`LinearConstraint.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/LinearConstraint.h), [`Group.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Group.h)]
 
+We are concerned in this chapter with the three primitives that live
+inside a `Block`, i.e., `Variable`, `Constraint` and `Objective`, which
+together form its abstract representation. After the traits that the
+three classes share ([§5.1](05-variable-constraint-objective.md#sec-5-1)),
+we describe `Variable` and its concrete `ColVariable`
+([§5.2](05-variable-constraint-objective.md#sec-5-2)), `Constraint` and
+its refinements, together with the convention on the sign of the dual
+variable of a `RowConstraint`
+([§5.3](05-variable-constraint-objective.md#sec-5-3)), and `Objective`
+with the rule by which the `Objective`s of a tree of `Block`s compose
+([§5.4](05-variable-constraint-objective.md#sec-5-4)). We then show the
+abstract representation that `BinaryKnapsackBlock` builds
+([§5.5](05-variable-constraint-objective.md#sec-5-5)), outline the
+interface of the classes
+([§5.6](05-variable-constraint-objective.md#sec-5-6)) and close with
+the idioms that follow from the identity rule
+([§5.7](05-variable-constraint-objective.md#sec-5-7)).
+
 ## 5.1 Concept {#sec-5-1}
 
 The three primitives that live inside a `Block` are
@@ -44,12 +62,13 @@ has no notion of computation (only that of being fixed or not).
 ## 5.2 Variable {#sec-5-2}
 
 The base class `Variable` makes few assumptions. A `Variable` belongs
-to one `Block`, and it influences a set of *active* objects (instances
+to one `Block` (`get_Block()`), in which it sits in a group
+(`get_Group()`), and it influences a set of *active* objects (instances
 of `ThinVarDepInterface`, i.e., `Constraint`s, `Objective`s and
 `Function`s), which one can count with `get_num_active()`, read with
-`get_active( i )` and searched with `is_active( stuff )`. It can also
+`get_active( i )` and search with `is_active( stuff )`. It can also
 be (temporarily) *fixed* with `is_fixed( bool , ModParam )`, the
-current state being read by `is_fixed()` with no arguments. Note that
+current state being read by `is_fixed()` with no arguments. However,
 the base class has no method to read the value of a `Variable`, since
 this requires knowing what kind of value it is.
 
@@ -60,7 +79,10 @@ By far the most common concrete `:Variable` is
 which holds a single real value (`VarValue` is `double`); the name
 recalls the columns of the coefficient matrix of a Linear Program.
 `ColVariable` extends `Variable` in two ways. First, it gives the
-value, through `set_value( VarValue )` and `get_value()`. Second, it
+value, through `set_value( VarValue )` and `get_value()`; a fixed
+`ColVariable` keeps its value, i.e., `set_value()` with a value that
+differs from it by more than a relative $10^{-6}$ throws
+`std::domain_error`, and one unfixes the `ColVariable` first. Second, it
 can be restricted to a subset of the reals by its *type* (the enum
 `col_var_type`), whose 16 values are the following:
 
@@ -112,9 +134,14 @@ and set by `set_lhs( ... )`, `set_rhs( ... )` and `set_both( ... )` (the
 latter sets $l = u$). Either of them can be infinite, the value being
 `RowConstraint::RHSINF` (or its opposite). A single real dual variable is
 attached to the `Constraint`, read by `get_dual()` and set by
-`set_dual( ... )`. However, the expression $g$ is not defined in
-`RowConstraint`, but in its derived classes, of which two cover the common
-cases.
+`set_dual( ... )`, although a ranged row is two inequalities. Its value is
+the coefficient of $g(x)$ in the Lagrangian function, i.e., for a
+minimization, positive when the multiplier of the upper side is nonzero and
+negative when that of the lower side is, as [§9.4](09-solution.md#sec-9-4)
+shows (together with the representation of a dual direction). A `:Solver`
+that writes a dual solution into a `RowConstraint` has to obey this
+convention. However, the expression $g$ is not defined in `RowConstraint`,
+but in its derived classes, of which two cover the common cases.
 
 ### `OneVarConstraint`
 
@@ -144,9 +171,10 @@ and read by `get_function()`. The `Function` passed becomes property
 of the `FRowConstraint`, which deletes it in its destructor; the
 previous `Function`, if any, is deleted if `deleteold` is `true` (the
 default), while with `deleteold == false` the caller is assumed to
-hold another pointer to it and to dispose of it. Hence
-`set_function()` with no argument empties the `FRowConstraint`, and
-deletes its `Function` unless told otherwise. Also, the
+hold another pointer to it and to dispose of it (under `eDryRun`,
+instead, the call has no effect). Hence `set_function()` with no
+argument empties the `FRowConstraint`, and deletes its `Function`
+unless told otherwise. Also, the
 `FRowConstraint` registers with the `Variable`s of the `Function` (and
 follows the changes of that set), which is why a `Function` cannot be
 shared between two `FRowConstraint`s.
@@ -162,41 +190,26 @@ constraints.
 ## 5.4 Objective {#sec-5-4}
 
 The base class `Objective` adds two facts to its base classes. First,
-it has a *sense*, either `Objective::eMin` (whose value is $-1$:
-minimization, lower values are better) or `Objective::eMax` (whose
-value is $+1$: maximization), read by `get_sense()` and set by
-`set_sense( int , ModParam )`. Here the values of the `Objective` are
-assumed to be totally ordered, in which case minimizing and maximizing
-make sense; a vector-valued objective would require extending the
-class. Second, the type of the value is *not* defined in `Objective`,
-which leaves room for multi-objective extensions; the derived class
-`RealObjective` (and `FRealObjective` below) fixes it to an *extended*
-real (`RealObjective::OFValue`, i.e., `double`, read by `value()`), in
-which $+\infty$ and $-\infty$ can encode infeasibility and
-unboundedness.
+it has a *sense*, read by `get_sense()` and set by
+`set_sense( int , ModParam )`, which is either `Objective::eMin`
+(whose value is $-1$: minimization, lower values are better) or
+`Objective::eMax` (whose value is $+1$: maximization), while
+`Objective::eUndef` (0) means that the sense is not yet defined; a new
+`Objective` is `eMin`. Here the values of the `Objective` are assumed
+to be totally ordered, in which case minimizing and maximizing make
+sense; a vector-valued objective would require extending the class.
+Second, the type of the value is *not* defined in `Objective`, which
+leaves room for multi-objective extensions; the derived class
+`RealObjective` (and `FRealObjective` below) fixes it to a real
+(`RealObjective::OFValue`, i.e., `double`, read by `value()`).
 
 The rule by which the `Objective`s of the sub-`Block`s compose is
 fixed at this level: the `Objective` of a sub-`Block` is added to that
 of its father, which gives a tree of `Block`s a single, well-defined
-`Objective`. Indeed, such a sum may be weighted.
-`Block::set_objective_weight( double w )` gives the `Objective` of a
-`Block` a nonnegative finite weight $w$ (1 by default); a negative or
-non-finite weight makes the method throw `std::invalid_argument`, and
-a weight of 0 makes the `Objective` irrelevant. Then
-`get_objective_weight( ancestor )` returns the product of the weights
-along the path from the `Block` up to `ancestor`, the latter excluded,
-i.e., the factor by which a `:Solver` attached to `ancestor`
-multiplies the `Objective` of the `Block` (say, the probability of a
-scenario times the discount factor of its period). Analogously,
-`set_variable_weight( double )` gives the factor by which the
-coefficients of the `Variable`s of a `Block` are multiplied in the
-`Constraint`s of an ancestor (say, the number of identical copies of a
-unit), and `set_weight()` sets both. Note that the `Block` is not
-changed by a weight, which is applied by the `:Solver`s that assemble
-a problem out of nested `Block`s; a change of a weight issues a
-`BlockWeightMod`, and if a `:Solver` attached to an ancestor cannot
-handle it (`Solver::handles_weight_change()`) the method throws
-`std::logic_error` before changing anything.
+`Objective`. Furthermore, the sum may be weighted: a `Block` has a
+weight of its `Objective` and one of its `Variable`s, applied by the
+`:Solver`s that assemble a problem out of nested `Block`s
+([§12.2](12-sub-block.md#sec-12-2)).
 
 ### `FRealObjective`
 
@@ -210,9 +223,11 @@ nontrivial objective. There is no separate class for a linear
 objective: a linear form of `ColVariable`s is an `FRealObjective`
 carrying a `LinearFunction`. On the side of the constraints,
 `LinearConstraint` is an `FRowConstraint` whose `Function` is forced
-to be a `LinearFunction`, of which it exposes the coefficients
-(`get_coefficient()`, `modify_coefficient()`,
-`modify_coefficients()`).
+to be a `LinearFunction`, which cannot be replaced (`set_function()`
+throws `std::logic_error`) and which it exposes through
+`get_linear_function()`, `get_coefficient()`, `add_variable()`,
+`add_variables()`, `modify_coefficient()` and
+`modify_coefficients()`.
 
 ## 5.5 Example: the abstract representation of `BinaryKnapsackBlock` {#sec-5-5}
 
@@ -259,10 +274,14 @@ void load( Index n , double Capacity , c_doubleVec & Weights ,
            const std::vector< unsigned char > fxd = {} );
 ```
 
-where an empty `Integrality` makes all the items integer and `fxd`
-optionally fixes some of them. In response to the three calls,
-`BinaryKnapsackBlock` constructs the objects that its comments
-describe, held in three protected fields
+where an empty `Integrality` makes all the items integer (a nonempty
+one must have size $n$), and `fxd`, if not empty, fixes some of them,
+`fxd[ i ]` being 0 if item $i$ is free, 1 if it is fixed to 0 and 2 if
+it is fixed to 1. The `ColVariable`s are constructed by `load()`
+itself (as for `MCFBlock`, cf. [§7.6](07-physical-abstract.md#sec-7-6)),
+so that the first of the three calls returns at once. The other two
+construct the rest of the objects that the comments of
+`BinaryKnapsackBlock` describe, which are held in three protected fields
 ([`BinaryKnapsackBlock.h:1021-1023`](https://gitlab.com/smspp/binaryknapsackblock/-/blob/develop/include/BinaryKnapsackBlock.h#L1021-1023)). These are (i) one static group of
 `Variable`s, the `std::vector< ColVariable > v_x` of size $n$ (one per
 item), each of type `kBinary` for an integer item and `kPosUnitary`
@@ -306,7 +325,7 @@ A](A-writing-block.md#app-A) develops a new `:Block` from scratch.
 
 | Class | Main methods |
 |---|---|
-| `Variable` | `get_Block()`, `is_fixed()`, `is_fixed(bool, ModParam)`, `get_num_active()`, `get_active(Index)`, `is_active(...)` |
+| `Variable` | `get_Block()`, `get_Group()`, `is_fixed()`, `is_fixed(bool, ModParam)`, `get_num_active()`, `get_active(Index)`, `is_active(...)` |
 | `ColVariable` | `set_value(VarValue)`, `get_value()`, `is_integer(bool, ModParam)`, `is_positive(...)`, `is_negative(...)`, `is_unitary(...)`, `set_type(...)`, `get_type()` |
 | `Constraint` | `relax(bool, ModParam)`, `is_relaxed()`, `feasible()`, `compute(bool)` |
 | `RowConstraint` | `set_lhs`, `set_rhs`, `set_both`, `get_lhs`, `get_rhs`, `get_dual`, `set_dual` |
@@ -315,7 +334,7 @@ A](A-writing-block.md#app-A) develops a new `:Block` from scratch.
 | `Objective` | `set_sense(int, ModParam)`, `get_sense()`, `compute(bool)` |
 | `RealObjective` | `OFValue` and `value()` (in [`Objective.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Objective.h)) |
 | `FRealObjective` | `set_function(Function*, ModParam, bool)`, `get_function()` |
-| `LinearConstraint` | an `FRowConstraint` with a `LinearFunction`, whose coefficients it exposes |
+| `LinearConstraint` | `get_linear_function()`, `get_coefficient(Index)`, `add_variable[s](...)`, `modify_coefficient[s](...)`; `set_function()` throws |
 
 For the complete list of the public methods, one can see the Doxygen page of
 each class.
@@ -329,13 +348,9 @@ particular, two `ColVariable`s with the same value are *not* the same
 variable, and copying a `ColVariable` into another slot of a vector
 makes a new, distinct `ColVariable`.
 
-`FRowConstraint::set_function()` and `FRealObjective::set_function()`
-take ownership of the `Function *` passed to them (unless told
-otherwise by `deleteold`, as described in
-[§5.3](05-variable-constraint-objective.md#sec-5-3)): the caller must
-not delete it, and must not attach it to a second `FRowConstraint` or
-`FRealObjective`, which would register both with the same
-`Variable`s and delete it twice.
+`set_function()` takes ownership of the `Function`
+([§5.3](05-variable-constraint-objective.md#sec-5-3)), which therefore
+can be given to one carrier only.
 
 When a sub-`Block` has an `Objective`, it contributes to that of its
 father (and recursively upwards), possibly weighted. A `Block` can

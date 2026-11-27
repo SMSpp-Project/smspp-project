@@ -1,17 +1,31 @@
 # 8. Modification and the Janus discipline {#ch-8}
 
 [Source: [`SMS++/include/Modification.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Modification.h), [`Observer.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Observer.h), [`Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h),
-[`SMS++/src/Block.cpp`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp), [`MCFBlock/include/MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h)]
+[`SMSTypedefs.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h), [`SMS++/src/Block.cpp`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp), [`MCFBlock/include/MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h)]
 
-Both the physical and the abstract representation of a `Block` can
-change after a `:Solver` has been attached to it. [Chapter
-6](06-solver.md#ch-6) introduced the list of pending `Modification`s
-through which the changes reach a `:Solver`. In this chapter we make
-the machinery precise and prove the properties of the delivery on
-which `:Block`s and `:Solver`s rely; we also state the discipline by
-which a `:Block` keeps its two faces in step (the *Janus discipline*),
-together with the parameters of type `ModParam` by which the user
-tunes it.
+We are concerned in this chapter with the way in which the changes of a
+`Block` reach the `:Solver`s attached to it, since both the physical and the
+abstract representation of a `Block` can change after a `:Solver` has been
+attached. [Chapter 6](06-solver.md#ch-6) introduced the list of pending
+`Modification`s through which the changes arrive; here we make the machinery
+precise and prove the properties of the delivery on which `:Block`s and
+`:Solver`s rely, and we state the discipline by which a `:Block` keeps its two
+faces in step (the *Janus discipline*), together with the parameters of type
+`ModParam` by which the user tunes it.
+
+After the concept ([§8.1](08-modification-janus.md#sec-8-1)) and the
+hierarchy of the classes ([§8.2](08-modification-janus.md#sec-8-2)), we
+describe the two streams of `Modification`s, their delivery and the way in
+which a receiver recognizes their type
+([§8.3](08-modification-janus.md#sec-8-3)), and then the Janus discipline
+with its consistency property ([§8.4](08-modification-janus.md#sec-8-4)).
+The values of `ModParam` ([§8.5](08-modification-janus.md#sec-8-5)), the
+channels that batch the `Modification`s into groups
+([§8.6](08-modification-janus.md#sec-8-6)) and the filter by which a change
+reaches only those who read it ([§8.7](08-modification-janus.md#sec-8-7))
+follow; [§8.8](08-modification-janus.md#sec-8-8) gives an example,
+[§8.9](08-modification-janus.md#sec-8-9) the idioms, and
+[§8.10](08-modification-janus.md#sec-8-10) points to `Change`.
 
 ## 8.1 Concept {#sec-8-1}
 
@@ -37,8 +51,8 @@ drops its pointer.
 
 Two methods are involved: `Block::add_Modification( sp_Mod , ChnlName )`,
 which routes a new `Modification` to whoever is listening, and
-`Solver::add_Modification( sp_Mod )`, which appends it to the list of the
-`:Solver`. the first is called by the `:Block`, or by one of its `Variable`s,
+`Solver::add_Modification( sp_Mod & )`, which appends it to the list of the
+`:Solver`. The first is called by the `:Block`, or by one of its `Variable`s,
 `Constraint`s and `Function`s (which hold a pointer to the object that
 observes them, ultimately the `Block`); the second is called by the `Block` on
 behalf of the `:Solver`.
@@ -73,9 +87,10 @@ classes, all in [`SMS++/include/Modification.h`](https://gitlab.com/smspp/smspp/
 - `GroupModification` (line 931), derived from `AModification`,
   bundles several `Modification`s (its `sub_Modifications()`) into
   one; a receiving `:Solver` can react to each of them in turn or to
-  the group at once. Groups are created only by the channels of
-  [§8.6](08-modification-janus.md#sec-8-6) (no other code of the core
-  constructs one).
+  the group at once. Every `GroupModification` enters the system
+  through the channels of [§8.6](08-modification-janus.md#sec-8-6), i.e.,
+  through `open_channel()`, which constructs one or adopts the one it is
+  given.
 - `VariableGroupMod` (line 1107) is a `GroupModification` that groups
   the `Modification`s of several `Variable`s.
 
@@ -113,40 +128,46 @@ abstract representation of the `:Block` when something in it changes:
 a `Variable` is fixed, a `Constraint` is relaxed, a coefficient of a
 `Function` is changed, a dynamic `Constraint` is added or removed.
 They derive from `AModification`, and their `concerns_Block()` is
-`true` unless the issuer has been told otherwise (cf.
+`true` unless the issuer has been instructed otherwise (cf.
 [§8.5](08-modification-janus.md#sec-8-5)); with the value `true` the
 receiving `:Block` is expected to react by changing its physical
 representation accordingly (cf.
 [§8.4](08-modification-janus.md#sec-8-4)).
 
-A general-purpose `:Solver`, such as a `:MILPSolver`, processes the
-abstract stream and has no use for the physical one (it would not
-know what to do with an `MCFBlockRngdMod`); since it declares that it
-reads only the abstract kinds, the physical `Modification`s do not
-even reach it (Lemma 8.1). Conversely, a specialized `:Solver`
-typically processes the physical stream, and it must ignore the
-abstract `Modification`s that come from a change that has produced
-both (reacting to the same change twice would be wrong), which it can
-do by declaring through `concerned_by()` that it reads `eModPhys`
-only.
+A general-purpose `:Solver`, such as a `:MILPSolver`, processes the abstract
+stream and has no use for the physical one (it would not know what to do with
+an `MCFBlockRngdMod`); since it declares that it reads only the abstract
+kinds, the physical `Modification`s do not even reach it ([Lemma
+8.1](08-modification-janus.md#lem-8-1)). Conversely, a specialized `:Solver`
+typically processes the physical stream, and it must ignore the abstract
+`Modification`s that come from a change that has produced both (reacting to
+the same change twice would be wrong), which it can do by declaring through
+`concerned_by()` that it reads `eModPhys` only (as the
+`:BinaryKnapsackSolver`s do), or by skipping them in its code (as `MCFSolver`
+does).
 
 ### The delivery
 
 Routing is done by the base method `Block::add_Modification( mod , chnl )`
 ([`SMS++/src/Block.cpp:777-823`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L777-823)), which the overrides of the `:Block`s call at
-their end. In pseudocode it reads as follows (the channels are discussed in
-[§8.6](08-modification-janus.md#sec-8-6)):
+their end (the channels are discussed in
+[§8.6](08-modification-janus.md#sec-8-6)).
 
-```
-Block::add_Modification(B, mod, chnl):
-  if not B.anyone_there(): return
-  if chnl = 0: chnl <- B.default_channel
-  if chnl != 0:
-    if chnl is a channel opened in B: append mod to its current group; return
-    if B has no father: throw invalid_argument
-  if B has a father F: F.add_Modification(mod, chnl)    // virtual call
-  for each Solver S registered with B:
-    if is_of_concern(mod.changes(), S.concerned_by()): S.add_Modification(mod)
+<span id="alg-8-1"></span>**Algorithm 8.1** (delivery of a `Modification`).
+
+```text
+ 1  procedure ADD-MODIFICATION(B, mod, chnl)
+ 2     if nobody listens to B then return            ▷ anyone_there()
+ 3     if chnl = 0 then chnl ← the default channel of B
+ 4     if chnl ≠ 0 then
+ 5        if chnl is a channel defined in B then
+ 6           append mod to the current group of chnl;  return
+ 7        if B has no father then throw invalid_argument
+ 8     if B has a father F then
+ 9        call the add_Modification() of F on (mod, chnl)   ▷ a virtual call
+10     for each Solver S registered with B do
+11        if is-of-concern(changes of mod, kinds read by S) then
+12           append mod to the pending list of S
 ```
 
 Here `is_of_concern( c , reads )` is `true` if `reads` comprises all
@@ -156,7 +177,7 @@ Otherwise, it is `true` if `c` is physical and `reads` comprises
 `reads`; a `GroupModification` is of concern if any of its
 sub-`Modification`s is (`is_of_concern_to()`).
 
-**Lemma 8.1** (Delivery). *Let `mod` be passed to
+<span id="lem-8-1"></span>**Lemma 8.1** (Delivery). *Let `mod` be passed to
 `Block::add_Modification( mod , 0 )` of a `Block` $B$ with no default
 channel set in $B$ or in its ancestors, and let the overrides of
 `add_Modification()` of the `:Block`s on the path from $B$ to the root
@@ -165,24 +186,117 @@ call the base method with the same `mod` and channel 0. Then a
 with $B$ or with one of its ancestors and `mod` is of concern to
 `S.concerned_by()`; no other `Solver` receives it.*
 
-*Proof.* Let $B = B_0, B_1, \dots, B_h$ be the path from $B$ to the
-root. A call on $B_k$ forwards `mod` to $B_{k+1}$ (through the
-override, which calls the base method again) and then hands it to the
-`Solver`s of $B_k$ that are concerned, so the calls form a chain along
-the path, each $B_k$ being visited at most once. If `anyone_there()`
-is `false` on $B_k$, then by Lemma 4.1 no `Solver` is registered with
-$B_k$ or with any of its ancestors, and the chain stops there with no
-`Solver` missed; otherwise the chain proceeds. Hence the `Solver`s
-visited are those registered with the $B_k$ reached, which comprise
-all those registered on the path that can exist, and each of them is
-handed `mod` once, if and only if the test of concern succeeds. A
-`Solver` registered elsewhere is never visited. $\square$
+*Proof.* Let $B = B_0, B_1, \dots, B_h$ be the path from $B$ to the root. A
+call on $B_k$ forwards `mod` to $B_{k+1}$ (through the override, which calls
+the base method again) and then hands it to the `Solver`s of $B_k$ that are
+concerned, so the calls form a chain along the path, each $B_k$ being visited
+at most once. If `anyone_there()` is `false` on $B_k$, then by [Lemma
+4.1](04-block.md#lem-4-1) no `Solver` is registered with $B_k$ or with any of
+its ancestors, and the chain stops there with no `Solver` missed; otherwise
+the chain proceeds. Hence the `Solver`s visited are those registered with the
+$B_k$ reached, which comprise all those registered on the path that can exist,
+and each of them is handed `mod` once, if and only if the test of concern
+succeeds. A `Solver` registered elsewhere is never visited. $\square$
 
-Since `register_Solver()` refuses to register a `Solver` twice with
-the same `Block`, and a `Solver` is attached to one `Block` at a time
-(`set_Block()`), "once" is literal. A `:Solver` relies on Lemma 8.1
-when it treats its pending list as the exact record of the changes of
-its target that are of concern to it.
+Since `register_Solver()` refuses to register a `Solver` twice with the same
+`Block`, and a `Solver` is attached to one `Block` at a time (`set_Block()`),
+"once" is literal. A `Solver` that has called `inhibit_Modification( true )`
+is still handed `mod`, but discards it. A `:Solver` relies on [Lemma
+8.1](08-modification-janus.md#lem-8-1) when it treats its pending list as the
+exact record of the changes of its target that are of concern to it.
+
+### Recognizing the type of a Modification
+
+Whoever processes a `Modification` (a `:Solver` going through its pending
+list, the override of `add_Modification()` of a `:Block`, a `Solution` that
+has to `adapt()` to it) has first to recognize its type, since what it needs
+to know is in the derived class. The natural tool is a `dynamic_cast`, tried
+against each of the few types that the receiver can handle. This is not free:
+a `:Solver` dispatches the same few types a great many times, and when the
+classes come from different shared libraries a `dynamic_cast` may have to
+compare the names of the types instead of their addresses. For this reason the
+core provides (since SMS++ 0.9.0) the two functions
+
+```cpp
+template< class P , class B >
+P memo_cast( B * p );
+
+template< class T , class B >
+std::shared_ptr< T > memo_pointer_cast( const std::shared_ptr< B > & p );
+```
+
+which give the same result as `dynamic_cast< P >( p )` and
+`std::dynamic_pointer_cast< T >( p )`, respectively, but make the real cast
+only once for each dynamic type of `* p` that they meet.
+
+<span id="alg-8-2"></span>**Algorithm 8.2** (cast remembered per dynamic
+type).
+
+```text
+ 1  function MEMO-CAST⟨T, B⟩(p)                   ▷ p points to a B
+ 2     if p = nil then return nil
+ 3     C ← the table of the pair (T, B) of the running thread
+ 4     k ← the type_info of the dynamic type of *p
+ 5     if k ∉ C then
+ 6        t ← dynamic_cast⟨T*⟩(p)
+ 7        if t ≠ nil then C[k] ← address(t) − address(p)
+ 8        else C[k] ← FAIL
+ 9     if C[k] = FAIL then return nil
+10     return the T* at address(p) + C[k]
+```
+
+It is implemented by `memo_cast()`
+([`SMSTypedefs.h:111-147`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSTypedefs.h#L111-147)), while `memo_pointer_cast()` applies it
+to the stored pointer and returns a `std::shared_ptr` that shares the
+ownership of `p`. The table is `thread_local`, and therefore it needs no
+lock; its keys are the addresses of the `std::type_info` objects, and since a
+type may have a distinct one in each shared library, at worst it gets one
+entry per library, each with a correct value. The correctness of the
+remembered offset rests on the layout of the classes, as follows.
+
+<span id="lem-8-2"></span>**Lemma 8.2** (Remembered casts). *Let a thread
+make calls `memo_cast< T * >( p )` with the same pair (`T`, `B`), and let
+the dynamic type $D$ of `* p` at each of them be such that (i) no class in
+the hierarchy of $D$ has a virtual base, and (ii) $D$ has a single
+subobject of type `B` (`B` itself if $D$ is `B`). Then each of the calls
+returns `dynamic_cast< T * >( p )`.*
+
+*Proof.* If `p` is null both return null (line 2). Otherwise the result of
+`dynamic_cast< T * >( p )` depends only on $D$, on `T` and on which `B`
+subobject of the object of type $D$ the pointer `p` points to: the cast either
+fails or returns a subobject of that object. By (ii) the `B` subobject is the
+only one of its type. By (i) its position in the object of type $D$, as well
+as that of the subobject returned by the cast, is fixed by the layout of the
+class $D$, and it is the same for every object of type $D$, whether the object
+is complete or (while it is being constructed, when `typeid` gives $D$) a part
+of a larger one. Hence, for all the calls with the same key $k$, either the
+cast fails or its result lies at the same distance $\delta$ from `p`. The
+first call with key $k$ makes the cast and stores FAIL or $\delta$ (lines
+6-8), and this call and every later one with key $k$ return null or `p` $+\,
+\delta$ (lines 9-10), i.e., the result of `dynamic_cast`. Since the table
+belongs to the thread, no other thread writes into it in between. $\square$
+
+Both hypotheses are needed. The position of a virtual base inside an object
+of class $C$ depends on the class of the complete object of which the $C$ is
+a part, while during the construction of that object `typeid` gives $C$ in
+both cases. With two subobjects of type `B` (say, $D$ derives from $B_1$ and
+$B_2$, both of which derive non-virtually from `B`), two pointers to objects
+of type $D$ may point to different `B` subobjects, at different distances
+from the result, under the same key. In the hierarchies on which the
+modules of SMS++ use it (those of `Modification`, `Variable`, `Function`,
+`Constraint`, `Objective` and `Block`) no class has a virtual base and, as
+far as their headers show, none derives twice from the same class. The
+virtual bases are in hierarchies of `Solver` (e.g., `BinaryKnapsackSolver`
+derives virtually from `Solver`, and `RelaxationSolver` from
+`ChangeSolver`), on which `memo_cast()` is not used.
+
+The core uses it almost everywhere it recognizes a type in this way, starting
+from `Solver::add_Modification()`, which tests for an `NBModification` by
+`memo_pointer_cast()` to empty the pending list
+([`Solver.h:2281-2293`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h#L2281-2293)).
+A new `:Solver`, `:Block` or `:Solution` can do the same wherever it would
+write `dynamic_cast` or `std::dynamic_pointer_cast` on a `Modification`
+([Appendix C](C-writing-modification.md#app-C)).
 
 ## 8.4 The Janus discipline {#sec-8-4}
 
@@ -214,15 +328,18 @@ made on either of them is propagated to the other one. Hence,
 specialized and general-purpose `:Solver`s alike receive the
 `Modification`s of the face they read. The scheme of the override is
 fixed by the comment of `Block::add_Modification()`
-([`Block.h:5776-5786`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L5776-5786)):
+([`Block.h:5795-5806`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L5795-5806)).
 
-```
-SomeBlock::add_Modification(mod, chnl):
-  if mod.concerns_Block():
-    mod.concerns_Block(false)
-    translate mod into the physical change, made by the methods of the
-      :Block with issueMod = make_par(eNoBlck, chnl), issueAMod = eDryRun
-  Block::add_Modification(mod, chnl)
+<span id="alg-8-3"></span>**Algorithm 8.3** (the override of
+`add_Modification()` in a `:Block`).
+
+```text
+ 1  procedure ADD-MODIFICATION of a :Block(B, mod, chnl)
+ 2     if mod concerns the Block then
+ 3        mark mod as not concerning the Block      ▷ concerns_Block(false)
+ 4        make the physical change that mod describes, by the methods of B
+ 5           with issueMod = make_par(eNoBlck, chnl) and issueAMod = eDryRun
+ 6     ADD-MODIFICATION(B, mod, chnl)                ▷ Algorithm 8.1
 ```
 
 With `issueMod == eNoBlck` the method performs the physical change,
@@ -241,43 +358,41 @@ already applied the change.
 
 ### The abstract Modification reaches its Block at once
 
-This scheme relies on one property: the abstract `Modification`
-reaches its `:Block` *immediately*, before it can be packed into any
-`GroupModification` (cf. Lemma 8.2 below). Were it buffered, i.e.,
-packed into an open `GroupModification` (cf.
-[§8.6](08-modification-janus.md#sec-8-6)) and delivered only when the
-group is closed, the abstract representation might have undergone
-arbitrarily many further changes by the time the `:Block` saw it. The
-`Modification` might, for instance, refer to a dynamic `Variable` that
-has been deleted since, which the `:Block` would have to detect and
-handle. We say that an abstract `Modification` is *issued in* a
-`Block` $B$ if it is issued by a `Variable`, `Constraint`, `Objective`
-or `Function` of the abstract representation of $B$ (not of a
-sub-`Block`). Such an object passes it to the virtual
-`add_Modification()` of $B$, either directly or through the
-`FRowConstraint` or `FRealObjective` that observes the `Function`.
+This scheme relies on one property: the abstract `Modification` reaches its
+`:Block` *immediately*, before it can be packed into any `GroupModification`
+(cf. [Lemma 8.3](08-modification-janus.md#lem-8-3) below). Were it buffered,
+i.e., packed into an open `GroupModification` (cf.
+[§8.6](08-modification-janus.md#sec-8-6)) and delivered only when the group is
+closed, the abstract representation might have undergone arbitrarily many
+further changes by the time the `:Block` saw it. The `Modification` might, for
+instance, refer to a dynamic `Variable` that has been deleted since, which the
+`:Block` would have to detect and handle. We say that an abstract
+`Modification` is *issued in* a `Block` $B$ if it is issued by a `Variable`,
+`Constraint`, `Objective` or `Function` of the abstract representation of $B$
+(not of a sub-`Block`). Such an object passes it to the virtual
+`add_Modification()` of $B$, either directly or through the `FRowConstraint`
+or `FRealObjective` that observes the `Function`.
 
-**Lemma 8.2** (Immediacy). *Let $B$ follow the scheme of the override,
-and let an abstract `Modification` `mod` be issued in $B$, on any
-channel. Then the override of $B$ runs on `mod`, before `mod` is
-packed into any `GroupModification`, and before it reaches any
-`Solver` or any ancestor of $B$. Moreover, a `GroupModification` that
-reaches the override of $B$ through the tree has all its
-sub-`Modification`s issued in proper descendants of $B$; in
-particular, the override of a leaf `:Block` receives no
-`GroupModification` other than those passed to it from the outside (as
-`map_forward_Modification()` and `map_back_Modification()` of [Chapter
-10](10-r3block.md#ch-10) do).*
+<span id="lem-8-3"></span>**Lemma 8.3** (Immediacy). *Let $B$ follow the
+scheme of the override, and let an abstract `Modification` `mod` be issued in
+$B$, on any channel. Then the override of $B$ runs on `mod`, before `mod` is
+packed into any `GroupModification`, and before it reaches any `Solver` or any
+ancestor of $B$. Moreover, a `GroupModification` that reaches the override of
+$B$ through the tree has all its sub-`Modification`s issued in proper
+descendants of $B$; in particular, the override of a leaf `:Block` receives no
+`GroupModification` other than those passed to it from the outside (say, by a
+caller that forwards a group it received).*
 
 *Proof.* By definition, `mod` is passed to the virtual
 `add_Modification()` of $B$, i.e., to its override, which handles it
 first and calls `Block::add_Modification()` only afterwards. The
-packing into a group (the second branch of the pseudocode of
-[§8.3](08-modification-janus.md#sec-8-3)) and the delivery to the
+packing into a group (line 6 of
+[Algorithm 8.1](08-modification-janus.md#alg-8-1)) and the delivery to the
 `Solver`s and to the father happen only inside the base method. Hence
-the override sees `mod` before any of them. As for the second claim, a
-`GroupModification` is constructed only by `open_channel()` (no other
-code of the core constructs one). When its channel is closed in some
+the override sees `mod` before any of them. As for the second claim, every
+`GroupModification` enters the system through `open_channel()`, which
+constructs one or adopts the one it is given (as `PolyhedralFunctionBlock`
+does with a `VariableGroupMod`). When its channel is closed in some
 `Block` $D$, it is dispatched by the qualified call
 `Block::add_Modification()` of $D$ ([`SMS++/src/Block.cpp:926`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L926)), which
 does not run the override of $D$, and then calls the overrides of the
@@ -292,63 +407,62 @@ If, furthermore, the abstract change is made by a thread that holds
 the lock of $B$, as [Chapter 17](17-parallel.md#ch-17) requires of any
 change of a `Block`, no other thread can change $B$ between the change
 and the run of the override. The override therefore finds the data
-structures of $B$ in the state in which `mod` was issued. In fact,
-this is a substantial simplification. A leaf `:Block` never has to
+structures of $B$ in the state in which `mod` was issued, which
+simplifies the overrides. A leaf `:Block` never has to
 handle a `GroupModification` issued in it, nor to reason about what
 else may have changed in the meantime, since it reacts to one atomic
 abstract `Modification` at a time; a non-leaf `:Block` has to handle
 `GroupModification`s only as far as they refer to changes inside its
-sub-`Block`s. (The override of `MCFBlock` unpacks the
-`GroupModification`s it is given into their sub-`Modification`s
-anyway, which is needed for those passed to it by
-`map_forward_Modification()`.)
+sub-`Block`s. (The override of `add_Modification()` of `MCFBlock` handles
+no `GroupModification`; `MCFBlock::map_forward_Modification()` of [Chapter
+10](10-r3block.md#ch-10) unpacks those it is given, and replays each
+sub-`Modification` on the copy by the methods of the latter.)
 
 ### Consistency of the two faces
 
-What the discipline guarantees can now be stated. We call a `:Block`
-$B$ *Janus-conforming* if it satisfies three conditions. (J1) Its
-override of `add_Modification()` follows the scheme above. (J2) Each
-of its methods that change the physical data, called with `issueAMod`
-other than `eDryRun` while the corresponding part of the abstract
-representation exists, applies the same change to the abstract
-representation, through the methods of the latter and with the
-parameter `un_ModBlock( issueAMod )`; with `issueAMod == eDryRun` it
-changes only the physical data, and in both cases it issues its
-physical `Modification` if and only if `issue_pmod( issueMod )` holds.
-(J3) For each abstract change that the override accepts, the physical
-change it makes is the one that, by (J2), would have produced that
-same abstract change. We say that the two faces of $B$ are
-*consistent* when the abstract representation is the one the `:Block`
-would generate out of its current physical data, as Proposition 7.1
-describes for `MCFBlock`.
+We can now state what the discipline guarantees. We call a `:Block` $B$
+*Janus-conforming* if it satisfies three conditions. (J1) Its override of
+`add_Modification()` follows the scheme above. (J2) Each of its methods that
+change the physical data, called with `issueAMod` other than `eDryRun` while
+the corresponding part of the abstract representation exists, applies the same
+change to the abstract representation, through the methods of the latter and
+with the parameter `un_ModBlock( issueAMod )`; with `issueAMod == eDryRun` it
+changes only the physical data, and in both cases it issues its physical
+`Modification` if and only if `issue_pmod( issueMod )` holds. (J3) For each
+abstract change that the override accepts, the physical change it makes is the
+one that, by (J2), would have produced that same abstract change. We say that
+the two faces of $B$ are *consistent* when the abstract representation is the
+one the `:Block` would generate out of its current physical data, as
+[Proposition 7.1](07-physical-abstract.md#prop-7-1) describes for `MCFBlock`.
 
-**Proposition 8.3** (Janus consistency). *Let $B$ be a
-Janus-conforming `:Block` whose two faces are consistent. Consider one
-change of the data of $B$, made either (a) by a method of $B$ called
-with `issueAMod` other than `eDryRun`, or (b) by a method of its
-abstract representation called with `eModBlck` and accepted by the
-override of $B$. Then, afterwards, the two faces of $B$ are consistent
-again, each face has been changed once, and each `Solver` listening to
-$B$ receives at most one physical and at most one abstract
-`Modification` for the change, neither of which has `concerns_Block()
-== true`.*
+<span id="prop-8-1"></span>**Proposition 8.1** (Janus consistency). *Let $B$
+be a Janus-conforming `:Block` whose two faces are consistent. Consider one
+change of the data of $B$, made either (a) by a method of $B$ called with
+`issueAMod` other than `eDryRun`, or (b) by a method of its abstract
+representation called with `eModBlck` and accepted by the override of $B$.
+Then, afterwards, the two faces of $B$ are consistent again, each face has
+been changed once, and each `Solver` listening to $B$ receives at most one
+physical and at most one abstract `Modification` for the change, neither of
+which has `concerns_Block() == true`.*
 
 *Proof.* In case (a), by (J2) the method changes the physical data once and
 the abstract representation once, which keeps them consistent. The abstract
 change is made with `un_ModBlock( issueAMod )`, which is never `eModBlck`;
-hence the abstract `Modification`, if issued at all, has
-`concerns_Block() == false`, and the override of $B$ only forwards it. By
-construction, the physical `Modification` has `concerns_Block() == false`. By
-Lemma 8.1, each of the two `Modification`s reaches each listening `Solver` at
-most once. In case (b), the abstract representation has been changed once by
-the method. By Lemma 8.2 the override of $B$ sees the abstract `Modification`
-immediately, with `concerns_Block() == true`; it resets it to `false` and, by
-(J1), makes the physical change with `issueAMod == eDryRun`, which by (J2)
-changes the physical data only, and by (J3) restores the consistency. The
-physical `Modification` is issued (if anyone is listening) with
-`concerns_Block() == false`, and the abstract one is then forwarded with
-`concerns_Block() == false`. Again by Lemma 8.1, each of them reaches each
-listening `Solver` at most once. $\square$
+hence the abstract `Modification`, if issued at all, has `concerns_Block() ==
+false`, and the override of $B$ only forwards it. By construction, the
+physical `Modification` has `concerns_Block() == false`. By [Lemma
+8.1](08-modification-janus.md#lem-8-1), each of the two `Modification`s
+reaches each listening `Solver` at most once. In case (b), the abstract
+representation has been changed once by the method. By [Lemma
+8.3](08-modification-janus.md#lem-8-3) the override of $B$ sees the abstract
+`Modification` immediately, with `concerns_Block() == true`; it resets it to
+`false` and, by (J1), makes the physical change with `issueAMod == eDryRun`,
+which by (J2) changes the physical data only, and by (J3) restores the
+consistency. The physical `Modification` is issued (if anyone is listening)
+with `concerns_Block() == false`, and the abstract one is then forwarded with
+`concerns_Block() == false`. Again by [Lemma
+8.1](08-modification-janus.md#lem-8-1), each of them reaches each listening
+`Solver` at most once. $\square$
 
 We remark that the hypotheses of case (b) are not idle. An abstract
 change made with `eNoBlck` issues a `Modification` with
@@ -367,16 +481,15 @@ caught and ignored.
 ### Refusing an abstract change
 
 A `:Block` may refuse an abstract change that it does not know how to
-translate. `MCFBlock`, for instance, does not allow arcs to be added
-or removed through the abstract representation, since this would
-require changing the structure of the flow conservation
-`FRowConstraint`s; nor does it allow a flow `ColVariable` to be fixed
-at a value other than 0, or its type to be changed. The refusal is
-explicit: the override throws `std::invalid_argument` (or
-`std::logic_error`, for the forbidden changes of a flow `ColVariable`)
-with a message that describes what was refused. Hence, the convention
-is to fail loudly, and a `:Block` that wants to support a particular
-abstract change must do so explicitly.
+translate. `MCFBlock`, for instance, does not allow arcs to be added or
+removed through the abstract representation, since this would require changing
+the structure of the flow conservation `FRowConstraint`s; nor does it allow a
+flow `ColVariable` to be fixed at a value other than 0, or its type to be
+changed. The refusal is explicit: the override throws `std::invalid_argument`
+(or `std::logic_error`, for a change of the type of a flow `ColVariable` or
+the fixing of a deleted arc) with a message that describes what was refused.
+Hence, the convention is to fail loudly, and a `:Block` that wants to support
+a particular abstract change must do so explicitly.
 
 ## 8.5 The four values of `ModParam` {#sec-8-5}
 
@@ -388,13 +501,16 @@ parameters of type `ModParam`: `issueMod` for the physical
 `LinearFunction`, and so on), and `eNoBlck` for the methods of the
 `:Block`s that change their physical data (`MCFBlock::chg_cost()` and
 so on). The enum `amododification_type` ([`Modification.h:1237-1242`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Modification.h#L1237-1242))
-has four values:
+has four values, listed in
+[Table 8.1](08-modification-janus.md#tab-8-1).
+
+<span id="tab-8-1"></span>**Table 8.1.** The values of `ModParam`.
 
 | `ModParam` | Value | Meaning |
 |---|---|---|
-| `eDryRun` | 0 | The method does *not* make the change, and therefore issues no `Modification`; it serves to switch off one face of a method that changes both, when the change on that face has already been made by other means. |
+| `eDryRun` | 0 | The method does *not* make the change, and therefore issues no `Modification`; it serves to switch off one face of a method that changes both, when the change on that face has already been made by other means. For the `issueMod` of such a method the meaning is the one the `:Block` documents (for `MCFBlock`, no physical `Modification` is issued, while the data still follow the abstract change, see [`MCFBlock.h:1754-1765`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L1754-1765)). |
 | `eNoMod` | 1 | The method makes the change but issues no `Modification`; to be used only when it is certain that neither the `:Block` nor any `:Solver` will ever need the information (typically, while a new `:Block` is filled in, before any `:Solver` is attached). |
-| `eNoBlck` | 2 | The method makes the change and issues the `Modification` only if anyone is listening (`anyone_there()`), with `concerns_Block() == false`, which tells the receiving `:Block` not to apply the change again to its physical representation. |
+| `eNoBlck` | 2 | The method makes the change and issues the `Modification` only if anyone is listening (`anyone_there()`), with `concerns_Block() == false`, by which the receiving `:Block` knows not to apply the change again to its physical representation. |
 | `eModBlck` | 3 | The method makes the change and issues the `Modification` whether or not anyone is listening, with `concerns_Block() == true`, so that the `:Block` applies the change to its physical face if needed; it is the default of the abstract representation. |
 
 The distinction between `eNoBlck` and `eModBlck` only matters for an
@@ -414,7 +530,7 @@ So far, a `Modification` has been dispatched the moment it is issued.
 This is the default, but SMS++ also provides a mechanism to *batch* a
 set of related `Modification`s and deliver them together, as a single
 `GroupModification`; the mechanism is that of the *channels*
-([`Observer.h:333-453`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Observer.h#L333-453), [`Block.h:5817-5856`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L5817-5856)).
+([`Observer.h:333-453`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Observer.h#L333-453), [`Block.h:5837-5876`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L5837-5876)).
 
 ### Opening and closing a channel
 
@@ -427,18 +543,17 @@ blk.close_channel( c );               // close it: the group is shipped
 ```
 
 `open_channel()` (with the default argument 0) creates a new
-`GroupModification`, gives the channel a new name and records the pair
-in the `Block`, in which we say that the channel is *defined*; the
-name is returned. A `Modification` is sent *on* the channel `c` by
-passing `make_par( issueMod , c )` to the method that issues it, or by
-setting `c` as the *default channel* of the `Block` with
-`set_default_channel( c )`, after which a plain `eModBlck` or
-`eNoBlck` is routed to `c`. What has been sent to a channel can also
-be thrown away: `close_channel( c , force , true )` deletes what
-`close_channel( c , force )` would have dispatched, and nobody
-receives anything. Also, `clear_channel( c )` empties the current
-group of the channel while leaving it open, which keeps a long
-sequence of changes known to have no net effect from piling up in it.
+`GroupModification`, gives the channel a new name and records the pair in the
+`Block`, in which we say that the channel is *defined*; the name is returned.
+A `Modification` is sent *on* the channel `c` by passing `make_par( issueMod ,
+c )` to the method that issues it, or by setting `c` as the *default channel*
+of the `Block` with `set_default_channel( c )`, after which a plain `eModBlck`
+or `eNoBlck` is routed to `c`. The content of a channel can also be thrown
+away: `close_channel( c , force , true )` deletes what `close_channel( c ,
+force )` would have dispatched, and nobody receives anything. Also,
+`clear_channel( c )` empties the current group of the channel while leaving it
+open, which keeps a long sequence of changes known to have no net effect from
+piling up in it.
 
 ### Nesting
 
@@ -464,57 +579,57 @@ calls between `open_channel( 0 )` and the closure in root mode (or
 forced) of `c`, with no `close_channel( c , ... , true )` and no
 `clear_channel( c )` in between.
 
-**Lemma 8.4** (Channels). *Let a session of a channel `c` defined in
-$D$ be given, during which the `Modification`s sent on `c` are issued
-in $D$ or in its descendants, and the overrides on the way call the
-base method with the channel they received. Then: (i) at the end of
-the session, a single `GroupModification` $G$ is passed to the
-qualified `Block::add_Modification()` of $D$, and the
-`GroupModification`s nested in $G$ correspond one to one to the calls
-of `open_channel( c )` of the session, each being the father of those
-opened while it was the current one; (ii) every `Modification` sent on
-`c` during the session is a sub-`Modification` of exactly one group of
-$G$, namely the one current when it reached $D$, in the order in which
-it reached $D$; (iii) a `Solver` registered with a `Block` strictly
-between the issuer and $D$ receives each such `Modification`
-immediately and alone, while one registered with $D$ or with an
-ancestor of $D$ receives it only inside $G$, once, if $G$ is of
-concern to it, at the end of the session.*
+<span id="lem-8-4"></span>**Lemma 8.4** (Channels). *Let a session of a
+channel `c` defined in $D$ be given, during which the `Modification`s sent on
+`c` are issued in $D$ or in its descendants, and the overrides on the way call
+the base method with the channel they received. Then: (i) at the end of the
+session, a single `GroupModification` $G$ is passed to the qualified
+`Block::add_Modification()` of $D$, and the `GroupModification`s nested in $G$
+correspond one to one to the calls of `open_channel( c )` of the session, each
+being the father of those opened while it was the current one; (ii) every
+`Modification` sent on `c` during the session is a sub-`Modification` of
+exactly one group of $G$, namely the one current when it reached $D$, in the
+order in which it reached $D$; (iii) a `Solver` registered with the issuer or
+with a `Block` between it and $D$ ($D$ excluded) receives each such
+`Modification` immediately and alone, while one registered with $D$ or with an
+ancestor of $D$ receives it only inside $G$, once, if $G$ is of concern to it,
+at the end of the session.*
 
-*Proof.* (i) The pairs (name, current group) of the channels defined
-in $D$ are kept in `v_GroupMod`. `open_channel( 0 )` pushes a new pair
-with a group without father. `open_channel( c )` with `c` defined in
-$D$ (or reaching $D$ from a descendant, which passes it upwards) sets
-the father of the new group to the current one, appends the new group
-to it, and makes it current
-([`SMS++/src/Block.cpp:845-865`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L845-865)). `close_channel( c )` without `force`, on
-a current group with a father, makes the father current again
-([`SMS++/src/Block.cpp:928-948`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L928-948)). The current groups therefore form a
-stack whose bottom is the root group, and each group is appended to
-its father once, when opened. At the closure in root mode or forced,
-the code climbs from the current group to the root and passes the root
-to `Block::add_Modification()` of $D$ once, after having removed the
-channel ([`SMS++/src/Block.cpp:896-926`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L896-926)). (ii) By the pseudocode of
-[§8.3](08-modification-janus.md#sec-8-3), a `Modification` sent on `c`
-from a `Block` $B$ of the sub-tree of $D$ is forwarded upwards, since
-`c` is not defined below $D$, until it reaches $D$. There it is
-appended to the current group and the climb stops; this happens once,
-when it reaches $D$, and appending preserves the order. (iii) At each
-`Block` strictly below $D$ on the climb, the base method hands the
-`Modification` to the concerned `Solver`s after forwarding it, which
-gives the first claim. Since the climb stops at $D$, the `Solver`s of
-$D$ and of its ancestors receive none of them during the session,
-while at its end $G$ is delivered to them through $D$ as in Lemma 8.1.
-$\square$
+*Proof.* (i) The pairs (name, current group) of the channels defined in $D$
+are kept in `v_GroupMod`. `open_channel( 0 )` pushes a new pair with a group
+without father. `open_channel( c )` with `c` defined in $D$ (or reaching $D$
+from a descendant, which passes it upwards) sets the father of the new group
+to the current one, appends the new group to it, and makes it current
+([`SMS++/src/Block.cpp:845-865`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L845-865)).
+`close_channel( c )` without `force`, on a current group with a father, makes
+the father current again
+([`SMS++/src/Block.cpp:928-948`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L928-948)).
+The current groups therefore form a stack whose bottom is the root group, and
+each group is appended to its father once, when opened. At the closure in root
+mode or forced, the code climbs from the current group to the root and passes
+the root to `Block::add_Modification()` of $D$ once, after having removed the
+channel
+([`SMS++/src/Block.cpp:896-926`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp#L896-926)).
+(ii) By [Algorithm 8.1](08-modification-janus.md#alg-8-1), a `Modification`
+sent on `c` from a `Block` $B$ of the sub-tree of $D$ is forwarded upwards,
+since `c` is not defined below $D$, until it reaches $D$. There it is appended
+to the current group and the climb stops; this happens once, when it reaches
+$D$, and appending preserves the order. (iii) At each `Block` strictly below
+$D$ on the climb, the base method hands the `Modification` to the concerned
+`Solver`s after forwarding it, which gives the first claim (the issuer
+included, whose base method also hands it to its own `Solver`s). Since the
+climb stops at $D$, the `Solver`s of $D$ and of its ancestors receive none of
+them during the session, while at its end $G$ is delivered to them through $D$
+as in [Lemma 8.1](08-modification-janus.md#lem-8-1). $\square$
 
-We remark two more facts. First, at the end of a session $G$ is passed
-to $D$ on channel 0, which `Block::add_Modification()` replaces by the
-default channel of $D$, if one is set: a `Solver` then receives $G$
-only when that other channel is closed. Second, when a nested group
-has `concerns_Block() == true` its closure raises that of its father,
-up to the root, and the `changes()` of each group become the "or" of
-those of its sub-groups, and therefore the test of concern of Lemma
-8.1 sees what the group changes altogether.
+We remark two more facts. First, at the end of a session $G$ is passed to $D$
+on channel 0, which `Block::add_Modification()` replaces by the default
+channel of $D$, if one is set: a `Solver` then receives $G$ only when that
+other channel is closed. Second, when a nested group has `concerns_Block() ==
+true` its closure raises that of its father, up to the root, and the
+`changes()` of each group become the "or" of those of its sub-groups, and
+therefore the test of concern of [Lemma 8.1](08-modification-janus.md#lem-8-1)
+sees what the group changes altogether.
 
 ### What the channels are for
 
@@ -531,68 +646,70 @@ react once. `BundleSolver`, for instance, processes at once the
 (arguably) not used as much as it could be, but it is available to any
 `:Solver` and to any code that changes a `:Block`.
 
-The price of batching is the property that Lemma 8.2 guarantees to the
-`:Block` and Lemma 8.4 (iii) denies to the `:Solver`s of $D$ and
-above. When `Modification`s are packed into a group, such a `:Solver`
-sees them together, possibly long after the first was issued, and
-after the objects they refer to have changed further (or, if dynamic,
-have been removed). A `:Solver` that processes `GroupModification`s
-therefore needs, in general, somewhat more logic than one that
-processes single `Modification`s, since by the time it processes a
-buffered `Modification` the `Variable` or `Constraint` it refers to
-may have changed again.
+The price of batching is the property that [Lemma
+8.3](08-modification-janus.md#lem-8-3) guarantees to the `:Block` and [Lemma
+8.4](08-modification-janus.md#lem-8-4) (iii) denies to the `:Solver`s of $D$
+and above. When `Modification`s are packed into a group, such a `:Solver` sees
+them together, possibly long after the first was issued, and after the objects
+they refer to have changed further (or, if dynamic, have been removed). A
+`:Solver` that processes `GroupModification`s therefore needs, in general,
+somewhat more logic than one that processes single `Modification`s, since by
+the time it processes a buffered `Modification` the `Variable` or `Constraint`
+it refers to may have changed again.
 
 ## 8.7 The filter of the listeners {#sec-8-7}
 
-A `:Block` with no `:Solver` attached to it or to any of its ancestors
-is, by construction, silent: nobody is listening, nobody will react to
-any `Modification`, and issuing one is wasted work. Whether anyone is
-listening is answered by `anyone_there()`, which reads the flag `f_at`
-of [§4.6](04-block.md#sec-4-6) (Lemma 4.1). The methods called with
-`issueMod == eNoBlck` consult it before constructing the
-`Modification`, and if it is `false` they construct none; so do the
-methods of the physical face, whatever their `issueMod`
-(`Observer::issue_pmod()`). The methods of the abstract representation
-called with the default `eModBlck`, instead, issue the `Modification`
-anyway, because its `concerns_Block() == true` has to reach the
-`:Block` even when no `:Solver` is listening (Proposition 8.3, case
-(b)). If nobody is listening, the base `Block::add_Modification()`
-then drops it, after the override has seen it. For this reason a
-concrete `:Block` need not override `anyone_there()` to return `true`
-whenever its abstract representation exists: the abstract
-`Modification`s issued with `eModBlck` reach it regardless of the
-registered `:Solver`s. `MCFBlock` and `BinaryKnapsackBlock` used to
-carry such an override, which is now commented out in their headers
-with this explanation.
+A `:Block` with no `:Solver` attached to it or to any of its ancestors is, by
+construction, silent: nobody is listening, nobody will react to any
+`Modification`, and issuing one is wasted work. Whether anyone is listening is
+answered by `anyone_there()`, which reads the flag `f_at` of
+[§4.6](04-block.md#sec-4-6) ([Lemma 4.1](04-block.md#lem-4-1)) and the list of
+the `Solver`s of the `Block`. The methods called with `issueMod == eNoBlck`
+consult it before constructing the `Modification`, and if it is `false` they
+construct none; so do the methods of the physical face, whatever their
+`issueMod` (`Observer::issue_pmod()`). The methods of the abstract
+representation called with the default `eModBlck`, instead, issue the
+`Modification` anyway, because its `concerns_Block() == true` has to reach the
+`:Block` even when no `:Solver` is listening ([Proposition
+8.1](08-modification-janus.md#prop-8-1), case (b)). If nobody is listening,
+the base `Block::add_Modification()` then drops it, after the override has
+seen it. For this reason a concrete `:Block` need not override
+`anyone_there()` to return `true` whenever its abstract representation exists:
+the abstract `Modification`s issued with `eModBlck` reach it regardless of the
+registered `:Solver`s. `MCFBlock` and `BinaryKnapsackBlock` used to carry such
+an override, which is now commented out in their headers with this
+explanation.
 
 ### What a listener reads
 
 Actually, the filter is finer than "is anyone there". The method
-`Modification::changes()` gives the kind of a change as a `ModConcern`
-bit mask. Its bits record whether the change is physical (`eModPhys`)
-and, otherwise, whether it affects the data (`eModVarData`), the
-integrality (`eModVarType`) or the set (`eModVarSet`) of the
-`Variable`s, the sides (`eModCnsSide`), the coefficients
-(`eModCnsCoef`) or the set (`eModCnsSet`) of the `Constraint`s, or the
-`Objective` (`eModObj`). Further bits give the possible effect
+`Modification::changes()` gives the kind of a change as a `ModConcern` bit
+mask. Its bits record whether the change is physical (`eModPhys`) and whether
+it affects the data (`eModVarData`), the integrality (`eModVarType`) or the
+set (`eModVarSet`) of the `Variable`s, the sides (`eModCnsSide`), the
+coefficients (`eModCnsCoef`) or the set (`eModCnsSet`) of the `Constraint`s,
+or the `Objective` (`eModObj`). Further bits give the possible effect
 (`eRegnShrink` and `eRegnGrow` for the feasible region, `eObjUp` and
-`eObjDown` for the objective). Symmetrically, a `:Solver` declares the
-kinds it reads by `Solver::concerned_by()` (all of them in the base
-class, only the abstract ones for a `:MILPSolver`), a `:Block`
-declares those it reads by `Block::concerned_by()`, and
-`Block::concerned()` is the "or" of what is read by anyone listening
-to a `:Block`. A `:Block` passes each `:Solver` only the
-`Modification`s that are of concern to it (Lemma 8.1). A physical
-`Modification` reaches only those who read `eModPhys`, whatever its
-other bits, unless it changes everything (`eModAll`, as an
-`NBModification` does); an abstract one reaches those who read one of
-its kinds. Before building a `Modification` at all, a method can call
-`anyone_there_for( what )`, or the variants of `issue_mod()` and
-`issue_pmod()` that take the kind; a change that nobody reads then
-costs (almost) no work. With `eModBlck`, the variant of `issue_mod()`
-still issues, since the `:Block` has to see the change. For what an
-author of a `:Modification` has to declare, see
-[§C.2](C-writing-modification.md#sec-C-2).
+`eObjDown` for the objective). A physical `Modification` may also set the bits
+of the abstract kinds, to describe what it changes of the model (e.g.,
+`ePhysSides` for the capacities of an `MCFBlock`), and it is physical all the
+same; the bits are to be read through the static methods of `Modification`
+(`is_physical()`, `may_shrink_region()` and the like), not one by one.
+Symmetrically, a `:Solver` declares the kinds it reads by
+`Solver::concerned_by()` (all of them in the base class, only the abstract
+ones for a `:MILPSolver`), a `:Block` declares those it reads by
+`Block::concerned_by()`, and `Block::concerned()` is the "or" of what is read
+by anyone listening to a `:Block`. A `:Block` passes each `:Solver` only the
+`Modification`s that are of concern to it ([Lemma
+8.1](08-modification-janus.md#lem-8-1)). A physical `Modification` reaches
+only those who read `eModPhys`, whatever its other bits, unless it changes
+everything (`eModAll`, as an `NBModification` does); an abstract one reaches
+those who read one of its kinds. Before building a `Modification` at all, a
+method can call `anyone_there_for( what )`, or the variants of `issue_mod()`
+and `issue_pmod()` that take the kind; a change that nobody reads then costs
+(almost) no work. With `eModBlck`, the variant of `issue_mod()` still issues,
+since the `:Block` has to see the change. For what an author of a
+`:Modification` has to declare, see [§C.2](C-writing-modification.md#sec-C-2).
 
 ## 8.8 Example: a change of cost in `MCFBlock`, seen from both faces {#sec-8-8}
 
@@ -603,99 +720,57 @@ only stores the `Modification`s it receives, and whose
 `concerned_by()` is that of the base class (all the kinds).
 
 ```cpp
-#include "MCFBlock.h"
-#include "FakeSolver.h"
-#include <iostream>
+// mcf is an MCFBlock loaded as in §4.5, with at least two arcs; FakeSolver
+// accumulates the Modification it receives and does nothing with them
+auto * tap = new FakeSolver();
+mcf.register_Solver( tap );
 
-using namespace SMSpp_di_unipi_it;
+// build the abstract representation, so that the abstract stream is seen
+mcf.generate_abstract_variables();
+mcf.generate_abstract_constraints();
+mcf.generate_objective();
 
-int main()
-{
- // construct and load an MCFBlock (as in §4.5)
- MCFBlock mcf;
- mcf.load( 3 , 3 , MCFBlock::Subset{ 2 , 3 , 3 } ,       // pEn (nodes 1 .. n)
-           MCFBlock::Subset{ 1 , 2 , 1 } ,             // pSn
-           MCFBlock::Vec_FNumber{ 3.0 , 3.0 , 3.0 } ,  // pU
-           MCFBlock::Vec_CNumber{ 2.0 , 3.0 , 4.0 } ,  // pC
-           MCFBlock::Vec_FNumber{ -2.0 , 0.0 , +2.0 } );
+// physical face: lower the cost of arc 0
+mcf.chg_cost( 1.0 , 0 , eModBlck , eModBlck );
 
- // attach a tap: FakeSolver simply accumulates every Modification
- // it receives without ever doing anything with them. This is the
- // canonical way to observe the Modification stream.
- auto * tap = new FakeSolver();
- mcf.register_Solver( tap );
+// abstract face: close arc 1 by fixing its flow at 0
+ColVariable * x1 = mcf.i2p_x( 1 );
+x1->set_value( 0.0 );
+x1->is_fixed( true , eModBlck );
 
- // make sure the abstract representation is built, so that the
- // abstract stream will also be visible.
- mcf.generate_abstract_variables();
- mcf.generate_abstract_constraints();
- mcf.generate_objective();
+for( auto & mod : tap->get_Modification_list() )
+ std::cout << *mod << '\n';
 
- // ---- physical-side change: lower the cost of arc 0 ----
- mcf.chg_cost( /* NCost = */ 1.0 , /* arc = */ 0 ,
-               /* issueMod  = */ eModBlck ,
-               /* issueAMod = */ eModBlck );
- // The framework issues:
- //   - one physical MCFBlockRngdMod of type eChgCost with
- //     rng = [0, 1),
- //   - one abstract C05FunctionModLinRngd (with concerns_Block() ==
- //     false) reflecting the change in the LinearFunction of the
- //     Objective.
-
- // ---- abstract-side change: close arc 1 by fixing its flow to 0 ----
- // The idiomatic abstract-face counterpart of MCFBlock::close_arc(1)
- // is fixing the corresponding ColVariable to 0. This is a pure
- // abstract change; the framework intercepts it and applies the
- // matching physical operation.
- ColVariable * x1 = mcf.i2p_x( /* arc index = */ 1 );
- x1->set_value( 0.0 );
- x1->is_fixed( true , eModBlck );
- // The framework issues:
- //   - one abstract VariableMod with concerns_Block() == true,
- //     which mcf.add_Modification() intercepts;
- //   - mcf then performs the corresponding physical close_arc(1),
- //     issues a physical MCFBlockRngdMod marking the arc as
- //     closed, and forwards the abstract Modification with
- //     concerns_Block() rewritten to false.
-
- // examine the tap's pending list
- for( auto & mod : tap->get_Modification_list() )
-  std::cout << *mod << '\n';
-
- mcf.unregister_Solver( tap , /* deleteold = */ true );
- return( 0 );
- }
+mcf.unregister_Solver( tap , true );  // unregister and delete the tap
 ```
 
-The physical change issues an `MCFBlockRngdMod` of type `eChgCost` on
-the range $[0, 1)$, and, since the `Objective` has been generated,
-`chg_cost()` also changes the coefficient of arc 0 in the
-`LinearFunction` of the `Objective`, which issues a
-`C05FunctionModLinRngd` with `concerns_Block() == false` (the
-`eModBlck` passed is downgraded by `un_ModBlock()`). The abstract
-change issues a `VariableMod` with `concerns_Block() == true`, which
-the override of `MCFBlock::add_Modification()` intercepts. This
-override checks that the `ColVariable` is fixed at 0 (any other value
-would be refused) and calls `close_arc( 1 , eNoBlck , eDryRun )`,
-which issues a physical `MCFBlockRngdMod` marking the arc as closed;
-then it forwards the `VariableMod` with `concerns_Block()` reset to
-`false`. Hence each change produces two `Modification`s, one per face,
-as in Proposition 8.3; a listener of the physical face only (an
-`MCFSolver`) ignores the abstract ones, and one of the abstract face
-only (a `:MILPSolver`) ignores the physical ones. Seen from the user,
-the discipline is invisible: whether the change came through
-`chg_cost()` or through `ColVariable::is_fixed()`, both faces end up
-consistent and both streams carry it. Besides serving as a tap, as
-here, `FakeSolver` is useful to code that has to *defer* the reaction
-to the changes (say, while a sub-`Block` is changed in bulk, the
-changes being replayed later).
+The physical change issues an `MCFBlockRngdMod` of type `eChgCost` on the
+range $[0, 1)$, and, since the `Objective` has been generated, `chg_cost()`
+also changes the coefficient of arc 0 in the `LinearFunction` of the
+`Objective`, which issues a `C05FunctionModLinRngd` with `concerns_Block() ==
+false` (the `eModBlck` passed is downgraded by `un_ModBlock()`). The abstract
+change issues a `VariableMod` with `concerns_Block() == true`, which the
+override of `MCFBlock::add_Modification()` intercepts. This override checks
+that the `ColVariable` is fixed at 0 (any other value would be refused) and
+calls `close_arc( 1 , eNoBlck , eDryRun )`, which issues a physical
+`MCFBlockRngdMod` marking the arc as closed; then it forwards the
+`VariableMod` with `concerns_Block()` reset to `false`. Hence each change
+produces two `Modification`s, one per face, as in [Proposition
+8.1](08-modification-janus.md#prop-8-1); a listener of the physical face only
+(an `MCFSolver`, which receives the abstract ones as well, since it does not
+restrict `concerned_by()`) skips them, and one of the abstract face only (a
+`:MILPSolver`) does not receive the physical ones. For the user, both faces
+end up consistent whichever face the change came through, and both streams
+carry it. Besides serving as a tap, as here, `FakeSolver` is useful to code
+that has to *defer* the reaction to the changes (say, while a sub-`Block` is
+changed in bulk, the changes being replayed later).
 
 ## 8.9 Idioms {#sec-8-9}
 
-The default value of `issueMod` and `issueAMod` of the methods of the
-abstract representation is `eModBlck` because it is the safe one
-(Proposition 8.3); any other value is an optimization, to be used
-only when it is clear what the listeners need.
+The default value of `issueMod` and `issueAMod` of the methods of the abstract
+representation is `eModBlck` because it is the safe one ([Proposition
+8.1](08-modification-janus.md#prop-8-1)); any other value is an optimization,
+to be used only when it is clear what the listeners need.
 
 `eNoMod` is to be used only while no listener exists, typically while
 a `:Block` is constructed and filled in, before any `:Solver` is
@@ -717,19 +792,17 @@ turn.
 
 ## 8.10 Forward reference to `Change` {#sec-8-10}
 
-Arguably, the present design of `Modification` has one notable
-limitation: a `Modification` carries enough information to *describe*
-a change, but not always enough to *replay* it on a different
-`:Block`, and in general it cannot be serialized in a form that
-crosses the boundary of a process. The concept of
+The present design of `Modification` has one limitation: a `Modification`
+carries enough information to *describe* a change, but not always enough to
+*replay* it on a different `:Block`, and in general it cannot be serialized in
+a form that crosses the boundary of a process. The concept of
 [`Change`](https://smspp.gitlab.io/smspp-project/db/d4d/class_s_m_spp__di__unipi__it_1_1_change.html)
-(cf. [Chapter 16](16-change.md#ch-16)) addresses this. A `Change`
-carries the data needed to apply the change to any copy of a `:Block`,
-and it can be serialized to netCDF and deserialized as a plain object;
-where the `:Block` supports it, it can also be *undone* through an
-inverse `Change`, generated automatically. Its intended use is
-distributed computation by message passing; only a few `:Change`
-classes exist at version 0.8.0 (`AbstractChange` and `GroupChange` in
-the core, the former for the abstract representation of any `Block`,
-and those of `BinaryKnapsackBlock` and `SATBlock`), and the interface
-may change. **Status — beta.**
+(cf. [Chapter 16](16-change.md#ch-16)) addresses this. A `Change` carries the
+data needed to apply the change to any copy of a `:Block`, and it can be
+serialized to netCDF and deserialized as a plain object; where the `:Block`
+supports it, it can also be *undone* through an inverse `Change`, generated
+automatically. It serves two purposes ([§16.3](16-change.md#sec-16-3)):
+generic search schemes, such as the Branch-and-X of `BranchAndXSolver`, and
+(in the future) distributed computation by message passing. The `:Change`
+classes of the core and of the modules are listed in [Table
+16.1](16-change.md#tab-16-1).

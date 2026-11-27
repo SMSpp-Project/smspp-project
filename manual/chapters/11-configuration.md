@@ -4,9 +4,28 @@
 [`RBlockConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h), [`BlockSolverConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BlockSolverConfig.h),
 [`ThinComputeInterface.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h) (`ComputeConfig`)]
 
+We are concerned in this chapter with `Configuration`, the object through
+which everything of a `Block` and of a `Solver` that the instance does not
+fix is chosen, and with its concrete classes, from the single value of
+`SimpleConfiguration< T >` to those that configure the model and the solving
+of a whole tree of `Block`s.
+
+After the concept ([§11.1](11-configuration.md#sec-11-1)) we describe
+`SimpleConfiguration< T >` and the meta-configurations keyed by class name,
+which also select the part of a solution that a `:Solver` writes
+([§11.2](11-configuration.md#sec-11-2)), then `BlockConfig` and its
+recursive variants ([§11.3](11-configuration.md#sec-11-3)),
+`BlockSolverConfig` ([§11.4](11-configuration.md#sec-11-4)) and
+`ComputeConfig` ([§11.5](11-configuration.md#sec-11-5)). The slot for what
+the others cannot express is in [§11.6](11-configuration.md#sec-11-6), and
+the loading from text and netCDF files, with the text format, in
+[§11.7](11-configuration.md#sec-11-7). An example
+([§11.8](11-configuration.md#sec-11-8)) and the idioms
+([§11.9](11-configuration.md#sec-11-9)) close the chapter.
+
 ## 11.1 Concept {#sec-11-1}
 
-Almost every behaviour of a `Block` and of a `Solver` that is not
+Almost every behavior of a `Block` and of a `Solver` that is not
 fixed by the problem instance is controlled by a
 [`Configuration`](https://smspp.gitlab.io/smspp-project/d2/d32/class_s_m_spp__di__unipi__it_1_1_configuration.html)
 object: which parts of the abstract representation to generate and
@@ -17,12 +36,13 @@ first-class object: it can be constructed programmatically, loaded
 from a text file, or `[de]serialize`-d to netCDF, and it mirrors
 the tree structure of the `Block` it configures.
 
-The chapters so far have used `Configuration` objects in passing,
-to select a CFL formulation ([§3.5](03-mental-model.md#sec-3-5), [§7.3](07-physical-abstract.md#sec-7-3)), to gate the construction
-of `MCFBlock`'s bound constraints ([§7.3](07-physical-abstract.md#sec-7-3)), to select an R3 Block
-([§10.5](10-r3block.md#sec-10-5)), and to pick which part of a `Solution` to keep
-([§9.1](09-solution.md#sec-9-1)); this chapter gives the systematic
-treatment.
+The chapters so far have used `Configuration` objects in passing, to select a
+CFL formulation ([§3.5](03-mental-model.md#sec-3-5),
+[§7.3](07-physical-abstract.md#sec-7-3)), to gate the construction of
+`MCFBlock`'s bound constraints ([§7.3](07-physical-abstract.md#sec-7-3)), to
+select an R3 Block ([§10.5](10-r3block.md#sec-10-5)), and to pick which part
+of a `Solution` to keep ([§9.1](09-solution.md#sec-9-1)); this chapter gives
+the systematic treatment.
 
 ## 11.2 `SimpleConfiguration<T>` {#sec-11-2}
 
@@ -31,65 +51,119 @@ The simplest concrete `Configuration` is the template
 which wraps a single value of type `T` in a public field `f_value`. `T` is
 typically `int`, `double`, a `std::pair<>`, or a `std::vector<>` of such;
 nesting is allowed, so a
-`SimpleConfiguration< std::vector< Configuration * > >` is itself a perfectly
-good `Configuration` carrying a list of sub-configurations.
+`SimpleConfiguration< std::vector< Configuration * > >` is itself a
+`Configuration`, carrying a list of sub-configurations.
 
-`SimpleConfiguration< T >` is the workhorse for the many places where a
+`SimpleConfiguration< T >` is used in the many places where a
 `:Block` needs "one number" to gate a decision. The four formulations of
 `CapacitatedFacilityLocationBlock` are selected by a
 `SimpleConfiguration< int >` whose `f_value` is the bit-mask `wf`
-([§3.5](03-mental-model.md#sec-3-5)); the sparsity option of `MCFBlock`'s
-objective is a `SimpleConfiguration< double >`; the R3 Block selector of
-[§10.5](10-r3block.md#sec-10-5) is a `SimpleConfiguration< int >`. Each
-`:Block` documents the exact type and meaning it expects.
+([§3.5](03-mental-model.md#sec-3-5)); `MCFBlock` omits the bound
+constraints of its arcs, when all the capacities are infinite, if the
+`Configuration` of `generate_abstract_constraints()` is a
+`SimpleConfiguration< int >` with a nonzero value
+([§7.3](07-physical-abstract.md#sec-7-3)); the R3 Block selector of
+[§10.5](10-r3block.md#sec-10-5) is a `SimpleConfiguration< int >`, or a
+`SimpleConfiguration< std::pair< int , double > >` when it also carries a
+number. Each `:Block` documents the exact type and meaning it expects.
 
 Two container instantiations deserve special mention because they
 recur as the way to configure a *whole `Block` tree* at once:
 
-- `SimpleConfiguration< std::vector< Configuration * > >`, a
-  *positional* list: the i-th element configures the i-th
-  sub-`Block` (this is, for instance, the form `get_R3_Block`
-  accepts to pass a distinct sub-configuration to each inner
-  `Block`, [§10.3](10-r3block.md#sec-10-3)). Its drawback is that the caller must know the
-  exact position of each `Block` in the tree.
-- `SimpleConfiguration< std::map< std::string , Configuration * > >`,
-  a *non-positional*, by-name alternative that is far more
-  convenient and is used extensively in the `tools/` and `tests/`
-  directories for *meta-configuration*: "apply this
-  `Block[Solver]Config` to *every* `Block` of a given type",
-  keyed by the class name. It removes the need to know where in
-  the tree the `Block`s of that type reside, and is typically
-  sufficient, since it is rare for two sub-`Block`s of the same
-  type within a given parent to require *different*
-  `Block[Solver]Config`s. This by-type meta-configuration is the
-  idiom to reach for when configuring a large or
-  programmatically-built tree. Two `Configuration`s of the core
-  carry such a map: `MetaBlockConfig` ([`RBlockConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h)) and
-  `MetaBlockSolverConfig` ([`BlockSolverConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BlockSolverConfig.h)) are a
-  `BlockConfig` and a `BlockSolverConfig`, respectively, for the
-  `Block` they are applied to, plus the map saying which
-  `BlockConfig` (`BlockSolverConfig`) is applied to each of its
-  descendants according to their `classname()`, the special key
-  `"*"` acting as the default for the classnames that match no
-  other key. The descendants are visited father-first, so that a
-  `BlockConfig` changing the structure of a `Block`
-  ([§11.3](11-configuration.md#sec-11-3)) is applied before its new sub-`Block`s are looked up.
+- `SimpleConfiguration< std::vector< Configuration * > >`, a *positional*
+  list: the i-th element configures the i-th sub-`Block` (this is, for
+  instance, the form `get_R3_Block` accepts to pass a distinct
+  sub-configuration to each inner `Block`, [§10.3](10-r3block.md#sec-10-3)).
+  Its drawback is that the caller must know the exact position of each `Block`
+  in the tree.
+- `SimpleConfiguration< std::map< std::string , Configuration * > >`, a
+  *non-positional*, by-name alternative that is more convenient and is used
+  extensively in the `tools/` and `tests/` directories for
+  *meta-configuration*: "apply this `Block[Solver]Config` to *every* `Block`
+  of a given type", keyed by the class name. It removes the need to know where
+  in the tree the `Block`s of that type reside, and is typically sufficient,
+  since it is rare for two sub-`Block`s of the same type within a given parent
+  to require *different* `Block[Solver]Config`s. This by-type
+  meta-configuration is the idiom for configuring a large or programmatically
+  built tree. Two `Configuration`s of the core carry such a map:
+  `MetaBlockConfig`
+  ([`RBlockConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h))
+  and `MetaBlockSolverConfig`
+  ([`BlockSolverConfig.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/BlockSolverConfig.h))
+  are a `BlockConfig` and a `BlockSolverConfig`, respectively, for the `Block`
+  they are applied to, plus the map saying which `BlockConfig`
+  (`BlockSolverConfig`) is applied to each of its descendants according to
+  their `classname()`, the special key `"*"` acting as the default for the
+  classnames that match no other key. The descendants are visited
+  father-first, so that a `BlockConfig` changing the structure of a `Block`
+  ([§11.3](11-configuration.md#sec-11-3)) is applied before its new
+  sub-`Block`s are looked up. Unlike the visit of [Algorithm
+  11.1](11-configuration.md#alg-11-1) below, these two apply their map to the
+  descendants only (not to the `Block` itself), leave alone a descendant whose
+  entry is `nullptr`, and go on into the sub-`Block`s of a matched descendant.
+  A `MetaBlockConfig` applies each entry through a copy, so that the map is
+  unchanged, and `clear()`-ing a `MetaBlockSolverConfig` also clears all the
+  `BlockSolverConfig`s of the map, giving the object that undoes all of it
+  ([§11.4](11-configuration.md#sec-11-4)).
+
+The same map is also the one format of a `Configuration` that every
+`:Solver` understands in `get_var_solution()` and `get_dual_solution()`,
+which write the solution in the `Block` and accept a `Configuration` that
+selects a part of it ([`Solver.h:1524-1542`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h#L1524-1542)). Since it does not depend on how
+the sub-`Block`s of an instance are numbered, a `:Solver` can read it
+without knowing the `:Block`s of the tree. The `Block`s whose
+`classname()` is a key, or that the key `"*"` covers, are *chosen*, and
+have their part of the solution written as the `Configuration` they are
+mapped to says (`nullptr` meaning all of it, sub-`Block`s included). That
+`Configuration` may be a positional one, or a meta one in its turn, which
+then chooses among the sub-`Block`s of that `Block`. A `Block` that is not
+chosen is not written, but its sub-`Block`s are looked at in turn. A
+`:Solver` visits the chosen `Block`s by `for_each_selected()`, which is the
+following algorithm.
+
+<span id="alg-11-1"></span>**Algorithm 11.1** (the visit of a meta
+selection).
+
+```text
+ 1  procedure FOR-EACH-SELECTED(B, M, f)
+ 2     if B = nil or M = ∅ then return
+ 3     Q ← the queue holding B alone
+ 4     while Q ≠ ∅ do
+ 5        b ← the first Block of Q;  remove it from Q
+ 6        if classname(b) is a key of M then f(b, M[classname(b)])
+ 7        else if "*" is a key of M then f(b, M["*"])
+ 8        else append the sub-Blocks of b to Q
+```
+
+It is implemented by `for_each_selected()`
+([`Block.h:10140-10184`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L10140-10184)). The visit is breadth-first, hence father-first,
+and a chosen `Block` stops it on its branch (line 6 or 7), even when the
+`Configuration` it is mapped to is `nullptr`. `has_selected()` answers whether
+the map chooses any `Block` at all. A `:Solver` whose solution comes in
+pieces larger than a `Block` (say, the components of a decomposition) uses
+it to write a piece whole if any `Block` in it is chosen, and therefore it
+may write more than it is asked for, but never less.
 
 ## 11.3 `BlockConfig` and the `[C/O/R]` family {#sec-11-3}
 
 A
 [`BlockConfig`](https://smspp.gitlab.io/smspp-project/d6/d34/class_s_m_spp__di__unipi__it_1_1_block_config.html)
 gathers, in one object, every `Configuration` slot that a `Block`
-exposes. Its fields ([`Block.h:9861-9893`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L9861-9893)), in the order in which they
+exposes. Its fields ([`Block.h:9903-9930`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L9903-9930)), in the order in which they
 are declared and in which the text format lists them, are the
 following.
 
 - `f_structure_Configuration`: passed to `set_structure()`, which
   chooses the tree of sub-`Block`s of the `Block` when this is a
-  modelling choice rather than a datum of the instance. It comes
+  modeling choice rather than a datum of the instance. It comes
   first, since the structure comes before any part of the abstract
   representation, and `set_BlockConfig()` calls `set_structure()`
-  as soon as it has digested the `BlockConfig`.
+  as soon as it has digested the `BlockConfig`. The base class does
+  nothing for a `nullptr` and throws for any other `Configuration`,
+  since a `:Block` with no structure to choose being given one is an
+  error in the configuration. Calling it after the abstract
+  representation exists is the "nuclear option": the representation
+  has to be rebuilt, and an `NBModification` issued.
 - `f_static_constraints_Configuration`: passed to
   `generate_abstract_constraints()`.
 - `f_dynamic_constraints_Configuration`: passed to
@@ -104,7 +178,9 @@ following.
 - `f_is_optimal_Configuration`: the tolerances and options used by
   `is_optimal()`.
 - `f_solution_Configuration`: which part of the solution
-  `get_Solution()` keeps.
+  `get_Solution()` keeps, and which part `map_back_solution()` and
+  `map_forward_solution()` map when their `solc` is `nullptr`
+  ([§10.3](10-r3block.md#sec-10-3)).
 - `f_extra_Configuration`: a `:Block`-specific catch-all (used,
   for instance, by `CapacitatedFacilityLocationBlock` in BenForm
   to configure the hidden `BendersBFunction`,
@@ -118,19 +194,21 @@ It is given to a `Block` with
 `set_BlockConfig( BlockConfig * newBC = nullptr , bool deleteold = true )`,
 or with `BlockConfig::apply( Block * , bool deleteold = true )`, which
 moves the non-null slots into a new `BlockConfig` and passes that to
-`set_BlockConfig()`; in both cases the object given becomes property
-of the `Block`. The effect of a sequence of them is the following.
+`set_BlockConfig()`; the `BlockConfig` passed to `set_BlockConfig()`
+becomes property of the `Block`, while the one on which `apply()` is
+called stays with the caller, emptied of its non-null slots. The effect of
+a sequence of them is the following.
 
-**Lemma 11.1.** *Let $c_1, \ldots, c_k$ be `BlockConfig`s given in this
-order to a `Block` with `set_BlockConfig( c_h , true )`, and let $h_0$
-be the last index with $c_{h_0}$ not differential ($h_0 = 0$ if there
-is none, the `Block` having then no `BlockConfig` at the start). Then
-each slot of the resulting `BlockConfig` of the `Block` is the value
-of that slot in the last $c_h$, $h \ge h_0$, in which it is not
-`nullptr`, and it is `nullptr` if there is no such $c_h$.*
+<span id="lem-11-1"></span>**Lemma 11.1.** *Let $c_1, \ldots, c_k$ be
+`BlockConfig`s given in this order to a `Block` with `set_BlockConfig( c_h ,
+true )`, and let $h_0$ be the last index with $c_{h_0}$ not differential ($h_0
+= 0$ if there is none, the `Block` having then no `BlockConfig` at the start).
+Then each slot of the resulting `BlockConfig` of the `Block` is the value of
+that slot in the last $c_h$, $h \ge h_0$, in which it is not `nullptr`, and it
+is `nullptr` if there is no such $c_h$.*
 
 *Proof.* By induction on $k$, using the semantics documented for
-`set_BlockConfig()` ([`Block.h:2307-2344`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L2307-2344)). A non-differential $c_h$ is
+`set_BlockConfig()` ([`Block.h:2327-2364`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h#L2327-2364)). A non-differential $c_h$ is
 moved into the `Block`, the previous `BlockConfig` being deleted, and
 hence after it each slot is that of $c_h$, which is the statement for
 $k = h = h_0$. A differential $c_h$ is moved as it is if the `Block`
@@ -141,7 +219,7 @@ not `nullptr`, and the one before $c_h$ otherwise, which by the inductive
 hypothesis is the last non-null value since $h_0$. $\square$
 
 In words, a non-differential `BlockConfig` resets, and the differential
-ones that follow it override slot by slot; this is what allows a file to
+ones that follow it override slot by slot, which allows a file to
 change one slot of a configuration read elsewhere. Note that
 `set_BlockConfig()` does not regenerate the abstract representation:
 the slots are read when `generate_abstract_variables()` and its
@@ -150,19 +228,18 @@ formulation has to be given before that.
 
 The ten slots above are what the base `BlockConfig` carries,
 and they configure *one* `Block`, the one the object is applied
-to. The `[C/O/R]` family of derived classes adds two further,
-distinct capabilities on top of that base.
+to. The `[C/O/R]` family of derived classes adds three further
+capabilities on top of that base: the configuration of the sub-`Block`s
+(R), and the `ComputeConfig` of the `Objective` (O) and of individual
+`Constraint`s (C).
 
-The first is recursion. The second is the configuration of the
-`ComputeConfig` of the `Objective` and of individual
-`Constraint`s. This second capability is worth dwelling on,
-because it is easy to confuse with the named slots above. Recall
+The last two are easily confused with the named slots above. Recall
 ([§5.1](05-variable-constraint-objective.md#sec-5-1)) that `Objective`
 and `Constraint` both derive from `ThinComputeInterface`: their value
 (or satisfaction) must be `compute()`-d, and that computation may in
 principle need its own parameters, i.e., a `ComputeConfig`
 ([§11.5](11-configuration.md#sec-11-5)). This is rare, if it
-happens at all, in the current `:Block` catalogue, because the
+happens at all, in the current `:Block` catalog, because the
 `Objective`s and `Constraint`s in use are cheap to evaluate; but
 it *can* arise for a `Constraint` or `Objective` whose value is
 itself the result of an expensive sub-computation, and the
@@ -170,8 +247,7 @@ framework provides for it. The named slot
 `f_objective_Configuration` gates the *generation* of the
 `Objective`; the `O` handler, by contrast, carries the
 *`ComputeConfig`* the `Objective` will use when it is
-`compute()`-d. The two are different things at different points
-of the lifecycle.
+`compute()`-d.
 
 Three internal handlers ([`RBlockConfig.h:100-673`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L100-673)) implement the
 three capabilities, and the concrete classes are the non-empty
@@ -188,31 +264,35 @@ fixed order O, C, R):
   `constraint_group_id` is either the name or the index of the group,
   and `constraint_index` is the position of the `Constraint` within
   that group (the `Block::ConstraintID` convention;
-  [`RBlockConfig.h:374-395`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L374-395)). A C-flavoured configuration thus says
+  [`RBlockConfig.h:371-418`](https://gitlab.com/smspp/smspp/-/blob/develop/include/RBlockConfig.h#L371-418)). A C-flavored configuration thus says
   "give this `ComputeConfig` to the `Constraint` at index $j$ of
   group $g$".
-- R, `RHandler`: applies the whole configuration recursively to the
-  sub-`Block`s as well.
+- R, `RHandler`: carries a list of `BlockConfig`s, each with the index or
+  the name of the sub-`Block` to which it is applied
+  (`add_sub_BlockConfig()`), an `R`-flavored one recursing further; an
+  invalid index or name makes `apply()` throw `std::logic_error`
+  ([`RBlockConfig.cpp:204-225`](https://gitlab.com/smspp/smspp/-/blob/develop/src/RBlockConfig.cpp#L204-225)).
+
+<span id="tab-11-1"></span>**Table 11.1.** The classes of the `[C/O/R]`
+family.
 
 | Class | O | C | R | Adds |
 |---|:-:|:-:|:-:|---|
 | `OBlockConfig`   | ● |   |   | `ComputeConfig` of the `Objective`, this `Block` |
 | `CBlockConfig`   |   | ● |   | `ComputeConfig`s of selected `Constraint`s, this `Block` |
-| `RBlockConfig`   |   |   | ● | recursion of the base slots into sub-`Block`s |
+| `RBlockConfig`   |   |   | ● | a `BlockConfig` for each named sub-`Block`, recursively |
 | `OCBlockConfig`  | ● | ● |   | both `Objective` and `Constraint` `ComputeConfig`s |
 | `ORBlockConfig`  | ● |   | ● | `Objective` `ComputeConfig`, recursively |
 | `CRBlockConfig`  |   | ● | ● | `Constraint` `ComputeConfig`s, recursively |
 | `OCRBlockConfig` | ● | ● | ● | both, recursively |
 
-Every one of these is *also* a `BlockConfig`, so it carries the
-ten named slots in addition to the handler-specific data; the
-prefix only says which extra capabilities it brings.
-
-Hence, to apply one configuration to a `Block` and
-all its sub-`Block`s in one operation, use the `R`-flavoured
-variant; to touch only this `Block`, use the non-`R` one; to act
-only on the objective, only on the constraints, or on both, pick
-the `O`, `C`, or `OC` prefix accordingly.
+Each of these is also a `BlockConfig`, so it carries the ten named
+slots in addition to the handler-specific data; the prefix only says
+which extra capabilities it brings. Hence, the `R` variants configure
+the sub-`Block`s individually, each with a `BlockConfig` of its own, while
+the same `BlockConfig` is given to all the `Block`s of a class by a
+`MetaBlockConfig` ([§11.2](11-configuration.md#sec-11-2)), and the
+prefixes `O`, `C` and `OC` select the objective, the constraints or both.
 
 ## 11.4 `BlockSolverConfig` and `RBlockSolverConfig` {#sec-11-4}
 
@@ -221,35 +301,35 @@ While a `BlockConfig` configures the *model*, a
 configures the *solving*: it specifies which `:Solver`(s) are registered with
 a `Block` and, for each, the `ComputeConfig` (the solver parameters,
 [§11.5](11-configuration.md#sec-11-5)) to apply. It is applied to a `Block`
-with
-`apply( Block * block , const std::unordered_set< Block * > * ignored = nullptr )`,
-where `ignored`, if given, is the set of the `Block`s of the tree that the new
-`Solver`s must ignore, passed to `Solver::set_excluded_blocks()` before the
-`Solver` is registered. How it is applied depends on its mode: in *setting*
-mode (`eSetMode`) the `:Solver`s already registered are replaced by the listed
-ones, in *differential* mode (`eDiffMode`) a `:Solver` whose name is empty is
-kept and a `nullptr` `ComputeConfig` leaves its parameters as they are, and in
-*additive* mode (`eAddMode`) the listed `:Solver`s are registered in addition
-to the existing ones, which are never touched. A `BlockSolverConfig`
-remembers, per `Block`, which `:Solver`s it has created and registered
-(`get_Solvers( block )`); `clear()` empties it and puts it in setting mode,
-and applying the cleared object unregisters and deletes all and only the
-`:Solver`s that this very object had registered to that `Block`, leaving those
-put there by anybody else alone. The precise statement is the following.
+with `apply( Block * block , const std::unordered_set< Block * > * ignored =
+nullptr )`, where `ignored`, if given, is the set of the `Block`s of the tree
+that the new `Solver`s must ignore, passed to `Solver::set_excluded_blocks()`
+before the `Solver` is registered. How it is applied depends on its mode: in
+*setting* mode (`eSetMode`) the `:Solver`s already registered are replaced by
+the listed ones, in *differential* mode (`eDiffMode`) a `:Solver` whose name
+is empty is kept and a `nullptr` `ComputeConfig` leaves its parameters as they
+are, and in *additive* mode (`eAddMode`) the listed `:Solver`s are registered
+in addition to the existing ones, which are never touched. A
+`BlockSolverConfig` remembers, per `Block`, which `:Solver`s it has created
+and registered (`get_Solvers( block )`); `clear()` empties it and puts it in
+setting mode, and applying the cleared object unregisters and deletes all and
+only the `:Solver`s that this very object had registered to that `Block`,
+leaving those put there by anybody else alone. The precise statement is the
+following.
 
-**Lemma 11.2.** *Let $c$ be a `BlockSolverConfig` that has been applied
-to a `Block` $B$ (possibly several times, in any mode), and let $S$ be
-the set of the `Solver`s that $c$ has created and registered to $B$
-and that are still registered to it. If $c$ is then `clear()`-ed and
-applied to $B$, afterwards the `Solver`s registered to $B$ are exactly
-those registered before, minus $S$; the `Solver`s of $S$ are deleted,
-and a further application of $c$ to $B$ does nothing.*
+<span id="lem-11-2"></span>**Lemma 11.2.** *Let $c$ be a `BlockSolverConfig`
+that has been applied to a `Block` $B$ (possibly several times, in any mode),
+and let $S$ be the set of the `Solver`s that $c$ has created and registered to
+$B$ and that are still registered to it. If $c$ is then `clear()`-ed and
+applied to $B$, afterwards the `Solver`s registered to $B$ are exactly those
+registered before, minus $S$; the `Solver`s of $S$ are deleted, and a further
+application of $c$ to $B$ does nothing.*
 
 *Proof.* `clear()` sets the mode to `eSetMode` and empties the names and
 the `ComputeConfig`s, but leaves the per-`Block` record of the `Solver`s
 that $c$ has registered; every application of $c$ in any mode adds to
 that record the `Solver`s it registers, and removes from it those it
-deletes ([`BlockSolverConfig.cpp:291-316`](https://gitlab.com/smspp/smspp/-/blob/develop/src/BlockSolverConfig.cpp#L291-316)). Applying a `BlockSolverConfig`
+deletes ([`BlockSolverConfig.cpp:291-396`](https://gitlab.com/smspp/smspp/-/blob/develop/src/BlockSolverConfig.cpp#L291-396)). Applying a `BlockSolverConfig`
 in setting mode with no names takes the branch at
 [`BlockSolverConfig.cpp:247-268`](https://gitlab.com/smspp/smspp/-/blob/develop/src/BlockSolverConfig.cpp#L247-268): for each recorded `Solver` it checks
 that it is still registered to $B$, and if so it unregisters and deletes
@@ -257,21 +337,20 @@ it, the others being left alone; the record of $B$ is then erased, so
 that the next application finds no record and returns at once. The
 recorded `Solver`s still registered are by definition $S$. $\square$
 
-The lemma is what makes the cleanup at the end of the example of
-[§11.8](11-configuration.md#sec-11-8) safe, and what makes switching
-`:Solver` a change of one line in a text file read into a
-`BlockSolverConfig`; we remark that it identifies the `Solver`s by their
-address, and therefore a `Solver` of $S$ deleted by someone else and
-replaced by a new one at the same address would be mistaken for it.
+The lemma makes the cleanup at the end of the example of
+[§11.8](11-configuration.md#sec-11-8) safe; we remark that it identifies the
+`Solver`s by their address, and therefore a `Solver` of $S$ deleted by someone
+else and replaced by a new one at the same address would be mistaken for it.
 
 [`RBlockSolverConfig`](https://smspp.gitlab.io/smspp-project/d8/d23/class_s_m_spp__di__unipi__it_1_1_r_block_solver_config.html)
 is the recursive variant: it carries, in addition to the
-`:Solver`s for the `Block` itself, a list of `BlockSolverConfig`s
-to be applied to the sub-`Block`s, recursively. This is how a
-whole `Block` tree gets its `:Solver`s attached in one operation,
-for instance, a `LagrangianDualSolver` on the master and a
-`DPBinaryKnapsackSolver` on each leaf sub-`Block` of CFL/KskForm
-([Recipe R4](R4-cfl-lagrangian.md#rec-R4)).
+`:Solver`s for the `Block` itself, a list of `BlockSolverConfig`s,
+each with the index or the name of the sub-`Block` to which it is
+applied, recursively. This is how a whole `Block` tree gets its
+`:Solver`s attached in one operation, for instance, a `:Solver` on a
+master and one on each of its sub-`Block`s ([Recipe
+R4](R4-cfl-lagrangian.md#rec-R4) obtains the same effect through the
+parameter `str_LagBF_BSCfg` of the `LagrangianDualSolver`).
 
 ## 11.5 `ComputeConfig` {#sec-11-5}
 
@@ -281,53 +360,62 @@ configures any `ThinComputeInterface`, hence any `Solver`, but also any
 `Function` or other computing object. It bundles the integer, double and
 string parameters introduced in [§6.4](06-solver.md#sec-6-4) (`intMaxIter`,
 `dblMaxTime`, `dblRelAcc`, and so on), and the vectors of integer, double and
-string parameters, into one serialisable object, plus an optional "extra"
+string parameters, into one serializable object, plus an optional "extra"
 `Configuration` (`f_extra_Configuration`) for object-specific settings. Like a
 `BlockConfig`, it is either *differential* (`diff()`: the parameters it does
 not mention are left as they are) or not (they are reset to their default
 value), and it can be *relaxed* (`relax()`: the names of parameters that the
-object does not know are ignored, rather than raising an exception). A
+object does not know are ignored, rather than raising an exception). In a
+differential `ComputeConfig` a `nullptr` extra `Configuration` means "leave it
+as it is", while a non-differential one replaces the current extra
+`Configuration` with its own, possibly `nullptr`. A
 `BlockSolverConfig` holds one `ComputeConfig` per `:Solver` it manages;
-`set_ComputeConfig( const ComputeConfig * )` applies one directly.
+`set_ComputeConfig( const ComputeConfig * )` applies one directly. The extra
+`Configuration` can carry more than a few settings. An `R3BSolver` (since
+SMS++ 0.9.0) solves its `Block` through one of its R3 Blocks, and takes from
+it the description of what it builds, i.e., the `Configuration` of the R3
+Block, a `BlockConfig` and a `BlockSolverConfig` for it; it is therefore
+configured from a file alone ([Chapter 10](10-r3block.md#ch-10)).
 
 ## 11.6 The `f_extra_Configuration` escape hatch {#sec-11-6}
 
-Most of a `Block`'s configurable behaviour fits the named slots of
-[§11.3](11-configuration.md#sec-11-3). For the cases that do not, `BlockConfig` carries
-`f_extra_Configuration`, a slot whose meaning is entirely
-`:Block`-specific.
+Most of a `Block`'s configurable behavior fits the named slots of
+[§11.3](11-configuration.md#sec-11-3). For the cases that do not,
+`BlockConfig` carries `f_extra_Configuration`, a slot whose meaning is
+entirely `:Block`-specific.
 
-The instructive use is `CapacitatedFacilityLocationBlock` in
-BenForm. There, the transportation sub-problem is held in a
-`BendersBFunction` wrapping a hidden `MCFBlock` that is *not* a
-sub-`Block` of the CFL `Block` (it has `father == nullptr`). The
-recursive `[C/O/R]BlockConfig` and `RBlockSolverConfig` machinery
-therefore cannot reach it. The configuration of that hidden
-`BendersBFunction` and of its inner `MCFBlock` (including the
-`BlockSolverConfig` that attaches a `:Solver` to the inner
-`MCFBlock`, which BenForm requires) is passed through
-`f_extra_Configuration`. Its format is documented at
-[`CapacitatedFacilityLocationBlock.h:801-854`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L801-854), and it is a
+The instructive use is `CapacitatedFacilityLocationBlock` in BenForm. There,
+the transportation subproblem is held in a `BendersBFunction` wrapping a
+hidden `MCFBlock` that is *not* a sub-`Block` of the CFL `Block` (it has
+`father == nullptr`). The recursive `[C/O/R]BlockConfig` and
+`RBlockSolverConfig` machinery therefore cannot reach it. The configuration of
+that hidden `BendersBFunction` and of its inner `MCFBlock` (including the
+`BlockSolverConfig` that attaches a `:Solver` to the inner `MCFBlock`, which
+BenForm requires) is passed through `f_extra_Configuration`. Its format is
+documented at
+[`CapacitatedFacilityLocationBlock.h:801-854`](https://gitlab.com/smspp/capacitatedfacilitylocationblock/-/blob/develop/include/CapacitatedFacilityLocationBlock.h#L801-854):
+it is a
 `SimpleConfiguration< std::pair< Configuration * , Configuration * > >`
-whose first element is the R3 Block configuration of the inner
-`MCFBlock` (of which only the scale of the cost of the slack arcs is
-used, [§10.5](10-r3block.md#sec-10-5)) and whose second is the
-`ComputeConfig` of the `BendersBFunction`, a bare `BlockSolverConfig`
-for the inner `MCFBlock`, or a pair whose second element is such a
-`BlockSolverConfig`, being also accepted. Anything else, including no
-`f_extra_Configuration` at all, makes a BenForm `Block` throw
-`std::logic_error`. This is exactly the kind of situation
-`f_extra_Configuration` exists for: a configurable component that
-is logically part of the `Block` but structurally outside its
-sub-`Block` tree.
+whose first element is the R3 Block configuration of the inner `MCFBlock`,
+and whose second is the `ComputeConfig` of the `BendersBFunction`. Of the
+first, only the scale of the cost of the slack arcs is used, and only in the
+variant with slack arcs (`wf & 3` equal to 2,
+[§10.5](10-r3block.md#sec-10-5)), `nullptr` meaning the defaults. A bare
+`BlockSolverConfig` for the inner `MCFBlock`, or a pair whose second element
+is such a `BlockSolverConfig`, is also accepted. Anything else, including
+no `f_extra_Configuration` at all, makes a BenForm `Block` throw
+`std::logic_error`. This is the use for which `f_extra_Configuration` is
+provided: a configurable component that is logically part of the `Block` but
+structurally outside its sub-`Block` tree.
 
-## 11.7 Loading and serialising {#sec-11-7}
+## 11.7 Loading and serializing {#sec-11-7}
 
 A `Configuration` (of any of the above kinds) can be:
 
 - constructed programmatically, by setting its fields directly;
 - loaded from a text file with the static
-  `Configuration::deserialize( const std::string & filename )` (or
+  `Configuration::deserialize( const std::string & filename )`, which
+  returns `nullptr` if anything goes wrong (or
   `Configuration::deserialize( std::istream & )`, or `operator>>` on
   an object of the right type), which is the form of the
   configuration files shipped in the `tests/` directories (e.g., the
@@ -340,7 +428,7 @@ A `Configuration` (of any of the above kinds) can be:
   first-class SMS++ object.
 
 The factory `Configuration::new_Configuration( ... )` reconstructs the right
-concrete `:Configuration` from a class name, which is what lets a text or
+concrete `:Configuration` from a class name, which lets a text or
 netCDF file specify, say, an `RBlockSolverConfig` without the reading code
 knowing the type at compile time ([Chapter 18](18-factories-netcdf.md#ch-18)).
 
@@ -401,78 +489,63 @@ parameter of a
 
 ## 11.8 Example: selecting a CFL formulation and a solver {#sec-11-8}
 
-The following program reads a CFL instance, takes its formulation from
-one configuration file and its `:Solver`s from another, solves, and
-cleans up.
+The following fragment takes the formulation of a CFL instance from one
+configuration file and its `:Solver`s from another, solves, and cleans up.
 
 ```cpp
-#include "CapacitatedFacilityLocationBlock.h"
-#include "BlockSolverConfig.h"
+// cfl is a CapacitatedFacilityLocationBlock loaded out of a CFL instance
 
-#include <fstream>
+// configure the MODEL: the BlockConfig of the file selects the knapsack
+// formulation (wf = 1), and apply() moves its slots into the Block
+auto bc = dynamic_cast< BlockConfig * >(
+  Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
+bc->apply( &cfl );
+delete bc;
+cfl.generate_abstract_variables();  // KskForm, with its sub-Block
+cfl.generate_abstract_constraints();
+cfl.generate_objective();
 
-using namespace SMSpp_di_unipi_it;
+// configure the SOLVING: the Solver(s) and their parameters
+auto bsc = dynamic_cast< BlockSolverConfig * >(
+  Configuration::deserialize( "BSPar-LDS.txt" ) );
+bsc->apply( &cfl );  // constructs and registers them
+bsc->clear();        // empty, but it keeps the record
 
-int main( int argc , char ** argv )
-{
- CapacitatedFacilityLocationBlock cfl;
- std::ifstream in( argv[ 1 ] );  // a CFL instance in ORLib format
- cfl.load( in );
+cfl.get_registered_solvers().front()->compute();
 
- // configure the MODEL: the BlockConfig of the file selects the
- // Knapsack Formulation (wf = 1)
- auto bc = dynamic_cast< BlockConfig * >(
-   Configuration::deserialize( "CFLBCfg-KF-LD.txt" ) );
- bc->apply( &cfl );
- delete bc;                          // apply() has moved its slots
- cfl.generate_abstract_variables();  // KskForm, with its sub-Block
- cfl.generate_abstract_constraints();
- cfl.generate_objective();
-
- // configure the SOLVING: the Solver(s) and their parameters
- auto bsc = dynamic_cast< BlockSolverConfig * >(
-   Configuration::deserialize( "BSPar-LDS.txt" ) );
- bsc->apply( &cfl );  // constructs and registers them
- bsc->clear();        // empty, but it keeps the record
-
- auto slvr = cfl.get_registered_solvers().front();
- slvr->compute();
-
- // cleanup: the clear()-ed object, applied again, unregisters and
- // deletes the Solver(s) it had registered (Lemma 11.2)
- bsc->apply( &cfl );
- delete bsc;
- return( 0 );
- }
+// cleanup: the clear()-ed object, applied again, unregisters and deletes
+// the Solver(s) it had registered (Lemma 11.2)
+bsc->apply( &cfl );
+delete bsc;
 ```
 
-The two halves are independent: the `BlockConfig` decides *what model*
-`cfl` exposes (here, KskForm with its `BinaryKnapsackBlock`
-sub-`Block`s, since the file sets the `f_static_variables_Configuration`
-to a `SimpleConfiguration< int >` of value 1), while the
-`BlockSolverConfig` decides *how it is solved* (here, by the
-`LagrangianDualSolver` that [`BSPar-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BSPar-LDS.txt) names). Changing the
-formulation is a change of one number in the first file, and changing
-the `:Solver` is a change of one line in the second;
-[Recipe R3](R3-cfl-three-ways.md#rec-R3) shows the same `CFL_test`
-executable producing three different solution strategies by swapping
-the configuration files alone. The `BlockConfig` is applied before the
-abstract representation is generated, since the slots are read by the
-`generate_*()` methods (Lemma 11.1 and the remark after it), and
-`apply()` moves its slots into a new `BlockConfig` of the `Block`,
-which is why the emptied `bc` is deleted.
+The two halves are independent: the `BlockConfig` decides *what model* `cfl`
+exposes (here, KskForm with its `BinaryKnapsackBlock` sub-`Block`s, since the
+file sets the `f_static_variables_Configuration` to a `SimpleConfiguration<
+int >` of value 1), while the `BlockSolverConfig` decides *how it is solved*
+(here, by the `LagrangianDualSolver` that
+[`BSPar-LDS.txt`](https://gitlab.com/smspp/tests/-/blob/develop/CapacitatedFacilityLocationBlock/BSPar-LDS.txt)
+names). Changing the formulation is a change of one number in the first file,
+and changing the `:Solver` is a change of one line in the second; [Recipe
+R3](R3-cfl-three-ways.md#rec-R3) shows the same `CFL_test` executable
+producing three different solution strategies by swapping the configuration
+files alone. The `BlockConfig` is applied before the abstract representation
+is generated, since the slots are read by the `generate_*()` methods ([Lemma
+11.1](11-configuration.md#lem-11-1) and the remark after it), and `apply()`
+moves its slots into a new `BlockConfig` of the `Block`, which is why the
+emptied `bc` is deleted.
 
 ## 11.9 Idioms {#sec-11-9}
 
 *Model and solver configured apart.* A `BlockConfig` answers "what
 model" and a `BlockSolverConfig` answers "how solved"; keeping them in
-distinct objects (and distinct files) is what makes the formulation and
+distinct objects (and distinct files) makes the formulation and
 the `:Solver` independently swappable.
 
-*The R variant for a tree.* When the same choice should propagate to
-the sub-`Block`s, `RBlockConfig` and `RBlockSolverConfig` (or the
-`Meta` ones of [§11.2](11-configuration.md#sec-11-2), by classname)
-do it without walking the tree by hand.
+*The Meta and R variants for a tree.* The `Meta` ones of
+[§11.2](11-configuration.md#sec-11-2), by classname, or, sub-`Block` by
+sub-`Block`, `RBlockConfig` and `RBlockSolverConfig` configure a tree
+without walking it by hand.
 
 *The extra slot only for what the named slots cannot express.*
 `f_extra_Configuration` is the documented escape hatch for components that
@@ -483,6 +556,6 @@ that a named slot already covers.
 
 *Configuration from files.* The intended workflow of the framework is
 that formulations and `:Solver` stacks live in text or netCDF
-configuration files, read at runtime, rather than being built in code;
+configuration files, read at run time, rather than being built in code;
 the `tests/` directories are the reference examples of this style,
 and the example of [§11.8](11-configuration.md#sec-11-8) follows it.

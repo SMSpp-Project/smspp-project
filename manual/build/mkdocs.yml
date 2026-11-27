@@ -99,7 +99,7 @@ nav:
       - 7. Physical vs Abstract representation: chapters/07-physical-abstract.md
       - 8. Modification and the Janus discipline: chapters/08-modification-janus.md
       - 9. Solution: chapters/09-solution.md
-      - 10. R3Block: chapters/10-r3block.md
+      - 10. R3 Blocks: chapters/10-r3block.md
       - 11. Configuration: chapters/11-configuration.md
       - 12. Sub-Block and recursive flow: chapters/12-sub-block.md
       - 13. The Function family: chapters/13-function-family.md
@@ -107,7 +107,8 @@ nav:
       - 15. The methods factory: chapters/15-methods-factory.md
       - 16. Change: chapters/16-change.md
       - 17. Parallel and asynchronous computation: chapters/17-parallel.md
-      - 18. Factories and netCDF serialisation: chapters/18-factories-netcdf.md
+      - 18. Factories and netCDF serialization: chapters/18-factories-netcdf.md
+      - 19. Nondifferentiable optimization solvers: chapters/19-nondifferentiable.md
   - Part III — End-to-end Recipes:
       - R1. Min-Cost Flow: chapters/R1-mcf.md
       - R2. Reoptimizing a Binary Knapsack: chapters/R2-knapsack-reopt.md

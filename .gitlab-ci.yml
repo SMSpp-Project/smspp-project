@@ -805,7 +805,14 @@ pages:
   artifacts:
     paths:
       - public
-  when: manual
+  # the site is published from develop (or master) only: by itself when a
+  # push changes the User Manual, by hand otherwise
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - manual/**/*
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master"
+      when: manual
 
 release_job:
   stage: release

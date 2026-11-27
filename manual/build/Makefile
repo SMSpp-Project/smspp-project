@@ -2,7 +2,7 @@
 # Run from manual/build/.
 #
 #   make pdf     # arXiv-ready PDF via Pandoc + pdflatex  -> ../SMS++-manual.pdf
-#   make html    # static MkDocs site                     -> ./site/
+#   make html    # static MkDocs site                     -> ../../manual-site/
 #   make serve   # live MkDocs preview at 127.0.0.1:8000
 #   make figures # (re)generate any missing .svg from .pdf in ../figures
 #   make clean   # remove build artefacts
@@ -24,7 +24,7 @@ pdf: figures
 
 html: figures
 	mkdocs build -f mkdocs.yml
-	@echo "Static site written to ./site/"
+	@echo "Static site written to ../../manual-site/"
 
 serve:
 	mkdocs serve -f mkdocs.yml

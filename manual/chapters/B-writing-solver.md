@@ -1,16 +1,32 @@
 # Appendix B: writing a new `:Solver` {#app-B}
 
-This appendix shows how to write a new `:Solver`, using a trivial
-first-fit greedy heuristic for the `BinPackingBlock` of [Appendix A](A-writing-block.md#app-A)
-as the worked example. As there, the code is illustrative rather
-than production-grade. For the repository scaffolding around a new
-`:Solver` module (builds, CI, tests, boilerplate) start from the
-[ModuleTemplate](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module) repository
-(`./init.sh --name FirstFitBPSolver`: a name ending in `Solver` puts the
-module among the `:Solver`s of the umbrella, while the stub class it
-generates is a `:Block` all the same, to be replaced by the `:Solver`), as
-described in the wiki page
-[Creating a new module](https://gitlab.com/smspp/smspp-project/-/wikis/Creating-a-new-module).
+[Source: [`Solver.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Solver.h),
+[`CDASolver.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/CDASolver.h),
+[`ThinComputeInterface.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/ThinComputeInterface.h),
+[`Modification.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Modification.h),
+[`SMSFactory.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/SMSFactory.h)]
+
+We are concerned in this appendix with the construction of a new
+`:Solver`, on the example of a trivial first-fit greedy heuristic for
+the `BinPackingBlock` of [Appendix A](A-writing-block.md#app-A); as
+there, the code is a teaching example. The choice
+of the base class is discussed in [§B.1](B-writing-solver.md#sec-B-1),
+the contract of `compute()` in [§B.2](B-writing-solver.md#sec-B-2) and
+the parameters in [§B.3](B-writing-solver.md#sec-B-3). The reaction to
+the `Modification`s is the subject of
+[§B.4](B-writing-solver.md#sec-B-4), the optional asynchronous
+computation and `State` that of [§B.5](B-writing-solver.md#sec-B-5),
+and [§B.6](B-writing-solver.md#sec-B-6) puts all this together in the
+worked example. For the repository scaffolding around a new `:Solver`
+module (builds, CI, tests, boilerplate) one starts from the
+[ModuleTemplate](https://gitlab.com/smspp-develop/moduletemplate)
+repository, as for a `:Block` ([Appendix A](A-writing-block.md#app-A)):
+`./init.sh --name FirstFitBPSolver` puts the module among the `:Solver`s of
+the umbrella, the name ending in `Solver`, while the stub class it generates
+is a `:Block` all the same, to be replaced by the `:Solver`. The smoke test
+that it generates, `test/test.cpp`, constructs the stub through
+`Block::new_Block()`, and it has to be changed to
+`Solver::new_Solver( "FirstFitBPSolver" )` together with the class.
 
 ## B.1 `Solver` versus `CDASolver` {#sec-B-1}
 
@@ -19,7 +35,7 @@ The first choice is the base class ([Chapter 6](06-solver.md#ch-6)):
 - derive from `Solver` for a `:Solver` that produces *primal*
   solutions only;
 - derive from `CDASolver` ("Convex Duality Aware") when the
-    `:Solver` also produces *dual* solutions and bounds with an
+  `:Solver` also produces *dual* solutions and bounds with an
   associated dual object, as `MCFSolver` and the `MILPSolver` family
   do.
 
@@ -41,78 +57,93 @@ no dual information, so it derives from `Solver`.
   (`kError + 2`). A caller that takes every code $\ge$ `kError` as a
   failure has to test it apart, since it says that at least one
   solution has been found.
-- honour `changedvars` ([§6.1](06-solver.md#sec-6-1)): with `false`, the caller guarantees
-  the relevant `Variable` values are unchanged since the last call,
-  so the `:Solver` may resume; with `true` it must assume they may
-  have changed. (A one-shot heuristic can simply ignore the hint
-  and recompute.)
+- honor `changedvars` ([§6.1](06-solver.md#sec-6-1)): with `false`, the caller
+  guarantees the relevant `Variable` values are unchanged since the last call,
+  so the `:Solver` may resume; with `true` it must assume they may have
+  changed. (A one-shot heuristic can simply ignore the hint and recompute.)
+- protect itself against a second call made from the same thread while it
+  runs, e.g., from an event handler: the lock of the `:Solver` does not, and
+  the documentation of `Solver::compute()` suggests returning an error when
+  a field of state already holds `kStillRunning`;
+- if it needs the `Block` to stay unchanged while it works, lock it, or
+  `read_lock()` it, as `MILPSolver` does, unless the `:Solver` already owns
+  the lock, and return `kBlockLocked` if the lock cannot be acquired;
 - record the solution so that it can later be read. `compute()`
   keeps it in the `:Solver`, and `get_var_solution()` (the one
   method, besides `compute()`, that every `:Solver` must implement)
-    deposits it into the `Block` when the user asks for it (for a
+  deposits it into the `Block` when the user asks for it (for a
   `:Block` with abstract `Variable`s, by writing their values), and the
   user then reads it through the `Block` ([§6.9](06-solver.md#sec-6-9)).
 
 ## B.3 Parameters {#sec-B-3}
 
-A `:Solver` inherits the parameter machinery of [§6.4](06-solver.md#sec-6-4)
-(`set_par` / `get_par` over integer / double / string slots:
-`intMaxIter`, `dblMaxTime`, ...) and may extend it with its own
-enum values. A simple heuristic may need none and can rely on the
-defaults; a `:Solver` that does add parameters extends
-`int_par_type_S` / `dbl_par_type_S` past their `...LastAlgPar`
-sentinels, exactly as `DPBinaryKnapsackSolver` adds `dblReopt`
+A `:Solver` inherits the parameter machinery of
+[§6.4](06-solver.md#sec-6-4) (`set_par()` and `get_int_par()`,
+`get_dbl_par()`, `get_str_par()` over integer, double and string slots,
+e.g., `intMaxIter` and `dblMaxTime`) and may extend it with its own enum
+values. The base class `Solver` only provides the default values of its
+parameters: it does not override `set_par()`, and a parameter such as
+`intMaxIter` or `dblMaxTime` has an effect only if the `:Solver` overrides
+`set_par()` to read it and its algorithm honors it. A heuristic that ignores
+them, as the example below does, need not do anything, but then it does not
+stop on them either. A `:Solver` that adds parameters declares them in a new
+enum starting at the sentinel of its base, e.g., `dblLastAlgPar`, and ending
+with a new sentinel, and overrides `set_par()`, `get_num_dbl_par()`,
+`get_dflt_dbl_par()`, `get_dbl_par()`, `dbl_par_str2idx()` and
+`dbl_par_idx2str()` (or their `int` and `str` analogues), without which the
+parameter can be neither set from a `ComputeConfig` nor named in a
+configuration file; this is how `DPBinaryKnapsackSolver` adds `dblReopt`
 ([Recipe R2](R2-knapsack-reopt.md#rec-R2)).
 
 ## B.4 Reacting to `Modification`s {#sec-B-4}
 
-The framework fills the `:Solver`'s pending list with the
-`Modification`s issued since it was attached ([Chapter 8](08-modification-janus.md#ch-8)). A
-`:Solver` consumes that list at the start of `compute()` and reacts:
-an exact, reoptimizing solver uses the fine-grained information to
-warm-start ([Chapter 13](13-function-family.md#ch-13)); a one-shot heuristic may simply note "the
-data changed, recompute from scratch", clearing the list. Either
-way, the `:Solver` is responsible for emptying its own list, which it
-does through the protected methods `pop()` / `front()` /
-`pop_front()` / `mod_clear()` of `Solver`, since these take the lock
-that guards the list against the `Modification`s arriving meanwhile
-from other threads.
+The framework fills the `:Solver`'s pending list with the `Modification`s
+issued since it was attached ([Chapter 8](08-modification-janus.md#ch-8)). A
+`:Solver` consumes that list at the start of `compute()` and reacts: an exact,
+reoptimizing solver uses the fine-grained information to warm-start ([Chapter
+8](08-modification-janus.md#ch-8), [Recipe R2](R2-knapsack-reopt.md#rec-R2));
+a one-shot heuristic may simply note "the data changed, recompute from
+scratch", clearing the list. Either way, the `:Solver` is responsible for
+emptying its own list, which it does through the protected methods `pop()` /
+`front()` / `pop_front()` / `mod_clear()` of `Solver`, since these take the
+lock that guards the list against the `Modification`s arriving meanwhile from
+other threads.
 
-Which `Modification`s reach the list at all is for the `:Solver` to
-say, by overriding `concerned_by()`: it returns the
-`Modification::ModConcern` mask of the kinds it reads
-([§C.2](C-writing-modification.md#sec-C-2)), all of them in the base class, and the `Block`
-passes it only the `Modification`s of those kinds. A `:Solver` that
-only reads the physical representation, as `DPBinaryKnapsackSolver`
-and the heuristic below, returns `Modification::eModPhys` and is
-spared the abstract `Modification`s altogether; one that only reads
-the abstract representation, as the `MILPSolver` family, returns
-abstract kinds only and is spared the physical ones.
+Which `Modification`s reach the list at all is for the `:Solver` to say, by
+overriding `concerned_by()`: it returns the `Modification::ModConcern` mask of
+the kinds it reads ([§C.2](C-writing-modification.md#sec-C-2)), all of them in
+the base class, and the `Block` passes it only the `Modification`s of those
+kinds. A `:Solver` that only reads the physical representation, as
+`DPBinaryKnapsackSolver` and the heuristic below, returns
+`Modification::eModPhys` and is spared the abstract `Modification`s
+altogether; one that only reads the abstract representation, as the
+`MILPSolver` family, returns abstract kinds only and is spared the physical
+ones.
 
 ## B.5 Optional: `compute_async` and `State` {#sec-B-5}
 
 `compute_async()` comes for free from `ThinComputeInterface`
-([§17.2](17-parallel.md#sec-17-2)); a `:Solver` only needs to ensure its `compute()` is
-thread-safe with respect to the `Block` (the recursive locking of
-[§17.1](17-parallel.md#sec-17-1)). A `:Solver` with meaningful internal state implements
-`get_State()` / `put_State()` for checkpointing and warm-starting
-([§17.3](17-parallel.md#sec-17-3)); one without, like the greedy
-heuristic, returns
-`nullptr` and pays nothing.
+([§17.2](17-parallel.md#sec-17-2)); a `:Solver` only needs its `compute()` to
+be safe with respect to the `Block` and to a call made while it runs, as
+explained in [§B.2](B-writing-solver.md#sec-B-2) (the recursive locking is in
+[§17.1](17-parallel.md#sec-17-1)). A `:Solver` with meaningful internal state
+implements `get_State()` / `put_State()` for checkpointing and warm-starting
+([§17.3](17-parallel.md#sec-17-3)); one without, like the greedy heuristic,
+returns `nullptr` and pays nothing.
 
 ## B.6 Worked example: a first-fit heuristic for `BinPackingBlock` {#sec-B-6}
 
-The heuristic reads the physical representation of the
-`BinPackingBlock` (the sizes and capacity, through the accessors of
-[§A.2](A-writing-block.md#sec-A-2)), places each item into the first bin that has room (opening a
-new bin when none does), and deposits the resulting assignment into
-the `Block` when `get_var_solution()` is called. It also computes a
-cheap *lower* bound, $\lceil (\sum_i s_i) / C \rceil$ bins, alongside
-the *upper* bound given by the feasible solution it has built (the
-number of bins it used). It reports these separately
-through `get_lb()` / `get_ub()`, and returns `kOK` when they happen
-to coincide (the greedy solution is then provably optimal) or
-`kLowPrecision` otherwise (feasible, but optimality not proven):
+The heuristic reads the physical representation of the `BinPackingBlock` (the
+sizes and capacity, through the accessors of
+[§A.2](A-writing-block.md#sec-A-2)), places each item into the first bin that
+has room (opening a new bin when none does), and deposits the resulting
+assignment into the `Block` when `get_var_solution()` is called. It also
+computes a cheap *lower* bound, $\lceil (\sum_i s_i) / C \rceil$ bins,
+alongside the *upper* bound given by the feasible solution it has built (the
+number of bins it used). It reports these separately through `get_lb()` /
+`get_ub()`, and returns `kOK` when they happen to coincide (the greedy
+solution is then provably optimal) or `kLowPrecision` otherwise (feasible, but
+optimality not proven):
 
 ```cpp
 // FirstFitBPSolver.h
@@ -149,8 +180,12 @@ class FirstFitBPSolver : public Solver
 
   for( Index i = 0 ; i < n ; ++i ) {
    const double s = f_bp->get_Size( i );
-   if( s > C )
-    return( kInfeasible );  // item bigger than a bin
+   if( s > C ) {  // item bigger than a bin: no solution, and no bound
+    f_lb = f_ub = Inf< OFValue >();
+    v_bin_of.clear();
+    f_has_sol = false;
+    return( kInfeasible );
+    }
    total += s;
    Index j = 0;
    while( load[ j ] + s > C + 1e-9 )
@@ -162,6 +197,7 @@ class FirstFitBPSolver : public Solver
    }
 
   v_bin_of = std::move( bin_of );  // keep the solution
+  f_has_sol = true;
 
   // upper bound: the value of the feasible solution just built
   f_ub = OFValue( nbins );
@@ -171,16 +207,22 @@ class FirstFitBPSolver : public Solver
   f_lb = std::ceil( total / C - 1e-9 );
 
   // if the two bounds coincide, the greedy solution is provably optimal
-  return( f_lb == f_ub ? kOK : kLowPrecision );
+  if( f_lb == f_ub )
+   return( kOK );
+  return( kLowPrecision );
   }
 
  // report the two bounds separately (BinPackingBlock is a minimization)
  OFValue get_lb( void ) override { return( f_lb ); }
  OFValue get_ub( void ) override { return( f_ub ); }
 
+ // whether there is a solution to deposit (none after kInfeasible)
+ bool has_var_solution( void ) override { return( f_has_sol ); }
+
  // deposit the solution into the Block (compact + abstract; see below)
  void get_var_solution( Configuration * = nullptr ) override {
-  f_bp->set_assignment( v_bin_of );
+  if( f_has_sol )
+   f_bp->set_assignment( v_bin_of );
   }
 
  // only the physical representation is read: no abstract Modification
@@ -196,6 +238,7 @@ class FirstFitBPSolver : public Solver
  std::vector< Index > v_bin_of;     // bin of each item, as last computed
  OFValue f_lb = -Inf< OFValue >();  // valid lower bound (none yet)
  OFValue f_ub = Inf< OFValue >();   // best feasible value (none yet)
+ bool f_has_sol = false;            // v_bin_of holds a solution
 
  SMSpp_insert_in_factory_h;  // so Solver::new_Solver("FirstFitBPSolver") works
  };
@@ -205,21 +248,23 @@ class FirstFitBPSolver : public Solver
 
 ```cpp
 // FirstFitBPSolver.cpp
-SMSpp_insert_in_factory_cpp_0( FirstFitBPSolver );  // ctor takes 0 args
+#include "FirstFitBPSolver.h"
+
+using namespace SMSpp_di_unipi_it;
+
+SMSpp_insert_in_factory_cpp_0( FirstFitBPSolver );  // Solver factory: 0 args
 ```
 
-The `set_assignment` helper that `get_var_solution()` calls is the `Block`-side
-method declared in [§A.2](A-writing-block.md#sec-A-2). It is worth seeing in full, because it
-makes a point that is easy to gloss over: the *compact* (physical)
-form of a solution and the *abstract* form generally have very
-different shapes, and translating between them is real work the
-`:Block` must do. Here the compact form is a single $n$-vector
-(`v_bin_of[i]` = the bin holding item $i$); the abstract form is
-the $n\times m$ matrix of `x` binaries plus the $m$-vector of `y`
-binaries. `set_assignment` stores the compact form and then *derives*
-the abstract one from it; in particular, it infers which bins are used
-(the `y[ j ]`s) from the bin of each item, which the compact
-representation does not give explicitly:
+The `set_assignment` helper that `get_var_solution()` calls is the
+`Block`-side method declared in [§A.2](A-writing-block.md#sec-A-2). We give it
+in full, since it shows that the *compact* (physical) form of a solution and
+the *abstract* form generally have different shapes, and that the translation
+between them is a task of the `:Block`. Here the compact form is a single
+$n$-vector (`v_bin_of[i]` = the bin holding item $i$); the abstract form is
+the $n\times m$ matrix of `x` binaries plus the $m$-vector of `y` binaries.
+`set_assignment` stores the compact form and then *derives* the abstract one
+from it; in particular, it infers which bins are used (the `y[ j ]`s) from the
+bin of each item, which the compact representation does not give explicitly:
 
 ```cpp
 // BinPackingBlock.cpp
@@ -247,12 +292,12 @@ void BinPackingBlock::set_assignment( const std::vector< Index > & bin_of )
 
 The return values rest on the following statement.
 
-**Lemma B.1.** *If $s_i \le C$ for every item, the first-fit loop
-terminates with every item in a bin of index at most $n - 1$, the load
-of each bin being at most $C$ up to the tolerance $10^{-9}$; every
-packing uses at least $\lceil \sum_i s_i / C \rceil$ bins; hence, if
-this bound equals the number of bins used, the packing is optimal. If
-some $s_i > C$, no packing exists.*
+<span id="lem-B-1"></span>**Lemma B.1.** *If $s_i \le C$ for every item, the
+first-fit loop terminates with every item in a bin of index at most $n - 1$,
+the load of each bin being at most $C$ up to the tolerance $10^{-9}$; every
+packing uses at least $\lceil \sum_i s_i / C \rceil$ bins; hence, if this
+bound equals the number of bins used, the packing is optimal. If some $s_i >
+C$, no packing exists.*
 
 *Proof.* When item $i$ is placed, at most $i$ bins have been opened, so
 the bin of index $i$ has load 0 and accepts $s_i \le C$; hence the
@@ -263,15 +308,18 @@ integer, $k \ge \lceil \sum_i s_i / C \rceil$. If the number of bins
 used attains this bound, no packing uses fewer. Finally, an item larger
 than $C$ fits in no bin. $\square$
 
-A few points to read off:
+We remark that:
 
 - `set_Block` downcasts to the concrete `:Block` the solver
   understands and rejects anything else, the standard guard of a
-  *specialised* `:Solver`.
-- By Lemma B.1, `compute()` returns `kInfeasible` with a certificate by
-  construction (an item larger than a bin); otherwise it returns `kOK`
+  *specialized* `:Solver`.
+- By [Lemma B.1](B-writing-solver.md#lem-B-1), `compute()` returns
+  `kInfeasible` with a certificate by construction (an item larger than a
+  bin), in which case both bounds are $+\infty$, as `Solver` prescribes
+  for a minimization, and `has_var_solution()` returns `false`; otherwise
+  it returns `kOK`
   when the lower bound matches the bins used, the greedy solution being
-  then optimal, and `kLowPrecision` when it does not, signalling a
+  then optimal, and `kLowPrecision` when it does not, signaling a
   feasible solution not proven optimal
   ([§6.3](06-solver.md#sec-6-3)). The bound is computed in floating
   point. Without the tolerance, a ratio $\sum_i s_i / C$ that is an
@@ -281,19 +329,27 @@ A few points to read off:
   true one whenever the rounding error of the ratio is below
   $10^{-9}$. The two bounds are exposed separately through the
   inherited `get_lb()` / `get_ub()`.
-- the solution is kept in the `:Solver` by `compute()` and written
+- The solution is kept in the `:Solver` by `compute()` and written
   *into the `Block`* by `get_var_solution()` through `set_assignment`,
   which keeps both the compact physical solution and the abstract
   `x` and `y` values, so the user can read it back through the `Block`
   in either form, as for any `:Solver` ([§6.9](06-solver.md#sec-6-9)).
 - `SMSpp_insert_in_factory_cpp_0` (zero-argument constructor)
-    registers the `:Solver` so that it can be named in a
+  registers the `:Solver` so that it can be named in a
   `BlockSolverConfig` ([Chapter 11](11-configuration.md#ch-11)), and it
-  is therefore subject to the linker caveat of
-  [§18.2](18-factories-netcdf.md#sec-18-2).
+  defines `SMSpp_force_load_FirstFitBPSolver()`, by which the CMake
+  target of the module (by `smspp_keep_module()`, since SMS++ 0.9.0, as
+  the plugins and `get_factory_names()` below) keeps it in every program
+  that links it ([§18.7](18-factories-netcdf.md#sec-18-7)). A program that
+  may be built without the module calls
+  `Solver::has_Solver( "FirstFitBPSolver" )` before naming it, which
+  returns `true` if and only if `Solver::new_Solver()` would construct
+  one instead of throwing (both load the plugin of the module if the
+  program is not linked to it), and `Solver::get_factory_names()` lists
+  the `:Solver`s that the factory holds at that moment.
 
-This heuristic is intentionally minimal: no parameters, no dual
-information, no reoptimization, no async state. It is a complete,
-attachable `:Solver` nonetheless, enough to make a
-`BinPackingBlock` solvable, which (as [Chapter 2](02-installation.md#ch-2), [§2.4](02-installation.md#sec-2-4) noted) is the
+This heuristic is intentionally minimal: no parameters, no dual information,
+no reoptimization, no async state. It is a complete, attachable `:Solver`
+nonetheless, enough to make a `BinPackingBlock` solvable, which (as [Chapter
+2](02-installation.md#ch-2), [§2.4](02-installation.md#sec-2-4) noted) is the
 precondition for testing the `:Block` at all.

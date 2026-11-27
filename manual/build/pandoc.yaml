@@ -7,7 +7,7 @@ from: markdown+tex_math_dollars+pipe_tables+fenced_code_attributes
 to: latex
 
 # Single source, assembled in reading order. Keep this list in sync with
-# the MkDocs nav in mkdocs.yml and with model.html.
+# the MkDocs nav in mkdocs.yml and with the table of contents of index.md.
 input-files:
   - ../index.md
   - ../chapters/01-introduction.md
@@ -28,6 +28,7 @@ input-files:
   - ../chapters/16-change.md
   - ../chapters/17-parallel.md
   - ../chapters/18-factories-netcdf.md
+  - ../chapters/19-nondifferentiable.md
   - ../chapters/R1-mcf.md
   - ../chapters/R2-knapsack-reopt.md
   - ../chapters/R3-cfl-three-ways.md

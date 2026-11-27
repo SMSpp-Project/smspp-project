@@ -1,24 +1,38 @@
 # 4. Block {#ch-4}
 
-[Doxy:
-[`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html)]
-&nbsp; [Source: [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h)]
+[Source: [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h), [`SMS++/src/Block.cpp`](https://gitlab.com/smspp/smspp/-/blob/develop/src/Block.cpp);
+[`MCFBlock/include/MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h)]
+
+We are concerned in this chapter with the class `Block`, i.e., with
+what a `Block` contains ([§4.1](04-block.md#sec-4-1)), with the rule by
+which the objects of a model are identified by their address
+([§4.2](04-block.md#sec-4-2)) and with the distinction between static
+and dynamic contents ([§4.3](04-block.md#sec-4-3)). We then outline the
+fields and the public methods of the class
+([§4.4](04-block.md#sec-4-4)), build an `MCFBlock` out of data in
+memory ([§4.5](04-block.md#sec-4-5)), and close with the idioms that
+the implementer of a `:Block` meets first
+([§4.6](04-block.md#sec-4-6)). Among them is the cache of the
+listeners, whose correctness is [Lemma 4.1](04-block.md#lem-4-1).
 
 ## 4.1 Concept {#sec-4-1}
 
 The abstract class
 [`Block`](https://smspp.gitlab.io/smspp-project/d2/dbd/class_s_m_spp__di__unipi__it_1_1_block.html)
-represents "(a fragment of) a mathematical model with a
-well-understood semantic". A `Block` contains (all of the following
-being optional):
+represents "a part of a mathematical model with a well-understood
+identity". A `Block` contains (all of the following being optional):
 
 - any number of `Variable` objects, organized in *groups*, where a
-  group is a single `Variable`, a `std::vector` of `Variable`s, a
-  `boost::multi_array` of `Variable`s with any number of dimensions,
+  static group is a single `Variable`, a `std::vector` of `Variable`s,
+  a `boost::multi_array` of `Variable`s with any number of dimensions,
   a `std::vector< std::vector< Variable > >` (a two-dimensional
   arrangement whose rows may have different lengths, as opposed to
-  the rectangular shape of a `boost::multi_array< Variable , 2 >`),
-  or, for the dynamic case, a `std::list` of `Variable`s;
+  the rectangular shape of a `boost::multi_array< Variable , 2 >`) or
+  a `boost::multi_array< std::vector< Variable > , K >`, while a
+  dynamic group is a `std::list` of `Variable`s, or a `std::vector` or
+  a `boost::multi_array` of such lists (i.e., only its last dimension
+  varies); a group may also hold pointers to `Variable`s that live
+  elsewhere;
 - any number of `Constraint` objects, organized in groups in the same
   sense;
 - at most one `Objective` object;
@@ -74,7 +88,7 @@ pointer (`p_Block` is `Block *`); its sub-`Block`s are stored as a
 `std::vector` of pointers (`v_Block`, of type `Vec_Block`), and moving
 the pointers does not move the `Block`s. The copy constructor of
 `Block` is deleted: a copy, which is anyway a different `Block`, is
-obtained through `get_R3_Block()`, and the `R3Block` mechanism (cf.
+obtained through `get_R3_Block()`, and the R3 Block mechanism (cf.
 [Chapter 10](10-r3block.md#ch-10)) is the supported way to keep two
 `Block`s "the same up to the data".
 
@@ -114,8 +128,9 @@ to the father is `nullptr` for a root, `v_Block` is the vector of the
 pointers to the sub-`Block`s, `f_name` is an optional name (useful in
 diagnostic output), and `v_Solver` is the list of the `Solver`s
 registered with the `Block`. The flag `f_at` caches whether some
-`:Solver` is listening to an ancestor of the `Block` (Lemma 4.1
-below); then come the machinery for concurrent access (`lock()`,
+`:Solver` is listening to an ancestor of the `Block` ([Lemma
+4.1](04-block.md#lem-4-1) below); then come the machinery for
+concurrent access (`lock()`,
 `read_lock()`, the identifier of the owner thread; see [Chapter
 17](17-parallel.md#ch-17)), and the pointer `f_BlockConfig` to the
 `BlockConfig`, the `Configuration` object that controls the optional
@@ -139,10 +154,13 @@ The main public methods, grouped by purpose, are the following:
   `generate_dynamic_variables( Configuration * )`,
   `generate_dynamic_constraints( Configuration * )`,
   `generate_objective( Configuration * )`;
-- *attachment of `Solver`s*: `register_Solver( Solver * , bool tofront )`,
+- *attachment of `Solver`s*: `register_Solver( Solver * , bool tofront )`
+  (which throws `std::invalid_argument` on `nullptr`),
   `unregister_Solver( Solver * , bool deleteold )`,
   `unregister_Solvers( bool deleteold )`, `replace_Solver( ... )`,
-  `get_registered_solvers()`;
+  `get_registered_solvers()`, where `unregister_Solvers()` deletes the
+  `Solver`s by default (`deleteold = true`), while `unregister_Solver()`
+  does not;
 - *handling of `Modification`s*: `add_Modification( sp_Mod , ChnlName )`,
   `anyone_there()`, `anyone_there_for( ... )`, `concerned()`,
   `concerned_by()`, and the channels `open_channel()`, `close_channel()`,
@@ -159,7 +177,8 @@ The main public methods, grouped by purpose, are the following:
   `set_objective_weight( double )`, `set_variable_weight( double )`
   (cf. [§5.4](05-variable-constraint-objective.md#sec-5-4));
 - *input and output*: `load( std::istream & , char )`,
-  `load( const std::string & , char )` (which opens the named file and calls
+  `load( const std::string & , char )` (which opens the named file,
+  prefixed by the global prefix of `set_filename_prefix()`, and calls
   the former), `serialize( netCDF::NcGroup & ) const`,
   `deserialize( const netCDF::NcGroup & )`, `print( std::ostream & , char )`;
 - *reformulation*:
@@ -220,8 +239,9 @@ int main()
  }
 ```
 
-Its constructor `MCFBlock( Block * father = nullptr )` produces an
-empty `MCFBlock`, which is a root if no father is given. The method
+Its constructor `explicit MCFBlock( Block * father = nullptr )`
+produces an empty `MCFBlock`, which is a root if no father is given.
+The method
 
 ```cpp
 void load( Index n , Index m , c_Subset & pEn , c_Subset & pSn ,
@@ -231,13 +251,15 @@ void load( Index n , Index m , c_Subset & pEn , c_Subset & pSn ,
 ```
 
 fills the physical representation. It takes the ending nodes `pEn`
-*before* the starting nodes `pSn`, whose names go from 1 to `n`
-(`load()` throws `std::invalid_argument` on a name outside this
-range). An empty `pU` means that all the capacities are infinite, an
-empty `pC` that all the costs are 0, and an empty `pB` that all the
-deficits are 0 (a circulation problem); the last four arguments give
-the current numbers of dynamic nodes and arcs and their maximum
-numbers. With the default verbosity, `print()` writes the numbers of
+*before* the starting nodes `pSn`, whose names go from 1 to `n`;
+`load()` throws `std::invalid_argument` on a name outside this range,
+if `pSn` or `pEn` has fewer than `m` entries, or if a nonempty `pU` or
+`pC` (`pB`) has fewer than `m` (`n`). An empty `pU` means that all the
+capacities are infinite, an empty `pC` that all the costs are 0, and
+an empty `pB` that all the deficits are 0 (a circulation problem),
+while an arc of infinite cost is loaded closed, with cost 0; the last
+four arguments give the current numbers of dynamic nodes and arcs and
+their maximum numbers. With the default verbosity, `print()` writes the numbers of
 nodes and arcs, the nonzero deficits and the arcs with their costs and
 capacities, while with the verbosity `'C'` it writes the instance in
 the DIMACS format.
@@ -251,12 +273,23 @@ attached; the flow `ColVariable`s, instead, are constructed by
 
 No factory is called by the user either, although the class is
 registered in the factory of `Block`s. The registration is done by the
-author of the `:Block`, once and for all, by the macro
-`SMSpp_insert_in_factory_cpp_1( MCFBlock );` at namespace scope in
-[`MCFBlock.cpp`](https://gitlab.com/smspp/mcfblock/-/blob/develop/src/MCFBlock.cpp), where the suffix `_1` means that the constructor takes
-one argument (the pointer to the father). Once it is registered, one
-can instantiate the class by its name through the factory (cf.
-[Chapter 18](18-factories-netcdf.md#ch-18)).
+author of the `:Block`, once and for all, by two macros: the line
+`SMSpp_insert_in_factory_h;` in the private part of the declaration of
+the class (in
+[`MCFBlock.h`](https://gitlab.com/smspp/mcfblock/-/blob/develop/include/MCFBlock.h#L2400)),
+and the line `SMSpp_insert_in_factory_cpp_1( MCFBlock );` at namespace
+scope in exactly one `.cpp` file, here
+[`MCFBlock.cpp`](https://gitlab.com/smspp/mcfblock/-/blob/develop/src/MCFBlock.cpp),
+where the suffix `_1` means that the constructor takes one argument
+(the pointer to the father). Once it is registered, one can
+instantiate the class by its name, as in
+`Block::new_Block( "MCFBlock" )`. This throws `std::invalid_argument`
+if neither the program nor a plugin (a shared library listed in a
+`.smspp` table, looked for since SMS++ 0.9.0) registers the class, and
+`std::runtime_error` if such a plugin exists but cannot be loaded,
+while `Block::get_factory_names()`, of the same version, gives the
+names that the factory holds at the time of the call (cf. [Chapter
+18](18-factories-netcdf.md#ch-18)).
 
 The same `MCFBlock` could equivalently have been built by reading a text file
 in the DIMACS format (with `load( std::istream & )`) or a netCDF file (with
@@ -289,16 +322,22 @@ This flag is maintained by `register_Solver()`, `unregister_Solver()`,
 `anyone_there( bool )` that a `Block` calls on each of its sub-`Block`s when
 the answer to "is anyone listening to me?" changes. In what follows, a
 sub-`Block` is *inserted properly* if its `f_at` is `false` before the
-insertion (which holds for a newly constructed `Block`), and if it is inserted
-either by `add_nested_Block()` or by a write into `v_Block` made while no
-`Solver` is registered with the father or with any of its ancestors. The
-property on which the `:Block`s rely is then the following.
+insertion, which holds for a newly constructed `Block`. Also, it has to
+be inserted (i) by `add_nested_Block()`, or (ii) by a write into `v_Block`
+made while no `Solver` is registered with the father or with any of its
+ancestors, or (iii) by a write into the `v_Block` of the father $P$ made
+by the `set_Block()` of a `Solver` that `register_Solver()` is
+registering with $P$, while $f_{at}(P)$ is `false` (as happens to a
+`:Block` that constructs its sub-`Block`s when it generates its
+abstract representation for that `Solver`). The property on which the
+`:Block`s rely is then the following.
 
-**Lemma 4.1** (Listeners). *Consider a tree of `Block`s whose
+<span id="lem-4-1"></span>**Lemma 4.1** (Listeners). *Consider a tree of `Block`s whose
 sub-`Block`s have all been inserted properly, and whose `Solver`s have
 been registered and unregistered only through the methods of
-`Block`. Then, at any time and for each `Block` $B$ of the tree,
-$f_{at}(B)$ is `true` if and only if some `Solver` is registered with
+`Block`. Then, whenever no method of `Block` that registers,
+unregisters or replaces a `Solver` is running, for each `Block` $B$ of
+the tree $f_{at}(B)$ is `true` if and only if some `Solver` is registered with
 a proper ancestor of $B$, and therefore `anyone_there()` is `true` on
 $B$ if and only if some `Solver` is registered with $B$ or with one of
 its ancestors.*
@@ -314,12 +353,16 @@ some `Block` on the path from $B$ to the root has a registered
 
 The invariant holds when the tree is built, since all the flags are `false`
 and no `Solver` is registered. Of the operations that may change some
-$L(\cdot)$, consider first `register_Solver( S )` on a `Block` $P$. If $P$
-already had a `Solver`, or if $f_{at}(P)$ held, then $L(P)$ was already
-`true`, and the method does not touch the flags of the sub-`Block`s (it only
-appends $S$, or returns at once if $S$ is already registered). Otherwise
-$L(P)$ goes from `false` to `true`, and the method calls
-`anyone_there( true )` on each sub-`Block` of $P$. Now `anyone_there( true )`
+$L(\cdot)$, consider first `register_Solver( S )` on a `Block` $P$, which
+returns at once if $S$ is already registered. Otherwise, it (i) calls
+`anyone_there( true )` on each sub-`Block` of $P$ if $P$ has no `Solver`
+and $f_{at}(P)$ is `false`, (ii) calls the `set_Block()` of $S$ and
+appends $S$ to the `Solver`s of $P$, and (iii) calls
+`anyone_there( true )` again on each sub-`Block` of $P$ if $f_{at}(P)$
+is `false`. If $P$ already had a `Solver`, or if $f_{at}(P)$ held, then
+$L(P)$ was already `true`, and step (i) is skipped. Otherwise $L(P)$ goes
+from `false` to `true`, and step (i) calls `anyone_there( true )` on each
+sub-`Block` of $P$. Now `anyone_there( true )`
 on a `Block` $C$ with $f_{at}(C)$ `false` sets $f_{at}(C)$ to `true`, which
 restores the invariant at $C$. If $C$ has a `Solver`, then $L(C)$ was `true`
 and remains so, and the method stops; otherwise $L(C)$ has gone from `false`
@@ -327,8 +370,24 @@ to `true`, and the call is repeated on the sub-`Block`s of $C$. If instead
 $f_{at}(C)$ was already `true`, then by the invariant $L(\mathrm{father}(C))$
 was already `true`, a contradiction with the hypothesis that it has just
 changed; hence this case does not arise below a `Block` whose $L$ changes. By
-induction on the height of the sub-tree of $P$, after the call the invariant
+induction on the height of the sub-tree of $P$, after step (i) the invariant
 holds again at each `Block` of that sub-tree, and it is unchanged elsewhere.
+During step (ii) the invariant may fail at the old sub-`Block`s of $P$, which
+already have $f_{at}$ `true` while $S$ is not yet among the `Solver`s of $P$;
+it holds again once $S$ is appended. The sub-`Block`s that `set_Block()` may
+write into `v_Block` in step (ii) have `f_at` `false`.
+Step (iii) runs only if $f_{at}(P)$ is `false`, and hence (by (iii) of the
+definition) it reaches every sub-`Block` written in step (ii). On a
+sub-`Block` $C$ that was there before the call one has $f_{at}(C) = L(P) =$
+`true`, either by step (i) or because $L(P)$ was already `true`, and
+therefore `anyone_there( true )` returns at once on $C$. On a sub-`Block`
+written in step (ii), instead, $f_{at}$ is `false`, and the argument of
+step (i) applies to it and to its sub-tree. The methods
+`replace_Solver( ... )` exchange a `Solver` of $P$ for another, which
+leaves `v_Solver` non-empty, and hence change no $L(\cdot)$; the
+sub-`Block`s that the `set_Block()` of the new `Solver` may write into
+`v_Block` are of none of the kinds (i)-(iii), and the hypothesis excludes
+them.
 The case of `unregister_Solver()` and `unregister_Solvers()` is symmetric.
 They call `anyone_there( false )` on the sub-`Block`s if and only if the last
 `Solver` of $P$ goes away while $f_{at}(P)$ is `false`, i.e., when $L(P)$ goes
@@ -338,15 +397,18 @@ $L$ does not change. Finally, `add_nested_Block( C )` on $P$ calls
 `anyone_there( true )` on $C$ if and only if $L(P)$ holds, and $f_{at}(C)$ is
 `false` by hypothesis before the call; hence after the call
 $f_{at}(C) = L(P)$, and the argument above shows that the invariant also holds
-in the sub-tree of $C$. A proper insertion by a direct write into `v_Block`
-happens while $L(P)$ is `false`, and the invariant holds since $f_{at}(C)$ is
-`false`. No other method of `Block` changes $f_{at}$ or `v_Solver`. $\square$
+in the sub-tree of $C$. A proper insertion of kind (ii) happens while
+$L(P)$ is `false`, and the invariant holds since $f_{at}(C)$ is `false`,
+while those of kind (iii) have been dealt with above. No other method of `Block` changes $f_{at}$ or `v_Solver`. $\square$
 
-The hypotheses of Lemma 4.1 are not idle. A sub-`Block` moved from a
-father that is listened to into one that is not would keep a stale
-`f_at == true`, since `add_nested_Block()` only raises the flag.
-Conversely, one written into `v_Block` after a `Solver` has been
-registered with an ancestor would keep `f_at == false`, and the
+The hypotheses of [Lemma 4.1](04-block.md#lem-4-1) are not idle. A
+sub-`Block` moved from a father that is listened to into one that is
+not would keep a stale `f_at == true`, since `add_nested_Block()` only
+raises the flag. Conversely, one written into `v_Block` after a
+`Solver` has been registered with an ancestor, or by the `set_Block()`
+of a `Solver` registered with a father whose $f_{at}$ is `true`, or by
+the `set_Block()` of a `Solver` that `replace_Solver()` puts in place of
+another, would keep `f_at == false`, and the
 `Modification`s it issues would be dropped by
 `Block::add_Modification()`, which returns at once when
 `anyone_there()` is `false`.
@@ -359,7 +421,8 @@ representation, and `eModVarData`, `eModCnsSide`, `eModObj` and so on for the
 parts of the abstract one), and each `:Solver` declares, through
 `Solver::concerned_by()`, the kinds it reads. Then `Block::concerned()` is the
 "or" of what the `:Solver`s of the `Block` and of its ancestors read, and of
-the `concerned_by()` of the `:Block` (typically, the abstract `Modification`s
+the `concerned_by()` of the `:Block` and of its ancestors (typically, the
+abstract `Modification`s
 that it follows to keep its physical representation in step; see [Chapter
 8](08-modification-janus.md#ch-8)). A `:Block` can therefore avoid
 constructing a `Modification` of a kind that nobody reads.
@@ -372,7 +435,8 @@ which it records as the father of the new `Block`. However, the
 constructor does not put the new `Block` into the `v_Block` of the
 father: this is done by the father, either by writing into its
 `v_Block` or by calling `add_nested_Block()`, which also sets the
-pointer to the father and the flag `f_at` (Lemma 4.1). This is the
+pointer to the father and the flag `f_at` ([Lemma
+4.1](04-block.md#lem-4-1)). This is the
 intended way to assemble a tree of `Block`s, and it is the one of
 `CapacitatedFacilityLocationBlock` in its knapsack formulation, which
 constructs its `BinaryKnapsackBlock` sub-`Block`s passing itself as

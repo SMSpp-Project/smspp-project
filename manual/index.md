@@ -19,18 +19,19 @@ A User Manual
 SMS++ is an open-source C++20 software framework for structured
 mathematical optimization. Its central abstraction is the `Block`, a
 nested unit that carries both the *semantics* of a mathematical
-sub-problem (its problem data, in natural form) and, on demand, an
-*abstract representation* of that sub-problem (its `Variable`s,
+subproblem (its problem data, in natural form) and, on demand, an
+*abstract representation* of that subproblem (its `Variable`s,
 `Constraint`s, `Objective`) suitable for general-purpose solvers. A
 `Block` can have any number of sub-`Block`s, recursively, and any
 number of attached `Solver`s. Specialized `Solver`s exploit the
 structure of a specific `:Block`, while general-purpose ones operate on
-the abstract representation. The framework handles the lazy
-propagation of changes through the `Modification` mechanism (and the
-newer `Change` one, in beta), the configuration of `Block` trees and
-`Solver` chains, the reformulation, relaxation and restriction of
-`Block`s through the `R3Block` mechanism, and coarse-grained parallel
-computation.
+the abstract representation. The framework handles the lazy propagation
+of changes through the `Modification` mechanism (and the newer `Change`
+one, which serves generic search schemes, such as a Branch-and-X, and
+(in the future) distributed computation by message passing), the
+configuration of `Block` trees and `Solver` chains, the reformulation,
+relaxation and restriction of `Block`s through the R3 Block mechanism,
+and coarse-grained parallel computation.
 
 This manual is a self-contained companion to the
 [SMS++ Doxygen reference](https://smspp.gitlab.io/smspp-project/) and to the
@@ -52,9 +53,9 @@ source files and in the project's [`CHANGELOG.md`](https://gitlab.com/smspp/smsp
 
 Recent work on SMS++, including much of what is documented here, has
 been carried out in the framework of the
-[**RESILIENT project**](https://resilient-project.github.io); the
-project is acknowledged in the form indicated in the umbrella
-project's [`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md).
+[RESILIENT project](https://resilient-project.github.io), which the
+[`README.md`](https://gitlab.com/smspp/smspp-project/-/blob/develop/README.md)
+of the umbrella project lists among the projects in which SMS++ is used.
 
 ## License
 
@@ -66,13 +67,13 @@ manual is distributed under the same terms.
 
 ## Conventions
 
-* **Class and method names** are typeset in `monospace`, e.g. `Block`,
-  `add_Modification( ... )`. Concrete classes derived from an abstract base
-  are sometimes written `:Solver`, `:Block` to emphasise their derived nature,
-  following the convention adopted in the slide decks that accompany the
-  project.
+* **Class and method names** are typeset in `monospace`, e.g.,
+  `Block`, `add_Modification( ... )`. Concrete classes derived from an
+  abstract base are sometimes written `:Solver`, `:Block` to emphasize
+  their derived nature, following the convention adopted in the slide
+  decks that accompany the project.
 * **File-path and source-tree references** are typeset in `monospace`
-  too, e.g. [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h). Whenever a precise pointer into
+  too, e.g., [`SMS++/include/Block.h`](https://gitlab.com/smspp/smspp/-/blob/develop/include/Block.h). Whenever a precise pointer into
   the source is given, the form is `file:line`.
 * **Doxygen cross-references** are URLs to the public Doxygen at
   `https://smspp.gitlab.io/smspp-project/`. The Doxygen is generated
@@ -85,42 +86,37 @@ manual is distributed under the same terms.
   reader can navigate from
   <https://smspp.gitlab.io/smspp-project/annotated.html>, the
   alphabetical class index, to reach the page from a stable entry
-  point. A handful of classes (notably `MCFBlock`) are documented as
-  part of a Doxygen *group* rather than as a stand-alone class page;
-  for these the link points to the header-file page
-  (`_<header>_8h.html`), which is the canonical entry.
-* **Wiki cross-references** are to
-  `https://gitlab.com/smspp/smspp-project/-/wikis/home` and are
-  written `[Wiki: page-name]`.
+  point.
+* **Wiki cross-references** are ordinary links to the pages under
+  `https://gitlab.com/smspp/smspp-project/-/wikis/`.
 * **Mathematical notation** follows the conventions adopted in the
   slide decks. Decision variables and parameters are usually
   italicized; sets are uppercase calligraphic where needed for
   clarity.
-* **Lemmas, propositions and theorems** are numbered by chapter (Lemma
-  8.2 is the second numbered statement of [Chapter
-  8](chapters/08-modification-janus.md#ch-8)). Each states its
-  hypotheses on the code of the version covered, and its proof points
-  to the methods whose behavior it relies on. A statement about what a
-  `:Block` or a `:Solver` *must* do (a contract) is given as a
-  definition, and the results that rely on it list it among their
-  hypotheses.
-* **Status admonitions** flag the maturity of a feature explicitly.
-  Four forms appear in the text:
-    * **Status — mature.** The feature is stable, tested, in
-      `develop` and in tagged releases. Implicit unless stated.
-    * **Status — beta.** The feature is in `develop` but its
-      interface or semantics may change in incompatible ways.
-    * **Status — under development.** The feature is partly present
-      but is actively being reworked; the manual describes both what
-      exists today and the direction of the intended revision.
-    * **Status — planned.** The feature is documented as intended
-      but is not yet released. The manual indicates explicitly that
-      it cannot be used today.
+* **Numbered items** (lemmas, propositions, theorems, remarks,
+  algorithms, tables and figures) are numbered by chapter, separately
+  for each kind, in order of appearance (Lemma 8.2 is the second lemma
+  of [Chapter 8](chapters/08-modification-janus.md#ch-8)). Each lemma,
+  proposition and theorem states its hypotheses on the code of the
+  version covered, and its proof points to the methods whose behavior
+  it relies on; a contract that a `:Block` or a `:Solver` must satisfy
+  is stated among the hypotheses of the results that rely on it.
+* **Versions** are those of the SMS++ project, i.e., of the umbrella
+  `smspp-project`; the version numbers of the modules are not used in
+  the manual. The manual covers version 0.8.0 and the features that
+  have entered the development branch after it, each of which is
+  marked "(since SMS++ 0.9.0)" where it is first mentioned in each
+  chapter.
+* **Status marks.** The section that describes a feature whose
+  interface is not yet settled opens with the note "Status — under
+  development", and it gives both what exists today and the direction
+  of the intended revision; the other features carry no mark.
 
 When in doubt about a claim made in this manual, the authoritative
-sources are, in order of decreasing specificity: the source code in
-the public repository <https://gitlab.com/smspp/smspp-project>, the
-public Doxygen reference, and the SMS++ Wiki.
+sources are, in this order, the source code in the public repository
+<https://gitlab.com/smspp/smspp-project>, the public Doxygen reference
+and this manual; for the installation, the authoritative source is the
+SMS++ Wiki.
 
 ---
 
@@ -141,7 +137,7 @@ public Doxygen reference, and the SMS++ Wiki.
     * [Chapter 8](chapters/08-modification-janus.md#ch-8).
       Modification and the Janus discipline.
     * [Chapter 9](chapters/09-solution.md#ch-9). Solution.
-    * [Chapter 10](chapters/10-r3block.md#ch-10). R3Block:
+    * [Chapter 10](chapters/10-r3block.md#ch-10). R3 Blocks:
       Reformulation, Relaxation, Restriction.
     * [Chapter 11](chapters/11-configuration.md#ch-11). Configuration.
     * [Chapter 12](chapters/12-sub-block.md#ch-12). Sub-Block and the
@@ -154,17 +150,19 @@ public Doxygen reference, and the SMS++ Wiki.
     * [Chapter 17](chapters/17-parallel.md#ch-17). Parallel and
       asynchronous computation.
     * [Chapter 18](chapters/18-factories-netcdf.md#ch-18). Factories
-      and netCDF serialisation.
+      and netCDF serialization.
+    * [Chapter 19](chapters/19-nondifferentiable.md#ch-19).
+      Nondifferentiable optimization solvers.
 * **Part III: End-to-end Recipes.**
     * [Recipe R1](chapters/R1-mcf.md#rec-R1). Solving a Min-Cost Flow instance.
     * [Recipe R2](chapters/R2-knapsack-reopt.md#rec-R2). Reoptimizing
       a Binary Knapsack.
     * [Recipe R3](chapters/R3-cfl-three-ways.md#rec-R3). CFL three
-      ways: cuts / MCF relaxation / Lagrangian.
-    * [Recipe R4](chapters/R4-cfl-lagrangian.md#rec-R4). CFL via
-      Lagrangian decomposition with `PrimalProximalHeur`.
-    * [Recipe R5](chapters/R5-cfl-benders.md#rec-R5). CFL via Benders
-      cuts with a user-cut callback.
+      ways: cuts, MCF relaxation, Lagrangian.
+    * [Recipe R4](chapters/R4-cfl-lagrangian.md#rec-R4). CFL by
+      Lagrangian decomposition, with `PrimalProximalHeur`.
+    * [Recipe R5](chapters/R5-cfl-benders.md#rec-R5). CFL by Benders
+      cuts generated on demand.
 * **Part IV: Developer's Guide (Appendix).**
     * [Appendix A](chapters/A-writing-block.md#app-A). Writing a new `:Block`.
     * [Appendix B](chapters/B-writing-solver.md#app-B). Writing a new
@@ -174,4 +172,4 @@ public Doxygen reference, and the SMS++ Wiki.
     * [Appendix D](chapters/D-concept-block-map.md#app-D).
       Concept-to-Block map.
 
-Bibliography, glossary, and index follow.
+The glossary and the bibliography follow.
