@@ -81,6 +81,7 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js
   - build/figcaption.js
   - build/code-break.js
+  - build/text-size.js
   - build/katex-init.js
 
 extra_css:

@@ -167,7 +167,7 @@ manual/
   build/
     Makefile  pandoc.yaml  preamble.tex  mkdocs.yml
     figure-ext.lua  source-links.lua  break-code.lua  katex-init.js
-    hooks.py  extra.css  code-break.js  fonts/
+    hooks.py  extra.css  code-break.js  text-size.js  fonts/
 ```
 
 The three running Blocks: `MCFBlock` (leaf, wrapper solver),
@@ -228,7 +228,9 @@ cause):
   characters, so that every code and algorithm block (widest line at most
   92 characters) and every table fit without scrolling; tables with the
   three rules of LaTeX; `code-break.js` puts a `<wbr>` at the same
-  separators as `break-code.lua`. Check every page with `overlaps.py`
+  separators as `break-code.lua`. `text-size.js` adds two magnifiers next to
+  the choice of the theme, which scale the whole page (85% to 150%, kept
+  in the browser), as the zoom of the browser does. Check every page with `overlaps.py`
   and `site_measure.py` of that folder (0 defects, 0 blocks that scroll).
 - `source-links.lua` (PDF) and `hooks.py` (MkDocs) — link a file or
   folder written as code, and not yet within a link, to its submodule's

@@ -62,7 +62,8 @@ html { font-size: 125%; }
 
 /* the tables as in the PDF: plain, at the width of the text, with the
    rules of LaTeX (above, below the header, below) and no rule between the
-   rows, the cells set ragged right and not hyphenated */
+   rows, the cells set ragged right and not hyphenated, and no minimum
+   width of Material on a cell, so that many short columns fit */
 .md-typeset__table { display: block; }
 .md-typeset table:not([class]) {
   display: table;
@@ -75,6 +76,7 @@ html { font-size: 125%; }
 }
 .md-typeset table:not([class]) th,
 .md-typeset table:not([class]) td {
+  min-width: 0;
   padding: 0.3em 0.6em;
   text-align: left;
   hyphens: manual;
@@ -135,3 +137,13 @@ html { font-size: 125%; }
   --md-typeset-a-color: #b388d9;
   --md-accent-fg-color: #b388d9;
 }
+
+/* the two magnifiers of text-size.js in the header, the one at the end of
+   its range dimmed */
+.md-header__button.text-size { margin: 0.2rem 0.1rem; }
+.md-header__button.text-size[disabled] { opacity: 0.35; cursor: default; }
+
+/* the [Source: ...] line under the title of a chapter (marked by
+   code-break.js) set ragged right, as its long paths would open wide gaps
+   in a justified line */
+.md-typeset p.source-line { text-align: left; }
