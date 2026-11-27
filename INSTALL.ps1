@@ -680,7 +680,8 @@ if ($OS -eq "Win32NT")
         }
         Write-Host "The backends, for the FlatZincCSPSolver parameters, are:"
         Write-Host "    strFlatZincSolver minizinc"
-        Write-Host "    vstrFlatZincArgs  2 --solver cp-sat   # or gecode, or chuffed"
+        Write-Host "    vstrFlatZincArgs  2 --solver com.google.ortools.sat"
+        Write-Host "    (or org.gecode.gecode, or org.chuffed.chuffed)"
     }
 
     # Install Clarabel: the C interface of Clarabel (Clarabel.cpp) at its

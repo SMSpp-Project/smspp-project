@@ -296,9 +296,34 @@ install_on_linux() {
         cadical_from_source=0
       fi
     fi
+
+    # The libraries of the graphical interface that the Gecode of the MiniZinc
+    # bundle is linked with, which a system with no graphics does not have
+    if [ "$install_flatzinc" -eq 1 ]; then
+      echo "Installing the libraries of the Gecode of the MiniZinc bundle..."
+      apt-get install -y -q --no-install-recommends libgl1 libegl1 \
+        libxkbcommon0 libfontconfig1 libx11-6 libglib2.0-0 libdbus-1-3
+    fi
   elif [ -f /usr/include/cadical.hpp ]; then
     # without sudo, the package installed by the administrator is used
     cadical_from_source=0
+  fi
+
+  # Install the FlatZinc backend that the FlatZincCSPSolver of CSPBlock runs as
+  # an external process: the MiniZinc bundle, with the minizinc driver and the
+  # OR-Tools CP-SAT, Gecode and Chuffed backends, by the installer that ships
+  # with CSPBlock, taken from its repository so that it is there also when
+  # SMS++ itself is not installed
+  if [ "$install_flatzinc" -eq 1 ]; then
+    echo "Installing the FlatZinc backend (the MiniZinc bundle)..."
+    MINIZINC_ROOT="$(resolve_dep_root minizinc)"
+    cspblock_raw="https://gitlab.com/smspp/cspblock/-/raw/develop"
+    curl -fsSL "${cspblock_raw}/tools/install_flatzinc_backends.sh" |
+      bash -s -- --prefix="$MINIZINC_ROOT"
+    # FlatZincCSPSolver looks for the minizinc driver on the PATH
+    if [ "$HAS_SUDO" -eq 1 ]; then
+      ln -sf "${MINIZINC_ROOT}/bin/minizinc" /usr/local/bin/minizinc
+    fi
   fi
 
   # Install CaDiCaL from its latest release, where there is no package: its
@@ -988,6 +1013,14 @@ install_on_macos() {
   if [ "$install_liblinear" -eq 1 ]; then
     echo "Installing LIBLINEAR..."
     brew install liblinear
+  fi
+
+  # Install the FlatZinc backend that the FlatZincCSPSolver of CSPBlock runs as
+  # an external process: the MiniZinc bundle, with the CP-SAT, Gecode and
+  # Chuffed backends
+  if [ "$install_flatzinc" -eq 1 ]; then
+    echo "Installing the FlatZinc backend (the MiniZinc bundle)..."
+    brew install minizinc
   fi
 
   # Install CaDiCaL
@@ -1788,29 +1821,6 @@ if [ "$install_smspp" -eq 1 ]; then
   fi
   git submodule sync --recursive
   git "${skip_experiments[@]}" submodule update --init --recursive
-
-  # Install the FlatZinc backend that CSPBlock's FlatZincCSPSolver runs on an
-  # external solver: the official MiniZinc bundle, with the minizinc driver and
-  # the OR-Tools CP-SAT, Gecode and Chuffed backends. Its installer ships with
-  # CSPBlock, in place only now that the submodules are checked out, so the
-  # backend is installed here rather than in install_on_linux/install_on_macos.
-  if [ "$install_flatzinc" -eq 1 ]; then
-    echo "Installing the FlatZinc backend (the MiniZinc bundle)..."
-    flatzinc_installer="${SMSPP_ROOT}/CSPBlock/tools/install_flatzinc_backends.sh"
-    if [ "$OS" == "Darwin" ]; then
-      # on macOS the bundle comes from Homebrew, as the installer itself says
-      brew install minizinc
-    elif [ -x "$flatzinc_installer" ]; then
-      MINIZINC_ROOT="$(resolve_dep_root minizinc)"
-      "$flatzinc_installer" --prefix="$MINIZINC_ROOT"
-      # FlatZincCSPSolver looks for the minizinc driver on the PATH
-      if [ "$HAS_SUDO" -eq 1 ]; then
-        ln -sf "${MINIZINC_ROOT}/bin/minizinc" /usr/local/bin/minizinc
-      fi
-    else
-      echo "CSPBlock's FlatZinc installer not found: skipping the backend."
-    fi
-  fi
 
   # If the installation root is not the default one, update the makefile-paths
   if [[ ("$OS" == "Linux" && "$INSTALL_ROOT" != "/opt") ||
