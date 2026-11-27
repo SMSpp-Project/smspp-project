@@ -94,7 +94,8 @@ Unit Commitment in its many variants (`UCBlock`, `ThermalUnitBlock`,
 `StochasticBlock`, `TwoStageStochasticBlock`,
 `MultiStageStochasticBlock`), strategic investment
 (`InvestmentBlock`), and several others (e.g., Support Vector Machines
-in `SVMBlock`, SAT and weighted MaxSAT in `SATBlock`, hierarchical
+in `SVMBlock`, SAT and weighted MaxSAT in `SATBlock`, the constraint
+satisfaction problems of constraint programming in `CSPBlock`, hierarchical
 quadratic programs in `HQPBlock`). As for the `:Solver` classes, they
 comprise wrappers of external libraries: `MCFSolver`, which wraps
 `MCFClass`, `MCFLemonSolver`, which wraps abLEMON, the `MILPSolver`

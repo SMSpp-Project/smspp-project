@@ -2984,6 +2984,56 @@ Besides the mandatory \cstr{type} attribute of any \dBlock, the \group represent
 \noindent
 The \dimensions \cstr{NumVar} and \cstr{NumLevels} are mandatory. If \cstr{NumEqRows} is missing (or $0$) there are no equality rows, and otherwise \cstr{EqRows}, \cstr{EqStart} and \cstr{EqRHS} are mandatory, as are \cstr{EqIndex} and \cstr{EqValue} if \cstr{NumEqElements} $> 0$; if \cstr{EqWeight} is missing all the weights are $1$; the same holds for the inequality rows. If \cstr{Regularization} is missing $\varepsilon = 0$, and if \cstr{RegularizationWeight} is missing all the $r_j$ are $1$. If \cstr{NumStages} is missing (or $0$) there is no stage structure, and its other data are ignored; otherwise \cstr{VarStage} and \cstr{VarState} are mandatory, \cstr{DynamicsLevel} is $0$ if missing, and if \cstr{EqStage} (\cstr{IneqStage}) is missing the stage of an equality (inequality) row is the largest $k$ such that the row has an entry on $u_k$ or on $s_{k+1}$. Hence, a file written before the stage structure was defined is read as before. Only the data is serialized: the current level, the fixed slacks and the center $c$ of the regularization are a state of the solution process, not of the model.
 
+\subsection {\code{CSPBlock}}\label{sec:CSPBlock}
+
+The \code{CSPBlock} class implements the \Block concept for a (weighted) Constraint Satisfaction Problem of Constraint Programming: $n$ variables $v_0 , \ldots , v_{n-1}$, each with a finite set of integer values, and $m$ constraints of a catalogue of kinds. Each variable $v$ has a \emph{universe} $U_v$, the sorted set of the values it may ever take, and a \emph{current domain} $D_v \subseteq U_v$, the values it may take now (e.g., after a branching); the values of all the universes are stored one variable after the other, so that each value of each variable has a \emph{slot}, its position there, to which the current domains and the costs $c_{v,d}$ of the values are aligned. Each constraint has a kind, a \emph{scope} (the indices of the variables it is on) and integer \emph{parameters}, whose meaning depends on the kind (see the comments to \code{CSPBlock.h} for the details):
+%
+\begin{itemize}
+ \item $0$, the positive table: the parameters are tuples of as many values as the scope, one after the other, and the values of the scope must be one of them;
+ %
+ \item $1$, the negative table: as above, but the values of the scope must be none of the tuples;
+ %
+ \item $2$, a linear constraint: with $k$ variables in the scope, the parameters are $k$ coefficients $a_i$, an operator ($0$ for $\leq$, $1$ for $=$, $2$ for $\neq$) and a right-hand side $b$, and $\sum_i a_i v_i \;\mathrm{op}\; b$ must hold;
+ %
+ \item $3$, all different: no parameters, the variables of the scope must take pairwise different values;
+ %
+ \item $4$, element: the scope is $( i , z , x_0 , \ldots , x_{k-1} )$ and the parameter is an offset $o$, and $o \leq i < o + k$ and $x_{i-o} = z$ must hold;
+ %
+ \item $5$, cumulative: the scope holds the start times $s_0 , \ldots , s_{k-1}$ of $k$ tasks, and the parameters are their durations $d_j$, their resource usages $r_j$ and the capacity $b$, and at every time $t$ the sum of the $r_j$ of the tasks with $s_j \leq t < s_j + d_j$ must be at most $b$.
+\end{itemize}
+%
+Each constraint has a weight, infinite for a \emph{hard} constraint and finite and non-negative for a \emph{soft} one, and it may be \emph{inactive}, i.e., as if it were not there; the problem is to find values in the current domains satisfying all the active hard constraints and minimizing the costs of the values taken plus the weights of the active soft constraints violated.
+
+\smallskip
+\noindent
+Besides the mandatory \cstr{type} attribute of any \dBlock, the \group representing the \code{CSPBlock} contains the following:
+%
+\begin{itemize}
+ \item the \dimension \cstr{NumberVariables}, the number $n$ of variables, and the \dimension \cstr{NumberValues}, the number of slots, i.e., $\sum_v | U_v |$;
+ %
+ \item the \variable \cstr{Universe}, of type \code{netCDF::NcInt} and indexed over \cstr{NumberValues}, the values of the universes one variable after the other, and the \variable \cstr{UniverseStart}, of type \code{netCDF::NcUint} and indexed over \cstr{NumberVariables}, the slot of the first value of each variable;
+ %
+ \item the \variable \cstr{Domain}, of type \code{netCDF::NcUbyte} and indexed over \cstr{NumberValues}, $1$ for the values in the current domains and $0$ for the others;
+ %
+ \item the \variable \cstr{Costs}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberValues}, the costs $c_{v,d}$ of the values;
+ %
+ \item the \variable \cstr{VariableGroups}, of type \code{netCDF::NcInt} and indexed over \cstr{NumberVariables}, the group each variable is dealt out to;
+ %
+ \item the \dimension \cstr{NumberConstraints}, the number $m$ of constraints, and the \variable \cstr{ConstraintKind}, of type \code{netCDF::NcInt} and indexed over it, the kind of each constraint;
+ %
+ \item the \dimension \cstr{NumberScopeEntries} and the \variables \cstr{Scope} (of type \code{netCDF::NcInt}, indexed over \cstr{NumberScopeEntries}), the scopes one constraint after the other, and \cstr{ScopeStart} (of type \code{netCDF::NcUint}, indexed over \cstr{NumberConstraints}), where the scope of each constraint starts in \cstr{Scope};
+ %
+ \item the \dimension \cstr{NumberParameterEntries} and the \variables \cstr{Parameters} and \cstr{ParametersStart}, as above for the parameters;
+ %
+ \item the \variable \cstr{Weights}, of type \code{netCDF::NcDouble} and indexed over \cstr{NumberConstraints}, the weights of the constraints, $+\infty$ for the hard ones;
+ %
+ \item the \variable \cstr{Active}, of type \code{netCDF::NcUbyte} and indexed over \cstr{NumberConstraints}, $1$ for the active constraints and $0$ for the inactive ones.
+\end{itemize}
+
+\smallskip
+\noindent
+The \dimensions \cstr{NumberVariables} and \cstr{NumberValues} and the \variables \cstr{Universe} and \cstr{UniverseStart} are mandatory. If \cstr{Domain} is missing each current domain is the universe, if \cstr{Costs} is missing all the costs are $0$, and if \cstr{VariableGroups} is missing there are no groups. If \cstr{NumberConstraints} is missing (or $0$) there are no constraints, and otherwise \cstr{ConstraintKind} is mandatory; \cstr{Scope} and \cstr{ScopeStart} are missing if all the scopes are empty, and \cstr{Parameters} and \cstr{ParametersStart} if all the parameters are; if \cstr{Weights} is missing all the constraints are hard, and if \cstr{Active} is missing all of them are active.
+
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \section{\BlockConfig for existing \dBlock}

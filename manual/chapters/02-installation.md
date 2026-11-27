@@ -38,7 +38,11 @@ functionality is not needed:
 - the `:Solver`s of `SATBlock` wrap CaDiCaL and MiniSat, those of
   `SVMBlock` LIBSVM and LIBLINEAR, two of those of
   `BinaryKnapsackBlock` the RECORD and COMBO codes, and
-  `BundleSolverML` uses Torch.
+  `BundleSolverML` uses Torch;
+- `FlatZincCSPSolver` of `CSPBlock` runs an external FlatZinc solver as a
+  separate process, typically the CP-SAT, Gecode or Chuffed of the
+  [MiniZinc](https://www.minizinc.org) bundle, which is needed only at run
+  time.
 
 For a first installation, the project provides scripts that fetch and
 install the dependencies in default locations. The first is

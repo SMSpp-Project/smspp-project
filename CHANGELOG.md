@@ -12,8 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CSPBlock`, the module of the `Block` of the constraint satisfaction
   problems of constraint programming (CP): the submodule, `BUILD_CSPBlock`,
   the feature `csp` of the smspp port of the vcpkg registry, the module in
-  `packaging/modules.py`, with the recipes written again, and its headers in
-  the `INPUT` of `doxygen/Doxyfile`
+  `packaging/modules.py`, with the recipes written again, its headers in
+  the `INPUT` of `doxygen/Doxyfile`, and the MiniZinc bundle that its
+  `FlatZincCSPSolver` runs, installed by `INSTALL.sh` (with `minizinc` on the
+  `PATH`) and by `INSTALL.ps1` unless `--without-flatzinc` (`-withoutFlatzinc`)
 
 - `GeneralizedAssignmentBlock`, the module of the `Block` of the Generalized
   Assignment Problem, one `BinaryKnapsackBlock` per agent linked by the

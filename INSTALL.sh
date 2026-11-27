@@ -1801,7 +1801,12 @@ if [ "$install_smspp" -eq 1 ]; then
       # on macOS the bundle comes from Homebrew, as the installer itself says
       brew install minizinc
     elif [ -x "$flatzinc_installer" ]; then
-      "$flatzinc_installer" --prefix="$(resolve_dep_root minizinc)"
+      MINIZINC_ROOT="$(resolve_dep_root minizinc)"
+      "$flatzinc_installer" --prefix="$MINIZINC_ROOT"
+      # FlatZincCSPSolver looks for the minizinc driver on the PATH
+      if [ "$HAS_SUDO" -eq 1 ]; then
+        ln -sf "${MINIZINC_ROOT}/bin/minizinc" /usr/local/bin/minizinc
+      fi
     else
       echo "CSPBlock's FlatZinc installer not found: skipping the backend."
     fi

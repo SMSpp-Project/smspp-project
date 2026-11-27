@@ -75,6 +75,7 @@ row, and the abstract bases of a module (e.g., `UnitBlock`,
 | `SVMBlock` | `SVCBlock`, `SVRBlock` | `SMOSolver`, `LIBSVMSolver`, `LIBLINEARSolver` |
 | `SingleFlowDCRBlock` | `SingleFlowDCRBlock`, `MultiFlowDCRBlock` | `SingleFlowDCRBendersSolver` |
 | `SATBlock` | `SATBlock` | `CaDiCaLSATSolver`, `MiniSATSolver` |
+| `CSPBlock` | `CSPBlock` | `FlatZincCSPSolver` |
 | `SatellitesBlock` | `SatelliteBlock`, `SingleTargetBlock`, `MultiTargetBlock`, `MultiTargetBlockv2`, `ConstellationBlock`, `DiscreteSatelliteBlock`, `DiscreteConstellationBlock` | `SatelliteSolver`, `DiscreteSatelliteSolver` |
 | `HQPBlock` | `HQPBlock`, `HQPDistBlock` | `HQPSolver`, `HQPStageSolver` |
 | `MILPSolver` | | `CPXMILPSolver`, `GRBMILPSolver`, `SCIPMILPSolver`, `HiGHSMILPSolver`, `MOSEKMILPSolver`, `ClarabelMILPSolver`, `DAQPMILPSolver`, `HPIPMMILPSolver`, `OSQPMILPSolver`, `PERMONMILPSolver`, `PIPSMILPSolver`, `PIQPMILPSolver`, `ProxQPMILPSolver`, `QPMADMILPSolver`, `QPOASESMILPSolver`, `QuadProgMILPSolver` |
