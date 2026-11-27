@@ -767,9 +767,9 @@ exploration).
  6        if r is not fenced then β(r) ← B.branch()
  7     while 𝓞 ≠ ∅ and no budget is exhausted do
  8        ν ← the node of 𝓞 that the strategy selects;  remove it from 𝓞
- 9        MOVE(the solvers, to ν)
-10        if ν has not been evaluated then
-11           if PRUNE(D(ν), z̄) then fence ν;  continue
+ 9        if ν has not been evaluated and PRUNE(D(ν), z̄) then fence ν;  continue
+10        MOVE(the solvers, to ν)
+11        if ν has not been evaluated then
 12           s ← EVALUATE(ν)
 13           if s is partial then 𝓤 ← 𝓤 ∪ {ν};  fence ν;  continue
 14           if s ≠ kOK then return s
@@ -793,7 +793,7 @@ exploration).
 ```
 
 [Algorithm 16.2](16-change.md#alg-16-2) is implemented by `treeSolve()` and `explore()` in
-[`BranchAndXSolver.cpp:1103-1476`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/src/BranchAndXSolver.cpp#L1103-1476),
+[`BranchAndXSolver.cpp:1103-1494`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/src/BranchAndXSolver.cpp#L1103-1494),
 and `compute()` turns a `kOK` with no incumbent into `kInfeasible`. When a
 node is evaluated is decided by the *bounding protocol*
 (`intBoundingProtocol`). With the eager one (the default) a node is evaluated
@@ -805,8 +805,9 @@ brancher at once, while the `:Solver`s are still at the child whose
 relaxation they come from. With the lazy protocol a node enters $\mathcal{O}$
 unevaluated, carrying the bound of its father (line 19), and it is evaluated
 when it is extracted (line 12). However, the incumbent found in the meantime
-may fence it without any evaluation (line 11), which may save the evaluation
-of quite a few nodes. The root is extracted and evaluated as any other node.
+may fence it without any evaluation (line 9), before the `:Solver`s are moved
+to it, which may save the evaluation of quite a few nodes and the moves to
+them. The root is extracted and evaluated as any other node.
 Either way a node is evaluated at most once, and the protocol changes when the
 inner `:Solver`s are run, not what is explored.
 
@@ -913,7 +914,7 @@ received in the meantime is examined separately (those in a
 one that does not declare a change of the `Variable`s, of the `Constraint`s or
 of the `Objective`, makes the next `compute()` solve from scratch. The test
 `keeps_tree()`
-([`BranchAndXSolver.cpp:1963-1988`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/src/BranchAndXSolver.cpp#L1963-1988))
+([`BranchAndXSolver.cpp:1981-2006`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/src/BranchAndXSolver.cpp#L1981-2006))
 rejects three kinds of change. The first is a change of the data of the
 `Variable`s, which a move along the tree might undo, since the undos restore
 the data they recorded. Then comes a change of integrality that may enlarge
@@ -1048,7 +1049,7 @@ depth-first exploration with $K$ workers).
 
 In the code, the procedure is split between `ParallelDFSSolve()` and
 `workerDFS()` in
-[`BranchAndXSolver.cpp:1482-1874`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/src/BranchAndXSolver.cpp#L1482-1874).
+[`BranchAndXSolver.cpp:1500-1892`](https://gitlab.com/smspp/branchandxsolver/-/blob/develop/src/BranchAndXSolver.cpp#L1500-1892).
 The ramp-up (lines 3-9) expands the tree in the order of discovery, with the
 `:Solver`s of the `Block`, until the pool $Q$ holds $4K$ open subtrees. Each
 node of the pool has its bound, its branching `Change`s and its undo already
