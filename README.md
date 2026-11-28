@@ -124,8 +124,11 @@ Both forms are generated from the same Markdown sources in manual/chapters.
   generic enumerative `Solver` where "X" stands for Bound / Cut / Price. It
   supports depth-first, breadth-first and best-first exploration, cut
   separation, reoptimization of the enumeration tree and parallel exploration,
+  also by the branch-and-bound of [PBeFS](https://github.com/dmeoli/PBeFS),
   building on the `ChangeSolver` and `RelaxationSolver` abstractions in the
-  `SMS++` core.
+  `SMS++` core. It takes only the headers of PBeFS and of
+  [ADS](https://github.com/dmeoli/ADS), on which the parallel searches of
+  PBeFS run, and CMake downloads them when they are not installed.
 
 - [CapacitatedFacilityLocationBlock](https://gitlab.com/smspp/capacitatedfacilitylocationblock),
   an implementation of the `Block` concept for a "pretty basic version" the

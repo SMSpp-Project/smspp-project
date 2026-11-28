@@ -2,17 +2,14 @@
 ############################# makefile-libPBeFS ##############################
 ##############################################################################
 #                                                                            #
-#   makefile of libPBeFS                                                     #
+#   makefile of the headers of PBeFS                                         #
 #                                                                            #
-#   Input:  $(PBeFS_ROOT), the directory where PBeFS is                      #
-#           installed, i.e., the headers are in                              #
-#           $(PBeFS_ROOT)/include/PBeFS and the library is in                #
-#           $(PBeFS_ROOT)/lib (e.g., by make install                         #
-#           PREFIX=$(PBeFS_ROOT) in the sources of PBeFS)                    #
+#   Input:  $(PBeFS_ROOT), the directory where PBeFS is, i.e., its headers   #
+#           are in $(PBeFS_ROOT)/include/PBeFS: an installation of PBeFS     #
+#           or its sources, since only the headers are used                  #
 #                                                                            #
 #   Output: accordingly, there is no *H and *OBJ in output, since there is   #
 #           no need to check for changes in the .h and rebuild the .o / .a   #
-#           $(libPBeFSLIB) = external libraries + -L< libdirs >              #
 #           $(libPBeFSINC) = the -I$(include directories)                    #
 #                                                                            #
 #                             Antonio Frangioni                              #
@@ -31,8 +28,5 @@ libPBeFSBSCDIR = $(subst $\",,$(PBeFS_ROOT))
 # macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 libPBeFSINC = $(call SMSppSYSINC,$(libPBeFSBSCDIR)/include)
-
-libPBeFSLIB = -L"$(libPBeFSBSCDIR)/lib" \
-	-Wl,-rpath,"$(libPBeFSBSCDIR)/lib" -lPBeFS -pthread
 
 ########################## End of makefile-libPBeFS ##########################

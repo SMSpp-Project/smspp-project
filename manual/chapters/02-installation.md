@@ -38,7 +38,14 @@ functionality is not needed:
 - the `:Solver`s of `SATBlock` wrap CaDiCaL and MiniSat, those of
   `SVMBlock` LIBSVM and LIBLINEAR, two of those of
   `BinaryKnapsackBlock` the RECORD and COMBO codes, and
-  `BundleSolverML` uses Torch.
+  `BundleSolverML` uses Torch;
+- `BranchAndXSolver` may explore its tree by the parallel
+  branch-and-bound of [PBeFS](https://github.com/dmeoli/PBeFS), whose
+  headers it takes together with those of
+  [ADS](https://github.com/dmeoli/ADS), on which the parallel searches
+  of PBeFS run; like FastFlow, the CMake build downloads them at
+  configuration time when they are not installed, and links neither
+  (since the next release).
 
 For a first installation, the project provides scripts that fetch and
 install the dependencies in default locations. The first is

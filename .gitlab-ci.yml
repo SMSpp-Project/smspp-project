@@ -193,7 +193,8 @@ nightly:modules:
 # The makefiles of all the modules, which have to keep building what CMake
 # builds [see ci/makefile]: first with g++, then with clang++ and the C++20
 # modules, which the test of the core then imports. FastFlow, which CMake
-# would fetch, is cloned.
+# would fetch, is cloned, and the headers of PBeFS and ADS, which
+# BranchAndXSolver uses, are those that the release tarball carries.
 nightly:makefiles:
   extends: .nightly
   stage: check
@@ -208,14 +209,19 @@ nightly:makefiles:
     - git submodule update --init --recursive
     - git clone --quiet --depth 1 https://github.com/fastflow/fastflow.git
                 /tmp/fastflow
+    - python3 packaging/third_party.py /tmp/third-party
     - ccache --zero-stats
     # the modules and the makefiles of the tests, of the tools and of the
     # experiments [see ci/makefiles], then the modules again with clang++
     # and the C++20 modules
     - ci/makefiles CC="ccache g++" FastFlow_ROOT=/tmp/fastflow
+                   PBeFS_ROOT=/tmp/third-party/pbefs
+                   ADS_ROOT=/tmp/third-party/ads
     - make -f ci/makefile clean-all
     - MODULES_ONLY=1 ci/makefiles CC="ccache clang++" SMSppMOD=1
                                   FastFlow_ROOT=/tmp/fastflow
+                                  PBeFS_ROOT=/tmp/third-party/pbefs
+                                  ADS_ROOT=/tmp/third-party/ads
     - ccache --show-stats
     - cd SMS++/test && make -f makefile-Module -j$(nproc) CC=clang++
                            FastFlow_ROOT=/tmp/fastflow

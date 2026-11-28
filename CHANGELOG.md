@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   recipes written again, and its headers in the `INPUT` of
   `doxygen/Doxyfile`
 
+- the headers of PBeFS and ADS, which `BranchAndXSolver` uses for the
+  branch-and-bound of PBeFS: `extlib/makefile-libPBeFS` and
+  `extlib/makefile-libADS`, with `PBeFS_ROOT` and `ADS_ROOT` in the default
+  paths; the release tarball carries their sources in `third-party/`, at
+  the commits of `packaging/modules.py`, which `packaging/third_party.py`
+  checks against those that `BranchAndXSolver` and PBeFS pin, and the
+  `CMakeLists.txt` of the umbrella gives them to `BranchAndXSolver` in place
+  of the download, so that the recipes build it without fetching anything;
+  the makefiles of the nightly take them from there too
+
 ### Changed
 
 - the functions of the modules are included before the modules [see

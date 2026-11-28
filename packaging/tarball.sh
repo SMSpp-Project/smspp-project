@@ -7,8 +7,8 @@
 # run in, the same that the release job publishes and that the recipes of     #
 # packaging/ and of the other channels build: the submodules at their         #
 # gitlinks, each VERSION.txt filled with the version of its repository (the   #
-# tarball carries no .git), FastFlow and RECORD in third-party/, and no       #
-# data, wiki or git metadata.                                                 #
+# tarball carries no .git), FastFlow, RECORD, PBeFS and ADS in                #
+# third-party/, and no data, wiki or git metadata.                            #
 #                                                                             #
 # Usage: packaging/tarball.sh VERSION DIR                                     #
 #                                                                             #
@@ -40,7 +40,7 @@ git submodule foreach --quiet --recursive \
     'v=$(git describe --tags --abbrev=0 2>/dev/null) &&
      echo "$v" > VERSION.txt || true'
 
-# FastFlow and RECORD, with their licenses, at the commits of
+# FastFlow, RECORD, PBeFS and ADS, with their licenses, at the commits of
 # packaging/modules.py: a build of the tarball fetches nothing
 python3 packaging/third_party.py third-party
 

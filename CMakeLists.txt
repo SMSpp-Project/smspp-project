@@ -27,11 +27,12 @@ include(CMakeSettings.txt OPTIONAL)
 option(BUILD_SHARED_LIBS "Build libraries as shared" OFF)
 
 # ----- Third-party sources of a release tarball ---------------------------- #
-# The release tarball carries FastFlow and RECORD in third-party/, at the
-# commits of packaging/modules.py [see packaging/third_party.py]: they are
-# used in place of the FastFlow that SMS++ fetches and of a RECORD checkout,
-# so that a build of the tarball fetches nothing, unless something else is
-# given on the command line.
+# The release tarball carries FastFlow, RECORD, PBeFS and ADS in
+# third-party/, at the commits of packaging/modules.py [see
+# packaging/third_party.py]: they are used in place of the FastFlow that
+# SMS++ fetches, of a RECORD checkout and of the PBeFS and ADS that
+# BranchAndXSolver fetches, so that a build of the tarball fetches nothing,
+# unless something else is given on the command line.
 set(_smspp_third_party "${CMAKE_CURRENT_SOURCE_DIR}/third-party")
 if (EXISTS "${_smspp_third_party}/fastflow/ff" AND
     NOT FETCHCONTENT_SOURCE_DIR_FASTFLOW)
@@ -42,6 +43,16 @@ if (EXISTS "${_smspp_third_party}/record/source/RECORD.cpp" AND
     NOT RECORD_ROOT)
     set(RECORD_ROOT "${_smspp_third_party}/record"
         CACHE PATH "The directory of RECORD, with source/RECORD.cpp")
+endif ()
+if (EXISTS "${_smspp_third_party}/pbefs/include/PBeFS" AND
+    NOT FETCHCONTENT_SOURCE_DIR_PBEFS)
+    set(FETCHCONTENT_SOURCE_DIR_PBEFS "${_smspp_third_party}/pbefs"
+        CACHE PATH "The source tree of PBeFS, not fetched")
+endif ()
+if (EXISTS "${_smspp_third_party}/ads/include/ADS" AND
+    NOT FETCHCONTENT_SOURCE_DIR_ADS)
+    set(FETCHCONTENT_SOURCE_DIR_ADS "${_smspp_third_party}/ads"
+        CACHE PATH "The source tree of ADS, not fetched")
 endif ()
 
 # A DLL exports all its symbols, as a shared library does elsewhere, where

@@ -1,0 +1,32 @@
+##############################################################################
+############################# makefile-libADS ################################
+##############################################################################
+#                                                                            #
+#   makefile of the headers of ADS                                           #
+#                                                                            #
+#   Input:  $(ADS_ROOT), the directory where ADS is, i.e., its headers       #
+#           are in $(ADS_ROOT)/include/ADS: an installation of ADS           #
+#           or its sources, since only the headers are used                  #
+#                                                                            #
+#   Output: accordingly, there is no *H and *OBJ in output, since there is   #
+#           no need to check for changes in the .h and rebuild the .o / .a   #
+#           $(libADSINC) = the -I$(include directories)                      #
+#                                                                            #
+#                             Antonio Frangioni                              #
+#                         Dipartimento di Informatica                        #
+#                             Universita' di Pisa                            #
+#                                                                            #
+##############################################################################
+
+include $(dir $(lastword $(MAKEFILE_LIST)))makefile-sysinc
+
+# internal macros - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# basic ADS directory without quotes, if any
+libADSBSCDIR = $(subst $\",,$(ADS_ROOT))
+
+# macros to be exported - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+libADSINC = $(call SMSppSYSINC,$(libADSBSCDIR)/include)
+
+########################## End of makefile-libADS ############################

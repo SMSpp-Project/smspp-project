@@ -190,6 +190,30 @@ RECORD = {
            "8cfbb6fd2084e1aac4857069a10c565b7b927cd7/",
 }
 
+# PBeFS, whose branch-and-bound BranchAndXSolver may explore the tree with,
+# and ADS, on which its parallel searches run: BranchAndXSolver takes only
+# their headers and downloads their sources when they are not installed, at
+# the commit BXS_PBEFS_COMMIT of its CMakeLists.txt and at the commit of ADS
+# that PBeFS pins, which are these two; the release tarball carries them,
+# without what a build does not use [see third_party.py]
+PBEFS = {
+    "commit": "3fc57057e54ca77edfb50d7d2dbe1a876f5ce12c",
+    "url": "https://github.com/dmeoli/PBeFS/archive/"
+           "3fc57057e54ca77edfb50d7d2dbe1a876f5ce12c.tar.gz",
+    "sha256": "5e2286aa7908787955c173fb07c70389"
+              "3c9c89c4eb4187397631de65f5998cb7",
+    "drop": ["data", "docs", "manual", "packaging", "test"],
+}
+ADS = {
+    "commit": "4206b4ac791cd8f1aaf9b4270e7389be27928537",
+    "url": "https://github.com/dmeoli/ADS/archive/"
+           "4206b4ac791cd8f1aaf9b4270e7389be27928537.tar.gz",
+    "sha256": "0d0d754f31456caca68c28033369e051"
+              "ada15d66287daa590c891f3fc724294a",
+    "drop": [".github", "bench", "docs", "manual", "packaging", "results",
+             "test"],
+}
+
 # StOpt, which SDDPBlock needs and which most channels do not carry, so that
 # the recipes of this directory carry it as the Homebrew tap does
 STOPT = {
