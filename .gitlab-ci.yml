@@ -371,15 +371,18 @@ nightly:rest:
 # what the module does together with the others is checked at once, and not
 # only on the night after its pin moves. The build is the one of the nightly,
 # with the module moved from its pin to that commit, and the tests are the
-# ones labelled with its name.
-integration:
-  extends: .nightly:test
+# ones labelled with its name, split as the nightly splits them: those of a
+# module used by many suites, as BundleSolver, take more than the three hours
+# a job is given.
+.integration:
   rules:
     - if: $SMSPP_MODULE && $SMSPP_SHA
-  needs: []
-  variables:
-    CTEST_WHICH: -L
-    CTEST_TIMEOUT: "3600"
+  cache:
+    key: integration-$SMSPP_MODULE
+    paths:
+      - .ccache
+  # the label is the name of the module matched as it is: ctest reads -L as
+  # a regex, where the "+" of "SMS++" are operators and match nothing
   script:
     - apt-get update && apt-get install -y --no-install-recommends ccache
     - git submodule sync --recursive
@@ -389,19 +392,83 @@ integration:
     - git -C "$SMSPP_MODULE" fetch --quiet origin "$SMSPP_SHA"
     - git -C "$SMSPP_MODULE" checkout --quiet "$SMSPP_SHA"
     - git -C "$SMSPP_MODULE" submodule update --init --recursive
-    - ccache --zero-stats
     - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_tests=ON
             -DCMAKE_C_COMPILER_LAUNCHER=ccache
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - LABEL="^$(printf '%s' "$SMSPP_MODULE" |
+                sed 's/[][\.*^$+?(){}|]/\\&/g')\$"
+
+# the build fills the cache the shares take, and fails if no test carries
+# the label of the module
+integration:build:
+  extends: [ .nightly , .integration ]
+  stage: check
+  timeout: 90m
+  script:
+    - !reference [ .integration , script ]
+    - (cd build && ctest -N -L "$LABEL" | grep -q '^Total Tests:.[1-9]')
+    - ccache --zero-stats
     - cmake --build build -j$(nproc)
     - ccache --show-stats
-    # the label is the name of the module matched as it is: ctest reads -L as
-    # a regex, where the "+" of "SMS++" are operators and match nothing
-    - CTEST_RE="^$(printf '%s' "$SMSPP_MODULE" | sed 's/[][\.*^$+?(){}|]/\\&/g')\$"
+
+# a share with no test of the module ends after the configuration, without
+# building
+.integration:test:
+  extends: [ .nightly:test , .integration ]
+  needs:
+    - job: integration:build
+      artifacts: false
+  cache:
+    key: integration-$SMSPP_MODULE
+    paths:
+      - .ccache
+    policy: pull
+  script:
+    - !reference [ .integration , script ]
+    - N=$(cd build && ctest -N -L "$LABEL" -R "$CTEST_RE" -E "$CTEST_SKIP"
+                            -LE berlin | sed -n 's/^Total Tests:.//p')
+    - echo "$N tests of $SMSPP_MODULE in this share"
+    - if [ "$N" = 0 ]; then exit 0; fi
+    - cmake --build build -j$(nproc)
     - cd build && ctest -j2 --timeout "$CTEST_TIMEOUT" --repeat until-pass:2
-                        --output-on-failure
-                        --no-tests=error "$CTEST_WHICH" "$CTEST_RE"
+                        --output-on-failure -L "$LABEL" -R "$CTEST_RE"
                         -E "$CTEST_SKIP" -LE berlin
+
+integration:core:
+  extends: .integration:test
+  variables: !reference [ nightly:core , variables ]
+
+integration:unitcommitment:
+  extends: .integration:test
+  resource_group: gurobi-b
+  variables: !reference [ nightly:unitcommitment , variables ]
+
+integration:tudps:
+  extends: .integration:test
+  resource_group: gurobi-b
+  variables: !reference [ nightly:tudps , variables ]
+
+integration:validation:
+  extends: .integration:test
+  resource_group: gurobi-b
+  variables: !reference [ nightly:validation , variables ]
+
+integration:mcf:
+  extends: .integration:test
+  resource_group: gurobi-b
+  variables: !reference [ nightly:mcf , variables ]
+
+integration:flows:
+  extends: .integration:test
+  variables: !reference [ nightly:flows , variables ]
+
+integration:quad:
+  extends: .integration:test
+  variables: !reference [ nightly:quad , variables ]
+
+integration:rest:
+  extends: .integration:test
+  variables: !reference [ nightly:rest , variables ]
 
 # The recipes of packaging/, and the port of vcpkg-registry, built from the
 # tarball of the commit before a release names them: one job makes the
@@ -805,7 +872,14 @@ pages:
   artifacts:
     paths:
       - public
-  when: manual
+  # the site is published from develop (or master) only: by itself when a
+  # push changes the User Manual, by hand otherwise
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - manual/**/*
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master"
+      when: manual
 
 release_job:
   stage: release
