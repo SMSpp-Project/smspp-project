@@ -214,12 +214,13 @@ cause):
   so Pandoc resolves them as internal hyperlinks (see §2 and §10.2).
   Leaves Doxygen `https://…` and figure links untouched.
 - `break-code.lua` — makes inline `\texttt` breakable only after the
-  separators of a name (`/ . _ , (` and `::`, zero penalty; a CamelCase
-  boundary at penalty 5000), never within a word, so long
-  paths/URLs/signatures don't overflow the right margin and no name is
-  cut in two; `\emergencystretch` in `preamble.tex` lets a line stretch
-  instead. A table whose code column overflows gets a wider first column
-  in the dashes of its separator row (e.g. the back-ends of 6.10).
+  separators of a name (`/ . _ , (`, `::` and a `-` between two letters or
+  digits, zero penalty; a CamelCase boundary at penalty 5000), never
+  within a word, so long paths/URLs/signatures don't overflow the right
+  margin and no name is cut in two; `\emergencystretch` in `preamble.tex`
+  lets a line stretch instead. A table whose code column overflows gets a
+  wider first column in the dashes of its separator row (e.g. the
+  back-ends of 6.10).
 - `extra.css`, `code-break.js` (MkDocs) — the site set as the PDF, the
   same files in the manuals of abLEMON, ADS and PBeFS (the common copy and
   its rationale are in `scripts/manual-style` of the memory): Latin Modern
