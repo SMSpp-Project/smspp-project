@@ -469,7 +469,7 @@ class can give, respectively, a direction of unboundedness of the primal
 (`get_dual_direction()`).
 
 | Class | Engine (minimum version) | Problem class | Integers | Rays | Farkas |
-|----------------|--------------------|----------------------------|------------|------------|------------|
+|---------------------|------------------|-------------------------------|----------|----------|----------|
 | `CPXMILPSolver` | CPLEX (12.8) | MI-QCQP, within the convexity requirements of CPLEX | yes | yes | yes |
 | `GRBMILPSolver` | Gurobi (10.0) | MI-QCQP | yes | yes | yes |
 | `SCIPMILPSolver` | SCIP (7.0) | MI-QCQP, also with non-convex quadratic rows | yes | yes | yes |

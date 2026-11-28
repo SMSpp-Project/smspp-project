@@ -225,7 +225,7 @@ NETCDF_CXX4 = {
 HOMEPAGE = "https://smspp.gitlab.io/"
 LICENSE = "LGPL-3.0-only"
 SUMMARY = "Framework to model and solve block-structured optimization problems"
-MAINTAINER = "Donato Meoli <donato.meoli.95@gmail.com>"
+MAINTAINER = "Donato Meoli <donato.meoli@outlook.com>"
 
 
 def closure(acrs):

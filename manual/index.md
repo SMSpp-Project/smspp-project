@@ -1,4 +1,4 @@
-# SMS++: a Structured Modeling System<br>for mathematical models
+# SMS++: a Structured Modeling System for mathematical models
 
 A User Manual
 
